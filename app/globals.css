@@ -1,0 +1,112 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ink: #241a17;
+  --cream: #faf4ea;
+  --paper: #fffdf8;
+  --rose: #c2185b;
+  --rose-deep: #9d1248;
+  --rose-soft: #fbedf3;
+  --teal: #1f8fa6;
+  --teal-soft: #e6f3f6;
+  --gold: #c99a3d;
+  --gold-light: #f5e8cc;
+  --muted: #8c7c70;
+  --line: #e8ddcf;
+  --font-serif-display: "Playfair Display", Georgia, serif;
+  --font-bvp: "Be Vietnam Pro", system-ui, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+body {
+  background: var(--cream);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* Subtle grain texture */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Animations */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.animate-fadeup   { animation: fadeUp 0.55s cubic-bezier(.22,.68,0,1.2) both; }
+.animate-fadein   { animation: fadeIn 0.15s ease both; }
+.animate-slidedown { animation: slideDown 0.2s ease both; }
+
+/* Scrollbar */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { scrollbar-width: none; }
+
+/* === Tiptap editor (write mode) === */
+.tiptap h2 { font-family: var(--font-serif-display); font-size: 1.35rem; font-weight: 700; margin: 1.2em 0 0.4em; color: var(--ink); }
+.tiptap h3 { font-family: var(--font-serif-display); font-size: 1.12rem; font-weight: 700; margin: 1em 0 0.35em; color: var(--ink); }
+.tiptap p  { margin: 0 0 0.8em; line-height: 1.78; }
+.tiptap ul { list-style: disc; padding-left: 1.5em; margin-bottom: 0.85em; }
+.tiptap ol { list-style: decimal; padding-left: 1.5em; margin-bottom: 0.85em; }
+.tiptap li { margin-bottom: 0.3em; line-height: 1.7; }
+.tiptap a  { color: var(--rose); text-decoration: underline; }
+.tiptap img { max-width: 100%; border-radius: 12px; margin: 1em 0; }
+.tiptap strong { font-weight: 700; }
+.tiptap em { font-style: italic; }
+.tiptap s  { text-decoration: line-through; }
+.tiptap u  { text-decoration: underline; }
+.tiptap hr { border: none; border-top: 2px solid var(--line); margin: 1.5em 0; }
+.tiptap blockquote {
+  border-left: 3px solid var(--rose);
+  padding: 0.75em 1.1em;
+  margin: 1em 0;
+  background: rgba(194,24,91,0.04);
+  border-radius: 0 10px 10px 0;
+  color: var(--ink);
+}
+.tiptap blockquote p { margin-bottom: 0.3em; }
+.tiptap blockquote p:last-child { margin-bottom: 0; }
+
+/* === Rich text display (read-only) === */
+.rich-content h2 { font-family: var(--font-serif-display); font-size: 1.45rem; font-weight: 700; margin: 1.4em 0 0.5em; color: var(--ink); }
+.rich-content h3 { font-family: var(--font-serif-display); font-size: 1.18rem; font-weight: 700; margin: 1.1em 0 0.4em; color: var(--ink); }
+.rich-content p  { margin-bottom: 1em; line-height: 1.82; }
+.rich-content ul { list-style: disc; padding-left: 1.5em; margin-bottom: 1em; }
+.rich-content ol { list-style: decimal; padding-left: 1.5em; margin-bottom: 1em; }
+.rich-content li { margin-bottom: 0.4em; line-height: 1.75; }
+.rich-content a  { color: var(--rose); text-decoration: underline; }
+.rich-content img { max-width: 100%; border-radius: 14px; margin: 1.2em 0; }
+.rich-content strong { font-weight: 700; }
+.rich-content em { font-style: italic; }
+.rich-content hr { border: none; border-top: 2px solid var(--line); margin: 1.6em 0; }
+.rich-content blockquote {
+  border-left: 3px solid var(--rose);
+  padding: 0.85em 1.2em;
+  margin: 1.2em 0;
+  background: rgba(194,24,91,0.04);
+  border-radius: 0 12px 12px 0;
+  color: var(--ink);
+}
+.rich-content blockquote p { margin-bottom: 0.4em; }
+.rich-content blockquote p:last-child { margin-bottom: 0; }

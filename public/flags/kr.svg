@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 20">
+  <rect width="30" height="20" fill="#fff"/>
+  <!-- Yin-yang circle -->
+  <circle cx="15" cy="10" r="5.5" fill="#cd2e3a"/>
+  <path d="M15,4.5 A5.5,5.5 0 0,0 15,15.5 A2.75,2.75 0 0,1 15,10 A2.75,2.75 0 0,0 15,4.5 Z" fill="#0047a0"/>
+  <circle cx="15" cy="7.25" r="2.75" fill="#cd2e3a"/>
+  <circle cx="15" cy="12.75" r="2.75" fill="#0047a0"/>
+  <!-- Trigrams (simplified bars) -->
+  <g stroke="#000" stroke-width="0.9" stroke-linecap="round">
+    <line x1="3" y1="2.5" x2="7" y2="2.5"/><line x1="3" y1="4" x2="7" y2="4"/><line x1="3" y1="5.5" x2="7" y2="5.5"/>
+    <line x1="23" y1="2.5" x2="27" y2="2.5"/><line x1="23" y1="4" x2="27" y2="4"/><line x1="23.8" y1="5.5" x2="26.2" y2="5.5"/>
+    <line x1="3" y1="14.5" x2="7" y2="14.5"/><line x1="3.8" y1="16" x2="6.2" y2="16"/><line x1="3" y1="17.5" x2="7" y2="17.5"/>
+    <line x1="23" y1="14.5" x2="27" y2="14.5"/><line x1="23" y1="16" x2="27" y2="16"/><line x1="23" y1="17.5" x2="27" y2="17.5"/>
+  </g>
+</svg>

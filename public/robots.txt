@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /ho-so/
+Disallow: /bai-viet-cua-toi/
+Disallow: /dia-diem-da-luu/
+Disallow: /api/
+Disallow: /auth/
+
+Sitemap: https://chococfko.com/sitemap.xml

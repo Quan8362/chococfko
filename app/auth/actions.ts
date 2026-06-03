@@ -52,6 +52,50 @@ export async function signOut() {
   redirect('/')
 }
 
+// ── Slug helper ────────────────────────────────────────────
+function generateSlug(name: string): string {
+  const base = name
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/[đĐ]/gi, 'd')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 50)
+  const suffix = Math.random().toString(36).slice(2, 7)
+  return `${base || 'dia-diem'}-${suffix}`
+}
+
+export async function submitPlace(formData: FormData) {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/dang-nhap?error=' + encodeURIComponent('Bạn cần đăng nhập để đăng địa điểm'))
+
+  const name = (formData.get('name') as string).trim()
+  const category = (formData.get('category') as string) || 'food'
+  const slug = generateSlug(name)
+
+  const { error } = await supabase.from('places').insert({
+    slug,
+    name,
+    area: (formData.get('area') as string).trim(),
+    category,
+    category_label: CATEGORY_LABEL[category] ?? category,
+    description: (formData.get('desc') as string)?.trim() || null,
+    fee: (formData.get('fee') as string) || null,
+    map_url: (formData.get('map_url') as string)?.trim() || null,
+    photo_url: (formData.get('photo_url') as string)?.trim() || null,
+    img: (formData.get('img') as string) || null,
+    body: (formData.get('body') as string)?.trim() || null,
+    sort_order: 999999,
+    status: 'pending',
+    user_id: user.id,
+  })
+
+  if (error) redirect('/dia-diem/dang?error=' + encodeURIComponent(error.message))
+  redirect('/dia-diem/dang?success=1')
+}
+
 export async function submitPost(formData: FormData) {
   const supabase = createClient()
   const {
@@ -64,9 +108,17 @@ export async function submitPost(formData: FormData) {
   const post_type = (formData.get('post_type') as string) || 'community'
   const body = (formData.get('body') as string).trim()
   const isHtml = body.trimStart().startsWith('<')
-  const excerpt = isHtml
+  const bodyExcerpt = isHtml
     ? body.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 140)
     : body.slice(0, 140)
+
+  // For place posts, use the explicit short description as excerpt if provided
+  const descField = (formData.get('desc') as string | null)?.trim() || ''
+  const excerpt = post_type === 'place' && descField ? descField.slice(0, 140) : bodyExcerpt
+
+  // Place-specific extra fields
+  const map_url = post_type === 'place' ? ((formData.get('map_url') as string | null)?.trim() || null) : null
+  const fee = post_type === 'place' ? ((formData.get('fee') as string | null) || null) : null
 
   const { error } = await supabase.from('posts').insert({
     user_id: user.id,
@@ -80,9 +132,11 @@ export async function submitPost(formData: FormData) {
     img: (formData.get('img') as string) || null,
     post_type,
     status: 'pending',
+    map_url,
+    fee,
   })
 
-  const base = post_type === 'place' ? '/cong-dong/viet-bai?type=place' : '/cong-dong/viet-bai'
-  if (error) redirect(`${base}&error=${encodeURIComponent(error.message)}`)
-  redirect(`${base}&success=1`)
+  const base = post_type === 'place' ? '/dia-diem/dang' : '/cong-dong/viet-bai'
+  if (error) redirect(`${base}?error=${encodeURIComponent(error.message)}`)
+  redirect(`${base}?success=1`)
 }

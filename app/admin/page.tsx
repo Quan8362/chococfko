@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { checkIsAdmin, createAdminClient } from '@/lib/supabase/admin'
 import { approvePost, rejectPost, deletePost } from './actions'
+import { approvePlace, rejectPlace } from './dia-diem/actions'
 
 export const metadata = { title: 'Admin · Chợ Cóc FKO' }
 export const dynamic = 'force-dynamic'
@@ -32,6 +33,16 @@ type DbPost = {
   author_name: string | null
 }
 
+type DbPendingPlace = {
+  slug: string
+  name: string
+  area: string
+  category: string
+  category_label: string
+  img: string | null
+  status: string
+}
+
 type Tab = 'pending' | 'approved' | 'rejected' | 'all'
 
 export default async function AdminPage({
@@ -47,13 +58,24 @@ export default async function AdminPage({
   ])
 
   const admin = createAdminClient()
-  const { data, error } = await admin
+
+  // Fetch community posts
+  const { data: postsData, error: postsError } = await admin
     .from('posts_with_author')
     .select('id, title, category, category_label, area, rating, status, created_at, author_name')
     .order('created_at', { ascending: false })
 
-  const all: DbPost[] = (data as DbPost[]) ?? []
-  if (error) console.error('[admin] fetch error:', error.message)
+  const all: DbPost[] = (postsData as DbPost[]) ?? []
+  if (postsError) console.error('[admin] posts fetch error:', postsError.message)
+
+  // Fetch pending places separately
+  const { data: pendingPlacesData } = await admin
+    .from('places')
+    .select('slug, name, area, category, category_label, img, status')
+    .eq('status', 'pending')
+    .order('sort_order', { ascending: false })
+
+  const pendingPlaces: DbPendingPlace[] = (pendingPlacesData as DbPendingPlace[]) ?? []
 
   const byStatus = {
     pending:  all.filter((p) => p.status === 'pending'),
@@ -94,6 +116,8 @@ export default async function AdminPage({
     all:      { title: admin_t('empty_all_title'),      sub: admin_t('empty_all_sub') },
   }
 
+  const totalPending = byStatus.pending.length + pendingPlaces.length
+
   return (
     <div className="max-w-[1100px] mx-auto px-6 py-10">
 
@@ -117,18 +141,15 @@ export default async function AdminPage({
             <p className="text-[14px] text-muted">{admin_t('dashboard_sub')}</p>
           </div>
 
-          {/* Pending alert badge */}
-          {byStatus.pending.length > 0 && (
-            <Link
-              href="/admin?tab=pending"
-              className="flex-none inline-flex items-center gap-2.5 bg-amber-50 border border-amber-200 rounded-xl px-4 py-2.5 hover:bg-amber-100 transition-colors"
-            >
-              <span className="text-[22px] font-bold text-amber-600 leading-none">{byStatus.pending.length}</span>
+          {/* Total pending alert badge */}
+          {totalPending > 0 && (
+            <div className="flex-none inline-flex items-center gap-2.5 bg-amber-50 border border-amber-200 rounded-xl px-4 py-2.5">
+              <span className="text-[22px] font-bold text-amber-600 leading-none">{totalPending}</span>
               <div>
                 <div className="text-[12px] font-semibold text-amber-700 leading-tight">{admin_t('posts_pending')}</div>
                 <div className="text-[11px] text-amber-500">{admin_t('click_view')}</div>
               </div>
-            </Link>
+            </div>
           )}
         </div>
       </div>
@@ -159,6 +180,11 @@ export default async function AdminPage({
           href="/admin/dia-diem"
           className="relative bg-paper border border-line rounded-2xl p-5 overflow-hidden hover:border-teal/35 hover:bg-teal-soft/40 hover:-translate-y-0.5 hover:shadow-card transition-all group"
         >
+          {pendingPlaces.length > 0 && (
+            <span className="absolute top-3 right-3 text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-400 text-white">
+              ⏳ {pendingPlaces.length}
+            </span>
+          )}
           <div className="absolute -top-8 -right-8 w-28 h-28 bg-teal/5 rounded-full pointer-events-none" />
           <div className="absolute -bottom-6 -right-4 w-16 h-16 bg-teal/3 rounded-full pointer-events-none" />
           <div className="relative">
@@ -179,50 +205,105 @@ export default async function AdminPage({
         </Link>
       </div>
 
-      {/* ── STATS ────────────────────────────────────────────── */}
+      {/* ── PENDING PLACES SECTION ───────────────────────────── */}
+      {pendingPlaces.length > 0 && (
+        <div className="mb-10">
+          <div className="flex items-center gap-3 mb-4">
+            <h2 className="font-serif font-bold text-[20px] tracking-[-0.2px] text-ink">
+              📍 Địa điểm chờ duyệt
+            </h2>
+            <span className="text-[12px] font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-700 border border-amber-200">
+              {pendingPlaces.length} chờ duyệt
+            </span>
+          </div>
+
+          <div className="space-y-2.5">
+            {pendingPlaces.map((place) => (
+              <div
+                key={place.slug}
+                className="bg-amber-50/40 border border-amber-200/70 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-4 hover:border-amber-300 transition-all"
+              >
+                {/* Thumbnail */}
+                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[#f3e1d2] to-[#e9cdb6] flex-none overflow-hidden shadow-sm">
+                  {place.img && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={place.img} alt="" className="w-full h-full object-cover" />
+                  )}
+                </div>
+
+                {/* Info */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap mb-1">
+                    <span className="text-[11px] font-semibold px-2 py-[4px] rounded-full bg-amber-100 text-amber-700 border border-amber-200">
+                      ⏳ Chờ duyệt
+                    </span>
+                    <span className="text-[12px] text-muted">
+                      {CAT_EMOJI[place.category]} {tCat(place.category as Parameters<typeof tCat>[0])}
+                    </span>
+                    <span className="text-[12px] text-muted">📍 {place.area}</span>
+                  </div>
+                  <h3 className="font-serif font-bold text-[16px] leading-snug text-ink truncate">
+                    {place.name}
+                  </h3>
+                </div>
+
+                {/* Actions */}
+                <div className="flex gap-2 flex-wrap sm:flex-nowrap flex-none">
+                  <Link
+                    href={`/admin/dia-diem/${place.slug}`}
+                    className="text-[12px] font-semibold px-3 py-[7px] rounded-lg bg-teal-soft text-teal border border-teal/25 hover:bg-teal hover:text-white hover:border-teal transition-all whitespace-nowrap"
+                  >
+                    ✏️ Sửa
+                  </Link>
+
+                  <form action={approvePlace}>
+                    <input type="hidden" name="slug" value={place.slug} />
+                    <input type="hidden" name="from" value="dashboard" />
+                    <button
+                      type="submit"
+                      className="text-[12px] font-semibold px-3 py-[7px] rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-500 hover:text-white hover:border-transparent transition-all whitespace-nowrap"
+                    >
+                      ✅ Duyệt
+                    </button>
+                  </form>
+
+                  <form action={rejectPlace}>
+                    <input type="hidden" name="slug" value={place.slug} />
+                    <input type="hidden" name="from" value="dashboard" />
+                    <button
+                      type="submit"
+                      className="text-[12px] font-semibold px-3 py-[7px] rounded-lg bg-red-50 text-red-600 border border-red-200 hover:bg-red-500 hover:text-white hover:border-transparent transition-all whitespace-nowrap"
+                    >
+                      ❌ Từ chối
+                    </button>
+                  </form>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── STATS (community posts only) ─────────────────────── */}
+      <div className="flex items-center gap-2 mb-4">
+        <h2 className="font-serif font-bold text-[20px] tracking-[-0.2px] text-ink">
+          📝 Bài viết cộng đồng
+        </h2>
+      </div>
+
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
         {[
-          {
-            key: 'all',
-            label: admin_t('total'),
-            count: all.length,
-            borderColor: 'border-l-gold',
-            numColor: 'text-ink',
-            cardBg: '',
-          },
-          {
-            key: 'pending',
-            label: admin_t('pending'),
-            count: byStatus.pending.length,
-            borderColor: 'border-l-amber-400',
-            numColor: 'text-amber-600',
-            cardBg: byStatus.pending.length > 0 ? 'bg-amber-50/50' : '',
-          },
-          {
-            key: 'approved',
-            label: admin_t('approved'),
-            count: byStatus.approved.length,
-            borderColor: 'border-l-emerald-400',
-            numColor: 'text-emerald-600',
-            cardBg: '',
-          },
-          {
-            key: 'rejected',
-            label: admin_t('rejected'),
-            count: byStatus.rejected.length,
-            borderColor: 'border-l-red-400',
-            numColor: 'text-red-500',
-            cardBg: '',
-          },
+          { key: 'all',      label: admin_t('total'),    count: all.length,                borderColor: 'border-l-gold',         numColor: 'text-ink',         cardBg: '' },
+          { key: 'pending',  label: admin_t('pending'),  count: byStatus.pending.length,   borderColor: 'border-l-amber-400',    numColor: 'text-amber-600',   cardBg: byStatus.pending.length > 0 ? 'bg-amber-50/50' : '' },
+          { key: 'approved', label: admin_t('approved'), count: byStatus.approved.length,  borderColor: 'border-l-emerald-400',  numColor: 'text-emerald-600', cardBg: '' },
+          { key: 'rejected', label: admin_t('rejected'), count: byStatus.rejected.length,  borderColor: 'border-l-red-400',      numColor: 'text-red-500',     cardBg: '' },
         ].map((s) => (
           <Link
             key={s.key}
             href={`/admin?tab=${s.key}`}
             className={`${s.cardBg || 'bg-paper'} border-l-4 ${s.borderColor} shadow-card rounded-xl p-4 hover:shadow-card-hover transition-all ${tab === s.key ? 'ring-1 ring-rose/30 ring-offset-1' : ''}`}
           >
-            <div className={`text-[32px] font-bold leading-none mb-1.5 ${s.numColor}`}>
-              {s.count}
-            </div>
+            <div className={`text-[32px] font-bold leading-none mb-1.5 ${s.numColor}`}>{s.count}</div>
             <div className="text-[12px] text-muted font-medium">{s.label}</div>
           </Link>
         ))}
@@ -251,7 +332,7 @@ export default async function AdminPage({
         ))}
       </div>
 
-      {/* ── POST LIST ────────────────────────────────────────── */}
+      {/* ── COMMUNITY POST LIST ──────────────────────────────── */}
       {shown.length === 0 ? (
         <div className="bg-paper border border-line rounded-2xl py-16 px-8 text-center">
           <div className="w-14 h-14 rounded-2xl bg-cream border border-line grid place-items-center text-[22px] mx-auto mb-4 shadow-sm">

@@ -24,6 +24,7 @@ type Row = {
   category_label: string
   img: string | null
   body: string | null
+  status: string | null
 }
 
 export default async function AdminDiaDiem({
@@ -38,11 +39,12 @@ export default async function AdminDiaDiem({
   const admin = createAdminClient()
   const { data, error } = await admin
     .from('places')
-    .select('slug, name, area, category, category_label, img, body')
+    .select('slug, name, area, category, category_label, img, body, status')
     .order('sort_order', { ascending: true })
 
   const dbRows: Row[] = (data as Row[]) ?? []
   const isSeeded = !error && dbRows.length > 0
+  const pendingCount = dbRows.filter((r) => r.status === 'pending').length
 
   let shown = dbRows
   if (searchParams.cat) shown = shown.filter((p) => p.category === searchParams.cat)
@@ -73,17 +75,23 @@ export default async function AdminDiaDiem({
             <h1 className="font-serif font-bold text-[30px] tracking-[-0.3px] leading-tight text-ink mb-1">
               Quản lý địa điểm
             </h1>
-            <p className="text-[14px] text-muted">
+            <p className="text-[14px] text-muted flex items-center gap-2">
               {isSeeded ? `${dbRows.length} địa điểm trong database` : 'Chưa có dữ liệu'}
+              {pendingCount > 0 && (
+                <span className="inline-flex items-center gap-1 text-[12px] font-semibold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-700 border border-amber-200">
+                  ⏳ {pendingCount} chờ duyệt
+                </span>
+              )}
             </p>
           </div>
           {isSeeded && (
             <form action={seedPlaces}>
               <button
                 type="submit"
-                className="inline-flex items-center gap-2 text-[13px] font-semibold px-4 py-2 rounded-full border border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-500 hover:text-white hover:border-amber-500 transition-all"
+                title="Chỉ thêm các địa điểm còn thiếu trong DB. Địa điểm đã có sẽ KHÔNG bị ghi đè."
+                className="inline-flex items-center gap-2 text-[13px] font-semibold px-4 py-2 rounded-full border border-line bg-paper text-muted hover:bg-line hover:text-ink hover:border-ink/30 transition-all"
               >
-                🔄 Đồng bộ lại từ static data
+                ➕ Thêm địa điểm còn thiếu
               </button>
             </form>
           )}
@@ -179,7 +187,14 @@ export default async function AdminDiaDiem({
 
                 {/* Info */}
                 <div className="flex-1 min-w-0">
-                  <div className="font-semibold text-[14.5px] text-ink truncate leading-snug">{p.name}</div>
+                  <div className="font-semibold text-[14.5px] text-ink truncate leading-snug flex items-center gap-2">
+                    {p.name}
+                    {p.status === 'pending' && (
+                      <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 border border-amber-200 whitespace-nowrap flex-none">
+                        ⏳ Chờ duyệt
+                      </span>
+                    )}
+                  </div>
                   <div className="text-[12px] text-muted flex items-center flex-wrap gap-x-2 gap-y-0.5 mt-0.5">
                     <span>{CAT_EMOJI[p.category]} {tCat(p.category as Parameters<typeof tCat>[0])}</span>
                     <span className="opacity-40">·</span>

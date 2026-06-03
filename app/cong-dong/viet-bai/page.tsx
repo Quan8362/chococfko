@@ -8,7 +8,6 @@ import ImageUpload from '@/components/ImageUpload'
 
 const RichTextEditor = dynamic(() => import('@/components/RichTextEditor'), { ssr: false })
 
-// Clears the localStorage draft after successful submit (client-only)
 function DraftClearer() {
   return (
     <script
@@ -19,7 +18,7 @@ function DraftClearer() {
   )
 }
 
-export const metadata = { title: 'Viết bài · Chợ Cóc FKO' }
+export const metadata = { title: 'Viết bài chia sẻ · Chợ Cóc FKO' }
 
 async function getUser() {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return null
@@ -40,8 +39,13 @@ const TIP_KEYS = [
 export default async function VietBai({
   searchParams,
 }: {
-  searchParams: { error?: string; success?: string; category?: string; type?: string }
+  searchParams: { error?: string; success?: string; type?: string }
 }) {
+  // Redirect place-type requests to the dedicated place form
+  if (searchParams.type === 'place') {
+    redirect('/dia-diem/dang')
+  }
+
   const [user, t, tf] = await Promise.all([
     getUser(),
     getTranslations('post_form'),
@@ -53,8 +57,6 @@ export default async function VietBai({
     icon: TIP_ICONS[i],
     text: t(key as Parameters<typeof t>[0]),
   }))
-
-  const isPlace = searchParams.type === 'place'
 
   if (!user) {
     redirect('/dang-nhap?error=' + encodeURIComponent(t('login_required')))
@@ -69,21 +71,19 @@ export default async function VietBai({
           🎉
         </div>
         <h1 className="font-serif font-bold text-[26px] mb-2.5 text-ink">{t('success_heading')}</h1>
-        <p className="text-[15px] text-muted mb-8 leading-[1.7]">
-          {isPlace ? t('success_sub_place') : t('success_sub')}
-        </p>
+        <p className="text-[15px] text-muted mb-8 leading-[1.7]">{t('success_sub')}</p>
         <div className="flex gap-3 justify-center flex-wrap">
           <Link
-            href={isPlace ? '/' : '/cong-dong'}
+            href="/cong-dong"
             className="inline-flex items-center font-semibold text-[14px] px-6 py-3 rounded-full bg-rose text-white shadow-[0_4px_14px_-4px_rgba(194,24,91,0.45)] hover:bg-rose-deep hover:-translate-y-px transition-all"
           >
-            {isPlace ? t('view_explore') : t('view_community')}
+            {t('view_community')}
           </Link>
           <Link
-            href={isPlace ? '/cong-dong/viet-bai?type=place' : '/cong-dong/viet-bai'}
+            href="/cong-dong/viet-bai"
             className="inline-flex items-center font-semibold text-[14px] px-6 py-3 rounded-full border border-line text-[#5c4d44] hover:bg-line transition-all"
           >
-            {isPlace ? t('write_another_place') : t('write_another')}
+            {t('write_another')}
           </Link>
         </div>
       </div>
@@ -98,13 +98,13 @@ export default async function VietBai({
 
       {/* ── Breadcrumb ──────────────────────────────────────── */}
       <Link
-        href={isPlace ? '/' : '/cong-dong'}
+        href="/cong-dong"
         className="inline-flex items-center gap-1 text-[13px] text-muted hover:text-rose transition-colors mb-6"
       >
         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
         </svg>
-        {isPlace ? t('back_place') : t('back')}
+        {t('back')}
       </Link>
 
       {/* ── 2-col layout ────────────────────────────────────── */}
@@ -116,12 +116,11 @@ export default async function VietBai({
           {/* Card header */}
           <div className="px-7 pt-7 pb-5 border-b border-line">
             <h1 className="font-serif font-bold text-[clamp(24px,3.5vw,32px)] tracking-[-0.3px] text-ink leading-tight mb-1.5">
-              {isPlace ? t('heading_place') : t('heading')}
+              {t('heading')}
             </h1>
             <p className="text-[15px] text-muted leading-relaxed mb-4">
-              {isPlace ? t('sub_place') : t('sub')}
+              {t('sub')}
             </p>
-            {/* Writing as pill */}
             <div className="inline-flex items-center gap-2.5 bg-cream border border-line/80 rounded-full px-3.5 py-2">
               <span className="w-6 h-6 rounded-full bg-rose text-white text-[11px] font-bold grid place-items-center flex-none">
                 {displayName[0].toUpperCase()}
@@ -145,7 +144,8 @@ export default async function VietBai({
             )}
 
             <form action={submitPost} className="space-y-5">
-              <input type="hidden" name="post_type" value={isPlace ? 'place' : 'community'} />
+              <input type="hidden" name="post_type" value="community" />
+
               {/* Row 1: Title + Area */}
               <div className="grid sm:grid-cols-2 gap-4">
                 <Field label={t('title_label')} placeholder={t('title_hint')} name="title" />
@@ -161,7 +161,7 @@ export default async function VietBai({
                   <div className="relative">
                     <select
                       name="category"
-                      defaultValue={searchParams.category || 'food'}
+                      defaultValue="food"
                       className="w-full appearance-none text-[14px] px-3.5 py-2.5 pr-9 border border-line rounded-xl bg-white focus:outline-none focus:border-rose focus:ring-2 focus:ring-rose/15 transition-all text-ink"
                     >
                       <option value="landmark">{tf('landmark')}</option>
@@ -240,7 +240,7 @@ export default async function VietBai({
           </div>
         </div>
 
-        {/* ── Tips sidebar (desktop only) ────────────────────── */}
+        {/* ── Tips sidebar ────────────────────────────────────── */}
         <aside className="hidden lg:block">
           <div className="bg-paper border border-line rounded-2xl p-5 sticky top-[88px]">
             <h3 className="font-semibold text-[14px] text-ink mb-4 flex items-center gap-2">
@@ -255,7 +255,6 @@ export default async function VietBai({
                 </li>
               ))}
             </ul>
-
             <div className="mt-5 pt-4 border-t border-line">
               <p className="text-[11.5px] text-muted/70 leading-relaxed">
                 {t('review_note')}

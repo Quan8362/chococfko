@@ -27,11 +27,14 @@ export async function seedPlaces() {
     img: p.img,
     img_fallback: p.imgFallback,
     sort_order: i,
+    status: 'approved',
   }))
 
+  // ignoreDuplicates: true → chỉ INSERT địa điểm chưa có trong DB (theo slug).
+  // Địa điểm đã tồn tại sẽ KHÔNG bị ghi đè — giữ nguyên mọi chỉnh sửa của admin.
   const { error } = await admin
     .from('places')
-    .upsert(rows, { onConflict: 'slug' })
+    .upsert(rows, { onConflict: 'slug', ignoreDuplicates: true })
 
   if (error) throw new Error(error.message)
 
@@ -44,8 +47,9 @@ export async function updatePlace(formData: FormData) {
   await guardAdmin()
   const admin = createAdminClient()
   const slug = formData.get('slug') as string
+  const statusValue = (formData.get('status') as string) || undefined
 
-  const { error } = await admin.from('places').update({
+  const updatePayload: Record<string, unknown> = {
     name: (formData.get('name') as string).trim(),
     area: (formData.get('area') as string).trim(),
     description: (formData.get('desc') as string).trim(),
@@ -54,7 +58,10 @@ export async function updatePlace(formData: FormData) {
     map_url: (formData.get('map_url') as string).trim(),
     photo_url: (formData.get('photo_url') as string).trim(),
     img: (formData.get('img') as string) || null,
-  }).eq('slug', slug)
+  }
+  if (statusValue) updatePayload.status = statusValue
+
+  const { error } = await admin.from('places').update(updatePayload).eq('slug', slug)
 
   if (error) throw new Error(error.message)
 
@@ -62,6 +69,28 @@ export async function updatePlace(formData: FormData) {
   revalidatePath(`/dia-diem/${slug}`)
   revalidatePath('/')
   redirect('/admin/dia-diem')
+}
+
+export async function approvePlace(formData: FormData) {
+  await guardAdmin()
+  const slug = formData.get('slug') as string
+  const admin = createAdminClient()
+  await admin.from('places').update({ status: 'approved' }).eq('slug', slug)
+  revalidatePath('/admin/dia-diem')
+  revalidatePath('/admin')
+  revalidatePath('/')
+  redirect(formData.get('from') === 'dashboard' ? '/admin' : '/admin/dia-diem')
+}
+
+export async function rejectPlace(formData: FormData) {
+  await guardAdmin()
+  const slug = formData.get('slug') as string
+  const admin = createAdminClient()
+  await admin.from('places').update({ status: 'rejected' }).eq('slug', slug)
+  revalidatePath('/admin/dia-diem')
+  revalidatePath('/admin')
+  revalidatePath('/')
+  redirect(formData.get('from') === 'dashboard' ? '/admin' : '/admin/dia-diem')
 }
 
 export async function deletePlace(slug: string) {

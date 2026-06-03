@@ -25,7 +25,7 @@ export default function DeletePlaceButton({ slug }: { slug: string }) {
       disabled={isPending}
       className="text-[12px] font-semibold px-3.5 py-1.5 rounded-lg bg-red-50 text-red-600 border border-red-200 hover:bg-red-500 hover:text-white hover:border-red-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
     >
-      {isPending ? '…' : `🗑 ${t('action_delete')}`}
+      {isPending ? '…' : t('action_delete')}
     </button>
   )
 }

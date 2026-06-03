@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import loadDynamic from 'next/dynamic'
 import { getTranslations } from 'next-intl/server'
 import { checkIsAdmin, createAdminClient } from '@/lib/supabase/admin'
-import { updatePlace } from '../actions'
+import { updatePlace, approvePlace } from '../actions'
 import ImageUpload from '@/components/ImageUpload'
 
 const RichTextEditor = loadDynamic(() => import('@/components/RichTextEditor'), { ssr: false })
@@ -15,6 +15,7 @@ type DbPlace = {
   category: string; category_label: string; fee: string | null;
   map_url: string | null; photo_url: string | null;
   img: string | null; img_fallback: string | null;
+  status: string | null; user_id: string | null;
 }
 
 export default async function AdminEditPlace({ params }: { params: { slug: string } }) {
@@ -127,6 +128,31 @@ export default async function AdminEditPlace({ params }: { params: { slug: strin
           </p>
         </div>
 
+        {/* Status field — only for user-submitted places (status is not null) */}
+        {p.status !== null && (
+          <div>
+            <label className="block text-[13px] font-semibold mb-1.5 text-[#5c4d44]">
+              Trạng thái
+            </label>
+            <div className="relative">
+              <select
+                name="status"
+                defaultValue={p.status ?? 'pending'}
+                className="w-full text-[14px] px-3.5 py-3 border-[1.5px] border-line rounded-xl bg-white focus:outline-none focus:border-rose"
+              >
+                <option value="pending">⏳ Chờ duyệt (pending)</option>
+                <option value="approved">✅ Đã duyệt (approved)</option>
+              </select>
+              <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+            <p className="text-[11.5px] text-muted mt-1">
+              Đặt thành <b>Đã duyệt</b> để địa điểm hiển thị công khai trên trang Khám phá.
+            </p>
+          </div>
+        )}
+
         {/* Buttons */}
         <div className="flex gap-3 pt-2">
           <button
@@ -143,6 +169,27 @@ export default async function AdminEditPlace({ params }: { params: { slug: strin
           </Link>
         </div>
       </form>
+
+      {/* Quick approve form (only for pending places) */}
+      {p.status === 'pending' && (
+        <div className="mt-5 bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center justify-between gap-4">
+          <div>
+            <p className="text-[13.5px] font-semibold text-amber-800">⏳ Địa điểm đang chờ duyệt</p>
+            <p className="text-[12px] text-amber-700 mt-0.5">
+              Sau khi duyệt, địa điểm sẽ hiển thị trong trang Khám phá.
+            </p>
+          </div>
+          <form action={approvePlace}>
+            <input type="hidden" name="slug" value={params.slug} />
+            <button
+              type="submit"
+              className="whitespace-nowrap font-semibold text-[13px] px-5 py-2.5 rounded-full bg-emerald-500 text-white hover:bg-emerald-600 transition-all"
+            >
+              ✅ Duyệt ngay
+            </button>
+          </form>
+        </div>
+      )}
     </div>
   )
 }

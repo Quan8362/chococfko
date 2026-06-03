@@ -15,6 +15,9 @@ export interface Post {
   img: string;
   imgFallback: string;
   big?: boolean;
+  mapUrl?: string;
+  fee?: string;
+  postType?: string;
 }
 
 function lf(tags: string, n: number) {
@@ -171,6 +174,8 @@ interface DbPost {
   created_at: string;
   author_name?: string | null;
   author_avatar?: string | null;
+  map_url?: string | null;
+  fee?: string | null;
 }
 
 const AUTHOR_COLORS = [
@@ -212,6 +217,9 @@ function mapDbPost(row: DbPost, index: number, locale = 'vi'): Post {
     img: row.img || `https://loremflickr.com/1000/750/${row.category},japan?lock=${seed}`,
     imgFallback: row.img_fallback || `https://picsum.photos/seed/${seed}/1000/750`,
     big: index === 0,
+    mapUrl: row.map_url || undefined,
+    fee: row.fee || undefined,
+    postType: row.post_type || undefined,
   };
 }
 

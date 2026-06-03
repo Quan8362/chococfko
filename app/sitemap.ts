@@ -10,15 +10,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // ── Static public routes ─────────────────────────────────────────────────
   const staticRoutes: MetadataRoute.Sitemap = [
-    { url: BASE_URL,                              priority: 1.0,  changeFrequency: 'daily' },
-    { url: `${BASE_URL}/cong-dong`,               priority: 0.9,  changeFrequency: 'daily' },
-    { url: `${BASE_URL}/ban-do`,                  priority: 0.85, changeFrequency: 'weekly' },
-    { url: `${BASE_URL}/gioi-thieu`,              priority: 0.7,  changeFrequency: 'monthly' },
-    { url: `${BASE_URL}/huong-dan-viet-bai`,      priority: 0.65, changeFrequency: 'monthly' },
-    { url: `${BASE_URL}/gop-y`,                   priority: 0.5,  changeFrequency: 'yearly' },
-    { url: `${BASE_URL}/lien-he`,                 priority: 0.5,  changeFrequency: 'yearly' },
-    { url: `${BASE_URL}/privacy-policy`,          priority: 0.4,  changeFrequency: 'yearly' },
-    { url: `${BASE_URL}/delete-data`,             priority: 0.4,  changeFrequency: 'yearly' },
+    { url: BASE_URL,                              priority: 1.0,  changeFrequency: 'daily'   as const },
+    { url: `${BASE_URL}/cong-dong`,               priority: 0.9,  changeFrequency: 'daily'   as const },
+    { url: `${BASE_URL}/ban-do`,                  priority: 0.85, changeFrequency: 'weekly'  as const },
+    { url: `${BASE_URL}/gioi-thieu`,              priority: 0.7,  changeFrequency: 'monthly' as const },
+    { url: `${BASE_URL}/huong-dan-viet-bai`,      priority: 0.65, changeFrequency: 'monthly' as const },
+    { url: `${BASE_URL}/gop-y`,                   priority: 0.5,  changeFrequency: 'yearly'  as const },
+    { url: `${BASE_URL}/lien-he`,                 priority: 0.5,  changeFrequency: 'yearly'  as const },
+    { url: `${BASE_URL}/privacy-policy`,          priority: 0.4,  changeFrequency: 'yearly'  as const },
+    { url: `${BASE_URL}/delete-data`,             priority: 0.4,  changeFrequency: 'yearly'  as const },
   ].map(r => ({ ...r, lastModified: now }))
 
   // ── Dynamic: place detail pages ──────────────────────────────────────────

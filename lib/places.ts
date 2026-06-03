@@ -1045,6 +1045,7 @@ interface DbPlace {
   body: string | null; category: string; category_label: string;
   fee: string | null; map_url: string | null; photo_url: string | null;
   img: string | null; img_fallback: string | null; sort_order: number;
+  status?: string | null; user_id?: string | null;
 }
 
 function mapDbPlace(row: DbPlace): Place {
@@ -1074,7 +1075,10 @@ export async function getAllPlacesFromDb(): Promise<Place[] | null> {
       .select('*')
       .order('sort_order', { ascending: true });
     if (error || !data?.length) return null;
-    return (data as DbPlace[]).map(mapDbPlace);
+    // Filter in JS so it works whether or not the status column exists yet:
+    // show pre-existing (status undefined/null) and approved; hide pending.
+    const rows = (data as DbPlace[]).filter((r) => r.status !== 'pending');
+    return rows.map(mapDbPlace);
   } catch { return null; }
 }
 

@@ -42,7 +42,7 @@ export default async function CongDong() {
             {/* CTAs */}
             <div className="flex gap-3 flex-wrap">
               <Link
-                href="/cong-dong/viet-bai?type=community"
+                href="/cong-dong/viet-bai"
                 className="inline-flex items-center gap-2 font-semibold text-[14px] px-6 py-[11px] rounded-full bg-rose text-white shadow-[0_4px_14px_-4px_rgba(194,24,91,0.45)] hover:bg-rose-deep hover:-translate-y-px transition-all"
               >
                 {t('cta_write')}
@@ -75,7 +75,7 @@ export default async function CongDong() {
             </div>
             {dbPosts && dbPosts.length > 0 && (
               <Link
-                href="/cong-dong/viet-bai?type=community"
+                href="/cong-dong/viet-bai"
                 className="hidden sm:inline-flex items-center gap-1.5 text-[13px] font-semibold text-rose hover:text-rose-deep transition-colors"
               >
                 {t('cta_write')}

@@ -11,11 +11,11 @@ function CreateBtn() {
     <button
       type="submit"
       disabled={pending}
-      className="w-full inline-flex items-center justify-center gap-2 font-semibold text-[15px] px-6 py-3.5 rounded-2xl bg-rose text-white hover:bg-rose-deep transition-all disabled:opacity-60 shadow-[0_4px_18px_-4px_rgba(194,24,91,0.45)]"
+      className="w-full inline-flex items-center justify-center gap-2 font-semibold text-[15px] px-6 h-[52px] rounded-2xl bg-rose text-white hover:bg-rose-deep transition-colors whitespace-nowrap disabled:opacity-70 disabled:cursor-not-allowed shadow-[0_4px_18px_-4px_rgba(194,24,91,0.45)]"
     >
       {pending ? (
         <>
-          <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+          <svg className="w-4 h-4 flex-none animate-spin" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
           </svg>

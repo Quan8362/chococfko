@@ -21,6 +21,32 @@ export default async function GamesPage() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {/* Destination Wheel */}
+        <Link
+          href="/games/destination-wheel"
+          className="group bg-paper border border-line rounded-2xl p-5 hover:border-rose/30 hover:shadow-[0_4px_24px_-6px_rgba(194,24,91,0.15)] transition-all hover:-translate-y-0.5"
+        >
+          <div className="flex items-start justify-between mb-4">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-rose/15 to-gold/10 flex items-center justify-center text-[24px]">
+              🎡
+            </div>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal text-white">
+              {t('destination_wheel.tag')}
+            </span>
+          </div>
+          <h2 className="font-serif font-bold text-[17px] text-ink mb-1.5 group-hover:text-rose transition-colors">
+            {t('destination_wheel.title')}
+          </h2>
+          <p className="text-[13px] text-muted leading-relaxed mb-3">{t('destination_wheel.short_desc')}</p>
+          <div className="flex items-center gap-1.5 text-[12px] text-muted/70">
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            {t('destination_wheel.solo')}
+          </div>
+        </Link>
+
+        {/* Caro */}
         <Link
           href="/games/caro"
           className="group bg-paper border border-line rounded-2xl p-5 hover:border-rose/30 hover:shadow-[0_4px_24px_-6px_rgba(194,24,91,0.15)] transition-all hover:-translate-y-0.5"

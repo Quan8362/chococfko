@@ -78,6 +78,11 @@ export default async function Footer() {
                   {t('guide')}
                 </Link>
               </li>
+              <li>
+                <Link href="/games/destination-wheel" className={LINK_CLS}>
+                  🎡 {t('destination_wheel')}
+                </Link>
+              </li>
             </ul>
           </div>
 

@@ -21,7 +21,7 @@ const QUICK = [
 // Emojis that get special large+bounce treatment
 const IS_BIG_EMOJI = new Set(QUICK)
 function isSingleBigEmoji(msg: string) {
-  return IS_BIG_EMOJI.has(msg.trim()) && [...msg.trim()].length === 1
+  return IS_BIG_EMOJI.has(msg.trim()) && Array.from(msg.trim()).length === 1
 }
 
 // Rotating CSS animations for quick-emoji buttons

@@ -70,14 +70,14 @@ export default function ChineseChessLobby() {
           <h2 className="font-serif font-bold text-[20px] text-ink mb-1">{t('join_heading')}</h2>
           <p className="text-[13.5px] text-muted leading-relaxed">{t('join_desc')}</p>
         </div>
-        <form action={joinAction} className="flex gap-2">
+        <form action={joinAction} className="flex flex-wrap gap-2">
           <input
             type="text"
             name="room_code"
             placeholder={t('join_placeholder')}
             maxLength={5}
             autoComplete="off"
-            className="flex-1 text-[14px] px-3.5 py-3 border border-line rounded-xl bg-white focus:outline-none focus:border-rose/60 focus:ring-2 focus:ring-rose/10 uppercase placeholder:normal-case placeholder:text-muted/40 font-mono tracking-widest text-ink transition-all"
+            className="flex-1 min-w-[100px] text-[14px] px-3.5 py-3 border border-line rounded-xl bg-white focus:outline-none focus:border-rose/60 focus:ring-2 focus:ring-rose/10 uppercase placeholder:normal-case placeholder:text-muted/40 font-mono tracking-widest text-ink transition-all"
           />
           <JoinBtn />
         </form>

@@ -78,10 +78,10 @@ export default async function ChineseChessPage() {
       </div>
 
       {/* ── Main content: 2 cols on md ── */}
-      <div className="grid grid-cols-1 md:grid-cols-[1fr_340px] gap-8 items-start mb-12">
+      <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_320px] gap-8 items-start mb-12">
 
         {/* Left: Action cards */}
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4 min-w-0">
           {user ? (
             <ChineseChessLobby />
           ) : (
@@ -100,7 +100,7 @@ export default async function ChineseChessPage() {
 
           {/* Piece reference */}
           <div className="bg-paper border border-line rounded-2xl px-5 py-4">
-            <p className="text-[11px] font-bold text-muted uppercase tracking-[2px] mb-3">
+            <p className="text-[11px] font-bold text-muted uppercase tracking-wide mb-3">
               {t('piece_legend')}
             </p>
             <div className="grid grid-cols-2 gap-x-6 gap-y-2">
@@ -130,7 +130,7 @@ export default async function ChineseChessPage() {
         </div>
 
         {/* Right: How to play */}
-        <div>
+        <div className="min-w-0">
           <div className="bg-paper border border-line rounded-2xl px-5 py-5">
             <p className="font-serif font-bold text-[17px] text-ink mb-4">{t('how_to_play')}</p>
             <div className="flex flex-col gap-4">

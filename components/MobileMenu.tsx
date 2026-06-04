@@ -9,7 +9,7 @@ interface MobileMenuProps {
   isLoggedIn?: boolean
 }
 
-export default function MobileMenu({ isAdmin, isLoggedIn }: MobileMenuProps) {
+export default function MobileMenu({ isLoggedIn }: MobileMenuProps) {
   const t = useTranslations('nav')
   const tConf = useTranslations('confessions')
   const [open, setOpen] = useState(false)
@@ -56,7 +56,7 @@ export default function MobileMenu({ isAdmin, isLoggedIn }: MobileMenuProps) {
                 <span>🤫</span> {tConf('nav')}
               </Link>
               <Link href="/games" onClick={close} className="flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
-                <span>🎮</span> {t('mini_game')}
+                {t('mini_game')}
               </Link>
               <Link href="/cong-dong/viet-bai" onClick={close} className="flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] font-semibold text-rose hover:bg-rose-soft transition-colors">
                 {t('write_post')}
@@ -81,11 +81,6 @@ export default function MobileMenu({ isAdmin, isLoggedIn }: MobileMenuProps) {
                     </svg>
                     {t('saved_places')}
                   </Link>
-                  {isAdmin && (
-                    <Link href="/admin" onClick={close} className="flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] font-medium text-amber-700 hover:bg-[#fffbeb] transition-colors">
-                      <span>⚙️</span> {t('admin')}
-                    </Link>
-                  )}
                 </>
               ) : (
                 <>

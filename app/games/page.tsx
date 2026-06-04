@@ -71,6 +71,31 @@ export default async function GamesPage() {
           </div>
         </Link>
 
+        {/* Chinese Chess */}
+        <Link
+          href="/games/chinese-chess"
+          className="group bg-paper border border-line rounded-2xl p-5 hover:border-rose/30 hover:shadow-[0_4px_24px_-6px_rgba(194,24,91,0.15)] transition-all hover:-translate-y-0.5"
+        >
+          <div className="flex items-start justify-between mb-4">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-red-100 to-amber-50 flex items-center justify-center text-[24px]">
+              ♟️
+            </div>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose text-white">
+              {t('chinese_chess.tag')}
+            </span>
+          </div>
+          <h2 className="font-serif font-bold text-[17px] text-ink mb-1.5 group-hover:text-rose transition-colors">
+            {t('chinese_chess.title')}
+          </h2>
+          <p className="text-[13px] text-muted leading-relaxed mb-3">{t('chinese_chess.short_desc')}</p>
+          <div className="flex items-center gap-1.5 text-[12px] text-muted/70">
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            {t('players_label', { n: 2 })}
+          </div>
+        </Link>
+
         <div className="bg-cream/50 border border-dashed border-line rounded-2xl p-5 flex flex-col items-center justify-center text-center gap-2 min-h-[160px]">
           <span className="text-[28px]">🎲</span>
           <p className="text-[13px] text-muted/60 font-medium">{t('coming_soon')}</p>

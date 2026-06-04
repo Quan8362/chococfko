@@ -57,7 +57,7 @@ export default async function Nav() {
             {tConf('nav')}
           </Link>
           <Link href="/games" className="px-3 py-1.5 rounded-lg hover:bg-line hover:text-rose transition-colors whitespace-nowrap">
-            🎮 Mini Game
+            {t('mini_game')}
           </Link>
         </nav>
 

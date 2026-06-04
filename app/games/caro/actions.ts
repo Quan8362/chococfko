@@ -95,7 +95,7 @@ export async function joinRoom(
   if (!user) redirect('/dang-nhap')
 
   const code = ((formData.get('room_code') as string) ?? '').trim().toUpperCase()
-  if (!code) return { error: 'Vui lòng nhập mã phòng' }
+  if (!code) return { error: 'no_code' }
 
   const admin = createAdminClient()
   const { data: room } = await admin
@@ -104,7 +104,7 @@ export async function joinRoom(
     .eq('room_code', code)
     .maybeSingle()
 
-  if (!room) return { error: 'Không tìm thấy phòng. Kiểm tra lại mã.' }
+  if (!room) return { error: 'not_found' }
 
   // Already in room → go in
   if (room.player_x === user.id || room.player_o === user.id) {
@@ -112,7 +112,7 @@ export async function joinRoom(
   }
 
   if (room.status !== 'waiting' || room.player_o) {
-    return { error: 'Phòng đã đủ người hoặc đã kết thúc.' }
+    return { error: 'full' }
   }
 
   await admin.from('caro_rooms').update({

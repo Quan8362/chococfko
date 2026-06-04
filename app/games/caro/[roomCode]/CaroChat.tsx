@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 
 type Message = {
@@ -42,6 +43,7 @@ export default function CaroChat({
   mySymbol: 'X' | 'O' | null
   myName: string
 }) {
+  const t = useTranslations('games.caro')
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [sending, setSending] = useState(false)
@@ -108,15 +110,15 @@ export default function CaroChat({
       {/* Header */}
       <div className="px-3.5 py-2.5 border-b border-line bg-gradient-to-r from-cream/80 to-rose/5 flex items-center gap-2 flex-none">
         <span className="text-[16px]">💬</span>
-        <span className="font-bold text-[14px] text-ink">Chat</span>
-        <span className="text-[11px] text-muted/50 hidden sm:block">— gáy bẩn thỏa thích!</span>
+        <span className="font-bold text-[14px] text-ink">{t('chat_header')}</span>
+        <span className="text-[11px] text-muted/50 hidden sm:block">{t('chat_tagline')}</span>
       </div>
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-3 py-2.5 space-y-2 min-h-0 scroll-smooth">
         {messages.length === 0 && (
-          <p className="text-center text-[12px] text-muted/40 py-6 select-none">
-            Chưa có tin nhắn nào.<br />Gáy trước đi! 👇
+          <p className="text-center text-[12px] text-muted/40 py-6 select-none whitespace-pre-line">
+            {t('chat_empty')}
           </p>
         )}
         {messages.map((msg) => {
@@ -189,7 +191,7 @@ export default function CaroChat({
           onKeyDown={(e) => {
             if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(input) }
           }}
-          placeholder={userId ? 'Nhập tin nhắn…' : 'Đăng nhập để chat'}
+          placeholder={userId ? t('chat_placeholder') : t('chat_login')}
           disabled={!userId || sending}
           maxLength={200}
           className="flex-1 min-w-0 text-[13px] px-3 py-2 rounded-xl border border-line bg-white focus:outline-none focus:border-rose/50 focus:ring-1 focus:ring-rose/10 placeholder:text-muted/40 disabled:opacity-50 text-ink"

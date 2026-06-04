@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState, useCallback, useTransition } from 'react'
+import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { makeMove, surrenderGame, type CaroRoom } from '../actions'
 import CaroChat from './CaroChat'
@@ -22,6 +23,7 @@ function parseBoard(raw: unknown): (string | null)[] {
 }
 
 export default function CaroGame({ initialRoom, userId, myName, playerXName, playerOName }: Props) {
+  const t = useTranslations('games.caro')
   const [room, setRoom] = useState<CaroRoom>(initialRoom)
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
@@ -121,7 +123,7 @@ export default function CaroGame({ initialRoom, userId, myName, playerXName, pla
     startTransition(async () => {
       const result = await makeMove(room.id, index)
       if (result?.error) {
-        setError('Không thể đi nước này. Thử lại!')
+        setError(t('error_move'))
         setPendingCell(null)
       }
     })
@@ -129,7 +131,7 @@ export default function CaroGame({ initialRoom, userId, myName, playerXName, pla
 
   // ── Surrender ────────────────────────────────────────────────────────────
   const handleSurrender = () => {
-    if (!window.confirm('Bạn chắc chắn muốn đầu hàng?')) return
+    if (!window.confirm(t('surrender_confirm'))) return
     startTransition(async () => { await surrenderGame(room.id) })
   }
 
@@ -143,15 +145,17 @@ export default function CaroGame({ initialRoom, userId, myName, playerXName, pla
 
   // ── Status label ──────────────────────────────────────────────────────────
   const statusLabel = (() => {
-    if (room.status === 'waiting') return '⏳ Đang chờ người chơi thứ 2…'
+    if (room.status === 'waiting') return t('status_waiting')
     if (room.status === 'finished') {
-      if (room.winner === 'draw') return '🤝 Hòa!'
-      if (room.winner === mySymbol) return '🎉 Bạn thắng!'
-      if (room.winner && mySymbol) return '😢 Bạn thua!'
-      return room.winner === 'X' ? `🎉 ${playerXName} thắng!` : `🎉 ${playerOName ?? 'O'} thắng!`
+      if (room.winner === 'draw') return t('status_draw')
+      if (room.winner === mySymbol) return t('status_you_win')
+      if (room.winner && mySymbol) return t('status_you_lose')
+      const winnerName = room.winner === 'X' ? playerXName : (playerOName ?? 'O')
+      return t('status_x_win', { name: winnerName })
     }
-    if (isMyTurn) return `👆 Đến lượt bạn!`
-    return `⏳ Đợi ${room.current_turn === 'X' ? playerXName : (playerOName ?? 'O')} đi…`
+    if (isMyTurn) return t('status_your_turn')
+    const oppName = room.current_turn === 'X' ? playerXName : (playerOName ?? 'O')
+    return t('status_opp_turn', { name: oppName })
   })()
 
   const timerPct = (timeLeft / TURN_SECONDS) * 100
@@ -167,7 +171,7 @@ export default function CaroGame({ initialRoom, userId, myName, playerXName, pla
         {/* Room code — prominent banner */}
         <div className="w-full bg-gradient-to-r from-ink to-[#3a2d22] rounded-2xl px-5 py-4 flex items-center justify-between gap-3 shadow-lg">
           <div>
-            <p className="text-[10.5px] font-bold uppercase tracking-[2px] text-white/50 mb-0.5">Mã phòng</p>
+            <p className="text-[10.5px] font-bold uppercase tracking-[2px] text-white/50 mb-0.5">{t('room_code_label')}</p>
             <p className="font-mono font-black text-[28px] text-white tracking-[0.2em] leading-none">
               {room.room_code}
             </p>
@@ -177,9 +181,9 @@ export default function CaroGame({ initialRoom, userId, myName, playerXName, pla
             className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-all border border-white/15"
           >
             {copied ? (
-              <><svg className="w-3.5 h-3.5 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7"/></svg>Đã sao chép!</>
+              <><svg className="w-3.5 h-3.5 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7"/></svg>{t('copied')}</>
             ) : (
-              <><svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>Copy link mời</>
+              <><svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>{t('copy_link')}</>
             )}
           </button>
         </div>
@@ -233,7 +237,7 @@ export default function CaroGame({ initialRoom, userId, myName, playerXName, pla
         {/* Waiting hint */}
         {room.status === 'waiting' && mySymbol === 'X' && (
           <div className="w-full bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3 text-[13px] text-amber-800 text-center">
-            Chia sẻ link mời hoặc mã phòng <strong className="font-mono tracking-wider">{room.room_code}</strong> để bạn bè tham gia.
+            {t('waiting_hint', { code: room.room_code })}
           </div>
         )}
 
@@ -285,7 +289,7 @@ export default function CaroGame({ initialRoom, userId, myName, playerXName, pla
               disabled={isPending}
               className="text-[13px] font-semibold px-5 py-2.5 rounded-xl border border-red-200 text-red-600 bg-red-50 hover:bg-red-100 transition-all disabled:opacity-50"
             >
-              🏳️ Đầu hàng
+              {t('surrender')}
             </button>
           )}
           {room.status === 'finished' && (
@@ -293,14 +297,14 @@ export default function CaroGame({ initialRoom, userId, myName, playerXName, pla
               href="/games/caro"
               className="inline-flex items-center gap-2 text-[13.5px] font-semibold px-5 py-2.5 rounded-xl bg-rose text-white hover:bg-rose-deep transition-all shadow-[0_2px_12px_-2px_rgba(194,24,91,0.4)]"
             >
-              ♟️ Chơi ván mới
+              {t('play_again')}
             </a>
           )}
           <a
             href="/games/caro"
             className="text-[13px] font-medium px-5 py-2.5 rounded-xl border border-line text-muted hover:bg-line transition-all"
           >
-            ← Về lobby
+            {t('back_lobby')}
           </a>
         </div>
       </div>
@@ -327,6 +331,7 @@ function PlayerCard({
   active: boolean
   winner: boolean
 }) {
+  const t = useTranslations('games.caro')
   const isX = symbol === 'X'
   return (
     <div className={`flex-1 flex items-center gap-2 px-3 py-2.5 rounded-xl border transition-all ${
@@ -338,16 +343,16 @@ function PlayerCard({
         {isX ? '✕' : '○'}
       </span>
       <div className="min-w-0 flex-1">
-        <p className="text-[11px] text-muted/50">Người chơi {symbol}</p>
+        <p className="text-[11px] text-muted/50">{isX ? t('player_x_label') : t('player_o_label')}</p>
         <p className="text-[13px] font-semibold text-ink truncate">
-          {name ?? <span className="text-muted/40 italic text-[12px]">Chờ người chơi…</span>}
+          {name ?? <span className="text-muted/40 italic text-[12px]">{t('waiting_player')}</span>}
         </p>
       </div>
       {active && (
         <span className={`ml-auto text-[9.5px] font-bold px-1.5 py-0.5 rounded-full flex-none ${
           isX ? 'bg-blue-500 text-white' : 'bg-rose text-white'
         }`}>
-          Lượt
+          {t('turn_badge')}
         </span>
       )}
       {winner && <span className="ml-auto text-[16px] flex-none">🏆</span>}

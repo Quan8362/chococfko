@@ -56,7 +56,7 @@ export default function MobileMenu({ isAdmin, isLoggedIn }: MobileMenuProps) {
                 <span>🤫</span> {tConf('nav')}
               </Link>
               <Link href="/games" onClick={close} className="flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
-                <span>🎮</span> Mini Game
+                <span>🎮</span> {t('mini_game')}
               </Link>
               <Link href="/cong-dong/viet-bai" onClick={close} className="flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] font-semibold text-rose hover:bg-rose-soft transition-colors">
                 {t('write_post')}

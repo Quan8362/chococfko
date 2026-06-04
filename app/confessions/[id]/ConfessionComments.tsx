@@ -15,6 +15,30 @@ const CommentRichEditor = dynamic(() => import('@/components/CommentRichEditor')
 
 type CurrentUser = { id: string; name: string; initial: string } | null
 
+function UserAvatar({ src, name }: { src: string; name: string }) {
+  const [failed, setFailed] = useState(false)
+  if (failed) {
+    return (
+      <div className="w-8 h-8 rounded-full grid place-items-center text-[12px] font-bold ring-2 ring-white bg-gradient-to-br from-rose/40 to-teal/40 text-ink flex-none">
+        {name[0]?.toUpperCase() ?? '?'}
+      </div>
+    )
+  }
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={src}
+      alt={name}
+      width={32}
+      height={32}
+      referrerPolicy="no-referrer"
+      crossOrigin="anonymous"
+      className="w-8 h-8 rounded-full object-cover object-center ring-2 ring-white flex-none"
+      onError={() => setFailed(true)}
+    />
+  )
+}
+
 function relativeDate(iso: string): string {
   const diff = Math.floor((Date.now() - new Date(iso).getTime()) / 60000)
   if (diff < 1) return 'vừa xong'
@@ -122,17 +146,9 @@ export default function ConfessionComments({
                   {c.is_anonymous ? (
                     <AnonAvatar size={32} className="ring-2 ring-white" />
                   ) : c.author_avatar ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={c.author_avatar}
-                      alt={displayName}
-                      width={32}
-                      height={32}
-                      referrerPolicy="no-referrer"
-                      className="w-8 h-8 rounded-full object-cover object-center ring-2 ring-white"
-                    />
+                    <UserAvatar src={c.author_avatar} name={displayName} />
                   ) : (
-                    <div className="w-8 h-8 rounded-full grid place-items-center text-[12px] font-bold ring-2 ring-white bg-gradient-to-br from-rose/40 to-teal/40 text-ink">
+                    <div className="w-8 h-8 rounded-full grid place-items-center text-[12px] font-bold ring-2 ring-white bg-gradient-to-br from-rose/40 to-teal/40 text-ink flex-none">
                       {displayName[0]?.toUpperCase() ?? '?'}
                     </div>
                   )}

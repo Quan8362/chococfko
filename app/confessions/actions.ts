@@ -1,0 +1,98 @@
+'use server'
+
+import { revalidatePath } from 'next/cache'
+import { createClient } from '@/lib/supabase/server'
+import { isUuid } from '@/lib/confessions'
+import { sanitizeHtml, stripHtml } from '@/lib/sanitize'
+
+export type ConfessionResult = { ok?: true; error?: string } | null
+
+export async function submitConfession(
+  prevState: ConfessionResult,
+  formData: FormData,
+): Promise<ConfessionResult> {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'login_required' }
+
+  const title = (formData.get('title') as string ?? '').trim()
+  const rawContent = (formData.get('content') as string ?? '').trim()
+  const isAnonymous = formData.get('is_anonymous') !== 'false'
+
+  if (!title || title.length < 5) return { error: 'title_too_short' }
+  if (title.length > 120) return { error: 'title_too_long' }
+
+  // Strip HTML to measure real text length
+  const textContent = stripHtml(rawContent)
+  if (!textContent) return { error: 'content_empty' }
+  if (textContent.length < 10) return { error: 'content_too_short' }
+  if (textContent.length > 3000) return { error: 'content_too_long' }
+
+  // Sanitize before storing
+  const content = sanitizeHtml(rawContent)
+
+  const { error } = await supabase.from('confessions').insert({
+    title,
+    content,
+    author_id: user.id,
+    is_anonymous: isAnonymous,
+    status: 'pending',
+  })
+
+  if (error) return { error: error.message }
+  revalidatePath('/confessions')
+  return { ok: true }
+}
+
+export type CommentResult = { ok?: true; error?: string } | null
+
+export async function submitConfessionComment(
+  prevState: CommentResult,
+  formData: FormData,
+): Promise<CommentResult> {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'login_required' }
+
+  const confessionId = (formData.get('confession_id') as string ?? '').trim()
+  const rawContent = (formData.get('content') as string ?? '').trim()
+  const isAnonymous = formData.get('is_anonymous') !== 'false'
+
+  if (!isUuid(confessionId)) return { error: 'invalid_confession' }
+
+  const textContent = stripHtml(rawContent)
+  if (!textContent) return { error: 'content_empty' }
+  if (textContent.length > 1000) return { error: 'too_long' }
+
+  const content = sanitizeHtml(rawContent)
+
+  const { error } = await supabase.from('confession_comments').insert({
+    confession_id: confessionId,
+    user_id: user.id,
+    content,
+    is_anonymous: isAnonymous,
+    status: 'approved',
+  })
+
+  if (error) return { error: error.message }
+  revalidatePath(`/confessions/${confessionId}`)
+  return { ok: true }
+}
+
+export async function deleteConfessionComment(formData: FormData) {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return
+
+  const commentId = (formData.get('comment_id') as string ?? '').trim()
+  const confessionId = (formData.get('confession_id') as string ?? '').trim()
+  if (!commentId || !confessionId) return
+
+  await supabase
+    .from('confession_comments')
+    .update({ deleted_at: new Date().toISOString(), status: 'deleted' })
+    .eq('id', commentId)
+    .eq('user_id', user.id)
+
+  revalidatePath(`/confessions/${confessionId}`)
+}

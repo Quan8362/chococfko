@@ -5,6 +5,20 @@ import { checkIsAdmin, createAdminClient } from '@/lib/supabase/admin'
 import { approvePost, rejectPost, deletePost } from './actions'
 import { approvePlace, rejectPlace } from './dia-diem/actions'
 
+async function getPendingConfessionsCount(): Promise<number> {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return 0
+  try {
+    const admin = createAdminClient()
+    const { count } = await admin
+      .from('confessions')
+      .select('id', { count: 'exact', head: true })
+      .eq('status', 'pending')
+    return count ?? 0
+  } catch {
+    return 0
+  }
+}
+
 export const metadata = { title: 'Admin · Chợ Cóc FKO' }
 export const dynamic = 'force-dynamic'
 
@@ -58,6 +72,7 @@ export default async function AdminPage({
   ])
 
   const admin = createAdminClient()
+  const pendingConfessionsCount = await getPendingConfessionsCount()
 
   // Fetch community posts
   const { data: postsData, error: postsError } = await admin
@@ -155,7 +170,7 @@ export default async function AdminPage({
       </div>
 
       {/* ── QUICK NAV ────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
         {/* Posts – active */}
         <div className="relative bg-rose-soft border border-rose/20 rounded-2xl p-5 overflow-hidden">
           <div className="absolute -top-8 -right-8 w-28 h-28 bg-rose/6 rounded-full pointer-events-none" />
@@ -219,6 +234,34 @@ export default async function AdminPage({
             </h2>
             <p className="text-[13px] text-muted mb-3.5 leading-relaxed">{admin_t('places_desc')}</p>
             <span className="inline-flex items-center gap-1 text-[12px] font-semibold text-teal bg-teal-soft px-2.5 py-1 rounded-full">
+              {admin_t('manage')}
+              <svg className="w-3 h-3 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+              </svg>
+            </span>
+          </div>
+        </Link>
+
+        {/* Confessions */}
+        <Link
+          href="/admin/confessions"
+          className="relative bg-paper border border-line rounded-2xl p-5 overflow-hidden hover:border-rose/35 hover:bg-rose-soft/30 hover:-translate-y-0.5 hover:shadow-card transition-all group"
+        >
+          {pendingConfessionsCount > 0 && (
+            <span className="absolute top-3 right-3 text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-400 text-white">
+              ⏳ {pendingConfessionsCount}
+            </span>
+          )}
+          <div className="absolute -top-8 -right-8 w-28 h-28 bg-rose/5 rounded-full pointer-events-none" />
+          <div className="relative">
+            <div className="w-10 h-10 rounded-xl bg-rose-soft grid place-items-center text-[20px] mb-3.5 flex-none">
+              🤫
+            </div>
+            <h2 className="font-serif font-bold text-[16.5px] text-ink mb-1 group-hover:text-rose transition-colors">
+              FKO Confessions
+            </h2>
+            <p className="text-[13px] text-muted mb-3.5 leading-relaxed">Duyệt và quản lý confession ẩn danh</p>
+            <span className="inline-flex items-center gap-1 text-[12px] font-semibold text-rose bg-rose-soft px-2.5 py-1 rounded-full">
               {admin_t('manage')}
               <svg className="w-3 h-3 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />

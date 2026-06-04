@@ -11,6 +11,7 @@ interface MobileMenuProps {
 
 export default function MobileMenu({ isAdmin, isLoggedIn }: MobileMenuProps) {
   const t = useTranslations('nav')
+  const tConf = useTranslations('confessions')
   const [open, setOpen] = useState(false)
 
   useEffect(() => {
@@ -50,6 +51,9 @@ export default function MobileMenu({ isAdmin, isLoggedIn }: MobileMenuProps) {
               </Link>
               <Link href="/cong-dong" onClick={close} className="flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
                 <span>💬</span> {t('community')}
+              </Link>
+              <Link href="/confessions" onClick={close} className="flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
+                <span>🤫</span> {tConf('nav')}
               </Link>
               <Link href="/cong-dong/viet-bai" onClick={close} className="flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] font-semibold text-rose hover:bg-rose-soft transition-colors">
                 {t('write_post')}

@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <!-- Background circle -->
+  <circle cx="50" cy="50" r="50" fill="#2d2d2d"/>
+
+  <!-- Hat crown -->
+  <path d="M31,47 C30,38 32,24 50,21 C68,24 70,38 69,47 Z" fill="white"/>
+
+  <!-- Slight dent / crease on top of crown -->
+  <path d="M42,22 Q50,19 58,22" stroke="#2d2d2d" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+
+  <!-- Hat brim (wider, flat) -->
+  <rect x="13" y="45" width="74" height="9" rx="4.5" fill="white"/>
+
+  <!-- Left sunglasses lens -->
+  <circle cx="33" cy="67" r="12" fill="white"/>
+
+  <!-- Right sunglasses lens -->
+  <circle cx="67" cy="67" r="12" fill="white"/>
+
+  <!-- Bridge between lenses -->
+  <rect x="45" y="63.5" width="10" height="7" rx="3.5" fill="white"/>
+
+  <!-- Left temple arm -->
+  <line x1="21" y1="67" x2="12" y2="62" stroke="white" stroke-width="5" stroke-linecap="round"/>
+
+  <!-- Right temple arm -->
+  <line x1="79" y1="67" x2="88" y2="62" stroke="white" stroke-width="5" stroke-linecap="round"/>
+</svg>

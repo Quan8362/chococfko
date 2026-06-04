@@ -22,7 +22,10 @@ async function getAuthState() {
 }
 
 export default async function Nav() {
-  const t = await getTranslations('nav')
+  const [t, tConf] = await Promise.all([
+    getTranslations('nav'),
+    getTranslations('confessions'),
+  ])
   const { user, isAdmin, avatarUrl } = await getAuthState()
   const displayName =
     user?.user_metadata?.display_name || user?.email?.split('@')[0] || t('user_default')
@@ -49,6 +52,9 @@ export default async function Nav() {
           </Link>
           <Link href="/cong-dong" className="px-3 py-1.5 rounded-lg hover:bg-line hover:text-rose transition-colors whitespace-nowrap">
             {t('community')}
+          </Link>
+          <Link href="/confessions" className="px-3 py-1.5 rounded-lg hover:bg-line hover:text-rose transition-colors whitespace-nowrap">
+            {tConf('nav')}
           </Link>
         </nav>
 

@@ -62,7 +62,7 @@ export default function ConfessionComments({
   const router = useRouter()
   const formRef = useRef<HTMLFormElement>(null)
   const [state, formAction] = useFormState(submitConfessionComment, INIT)
-  const [isAnonymous, setIsAnonymous] = useState(true)
+  const [isAnonymous, setIsAnonymous] = useState(false)
   const [editorResetKey, setEditorResetKey] = useState(0)
 
   useEffect(() => {

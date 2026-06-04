@@ -1,16 +1,47 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import CaroLobby from './CaroLobby'
 
 export const metadata = { title: 'Cờ Caro Online · Chợ Cóc FKO' }
 export const dynamic = 'force-dynamic'
 
+type HistoryRow = {
+  id: string
+  room_code: string
+  winner: 'X' | 'O' | 'draw' | null
+  player_x: string | null
+  player_o: string | null
+  player_x_name: string
+  player_o_name: string
+  finished_at: string | null
+}
+
+function relativeTime(iso: string): string {
+  const diff = Math.floor((Date.now() - new Date(iso).getTime()) / 60000)
+  if (diff < 1) return 'vừa xong'
+  if (diff < 60) return `${diff} phút trước`
+  const hrs = Math.floor(diff / 60)
+  if (hrs < 24) return `${hrs} giờ trước`
+  return `${Math.floor(hrs / 24)} ngày trước`
+}
+
 export default async function CaroPage() {
   const supabase = createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const admin = createAdminClient()
+
+  const [{ data: { user } }, { data: history }] = await Promise.all([
+    supabase.auth.getUser(),
+    admin
+      .from('caro_games_history')
+      .select('id,room_code,winner,player_x,player_o,player_x_name,player_o_name,finished_at')
+      .limit(15),
+  ])
+
+  const rows = (history ?? []) as HistoryRow[]
 
   return (
-    <div className="max-w-[800px] mx-auto px-5 sm:px-6 py-10 pb-20">
+    <div className="max-w-[860px] mx-auto px-5 sm:px-6 py-10 pb-20">
 
       {/* Breadcrumb */}
       <Link
@@ -61,6 +92,76 @@ export default async function CaroPage() {
           >
             Đăng nhập
           </Link>
+        </div>
+      )}
+
+      {/* ── GAME HISTORY ─────────────────────────────────────────────────────── */}
+      {rows.length > 0 && (
+        <div className="mt-12">
+          <h2 className="font-serif font-bold text-[20px] text-ink mb-4 flex items-center gap-2">
+            📜 Lịch sử ván đấu
+            <span className="text-[12px] font-normal text-muted/60 font-sans">({rows.length} ván gần nhất)</span>
+          </h2>
+
+          <div className="bg-paper border border-line rounded-2xl overflow-hidden">
+            {/* Header row */}
+            <div className="grid grid-cols-[1fr_40px_1fr_80px_70px] gap-x-3 px-4 py-2.5 bg-cream/60 border-b border-line text-[11.5px] font-semibold text-muted/70 uppercase tracking-wide">
+              <span>Người chơi X</span>
+              <span className="text-center">VS</span>
+              <span>Người chơi O</span>
+              <span className="text-center">Kết quả</span>
+              <span className="text-right">Thời gian</span>
+            </div>
+
+            {rows.map((row, idx) => {
+              const isXWin = row.winner === 'X'
+              const isOWin = row.winner === 'O'
+              const isDraw = row.winner === 'draw'
+              const myRow = user && (row.player_x === user.id || row.player_o === user.id)
+
+              return (
+                <div
+                  key={row.id}
+                  className={`grid grid-cols-[1fr_40px_1fr_80px_70px] gap-x-3 px-4 py-3 items-center text-[13.5px] transition-colors
+                    ${myRow ? 'bg-rose/[0.03]' : ''}
+                    ${idx < rows.length - 1 ? 'border-b border-line/60' : ''}
+                  `}
+                >
+                  {/* Player X */}
+                  <div className={`flex items-center gap-1.5 min-w-0 ${isXWin ? 'font-semibold text-blue-700' : 'text-ink'}`}>
+                    <span className="text-[11px] font-black text-blue-600 flex-none">✕</span>
+                    <span className="truncate">{row.player_x_name}</span>
+                    {isXWin && <span className="text-[14px] flex-none">🏆</span>}
+                  </div>
+
+                  <span className="text-center text-[11px] font-bold text-muted/40">VS</span>
+
+                  {/* Player O */}
+                  <div className={`flex items-center gap-1.5 min-w-0 ${isOWin ? 'font-semibold text-rose' : 'text-ink'}`}>
+                    <span className="text-[11px] font-black text-rose flex-none">○</span>
+                    <span className="truncate">{row.player_o_name}</span>
+                    {isOWin && <span className="text-[14px] flex-none">🏆</span>}
+                  </div>
+
+                  {/* Result badge */}
+                  <div className="flex justify-center">
+                    {isDraw ? (
+                      <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 border border-amber-200">Hòa</span>
+                    ) : isXWin ? (
+                      <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 border border-blue-200">X thắng</span>
+                    ) : (
+                      <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-rose/10 text-rose border border-rose/20">O thắng</span>
+                    )}
+                  </div>
+
+                  {/* Time */}
+                  <div className="text-right text-[11.5px] text-muted/60 whitespace-nowrap">
+                    {row.finished_at ? relativeTime(row.finished_at) : '—'}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
         </div>
       )}
     </div>

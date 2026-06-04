@@ -53,7 +53,7 @@ export default async function CaroRoomPage({ params }: { params: { roomCode: str
   ])
 
   return (
-    <div className="max-w-[700px] mx-auto px-4 py-8">
+    <div className="max-w-[960px] mx-auto px-4 py-8">
       <CaroGame
         initialRoom={finalRoom}
         userId={user?.id ?? null}

@@ -214,17 +214,17 @@ export default function CaroGame({ initialRoom, userId, playerXName, playerOName
                 key={i}
                 onClick={() => handleClick(i)}
                 disabled={!canClick || isPending}
-                className={`w-7 h-7 sm:w-8 sm:h-8 border border-[#c8a870]/50 flex items-center justify-center transition-colors relative
+                className={`w-9 h-9 sm:w-10 sm:h-10 border border-[#c8a870]/50 flex items-center justify-center transition-colors relative
                   ${isWin ? 'bg-yellow-300' : ''}
                   ${canClick ? 'hover:bg-rose/20 cursor-pointer' : 'cursor-default'}
                   ${i === pendingCell ? 'opacity-60' : ''}
                 `}
               >
                 {cell === 'X' && (
-                  <span className="font-black text-[14px] sm:text-[16px] text-blue-700 leading-none select-none">✕</span>
+                  <span className="font-black text-[17px] sm:text-[20px] text-blue-700 leading-none select-none">✕</span>
                 )}
                 {cell === 'O' && (
-                  <span className="font-black text-[14px] sm:text-[16px] text-rose leading-none select-none">○</span>
+                  <span className="font-black text-[17px] sm:text-[20px] text-rose leading-none select-none">○</span>
                 )}
               </button>
             )

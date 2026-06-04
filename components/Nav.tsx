@@ -56,6 +56,9 @@ export default async function Nav() {
           <Link href="/confessions" className="px-3 py-1.5 rounded-lg hover:bg-line hover:text-rose transition-colors whitespace-nowrap">
             {tConf('nav')}
           </Link>
+          <Link href="/games" className="px-3 py-1.5 rounded-lg hover:bg-line hover:text-rose transition-colors whitespace-nowrap">
+            🎮 Mini Game
+          </Link>
         </nav>
 
         {/* Right actions — bên phải */}

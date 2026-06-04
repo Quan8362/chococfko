@@ -548,12 +548,38 @@ export default function ChineseChessGame({
             </>
           )}
           {room.status === 'finished' && (
-            <Link
-              href="/games/chinese-chess"
-              className="w-full py-2.5 rounded-xl text-[13px] font-semibold text-center bg-rose text-white hover:bg-rose-deep transition-all shadow-[0_2px_12px_-2px_rgba(194,24,91,0.4)] inline-block"
-            >
-              {t('play_again')}
-            </Link>
+            <div className="flex flex-col gap-2">
+              {/* End summary */}
+              <div className="bg-cream border border-line rounded-xl px-4 py-3 text-center space-y-0.5">
+                {room.end_reason && (
+                  <p className="text-[12px] text-muted">
+                    <span className="font-medium">{t('result_end_reason_label')}:</span>{' '}
+                    {t(`end_${room.end_reason}` as Parameters<typeof t>[0])}
+                  </p>
+                )}
+                {room.move_count > 0 && (
+                  <p className="text-[12px] text-muted">
+                    <span className="font-medium">{t('move_count_label')}:</span>{' '}
+                    {room.move_count}
+                  </p>
+                )}
+              </div>
+              {/* Action buttons */}
+              <Link
+                href="/games/chinese-chess"
+                className="w-full py-2.5 rounded-xl text-[13px] font-semibold text-center bg-rose text-white hover:bg-rose-deep transition-all shadow-[0_2px_12px_-2px_rgba(194,24,91,0.4)] inline-block"
+              >
+                {t('play_again')}
+              </Link>
+              {myRole !== 'spectator' && userId && (
+                <Link
+                  href="/games/chinese-chess/history"
+                  className="w-full py-2.5 rounded-xl text-[13px] font-semibold text-center bg-paper border border-rose/30 text-rose hover:bg-rose/5 transition-colors inline-block"
+                >
+                  📜 {t('result_view_history')}
+                </Link>
+              )}
+            </div>
           )}
           {myRole === 'spectator' && room.status === 'playing' && (
             <p className="text-[12px] text-muted text-center py-1.5 italic">{t('watching_note')}</p>

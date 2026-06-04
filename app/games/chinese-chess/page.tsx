@@ -83,7 +83,21 @@ export default async function ChineseChessPage() {
         {/* Left: Action cards */}
         <div className="flex flex-col gap-4 min-w-0">
           {user ? (
-            <ChineseChessLobby />
+            <>
+              <ChineseChessLobby />
+              {/* Link to personal history */}
+              <Link
+                href="/games/chinese-chess/history"
+                className="flex items-center justify-between bg-paper border border-line hover:border-rose/30 rounded-2xl px-5 py-3.5 transition-colors group"
+              >
+                <span className="flex items-center gap-2.5 text-[13.5px] font-semibold text-ink group-hover:text-rose transition-colors">
+                  📜 {t('my_history_link')}
+                </span>
+                <svg className="w-4 h-4 text-muted/40 group-hover:text-rose/60 transition-colors flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
+            </>
           ) : (
             /* Login prompt */
             <div className="bg-gradient-to-br from-[#fdeef5] to-cream border border-rose/20 rounded-2xl px-6 py-6">

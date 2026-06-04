@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
 import { getApprovedConfessions, relativeConfessionDate, type Confession } from '@/lib/confessions'
-import { checkIsAdmin } from '@/lib/supabase/admin'
 import AnonAvatar from '@/components/AnonAvatar'
 import { generateAnonId } from '@/lib/anon'
 import { stripHtml } from '@/lib/sanitize'
@@ -134,10 +133,9 @@ export default async function ConfessionsPage({
   searchParams: { sort?: string }
 }) {
   const sort = (searchParams.sort === 'most_commented' ? 'most_commented' : 'latest') as Sort
-  const [t, confessions, isAdmin] = await Promise.all([
+  const [t, confessions] = await Promise.all([
     getTranslations('confessions'),
     getApprovedConfessions(sort),
-    checkIsAdmin(),
   ])
 
   const TABS = [
@@ -171,14 +169,6 @@ export default async function ConfessionsPage({
               >
                 ✍️ {t('writeButton')}
               </Link>
-              {isAdmin && (
-                <Link
-                  href="/admin/confessions"
-                  className="inline-flex items-center gap-1.5 font-semibold text-[14px] px-5 py-3 rounded-full border border-amber-300 text-amber-700 bg-amber-50 hover:bg-amber-100 transition-all"
-                >
-                  ⚙️ Admin
-                </Link>
-              )}
             </div>
           </div>
         </div>

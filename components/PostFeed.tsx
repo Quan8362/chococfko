@@ -120,16 +120,6 @@ export default function PostFeed({ posts, isAdmin = false }: Props) {
                   p.big ? "sm:col-span-2 sm:flex-row" : ""
                 }`}
               >
-                {/* Admin edit badge */}
-                {isAdmin && isDbPost && (
-                  <Link
-                    href={`/admin/edit/${p.id}`}
-                    className="absolute top-3 right-3 z-10 bg-teal text-white text-[11px] font-semibold px-2.5 py-1 rounded-full shadow-sm hover:bg-teal/85 transition-colors"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    {tc("edit")}
-                  </Link>
-                )}
 
                 {/* Image */}
                 <Link

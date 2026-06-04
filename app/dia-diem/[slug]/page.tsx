@@ -177,15 +177,6 @@ export default async function PlaceDetail({ params }: { params: { slug: string }
             </ul>
           </div>
 
-          {/* Admin edit */}
-          {isAdmin && (
-            <Link
-              href={`/admin/dia-diem/${place.slug}`}
-              className="flex items-center justify-center gap-1.5 text-[12px] font-semibold px-4 py-2.5 rounded-xl bg-sky-50 text-sky-700 border border-sky-100 hover:bg-sky-500 hover:text-white hover:border-sky-500 transition-all"
-            >
-              {t("edit_admin")}
-            </Link>
-          )}
         </aside>
       </div>
 

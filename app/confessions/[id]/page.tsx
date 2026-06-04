@@ -57,7 +57,7 @@ export default async function ConfessionDetailPage({ params }: { params: { id: s
         <div className="max-w-[900px] mx-auto px-6 pt-8 pb-10 relative z-[1]">
 
           {/* Top bar: breadcrumb + admin */}
-          <div className="flex items-center justify-between mb-7">
+          <div className="mb-7">
             <Link
               href="/confessions"
               className="inline-flex items-center gap-1.5 text-[12.5px] font-medium text-muted hover:text-rose transition-colors group"
@@ -67,14 +67,6 @@ export default async function ConfessionDetailPage({ params }: { params: { id: s
               </svg>
               {t('backToList')}
             </Link>
-            {isAdmin && (
-              <Link
-                href={`/admin/confessions`}
-                className="inline-flex items-center gap-1 text-[11.5px] font-semibold px-3 py-1.5 rounded-lg bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 transition-all"
-              >
-                ⚙️ Admin
-              </Link>
-            )}
           </div>
 
           {/* Badge */}

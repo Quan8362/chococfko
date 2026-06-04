@@ -114,14 +114,6 @@ export default async function PostDetail({ params }: { params: { id: string } })
               <div className="text-[13px] text-muted">{post.date}</div>
             </div>
           </div>
-          {isAdmin && isUuid(params.id) && (
-            <Link
-              href={`/admin/edit/${params.id}`}
-              className="flex items-center gap-1.5 text-[13px] font-semibold px-4 py-2 rounded-full bg-sky-100 text-sky-700 hover:bg-sky-500 hover:text-white transition-all"
-            >
-              {t('edit_admin')}
-            </Link>
-          )}
         </div>
 
         {/* Post body */}

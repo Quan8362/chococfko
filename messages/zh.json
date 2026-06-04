@@ -86,7 +86,11 @@
     "or_register": "或使用以下方式注册",
     "check_email_heading": "请查收邮件！",
     "check_email_sub": "我们已发送确认链接。点击邮件中的链接完成注册。",
-    "back_to_login": "返回登录页"
+    "back_to_login": "返回登录页",
+    "provider_disabled": "{provider}未启用。请使用邮箱登录。",
+    "auth_error": "错误: {message}",
+    "email_placeholder": "you@example.com",
+    "display_name_placeholder": "例如: 张三"
   },
   "post_form": {
     "heading": "分享地点",
@@ -612,14 +616,20 @@
       "reactions": "反应",
       "workStudy": "工作·学习",
       "fukuokaLife": "福冈生活",
-      "confessionMood": "Confession"
+      "confessionMood": "Confession",
+      "gifSearch": "搜索GIF…",
+      "gifNotFound": "未找到GIF",
+      "gifNoKey": "在.env.local中添加NEXT_PUBLIC_GIPHY_API_KEY以使用GIF。",
+      "gif": "插入GIF"
     },
     "status": {
       "pending": "待审核",
       "approved": "已通过",
       "rejected": "已拒绝",
       "deleted": "已删除"
-    }
+    },
+    "leaveComment": "留下评论",
+    "loginAnonHint": "登录后可以匿名评论。"
   },
   "admin": {
     "back_home": "首页",

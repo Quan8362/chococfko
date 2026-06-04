@@ -86,7 +86,11 @@
     "or_register": "Or sign up with",
     "check_email_heading": "Check your email!",
     "check_email_sub": "We sent a confirmation link. Click the link in your email to complete registration.",
-    "back_to_login": "Back to sign in"
+    "back_to_login": "Back to sign in",
+    "provider_disabled": "{provider} is not enabled. Please use email to sign in.",
+    "auth_error": "Error: {message}",
+    "email_placeholder": "you@example.com",
+    "display_name_placeholder": "e.g. John Doe"
   },
   "image_upload": {
     "drag_drop": "Drag & drop image here",
@@ -629,14 +633,20 @@
       "reactions": "Reactions",
       "workStudy": "Work & Study",
       "fukuokaLife": "Fukuoka Life",
-      "confessionMood": "Confession"
+      "confessionMood": "Confession",
+      "gifSearch": "Search GIF…",
+      "gifNotFound": "No GIFs found",
+      "gifNoKey": "Add NEXT_PUBLIC_GIPHY_API_KEY to .env.local to use GIFs.",
+      "gif": "Insert GIF"
     },
     "status": {
       "pending": "Pending",
       "approved": "Approved",
       "rejected": "Rejected",
       "deleted": "Deleted"
-    }
+    },
+    "leaveComment": "Leave a comment",
+    "loginAnonHint": "You can comment anonymously after signing in."
   },
   "admin": {
     "back_home": "Home",

@@ -86,7 +86,11 @@
     "or_register": "또는 다음으로 가입",
     "check_email_heading": "이메일을 확인하세요!",
     "check_email_sub": "확인 링크를 보냈습니다. 이메일의 링크를 클릭해 가입을 완료하세요.",
-    "back_to_login": "로그인 페이지로 돌아가기"
+    "back_to_login": "로그인 페이지로 돌아가기",
+    "provider_disabled": "{provider}이 활성화되어 있지 않습니다. 이메일로 로그인해주세요.",
+    "auth_error": "오류: {message}",
+    "email_placeholder": "you@example.com",
+    "display_name_placeholder": "예: 홍길동"
   },
   "post_form": {
     "heading": "장소 공유하기",
@@ -612,14 +616,20 @@
       "reactions": "반응",
       "workStudy": "업무·학습",
       "fukuokaLife": "후쿠오카 생활",
-      "confessionMood": "컨페션"
+      "confessionMood": "컨페션",
+      "gifSearch": "GIF 검색…",
+      "gifNotFound": "GIF를 찾을 수 없습니다",
+      "gifNoKey": ".env.local에 NEXT_PUBLIC_GIPHY_API_KEY를 추가하여 GIF를 사용하세요.",
+      "gif": "GIF 삽입"
     },
     "status": {
       "pending": "대기 중",
       "approved": "승인됨",
       "rejected": "거부됨",
       "deleted": "삭제됨"
-    }
+    },
+    "leaveComment": "댓글 남기기",
+    "loginAnonHint": "로그인 후 익명으로 댓글을 달 수 있습니다."
   },
   "admin": {
     "back_home": "홈",

@@ -5,7 +5,7 @@ import { useFormState, useFormStatus } from 'react-dom'
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import { submitConfessionComment, deleteConfessionComment, type CommentResult } from '../actions'
 import { type ConfessionComment } from '@/lib/confessions'
 import AnonAvatar from '@/components/AnonAvatar'
@@ -39,15 +39,14 @@ function UserAvatar({ src, name }: { src: string; name: string }) {
   )
 }
 
-function relativeDate(iso: string): string {
-  const diff = Math.floor((Date.now() - new Date(iso).getTime()) / 60000)
-  if (diff < 1) return 'vừa xong'
-  if (diff < 60) return `${diff} phút trước`
-  const hrs = Math.floor(diff / 60)
-  if (hrs < 24) return `${hrs} giờ trước`
-  const days = Math.floor(hrs / 24)
-  if (days < 30) return `${days} ngày trước`
-  return new Date(iso).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })
+function relativeDate(iso: string, locale: string): string {
+  const secs = Math.floor((Date.now() - new Date(iso).getTime()) / 1000)
+  const rtf = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' })
+  if (secs < 60) return rtf.format(-secs, 'second')
+  if (secs < 3600) return rtf.format(-Math.floor(secs / 60), 'minute')
+  if (secs < 86400) return rtf.format(-Math.floor(secs / 3600), 'hour')
+  if (secs < 2592000) return rtf.format(-Math.floor(secs / 86400), 'day')
+  return new Date(iso).toLocaleDateString(locale, { day: '2-digit', month: '2-digit', year: 'numeric' })
 }
 
 function SubmitBtn({ label, sending }: { label: string; sending: string }) {
@@ -83,6 +82,7 @@ export default function ConfessionComments({
   isAdmin: boolean
 }) {
   const t = useTranslations('confessions')
+  const locale = useLocale()
   const router = useRouter()
   const formRef = useRef<HTMLFormElement>(null)
   const [state, formAction] = useFormState(submitConfessionComment, INIT)
@@ -164,7 +164,7 @@ export default function ConfessionComments({
                           {t('you')}
                         </span>
                       )}
-                      <span className="text-[11.5px] text-muted flex-none">{relativeDate(c.created_at)}</span>
+                      <span className="text-[11.5px] text-muted flex-none">{relativeDate(c.created_at, locale)}</span>
                     </div>
 
                     {canDelete && (
@@ -210,7 +210,7 @@ export default function ConfessionComments({
         <div className="bg-paper border border-line rounded-2xl shadow-[0_1px_8px_-2px_rgba(36,26,23,0.06)]">
           {/* Form header with anonymous toggle */}
           <div className="px-5 pt-4 pb-3 border-b border-line/60 flex items-center justify-between gap-3 flex-wrap rounded-t-2xl bg-paper">
-            <span className="text-[13px] font-semibold text-ink">Để lại bình luận</span>
+            <span className="text-[13px] font-semibold text-ink">{t('leaveComment' as Parameters<typeof t>[0])}</span>
 
             <button
               type="button"
@@ -261,7 +261,7 @@ export default function ConfessionComments({
             <div className="flex items-center justify-between gap-3">
               {isAnonymous && (
                 <span className="text-[11.5px] text-muted/70 flex items-center gap-1">
-                  🤫 <span>Bình luận ẩn danh</span>
+                  🤫 <span>{t('anonymousComment')}</span>
                 </span>
               )}
               <div className="ml-auto">
@@ -274,7 +274,7 @@ export default function ConfessionComments({
         <div className="bg-gradient-to-br from-[#fdeef5] to-cream border border-rose/15 rounded-2xl px-6 py-5 flex items-center justify-between gap-4 flex-wrap">
           <div>
             <p className="text-[14px] font-medium text-ink mb-0.5">{t('loginToComment')}</p>
-            <p className="text-[12px] text-muted">Bạn có thể bình luận ẩn danh sau khi đăng nhập.</p>
+            <p className="text-[12px] text-muted">{t('loginAnonHint' as Parameters<typeof t>[0])}</p>
           </div>
           <Link
             href="/dang-nhap"

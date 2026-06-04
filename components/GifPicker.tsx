@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { useTranslations } from 'next-intl'
 
 interface GifItem {
   id: string
@@ -42,6 +43,8 @@ interface GiphyGif {
 const API_KEY = process.env.NEXT_PUBLIC_GIPHY_API_KEY
 
 export default function GifPicker({ onSelect, onClose }: Props) {
+  const t = useTranslations('confessions')
+  const te = (k: string) => t(`editor.${k}` as Parameters<typeof t>[0])
   const ref = useRef<HTMLDivElement>(null)
   const [query, setQuery] = useState('')
   const [gifs, setGifs] = useState<GifItem[]>([])
@@ -112,11 +115,7 @@ export default function GifPicker({ onSelect, onClose }: Props) {
         style={{ width: 280 }}
       >
         <p className="text-[12.5px] text-muted text-center leading-relaxed">
-          Thêm{' '}
-          <code className="bg-line px-1 py-0.5 rounded text-[11.5px]">
-            NEXT_PUBLIC_GIPHY_API_KEY
-          </code>{' '}
-          vào <code className="bg-line px-1 py-0.5 rounded text-[11.5px]">.env.local</code> để dùng GIF.
+          {te('gifNoKey')}
         </p>
       </div>
     )
@@ -134,7 +133,7 @@ export default function GifPicker({ onSelect, onClose }: Props) {
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Tìm GIF…"
+          placeholder={te('gifSearch')}
           className="w-full text-[13px] px-3 py-1.5 rounded-lg border border-line bg-white focus:outline-none focus:border-rose/50 focus:ring-1 focus:ring-rose/10 text-ink placeholder:text-muted/50"
           autoFocus
           onKeyDown={(e) => e.key === 'Escape' && onClose()}
@@ -152,7 +151,7 @@ export default function GifPicker({ onSelect, onClose }: Props) {
           </div>
         ) : gifs.length === 0 ? (
           <p className="col-span-3 text-center text-[12px] text-muted/70 py-6">
-            Không tìm thấy GIF
+            {te('gifNotFound')}
           </p>
         ) : (
           gifs.map((gif) => (

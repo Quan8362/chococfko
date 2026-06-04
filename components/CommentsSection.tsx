@@ -4,7 +4,7 @@ import { useFormState, useFormStatus } from 'react-dom'
 import { useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import { submitComment, deleteComment, type CommentResult } from '@/app/cong-dong/actions'
 
 export type Comment = {
@@ -23,15 +23,14 @@ type Props = {
   isAdmin?: boolean
 }
 
-function relativeDate(iso: string): string {
-  const diff = Math.floor((Date.now() - new Date(iso).getTime()) / 60000) // minutes
-  if (diff < 1) return 'Vừa xong'
-  if (diff < 60) return `${diff} phút trước`
-  const hrs = Math.floor(diff / 60)
-  if (hrs < 24) return `${hrs} giờ trước`
-  const days = Math.floor(hrs / 24)
-  if (days < 30) return `${days} ngày trước`
-  return new Date(iso).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })
+function relativeDate(iso: string, locale: string): string {
+  const secs = Math.floor((Date.now() - new Date(iso).getTime()) / 1000)
+  const rtf = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' })
+  if (secs < 60) return rtf.format(-secs, 'second')
+  if (secs < 3600) return rtf.format(-Math.floor(secs / 60), 'minute')
+  if (secs < 86400) return rtf.format(-Math.floor(secs / 3600), 'hour')
+  if (secs < 2592000) return rtf.format(-Math.floor(secs / 86400), 'day')
+  return new Date(iso).toLocaleDateString(locale, { day: '2-digit', month: '2-digit', year: 'numeric' })
 }
 
 function SubmitBtn() {
@@ -52,6 +51,7 @@ const INIT: CommentResult = null
 
 export default function CommentsSection({ postId, comments, currentUser, isAdmin }: Props) {
   const t = useTranslations('comments')
+  const locale = useLocale()
   const router = useRouter()
   const formRef = useRef<HTMLFormElement>(null)
   const [state, formAction] = useFormState(submitComment, INIT)
@@ -125,7 +125,7 @@ export default function CommentsSection({ postId, comments, currentUser, isAdmin
                           {t('you')}
                         </span>
                       )}
-                      <span className="text-[11.5px] text-muted">{relativeDate(c.created_at)}</span>
+                      <span className="text-[11.5px] text-muted">{relativeDate(c.created_at, locale)}</span>
                     </div>
 
                     {canDelete && (

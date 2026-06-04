@@ -86,7 +86,11 @@
     "or_register": "または次で登録",
     "check_email_heading": "メールをご確認ください！",
     "check_email_sub": "確認リンクを送信しました。メール内のリンクをクリックして登録を完了してください。",
-    "back_to_login": "ログインページへ戻る"
+    "back_to_login": "ログインページへ戻る",
+    "provider_disabled": "{provider}は有効になっていません。メールでログインしてください。",
+    "auth_error": "エラー: {message}",
+    "email_placeholder": "you@example.com",
+    "display_name_placeholder": "例: 山田太郎"
   },
   "image_upload": {
     "drag_drop": "ここに画像をドラッグ＆ドロップ",
@@ -629,14 +633,20 @@
       "reactions": "リアクション",
       "workStudy": "仕事・学習",
       "fukuokaLife": "福岡生活",
-      "confessionMood": "コンフェッション"
+      "confessionMood": "コンフェッション",
+      "gifSearch": "GIFを検索…",
+      "gifNotFound": "GIFが見つかりません",
+      "gifNoKey": ".env.localにNEXT_PUBLIC_GIPHY_API_KEYを追加してGIFを使用してください。",
+      "gif": "GIFを挿入"
     },
     "status": {
       "pending": "審査中",
       "approved": "承認済み",
       "rejected": "拒否",
       "deleted": "削除済み"
-    }
+    },
+    "leaveComment": "コメントを残す",
+    "loginAnonHint": "ログイン後、匿名でコメントできます。"
   },
   "admin": {
     "back_home": "ホーム",

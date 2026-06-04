@@ -86,7 +86,11 @@
     "or_register": "Hoặc đăng ký với",
     "check_email_heading": "Kiểm tra email của bạn!",
     "check_email_sub": "Chúng mình đã gửi link xác nhận. Bấm vào link trong email để hoàn tất đăng ký.",
-    "back_to_login": "Về trang đăng nhập"
+    "back_to_login": "Về trang đăng nhập",
+    "provider_disabled": "{provider} chưa được kích hoạt. Vui lòng dùng đăng nhập bằng email.",
+    "auth_error": "Lỗi: {message}",
+    "email_placeholder": "ban@example.com",
+    "display_name_placeholder": "VD: Nguyễn Văn A"
   },
   "image_upload": {
     "drag_drop": "Kéo thả ảnh vào đây",
@@ -629,14 +633,20 @@
       "reactions": "Phản ứng",
       "workStudy": "Công việc",
       "fukuokaLife": "Fukuoka",
-      "confessionMood": "Confession"
+      "confessionMood": "Confession",
+      "gifSearch": "Tìm GIF…",
+      "gifNotFound": "Không tìm thấy GIF",
+      "gifNoKey": "Thêm NEXT_PUBLIC_GIPHY_API_KEY vào .env.local để dùng GIF.",
+      "gif": "Chèn GIF"
     },
     "status": {
       "pending": "Chờ duyệt",
       "approved": "Đã duyệt",
       "rejected": "Từ chối",
       "deleted": "Đã xóa"
-    }
+    },
+    "leaveComment": "Để lại bình luận",
+    "loginAnonHint": "Bạn có thể bình luận ẩn danh sau khi đăng nhập."
   },
   "admin": {
     "back_home": "Trang chủ",

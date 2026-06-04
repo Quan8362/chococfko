@@ -126,7 +126,10 @@ export default function ConfessionComments({
                     <img
                       src={c.author_avatar}
                       alt={displayName}
-                      className="w-8 h-8 rounded-full object-cover ring-2 ring-white"
+                      width={32}
+                      height={32}
+                      referrerPolicy="no-referrer"
+                      className="w-8 h-8 rounded-full object-cover object-center ring-2 ring-white"
                     />
                   ) : (
                     <div className="w-8 h-8 rounded-full grid place-items-center text-[12px] font-bold ring-2 ring-white bg-gradient-to-br from-rose/40 to-teal/40 text-ink">

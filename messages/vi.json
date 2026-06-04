@@ -867,7 +867,14 @@
       "chat_empty": "Chưa có tin nhắn.\nChào đối thủ đi! 👇",
       "chat_placeholder": "Nhập tin nhắn…",
       "chat_login": "Đăng nhập để chat",
-      "chat_spectator": "Khán giả không thể chat"
+      "chat_spectator": "Khán giả không thể chat",
+      "how_to_play": "Cách chơi",
+      "step_label": "Bước {n}",
+      "how_step_1": "Tạo phòng mới",
+      "how_step_2": "Gửi mã phòng hoặc link mời cho bạn bè",
+      "how_step_3": "Hai người thay phiên nhau đi quân",
+      "how_step_4": "Chiếu bí, bắt Tướng hoặc xin thua để kết thúc ván",
+      "piece_legend": "Ký hiệu quân cờ"
     }
   }
 }

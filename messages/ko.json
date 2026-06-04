@@ -850,7 +850,14 @@
       "chat_empty": "아직 메시지가 없습니다.\n상대방에게 인사해보세요！ 👇",
       "chat_placeholder": "메시지 입력…",
       "chat_login": "채팅하려면 로그인하세요",
-      "chat_spectator": "관전자는 채팅할 수 없습니다"
+      "chat_spectator": "관전자는 채팅할 수 없습니다",
+      "how_to_play": "게임 방법",
+      "step_label": "{n}단계",
+      "how_step_1": "새 방 만들기",
+      "how_step_2": "방 코드 또는 초대 링크를 친구에게 보내기",
+      "how_step_3": "번갈아 말 이동하기",
+      "how_step_4": "체크메이트, 장수 잡기, 또는 기권으로 게임 종료",
+      "piece_legend": "말 설명"
     }
   }
 }

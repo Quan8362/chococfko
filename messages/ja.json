@@ -867,7 +867,14 @@
       "chat_empty": "まだメッセージはありません。\n相手に挨拶してみよう！ 👇",
       "chat_placeholder": "メッセージを入力…",
       "chat_login": "チャットするにはログインしてください",
-      "chat_spectator": "観戦者はチャットできません"
+      "chat_spectator": "観戦者はチャットできません",
+      "how_to_play": "遊び方",
+      "step_label": "ステップ {n}",
+      "how_step_1": "新しい部屋を作る",
+      "how_step_2": "部屋コードまたは招待リンクを友達に送る",
+      "how_step_3": "交互に駒を動かす",
+      "how_step_4": "詰み・将取り・投了でゲーム終了",
+      "piece_legend": "駒の説明"
     }
   }
 }

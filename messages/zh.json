@@ -850,7 +850,14 @@
       "chat_empty": "还没有消息。\n跟对手打个招呼吧！ 👇",
       "chat_placeholder": "输入消息…",
       "chat_login": "登录后才能聊天",
-      "chat_spectator": "观战者无法聊天"
+      "chat_spectator": "观战者无法聊天",
+      "how_to_play": "游戏玩法",
+      "step_label": "第 {n} 步",
+      "how_step_1": "创建新房间",
+      "how_step_2": "将房间代码或邀请链接发给朋友",
+      "how_step_3": "轮流走棋",
+      "how_step_4": "将死、捉将或认输以结束对局",
+      "piece_legend": "棋子说明"
     }
   }
 }

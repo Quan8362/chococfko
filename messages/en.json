@@ -867,7 +867,14 @@
       "chat_empty": "No messages yet.\nSay hi to your opponent! 👇",
       "chat_placeholder": "Type a message…",
       "chat_login": "Sign in to chat",
-      "chat_spectator": "Spectators cannot chat"
+      "chat_spectator": "Spectators cannot chat",
+      "how_to_play": "How to Play",
+      "step_label": "Step {n}",
+      "how_step_1": "Create a new room",
+      "how_step_2": "Share the room code or invite link with your friend",
+      "how_step_3": "Take turns moving pieces",
+      "how_step_4": "Checkmate, capture the General, or resign to end the game",
+      "piece_legend": "Piece Legend"
     }
   }
 }

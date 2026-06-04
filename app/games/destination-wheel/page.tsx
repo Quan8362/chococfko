@@ -1,6 +1,6 @@
 import { getTranslations } from 'next-intl/server'
 import Link from 'next/link'
-import { getAllPlacesFromDb, places as staticPlaces } from '@/lib/places'
+import { getAllPlacesFromDb, places as staticPlaces, categories as allCategories } from '@/lib/places'
 import DestinationWheel from './DestinationWheel'
 
 export async function generateMetadata() {
@@ -14,6 +14,12 @@ export default async function DestinationWheelPage() {
 
   const dbPlaces = await getAllPlacesFromDb()
   const allPlaces = dbPlaces ?? staticPlaces
+
+  // Filter categories that have at least one place — done server-side so the client component
+  // never needs to import from lib/places (which would pull next/headers into the client bundle)
+  const availableCategories = allCategories.filter(cat =>
+    allPlaces.some(p => p.category === cat.code)
+  )
 
   return (
     <div className="max-w-[960px] mx-auto px-5 sm:px-6 py-10 pb-20">
@@ -39,7 +45,7 @@ export default async function DestinationWheelPage() {
         </p>
       </div>
 
-      <DestinationWheel places={allPlaces} />
+      <DestinationWheel places={allPlaces} categories={availableCategories} />
     </div>
   )
 }

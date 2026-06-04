@@ -3,11 +3,29 @@
 import { useState, useRef, useCallback } from 'react'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
-import type { Place } from '@/lib/places'
-import { categories } from '@/lib/places'
+
+// Defined inline to avoid importing from lib/places (which pulls next/headers into the client bundle)
+interface Place {
+  slug: string
+  name: string
+  area: string
+  desc: string
+  category: string
+  categoryLabel: string
+  fee: 'free' | 'paid' | null
+  mapUrl: string
+  img: string
+  imgFallback: string
+}
+
+interface Category {
+  code: string
+  full: string
+}
 
 interface Props {
   places: Place[]
+  categories: Category[]
 }
 
 const CATEGORY_EMOJI: Record<string, string> = {
@@ -30,7 +48,7 @@ const CATEGORY_EMOJI: Record<string, string> = {
 
 type SpinState = 'idle' | 'spinning' | 'done'
 
-export default function DestinationWheel({ places }: Props) {
+export default function DestinationWheel({ places, categories }: Props) {
   const t = useTranslations('games.destination_wheel')
   const tCommon = useTranslations('common')
 
@@ -41,10 +59,6 @@ export default function DestinationWheel({ places }: Props) {
   const [lastSlug, setLastSlug] = useState<string | null>(null)
   const [imgError, setImgError] = useState(false)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  const availableCategories = categories.filter(cat =>
-    places.some(p => p.category === cat.code)
-  )
 
   const filteredPlaces =
     selectedCategory === 'all'
@@ -132,7 +146,7 @@ export default function DestinationWheel({ places }: Props) {
               🎯 {t('all')}
             </button>
 
-            {availableCategories.map(cat => (
+            {categories.map(cat => (
               <button
                 key={cat.code}
                 onClick={() => handleCategoryChange(cat.code)}

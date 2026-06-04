@@ -332,8 +332,7 @@ export default function ChineseChessGame({
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
-    <div className="flex flex-col gap-5">
-    <div className="flex flex-col lg:grid lg:grid-cols-[minmax(300px,520px)_1fr] gap-5 lg:gap-6 items-start">
+    <div className="flex flex-col lg:grid lg:grid-cols-[minmax(300px,520px)_360px] gap-5 lg:gap-6 items-start">
 
       {/* ── Column 1: Board ── */}
       <div className="w-full">
@@ -367,7 +366,7 @@ export default function ChineseChessGame({
       </div>
 
       {/* ── Column 2: Info panel ── */}
-      <div className="w-full flex flex-col gap-3 lg:sticky lg:top-4">
+      <div className="w-full flex flex-col gap-3">
 
         {/* Room header */}
         <div className="bg-paper border border-line rounded-2xl px-4 py-3.5 flex items-center justify-between gap-3">
@@ -577,6 +576,16 @@ export default function ChineseChessGame({
           </p>
         )}
 
+        {/* ── Chat ── */}
+        <div style={{ height: 'clamp(280px, 36vh, 360px)' }}>
+          <ChineseChessChat
+            roomId={room.id}
+            userId={userId}
+            myRole={myRole}
+            myName={myName}
+          />
+        </div>
+
         {/* ── Move log ── */}
         {(moveLog.length > 0 || room.status === 'playing') && (
           <div className="bg-paper border border-line rounded-2xl overflow-hidden">
@@ -626,17 +635,6 @@ export default function ChineseChessGame({
           </div>
         )}
       </div>
-    </div>
-
-    {/* Chat panel — isolated from caro, uses chinese-chess-chat-${roomId} channel */}
-    <div style={{ height: 'clamp(320px, 45vh, 420px)' }}>
-      <ChineseChessChat
-        roomId={room.id}
-        userId={userId}
-        myRole={myRole}
-        myName={myName}
-      />
-    </div>
     </div>
   )
 }

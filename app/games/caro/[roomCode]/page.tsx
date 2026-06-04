@@ -52,11 +52,18 @@ export default async function CaroRoomPage({ params }: { params: { roomCode: str
     finalRoom.player_o ? getPlayerName(admin, finalRoom.player_o) : Promise.resolve(null),
   ])
 
+  const myName = user?.id === finalRoom.player_x
+    ? playerXName
+    : user?.id === finalRoom.player_o
+    ? (playerOName ?? 'Người chơi O')
+    : 'Khán giả'
+
   return (
-    <div className="max-w-[960px] mx-auto px-4 py-8">
+    <div className="max-w-[1100px] mx-auto px-4 py-8">
       <CaroGame
         initialRoom={finalRoom}
         userId={user?.id ?? null}
+        myName={myName}
         playerXName={playerXName}
         playerOName={playerOName}
       />

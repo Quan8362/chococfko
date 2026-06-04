@@ -1,14 +1,17 @@
 'use client'
 
-import { useEffect, useState, useCallback, useTransition } from 'react'
+import { useEffect, useRef, useState, useCallback, useTransition } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { makeMove, surrenderGame, type CaroRoom } from '../actions'
+import CaroChat from './CaroChat'
 
 const SIZE = 15
+const TURN_SECONDS = 15
 
 type Props = {
   initialRoom: CaroRoom
   userId: string | null
+  myName: string
   playerXName: string
   playerOName: string | null
 }
@@ -18,19 +21,20 @@ function parseBoard(raw: unknown): (string | null)[] {
   return arr.length === 225 ? arr : Array(225).fill(null)
 }
 
-export default function CaroGame({ initialRoom, userId, playerXName, playerOName }: Props) {
+export default function CaroGame({ initialRoom, userId, myName, playerXName, playerOName }: Props) {
   const [room, setRoom] = useState<CaroRoom>(initialRoom)
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
   const [pendingCell, setPendingCell] = useState<number | null>(null)
   const [copied, setCopied] = useState(false)
+  const [timeLeft, setTimeLeft] = useState(TURN_SECONDS)
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const board = parseBoard(room.board)
   const winCells = new Set<number>(room.winning_cells ?? [])
 
   const mySymbol: 'X' | 'O' | null =
     userId === room.player_x ? 'X' : userId === room.player_o ? 'O' : null
-
   const isMyTurn = room.status === 'playing' && room.current_turn === mySymbol
 
   const inviteUrl =
@@ -56,7 +60,60 @@ export default function CaroGame({ initialRoom, userId, playerXName, playerOName
     return () => { supabase.removeChannel(channel) }
   }, [room.id])
 
-  // ── Handle cell click ──────────────────────────────────────────────────────
+  // ── Auto-move on timeout ──────────────────────────────────────────────────
+  // Use ref so the interval callback always sees the latest board/room
+  const boardRef = useRef(board)
+  boardRef.current = board
+  const roomRef = useRef(room)
+  roomRef.current = room
+  const mySymbolRef = useRef(mySymbol)
+  mySymbolRef.current = mySymbol
+
+  const doAutoMove = useCallback(() => {
+    const currentBoard = boardRef.current
+    const currentRoom = roomRef.current
+    const symbol = mySymbolRef.current
+    if (!symbol || currentRoom.status !== 'playing') return
+    const emptyCells = currentBoard
+      .map((c, i) => (c === null ? i : -1))
+      .filter((i) => i !== -1)
+    if (emptyCells.length === 0) return
+    const idx = emptyCells[Math.floor(Math.random() * emptyCells.length)]
+    setPendingCell(idx)
+    startTransition(async () => {
+      const result = await makeMove(currentRoom.id, idx)
+      if (result?.error) setPendingCell(null)
+    })
+  }, [])
+
+  useEffect(() => {
+    if (timerRef.current) clearInterval(timerRef.current)
+
+    if (!isMyTurn || room.status !== 'playing') {
+      setTimeLeft(TURN_SECONDS)
+      return
+    }
+
+    setTimeLeft(TURN_SECONDS)
+    timerRef.current = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(timerRef.current!)
+          timerRef.current = null
+          doAutoMove()
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+
+    return () => {
+      if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isMyTurn, room.status, room.current_turn])
+
+  // ── Cell click ────────────────────────────────────────────────────────────
   const handleClick = useCallback((index: number) => {
     if (!isMyTurn || isPending || board[index] || room.status !== 'playing') return
     setPendingCell(index)
@@ -70,15 +127,13 @@ export default function CaroGame({ initialRoom, userId, playerXName, playerOName
     })
   }, [isMyTurn, isPending, board, room.id, room.status])
 
-  // ── Handle surrender ──────────────────────────────────────────────────────
+  // ── Surrender ────────────────────────────────────────────────────────────
   const handleSurrender = () => {
     if (!window.confirm('Bạn chắc chắn muốn đầu hàng?')) return
-    startTransition(async () => {
-      await surrenderGame(room.id)
-    })
+    startTransition(async () => { await surrenderGame(room.id) })
   }
 
-  // ── Copy invite link ───────────────────────────────────────────────────────
+  // ── Copy link ─────────────────────────────────────────────────────────────
   const copyLink = () => {
     navigator.clipboard.writeText(inviteUrl).then(() => {
       setCopied(true)
@@ -95,169 +150,207 @@ export default function CaroGame({ initialRoom, userId, playerXName, playerOName
       if (room.winner && mySymbol) return '😢 Bạn thua!'
       return room.winner === 'X' ? `🎉 ${playerXName} thắng!` : `🎉 ${playerOName ?? 'O'} thắng!`
     }
-    if (room.current_turn === mySymbol) return '👆 Đến lượt bạn!'
+    if (isMyTurn) return `👆 Đến lượt bạn!`
     return `⏳ Đợi ${room.current_turn === 'X' ? playerXName : (playerOName ?? 'O')} đi…`
   })()
 
+  const timerPct = (timeLeft / TURN_SECONDS) * 100
+  const timerDanger = timeLeft <= 5 && isMyTurn && room.status === 'playing'
+
   return (
-    <div className="flex flex-col items-center gap-5 pb-16">
+    // Two-column on desktop: board | chat
+    <div className="flex flex-col lg:flex-row gap-5 items-start pb-10">
 
-      {/* Room info bar */}
-      <div className="w-full max-w-[500px] bg-paper border border-line rounded-2xl px-4 py-3 flex items-center justify-between gap-3 flex-wrap">
-        <div>
-          <span className="text-[11px] text-muted/60 font-medium uppercase tracking-wider">Mã phòng</span>
-          <p className="font-mono font-bold text-[18px] text-ink tracking-widest">{room.room_code}</p>
-        </div>
-        <button
-          onClick={copyLink}
-          className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold px-3.5 py-2 rounded-xl bg-cream border border-line hover:bg-rose/5 hover:border-rose/30 transition-all text-ink"
-        >
-          {copied ? (
-            <><svg className="w-3.5 h-3.5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>Đã sao chép!</>
-          ) : (
-            <><svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>Copy link mời</>
-          )}
-        </button>
-      </div>
+      {/* ── LEFT: game area ─────────────────────────────────────────────── */}
+      <div className="flex-1 min-w-0 flex flex-col items-center gap-4 w-full">
 
-      {/* Players + status */}
-      <div className="w-full max-w-[500px]">
-        <div className="flex items-center gap-2 mb-2">
-          {/* X */}
-          <div className={`flex-1 flex items-center gap-2 px-3 py-2.5 rounded-xl border transition-all ${
-            room.status === 'playing' && room.current_turn === 'X'
-              ? 'border-blue-300 bg-blue-50 shadow-sm'
-              : 'border-line bg-cream/50'
-          }`}>
-            <span className="text-[18px] font-black text-blue-600">✕</span>
-            <div className="min-w-0">
-              <p className="text-[12px] text-muted/60">Người chơi X</p>
-              <p className="text-[13.5px] font-semibold text-ink truncate">{playerXName}</p>
-            </div>
-            {room.status === 'playing' && room.current_turn === 'X' && (
-              <span className="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-500 text-white">Lượt</span>
-            )}
-            {room.winner === 'X' && <span className="ml-auto text-[16px]">🏆</span>}
+        {/* Room code — prominent banner */}
+        <div className="w-full bg-gradient-to-r from-ink to-[#3a2d22] rounded-2xl px-5 py-4 flex items-center justify-between gap-3 shadow-lg">
+          <div>
+            <p className="text-[10.5px] font-bold uppercase tracking-[2px] text-white/50 mb-0.5">Mã phòng</p>
+            <p className="font-mono font-black text-[28px] text-white tracking-[0.2em] leading-none">
+              {room.room_code}
+            </p>
           </div>
-
-          <span className="text-[13px] font-bold text-muted/50">VS</span>
-
-          {/* O */}
-          <div className={`flex-1 flex items-center gap-2 px-3 py-2.5 rounded-xl border transition-all ${
-            room.status === 'playing' && room.current_turn === 'O'
-              ? 'border-rose/50 bg-rose/5 shadow-sm'
-              : 'border-line bg-cream/50'
-          }`}>
-            {room.player_o ? (
-              <>
-                <span className="text-[18px] font-black text-rose">○</span>
-                <div className="min-w-0">
-                  <p className="text-[12px] text-muted/60">Người chơi O</p>
-                  <p className="text-[13.5px] font-semibold text-ink truncate">{playerOName ?? '…'}</p>
-                </div>
-                {room.status === 'playing' && room.current_turn === 'O' && (
-                  <span className="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose text-white">Lượt</span>
-                )}
-                {room.winner === 'O' && <span className="ml-auto text-[16px]">🏆</span>}
-              </>
-            ) : (
-              <div className="flex items-center gap-2 text-muted/50">
-                <span className="text-[18px]">👤</span>
-                <p className="text-[13px]">Chờ người chơi…</p>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Status banner */}
-        <div className={`text-center text-[13.5px] font-semibold py-2 px-4 rounded-xl ${
-          room.status === 'finished'
-            ? room.winner === mySymbol
-              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-              : room.winner === 'draw'
-              ? 'bg-amber-50 text-amber-700 border border-amber-200'
-              : 'bg-red-50 text-red-600 border border-red-200'
-            : 'bg-cream border border-line text-ink'
-        }`}>
-          {statusLabel}
-        </div>
-      </div>
-
-      {/* Waiting overlay hint */}
-      {room.status === 'waiting' && mySymbol === 'X' && (
-        <div className="bg-amber-50 border border-amber-200 rounded-2xl px-5 py-3.5 text-[13px] text-amber-800 text-center max-w-[400px]">
-          Chia sẻ link mời hoặc mã phòng <strong>{room.room_code}</strong> để bạn bè tham gia.
-        </div>
-      )}
-
-      {error && (
-        <p className="text-[13px] text-red-600 bg-red-50 px-4 py-2 rounded-xl border border-red-100">
-          {error}
-        </p>
-      )}
-
-      {/* Board */}
-      <div className="overflow-x-auto w-full flex justify-center pb-2">
-        <div
-          className={`inline-grid border-2 rounded-lg select-none ${
-            room.status === 'finished' ? 'border-line' : isMyTurn ? 'border-rose/40' : 'border-line'
-          }`}
-          style={{ gridTemplateColumns: `repeat(${SIZE}, 1fr)`, background: '#f0d4a0' }}
-        >
-          {Array.from({ length: 225 }, (_, i) => {
-            const cell = i === pendingCell && !board[i] ? mySymbol : board[i]
-            const isWin = winCells.has(i)
-            const canClick = isMyTurn && !board[i] && i !== pendingCell && room.status === 'playing'
-
-            return (
-              <button
-                key={i}
-                onClick={() => handleClick(i)}
-                disabled={!canClick || isPending}
-                className={`w-9 h-9 sm:w-10 sm:h-10 border border-[#c8a870]/50 flex items-center justify-center transition-colors relative
-                  ${isWin ? 'bg-yellow-300' : ''}
-                  ${canClick ? 'hover:bg-rose/20 cursor-pointer' : 'cursor-default'}
-                  ${i === pendingCell ? 'opacity-60' : ''}
-                `}
-              >
-                {cell === 'X' && (
-                  <span className="font-black text-[17px] sm:text-[20px] text-blue-700 leading-none select-none">✕</span>
-                )}
-                {cell === 'O' && (
-                  <span className="font-black text-[17px] sm:text-[20px] text-rose leading-none select-none">○</span>
-                )}
-              </button>
-            )
-          })}
-        </div>
-      </div>
-
-      {/* Actions */}
-      <div className="flex gap-3 flex-wrap justify-center">
-        {room.status === 'playing' && mySymbol && (
           <button
-            onClick={handleSurrender}
-            disabled={isPending}
-            className="text-[13px] font-semibold px-5 py-2.5 rounded-xl border border-red-200 text-red-600 bg-red-50 hover:bg-red-100 transition-all disabled:opacity-50"
+            onClick={copyLink}
+            className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-all border border-white/15"
           >
-            🏳️ Đầu hàng
+            {copied ? (
+              <><svg className="w-3.5 h-3.5 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7"/></svg>Đã sao chép!</>
+            ) : (
+              <><svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>Copy link mời</>
+            )}
           </button>
+        </div>
+
+        {/* Players row */}
+        <div className="w-full flex items-center gap-2">
+          <PlayerCard
+            symbol="X" name={playerXName}
+            active={room.status === 'playing' && room.current_turn === 'X'}
+            winner={room.winner === 'X'}
+          />
+          <span className="text-[13px] font-black text-muted/30 flex-none">VS</span>
+          <PlayerCard
+            symbol="O" name={playerOName ?? (room.player_o ? '…' : null)}
+            active={room.status === 'playing' && room.current_turn === 'O'}
+            winner={room.winner === 'O'}
+          />
+        </div>
+
+        {/* Status + timer */}
+        <div className="w-full overflow-hidden rounded-xl border border-line">
+          {/* Timer bar — only show during playing */}
+          {room.status === 'playing' && room.player_o && (
+            <div className="h-1.5 w-full bg-line/50">
+              <div
+                className={`h-full transition-all duration-1000 ease-linear rounded-full ${
+                  timerDanger ? 'bg-red-500' : isMyTurn ? 'bg-rose' : 'bg-blue-400'
+                }`}
+                style={{ width: `${timerPct}%` }}
+              />
+            </div>
+          )}
+          <div className={`flex items-center justify-between px-4 py-2.5 text-[13.5px] font-semibold ${
+            room.status === 'finished'
+              ? room.winner === mySymbol
+                ? 'bg-emerald-50 text-emerald-700'
+                : room.winner === 'draw'
+                ? 'bg-amber-50 text-amber-700'
+                : 'bg-red-50 text-red-600'
+              : 'bg-cream text-ink'
+          }`}>
+            <span>{statusLabel}</span>
+            {isMyTurn && room.status === 'playing' && room.player_o && (
+              <span className={`font-mono text-[15px] font-black tabular-nums ${timerDanger ? 'text-red-500 animate-pulse' : 'text-ink/50'}`}>
+                {timeLeft}s
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Waiting hint */}
+        {room.status === 'waiting' && mySymbol === 'X' && (
+          <div className="w-full bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3 text-[13px] text-amber-800 text-center">
+            Chia sẻ link mời hoặc mã phòng <strong className="font-mono tracking-wider">{room.room_code}</strong> để bạn bè tham gia.
+          </div>
         )}
-        {room.status === 'finished' && (
+
+        {error && (
+          <p className="text-[13px] text-red-600 bg-red-50 px-4 py-2 rounded-xl border border-red-100 w-full text-center">
+            {error}
+          </p>
+        )}
+
+        {/* Board */}
+        <div className="overflow-x-auto w-full flex justify-center pb-1">
+          <div
+            className={`inline-grid border-2 rounded-xl select-none shadow-md ${
+              room.status === 'finished' ? 'border-line/60'
+              : timerDanger ? 'border-red-400'
+              : isMyTurn ? 'border-rose/50'
+              : 'border-line'
+            }`}
+            style={{ gridTemplateColumns: `repeat(${SIZE}, 1fr)`, background: '#f0d4a0' }}
+          >
+            {Array.from({ length: 225 }, (_, i) => {
+              const cell = i === pendingCell && !board[i] ? mySymbol : board[i]
+              const isWin = winCells.has(i)
+              const canClick = isMyTurn && !board[i] && i !== pendingCell && room.status === 'playing'
+              return (
+                <button
+                  key={i}
+                  onClick={() => handleClick(i)}
+                  disabled={!canClick || isPending}
+                  className={`w-9 h-9 sm:w-10 sm:h-10 border border-[#c8a870]/50 flex items-center justify-center transition-colors
+                    ${isWin ? 'bg-yellow-300' : ''}
+                    ${canClick ? 'hover:bg-rose/20 cursor-pointer' : 'cursor-default'}
+                    ${i === pendingCell ? 'opacity-50' : ''}
+                  `}
+                >
+                  {cell === 'X' && <span className="font-black text-[17px] sm:text-[20px] text-blue-700 leading-none select-none">✕</span>}
+                  {cell === 'O' && <span className="font-black text-[17px] sm:text-[20px] text-rose leading-none select-none">○</span>}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="flex gap-3 flex-wrap justify-center">
+          {room.status === 'playing' && mySymbol && (
+            <button
+              onClick={handleSurrender}
+              disabled={isPending}
+              className="text-[13px] font-semibold px-5 py-2.5 rounded-xl border border-red-200 text-red-600 bg-red-50 hover:bg-red-100 transition-all disabled:opacity-50"
+            >
+              🏳️ Đầu hàng
+            </button>
+          )}
+          {room.status === 'finished' && (
+            <a
+              href="/games/caro"
+              className="inline-flex items-center gap-2 text-[13.5px] font-semibold px-5 py-2.5 rounded-xl bg-rose text-white hover:bg-rose-deep transition-all shadow-[0_2px_12px_-2px_rgba(194,24,91,0.4)]"
+            >
+              ♟️ Chơi ván mới
+            </a>
+          )}
           <a
             href="/games/caro"
-            className="inline-flex items-center gap-2 text-[13.5px] font-semibold px-5 py-2.5 rounded-xl bg-rose text-white hover:bg-rose-deep transition-all shadow-[0_2px_12px_-2px_rgba(194,24,91,0.4)]"
+            className="text-[13px] font-medium px-5 py-2.5 rounded-xl border border-line text-muted hover:bg-line transition-all"
           >
-            ♟️ Chơi ván mới
+            ← Về lobby
           </a>
-        )}
-        <a
-          href="/games/caro"
-          className="text-[13px] font-medium px-5 py-2.5 rounded-xl border border-line text-muted hover:bg-line transition-all"
-        >
-          ← Về lobby
-        </a>
+        </div>
       </div>
+
+      {/* ── RIGHT: chat ─────────────────────────────────────────────────── */}
+      <div className="w-full lg:w-[300px] lg:flex-none lg:sticky lg:top-[80px]" style={{ height: 'clamp(360px, 60vh, 560px)' }}>
+        <CaroChat
+          roomId={room.id}
+          userId={userId}
+          mySymbol={mySymbol}
+          myName={myName}
+        />
+      </div>
+    </div>
+  )
+}
+
+// ── PlayerCard ────────────────────────────────────────────────────────────────
+function PlayerCard({
+  symbol, name, active, winner,
+}: {
+  symbol: 'X' | 'O'
+  name: string | null
+  active: boolean
+  winner: boolean
+}) {
+  const isX = symbol === 'X'
+  return (
+    <div className={`flex-1 flex items-center gap-2 px-3 py-2.5 rounded-xl border transition-all ${
+      active
+        ? isX ? 'border-blue-300 bg-blue-50 shadow-sm' : 'border-rose/40 bg-rose/5 shadow-sm'
+        : 'border-line bg-cream/50'
+    }`}>
+      <span className={`text-[18px] font-black flex-none ${isX ? 'text-blue-600' : 'text-rose'}`}>
+        {isX ? '✕' : '○'}
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="text-[11px] text-muted/50">Người chơi {symbol}</p>
+        <p className="text-[13px] font-semibold text-ink truncate">
+          {name ?? <span className="text-muted/40 italic text-[12px]">Chờ người chơi…</span>}
+        </p>
+      </div>
+      {active && (
+        <span className={`ml-auto text-[9.5px] font-bold px-1.5 py-0.5 rounded-full flex-none ${
+          isX ? 'bg-blue-500 text-white' : 'bg-rose text-white'
+        }`}>
+          Lượt
+        </span>
+      )}
+      {winner && <span className="ml-auto text-[16px] flex-none">🏆</span>}
     </div>
   )
 }

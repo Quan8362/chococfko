@@ -22,6 +22,7 @@ const CAT_EMOJI: Record<string, string> = {
   chinese: "🥡",
   korean: "🥩",
   cafe_milk_tea: "☕",
+  kids_playground: "🎠",
 };
 
 export default async function Home() {

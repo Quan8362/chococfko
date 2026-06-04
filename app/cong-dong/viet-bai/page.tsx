@@ -178,6 +178,7 @@ export default async function VietBai({
                       <option value="chinese">{tf('chinese')}</option>
                       <option value="korean">{tf('korean')}</option>
                       <option value="cafe_milk_tea">{tf('cafe_milk_tea')}</option>
+                      <option value="kids_playground">{tf('kids_playground')}</option>
                     </select>
                     <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />

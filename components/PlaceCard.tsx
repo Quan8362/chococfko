@@ -19,6 +19,7 @@ const CAT_EMOJI: Record<string, string> = {
   chinese: "🥡",
   korean: "🥩",
   cafe_milk_tea: "☕",
+  kids_playground: "🎠",
 };
 
 // Maps Vietnamese time-of-day area strings to translation keys

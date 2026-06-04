@@ -1,13 +1,11 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
-import { getPost, getPostFromDb, isUuid, posts } from '@/lib/posts'
-import { checkIsAdmin } from '@/lib/supabase/admin'
+import { getPost, getPostFromDb, isUuid } from '@/lib/posts'
+import { checkIsAdmin, createAdminClient } from '@/lib/supabase/admin'
+import { createClient } from '@/lib/supabase/server'
 import SmartImg from '@/components/SmartImg'
-
-export function generateStaticParams() {
-  return posts.map((p) => ({ id: p.id }))
-}
+import CommentsSection, { type Comment } from '@/components/CommentsSection'
 
 export async function generateMetadata({ params }: { params: { id: string } }) {
   const p = isUuid(params.id)
@@ -16,10 +14,44 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
   return { title: p ? `${p.title} · Chợ Cóc FKO` : 'Chợ Cóc FKO' }
 }
 
+export const dynamic = 'force-dynamic'
+
+async function getComments(postId: string): Promise<Comment[]> {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !isUuid(postId)) return []
+  try {
+    const admin = createAdminClient()
+    const { data, error } = await admin
+      .from('comments_with_author')
+      .select('id, user_id, content, created_at, author_name, author_avatar')
+      .eq('post_id', postId)
+      .eq('status', 'approved')
+      .order('created_at', { ascending: true })
+    if (error || !data) return []
+    return data as Comment[]
+  } catch {
+    return []
+  }
+}
+
+async function getCurrentUser() {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return null
+  try {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return null
+    const name = user.user_metadata?.display_name || user.email?.split('@')[0] || 'Bạn'
+    return { id: user.id, name, initial: name[0].toUpperCase() }
+  } catch {
+    return null
+  }
+}
+
 export default async function PostDetail({ params }: { params: { id: string } }) {
-  const [postResult, isAdmin] = await Promise.all([
+  const [postResult, isAdmin, comments, currentUser] = await Promise.all([
     isUuid(params.id) ? getPostFromDb(params.id) : Promise.resolve(getPost(params.id) ?? null),
     checkIsAdmin(),
+    getComments(params.id),
+    getCurrentUser(),
   ])
   const post = postResult
   if (!post) notFound()
@@ -29,6 +61,7 @@ export default async function PostDetail({ params }: { params: { id: string } })
 
   return (
     <article className="pb-16">
+      {/* ── HERO IMAGE ────────────────────────────────────────── */}
       <div className="relative h-[46vh] min-h-[320px] max-h-[540px] overflow-hidden bg-gradient-to-br from-[#f3e1d2] to-[#e9cdb6]">
         <SmartImg
           src={post.img.replace('/1000/750/', '/1500/900/')}
@@ -64,7 +97,10 @@ export default async function PostDetail({ params }: { params: { id: string } })
         </div>
       </div>
 
+      {/* ── CONTENT ───────────────────────────────────────────── */}
       <div className="max-w-[820px] mx-auto px-7 mt-8">
+
+        {/* Author row */}
         <div className="flex items-center justify-between pb-6 mb-7 border-b border-line">
           <div className="flex items-center gap-3">
             <span
@@ -88,6 +124,7 @@ export default async function PostDetail({ params }: { params: { id: string } })
           )}
         </div>
 
+        {/* Post body */}
         {post.body.length > 0 && post.body[0].trimStart().startsWith('<') ? (
           <div
             className="rich-content text-[#3a2d22]"
@@ -106,7 +143,16 @@ export default async function PostDetail({ params }: { params: { id: string } })
           ))
         )}
 
-        <div className="mt-9 bg-paper border border-line rounded-2xl p-6 text-center">
+        {/* ── COMMENTS ────────────────────────────────────────── */}
+        <CommentsSection
+          postId={params.id}
+          comments={comments}
+          currentUser={currentUser}
+          isAdmin={isAdmin}
+        />
+
+        {/* ── CTA ─────────────────────────────────────────────── */}
+        <div className="mt-6 bg-paper border border-line rounded-2xl p-6 text-center">
           <p className="text-[15px] text-[#5c4d44] mb-4">
             {t('share_prompt')}
           </p>

@@ -13,6 +13,7 @@ const CAT_EMOJI: Record<string, string> = {
   mountain: "⛰️", park: "🌳", viet: "🥢", grocery: "🛒", izakaya: "🍺",
   japanese: "🍣", thai: "🌶️", chinese: "🥡", korean: "🥩",
   cafe_milk_tea: "☕",
+  kids_playground: "🎠",
 };
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {

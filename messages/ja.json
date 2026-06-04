@@ -18,6 +18,7 @@
     "community": "コミュニティ",
     "profile": "プロフィール",
     "login": "ログイン",
+    "register": "登録",
     "logout": "ログアウト",
     "write_post": "✍️ 投稿",
     "admin": "管理",
@@ -144,6 +145,23 @@
     "view_explore": "スポット一覧を見る",
     "write_another_place": "別の場所を投稿する"
   },
+  "comments": {
+    "title": "コメント",
+    "placeholder": "感想をシェアしてください...",
+    "submit": "コメントを送る",
+    "sending": "送信中...",
+    "success": "コメントを送りました。",
+    "error": "コメントを送れませんでした。もう一度お試しください。",
+    "errorEmpty": "コメントを入力してください。",
+    "errorTooLong": "コメントは1000文字以内で入力してください。",
+    "loginRequired": "コメントするにはログインが必要です。",
+    "loginButton": "ログイン",
+    "empty": "まだコメントがありません。最初に感想をシェアしてください。",
+    "anonymous": "匿名",
+    "you": "あなた",
+    "delete": "削除",
+    "confirmDelete": "このコメントを削除しますか？"
+  },
   "actions": {
     "writePlace": "場所を投稿する",
     "writeCommunityPost": "体験をシェアする",
@@ -232,7 +250,8 @@
     "landmark": "観光", "grocery": "食材店", "izakaya": "居酒屋",
     "japanese": "日本料理", "thai": "タイ料理",
     "chinese": "中華料理", "korean": "韓国料理",
-    "cafe_milk_tea": "カフェ・ミルクティー"
+    "cafe_milk_tea": "カフェ・ミルクティー",
+    "kids_playground": "子どもの遊び場"
   },
   "categories": {
     "landmark": "観光", "landmark_full": "観光",
@@ -248,7 +267,8 @@
     "thai": "タイ料理", "thai_full": "タイ料理",
     "chinese": "中華料理", "chinese_full": "中華料理",
     "korean": "韓国料理", "korean_full": "韓国料理",
-    "cafe_milk_tea": "カフェ・ミルクティー", "cafe_milk_tea_full": "カフェ・ミルクティー"
+    "cafe_milk_tea": "カフェ・ミルクティー", "cafe_milk_tea_full": "カフェ・ミルクティー",
+    "kids_playground": "子どもの遊び場", "kids_playground_full": "子どもの遊び場"
   },
   "profile": {
     "title": "プロフィール",

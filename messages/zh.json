@@ -18,6 +18,7 @@
     "community": "社区",
     "profile": "个人主页",
     "login": "登录",
+    "register": "注册",
     "logout": "退出",
     "write_post": "✍️ 写文章",
     "admin": "管理",
@@ -127,6 +128,23 @@
     "view_explore": "查看探索页面",
     "write_another_place": "再发布一个地点"
   },
+  "comments": {
+    "title": "评论",
+    "placeholder": "分享您的想法...",
+    "submit": "发表评论",
+    "sending": "发送中...",
+    "success": "评论已发送。",
+    "error": "无法发送评论，请重试。",
+    "errorEmpty": "评论不能为空。",
+    "errorTooLong": "评论不能超过1000个字符。",
+    "loginRequired": "请登录后发表评论。",
+    "loginButton": "登录",
+    "empty": "暂无评论，来第一个分享您的想法吧。",
+    "anonymous": "匿名",
+    "you": "您",
+    "delete": "删除",
+    "confirmDelete": "确定要删除这条评论吗？"
+  },
   "actions": {
     "writePlace": "发布地点",
     "writeCommunityPost": "分享旅程",
@@ -215,7 +233,8 @@
     "landmark": "旅游", "grocery": "食品店", "izakaya": "居酒屋",
     "japanese": "日本料理", "thai": "泰国料理",
     "chinese": "中国料理", "korean": "韩国料理",
-    "cafe_milk_tea": "咖啡 & 奶茶"
+    "cafe_milk_tea": "咖啡 & 奶茶",
+    "kids_playground": "儿童游乐场"
   },
   "categories": {
     "landmark": "旅游", "landmark_full": "旅游",
@@ -231,7 +250,8 @@
     "thai": "泰国料理", "thai_full": "泰国料理",
     "chinese": "中国料理", "chinese_full": "中国料理",
     "korean": "韩国料理", "korean_full": "韩国料理",
-    "cafe_milk_tea": "咖啡 & 奶茶", "cafe_milk_tea_full": "咖啡 & 奶茶"
+    "cafe_milk_tea": "咖啡 & 奶茶", "cafe_milk_tea_full": "咖啡 & 奶茶",
+    "kids_playground": "儿童游乐场", "kids_playground_full": "儿童游乐场"
   },
   "profile": {
     "title": "个人主页",

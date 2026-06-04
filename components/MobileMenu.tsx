@@ -54,7 +54,7 @@ export default function MobileMenu({ isAdmin, isLoggedIn }: MobileMenuProps) {
               <Link href="/cong-dong/viet-bai" onClick={close} className="flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] font-semibold text-rose hover:bg-rose-soft transition-colors">
                 {t('write_post')}
               </Link>
-              {isLoggedIn && (
+              {isLoggedIn ? (
                 <>
                   <Link href="/ho-so" onClick={close} className="flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -74,12 +74,28 @@ export default function MobileMenu({ isAdmin, isLoggedIn }: MobileMenuProps) {
                     </svg>
                     {t('saved_places')}
                   </Link>
+                  {isAdmin && (
+                    <Link href="/admin" onClick={close} className="flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] font-medium text-amber-700 hover:bg-[#fffbeb] transition-colors">
+                      <span>⚙️</span> {t('admin')}
+                    </Link>
+                  )}
                 </>
-              )}
-              {isAdmin && (
-                <Link href="/admin" onClick={close} className="flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] font-medium text-amber-700 hover:bg-[#fffbeb] transition-colors">
-                  <span>⚙️</span> {t('admin')}
-                </Link>
+              ) : (
+                <>
+                  <div className="my-1 border-t border-line" />
+                  <Link href="/dang-nhap" onClick={close} className="flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] font-semibold text-rose hover:bg-rose-soft transition-colors">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                    </svg>
+                    {t('login')}
+                  </Link>
+                  <Link href="/dang-ky" onClick={close} className="flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                    </svg>
+                    {t('register')}
+                  </Link>
+                </>
               )}
             </nav>
           </div>

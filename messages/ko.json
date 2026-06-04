@@ -18,6 +18,7 @@
     "community": "커뮤니티",
     "profile": "프로필",
     "login": "로그인",
+    "register": "회원가입",
     "logout": "로그아웃",
     "write_post": "✍️ 글쓰기",
     "admin": "관리",
@@ -127,6 +128,23 @@
     "view_explore": "탐색 페이지 보기",
     "write_another_place": "다른 장소 등록하기"
   },
+  "comments": {
+    "title": "댓글",
+    "placeholder": "생각을 공유해 보세요...",
+    "submit": "댓글 달기",
+    "sending": "전송 중...",
+    "success": "댓글이 등록되었습니다.",
+    "error": "댓글을 등록할 수 없습니다. 다시 시도해 주세요.",
+    "errorEmpty": "댓글을 입력해 주세요.",
+    "errorTooLong": "댓글은 1000자 이내로 입력해 주세요.",
+    "loginRequired": "댓글을 달려면 로그인이 필요합니다.",
+    "loginButton": "로그인",
+    "empty": "아직 댓글이 없습니다. 첫 번째로 생각을 공유해 보세요.",
+    "anonymous": "익명",
+    "you": "나",
+    "delete": "삭제",
+    "confirmDelete": "이 댓글을 삭제하시겠습니까?"
+  },
   "actions": {
     "writePlace": "장소 등록하기",
     "writeCommunityPost": "여행 공유하기",
@@ -215,7 +233,8 @@
     "landmark": "관광", "grocery": "식품점", "izakaya": "이자카야",
     "japanese": "일본 식당", "thai": "태국 식당",
     "chinese": "중국 식당", "korean": "한국 식당",
-    "cafe_milk_tea": "카페 & 밀크티"
+    "cafe_milk_tea": "카페 & 밀크티",
+    "kids_playground": "어린이 놀이터"
   },
   "categories": {
     "landmark": "관광", "landmark_full": "관광",
@@ -231,7 +250,8 @@
     "thai": "태국 식당", "thai_full": "태국 요리",
     "chinese": "중국 식당", "chinese_full": "중국 요리",
     "korean": "한국 식당", "korean_full": "한국 요리",
-    "cafe_milk_tea": "카페 & 밀크티", "cafe_milk_tea_full": "카페 & 밀크티"
+    "cafe_milk_tea": "카페 & 밀크티", "cafe_milk_tea_full": "카페 & 밀크티",
+    "kids_playground": "어린이 놀이터", "kids_playground_full": "어린이 놀이터"
   },
   "profile": {
     "title": "프로필",

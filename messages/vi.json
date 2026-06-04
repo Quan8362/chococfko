@@ -18,6 +18,7 @@
     "community": "Cộng đồng",
     "profile": "Hồ sơ cá nhân",
     "login": "Đăng nhập",
+    "register": "Đăng ký",
     "logout": "Đăng xuất",
     "write_post": "✍️ Viết bài",
     "admin": "Admin",
@@ -144,6 +145,23 @@
     "view_explore": "Xem trang Khám phá",
     "write_another_place": "Đăng địa điểm khác"
   },
+  "comments": {
+    "title": "Bình luận",
+    "placeholder": "Chia sẻ cảm nghĩ của bạn...",
+    "submit": "Gửi bình luận",
+    "sending": "Đang gửi...",
+    "success": "Đã gửi bình luận.",
+    "error": "Không thể gửi bình luận. Vui lòng thử lại.",
+    "errorEmpty": "Bình luận không được để trống.",
+    "errorTooLong": "Bình luận không được quá 1000 ký tự.",
+    "loginRequired": "Bạn cần đăng nhập để bình luận.",
+    "loginButton": "Đăng nhập",
+    "empty": "Chưa có bình luận nào. Hãy là người đầu tiên chia sẻ cảm nghĩ của bạn.",
+    "anonymous": "Ẩn danh",
+    "you": "Bạn",
+    "delete": "Xóa",
+    "confirmDelete": "Bạn có chắc muốn xóa bình luận này không?"
+  },
   "actions": {
     "writePlace": "Đăng địa điểm",
     "writeCommunityPost": "Chia sẻ chuyến đi",
@@ -223,7 +241,8 @@
     "landmark": "Du lịch", "grocery": "Tạp hóa", "izakaya": "Izakaya",
     "japanese": "Quán Nhật", "thai": "Quán Thái",
     "chinese": "Quán Trung", "korean": "Quán Hàn",
-    "cafe_milk_tea": "Cà phê & trà sữa"
+    "cafe_milk_tea": "Cà phê & trà sữa",
+    "kids_playground": "Khu vui chơi dành cho bé"
   },
   "categories": {
     "landmark": "Du lịch", "landmark_full": "Du lịch",
@@ -239,7 +258,8 @@
     "thai": "Quán Thái", "thai_full": "Quán Thái",
     "chinese": "Quán Trung", "chinese_full": "Quán Trung",
     "korean": "Quán Hàn", "korean_full": "Quán Hàn",
-    "cafe_milk_tea": "Cà phê & trà sữa", "cafe_milk_tea_full": "Cà phê & trà sữa"
+    "cafe_milk_tea": "Cà phê & trà sữa", "cafe_milk_tea_full": "Cà phê & trà sữa",
+    "kids_playground": "Khu vui chơi trẻ em", "kids_playground_full": "Khu vui chơi dành cho bé"
   },
   "profile": {
     "title": "Hồ sơ cá nhân",

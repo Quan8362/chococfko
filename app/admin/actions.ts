@@ -40,6 +40,7 @@ const CATEGORY_LABEL: Record<string, string> = {
   mountain: 'Leo núi', park: 'Công viên', viet: 'Quán Việt', landmark: 'Du lịch',
   grocery: 'Tạp hóa', izakaya: 'Izakaya',
   japanese: 'Quán Nhật', thai: 'Quán Thái', chinese: 'Quán Trung', korean: 'Quán Hàn',
+  kids_playground: 'Khu vui chơi dành cho bé',
 }
 
 export async function updatePost(formData: FormData) {

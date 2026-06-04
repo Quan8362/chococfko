@@ -21,7 +21,8 @@ export const categories: Category[] = [
   { "code": "thai",     "short": "Quán Thái",  "full": "Quán Thái" },
   { "code": "chinese",  "short": "Quán Trung", "full": "Quán Trung" },
   { "code": "korean",   "short": "Quán Hàn",   "full": "Quán Hàn" },
-  { "code": "cafe_milk_tea", "short": "Cà phê & trà sữa", "full": "Cà phê & trà sữa" },
+  { "code": "cafe_milk_tea",    "short": "Cà phê & trà sữa",       "full": "Cà phê & trà sữa" },
+  { "code": "kids_playground", "short": "Khu vui chơi trẻ em",   "full": "Khu vui chơi dành cho bé" },
 ];
 
 export const places: Place[] = [

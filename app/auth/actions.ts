@@ -19,28 +19,66 @@ const CATEGORY_LABEL: Record<string, string> = {
   chinese: 'Quán Trung',
   korean: 'Quán Hàn',
   cafe_milk_tea: 'Cà phê & trà sữa',
+  kids_playground: 'Khu vui chơi dành cho bé',
+}
+
+function mapAuthError(msg: string, lang: 'login' | 'register'): string {
+  const m = msg.toLowerCase()
+  if (m.includes('invalid login credentials') || m.includes('invalid credentials'))
+    return 'Email hoặc mật khẩu không đúng. Vui lòng kiểm tra lại.'
+  if (m.includes('email not confirmed'))
+    return 'Email chưa được xác nhận. Vui lòng kiểm tra hộp thư và bấm vào link xác nhận.'
+  if (m.includes('user already registered') || m.includes('already been registered') || m.includes('already exists'))
+    return 'Email này đã được sử dụng. Vui lòng đăng nhập hoặc dùng email khác.'
+  if (m.includes('password should be at least'))
+    return 'Mật khẩu quá ngắn. Vui lòng nhập ít nhất 6 ký tự.'
+  if (m.includes('unable to validate email') || m.includes('invalid email'))
+    return 'Email không hợp lệ. Vui lòng kiểm tra lại.'
+  if (m.includes('email rate limit') || m.includes('rate limit'))
+    return 'Quá nhiều yêu cầu. Vui lòng thử lại sau vài phút.'
+  if (m.includes('signup is disabled'))
+    return 'Đăng ký tạm thời bị vô hiệu. Vui lòng thử lại sau.'
+  if (lang === 'login')
+    return 'Đăng nhập thất bại. Vui lòng thử lại.'
+  return 'Đăng ký thất bại. Vui lòng thử lại.'
 }
 
 export async function signUp(formData: FormData) {
   const supabase = createClient()
+  const displayName = (formData.get('display_name') as string ?? '').trim()
+  const email = (formData.get('email') as string ?? '').trim()
+  const password = formData.get('password') as string ?? ''
+
+  if (!displayName || displayName.length < 2)
+    redirect(`/dang-ky?error=${encodeURIComponent('Tên hiển thị phải có ít nhất 2 ký tự.')}`)
+  if (displayName.length > 50)
+    redirect(`/dang-ky?error=${encodeURIComponent('Tên hiển thị không được quá 50 ký tự.')}`)
+  if (!email)
+    redirect(`/dang-ky?error=${encodeURIComponent('Email không được để trống.')}`)
+  if (password.length < 6)
+    redirect(`/dang-ky?error=${encodeURIComponent('Mật khẩu phải có ít nhất 6 ký tự.')}`)
+
   const { error } = await supabase.auth.signUp({
-    email: formData.get('email') as string,
-    password: formData.get('password') as string,
-    options: {
-      data: { display_name: formData.get('display_name') as string },
-    },
+    email,
+    password,
+    options: { data: { display_name: displayName } },
   })
-  if (error) redirect(`/dang-ky?error=${encodeURIComponent(error.message)}`)
+  if (error) redirect(`/dang-ky?error=${encodeURIComponent(mapAuthError(error.message, 'register'))}`)
   redirect('/dang-ky?success=1')
 }
 
 export async function signIn(formData: FormData) {
   const supabase = createClient()
-  const { error } = await supabase.auth.signInWithPassword({
-    email: formData.get('email') as string,
-    password: formData.get('password') as string,
-  })
-  if (error) redirect(`/dang-nhap?error=${encodeURIComponent(error.message)}`)
+  const email = (formData.get('email') as string ?? '').trim()
+  const password = formData.get('password') as string ?? ''
+
+  if (!email)
+    redirect(`/dang-nhap?error=${encodeURIComponent('Email không được để trống.')}`)
+  if (!password)
+    redirect(`/dang-nhap?error=${encodeURIComponent('Mật khẩu không được để trống.')}`)
+
+  const { error } = await supabase.auth.signInWithPassword({ email, password })
+  if (error) redirect(`/dang-nhap?error=${encodeURIComponent(mapAuthError(error.message, 'login'))}`)
   revalidatePath('/', 'layout')
   redirect('/')
 }

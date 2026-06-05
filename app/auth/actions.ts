@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminNotification } from '@/lib/admin/notifications'
 
 const CATEGORY_LABEL: Record<string, string> = {
   food: 'Ăn uống',
@@ -58,13 +59,17 @@ export async function signUp(formData: FormData) {
   if (password.length < 6)
     redirect(`/dang-ky?error=${encodeURIComponent('Mật khẩu phải có ít nhất 6 ký tự.')}`)
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://chococfko.com'
   const { error } = await supabase.auth.signUp({
     email,
     password,
-    options: { data: { display_name: displayName } },
+    options: {
+      data: { display_name: displayName },
+      emailRedirectTo: `${siteUrl}/auth/callback?next=${encodeURIComponent('/dang-nhap?confirmed=1')}`,
+    },
   })
   if (error) redirect(`/dang-ky?error=${encodeURIComponent(mapAuthError(error.message, 'register'))}`)
-  redirect('/dang-ky?success=1')
+  redirect(`/dang-ky?success=1&email=${encodeURIComponent(email)}`)
 }
 
 export async function signIn(formData: FormData) {
@@ -78,9 +83,31 @@ export async function signIn(formData: FormData) {
     redirect(`/dang-nhap?error=${encodeURIComponent('Mật khẩu không được để trống.')}`)
 
   const { error } = await supabase.auth.signInWithPassword({ email, password })
-  if (error) redirect(`/dang-nhap?error=${encodeURIComponent(mapAuthError(error.message, 'login'))}`)
+  if (error) {
+    const msg = error.message.toLowerCase()
+    if (msg.includes('email not confirmed') || msg.includes('email_not_confirmed')) {
+      redirect(`/dang-nhap?unconfirmed=1&email=${encodeURIComponent(email)}`)
+    }
+    redirect(`/dang-nhap?error=${encodeURIComponent(mapAuthError(error.message, 'login'))}`)
+  }
   revalidatePath('/', 'layout')
   redirect('/')
+}
+
+export async function resendConfirmation(formData: FormData): Promise<void> {
+  const supabase = createClient()
+  const email = (formData.get('email') as string ?? '').trim()
+  if (!email) redirect('/dang-ky')
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://chococfko.com'
+  await supabase.auth.resend({
+    type: 'signup',
+    email,
+    options: {
+      emailRedirectTo: `${siteUrl}/auth/callback?next=${encodeURIComponent('/dang-nhap?confirmed=1')}`,
+    },
+  })
+  // Always show success (security: don't reveal if email exists)
+  redirect(`/dang-nhap?resent=1&email=${encodeURIComponent(email)}`)
 }
 
 export async function signOut() {
@@ -131,6 +158,17 @@ export async function submitPlace(formData: FormData) {
   })
 
   if (error) redirect('/dia-diem/dang?error=' + encodeURIComponent(error.message))
+
+  await createAdminNotification({
+    type: 'new_pending_place',
+    title: 'Địa điểm mới cần duyệt',
+    message: name,
+    target_type: 'place',
+    target_id: slug,
+    target_url: `/admin/dia-diem/${slug}`,
+    actor_id: user.id,
+  })
+
   redirect('/dia-diem/dang?success=1')
 }
 
@@ -176,5 +214,15 @@ export async function submitPost(formData: FormData) {
 
   const base = post_type === 'place' ? '/dia-diem/dang' : '/cong-dong/viet-bai'
   if (error) redirect(`${base}?error=${encodeURIComponent(error.message)}`)
+
+  await createAdminNotification({
+    type: 'new_pending_post',
+    title: 'Bài viết cộng đồng mới cần duyệt',
+    message: (formData.get('title') as string).trim(),
+    target_type: 'post',
+    target_url: '/admin?tab=pending',
+    actor_id: user.id,
+  })
+
   redirect(`${base}?success=1`)
 }

@@ -3,6 +3,8 @@ import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import ChineseChessLobby from './ChineseChessLobby'
+import ChineseChessWaitingRooms from './ChineseChessWaitingRooms'
+import { fetchWaitingChessRooms } from './actions'
 
 export const dynamic = 'force-dynamic'
 
@@ -24,9 +26,9 @@ type HistoryRow = {
   finished_at: string | null
 }
 
-function relativeTime(iso: string): string {
+function relativeTime(iso: string, justNow: string): string {
   const diff = Math.floor((Date.now() - new Date(iso).getTime()) / 60000)
-  if (diff < 1) return 'vừa xong'
+  if (diff < 1) return justNow
   if (diff < 60) return `${diff}m`
   const hrs = Math.floor(diff / 60)
   if (hrs < 24) return `${hrs}h`
@@ -34,18 +36,20 @@ function relativeTime(iso: string): string {
 }
 
 export default async function ChineseChessPage() {
-  const [t, supabase, admin] = await Promise.all([
+  const [t, tCommon, supabase, admin] = await Promise.all([
     getTranslations('games.chinese_chess'),
+    getTranslations('common'),
     Promise.resolve(createClient()),
     Promise.resolve(createAdminClient()),
   ])
 
-  const [{ data: { user } }, { data: history }] = await Promise.all([
+  const [{ data: { user } }, { data: history }, waitingRooms] = await Promise.all([
     supabase.auth.getUser(),
     admin
       .from('chinese_chess_history')
       .select('id,room_code,winner,end_reason,player_red,player_black,player_red_name,player_black_name,move_count,finished_at')
       .limit(10),
+    fetchWaitingChessRooms(),
   ])
 
   const rows = (history ?? []) as HistoryRow[]
@@ -119,15 +123,15 @@ export default async function ChineseChessPage() {
             </p>
             <div className="grid grid-cols-2 gap-x-6 gap-y-2">
               {[
-                { red: '帥', black: '將', name: 'Tướng' },
-                { red: '仕', black: '士', name: 'Sĩ' },
-                { red: '相', black: '象', name: 'Tượng' },
-                { red: '馬', black: '馬', name: 'Mã' },
-                { red: '車', black: '車', name: 'Xe' },
-                { red: '炮', black: '砲', name: 'Pháo' },
-                { red: '兵', black: '卒', name: 'Tốt' },
-              ].map(({ red, black, name }) => (
-                <div key={name} className="flex items-center gap-2.5">
+                { red: '帥', black: '將', key: 'piece_general'  as const },
+                { red: '仕', black: '士', key: 'piece_advisor'  as const },
+                { red: '相', black: '象', key: 'piece_elephant' as const },
+                { red: '馬', black: '馬', key: 'piece_horse'    as const },
+                { red: '車', black: '車', key: 'piece_chariot'  as const },
+                { red: '炮', black: '砲', key: 'piece_cannon'   as const },
+                { red: '兵', black: '卒', key: 'piece_soldier'  as const },
+              ].map(({ red, black, key }) => (
+                <div key={key} className="flex items-center gap-2.5">
                   <div className="flex gap-1 flex-none">
                     <span className="w-7 h-7 rounded-full bg-gradient-to-br from-red-400 to-red-700 text-white text-[13px] font-bold font-serif border border-red-900/40 flex items-center justify-center shadow-sm">
                       {red}
@@ -136,7 +140,7 @@ export default async function ChineseChessPage() {
                       {black}
                     </span>
                   </div>
-                  <span className="text-[12.5px] text-muted">{name}</span>
+                  <span className="text-[12.5px] text-muted">{t(key)}</span>
                 </div>
               ))}
             </div>
@@ -178,6 +182,9 @@ export default async function ChineseChessPage() {
           </div>
         </div>
       </div>
+
+      {/* ── Waiting rooms lobby ── */}
+      <ChineseChessWaitingRooms initialRooms={waitingRooms} userId={user?.id ?? null} />
 
       {/* ── Match history ── */}
       {rows.length > 0 && (
@@ -230,7 +237,7 @@ export default async function ChineseChessPage() {
                     )}
                   </div>
                   <div className="text-right text-[11px] text-muted/55 whitespace-nowrap">
-                    {row.finished_at ? relativeTime(row.finished_at) : '—'}
+                    {row.finished_at ? relativeTime(row.finished_at, tCommon('just_now')) : '—'}
                   </div>
                 </div>
               )

@@ -1,4 +1,4 @@
-import { getTranslations } from 'next-intl/server'
+import { getTranslations, getLocale } from 'next-intl/server'
 import Link from 'next/link'
 import { getAllPlacesFromDb, places as staticPlaces, categories as allCategories } from '@/lib/places'
 import DestinationWheel from './DestinationWheel'
@@ -9,10 +9,13 @@ export async function generateMetadata() {
 }
 
 export default async function DestinationWheelPage() {
-  const t = await getTranslations('games.destination_wheel')
-  const tGames = await getTranslations('games')
+  const [t, tGames, locale] = await Promise.all([
+    getTranslations('games.destination_wheel'),
+    getTranslations('games'),
+    getLocale(),
+  ])
 
-  const dbPlaces = await getAllPlacesFromDb()
+  const dbPlaces = await getAllPlacesFromDb(locale)
   const allPlaces = dbPlaces ?? staticPlaces
 
   // Filter categories that have at least one place — done server-side so the client component

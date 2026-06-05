@@ -3,7 +3,8 @@ import { redirect } from 'next/navigation'
 import loadDynamic from 'next/dynamic'
 import { getTranslations } from 'next-intl/server'
 import { checkIsAdmin, createAdminClient } from '@/lib/supabase/admin'
-import { updatePlace, approvePlace } from '../actions'
+import { getPlaceAllTranslations, type PlaceTranslation } from '@/lib/places'
+import { updatePlace, approvePlace, upsertPlaceTranslation } from '../actions'
 import ImageUpload from '@/components/ImageUpload'
 
 const RichTextEditor = loadDynamic(() => import('@/components/RichTextEditor'), { ssr: false })
@@ -18,6 +19,14 @@ type DbPlace = {
   status: string | null; user_id: string | null;
 }
 
+const LOCALES: { code: string; label: string; flag: string }[] = [
+  { code: 'vi', label: 'Tiếng Việt', flag: '🇻🇳' },
+  { code: 'en', label: 'English',    flag: '🇬🇧' },
+  { code: 'ja', label: '日本語',      flag: '🇯🇵' },
+  { code: 'ko', label: '한국어',      flag: '🇰🇷' },
+  { code: 'zh', label: '中文',        flag: '🇨🇳' },
+]
+
 export default async function AdminEditPlace({ params }: { params: { slug: string } }) {
   if (!(await checkIsAdmin())) redirect('/')
 
@@ -30,9 +39,15 @@ export default async function AdminEditPlace({ params }: { params: { slug: strin
   ]
 
   const admin = createAdminClient()
-  const { data } = await admin.from('places').select('*').eq('slug', params.slug).single()
+  const [{ data }, existingTranslations] = await Promise.all([
+    admin.from('places').select('*').eq('slug', params.slug).single(),
+    getPlaceAllTranslations(params.slug),
+  ])
   const p = data as DbPlace | null
   if (!p) redirect('/admin/dia-diem')
+
+  const txMap = new Map<string, PlaceTranslation>()
+  for (const tx of existingTranslations) txMap.set(tx.locale, tx)
 
   return (
     <div className="max-w-[760px] mx-auto px-6 py-10">
@@ -43,39 +58,37 @@ export default async function AdminEditPlace({ params }: { params: { slug: strin
         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
         </svg>
-        Danh sách địa điểm
+        {admin_t('places_list_link')}
       </Link>
       <h1 className="font-serif font-bold text-[28px] tracking-[-0.3px] leading-tight text-ink mb-1.5">
-        Sửa địa điểm
+        {admin_t('edit_place_title')}
       </h1>
       <p className="text-[13.5px] text-muted mb-7 flex items-center gap-2 flex-wrap">
         <code className="bg-paper border border-line px-2 py-0.5 rounded text-[12px] font-mono">{params.slug}</code>
         <span className="opacity-30">·</span>
         <Link href={`/dia-diem/${params.slug}`} target="_blank" className="text-teal hover:underline text-[13px]">
-          Xem trang →
+          {admin_t('view_page_link')} →
         </Link>
       </p>
 
       <form action={updatePlace} className="space-y-5">
         <input type="hidden" name="slug" value={params.slug} />
 
-        {/* Tên + Khu vực */}
         <div className="grid sm:grid-cols-2 gap-4">
-          <Field label="Tên địa điểm" name="name" defaultValue={p.name} required />
-          <Field label="Khu vực" name="area" defaultValue={p.area ?? ''} required />
+          <Field label={admin_t('field_name')} name="name" defaultValue={p.name} required />
+          <Field label={admin_t('field_area')} name="area" defaultValue={p.area ?? ''} required />
         </div>
 
-        {/* Mô tả ngắn + Chi phí */}
         <div className="grid sm:grid-cols-[1fr_180px] gap-4">
           <Field
-            label="Mô tả ngắn (hiển thị trong card)"
+            label={admin_t('field_desc_short')}
             name="desc"
             defaultValue={p.description ?? ''}
-            placeholder="VD: Đền nổi tiếng, cầu may học hành..."
+            placeholder={admin_t('field_desc_placeholder')}
           />
           <div>
             <label className="block text-[13px] font-semibold mb-1.5 text-[#5c4d44]">
-              Chi phí vào cửa
+              {admin_t('field_fee')}
             </label>
             <select
               name="fee"
@@ -92,13 +105,13 @@ export default async function AdminEditPlace({ params }: { params: { slug: strin
         {/* Google Maps + Ảnh thật */}
         <div className="grid sm:grid-cols-2 gap-4">
           <Field
-            label="Link Google Maps"
+            label={admin_t('field_map_url')}
             name="map_url"
             defaultValue={p.map_url ?? ''}
             placeholder="https://www.google.com/maps/..."
           />
           <Field
-            label="Link tìm ảnh (Google Images)"
+            label={admin_t('field_photo_url')}
             name="photo_url"
             defaultValue={p.photo_url ?? ''}
             placeholder="https://www.google.com/search?tbm=isch&q=..."
@@ -109,22 +122,22 @@ export default async function AdminEditPlace({ params }: { params: { slug: strin
         <ImageUpload
           name="img"
           defaultValue={p.img ?? ''}
-          label="📷 Ảnh bìa địa điểm"
+          label={`📷 ${admin_t('field_cover_img')}`}
         />
 
         {/* Mô tả chi tiết (rich text) */}
         <div>
           <label className="block text-[13px] font-semibold mb-1.5 text-[#5c4d44]">
-            Mô tả chi tiết (hiển thị trong trang địa điểm)
+            {admin_t('field_body')}
           </label>
           <RichTextEditor
             name="body"
             defaultValue={p.body ?? ''}
-            placeholder="Viết mô tả chi tiết: cách đến, nên đi mùa nào, ăn gì, mẹo hay..."
+            placeholder={admin_t('field_body_placeholder')}
             minHeight="220px"
           />
           <p className="text-[12px] text-muted mt-1">
-            Hỗ trợ bold, italic, heading, danh sách, link, chèn ảnh giữa bài.
+            {admin_t('field_body_help')}
           </p>
         </div>
 
@@ -132,7 +145,7 @@ export default async function AdminEditPlace({ params }: { params: { slug: strin
         {p.status !== null && (
           <div>
             <label className="block text-[13px] font-semibold mb-1.5 text-[#5c4d44]">
-              Trạng thái
+              {admin_t('field_status')}
             </label>
             <div className="relative">
               <select
@@ -140,15 +153,15 @@ export default async function AdminEditPlace({ params }: { params: { slug: strin
                 defaultValue={p.status ?? 'pending'}
                 className="w-full text-[14px] px-3.5 py-3 border-[1.5px] border-line rounded-xl bg-white focus:outline-none focus:border-rose"
               >
-                <option value="pending">⏳ Chờ duyệt (pending)</option>
-                <option value="approved">✅ Đã duyệt (approved)</option>
+                <option value="pending">⏳ {admin_t('status_pending_option')}</option>
+                <option value="approved">✅ {admin_t('status_approved_option')}</option>
               </select>
               <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
             </div>
             <p className="text-[11.5px] text-muted mt-1">
-              Đặt thành <b>Đã duyệt</b> để địa điểm hiển thị công khai trên trang Khám phá.
+              {admin_t('status_set_approved_help')}
             </p>
           </div>
         )}
@@ -174,9 +187,9 @@ export default async function AdminEditPlace({ params }: { params: { slug: strin
       {p.status === 'pending' && (
         <div className="mt-5 bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center justify-between gap-4">
           <div>
-            <p className="text-[13.5px] font-semibold text-amber-800">⏳ Địa điểm đang chờ duyệt</p>
+            <p className="text-[13.5px] font-semibold text-amber-800">{admin_t('place_pending_alert')}</p>
             <p className="text-[12px] text-amber-700 mt-0.5">
-              Sau khi duyệt, địa điểm sẽ hiển thị trong trang Khám phá.
+              {admin_t('place_pending_alert_sub')}
             </p>
           </div>
           <form action={approvePlace}>
@@ -185,11 +198,101 @@ export default async function AdminEditPlace({ params }: { params: { slug: strin
               type="submit"
               className="whitespace-nowrap font-semibold text-[13px] px-5 py-2.5 rounded-full bg-emerald-500 text-white hover:bg-emerald-600 transition-all"
             >
-              ✅ Duyệt ngay
+              ✅ {admin_t('quick_approve_btn')}
             </button>
           </form>
         </div>
       )}
+
+      {/* ── Translations section ─────────────────────────────────────────────── */}
+      <div className="mt-10 pt-8 border-t border-line">
+        <div className="flex items-center gap-3 mb-6">
+          <h2 className="font-serif font-bold text-[22px] text-ink">🌐 Bản dịch nội dung</h2>
+          <span className="text-[12px] font-semibold px-2.5 py-0.5 rounded-full bg-teal/10 text-teal border border-teal/20">
+            {existingTranslations.length}/{LOCALES.length} ngôn ngữ
+          </span>
+        </div>
+
+        <div className="space-y-4">
+          {LOCALES.map(({ code, label, flag }) => {
+            const tx = txMap.get(code)
+            const hasTx = !!tx
+            return (
+              <details
+                key={code}
+                className={`border rounded-2xl overflow-hidden ${hasTx ? 'border-emerald-200' : 'border-line'}`}
+              >
+                <summary className={`px-5 py-3.5 flex items-center gap-3 cursor-pointer select-none ${hasTx ? 'bg-emerald-50/40' : 'bg-cream/40'}`}>
+                  <span className="text-[18px]">{flag}</span>
+                  <span className="font-semibold text-[14px] text-ink flex-1">{label}</span>
+                  {hasTx ? (
+                    <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200">
+                      ✓ Đã có bản dịch
+                    </span>
+                  ) : (
+                    <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 border border-amber-200">
+                      Chưa có
+                    </span>
+                  )}
+                </summary>
+                <div className="px-5 py-5 bg-paper border-t border-line">
+                  <form action={upsertPlaceTranslation} className="space-y-4">
+                    <input type="hidden" name="slug" value={params.slug} />
+                    <input type="hidden" name="locale" value={code} />
+
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-[12.5px] font-semibold mb-1.5 text-[#5c4d44]">
+                          Khu vực ({label})
+                        </label>
+                        <input
+                          type="text"
+                          name="area"
+                          defaultValue={tx?.area ?? ''}
+                          placeholder={`Khu vực bằng ${label}...`}
+                          className="w-full text-[13.5px] px-3.5 py-2.5 border border-line rounded-xl bg-white focus:outline-none focus:border-rose"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[12.5px] font-semibold mb-1.5 text-[#5c4d44]">
+                          Mô tả ngắn ({label})
+                        </label>
+                        <input
+                          type="text"
+                          name="short_description"
+                          defaultValue={tx?.short_description ?? ''}
+                          placeholder={`Mô tả ngắn bằng ${label}...`}
+                          className="w-full text-[13.5px] px-3.5 py-2.5 border border-line rounded-xl bg-white focus:outline-none focus:border-rose"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-[12.5px] font-semibold mb-1.5 text-[#5c4d44]">
+                        Nội dung chi tiết ({label}) — HTML
+                      </label>
+                      <textarea
+                        name="content"
+                        defaultValue={tx?.content ?? ''}
+                        rows={5}
+                        placeholder="Dán HTML nội dung dịch tại đây..."
+                        className="w-full text-[12.5px] font-mono px-3.5 py-2.5 border border-line rounded-xl bg-white focus:outline-none focus:border-rose resize-y"
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      className="font-semibold text-[13px] px-6 py-2.5 rounded-full bg-rose text-white hover:bg-rose-deep transition-all shadow-[0_2px_8px_-2px_rgba(194,24,91,0.4)]"
+                    >
+                      {hasTx ? '💾 Cập nhật bản dịch' : '➕ Lưu bản dịch'}
+                    </button>
+                  </form>
+                </div>
+              </details>
+            )
+          })}
+        </div>
+      </div>
     </div>
   )
 }

@@ -3,6 +3,8 @@ import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import CaroLobby from './CaroLobby'
+import CaroWaitingRooms from './CaroWaitingRooms'
+import { fetchWaitingRooms } from './actions'
 
 export const dynamic = 'force-dynamic'
 
@@ -22,9 +24,9 @@ type HistoryRow = {
   finished_at: string | null
 }
 
-function relativeTime(iso: string, locale: string): string {
+function relativeTime(iso: string, justNow: string): string {
   const diff = Math.floor((Date.now() - new Date(iso).getTime()) / 60000)
-  if (diff < 1) return locale === 'vi' ? 'vừa xong' : 'just now'
+  if (diff < 1) return justNow
   if (diff < 60) return `${diff}m`
   const hrs = Math.floor(diff / 60)
   if (hrs < 24) return `${hrs}h`
@@ -32,19 +34,21 @@ function relativeTime(iso: string, locale: string): string {
 }
 
 export default async function CaroPage() {
-  const [t, tc, supabase, admin] = await Promise.all([
+  const [t, tc, tCommon, supabase, admin] = await Promise.all([
     getTranslations('games.caro'),
     getTranslations('games'),
+    getTranslations('common'),
     Promise.resolve(createClient()),
     Promise.resolve(createAdminClient()),
   ])
 
-  const [{ data: { user } }, { data: history }] = await Promise.all([
+  const [{ data: { user } }, { data: history }, waitingRooms] = await Promise.all([
     supabase.auth.getUser(),
     admin
       .from('caro_games_history')
       .select('id,room_code,winner,player_x,player_o,player_x_name,player_o_name,finished_at')
       .limit(15),
+    fetchWaitingRooms(),
   ])
 
   const rows = (history ?? []) as HistoryRow[]
@@ -100,6 +104,9 @@ export default async function CaroPage() {
         </div>
       )}
 
+      {/* ── Waiting Rooms Lobby ─────────────────────────────────────────────── */}
+      <CaroWaitingRooms initialRooms={waitingRooms} userId={user?.id ?? null} />
+
       {rows.length > 0 && (
         <div className="mt-12">
           <h2 className="font-serif font-bold text-[20px] text-ink mb-4 flex items-center gap-2">
@@ -107,52 +114,65 @@ export default async function CaroPage() {
             <span className="text-[12px] font-normal text-muted/60 font-sans">({rows.length})</span>
           </h2>
           <div className="bg-paper border border-line rounded-2xl overflow-hidden">
-            <div className="grid grid-cols-[1fr_40px_1fr_80px_60px] gap-x-3 px-4 py-2.5 bg-cream/60 border-b border-line text-[11.5px] font-semibold text-muted/70 uppercase tracking-wide">
-              <span>{t('history_player_x')}</span>
-              <span className="text-center">{t('history_vs')}</span>
-              <span>{t('history_player_o')}</span>
-              <span className="text-center">Result</span>
-              <span className="text-right">Time</span>
+            {/* overflow-x-auto + min-w to keep layout on small screens */}
+            <div className="overflow-x-auto">
+              {/* Header */}
+              <div className="grid grid-cols-[minmax(0,1fr)_56px_minmax(0,1fr)_100px_80px] gap-x-3 px-4 py-2.5 bg-cream/80 border-b border-line text-[11px] font-bold text-muted/60 uppercase tracking-widest min-w-[480px]">
+                <span className="flex items-center gap-1.5">
+                  <span className="text-[9px] font-black text-blue-500">✕</span>
+                  {t('history_player_x')}
+                </span>
+                <span className="flex items-center justify-center text-center">{t('history_vs')}</span>
+                <span className="flex items-center gap-1.5">
+                  <span className="text-[9px] font-black text-rose">○</span>
+                  {t('history_player_o')}
+                </span>
+                <span className="text-center">{t('history_result')}</span>
+                <span className="text-right">{t('history_time')}</span>
+              </div>
+              {/* Rows */}
+              {rows.map((row, idx) => {
+                const isXWin = row.winner === 'X'
+                const isOWin = row.winner === 'O'
+                const isDraw = row.winner === 'draw'
+                const myRow = user && (row.player_x === user.id || row.player_o === user.id)
+                return (
+                  <div
+                    key={row.id}
+                    className={`grid grid-cols-[minmax(0,1fr)_56px_minmax(0,1fr)_100px_80px] gap-x-3 px-4 py-3.5 items-center text-[13px] transition-colors hover:bg-cream/60 min-w-[480px]
+                      ${myRow ? 'bg-rose/[0.03]' : ''}
+                      ${idx < rows.length - 1 ? 'border-b border-line/50' : ''}
+                    `}
+                  >
+                    <div className={`flex items-center gap-1.5 min-w-0 ${isXWin ? 'font-semibold text-blue-700' : 'text-ink/90'}`}>
+                      <span className="text-[10px] font-black text-blue-500 flex-none">✕</span>
+                      <span className="truncate">{row.player_x_name}</span>
+                      {isXWin && <span className="text-[13px] flex-none leading-none">🏆</span>}
+                    </div>
+                    <div className="flex items-center justify-center">
+                      <span className="text-[10px] font-bold text-muted/50 bg-line/70 px-2 py-0.5 rounded-md tracking-wide">{t('history_vs')}</span>
+                    </div>
+                    <div className={`flex items-center gap-1.5 min-w-0 ${isOWin ? 'font-semibold text-rose' : 'text-ink/90'}`}>
+                      <span className="text-[10px] font-black text-rose flex-none">○</span>
+                      <span className="truncate">{row.player_o_name}</span>
+                      {isOWin && <span className="text-[13px] flex-none leading-none">🏆</span>}
+                    </div>
+                    <div className="flex justify-center">
+                      {isDraw ? (
+                        <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-amber-100 text-amber-700 border border-amber-200 whitespace-nowrap">{t('draw')}</span>
+                      ) : isXWin ? (
+                        <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-blue-100 text-blue-700 border border-blue-200 whitespace-nowrap">{t('win_x')}</span>
+                      ) : (
+                        <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-rose/10 text-rose border border-rose/20 whitespace-nowrap">{t('win_o')}</span>
+                      )}
+                    </div>
+                    <div className="text-right text-[11.5px] text-muted/60 whitespace-nowrap">
+                      {row.finished_at ? relativeTime(row.finished_at, tCommon('just_now')) : '—'}
+                    </div>
+                  </div>
+                )
+              })}
             </div>
-            {rows.map((row, idx) => {
-              const isXWin = row.winner === 'X'
-              const isOWin = row.winner === 'O'
-              const isDraw = row.winner === 'draw'
-              const myRow = user && (row.player_x === user.id || row.player_o === user.id)
-              return (
-                <div
-                  key={row.id}
-                  className={`grid grid-cols-[1fr_40px_1fr_80px_60px] gap-x-3 px-4 py-3 items-center text-[13px] transition-colors
-                    ${myRow ? 'bg-rose/[0.03]' : ''}
-                    ${idx < rows.length - 1 ? 'border-b border-line/60' : ''}
-                  `}
-                >
-                  <div className={`flex items-center gap-1.5 min-w-0 ${isXWin ? 'font-semibold text-blue-700' : 'text-ink'}`}>
-                    <span className="text-[11px] font-black text-blue-600 flex-none">✕</span>
-                    <span className="truncate">{row.player_x_name}</span>
-                    {isXWin && <span className="text-[14px] flex-none">🏆</span>}
-                  </div>
-                  <span className="text-center text-[11px] font-bold text-muted/40">{t('history_vs')}</span>
-                  <div className={`flex items-center gap-1.5 min-w-0 ${isOWin ? 'font-semibold text-rose' : 'text-ink'}`}>
-                    <span className="text-[11px] font-black text-rose flex-none">○</span>
-                    <span className="truncate">{row.player_o_name}</span>
-                    {isOWin && <span className="text-[14px] flex-none">🏆</span>}
-                  </div>
-                  <div className="flex justify-center">
-                    {isDraw ? (
-                      <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 border border-amber-200">{t('draw')}</span>
-                    ) : isXWin ? (
-                      <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 border border-blue-200">{t('win_x')}</span>
-                    ) : (
-                      <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-rose/10 text-rose border border-rose/20">{t('win_o')}</span>
-                    )}
-                  </div>
-                  <div className="text-right text-[11.5px] text-muted/60 whitespace-nowrap">
-                    {row.finished_at ? relativeTime(row.finished_at, 'vi') : '—'}
-                  </div>
-                </div>
-              )
-            })}
           </div>
         </div>
       )}

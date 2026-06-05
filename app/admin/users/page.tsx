@@ -1,9 +1,14 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
 import { checkIsAdmin, createAdminClient } from '@/lib/supabase/admin'
 
-export const metadata = { title: 'Admin · Người dùng · Chợ Cóc FKO' }
 export const dynamic = 'force-dynamic'
+
+export async function generateMetadata() {
+  const t = await getTranslations('admin')
+  return { title: `Admin · ${t('manage_users_title')} · Chợ Cóc FKO` }
+}
 
 type AuthUser = {
   id: string
@@ -45,14 +50,18 @@ function fmt(iso: string | null) {
 export default async function AdminUsers() {
   if (!(await checkIsAdmin())) redirect('/')
 
+  const [t, admin_t] = await Promise.all([
+    getTranslations('common'),
+    getTranslations('admin'),
+  ])
+  void t
+
   const admin = createAdminClient()
   const adminEmails = (process.env.ADMIN_EMAILS ?? '').split(',').map(e => e.trim()).filter(Boolean)
 
-  // Fetch auth users list
   const { data: authData } = await admin.auth.admin.listUsers({ perPage: 200 })
   const authUsers: AuthUser[] = (authData?.users ?? []) as AuthUser[]
 
-  // Fetch profiles
   const { data: profilesData } = await admin
     .from('profiles')
     .select('id, display_name, avatar_url, bio, area')
@@ -61,20 +70,13 @@ export default async function AdminUsers() {
     profileMap.set(p.id, p)
   }
 
-  // Fetch post counts per user
-  const { data: postsData } = await admin
-    .from('posts')
-    .select('user_id')
+  const { data: postsData } = await admin.from('posts').select('user_id')
   const postCountMap = new Map<string, number>()
   for (const row of (postsData ?? []) as { user_id: string }[]) {
     postCountMap.set(row.user_id, (postCountMap.get(row.user_id) ?? 0) + 1)
   }
 
-  // Fetch place counts per user
-  const { data: placesData } = await admin
-    .from('places')
-    .select('user_id')
-    .not('user_id', 'is', null)
+  const { data: placesData } = await admin.from('places').select('user_id').not('user_id', 'is', null)
   const placeCountMap = new Map<string, number>()
   for (const row of (placesData ?? []) as { user_id: string }[]) {
     if (row.user_id) placeCountMap.set(row.user_id, (placeCountMap.get(row.user_id) ?? 0) + 1)
@@ -112,7 +114,6 @@ export default async function AdminUsers() {
   return (
     <div className="max-w-[1100px] mx-auto px-6 py-10">
 
-      {/* Breadcrumb */}
       <Link
         href="/admin"
         className="inline-flex items-center gap-1 text-[12.5px] text-muted hover:text-rose transition-colors mb-3"
@@ -120,26 +121,26 @@ export default async function AdminUsers() {
         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
         </svg>
-        Admin Dashboard
+        {admin_t('admin_dashboard_label')}
       </Link>
 
       <div className="flex items-start justify-between gap-4 flex-wrap mb-8">
         <div>
           <h1 className="font-serif font-bold text-[30px] tracking-[-0.3px] leading-tight text-ink mb-1">
-            Quản lý người dùng
+            {admin_t('manage_users_title')}
           </h1>
-          <p className="text-[14px] text-muted">{totalUsers} người dùng đã đăng ký</p>
+          <p className="text-[14px] text-muted">{admin_t('n_users_registered', { n: totalUsers })}</p>
         </div>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-8">
         {[
-          { label: 'Tổng cộng', value: totalUsers, color: 'text-ink', border: 'border-l-gold' },
-          { label: 'Email/pass', value: emailCount, color: 'text-muted', border: 'border-l-line' },
-          { label: 'Google',     value: googleCount, color: 'text-blue-600', border: 'border-l-blue-400' },
-          { label: 'Facebook',   value: fbCount,     color: 'text-indigo-600', border: 'border-l-indigo-400' },
-          { label: 'Admin',      value: adminCount,  color: 'text-amber-600', border: 'border-l-amber-400' },
+          { label: admin_t('stat_total'), value: totalUsers, color: 'text-ink',       border: 'border-l-gold' },
+          { label: 'Email/pass',          value: emailCount,  color: 'text-muted',     border: 'border-l-line' },
+          { label: 'Google',              value: googleCount, color: 'text-blue-600',  border: 'border-l-blue-400' },
+          { label: 'Facebook',            value: fbCount,     color: 'text-indigo-600',border: 'border-l-indigo-400' },
+          { label: 'Admin',               value: adminCount,  color: 'text-amber-600', border: 'border-l-amber-400' },
         ].map((s) => (
           <div key={s.label} className={`bg-paper shadow-card rounded-xl p-4 border-l-4 ${s.border}`}>
             <div className={`text-[28px] font-bold leading-none mb-1 ${s.color}`}>{s.value}</div>
@@ -150,12 +151,12 @@ export default async function AdminUsers() {
 
       {/* Table header */}
       <div className="hidden sm:grid grid-cols-[2fr_1fr_1fr_80px_80px_80px] gap-3 px-4 py-2 text-[11.5px] font-semibold text-muted uppercase tracking-[0.5px] border-b border-line mb-1">
-        <span>Người dùng</span>
-        <span>Provider</span>
-        <span>Ngày đăng ký</span>
-        <span className="text-center">Bài viết</span>
-        <span className="text-center">Địa điểm</span>
-        <span className="text-center">Role</span>
+        <span>{admin_t('col_users')}</span>
+        <span>{admin_t('col_provider')}</span>
+        <span>{admin_t('col_registered_date')}</span>
+        <span className="text-center">{admin_t('col_posts')}</span>
+        <span className="text-center">{admin_t('col_places')}</span>
+        <span className="text-center">{admin_t('col_role')}</span>
       </div>
 
       {/* User list */}
@@ -167,7 +168,6 @@ export default async function AdminUsers() {
               u.isAdmin ? 'border-amber-200 bg-amber-50/30' : 'border-line'
             }`}
           >
-            {/* Avatar + name */}
             <div className="flex items-center gap-3 min-w-0">
               <div className="w-9 h-9 rounded-full flex-none overflow-hidden bg-gradient-to-br from-rose/30 to-teal/30 grid place-items-center text-[14px] font-bold text-ink">
                 {u.avatarUrl ? (
@@ -183,34 +183,29 @@ export default async function AdminUsers() {
               </div>
             </div>
 
-            {/* Provider */}
             <div>
               <span className={`inline-flex items-center text-[11px] font-semibold px-2 py-[3px] rounded-full border capitalize ${PROVIDER_BADGE[u.provider] ?? PROVIDER_BADGE.email}`}>
                 {u.provider}
               </span>
             </div>
 
-            {/* Dates */}
             <div className="text-[12px] text-muted">
               <div>{fmt(u.createdAt)}</div>
               {u.lastSignIn && (
-                <div className="text-[11px] text-muted/60">Đăng nhập: {fmt(u.lastSignIn)}</div>
+                <div className="text-[11px] text-muted/60">{admin_t('last_signin_label')} {fmt(u.lastSignIn)}</div>
               )}
             </div>
 
-            {/* Post count */}
             <div className="text-center">
               <span className="text-[14px] font-bold text-ink">{u.postCount}</span>
-              <div className="text-[10px] text-muted">bài viết</div>
+              <div className="text-[10px] text-muted">{admin_t('unit_posts')}</div>
             </div>
 
-            {/* Place count */}
             <div className="text-center">
               <span className="text-[14px] font-bold text-ink">{u.placeCount}</span>
-              <div className="text-[10px] text-muted">địa điểm</div>
+              <div className="text-[10px] text-muted">{admin_t('unit_places')}</div>
             </div>
 
-            {/* Role */}
             <div className="text-center">
               {u.isAdmin ? (
                 <span className="inline-flex text-[11px] font-semibold px-2 py-[3px] rounded-full bg-amber-100 text-amber-700 border border-amber-200">
@@ -229,7 +224,7 @@ export default async function AdminUsers() {
       {users.length === 0 && (
         <div className="bg-paper border border-line rounded-2xl py-16 px-8 text-center">
           <div className="text-[40px] mb-3">👥</div>
-          <p className="text-[15px] text-muted">Chưa có người dùng nào.</p>
+          <p className="text-[15px] text-muted">{admin_t('no_users_empty')}</p>
         </div>
       )}
     </div>

@@ -5,6 +5,7 @@ import { checkIsAdmin } from '@/lib/supabase/admin'
 import LanguageSwitcher from './LanguageSwitcher'
 import UserMenu from './UserMenu'
 import MobileMenu from './MobileMenu'
+import AdminNotificationBell from './AdminNotificationBell'
 
 async function getAuthState() {
   try {
@@ -64,6 +65,8 @@ export default async function Nav() {
         {/* Right actions — bên phải */}
         <div className="flex items-center gap-2.5 md:justify-self-end">
           <LanguageSwitcher />
+
+          {isAdmin && <AdminNotificationBell />}
 
           {user ? (
             <UserMenu displayName={displayName} initial={initial} isAdmin={isAdmin} avatarUrl={avatarUrl} />

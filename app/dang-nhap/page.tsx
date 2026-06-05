@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
-import { signIn } from '@/app/auth/actions'
+import { signIn, resendConfirmation } from '@/app/auth/actions'
 import SocialLoginButtons from '@/components/SocialLoginButtons'
 
 export async function generateMetadata() {
@@ -11,9 +11,10 @@ export async function generateMetadata() {
 export default async function DangNhap({
   searchParams,
 }: {
-  searchParams: { error?: string }
+  searchParams: { error?: string; confirmed?: string; unconfirmed?: string; email?: string; resent?: string }
 }) {
   const t = await getTranslations('auth')
+  const email = searchParams.email ? decodeURIComponent(searchParams.email) : ''
 
   return (
     <section className="min-h-[calc(100vh-160px)] flex items-center justify-center py-12">
@@ -25,6 +26,44 @@ export default async function DangNhap({
           <p className="text-muted text-[15px]">{t('login_sub')}</p>
         </div>
 
+        {/* Email confirmed success */}
+        {searchParams.confirmed && (
+          <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 mb-5 text-center">
+            <p className="text-[15px] font-semibold text-emerald-700 mb-0.5">
+              ✅ {t('email_confirmed_heading')}
+            </p>
+            <p className="text-[13px] text-emerald-600">{t('email_confirmed_sub')}</p>
+          </div>
+        )}
+
+        {/* Resent success */}
+        {searchParams.resent && (
+          <div className="bg-teal/10 border border-teal/30 rounded-xl p-3.5 mb-5 text-center">
+            <p className="text-[13.5px] text-teal font-medium">📧 {t('resend_sent')}</p>
+          </div>
+        )}
+
+        {/* Email unconfirmed warning + resend */}
+        {searchParams.unconfirmed && (
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-5">
+            <p className="text-[13.5px] text-amber-800 font-medium mb-3">
+              ⚠️ {t('unconfirmed_note')}
+            </p>
+            {email && (
+              <form action={resendConfirmation}>
+                <input type="hidden" name="email" value={email} />
+                <button
+                  type="submit"
+                  className="w-full py-2 rounded-lg text-[13px] font-semibold bg-amber-500 text-white hover:bg-amber-600 transition-colors"
+                >
+                  {t('resend_btn')}
+                </button>
+              </form>
+            )}
+          </div>
+        )}
+
+        {/* Generic error */}
         {searchParams.error && (
           <div className="bg-[#fff4f6] border border-[#f3cdd9] rounded-xl p-3.5 text-[13.5px] text-rose-deep mb-5">
             {decodeURIComponent(searchParams.error)}
@@ -40,6 +79,7 @@ export default async function DangNhap({
               type="email"
               name="email"
               required
+              defaultValue={email}
               placeholder={t('email_placeholder')}
               className="w-full text-[14.5px] px-3.5 py-3 border-[1.5px] border-line rounded-xl bg-white focus:outline-none focus:border-rose"
             />

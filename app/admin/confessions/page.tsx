@@ -6,6 +6,7 @@ import { approveConfession, rejectConfession, deleteConfession, adminDeleteConfe
 import ConfirmDeleteButton from './ConfirmDeleteButton'
 import AnonAvatar from '@/components/AnonAvatar'
 import { generateAnonId } from '@/lib/anon'
+import { stripHtml } from '@/lib/sanitize'
 
 export const metadata = { title: 'Admin · Confessions · Chợ Cóc FKO' }
 export const dynamic = 'force-dynamic'
@@ -61,7 +62,10 @@ export default async function AdminConfessionsPage({
 }) {
   if (!(await checkIsAdmin())) redirect('/')
 
-  const t = await getTranslations('confessions')
+  const [t, admin_t] = await Promise.all([
+    getTranslations('confessions'),
+    getTranslations('admin'),
+  ])
   const admin = createAdminClient()
 
   // ── 1. Fetch confessions — NO embedded relation (author_id → auth.users, not profiles)
@@ -170,14 +174,14 @@ export default async function AdminConfessionsPage({
     { key: 'pending',  label: t('status.pending'),  count: byStatus.pending.length,  emoji: '⏳' },
     { key: 'approved', label: t('status.approved'),  count: byStatus.approved.length, emoji: '✅' },
     { key: 'rejected', label: t('status.rejected'),  count: byStatus.rejected.length, emoji: '❌' },
-    { key: 'all',      label: 'Tất cả',               count: all.length,                emoji: '📋' },
+    { key: 'all',      label: admin_t('filter_all_label'), count: all.length,             emoji: '📋' },
   ]
 
   const EMPTY: Record<Tab, string> = {
-    pending:  'Khi thành viên gửi confession mới, sẽ hiển thị tại đây.',
-    approved: 'Các confession đã duyệt sẽ hiển thị tại đây.',
-    rejected: 'Các confession bị từ chối sẽ hiển thị tại đây.',
-    all:      'Chưa có confession nào.',
+    pending:  admin_t('empty_pending_confessions'),
+    approved: admin_t('empty_approved_confessions'),
+    rejected: admin_t('empty_rejected_confessions'),
+    all:      admin_t('empty_all_confessions'),
   }
 
   return (
@@ -192,7 +196,7 @@ export default async function AdminConfessionsPage({
           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
-          Admin Dashboard
+          {admin_t('admin_dashboard_label')}
         </Link>
 
         <div className="flex items-start justify-between gap-4 flex-wrap">
@@ -200,14 +204,14 @@ export default async function AdminConfessionsPage({
             <h1 className="font-serif font-bold text-[30px] tracking-[-0.3px] leading-tight text-ink mb-1">
               🤫 FKO Confessions
             </h1>
-            <p className="text-[14px] text-muted">Duyệt và quản lý confession ẩn danh</p>
+            <p className="text-[14px] text-muted">{admin_t('confessions_desc')}</p>
           </div>
           {byStatus.pending.length > 0 && (
             <div className="flex-none inline-flex items-center gap-2.5 bg-amber-50 border border-amber-200 rounded-xl px-4 py-2.5">
               <span className="text-[22px] font-bold text-amber-600 leading-none">{byStatus.pending.length}</span>
               <div>
-                <div className="text-[12px] font-semibold text-amber-700 leading-tight">confession chờ duyệt</div>
-                <div className="text-[11px] text-amber-500">Nhấn để xem →</div>
+                <div className="text-[12px] font-semibold text-amber-700 leading-tight">{admin_t('confessions_pending_badge')}</div>
+                <div className="text-[11px] text-amber-500">{admin_t('click_to_view_arrow')} →</div>
               </div>
             </div>
           )}
@@ -216,7 +220,7 @@ export default async function AdminConfessionsPage({
         {/* Show DB error if any */}
         {confErr && (
           <div className="mt-4 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-[13px] text-red-700">
-            ⚠️ Lỗi truy vấn database: {confErr.message}
+            ⚠️ {admin_t('db_error_label')} {confErr.message}
             {confErr.message.includes('does not exist') && (
               <span className="block mt-1 text-[12px]">
                 Bảng <code>confessions</code> chưa tồn tại. Hãy chạy file{' '}
@@ -230,7 +234,7 @@ export default async function AdminConfessionsPage({
       {/* ── STATS ──────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
         {[
-          { key: 'all',      label: 'Tổng confession', count: all.length,                borderColor: 'border-l-gold',         numColor: 'text-ink'         },
+          { key: 'all',      label: admin_t('confessions_total_label'), count: all.length,                borderColor: 'border-l-gold',         numColor: 'text-ink'         },
           { key: 'pending',  label: t('status.pending'),  count: byStatus.pending.length,   borderColor: 'border-l-amber-400',    numColor: 'text-amber-600'   },
           { key: 'approved', label: t('status.approved'), count: byStatus.approved.length,  borderColor: 'border-l-emerald-400',  numColor: 'text-emerald-600' },
           { key: 'rejected', label: t('status.rejected'), count: byStatus.rejected.length,  borderColor: 'border-l-red-400',      numColor: 'text-red-500'     },
@@ -277,7 +281,7 @@ export default async function AdminConfessionsPage({
               : 'bg-paper text-[#5c4d44] border-line hover:bg-teal-soft hover:border-teal/35 hover:text-teal'
           }`}
         >
-          💬 Xem bình luận
+          💬 {admin_t('view_comments_btn')}
         </Link>
       </div>
 
@@ -287,7 +291,7 @@ export default async function AdminConfessionsPage({
           <div className="w-14 h-14 rounded-2xl bg-cream border border-line grid place-items-center text-[22px] mx-auto mb-4 shadow-sm">
             📭
           </div>
-          <h3 className="font-serif font-bold text-[18px] text-ink mb-2">Không có confession nào</h3>
+          <h3 className="font-serif font-bold text-[18px] text-ink mb-2">{admin_t('no_confessions_heading')}</h3>
           <p className="text-[13.5px] text-muted max-w-[340px] mx-auto leading-relaxed">{EMPTY[tab]}</p>
         </div>
       ) : (
@@ -314,18 +318,19 @@ export default async function AdminConfessionsPage({
                   <h3 className="font-serif font-bold text-[17px] leading-snug mb-1.5 text-ink">
                     {confession.title}
                   </h3>
-                  <p className="text-[13px] text-[#5c4d44] leading-relaxed line-clamp-2 mb-2 whitespace-pre-wrap">
-                    {confession.content}
+                  <p className="text-[13px] text-[#5c4d44] leading-relaxed line-clamp-2 mb-2">
+                    {confession.content.trimStart().startsWith('<')
+                      ? stripHtml(confession.content)
+                      : confession.content}
                   </p>
 
                   <div className="text-[12px] text-muted flex items-center flex-wrap gap-x-1.5 gap-y-0.5">
                     <span>
-                      Tác giả thật:{' '}
+                      {admin_t('author_label')}{' '}
                       <b className="text-[#5c4d44] font-semibold">
-                        {confession.author_name ?? 'Không rõ'}{' '}
-                        {confession.is_anonymous && (
-                          <span className="text-rose font-normal">(đăng ẩn danh)</span>
-                        )}
+                        {confession.is_anonymous
+                          ? generateAnonId(confession.id)
+                          : (confession.author_name ?? admin_t('unknown_label'))}
                       </b>
                     </span>
                     <span className="opacity-30">·</span>
@@ -333,7 +338,7 @@ export default async function AdminConfessionsPage({
                     {confession.rejected_reason && (
                       <>
                         <span className="opacity-30">·</span>
-                        <span className="text-red-500">Lý do từ chối: {confession.rejected_reason}</span>
+                        <span className="text-red-500">{admin_t('rejection_reason_label')} {confession.rejected_reason}</span>
                       </>
                     )}
                   </div>
@@ -346,7 +351,7 @@ export default async function AdminConfessionsPage({
                     target="_blank"
                     className="flex-1 sm:flex-none text-center text-[12px] font-semibold px-3 py-[7px] rounded-lg bg-teal-soft text-teal border border-teal/25 hover:bg-teal hover:text-white hover:border-teal transition-all whitespace-nowrap"
                   >
-                    👁 Xem
+                    👁 {admin_t('action_view')}
                   </Link>
 
                   {confession.status !== 'approved' && (
@@ -376,8 +381,8 @@ export default async function AdminConfessionsPage({
                   <form action={deleteConfession} className="flex-1 sm:flex-none">
                     <input type="hidden" name="id" value={confession.id} />
                     <ConfirmDeleteButton
-                      message="Xóa confession này?"
-                      label={`🗑 ${t('delete')}`}
+                      message={admin_t('delete_confession_confirm')}
+                      label={`🗑 ${admin_t('delete_btn')}`}
                       className="w-full text-[12px] font-semibold px-3 py-[7px] rounded-lg bg-red-50 text-red-600 border border-red-200 hover:bg-red-500 hover:text-white hover:border-transparent transition-all whitespace-nowrap"
                     />
                   </form>
@@ -393,7 +398,7 @@ export default async function AdminConfessionsPage({
         <div className="mt-12">
           <div className="flex items-center gap-3 mb-5">
             <h2 className="font-serif font-bold text-[22px] tracking-[-0.2px] text-ink">
-              💬 Bình luận gần đây
+              💬 {admin_t('recent_comments_heading')}
             </h2>
             <span className="text-[12px] font-bold px-2.5 py-0.5 rounded-full bg-line text-muted">
               {recentComments.length}
@@ -402,7 +407,7 @@ export default async function AdminConfessionsPage({
 
           {recentComments.length === 0 ? (
             <div className="bg-paper border border-line rounded-2xl py-10 px-6 text-center">
-              <p className="text-[14px] text-muted">Chưa có bình luận nào.</p>
+              <p className="text-[14px] text-muted">{admin_t('no_comments_yet')}</p>
             </div>
           ) : (
             <div className="space-y-2.5">
@@ -421,9 +426,6 @@ export default async function AdminConfessionsPage({
                           ? generateAnonId(comment.id)
                           : (comment.author_name ?? generateAnonId(comment.id))}
                       </span>
-                      {comment.is_anonymous && comment.author_name && (
-                        <span className="text-[10.5px] text-muted">(thật: {comment.author_name})</span>
-                      )}
                       <span className="text-[11px] text-muted">{fmtDate(comment.created_at)}</span>
                     </div>
                     <p className="text-[13.5px] text-[#3a2d22] leading-relaxed line-clamp-2">{comment.content}</p>
@@ -432,15 +434,15 @@ export default async function AdminConfessionsPage({
                       target="_blank"
                       className="text-[11.5px] text-teal hover:underline mt-0.5 inline-block"
                     >
-                      Xem confession →
+                      {admin_t('view_confession_link')} →
                     </Link>
                   </div>
 
                   <form action={adminDeleteConfessionComment} className="flex-none">
                     <input type="hidden" name="id" value={comment.id} />
                     <ConfirmDeleteButton
-                      message="Xóa bình luận này?"
-                      label="🗑 Xóa"
+                      message={admin_t('delete_comment_confirm')}
+                      label={`🗑 ${admin_t('delete_btn')}`}
                       className="text-[12px] font-semibold px-3 py-[7px] rounded-lg bg-red-50 text-red-600 border border-red-200 hover:bg-red-500 hover:text-white hover:border-transparent transition-all whitespace-nowrap"
                     />
                   </form>

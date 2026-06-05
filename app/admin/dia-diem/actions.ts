@@ -101,3 +101,27 @@ export async function deletePlace(slug: string) {
   revalidatePath('/admin/dia-diem')
   revalidatePath('/')
 }
+
+// ── Place translation upsert ──────────────────────────────────────────────────
+export async function upsertPlaceTranslation(formData: FormData): Promise<void> {
+  await guardAdmin()
+  const admin = createAdminClient()
+  const slug   = (formData.get('slug')   as string).trim()
+  const locale = (formData.get('locale') as string).trim()
+  const area   = (formData.get('area')   as string | null)?.trim() || null
+  const desc   = (formData.get('short_description') as string | null)?.trim() || null
+  const content = (formData.get('content') as string | null)?.trim() || null
+
+  if (!slug || !locale) return
+
+  const { error } = await admin
+    .from('place_translations')
+    .upsert(
+      { place_slug: slug, locale, area, short_description: desc, content, translation_status: 'published' },
+      { onConflict: 'place_slug,locale' }
+    )
+  if (error) throw new Error(error.message)
+  revalidatePath(`/admin/dia-diem/${slug}`)
+  revalidatePath(`/dia-diem/${slug}`)
+  revalidatePath('/')
+}

@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
-import { signUp } from '@/app/auth/actions'
+import { signUp, resendConfirmation } from '@/app/auth/actions'
 import SocialLoginButtons from '@/components/SocialLoginButtons'
 
 export async function generateMetadata() {
@@ -11,11 +11,12 @@ export async function generateMetadata() {
 export default async function DangKy({
   searchParams,
 }: {
-  searchParams: { error?: string; success?: string }
+  searchParams: { error?: string; success?: string; email?: string }
 }) {
   const t = await getTranslations('auth')
 
   if (searchParams.success) {
+    const email = searchParams.email ? decodeURIComponent(searchParams.email) : ''
     return (
       <section className="min-h-[calc(100vh-160px)] flex items-center justify-center py-12">
         <div className="w-full max-w-[440px] mx-auto px-7 text-center">
@@ -23,7 +24,21 @@ export default async function DangKy({
           <h1 className="font-serif font-black text-[28px] mb-3">
             {t('check_email_heading')}
           </h1>
-          <p className="text-muted text-[15px] mb-6">{t('check_email_sub')}</p>
+          <p className="text-muted text-[15px] mb-2">{t('check_email_sub')}</p>
+          <p className="text-muted/70 text-[13px] mb-7">{t('check_email_spam')}</p>
+
+          {email && (
+            <form action={resendConfirmation} className="mb-4">
+              <input type="hidden" name="email" value={email} />
+              <button
+                type="submit"
+                className="w-full font-semibold text-[14px] px-6 py-3 rounded-full border border-rose/30 text-rose hover:bg-rose/5 transition-colors"
+              >
+                {t('resend_btn')}
+              </button>
+            </form>
+          )}
+
           <Link
             href="/dang-nhap"
             className="inline-block font-semibold text-[14px] px-6 py-3 rounded-full bg-rose text-white hover:bg-rose-deep transition-all"

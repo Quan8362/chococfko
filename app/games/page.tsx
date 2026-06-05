@@ -121,6 +121,121 @@ export default async function GamesPage() {
           </div>
         </Link>
 
+        {/* 2048 */}
+        <Link
+          href="/games/2048"
+          className="group bg-paper border border-line rounded-2xl p-5 hover:border-rose/30 hover:shadow-[0_4px_24px_-6px_rgba(194,24,91,0.15)] transition-all hover:-translate-y-0.5"
+        >
+          <div className="flex items-start justify-between mb-4">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-rose/10 to-teal/10 border border-line flex items-center justify-center">
+              <svg width="24" height="24" viewBox="0 0 26 26" fill="none" aria-hidden="true">
+                <rect x="1"  y="1"  width="10" height="10" rx="2.5" fill="#c2185b"/>
+                <rect x="15" y="1"  width="10" height="10" rx="2.5" fill="#c99a3d"/>
+                <rect x="1"  y="15" width="10" height="10" rx="2.5" fill="#f5a623"/>
+                <rect x="15" y="15" width="10" height="10" rx="2.5" fill="#1f8fa6"/>
+              </svg>
+            </div>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-gold text-white">
+              {t('game2048.tag')}
+            </span>
+          </div>
+          <h2 className="font-serif font-bold text-[17px] text-ink mb-1.5 group-hover:text-rose transition-colors">
+            {t('game2048.title')}
+          </h2>
+          <p className="text-[13px] text-muted leading-relaxed mb-3">{t('game2048.short_desc')}</p>
+          <div className="flex items-center gap-1.5 text-[12px] text-muted/70">
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            {t('game2048.solo')}
+          </div>
+        </Link>
+
+        {/* Match-3 */}
+        <Link
+          href="/games/match-3"
+          className="group bg-paper border border-line rounded-2xl p-5 hover:border-rose/30 hover:shadow-[0_4px_24px_-6px_rgba(194,24,91,0.15)] transition-all hover:-translate-y-0.5"
+        >
+          <div className="flex items-start justify-between mb-4">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-rose/15 to-violet-100 flex items-center justify-center text-[24px]">
+              🍬
+            </div>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose text-white">
+              {t('match3.tag')}
+            </span>
+          </div>
+          <h2 className="font-serif font-bold text-[17px] text-ink mb-1.5 group-hover:text-rose transition-colors">
+            {t('match3.title')}
+          </h2>
+          <p className="text-[13px] text-muted leading-relaxed mb-3">{t('match3.short_desc')}</p>
+          <div className="flex items-center gap-1.5 text-[12px] text-muted/70">
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            {t('match3.solo')}
+          </div>
+        </Link>
+
+        {/* Sudoku */}
+        <Link
+          href="/games/sudoku"
+          className="group bg-paper border border-line rounded-2xl p-5 hover:border-rose/30 hover:shadow-[0_4px_24px_-6px_rgba(194,24,91,0.15)] transition-all hover:-translate-y-0.5"
+        >
+          <div className="flex items-start justify-between mb-4">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal/15 to-blue-50 flex items-center justify-center">
+              <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+                <rect x="1"  y="1"  width="7" height="7" rx="1.5" fill="#1f8fa6" opacity="0.85"/>
+                <rect x="11" y="1"  width="7" height="7" rx="1.5" fill="#c2185b" opacity="0.75"/>
+                <rect x="21" y="1"  width="7" height="7" rx="1.5" fill="#c99a3d" opacity="0.75"/>
+                <rect x="1"  y="11" width="7" height="7" rx="1.5" fill="#c99a3d" opacity="0.75"/>
+                <rect x="11" y="11" width="7" height="7" rx="1.5" fill="#1f8fa6" opacity="0.85"/>
+                <rect x="21" y="11" width="7" height="7" rx="1.5" fill="#c2185b" opacity="0.75"/>
+                <rect x="1"  y="21" width="7" height="7" rx="1.5" fill="#c2185b" opacity="0.75"/>
+                <rect x="11" y="21" width="7" height="7" rx="1.5" fill="#c99a3d" opacity="0.75"/>
+                <rect x="21" y="21" width="7" height="7" rx="1.5" fill="#1f8fa6" opacity="0.85"/>
+              </svg>
+            </div>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal text-white">
+              {t('sudoku.tag')}
+            </span>
+          </div>
+          <h2 className="font-serif font-bold text-[17px] text-ink mb-1.5 group-hover:text-rose transition-colors">
+            {t('sudoku.title')}
+          </h2>
+          <p className="text-[13px] text-muted leading-relaxed mb-3">{t('sudoku.short_desc')}</p>
+          <div className="flex items-center gap-1.5 text-[12px] text-muted/70">
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            {t('sudoku.solo')}
+          </div>
+        </Link>
+
+        {/* Random Wheel */}
+        <Link
+          href="/games/random-wheel"
+          className="group bg-paper border border-line rounded-2xl p-5 hover:border-rose/30 hover:shadow-[0_4px_24px_-6px_rgba(194,24,91,0.15)] transition-all hover:-translate-y-0.5"
+        >
+          <div className="flex items-start justify-between mb-4">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-rose/15 to-gold/10 flex items-center justify-center text-[24px]">
+              🎡
+            </div>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose text-white">
+              {t('random_wheel.tag')}
+            </span>
+          </div>
+          <h2 className="font-serif font-bold text-[17px] text-ink mb-1.5 group-hover:text-rose transition-colors">
+            {t('random_wheel.title')}
+          </h2>
+          <p className="text-[13px] text-muted leading-relaxed mb-3">{t('random_wheel.short_desc')}</p>
+          <div className="flex items-center gap-1.5 text-[12px] text-muted/70">
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            {t('random_wheel.solo')}
+          </div>
+        </Link>
+
         <div className="bg-cream/50 border border-dashed border-line rounded-2xl p-5 flex flex-col items-center justify-center text-center gap-2 min-h-[160px]">
           <span className="text-[28px]">🎲</span>
           <p className="text-[13px] text-muted/60 font-medium">{t('coming_soon')}</p>

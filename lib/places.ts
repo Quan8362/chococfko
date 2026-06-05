@@ -1039,7 +1039,29 @@ export function relatedPlaces(p: Place, n = 3): Place[] {
   return places.filter((x) => x.category === p.category && x.slug !== p.slug).slice(0, n);
 }
 
-// ── Supabase DB helpers ──────────────────────────────────────────────────────
+// ── Place translation types ───────────────────────────────────────────────────
+
+export interface PlaceTranslation {
+  place_slug: string
+  locale: string
+  area: string | null
+  short_description: string | null
+  content: string | null
+  translation_status: string
+}
+
+// Merge a translation into a Place (overrides area, desc, body if present)
+export function applyPlaceTranslation(place: Place, t: PlaceTranslation | null | undefined): Place {
+  if (!t) return place
+  return {
+    ...place,
+    area: t.area ?? place.area,
+    desc: t.short_description ?? place.desc,
+    body: t.content || place.body,
+  }
+}
+
+// ── Supabase DB helpers ───────────────────────────────────────────────────────
 
 interface DbPlace {
   slug: string; name: string; area: string; description: string | null;
@@ -1066,7 +1088,26 @@ function mapDbPlace(row: DbPlace): Place {
   };
 }
 
-export async function getAllPlacesFromDb(): Promise<Place[] | null> {
+// Fetch all published translations for a given locale (bulk, for list pages)
+async function fetchTranslationsForLocale(
+  supabase: Awaited<ReturnType<typeof import('@/lib/supabase/server').createClient>>,
+  locale: string,
+): Promise<Map<string, PlaceTranslation>> {
+  const map = new Map<string, PlaceTranslation>()
+  try {
+    const { data } = await supabase
+      .from('place_translations')
+      .select('place_slug,locale,area,short_description,content,translation_status')
+      .eq('locale', locale)
+      .eq('translation_status', 'published')
+    for (const row of (data ?? []) as PlaceTranslation[]) {
+      map.set(row.place_slug, row)
+    }
+  } catch { /* table may not exist yet */ }
+  return map
+}
+
+export async function getAllPlacesFromDb(locale?: string): Promise<Place[] | null> {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return null;
   try {
     const { createClient } = await import('@/lib/supabase/server');
@@ -1076,14 +1117,18 @@ export async function getAllPlacesFromDb(): Promise<Place[] | null> {
       .select('*')
       .order('sort_order', { ascending: true });
     if (error || !data?.length) return null;
-    // Filter in JS so it works whether or not the status column exists yet:
-    // show pre-existing (status undefined/null) and approved; hide pending.
     const rows = (data as DbPlace[]).filter((r) => r.status !== 'pending');
-    return rows.map(mapDbPlace);
+    const places = rows.map(mapDbPlace)
+    // Apply translations when a non-default locale is requested
+    if (locale && locale !== 'vi') {
+      const txMap = await fetchTranslationsForLocale(supabase, locale)
+      return places.map(p => applyPlaceTranslation(p, txMap.get(p.slug)))
+    }
+    return places
   } catch { return null; }
 }
 
-export async function getPlaceFromDb(slug: string): Promise<Place | null> {
+export async function getPlaceFromDb(slug: string, locale?: string): Promise<Place | null> {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return null;
   try {
     const { createClient } = await import('@/lib/supabase/server');
@@ -1094,6 +1139,35 @@ export async function getPlaceFromDb(slug: string): Promise<Place | null> {
       .eq('slug', slug)
       .single();
     if (error || !data) return null;
-    return mapDbPlace(data as DbPlace);
+    const place = mapDbPlace(data as DbPlace)
+    if (locale && locale !== 'vi') {
+      // Fetch the specific translation for this place + locale
+      try {
+        const { data: tx } = await supabase
+          .from('place_translations')
+          .select('place_slug,locale,area,short_description,content,translation_status')
+          .eq('place_slug', slug)
+          .eq('locale', locale)
+          .eq('translation_status', 'published')
+          .maybeSingle()
+        return applyPlaceTranslation(place, tx as PlaceTranslation | null)
+      } catch { return place }
+    }
+    return place
   } catch { return null; }
+}
+
+// Get all translations for a place slug (for admin UI)
+export async function getPlaceAllTranslations(slug: string): Promise<PlaceTranslation[]> {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return []
+  try {
+    const { createAdminClient } = await import('@/lib/supabase/admin')
+    const admin = createAdminClient()
+    const { data } = await admin
+      .from('place_translations')
+      .select('place_slug,locale,area,short_description,content,translation_status')
+      .eq('place_slug', slug)
+      .order('locale')
+    return (data ?? []) as PlaceTranslation[]
+  } catch { return [] }
 }

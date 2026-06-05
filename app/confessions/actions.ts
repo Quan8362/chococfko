@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { isUuid } from '@/lib/confessions'
 import { sanitizeHtml, stripHtml } from '@/lib/sanitize'
+import { createAdminNotification } from '@/lib/admin/notifications'
 
 export type ConfessionResult = { ok?: true; error?: string } | null
 
@@ -31,15 +32,34 @@ export async function submitConfession(
   // Sanitize before storing
   const content = sanitizeHtml(rawContent)
 
-  const { error } = await supabase.from('confessions').insert({
-    title,
-    content,
-    author_id: user.id,
-    is_anonymous: isAnonymous,
-    status: 'pending',
-  })
+  const { data: confessionData, error } = await supabase
+    .from('confessions')
+    .insert({
+      title,
+      content,
+      author_id: user.id,
+      is_anonymous: isAnonymous,
+      status: 'pending',
+    })
+    .select('id')
+    .single()
 
   if (error) return { error: error.message }
+
+  const displayName = (user.user_metadata?.display_name as string | undefined)
+    || user.email?.split('@')[0]
+    || 'Ẩn danh'
+
+  await createAdminNotification({
+    type: 'new_pending_confession',
+    title: 'FKO Confession mới cần duyệt',
+    message: `${displayName}: ${title}`,
+    target_type: 'confession',
+    target_id: confessionData?.id ?? null,
+    target_url: '/admin/confessions',
+    actor_id: user.id,
+  })
+
   revalidatePath('/confessions')
   return { ok: true }
 }

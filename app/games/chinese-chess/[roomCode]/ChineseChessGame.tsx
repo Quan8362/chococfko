@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import {
   makeChessMove, resignGame, offerDraw, respondDraw, claimTimeout,
+  heartbeatWaitingChessRoom,
   type ChessRoom, type MoveEntry,
 } from '../actions'
 import {
@@ -144,6 +145,14 @@ export default function ChineseChessGame({
       .subscribe()
     return () => { sb.removeChannel(ch) }
   }, [room.id])
+
+  // Heartbeat: keep waiting room alive while host is present
+  useEffect(() => {
+    if (room.status !== 'waiting' || myRole !== 'red') return
+    heartbeatWaitingChessRoom(room.id)
+    const interval = setInterval(() => heartbeatWaitingChessRoom(room.id), 25000)
+    return () => clearInterval(interval)
+  }, [room.id, room.status, myRole])
 
   // ── Timer: server-authoritative countdown from turn_started_at ────────────
   // Computed from DB field so both clients always agree on remaining time.
@@ -685,6 +694,7 @@ function ChessBoard({
   board, selected, validMoves, lastMove, generalPos,
   interactive, isPending, mySideChar, gameStatus, flipped, onCellClick,
 }: BoardProps) {
+  const t = useTranslations('games.chinese_chess')
   const validSet = new Set(validMoves.map(([r, c]) => `${r},${c}`))
 
   // Convert actual → display coordinates
@@ -798,7 +808,7 @@ function ChessBoard({
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                 </svg>
-                Đang xử lý…
+                {t('move_pending')}
               </div>
             </div>
           )}
@@ -871,11 +881,11 @@ function ChessBoard({
       <div className="mt-2 flex justify-center gap-6 text-[11px] text-muted/60 select-none">
         <span className="flex items-center gap-1.5">
           <span className="inline-block w-3 h-3 rounded-full bg-gradient-to-br from-red-400 to-red-700 border border-red-900/50 flex-none" />
-          Đỏ đi trước
+          {t('legend_red_first')}
         </span>
         <span className="flex items-center gap-1.5">
           <span className="inline-block w-3 h-3 rounded-full bg-gradient-to-br from-zinc-600 to-zinc-900 border border-zinc-950/50 flex-none" />
-          Đen
+          {t('legend_black')}
         </span>
       </div>
     </div>

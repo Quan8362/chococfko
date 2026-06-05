@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, getLocale } from "next-intl/server";
 import { categories, places as staticPlaces, getAllPlacesFromDb } from "@/lib/places";
 import type { Place } from "@/lib/places";
 import PlaceCard from "@/components/PlaceCard";
@@ -26,10 +26,13 @@ const CAT_EMOJI: Record<string, string> = {
 };
 
 export default async function Home() {
-  const t = await getTranslations("home");
-  const tc = await getTranslations("categories");
+  const [t, tc, locale] = await Promise.all([
+    getTranslations("home"),
+    getTranslations("categories"),
+    getLocale(),
+  ])
 
-  const dbPlaces = await getAllPlacesFromDb();
+  const dbPlaces = await getAllPlacesFromDb(locale);
   // getAllPlacesFromDb filters out pending places (status='pending')
   // so only approved/pre-existing places reach here
   const allPlaces: Place[] = dbPlaces ?? staticPlaces;

@@ -22,13 +22,29 @@ const CAT_EMOJI: Record<string, string> = {
   kids_playground: "🎠",
 };
 
-// Maps Vietnamese time-of-day area strings to translation keys
+// Maps Vietnamese area strings to common translation keys
 const AREA_TIME_MAP: Record<string, string> = {
-  "Tối": "area_toi",
-  "Sáng": "area_sang",
-  "Trưa": "area_trua",
-  "Chiều": "area_chieu",
-  "Trưa / Tối": "area_trua_toi",
+  // Time-of-day areas
+  "Tối":                        "area_toi",
+  "Sáng":                       "area_sang",
+  "Trưa":                       "area_trua",
+  "Chiều":                      "area_chieu",
+  "Trưa / Tối":                 "area_trua_toi",
+  // Location areas
+  "Gần Ohori":                  "area_near_ohori",
+  "Gần Fukuoka Tower":          "area_near_fukuoka_tower",
+  // Mountain / hiking difficulty areas
+  "Dễ · hợp người mới":         "area_mountain_easy_beginner",
+  "Dễ–TB · gần thành phố":      "area_mountain_easymid_city",
+  "Dễ–TB":                      "area_mountain_easymid",
+  "Trung bình · rất nổi tiếng": "area_mountain_mid_popular",
+  "Trung bình · thiên nhiên đẹp": "area_mountain_mid_nature",
+  "Trung bình · mùa lá đỏ":    "area_mountain_mid_autumn",
+  "Trung bình · view biển":     "area_mountain_mid_seaview",
+  "Có cáp treo · ngắm đêm":     "area_mountain_cable_night",
+  // Other Vietnamese areas
+  "Umi-machi · gần Dazaifu":    "area_umi_near_dazaifu",
+  "Đảo Nokonoshima":             "area_nokonoshima_island",
 };
 
 export default async function PlaceCard({ place }: { place: Place }) {

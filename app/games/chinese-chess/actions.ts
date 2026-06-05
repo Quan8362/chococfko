@@ -58,6 +58,101 @@ function genCode(): string {
   return Array.from({ length: 5 }, () => CHARS[Math.floor(Math.random() * CHARS.length)]).join('')
 }
 
+export type WaitingChessRoom = {
+  id: string
+  room_code: string
+  player_red: string | null
+  player_red_name: string
+  created_at: string
+  updated_at: string
+}
+
+const CHESS_LOBBY_STALE_MS = 3 * 60 * 1000
+
+export async function fetchWaitingChessRooms(): Promise<WaitingChessRoom[]> {
+  const admin = createAdminClient()
+  const since = new Date(Date.now() - CHESS_LOBBY_STALE_MS).toISOString()
+  const { data: rooms } = await admin
+    .from('chinese_chess_rooms')
+    .select('id, room_code, player_red, created_at, updated_at')
+    .eq('status', 'waiting')
+    .is('player_black', null)
+    .gte('updated_at', since)
+    .order('updated_at', { ascending: false })
+    .limit(20)
+
+  if (!rooms || rooms.length === 0) return []
+
+  const seen = new Set<string>()
+  const playerIds = rooms
+    .map(r => r.player_red)
+    .filter((id): id is string => !!id && !seen.has(id) && (seen.add(id), true))
+
+  let nameMap: Record<string, string> = {}
+  if (playerIds.length > 0) {
+    const { data: profiles } = await admin
+      .from('profiles')
+      .select('id, display_name')
+      .in('id', playerIds)
+    if (profiles) {
+      for (const p of profiles) nameMap[p.id] = p.display_name ?? 'Ẩn danh'
+    }
+  }
+
+  return rooms.map(r => ({
+    id: r.id,
+    room_code: r.room_code,
+    player_red: r.player_red,
+    player_red_name: r.player_red ? (nameMap[r.player_red] ?? 'Ẩn danh') : 'Ẩn danh',
+    created_at: r.created_at,
+    updated_at: r.updated_at,
+  }))
+}
+
+export async function heartbeatWaitingChessRoom(roomId: string): Promise<void> {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return
+  const admin = createAdminClient()
+  await admin
+    .from('chinese_chess_rooms')
+    .update({ updated_at: new Date().toISOString() })
+    .eq('id', roomId)
+    .eq('status', 'waiting')
+    .eq('player_red', user.id)
+}
+
+export async function joinChessRoomFromLobby(roomCode: string): Promise<ActionResult> {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'not_logged_in' }
+
+  const admin = createAdminClient()
+  const { data: room } = await admin
+    .from('chinese_chess_rooms')
+    .select('id, player_red, player_black, status, updated_at')
+    .eq('room_code', roomCode)
+    .maybeSingle()
+
+  if (!room) return { error: 'not_found' }
+  if (room.player_red === user.id || room.player_black === user.id) return null
+  if (room.status !== 'waiting' || room.player_black) return { error: 'full' }
+
+  const since = new Date(Date.now() - CHESS_LOBBY_STALE_MS).toISOString()
+  if (room.updated_at < since) return { error: 'stale' }
+
+  const { data: updated, error } = await admin
+    .from('chinese_chess_rooms')
+    .update({ player_black: user.id, status: 'playing' })
+    .eq('id', room.id)
+    .is('player_black', null)
+    .select('id')
+
+  if (error) return { error: error.message }
+  if (!updated || updated.length === 0) return { error: 'full' }
+  return null
+}
+
 // ── createRoom ────────────────────────────────────────────────────────────────
 export async function createRoom(): Promise<never> {
   const supabase = createClient()

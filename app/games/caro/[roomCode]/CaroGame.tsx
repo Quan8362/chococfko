@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useCallback, useTransition } from 'react'
 import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
-import { makeMove, surrenderGame, type CaroRoom } from '../actions'
+import { makeMove, surrenderGame, heartbeatWaitingRoom, type CaroRoom } from '../actions'
 import CaroChat from './CaroChat'
 
 const SIZE = 15
@@ -62,8 +62,17 @@ export default function CaroGame({ initialRoom, userId, myName, playerXName, pla
     return () => { supabase.removeChannel(channel) }
   }, [room.id])
 
+  // ── Heartbeat: keep waiting room alive in lobby ───────────────────────────
+  // Fires every 25s while room is 'waiting' and current user is host (player X).
+  // Stops automatically when room transitions to playing/finished.
+  useEffect(() => {
+    if (room.status !== 'waiting' || mySymbol !== 'X') return
+    heartbeatWaitingRoom(room.id)
+    const interval = setInterval(() => heartbeatWaitingRoom(room.id), 25000)
+    return () => clearInterval(interval)
+  }, [room.id, room.status, mySymbol])
+
   // ── Auto-move on timeout ──────────────────────────────────────────────────
-  // Use ref so the interval callback always sees the latest board/room
   const boardRef = useRef(board)
   boardRef.current = board
   const roomRef = useRef(room)
@@ -162,13 +171,12 @@ export default function CaroGame({ initialRoom, userId, myName, playerXName, pla
   const timerDanger = timeLeft <= 5 && isMyTurn && room.status === 'playing'
 
   return (
-    // Two-column on desktop: board | chat
     <div className="flex flex-col lg:flex-row gap-5 items-start pb-10">
 
       {/* ── LEFT: game area ─────────────────────────────────────────────── */}
       <div className="flex-1 min-w-0 flex flex-col items-center gap-4 w-full">
 
-        {/* Room code — prominent banner */}
+        {/* Room code banner */}
         <div className="w-full bg-gradient-to-r from-ink to-[#3a2d22] rounded-2xl px-5 py-4 flex items-center justify-between gap-3 shadow-lg">
           <div>
             <p className="text-[10.5px] font-bold uppercase tracking-[2px] text-white/50 mb-0.5">{t('room_code_label')}</p>
@@ -188,7 +196,7 @@ export default function CaroGame({ initialRoom, userId, myName, playerXName, pla
           </button>
         </div>
 
-        {/* Players row */}
+        {/* Players row — includes undo status */}
         <div className="w-full flex items-center gap-2">
           <PlayerCard
             symbol="X" name={playerXName}
@@ -205,7 +213,6 @@ export default function CaroGame({ initialRoom, userId, myName, playerXName, pla
 
         {/* Status + timer */}
         <div className="w-full overflow-hidden rounded-xl border border-line">
-          {/* Timer bar — only show during playing */}
           {room.status === 'playing' && room.player_o && (
             <div className="h-1.5 w-full bg-line/50">
               <div
@@ -261,6 +268,7 @@ export default function CaroGame({ initialRoom, userId, myName, playerXName, pla
             {Array.from({ length: 225 }, (_, i) => {
               const cell = i === pendingCell && !board[i] ? mySymbol : board[i]
               const isWin = winCells.has(i)
+              // Highlight the undo-able cell (last move, if canUndo)
               const canClick = isMyTurn && !board[i] && i !== pendingCell && room.status === 'playing'
               return (
                 <button
@@ -283,6 +291,7 @@ export default function CaroGame({ initialRoom, userId, myName, playerXName, pla
 
         {/* Actions */}
         <div className="flex gap-3 flex-wrap justify-center">
+
           {room.status === 'playing' && mySymbol && (
             <button
               onClick={handleSurrender}

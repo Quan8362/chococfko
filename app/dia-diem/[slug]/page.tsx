@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, getLocale } from "next-intl/server";
 import { getPlace, places, getAllPlacesFromDb, getPlaceFromDb } from "@/lib/places";
 import { checkIsAdmin } from "@/lib/supabase/admin";
 import SmartImg from "@/components/SmartImg";
@@ -23,10 +23,11 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 }
 
 export default async function PlaceDetail({ params }: { params: { slug: string } }) {
+  const locale = await getLocale()
   const [dbPlace, isAdmin, dbAllPlaces] = await Promise.all([
-    getPlaceFromDb(params.slug),
+    getPlaceFromDb(params.slug, locale),
     checkIsAdmin(),
-    getAllPlacesFromDb(),
+    getAllPlacesFromDb(locale),
   ]);
 
   const place = dbPlace ?? getPlace(params.slug);
@@ -36,11 +37,19 @@ export default async function PlaceDetail({ params }: { params: { slug: string }
   const tCat = await getTranslations("categories");
 
   const AREA_TIME_MAP: Record<string, string> = {
-    "Tối": "area_toi",
-    "Sáng": "area_sang",
-    "Trưa": "area_trua",
-    "Chiều": "area_chieu",
-    "Trưa / Tối": "area_trua_toi",
+    "Tối": "area_toi", "Sáng": "area_sang", "Trưa": "area_trua",
+    "Chiều": "area_chieu", "Trưa / Tối": "area_trua_toi",
+    "Gần Ohori": "area_near_ohori", "Gần Fukuoka Tower": "area_near_fukuoka_tower",
+    "Dễ · hợp người mới": "area_mountain_easy_beginner",
+    "Dễ–TB · gần thành phố": "area_mountain_easymid_city",
+    "Dễ–TB": "area_mountain_easymid",
+    "Trung bình · rất nổi tiếng": "area_mountain_mid_popular",
+    "Trung bình · thiên nhiên đẹp": "area_mountain_mid_nature",
+    "Trung bình · mùa lá đỏ": "area_mountain_mid_autumn",
+    "Trung bình · view biển": "area_mountain_mid_seaview",
+    "Có cáp treo · ngắm đêm": "area_mountain_cable_night",
+    "Umi-machi · gần Dazaifu": "area_umi_near_dazaifu",
+    "Đảo Nokonoshima": "area_nokonoshima_island",
   };
   const areaTimeKey = AREA_TIME_MAP[place.area];
   const displayArea = areaTimeKey ? t(areaTimeKey as Parameters<typeof t>[0]) : place.area;

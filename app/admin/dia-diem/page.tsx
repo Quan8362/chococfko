@@ -34,7 +34,10 @@ export default async function AdminDiaDiem({
 }) {
   if (!(await checkIsAdmin())) redirect('/')
 
-  const tCat = await getTranslations('categories')
+  const [tCat, admin_t] = await Promise.all([
+    getTranslations('categories'),
+    getTranslations('admin'),
+  ])
 
   const admin = createAdminClient()
   const { data, error } = await admin
@@ -67,19 +70,19 @@ export default async function AdminDiaDiem({
           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
-          Admin Dashboard
+          {admin_t('admin_dashboard_label')}
         </Link>
 
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
             <h1 className="font-serif font-bold text-[30px] tracking-[-0.3px] leading-tight text-ink mb-1">
-              Quản lý địa điểm
+              {admin_t('manage_places_title')}
             </h1>
             <p className="text-[14px] text-muted flex items-center gap-2">
-              {isSeeded ? `${dbRows.length} địa điểm trong database` : 'Chưa có dữ liệu'}
+              {isSeeded ? admin_t('n_places_in_db', { n: dbRows.length }) : admin_t('no_data_yet')}
               {pendingCount > 0 && (
                 <span className="inline-flex items-center gap-1 text-[12px] font-semibold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-700 border border-amber-200">
-                  ⏳ {pendingCount} chờ duyệt
+                  ⏳ {admin_t('n_pending_label', { n: pendingCount })}
                 </span>
               )}
             </p>
@@ -88,10 +91,10 @@ export default async function AdminDiaDiem({
             <form action={seedPlaces}>
               <button
                 type="submit"
-                title="Chỉ thêm các địa điểm còn thiếu trong DB. Địa điểm đã có sẽ KHÔNG bị ghi đè."
+                title={admin_t('add_missing_tooltip')}
                 className="inline-flex items-center gap-2 text-[13px] font-semibold px-4 py-2 rounded-full border border-line bg-paper text-muted hover:bg-line hover:text-ink hover:border-ink/30 transition-all"
               >
-                ➕ Thêm địa điểm còn thiếu
+                ➕ {admin_t('add_missing_btn')}
               </button>
             </form>
           )}
@@ -102,7 +105,7 @@ export default async function AdminDiaDiem({
       {searchParams.seeded && (
         <div className="bg-emerald-50 border border-emerald-200 rounded-xl px-5 py-3.5 text-[13.5px] text-emerald-800 font-semibold mb-6 flex items-center gap-2">
           <span>✅</span>
-          <span>Đã nhập {dbRows.length} địa điểm vào database thành công!</span>
+          <span>{admin_t('seed_success_msg', { n: dbRows.length })}</span>
         </div>
       )}
 
@@ -112,10 +115,9 @@ export default async function AdminDiaDiem({
           <div className="flex items-start gap-3 mb-4">
             <div className="w-10 h-10 rounded-xl bg-amber-100 grid place-items-center text-[20px] flex-none">📦</div>
             <div>
-              <h2 className="font-serif font-bold text-amber-800 text-[17px] mb-1">Database chưa có địa điểm</h2>
+              <h2 className="font-serif font-bold text-amber-800 text-[17px] mb-1">{admin_t('no_places_in_db_heading')}</h2>
               <p className="text-amber-700 text-[13.5px] leading-relaxed max-w-[540px]">
-                Bấm nút bên dưới để nhập toàn bộ <b>77 địa điểm</b> từ dữ liệu mẫu vào database.
-                Sau đó bạn có thể chỉnh sửa từng địa điểm qua giao diện admin này mà không cần chạm vào code.
+                {admin_t('no_places_in_db_desc')}
               </p>
             </div>
           </div>
@@ -124,7 +126,7 @@ export default async function AdminDiaDiem({
               type="submit"
               className="font-semibold px-6 py-2.5 rounded-full bg-amber-500 text-white hover:bg-amber-600 transition-all text-[14px] shadow-[0_4px_14px_-4px_rgba(245,158,11,0.5)]"
             >
-              📥 Nhập 77 địa điểm vào database
+              📥 {admin_t('seed_db_btn')}
             </button>
           </form>
         </div>
@@ -142,7 +144,7 @@ export default async function AdminDiaDiem({
                   : 'bg-paper border-line text-muted hover:bg-rose-soft hover:border-rose/35 hover:text-rose'
               }`}
             >
-              📋 Tất cả
+              📋 {admin_t('filter_all_label')}
               <span className={`text-[11px] font-bold px-1 rounded-full ${!searchParams.cat ? 'bg-white/25' : 'bg-line'}`}>
                 {dbRows.length}
               </span>
@@ -191,7 +193,7 @@ export default async function AdminDiaDiem({
                     {p.name}
                     {p.status === 'pending' && (
                       <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 border border-amber-200 whitespace-nowrap flex-none">
-                        ⏳ Chờ duyệt
+                        ⏳ {admin_t('pending')}
                       </span>
                     )}
                   </div>
@@ -201,7 +203,7 @@ export default async function AdminDiaDiem({
                     <span>📍 {p.area}</span>
                     {p.body && (
                       <span className="text-emerald-600 font-medium">
-                        · ✓ Có mô tả
+                        · ✓ {admin_t('has_desc')}
                       </span>
                     )}
                   </div>
@@ -214,13 +216,13 @@ export default async function AdminDiaDiem({
                     target="_blank"
                     className="text-[12px] text-muted hover:text-rose px-2.5 py-1.5 rounded-lg hover:bg-rose-soft border border-transparent hover:border-rose/20 transition-all"
                   >
-                    👁 Xem
+                    👁 {admin_t('action_view')}
                   </Link>
                   <Link
                     href={`/admin/dia-diem/${p.slug}`}
                     className="text-[12.5px] font-semibold px-3.5 py-1.5 rounded-lg bg-teal-soft text-teal border border-teal/25 hover:bg-teal hover:text-white hover:border-teal transition-all whitespace-nowrap"
                   >
-                    ✏️ Sửa
+                    {admin_t('action_edit')}
                   </Link>
                   <DeletePlaceButton slug={p.slug} />
                 </div>

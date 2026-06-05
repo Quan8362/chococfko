@@ -201,11 +201,11 @@ export default async function AdminPage({
               👥
             </div>
             <h2 className="font-serif font-bold text-[16.5px] text-ink mb-1 group-hover:text-rose transition-colors">
-              Người dùng
+              {admin_t('users_title')}
             </h2>
-            <p className="text-[13px] text-muted mb-3.5 leading-relaxed">Xem danh sách thành viên đã đăng ký</p>
+            <p className="text-[13px] text-muted mb-3.5 leading-relaxed">{admin_t('users_desc')}</p>
             <span className="inline-flex items-center gap-1 text-[12px] font-semibold text-rose bg-rose-soft px-2.5 py-1 rounded-full">
-              Xem danh sách
+              {admin_t('users_view_list')}
               <svg className="w-3 h-3 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
               </svg>
@@ -260,7 +260,7 @@ export default async function AdminPage({
             <h2 className="font-serif font-bold text-[16.5px] text-ink mb-1 group-hover:text-rose transition-colors">
               FKO Confessions
             </h2>
-            <p className="text-[13px] text-muted mb-3.5 leading-relaxed">Duyệt và quản lý confession ẩn danh</p>
+            <p className="text-[13px] text-muted mb-3.5 leading-relaxed">{admin_t('confessions_desc')}</p>
             <span className="inline-flex items-center gap-1 text-[12px] font-semibold text-rose bg-rose-soft px-2.5 py-1 rounded-full">
               {admin_t('manage')}
               <svg className="w-3 h-3 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -276,10 +276,10 @@ export default async function AdminPage({
         <div className="mb-10">
           <div className="flex items-center gap-3 mb-4">
             <h2 className="font-serif font-bold text-[20px] tracking-[-0.2px] text-ink">
-              📍 Địa điểm chờ duyệt
+              📍 {admin_t('pending_places_heading')}
             </h2>
             <span className="text-[12px] font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-700 border border-amber-200">
-              {pendingPlaces.length} chờ duyệt
+              {admin_t('n_pending_label', { n: pendingPlaces.length })}
             </span>
           </div>
 
@@ -301,7 +301,7 @@ export default async function AdminPage({
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap mb-1">
                     <span className="text-[11px] font-semibold px-2 py-[4px] rounded-full bg-amber-100 text-amber-700 border border-amber-200">
-                      ⏳ Chờ duyệt
+                      ⏳ {admin_t('pending')}
                     </span>
                     <span className="text-[12px] text-muted">
                       {CAT_EMOJI[place.category]} {tCat(place.category as Parameters<typeof tCat>[0])}
@@ -319,7 +319,7 @@ export default async function AdminPage({
                     href={`/admin/dia-diem/${place.slug}`}
                     className="text-[12px] font-semibold px-3 py-[7px] rounded-lg bg-teal-soft text-teal border border-teal/25 hover:bg-teal hover:text-white hover:border-teal transition-all whitespace-nowrap"
                   >
-                    ✏️ Sửa
+                    {admin_t('action_edit')}
                   </Link>
 
                   <form action={approvePlace}>
@@ -329,7 +329,7 @@ export default async function AdminPage({
                       type="submit"
                       className="text-[12px] font-semibold px-3 py-[7px] rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-500 hover:text-white hover:border-transparent transition-all whitespace-nowrap"
                     >
-                      ✅ Duyệt
+                      {admin_t('action_approve')}
                     </button>
                   </form>
 
@@ -340,7 +340,7 @@ export default async function AdminPage({
                       type="submit"
                       className="text-[12px] font-semibold px-3 py-[7px] rounded-lg bg-red-50 text-red-600 border border-red-200 hover:bg-red-500 hover:text-white hover:border-transparent transition-all whitespace-nowrap"
                     >
-                      ❌ Từ chối
+                      {admin_t('action_reject')}
                     </button>
                   </form>
                 </div>
@@ -353,7 +353,7 @@ export default async function AdminPage({
       {/* ── STATS (community posts only) ─────────────────────── */}
       <div className="flex items-center gap-2 mb-4">
         <h2 className="font-serif font-bold text-[20px] tracking-[-0.2px] text-ink">
-          📝 Bài viết cộng đồng
+          📝 {admin_t('community_posts_heading')}
         </h2>
       </div>
 

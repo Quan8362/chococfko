@@ -96,7 +96,7 @@ body::before {
 .rich-content ol { list-style: decimal; padding-left: 1.5em; margin-bottom: 1em; }
 .rich-content li { margin-bottom: 0.4em; line-height: 1.75; }
 .rich-content a  { color: var(--rose); text-decoration: underline; }
-.rich-content img { max-width: 100%; border-radius: 14px; margin: 1.2em 0; }
+.rich-content img { display: block; max-width: 100%; height: auto; margin: 1.4em auto; border-radius: 14px; box-shadow: 0 2px 16px -4px rgba(36,26,23,0.12); }
 .rich-content strong { font-weight: 700; }
 .rich-content em { font-style: italic; }
 .rich-content hr { border: none; border-top: 2px solid var(--line); margin: 1.6em 0; }

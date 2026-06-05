@@ -122,6 +122,7 @@ export default function RandomWheelClient() {
   const [resultVisible,   setResultVisible]   = useState(false)
   const [copied,          setCopied]          = useState(false)
   const [loaded,          setLoaded]          = useState(false)
+  const [spinSnapshot,    setSpinSnapshot]     = useState<string[] | null>(null)
 
   // ── Load from localStorage ─────────────────────────────────────────────────
   useEffect(() => {
@@ -166,7 +167,12 @@ export default function RandomWheelClient() {
     const parsed = inputText.split('\n').map(s => s.trim()).filter(Boolean)
     if (!parsed.length) return
     // Deduplicate: merge existing + new, keep unique entries (Set preserves insertion order)
-    setEntries(prev => [...new Set([...prev, ...parsed])])
+    setEntries(prev => {
+      const seen = new Set<string>(prev)
+      const next = [...prev]
+      for (const s of parsed) { if (!seen.has(s)) { seen.add(s); next.push(s) } }
+      return next
+    })
     setInputText('')
   }, [inputText])
 
@@ -176,11 +182,13 @@ export default function RandomWheelClient() {
 
   const clearAll = useCallback(() => {
     setEntries([])
+    setSpinSnapshot(null)
     setWinner(null)
     setShowResult(false)
   }, [])
 
   const shuffleEntries = useCallback(() => {
+    setSpinSnapshot(null)
     setEntries(prev => {
       const arr = [...prev]
       for (let i = arr.length - 1; i > 0; i--) {
@@ -195,26 +203,31 @@ export default function RandomWheelClient() {
 
   // ── Spin logic ─────────────────────────────────────────────────────────────
   // Rotation math:
-  // - Segments are drawn centred at top, then each group rotates by midDeg = (i+0.5)*segAngle.
-  // - After CSS rotation θ clockwise, the pointer (top) sees the segment whose midpoint
-  //   was originally at (360 - θ%360)%360 degrees from top in the SVG local frame.
-  // - To land winner at pointer: targetRem = (360 - winnerMid + 360)%360
+  // - Segments are drawn centred at top (12 o'clock), group i rotates by midDeg=(i+0.5)*segAngle.
+  // - After CSS clockwise rotation θ, pointer (top=0°) sees segment whose original midpoint was
+  //   at (360 - θ%360)%360. To land winner i: targetRem = (360 - winnerMid) % 360.
+  //
+  // spinSnapshot freezes the WheelSVG entries for the entire animation+result display.
+  // Without it, removeAfterPick would re-render the wheel with n-1 segments in the same
+  // React batch as setSpinning(false), shifting all segment angles and misaligning the pointer.
   const spin = useCallback(() => {
     if (spinning || entries.length === 0) return
 
-    const n         = entries.length
+    const snap      = [...entries]       // frozen snapshot: wheel renders from this for the whole spin
+    const n         = snap.length
     const winnerIdx = Math.floor(Math.random() * n)
-    const picked    = entries[winnerIdx]
+    const picked    = snap[winnerIdx]
 
     const segDeg    = 360 / n
     const winnerMid = (winnerIdx + 0.5) * segDeg
     const targetRem = (360 - winnerMid + 360) % 360
     const currentRem = ((rotation % 360) + 360) % 360
     let extra = (targetRem - currentRem + 360) % 360
-    if (extra < 30) extra += 360  // ensure at least one extra segment of visible spin
+    if (extra < 30) extra += 360
 
     const newRotation = rotation + 5 * 360 + extra
 
+    setSpinSnapshot(snap)
     setSpinning(true)
     setWinner(null)
     setShowResult(false)
@@ -226,7 +239,12 @@ export default function RandomWheelClient() {
       setShowResult(true)
       setHistory(prev => [picked, ...prev])
       if (removeAfterPick) {
-        setEntries(prev => prev.filter((_, i) => i !== winnerIdx))
+        // Filter by name (not index) so the correct person is removed even if
+        // entries were manually edited during the spin.
+        // spinSnapshot is intentionally NOT cleared here: WheelSVG must keep showing
+        // the snapshot so the pointer still points at the winner after removeAfterPick
+        // updates entries (which would otherwise shift all segment angles).
+        setEntries(prev => prev.filter(e => e !== picked))
       }
     }, SPIN_MS + 300)
   }, [spinning, entries, rotation, removeAfterPick])
@@ -291,7 +309,7 @@ export default function RandomWheelClient() {
 
             {/* Wheel */}
             <div className="rounded-full shadow-[0_8px_40px_-8px_rgba(0,0,0,0.22)] ring-4 ring-white ring-offset-2 ring-offset-cream overflow-hidden">
-              <WheelSVG entries={entries} rotation={rotation} spinning={spinning} />
+              <WheelSVG entries={spinSnapshot ?? entries} rotation={rotation} spinning={spinning} />
             </div>
           </div>
 

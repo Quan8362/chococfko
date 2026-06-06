@@ -79,11 +79,11 @@ function WheelSVG({ entries, rotation, spinning }: WheelProps) {
   const segDeg = 360 / n
 
   // Font size: based on segment count
-  const fSize = n <= 3 ? 15.5 : n <= 6 ? 13 : n <= 10 ? 10.5 : n <= 16 ? 9 : 7.5
+  const fSize = n <= 3 ? 20 : n <= 6 ? 17 : n <= 10 ? 14 : n <= 16 ? 12 : 9.5
 
-  // Radial text: starts just outside the hub (r=30), extends toward rim
-  const innerTextR = R * 0.26                                                           // ≈38px from center
-  const maxLen = Math.max(4, Math.floor((R * 0.87 - innerTextR) / (fSize * 0.60)))
+  // Radial text: push to middle-outer zone of segment (was 0.26 ≈38px, now 0.40 ≈58px)
+  const innerTextR = R * 0.40                                                           // ≈58px from center
+  const maxLen = Math.max(5, Math.floor((R * 0.90 - innerTextR) / (fSize * 0.58)))
 
   const slicePath = n > 1 ? buildSlicePath(n) : ''
 
@@ -167,9 +167,10 @@ export default function RandomWheelClient() {
   const [spinSnapshot,    setSpinSnapshot]    = useState<string[] | null>(null)
   const [confettiActive,  setConfettiActive]  = useState(false)
 
-  const confettiCanvasRef = useRef<HTMLCanvasElement | null>(null)
-  const confettiRafRef    = useRef<number>(0)
-  const confettiStopRef   = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const confettiCanvasRef     = useRef<HTMLCanvasElement | null>(null)
+  const confettiRafRef        = useRef<number>(0)
+  const confettiStopRef       = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const confettiIntervalRef   = useRef<ReturnType<typeof setInterval> | null>(null)
 
   // ── Load from localStorage ─────────────────────────────────────────────────
   useEffect(() => {
@@ -228,25 +229,71 @@ export default function RandomWheelClient() {
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    const count = window.innerWidth < 768 ? 80 : 150
+    const isMobile = window.innerWidth < 768
 
     type P = {
       x: number; y: number; vx: number; vy: number
       color: string; w: number; h: number; r: number; dr: number; circle: boolean
+      swayAmp: number; swayFreq: number; swayOffset: number; age: number
     }
 
-    const particles: P[] = Array.from({ length: count }, () => ({
-      x:      Math.random() * canvas.width,
-      y:      -Math.random() * canvas.height * 0.5 - 10,
-      vx:     (Math.random() - 0.5) * 5,
-      vy:     Math.random() * 2 + 1.5,
-      color:  CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)],
-      w:      Math.random() * 10 + 5,
-      h:      Math.random() * 5 + 3,
-      r:      Math.random() * 360,
-      dr:     (Math.random() - 0.5) * 7,
-      circle: Math.random() > 0.6,
-    }))
+    const particles: P[] = []
+
+    const spawnTop = (count: number) => {
+      for (let i = 0; i < count; i++) {
+        particles.push({
+          x:          Math.random() * canvas.width,
+          y:          -10 - Math.random() * 30,
+          vx:         (Math.random() - 0.5) * 8,
+          vy:         Math.random() * 3 + 1.5,
+          color:      CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)],
+          w:          Math.random() * 13 + 5,
+          h:          Math.random() * 6 + 3,
+          r:          Math.random() * 360,
+          dr:         (Math.random() - 0.5) * 11,
+          circle:     Math.random() > 0.55,
+          swayAmp:    Math.random() * 2.5,
+          swayFreq:   Math.random() * 0.04 + 0.01,
+          swayOffset: Math.random() * Math.PI * 2,
+          age:        0,
+        })
+      }
+    }
+
+    const spawnSide = (fromLeft: boolean, count: number) => {
+      for (let i = 0; i < count; i++) {
+        const vBase = Math.random() * 9 + 4
+        particles.push({
+          x:          fromLeft ? -10 : canvas.width + 10,
+          y:          canvas.height * (0.05 + Math.random() * 0.5),
+          vx:         fromLeft ? vBase : -vBase,
+          vy:         -(Math.random() * 7 + 1),
+          color:      CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)],
+          w:          Math.random() * 13 + 5,
+          h:          Math.random() * 6 + 3,
+          r:          Math.random() * 360,
+          dr:         (Math.random() - 0.5) * 11,
+          circle:     Math.random() > 0.55,
+          swayAmp:    Math.random() * 1.5,
+          swayFreq:   Math.random() * 0.03 + 0.01,
+          swayOffset: Math.random() * Math.PI * 2,
+          age:        0,
+        })
+      }
+    }
+
+    // Initial big burst
+    spawnTop(isMobile ? 65 : 140)
+    spawnSide(true,  isMobile ? 35 : 70)
+    spawnSide(false, isMobile ? 35 : 70)
+
+    let waveCount = 0
+    const burstInterval = setInterval(() => {
+      waveCount++
+      spawnTop(isMobile ? 20 : 42)
+      if (waveCount % 2 === 0) spawnSide(waveCount % 4 === 0, isMobile ? 14 : 30)
+    }, 500)
+    confettiIntervalRef.current = burstInterval
 
     let running = true
 
@@ -254,20 +301,29 @@ export default function RandomWheelClient() {
       if (!running) return
       ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-      for (const p of particles) {
-        p.x  += p.vx
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i]
+        p.age++
+        p.x  += p.vx + Math.sin(p.age * p.swayFreq + p.swayOffset) * p.swayAmp
         p.y  += p.vy
-        p.vy += 0.08
+        p.vy += 0.07
+        p.vx *= 0.997
         p.r  += p.dr
-        p.vx *= 0.998
 
-        if (p.y > canvas.height + 20) continue
+        if (p.y > canvas.height + 40 || p.x < -70 || p.x > canvas.width + 70) {
+          particles.splice(i, 1)
+          continue
+        }
+
+        const alpha = Math.min(1, Math.max(0,
+          1 - Math.max(0, (p.y - canvas.height * 0.75) / (canvas.height * 0.25))
+        ))
 
         ctx.save()
         ctx.translate(p.x, p.y)
         ctx.rotate((p.r * Math.PI) / 180)
         ctx.fillStyle   = p.color
-        ctx.globalAlpha = Math.max(0, Math.min(1, 1 - (p.y / canvas.height) * 1.3))
+        ctx.globalAlpha = alpha
 
         if (p.circle) {
           ctx.beginPath()
@@ -286,13 +342,17 @@ export default function RandomWheelClient() {
 
     confettiStopRef.current = setTimeout(() => {
       running = false
+      clearInterval(burstInterval)
+      confettiIntervalRef.current = null
       cancelAnimationFrame(confettiRafRef.current)
       ctx.clearRect(0, 0, canvas.width, canvas.height)
       setConfettiActive(false)
-    }, 4500)
+    }, 10500)
 
     return () => {
       running = false
+      clearInterval(burstInterval)
+      confettiIntervalRef.current = null
       cancelAnimationFrame(confettiRafRef.current)
       if (confettiStopRef.current) clearTimeout(confettiStopRef.current)
       ctx.clearRect(0, 0, canvas.width, canvas.height)
@@ -406,7 +466,7 @@ export default function RandomWheelClient() {
       <canvas
         ref={confettiCanvasRef}
         className="fixed inset-0 pointer-events-none"
-        style={{ zIndex: 40, display: confettiActive ? 'block' : 'none' }}
+        style={{ zIndex: 55, display: confettiActive ? 'block' : 'none' }}
       />
 
       {/* ── Winner popup modal ─────────────────────────────────────────────── */}

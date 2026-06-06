@@ -83,7 +83,10 @@ export default function ChineseChessGame({
   // Keep latest values accessible inside interval callbacks
   const isMyTurnRef    = useRef(false)
   const isPendingRef   = useRef(false)
-  const roomCodeRef    = useRef(room.room_code)
+  const roomCodeRef              = useRef(room.room_code)
+  const opponentJoinedNotifiedRef = useRef(initialRoom.player_black !== null)
+  const opponentToastTimerRef     = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [showOpponentToast, setShowOpponentToast] = useState(false)
 
   // ── Derived ────────────────────────────────────────────────────────────────
   const board       = parseBoard(room.board)
@@ -119,6 +122,29 @@ export default function ChineseChessGame({
   isPendingRef.current  = isPending
   roomCodeRef.current   = room.room_code
 
+  // ── Sound: two-tone chime for opponent joining ────────────────────────────
+  const playJoinSound = () => {
+    try {
+      const ctx = new AudioContext()
+      const osc = ctx.createOscillator()
+      const gain = ctx.createGain()
+      osc.connect(gain)
+      gain.connect(ctx.destination)
+      osc.type = 'sine'
+      osc.frequency.setValueAtTime(660, ctx.currentTime)
+      osc.frequency.setValueAtTime(880, ctx.currentTime + 0.12)
+      gain.gain.setValueAtTime(0.25, ctx.currentTime)
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5)
+      osc.start(ctx.currentTime)
+      osc.stop(ctx.currentTime + 0.5)
+    } catch {}
+  }
+
+  // Cleanup toast timer on unmount
+  useEffect(() => {
+    return () => { if (opponentToastTimerRef.current) clearTimeout(opponentToastTimerRef.current) }
+  }, [])
+
   // ── Realtime: rooms + moves ────────────────────────────────────────────────
   useEffect(() => {
     const sb = createClient()
@@ -128,9 +154,22 @@ export default function ChineseChessGame({
         event: 'UPDATE', schema: 'public',
         table: 'chinese_chess_rooms', filter: `id=eq.${room.id}`,
       }, payload => {
-        setRoom(payload.new as ChessRoom)
+        const newRoom = payload.new as ChessRoom
+        setRoom(newRoom)
         setSelected(null); setValidMoves([])
         setError(null)
+        // Notify host (red) once when opponent (black) first joins
+        if (
+          myRole === 'red' &&
+          !opponentJoinedNotifiedRef.current &&
+          newRoom.player_black !== null
+        ) {
+          opponentJoinedNotifiedRef.current = true
+          setShowOpponentToast(true)
+          playJoinSound()
+          if (opponentToastTimerRef.current) clearTimeout(opponentToastTimerRef.current)
+          opponentToastTimerRef.current = setTimeout(() => setShowOpponentToast(false), 4000)
+        }
       })
       .on('postgres_changes', {
         event: 'INSERT', schema: 'public',
@@ -341,6 +380,14 @@ export default function ChineseChessGame({
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
+    <>
+      {/* ── Opponent joined toast ──────────────────────────────────────────── */}
+      {showOpponentToast && (
+        <div className="fixed top-5 left-1/2 -translate-x-1/2 z-[60] flex items-center gap-2.5 bg-ink text-white px-5 py-3.5 rounded-2xl shadow-2xl text-[14px] font-semibold whitespace-nowrap pointer-events-none select-none border border-white/10">
+          <span className="text-lg">⚔️</span>
+          {t('opponent_joined')}
+        </div>
+      )}
     <div className="flex flex-col lg:grid lg:grid-cols-[minmax(300px,520px)_360px] gap-5 lg:gap-6 items-start">
 
       {/* ── Column 1: Board ── */}
@@ -671,6 +718,7 @@ export default function ChineseChessGame({
         )}
       </div>
     </div>
+    </>
   )
 }
 

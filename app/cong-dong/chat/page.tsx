@@ -34,12 +34,37 @@ export type ChatMessage = {
   reply_to_message: string | null
   reply_to_display_name: string | null
   has_attachment: boolean
+  has_poll?: boolean
   edited_at: string | null
   attachments?: ChatAttachment[] | null
 }
 
 export type ReactionItem = { emoji: string; count: number; hasMyReaction: boolean }
 export type ReactionsMap = Record<string, ReactionItem[]>
+
+export type PollVoter = {
+  user_id: string
+  display_name: string
+  avatar_url: string | null
+}
+export type PollOption = {
+  id: string
+  text: string
+  sort_order: number
+  vote_count: number
+  has_my_vote: boolean
+  voters: PollVoter[]
+}
+export type PollData = {
+  id: string
+  question: string
+  allow_multiple: boolean
+  is_closed: boolean
+  options: PollOption[]
+  total_votes: number
+  my_vote_option_ids: string[]
+}
+export type PollsMap = Record<string, PollData>
 
 export type ChatAttachment = {
   id: string
@@ -51,7 +76,7 @@ export type ChatAttachment = {
 }
 
 const MSG_SELECT =
-  'id, user_id, display_name, avatar_url, message, is_deleted, created_at, room_id, is_pinned, pinned_at, pinned_by, mentioned_user_ids, mentioned_names, reply_to_id, reply_to_message, reply_to_display_name, has_attachment, edited_at, attachments:community_chat_attachments(id, storage_bucket, storage_path, mime_type, file_size, file_name)'
+  'id, user_id, display_name, avatar_url, message, is_deleted, created_at, room_id, is_pinned, pinned_at, pinned_by, mentioned_user_ids, mentioned_names, reply_to_id, reply_to_message, reply_to_display_name, has_attachment, has_poll, edited_at, attachments:community_chat_attachments(id, storage_bucket, storage_path, mime_type, file_size, file_name)'
 
 function buildReactionsMap(
   rows: { message_id: string; user_id: string; emoji: string }[],
@@ -110,6 +135,7 @@ export default async function CongDongChatPage({
   let initialMessages: ChatMessage[] = []
   let initialPinnedMessages: ChatMessage[] = []
   let initialReactions: ReactionsMap = {}
+  let initialPollsMap: PollsMap = {}
 
   if (initialRoom) {
     const [msgResult, pinnedResult] = await Promise.all([
@@ -143,6 +169,62 @@ export default async function CongDongChatPage({
         user.id,
       )
     }
+
+    // Fetch polls for messages that have polls
+    const pollMessageIds = initialMessages.filter(m => m.has_poll).map(m => m.id)
+    if (pollMessageIds.length > 0) {
+      const { data: pollsData } = await supabase
+        .from('community_chat_polls')
+        .select('id, question, allow_multiple, is_closed, message_id, options:community_chat_poll_options(id, text, sort_order)')
+        .in('message_id', pollMessageIds)
+
+      if (pollsData && pollsData.length > 0) {
+        const pollIds = pollsData.map((p: Record<string, unknown>) => p.id as string)
+        const [{ data: allVotes }, { data: myVotes }] = await Promise.all([
+          supabase.from('community_chat_poll_votes').select('poll_id, option_id, user_id').in('poll_id', pollIds),
+          supabase.from('community_chat_poll_votes').select('poll_id, option_id').eq('user_id', user.id).in('poll_id', pollIds),
+        ])
+        const voterIds = Array.from(new Set((allVotes ?? []).map((v: Record<string, string>) => v.user_id)))
+        let profileMap: Record<string, { display_name: string; avatar_url: string | null }> = {}
+        if (voterIds.length > 0) {
+          const { data: profilesData } = await supabase.from('profiles').select('id, display_name, avatar_url').in('id', voterIds)
+          for (const p of (profilesData ?? []) as { id: string; display_name: string; avatar_url: string | null }[]) {
+            profileMap[p.id] = { display_name: p.display_name, avatar_url: p.avatar_url }
+          }
+        }
+        for (const poll of pollsData) {
+          const p = poll as Record<string, unknown>
+          const pOptions = ((p.options as { id: string; text: string; sort_order: number }[]) ?? [])
+            .slice().sort((a, b) => a.sort_order - b.sort_order)
+          const myVoteOptionIds = (myVotes ?? []).filter((v: Record<string, string>) => v.poll_id === p.id).map((v: Record<string, string>) => v.option_id)
+          const options: PollOption[] = pOptions.map(opt => {
+            const optVotes = (allVotes ?? []).filter((v: Record<string, string>) => v.poll_id === p.id && v.option_id === opt.id)
+            return {
+              id: opt.id,
+              text: opt.text,
+              sort_order: opt.sort_order,
+              vote_count: optVotes.length,
+              has_my_vote: myVoteOptionIds.includes(opt.id),
+              voters: optVotes.map((v: Record<string, string>) => ({
+                user_id: v.user_id,
+                display_name: profileMap[v.user_id]?.display_name ?? 'Thành viên',
+                avatar_url: profileMap[v.user_id]?.avatar_url ?? null,
+              })),
+            }
+          })
+          const totalVotes = (allVotes ?? []).filter((v: Record<string, string>) => v.poll_id === p.id).length
+          initialPollsMap[p.message_id as string] = {
+            id: p.id as string,
+            question: p.question as string,
+            allow_multiple: p.allow_multiple as boolean,
+            is_closed: p.is_closed as boolean,
+            options,
+            total_votes: totalVotes,
+            my_vote_option_ids: myVoteOptionIds,
+          }
+        }
+      }
+    }
   }
 
   const displayName =
@@ -163,6 +245,7 @@ export default async function CongDongChatPage({
       initialMessages={initialMessages}
       initialPinnedMessages={initialPinnedMessages}
       initialReactions={initialReactions}
+      initialPollsMap={initialPollsMap}
       myMembershipMap={myMembershipMap}
     />
   )

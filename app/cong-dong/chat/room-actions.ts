@@ -262,6 +262,17 @@ export async function updateRoomAvatar(
 
   const admin = createAdminClient()
 
+  // Only private rooms can have avatars changed by members
+  const { data: room } = await admin
+    .from('community_chat_rooms')
+    .select('is_private')
+    .eq('id', roomId)
+    .maybeSingle()
+
+  if (!room) return { error: 'not_found' }
+  if (!room.is_private) return { error: 'unauthorized' }
+
+  // Any member of the private room can update avatar
   const { data: myMembership } = await admin
     .from('community_chat_room_members')
     .select('role')
@@ -269,9 +280,7 @@ export async function updateRoomAvatar(
     .eq('user_id', user.id)
     .maybeSingle()
 
-  if (!myMembership || !(['owner', 'admin'] as string[]).includes(myMembership.role as string)) {
-    return { error: 'unauthorized' }
-  }
+  if (!myMembership) return { error: 'unauthorized' }
 
   const { error } = await admin
     .from('community_chat_rooms')

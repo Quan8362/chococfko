@@ -177,8 +177,8 @@ export async function toggleReaction(
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'unauthenticated' }
 
-  // Accept any emoji (1–20 chars covers all ZWJ sequences and flags)
-  if (!emoji || emoji.length > 20) return { error: 'invalid_emoji' }
+  // Only allow the DB-enforced allowed list
+  if (!(ALLOWED_EMOJIS as readonly string[]).includes(emoji)) return { error: 'invalid_emoji' }
 
   const { data: existing } = await supabase
     .from('community_chat_reactions')
@@ -559,4 +559,171 @@ export async function saveFileMessage(
   }
 
   return { ok: true, msgId: (newMsg as { id: string }).id }
+}
+
+// ── Poll actions ──────────────────────────────────────────────────────────────
+
+export async function createPoll(
+  roomId: string,
+  question: string,
+  options: string[],
+  allowMultiple: boolean,
+): Promise<{ ok?: boolean; error?: string; msgId?: string }> {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'unauthenticated' }
+
+  const trimmedQ = question.trim()
+  if (!trimmedQ) return { error: 'poll_question_empty' }
+  if (trimmedQ.length > 200) return { error: 'poll_question_too_long' }
+  if (!roomId) return { error: 'no_room' }
+
+  const validOpts = options.map(o => o.trim()).filter(Boolean)
+  if (validOpts.length < 2) return { error: 'poll_min_options' }
+  if (validOpts.length > 10) return { error: 'poll_max_options' }
+
+  const { data: room } = await supabase
+    .from('community_chat_rooms')
+    .select('is_private, is_active')
+    .eq('id', roomId)
+    .maybeSingle()
+  if (!room || !room.is_active) return { error: 'room_not_found' }
+
+  if (room.is_private) {
+    const { data: membership } = await supabase
+      .from('community_chat_room_members')
+      .select('user_id')
+      .eq('room_id', roomId)
+      .eq('user_id', user.id)
+      .maybeSingle()
+    if (!membership) return { error: 'not_member' }
+  }
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('display_name, avatar_url')
+    .eq('id', user.id)
+    .single()
+
+  const displayName =
+    profile?.display_name ||
+    (user.user_metadata?.display_name as string | undefined) ||
+    user.email?.split('@')[0] ||
+    'Thanh vien'
+
+  const admin = createAdminClient()
+
+  const { data: newMsg, error: msgError } = await admin
+    .from('community_chat_messages')
+    .insert({
+      user_id: user.id,
+      room_id: roomId,
+      display_name: displayName,
+      avatar_url: profile?.avatar_url ?? null,
+      message: trimmedQ.length > 100 ? trimmedQ.slice(0, 100) + '...' : trimmedQ,
+      has_poll: true,
+    })
+    .select('id')
+    .single()
+
+  if (msgError || !newMsg) return { error: 'db_error' }
+  const msgId = (newMsg as { id: string }).id
+
+  const { data: newPoll, error: pollError } = await admin
+    .from('community_chat_polls')
+    .insert({
+      room_id: roomId,
+      message_id: msgId,
+      created_by: user.id,
+      question: trimmedQ,
+      allow_multiple: allowMultiple,
+    })
+    .select('id')
+    .single()
+
+  if (pollError || !newPoll) {
+    await admin.from('community_chat_messages').delete().eq('id', msgId)
+    return { error: 'db_error' }
+  }
+
+  const optionRows = validOpts.map((text, idx) => ({
+    poll_id: (newPoll as { id: string }).id,
+    text,
+    sort_order: idx,
+  }))
+  const { error: optError } = await admin
+    .from('community_chat_poll_options')
+    .insert(optionRows)
+
+  if (optError) {
+    await admin.from('community_chat_polls').delete().eq('id', (newPoll as { id: string }).id)
+    await admin.from('community_chat_messages').delete().eq('id', msgId)
+    return { error: 'db_error' }
+  }
+
+  return { ok: true, msgId }
+}
+
+export async function votePoll(
+  pollId: string,
+  optionId: string,
+): Promise<{ ok?: boolean; removed?: boolean; error?: string }> {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'unauthenticated' }
+
+  const { data: poll } = await supabase
+    .from('community_chat_polls')
+    .select('id, room_id, allow_multiple, is_closed')
+    .eq('id', pollId)
+    .maybeSingle()
+  if (!poll) return { error: 'poll_not_found' }
+  if (poll.is_closed) return { error: 'poll_closed' }
+
+  const { data: room } = await supabase
+    .from('community_chat_rooms')
+    .select('is_private')
+    .eq('id', poll.room_id)
+    .maybeSingle()
+
+  if (room?.is_private) {
+    const { data: membership } = await supabase
+      .from('community_chat_room_members')
+      .select('user_id')
+      .eq('room_id', poll.room_id)
+      .eq('user_id', user.id)
+      .maybeSingle()
+    if (!membership) return { error: 'not_member' }
+  }
+
+  const { data: existingVote } = await supabase
+    .from('community_chat_poll_votes')
+    .select('id')
+    .eq('poll_id', pollId)
+    .eq('option_id', optionId)
+    .eq('user_id', user.id)
+    .maybeSingle()
+
+  if (existingVote) {
+    const { error } = await supabase
+      .from('community_chat_poll_votes')
+      .delete()
+      .eq('id', existingVote.id)
+    if (error) return { error: 'db_error' }
+    return { ok: true, removed: true }
+  }
+
+  if (!poll.allow_multiple) {
+    await supabase
+      .from('community_chat_poll_votes')
+      .delete()
+      .eq('poll_id', pollId)
+      .eq('user_id', user.id)
+  }
+
+  const { error } = await supabase
+    .from('community_chat_poll_votes')
+    .insert({ poll_id: pollId, option_id: optionId, user_id: user.id })
+  if (error) return { error: 'db_error' }
+  return { ok: true }
 }

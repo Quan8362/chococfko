@@ -10,8 +10,10 @@ export default function ChatUnreadBadge() {
   const [userId, setUserId] = useState<string | null>(null)
   const pathname = usePathname()
   const mountedRef = useRef(true)
+  // Unique per instance to avoid Supabase channel name collision between desktop nav and mobile menu
+  const instanceId = useRef(`badge-${Math.random().toString(36).slice(2)}`)
 
-  const isOnChatPage = pathname.startsWith('/cong-dong/chat')
+  const isOnChatPage = pathname?.startsWith('/cong-dong/chat') ?? false
 
   useEffect(() => { return () => { mountedRef.current = false } }, [])
 
@@ -86,7 +88,7 @@ export default function ChatUnreadBadge() {
     let mounted = true
 
     const channel = supabase
-      .channel('chat-unread-badge-global')
+      .channel(`chat-unread-badge-${instanceId.current}`)
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'community_chat_messages' },
@@ -113,7 +115,7 @@ export default function ChatUnreadBadge() {
     let mounted = true
 
     const channel = supabase
-      .channel('chat-mentions-badge')
+      .channel(`chat-mentions-badge-${instanceId.current}`)
       .on(
         'postgres_changes',
         {

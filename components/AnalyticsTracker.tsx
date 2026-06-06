@@ -9,7 +9,7 @@ export default function AnalyticsTracker() {
   const lastPath = useRef<string | null>(null)
 
   useEffect(() => {
-    if (pathname === lastPath.current) return
+    if (!pathname || pathname === lastPath.current) return
     lastPath.current = pathname
     if (pathname.startsWith('/admin')) return
     trackEvent('page_view', { path: pathname })

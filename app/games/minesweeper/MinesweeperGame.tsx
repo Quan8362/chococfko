@@ -403,7 +403,15 @@ export default function MinesweeperGame() {
             <LegendItem icon="💣" label={t('legend_mine')} />
             <LegendItem icon="🚩" label={t('legend_correct_flag')} color="text-emerald-600" />
             <LegendItem icon="❌" label={t('legend_wrong_flag')} />
-            <LegendItem icon="·" label={t('legend_safe')} color="text-muted/60" />
+            <LegendItem
+              icon={
+                <span
+                  className="inline-block w-[14px] h-[14px] rounded-[3px] border align-middle"
+                  style={{ background: '#ede8e0', borderColor: '#c8bdb0' }}
+                />
+              }
+              label={t('legend_safe')}
+            />
             <LegendItem icon="1–8" label={t('legend_numbers')} color="text-blue-600" />
           </div>
           <div className="px-5 pb-3">
@@ -465,7 +473,7 @@ export default function MinesweeperGame() {
 }
 
 // ── LegendItem ────────────────────────────────────────────────────────────────
-function LegendItem({ icon, label, color }: { icon: string; label: string; color?: string }) {
+function LegendItem({ icon, label, color }: { icon: React.ReactNode; label: string; color?: string }) {
   return (
     <div className="flex items-center gap-2 text-[12px]">
       <span className={`text-[14px] leading-none min-w-[20px] font-bold ${color ?? ''}`}>{icon}</span>

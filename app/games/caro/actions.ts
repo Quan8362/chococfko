@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { handleMatchFinished } from '@/app/admin/caro/actions'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 export type CaroRoom = {
@@ -173,7 +174,50 @@ export async function makeMove(
   }).eq('id', roomId)
 
   if (error) return { error: error.message }
+
+  // If this room belongs to a tournament match and the game just finished, record the result
+  if (isFinished) {
+    const winnerId = winResult ? (mySymbol === 'X' ? room.player_x : room.player_o) : null
+    const loserId = winResult ? (mySymbol === 'X' ? room.player_o : room.player_x) : null
+    // Always call — recordTournamentResult handles draws for group stage matches
+    await recordTournamentResult(admin, room.room_code, winnerId, loserId)
+  }
+
   return null
+}
+
+// ── recordTournamentResult ────────────────────────────────────────────────────
+// Checks if a room is linked to a tournament match and records the result.
+// For group_stage matches (group_id set): draws are also recorded.
+// For single_elimination matches: draws are ignored (allow rematch).
+async function recordTournamentResult(
+  admin: ReturnType<typeof createAdminClient>,
+  roomCode: string,
+  winnerId: string | null,
+  loserId: string | null,
+): Promise<void> {
+  const { data: match } = await admin
+    .from('caro_tournament_matches')
+    .select('id, tournament_id, round_number, match_number, status, group_id')
+    .eq('room_code', roomCode)
+    .maybeSingle()
+
+  if (!match || match.status === 'finished' || match.status === 'walkover') return
+
+  // Single-elimination draw: ignore so players can rematch
+  if (!winnerId && !match.group_id) return
+
+  await admin.from('caro_tournament_matches').update({
+    winner_user_id: winnerId,
+    loser_user_id: loserId,
+    status: 'finished',
+    finished_at: new Date().toISOString(),
+  }).eq('id', match.id)
+
+  // Group stage matches: no bracket advancement (handleMatchFinished returns early for group_id)
+  if (winnerId) {
+    await handleMatchFinished(admin, match.tournament_id, match.round_number, match.match_number, winnerId, loserId, match.group_id)
+  }
 }
 
 // ── surrenderGame ─────────────────────────────────────────────────────────────
@@ -185,7 +229,7 @@ export async function surrenderGame(roomId: string): Promise<ActionResult> {
   const admin = createAdminClient()
   const { data: room } = await admin
     .from('caro_rooms')
-    .select('player_x, player_o, status')
+    .select('player_x, player_o, status, room_code')
     .eq('id', roomId)
     .single()
 
@@ -200,6 +244,9 @@ export async function surrenderGame(roomId: string): Promise<ActionResult> {
     winner: opponentSymbol,
     finished_at: new Date().toISOString(),
   }).eq('id', roomId)
+
+  const winnerId = mySymbol === 'X' ? room.player_o : room.player_x
+  await recordTournamentResult(admin, room.room_code, winnerId, user.id)
 
   return null
 }

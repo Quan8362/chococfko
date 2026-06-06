@@ -87,6 +87,40 @@ export default async function CaroPage() {
         </div>
       </div>
 
+      {/* ── Tournament + Leaderboard banners ─────────────────────────────── */}
+      <div className="mb-6 space-y-2">
+        <Link
+          href="/games/caro/tournaments"
+          className="flex items-center justify-between gap-3 bg-gradient-to-r from-ink to-[#3a2d22] rounded-2xl px-5 py-4 hover:from-ink/90 transition-all group"
+        >
+          <div className="flex items-center gap-3">
+            <span className="text-[28px]">🏆</span>
+            <div>
+              <p className="text-[14px] font-bold text-white">{t('tournament_page_title')}</p>
+              <p className="text-[12px] text-white/60">{t('tournament_page_desc')}</p>
+            </div>
+          </div>
+          <svg className="w-5 h-5 text-white/50 group-hover:text-white/80 transition-colors flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </Link>
+        <Link
+          href="/games/caro/leaderboard"
+          className="flex items-center justify-between gap-3 bg-amber-50 border border-amber-200 rounded-2xl px-5 py-3 hover:bg-amber-100/70 transition-all group"
+        >
+          <div className="flex items-center gap-3">
+            <span className="text-[22px]">🏅</span>
+            <div>
+              <p className="text-[13.5px] font-bold text-amber-900">{t('leaderboard_title')}</p>
+              <p className="text-[11.5px] text-amber-700/70">{t('leaderboard_desc')}</p>
+            </div>
+          </div>
+          <svg className="w-4 h-4 text-amber-400 group-hover:text-amber-600 transition-colors flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </Link>
+      </div>
+
       {user ? (
         <CaroLobby />
       ) : (

@@ -24,166 +24,15 @@ const LS_PLAYED = 'chococfko-match3-games-played'
 function lsGet(key: string): number { try { return Number(localStorage.getItem(key) ?? 0) } catch { return 0 } }
 function lsSet(key: string, val: number) { try { localStorage.setItem(key, String(val)) } catch {} }
 
-// ── Candy definitions ─────────────────────────────────────────────────────────
-type Pattern = 'diagonal' | 'horizontal' | 'dots' | 'swirl' | 'waves' | 'plain'
-
-type CandyDef = {
-  id: number
-  label: string
-  from: string
-  to: string
-  wrap: string
-  border: string
-  shadow: string
-  pattern: Pattern
-}
-
-// tile.color index 0–5
-const CANDY: CandyDef[] = [
-  { id: 0, label: 'pink',   from: '#fda4af', to: '#f43f5e', wrap: '#fecdd3', border: '#e11d48', shadow: 'rgba(244,63,94,0.50)',   pattern: 'diagonal'   },
-  { id: 1, label: 'blue',   from: '#93c5fd', to: '#2563eb', wrap: '#bfdbfe', border: '#1d4ed8', shadow: 'rgba(37,99,235,0.45)',   pattern: 'plain'      },
-  { id: 2, label: 'green',  from: '#6ee7b7', to: '#059669', wrap: '#a7f3d0', border: '#047857', shadow: 'rgba(5,150,105,0.45)',   pattern: 'dots'       },
-  { id: 3, label: 'amber',  from: '#fde68a', to: '#d97706', wrap: '#fef08a', border: '#b45309', shadow: 'rgba(217,119,6,0.50)',   pattern: 'horizontal' },
-  { id: 4, label: 'purple', from: '#c4b5fd', to: '#7c3aed', wrap: '#ddd6fe', border: '#5b21b6', shadow: 'rgba(124,58,237,0.45)', pattern: 'swirl'      },
-  { id: 5, label: 'teal',   from: '#5eead4', to: '#0d9488', wrap: '#99f6e4', border: '#0f766e', shadow: 'rgba(13,148,136,0.45)', pattern: 'waves'      },
+// ── Candy visual styles (CSS-only, no external assets) ────────────────────────
+const CANDY: Array<{ from: string; to: string; border: string; shadow: string; label: string }> = [
+  { from: '#fda4af', to: '#f43f5e', border: '#e11d48', shadow: 'rgba(244,63,94,0.45)',  label: 'pink'   },
+  { from: '#93c5fd', to: '#2563eb', border: '#1d4ed8', shadow: 'rgba(37,99,235,0.40)',  label: 'blue'   },
+  { from: '#6ee7b7', to: '#059669', border: '#047857', shadow: 'rgba(5,150,105,0.40)',  label: 'green'  },
+  { from: '#fde68a', to: '#d97706', border: '#b45309', shadow: 'rgba(217,119,6,0.45)',  label: 'amber'  },
+  { from: '#c4b5fd', to: '#7c3aed', border: '#5b21b6', shadow: 'rgba(124,58,237,0.40)', label: 'purple' },
+  { from: '#5eead4', to: '#0d9488', border: '#0f766e', shadow: 'rgba(13,148,136,0.40)', label: 'teal'   },
 ]
-
-// ── CandyIcon ─────────────────────────────────────────────────────────────────
-// viewBox 0 0 64 64
-// Body  : cx=32 cy=32 rx=20 ry=13  (bigger oval — fills ~62% of cell width)
-// Left body edge x=12, right x=52
-// Wrapper: 3 lobes per side — upper (diagonal up-left), middle (horizontal), lower (diagonal down-left)
-// Middle lobe breaks the X-shape and reads clearly as twisted candy wrapper 🍬
-function CandyIcon({ candy, isDragging }: { candy: CandyDef; isDragging: boolean }) {
-  const gId    = `cg${candy.id}`
-  const clipId = `cc${candy.id}`
-
-  return (
-    <svg
-      viewBox="0 0 64 64"
-      xmlns="http://www.w3.org/2000/svg"
-      className="w-full h-full block"
-      style={{
-        filter: isDragging
-          ? `drop-shadow(0 0 7px ${candy.border}) drop-shadow(0 3px 14px ${candy.shadow})`
-          : `drop-shadow(0 2px 8px ${candy.shadow})`,
-      }}
-    >
-      <defs>
-        <radialGradient id={gId} cx="35%" cy="28%" r="72%">
-          <stop offset="0%"   stopColor={candy.from} />
-          <stop offset="100%" stopColor={candy.to}   />
-        </radialGradient>
-        <clipPath id={clipId}>
-          <ellipse cx="32" cy="32" rx="20" ry="13" />
-        </clipPath>
-      </defs>
-
-      {/* ═══ Left wrapper — 3 lobes, all behind body ═══ */}
-      {/* Upper: fans diagonally up-left */}
-      <path d="M 12,28 Q 4,18 1,13 Q 8,20 12,24 Z"
-        fill={candy.wrap} stroke={candy.border} strokeWidth="0.9" opacity="0.96" />
-      {/* Middle: goes straight left — breaks X shape, reads as candy wrapper */}
-      <path d="M 12,30 Q 2,28 0,32 Q 2,36 12,34 Z"
-        fill={candy.wrap} stroke={candy.border} strokeWidth="0.9" opacity="0.96" />
-      {/* Lower: fans diagonally down-left */}
-      <path d="M 12,36 Q 4,46 1,51 Q 8,44 12,40 Z"
-        fill={candy.wrap} stroke={candy.border} strokeWidth="0.9" opacity="0.96" />
-
-      {/* Gloss on left upper/lower lobes */}
-      <path d="M 12,28 Q 5,19 2,15 Q 9,21 12,25 Z" fill="rgba(255,255,255,0.30)" />
-      <path d="M 12,36 Q 5,45 2,49 Q 9,45 12,41 Z" fill="rgba(255,255,255,0.30)" />
-
-      {/* ═══ Right wrapper — 3 lobes mirrored ═══ */}
-      {/* Upper */}
-      <path d="M 52,28 Q 60,18 63,13 Q 56,20 52,24 Z"
-        fill={candy.wrap} stroke={candy.border} strokeWidth="0.9" opacity="0.96" />
-      {/* Middle */}
-      <path d="M 52,30 Q 62,28 64,32 Q 62,36 52,34 Z"
-        fill={candy.wrap} stroke={candy.border} strokeWidth="0.9" opacity="0.96" />
-      {/* Lower */}
-      <path d="M 52,36 Q 60,46 63,51 Q 56,44 52,40 Z"
-        fill={candy.wrap} stroke={candy.border} strokeWidth="0.9" opacity="0.96" />
-
-      {/* Gloss on right upper/lower lobes */}
-      <path d="M 52,28 Q 59,19 62,15 Q 55,21 52,25 Z" fill="rgba(255,255,255,0.30)" />
-      <path d="M 52,36 Q 59,45 62,49 Q 55,45 52,41 Z" fill="rgba(255,255,255,0.30)" />
-
-      {/* Pinch shadow at wrapper-body junction */}
-      <ellipse cx="12" cy="32" rx="1.5" ry="8" fill={candy.border} opacity="0.18" />
-      <ellipse cx="52" cy="32" rx="1.5" ry="8" fill={candy.border} opacity="0.18" />
-
-      {/* ═══ Body ═══ */}
-      <ellipse cx="32" cy="32" rx="20" ry="13" fill={`url(#${gId})`} />
-
-      {/* Bottom depth */}
-      <g clipPath={`url(#${clipId})`}>
-        <ellipse cx="32" cy="41" rx="18" ry="8" fill="rgba(0,0,0,0.12)" />
-      </g>
-
-      {/* ═══ Pattern — clipped to body ═══ */}
-      <g clipPath={`url(#${clipId})`}>
-        {candy.pattern === 'diagonal' && (
-          <g transform="translate(32,32) rotate(42)">
-            <rect x="-22" y="-11" width="44" height="5"   rx="2.5" fill="rgba(255,255,255,0.26)" />
-            <rect x="-22" y="-2"  width="44" height="5"   rx="2.5" fill="rgba(255,255,255,0.26)" />
-            <rect x="-22" y="7"   width="44" height="5"   rx="2.5" fill="rgba(255,255,255,0.26)" />
-          </g>
-        )}
-        {candy.pattern === 'horizontal' && (
-          <>
-            <rect x="12" y="27" width="40" height="4.5" rx="2.2" fill="rgba(255,255,255,0.28)" />
-            <rect x="12" y="35" width="40" height="4.5" rx="2.2" fill="rgba(255,255,255,0.28)" />
-          </>
-        )}
-        {candy.pattern === 'dots' && (
-          <>
-            <circle cx="26" cy="29" r="3.2" fill="rgba(255,255,255,0.30)" />
-            <circle cx="38" cy="35" r="3.2" fill="rgba(255,255,255,0.30)" />
-            <circle cx="29" cy="37" r="2.6" fill="rgba(255,255,255,0.24)" />
-            <circle cx="40" cy="25" r="2.6" fill="rgba(255,255,255,0.24)" />
-          </>
-        )}
-        {candy.pattern === 'swirl' && (
-          <path
-            d="M32,21 C40,23 43,31 37,37 C31,43 22,39 21,33 C20,27 26,23 30,26 C34,29 33,35 30,36"
-            stroke="rgba(255,255,255,0.40)" strokeWidth="2.8" fill="none" strokeLinecap="round"
-          />
-        )}
-        {candy.pattern === 'waves' && (
-          <>
-            <path d="M13,27 Q20,22 27,27 Q34,32 41,27 Q47,22 51,27"
-              stroke="rgba(255,255,255,0.34)" strokeWidth="2.4" fill="none" strokeLinecap="round" />
-            <path d="M13,37 Q20,32 27,37 Q34,42 41,37 Q47,32 51,37"
-              stroke="rgba(255,255,255,0.34)" strokeWidth="2.4" fill="none" strokeLinecap="round" />
-          </>
-        )}
-        {candy.pattern === 'plain' && (
-          <>
-            <ellipse cx="27" cy="26" rx="10" ry="5.5" fill="rgba(255,255,255,0.28)" transform="rotate(-10 27 26)" />
-            <ellipse cx="37" cy="38" rx="7"  ry="3.5" fill="rgba(0,0,0,0.06)"       transform="rotate(10 37 38)" />
-          </>
-        )}
-      </g>
-
-      {/* ═══ Glossy shine — clipped to body ═══ */}
-      <g clipPath={`url(#${clipId})`}>
-        <ellipse cx="24" cy="24" rx="9" ry="5.5"
-          fill="rgba(255,255,255,0.55)"
-          transform="rotate(-22 24 24)" />
-        <circle cx="20" cy="21" r="3.5" fill="rgba(255,255,255,0.78)" />
-      </g>
-
-      {/* ═══ Body border ═══ */}
-      <ellipse cx="32" cy="32" rx="20" ry="13"
-        fill="none" stroke={candy.border} strokeWidth="1.5" />
-
-      {isDragging && (
-        <ellipse cx="32" cy="32" rx="20" ry="13" fill="rgba(255,255,255,0.22)" />
-      )}
-    </svg>
-  )
-}
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 type Phase    = 'idle' | 'animating' | 'no_moves'
@@ -387,11 +236,7 @@ export default function Match3Game() {
             {board.map((row, r) =>
               row.map((tile, c) => {
                 if (!tile) return (
-                  <div
-                    key={`empty-${r}-${c}`}
-                    className="aspect-square rounded-xl"
-                    style={{ background: 'rgba(0,0,0,0.05)' }}
-                  />
+                  <div key={`empty-${r}-${c}`} className="aspect-square rounded-xl bg-cream/60" />
                 )
 
                 const candy      = CANDY[tile.color]
@@ -407,16 +252,27 @@ export default function Match3Game() {
                     disabled={isAnimating}
                     aria-label={candy.label}
                     className={[
-                      'aspect-square relative',
+                      'aspect-square rounded-xl border-2 relative overflow-hidden',
                       'focus:outline-none transition-all duration-150',
                       isDragging
-                        ? 'scale-110 z-10 cursor-grabbing'
+                        ? 'scale-110 z-10 ring-2 ring-offset-1 ring-white/80 cursor-grabbing'
                         : 'cursor-grab hover:scale-105 active:scale-95',
                       isMatched ? 'scale-125 opacity-0 duration-300' : '',
                       isAnimating ? 'cursor-default' : '',
                     ].join(' ')}
+                    style={{
+                      background: `radial-gradient(ellipse at 35% 30%, ${candy.from}, ${candy.to})`,
+                      borderColor: isDragging ? '#fff' : candy.border,
+                      boxShadow: isDragging
+                        ? `0 0 0 3px ${candy.border}, 0 4px 16px -4px ${candy.shadow}`
+                        : `0 2px 6px -2px ${candy.shadow}`,
+                    }}
                   >
-                    <CandyIcon candy={candy} isDragging={isDragging} />
+                    {/* Shine spot */}
+                    <div
+                      className="absolute top-1.5 left-1.5 w-[35%] h-[30%] rounded-full opacity-40 pointer-events-none"
+                      style={{ background: 'rgba(255,255,255,0.9)' }}
+                    />
                   </button>
                 )
               })

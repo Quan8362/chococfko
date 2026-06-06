@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
+import type { CSSProperties } from 'react'
 import { useTranslations } from 'next-intl'
 import {
   createInitialBoard,
@@ -24,15 +25,88 @@ const LS_PLAYED = 'chococfko-match3-games-played'
 function lsGet(key: string): number { try { return Number(localStorage.getItem(key) ?? 0) } catch { return 0 } }
 function lsSet(key: string, val: number) { try { localStorage.setItem(key, String(val)) } catch {} }
 
-// ── Candy visual styles (CSS-only, no external assets) ────────────────────────
-const CANDY: Array<{ from: string; to: string; border: string; shadow: string; label: string }> = [
-  { from: '#fda4af', to: '#f43f5e', border: '#e11d48', shadow: 'rgba(244,63,94,0.45)',  label: 'pink'   },
-  { from: '#93c5fd', to: '#2563eb', border: '#1d4ed8', shadow: 'rgba(37,99,235,0.40)',  label: 'blue'   },
-  { from: '#6ee7b7', to: '#059669', border: '#047857', shadow: 'rgba(5,150,105,0.40)',  label: 'green'  },
-  { from: '#fde68a', to: '#d97706', border: '#b45309', shadow: 'rgba(217,119,6,0.45)',  label: 'amber'  },
-  { from: '#c4b5fd', to: '#7c3aed', border: '#5b21b6', shadow: 'rgba(124,58,237,0.40)', label: 'purple' },
-  { from: '#5eead4', to: '#0d9488', border: '#0f766e', shadow: 'rgba(13,148,136,0.40)', label: 'teal'   },
+// ── Candy definitions ─────────────────────────────────────────────────────────
+type CandyShape = 'circle' | 'diamond' | 'hexagon' | 'star' | 'pill' | 'teardrop'
+
+type CandyDef = {
+  from: string
+  to: string
+  border: string
+  shadow: string
+  label: string
+  shape: CandyShape
+}
+
+const CANDY: CandyDef[] = [
+  { from: '#fda4af', to: '#f43f5e', border: '#e11d48', shadow: 'rgba(244,63,94,0.50)',  label: 'pink',   shape: 'circle'   },
+  { from: '#93c5fd', to: '#2563eb', border: '#1d4ed8', shadow: 'rgba(37,99,235,0.45)',  label: 'blue',   shape: 'diamond'  },
+  { from: '#6ee7b7', to: '#059669', border: '#047857', shadow: 'rgba(5,150,105,0.45)',  label: 'green',  shape: 'hexagon'  },
+  { from: '#fde68a', to: '#d97706', border: '#b45309', shadow: 'rgba(217,119,6,0.50)',  label: 'amber',  shape: 'star'     },
+  { from: '#c4b5fd', to: '#7c3aed', border: '#5b21b6', shadow: 'rgba(124,58,237,0.45)', label: 'purple', shape: 'pill'    },
+  { from: '#5eead4', to: '#0d9488', border: '#0f766e', shadow: 'rgba(13,148,136,0.45)', label: 'teal',   shape: 'teardrop'},
 ]
+
+// ── Shape style factory ───────────────────────────────────────────────────────
+function getCandyShapeStyle(candy: CandyDef, isDragging: boolean): CSSProperties {
+  const bg = `radial-gradient(ellipse at 30% 25%, ${candy.from} 0%, ${candy.to} 100%)`
+  const borderColor = isDragging ? 'rgba(255,255,255,0.9)' : candy.border
+  const boxShadow = isDragging
+    ? `0 0 0 3px ${candy.border}, 0 6px 20px -4px ${candy.shadow}`
+    : `0 3px 10px -2px ${candy.shadow}, inset 0 1px 3px rgba(255,255,255,0.35)`
+  const filterVal = isDragging
+    ? `drop-shadow(0 0 5px ${candy.border}) drop-shadow(0 4px 12px ${candy.shadow})`
+    : `drop-shadow(0 3px 8px ${candy.shadow})`
+
+  switch (candy.shape) {
+    case 'circle':
+      return {
+        background: bg,
+        borderRadius: '50%',
+        border: `2.5px solid ${borderColor}`,
+        boxShadow,
+        overflow: 'hidden',
+      }
+    case 'diamond':
+      return {
+        background: bg,
+        borderRadius: '14%',
+        border: `2.5px solid ${borderColor}`,
+        boxShadow,
+        transform: 'rotate(45deg) scale(0.68)',
+        overflow: 'hidden',
+      }
+    case 'hexagon':
+      return {
+        background: bg,
+        clipPath: 'polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)',
+        filter: filterVal,
+        overflow: 'hidden',
+      }
+    case 'star':
+      return {
+        background: bg,
+        clipPath: 'polygon(50% 2%, 62% 34%, 97% 34%, 69% 55%, 80% 90%, 50% 70%, 20% 90%, 31% 55%, 3% 34%, 38% 34%)',
+        filter: filterVal,
+        overflow: 'hidden',
+      }
+    case 'pill':
+      return {
+        background: bg,
+        borderRadius: '30% 70% 70% 30% / 30% 30% 70% 70%',
+        border: `2.5px solid ${borderColor}`,
+        boxShadow,
+        overflow: 'hidden',
+      }
+    case 'teardrop':
+      return {
+        background: bg,
+        borderRadius: '50% 50% 50% 50% / 62% 62% 38% 38%',
+        border: `2.5px solid ${borderColor}`,
+        boxShadow,
+        overflow: 'hidden',
+      }
+  }
+}
 
 type Phase = 'idle' | 'animating' | 'no_moves'
 type DragState = { r: number; c: number; x: number; y: number } | null
@@ -49,7 +123,6 @@ export default function Match3Game() {
   const [gamesPlayed, setGamesPlayed] = useState(0)
   const [phase, setPhase]             = useState<Phase>('idle')
 
-  // Refs for latest values — avoids stale closures in setTimeout callbacks
   const boardRef  = useRef<Board>([])
   const scoreRef  = useRef(0)
   const phaseRef  = useRef<Phase>('idle')
@@ -110,7 +183,7 @@ export default function Match3Game() {
     }, 480)
   }, [])
 
-  // ── Execute swap (shared by drag and any future input method) ─────────────
+  // ── Execute swap ──────────────────────────────────────────────────────────
   const executeSwap = useCallback((sr: number, sc: number, tr: number, tc: number) => {
     if (phaseRef.current !== 'idle') return
 
@@ -128,7 +201,6 @@ export default function Match3Game() {
       const matches = findMatches(swapped)
 
       if (matches.size === 0) {
-        // No match → swap back
         const restored = swapTiles(swapped, sr, sc, tr, tc)
         setBoard(restored)
         boardRef.current = restored
@@ -151,7 +223,7 @@ export default function Match3Game() {
     }, 220)
   }, [processChain])
 
-  // ── Pointer events (mouse drag + touch swipe) ─────────────────────────────
+  // ── Pointer events ────────────────────────────────────────────────────────
   const onPointerDown = useCallback((r: number, c: number, e: React.PointerEvent<HTMLButtonElement>) => {
     if (phaseRef.current !== 'idle') return
     e.preventDefault()
@@ -172,7 +244,6 @@ export default function Match3Game() {
     const absDx = Math.abs(dx)
     const absDy = Math.abs(dy)
 
-    // Minimum 8px drag to count as a swap intent
     if (absDx < 8 && absDy < 8) return
 
     let tr = drag.r, tc = drag.c
@@ -250,20 +321,24 @@ export default function Match3Game() {
           </button>
         </div>
 
-        {/* Board grid — touch-action:none prevents browser scroll interference */}
+        {/* Board grid */}
         <div className="relative p-3 sm:p-4">
           <div
             className="grid w-full select-none"
             style={{
               gridTemplateColumns: `repeat(${BOARD_COLS}, 1fr)`,
-              gap: '4px',
+              gap: '5px',
               touchAction: 'none',
             }}
           >
             {board.map((row, r) =>
               row.map((tile, c) => {
                 if (!tile) return (
-                  <div key={`empty-${r}-${c}`} className="aspect-square rounded-xl bg-cream/60" />
+                  <div
+                    key={`empty-${r}-${c}`}
+                    className="aspect-square rounded-xl"
+                    style={{ background: 'rgba(0,0,0,0.06)' }}
+                  />
                 )
 
                 const candy      = CANDY[tile.color]
@@ -279,29 +354,28 @@ export default function Match3Game() {
                     disabled={isAnimating}
                     aria-label={candy.label}
                     className={[
-                      'aspect-square rounded-xl border-2 relative overflow-hidden',
+                      'aspect-square relative',
                       'focus:outline-none transition-all duration-150',
                       isDragging
-                        ? 'scale-110 z-10 ring-2 ring-offset-1 ring-white/80 cursor-grabbing'
+                        ? 'scale-110 z-10 cursor-grabbing'
                         : 'cursor-grab hover:scale-105 active:scale-95',
                       isMatched
                         ? 'scale-125 opacity-0 duration-300'
                         : '',
                       isAnimating ? 'cursor-default' : '',
                     ].join(' ')}
-                    style={{
-                      background: `radial-gradient(ellipse at 35% 30%, ${candy.from}, ${candy.to})`,
-                      borderColor: isDragging ? '#fff' : candy.border,
-                      boxShadow: isDragging
-                        ? `0 0 0 3px ${candy.border}, 0 4px 16px -4px ${candy.shadow}`
-                        : `0 2px 6px -2px ${candy.shadow}`,
-                    }}
                   >
-                    {/* Shine spot */}
+                    {/* Candy shape */}
                     <div
-                      className="absolute top-1.5 left-1.5 w-[35%] h-[30%] rounded-full opacity-40 pointer-events-none"
-                      style={{ background: 'rgba(255,255,255,0.9)' }}
-                    />
+                      className="absolute inset-0"
+                      style={getCandyShapeStyle(candy, isDragging)}
+                    >
+                      {/* Glossy shine */}
+                      <div
+                        className="absolute top-[13%] left-[16%] w-[30%] h-[24%] rounded-full pointer-events-none"
+                        style={{ background: 'rgba(255,255,255,0.55)', filter: 'blur(2px)' }}
+                      />
+                    </div>
                   </button>
                 )
               })

@@ -153,10 +153,11 @@ export default async function AdminUsers() {
       </div>
 
       {/* Table header */}
-      <div className="hidden sm:grid grid-cols-[2fr_1fr_1fr_80px_80px_80px] gap-3 px-4 py-2 text-[11.5px] font-semibold text-muted uppercase tracking-[0.5px] border-b border-line mb-1">
+      <div className="hidden sm:grid grid-cols-[2fr_1fr_1.4fr_1.4fr_70px_70px_70px] gap-3 px-4 py-2 text-[11.5px] font-semibold text-muted uppercase tracking-[0.5px] border-b border-line mb-1">
         <span>{admin_t('col_users')}</span>
         <span>{admin_t('col_provider')}</span>
         <span>{admin_t('col_registered_date')}</span>
+        <span>{admin_t('col_last_signin')}</span>
         <span className="text-center">{admin_t('col_posts')}</span>
         <span className="text-center">{admin_t('col_places')}</span>
         <span className="text-center">{admin_t('col_role')}</span>
@@ -167,7 +168,7 @@ export default async function AdminUsers() {
         {users.map((u) => (
           <div
             key={u.id}
-            className={`bg-paper border rounded-xl px-4 py-3.5 grid grid-cols-1 sm:grid-cols-[2fr_1fr_1fr_80px_80px_80px] gap-2 sm:gap-3 sm:items-center transition-all hover:border-rose/25 hover:shadow-sm ${
+            className={`bg-paper border rounded-xl px-4 py-3.5 grid grid-cols-1 sm:grid-cols-[2fr_1fr_1.4fr_1.4fr_70px_70px_70px] gap-2 sm:gap-3 sm:items-center transition-all hover:border-rose/25 hover:shadow-sm ${
               u.isAdmin ? 'border-amber-200 bg-amber-50/30' : 'border-line'
             }`}
           >
@@ -192,10 +193,13 @@ export default async function AdminUsers() {
               </span>
             </div>
 
-            <div className="text-[12px] text-muted">
-              <div>{fmt(u.createdAt)}</div>
-              {u.lastSignIn && (
-                <div className="text-[11px] text-muted/60">{admin_t('last_signin_label')} {fmt(u.lastSignIn)}</div>
+            <div className="text-[11.5px] text-muted leading-snug">
+              {fmt(u.createdAt)}
+            </div>
+
+            <div className="text-[11.5px] text-muted leading-snug">
+              {u.lastSignIn ? fmt(u.lastSignIn) : (
+                <span className="text-muted/50 italic">{admin_t('last_signin_none')}</span>
               )}
             </div>
 
@@ -216,7 +220,7 @@ export default async function AdminUsers() {
                 </span>
               ) : (
                 <span className="inline-flex text-[11px] font-semibold px-2 py-[3px] rounded-full bg-paper text-muted border border-line">
-                  User
+                  {admin_t('role_user')}
                 </span>
               )}
             </div>

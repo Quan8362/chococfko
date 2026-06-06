@@ -81,9 +81,9 @@ function WheelSVG({ entries, rotation, spinning }: WheelProps) {
   // Font size: based on segment count
   const fSize = n <= 3 ? 20 : n <= 6 ? 17 : n <= 10 ? 14 : n <= 16 ? 12 : 9.5
 
-  // Radial text: push to middle-outer zone of segment (was 0.26 ≈38px, now 0.40 ≈58px)
-  const innerTextR = R * 0.40                                                           // ≈58px from center
-  const maxLen = Math.max(5, Math.floor((R * 0.90 - innerTextR) / (fSize * 0.58)))
+  // Radial text: anchor at geometric center of visible segment zone = (hub_r + R) / 2 ≈ 88px
+  const midTextR = R * 0.60                                                             // ≈88px from center
+  const maxLen = Math.max(5, Math.floor(2 * (R * 0.91 - midTextR) / (fSize * 0.55)))
 
   const slicePath = n > 1 ? buildSlicePath(n) : ''
 
@@ -114,16 +114,16 @@ function WheelSVG({ entries, rotation, spinning }: WheelProps) {
               <path d={slicePath} fill={PALETTE[i % PALETTE.length]} stroke="rgba(255,255,255,0.9)" strokeWidth={2} />
               <text
                 x={CX}
-                y={CY - innerTextR}
-                textAnchor="start"
+                y={CY - midTextR}
+                textAnchor="middle"
                 dominantBaseline="central"
                 fontSize={fSize}
                 fontWeight="700"
                 fill="white"
                 stroke="rgba(0,0,0,0.22)"
                 strokeWidth={0.55}
-                transform={`rotate(-90, ${CX}, ${CY - innerTextR})`}
-                style={{ userSelect: 'none', pointerEvents: 'none', paintOrder: 'stroke', fontVariantNumeric: 'lining-nums' } as React.CSSProperties}
+                transform={`rotate(-90, ${CX}, ${CY - midTextR})`}
+                style={{ userSelect: 'none', pointerEvents: 'none', paintOrder: 'stroke', fontVariantNumeric: 'lining-nums', fontFeatureSettings: '"lnum" 1' } as React.CSSProperties}
               >
                 {label}
               </text>
@@ -486,7 +486,10 @@ export default function RandomWheelClient() {
               {t('congrats')}
             </p>
             <p className="text-[12px] text-muted/60 mb-4">{t('result_label')}</p>
-            <p className="font-serif font-bold text-[clamp(24px,6vw,36px)] text-ink leading-tight break-words mb-7 px-2">
+            <p
+              className="font-serif font-bold text-[clamp(24px,6vw,36px)] text-ink leading-tight break-words mb-7 px-2"
+              style={{ fontVariantNumeric: 'lining-nums', fontFeatureSettings: '"lnum" 1' } as React.CSSProperties}
+            >
               {winner}
             </p>
             <div className="flex items-center justify-center gap-2.5">

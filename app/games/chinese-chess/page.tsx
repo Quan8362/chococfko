@@ -194,54 +194,58 @@ export default async function ChineseChessPage() {
             <span className="text-[12px] font-normal text-muted/50 font-sans">({rows.length})</span>
           </h2>
           <div className="bg-paper border border-line rounded-2xl overflow-hidden">
-            {/* Header */}
-            <div className="grid grid-cols-[1fr_32px_1fr_80px_44px] gap-x-2 px-4 py-2 bg-cream/60 border-b border-line text-[11px] font-bold text-muted/60 uppercase tracking-widest">
-              <span>{t('history_red')}</span>
-              <span className="text-center">vs</span>
-              <span>{t('history_black')}</span>
-              <span className="text-center">Kết quả</span>
-              <span className="text-right">Time</span>
+            <div className="overflow-x-auto">
+              {/* Header */}
+              <div className="grid grid-cols-[minmax(0,1fr)_64px_minmax(0,1fr)_80px_64px] gap-x-2 px-4 py-2.5 bg-cream/60 border-b border-line text-[11px] font-bold text-muted/60 uppercase tracking-widest min-w-[480px]">
+                <span>{t('history_red')}</span>
+                <span className="text-center">vs</span>
+                <span className="pl-2">{t('history_black')}</span>
+                <span className="text-center">Kết quả</span>
+                <span className="text-center">Time</span>
+              </div>
+              {rows.map((row, idx) => {
+                const isRW = row.winner === 'red'
+                const isBW = row.winner === 'black'
+                const isDraw = row.winner === 'draw'
+                const myRow = user && (row.player_red === user.id || row.player_black === user.id)
+                return (
+                  <div
+                    key={row.id}
+                    className={[
+                      'grid grid-cols-[minmax(0,1fr)_64px_minmax(0,1fr)_80px_64px] gap-x-2 px-4 py-3 items-center text-[12.5px] min-w-[480px]',
+                      myRow ? 'bg-rose/[0.03]' : '',
+                      idx < rows.length - 1 ? 'border-b border-line/50' : '',
+                    ].join(' ')}
+                  >
+                    <div className={`flex items-center gap-1.5 min-w-0 ${isRW ? 'font-semibold text-red-700' : 'text-ink'}`}>
+                      <span className="w-2 h-2 rounded-full bg-red-500 flex-none" />
+                      <span className="truncate">{row.player_red_name}</span>
+                      {isRW && <span className="flex-none text-[13px]">🏆</span>}
+                    </div>
+                    <div className="flex items-center justify-center">
+                      <span className="text-[10px] font-bold text-muted/50 bg-line/70 px-2 py-0.5 rounded-md tracking-wide">vs</span>
+                    </div>
+                    <div className={`flex items-center gap-1.5 min-w-0 pl-2 ${isBW ? 'font-semibold text-ink' : 'text-ink'}`}>
+                      <span className="w-2 h-2 rounded-full bg-zinc-700 flex-none" />
+                      <span className="truncate">{row.player_black_name}</span>
+                      {isBW && <span className="flex-none text-[13px]">🏆</span>}
+                    </div>
+                    <div className="flex justify-center">
+                      {isDraw ? (
+                        <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 border border-amber-200">{t('draw')}</span>
+                      ) : isRW ? (
+                        <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-700 border border-red-200">{t('win_red')}</span>
+                      ) : (
+                        <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-full bg-zinc-200 text-zinc-700 border border-zinc-300">{t('win_black')}</span>
+                      )}
+                    </div>
+                    <div className="text-center text-[11px] text-muted/55 whitespace-nowrap">
+                      {row.finished_at ? relativeTime(row.finished_at, tCommon('just_now')) : '—'}
+                    </div>
+                  </div>
+                )
+              })}
             </div>
-            {rows.map((row, idx) => {
-              const isRW = row.winner === 'red'
-              const isBW = row.winner === 'black'
-              const isDraw = row.winner === 'draw'
-              const myRow = user && (row.player_red === user.id || row.player_black === user.id)
-              return (
-                <div
-                  key={row.id}
-                  className={[
-                    'grid grid-cols-[1fr_32px_1fr_80px_44px] gap-x-2 px-4 py-2.5 items-center text-[12.5px]',
-                    myRow ? 'bg-rose/[0.03]' : '',
-                    idx < rows.length - 1 ? 'border-b border-line/50' : '',
-                  ].join(' ')}
-                >
-                  <div className={`flex items-center gap-1.5 min-w-0 ${isRW ? 'font-semibold text-red-700' : 'text-ink'}`}>
-                    <span className="w-2 h-2 rounded-full bg-red-500 flex-none" />
-                    <span className="truncate">{row.player_red_name}</span>
-                    {isRW && <span className="flex-none text-[13px]">🏆</span>}
-                  </div>
-                  <span className="text-center text-[10px] font-bold text-muted/35">vs</span>
-                  <div className={`flex items-center gap-1.5 min-w-0 ${isBW ? 'font-semibold text-ink' : 'text-ink'}`}>
-                    <span className="w-2 h-2 rounded-full bg-zinc-700 flex-none" />
-                    <span className="truncate">{row.player_black_name}</span>
-                    {isBW && <span className="flex-none text-[13px]">🏆</span>}
-                  </div>
-                  <div className="flex justify-center">
-                    {isDraw ? (
-                      <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 border border-amber-200">{t('draw')}</span>
-                    ) : isRW ? (
-                      <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-700 border border-red-200">{t('win_red')}</span>
-                    ) : (
-                      <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-full bg-zinc-200 text-zinc-700 border border-zinc-300">{t('win_black')}</span>
-                    )}
-                  </div>
-                  <div className="text-right text-[11px] text-muted/55 whitespace-nowrap">
-                    {row.finished_at ? relativeTime(row.finished_at, tCommon('just_now')) : '—'}
-                  </div>
-                </div>
-              )
-            })}
           </div>
         </div>
       )}

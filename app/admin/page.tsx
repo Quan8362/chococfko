@@ -170,7 +170,7 @@ export default async function AdminPage({
       </div>
 
       {/* ── QUICK NAV ────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-10">
         {/* Posts – active */}
         <div className="relative bg-rose-soft border border-rose/20 rounded-2xl p-5 overflow-hidden">
           <div className="absolute -top-8 -right-8 w-28 h-28 bg-rose/6 rounded-full pointer-events-none" />
@@ -235,6 +235,29 @@ export default async function AdminPage({
             <p className="text-[13px] text-muted mb-3.5 leading-relaxed">{admin_t('places_desc')}</p>
             <span className="inline-flex items-center gap-1 text-[12px] font-semibold text-teal bg-teal-soft px-2.5 py-1 rounded-full">
               {admin_t('manage')}
+              <svg className="w-3 h-3 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+              </svg>
+            </span>
+          </div>
+        </Link>
+
+        {/* Analytics */}
+        <Link
+          href="/admin/analytics"
+          className="relative bg-paper border border-line rounded-2xl p-5 overflow-hidden hover:border-blue-300 hover:bg-blue-50/30 hover:-translate-y-0.5 hover:shadow-card transition-all group"
+        >
+          <div className="absolute -top-8 -right-8 w-28 h-28 bg-blue-500/4 rounded-full pointer-events-none" />
+          <div className="relative">
+            <div className="w-10 h-10 rounded-xl bg-blue-50 grid place-items-center text-[20px] mb-3.5 flex-none">
+              📊
+            </div>
+            <h2 className="font-serif font-bold text-[16.5px] text-ink mb-1 group-hover:text-blue-600 transition-colors">
+              {admin_t('analytics_title')}
+            </h2>
+            <p className="text-[13px] text-muted mb-3.5 leading-relaxed">{admin_t('analytics_desc')}</p>
+            <span className="inline-flex items-center gap-1 text-[12px] font-semibold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full">
+              {admin_t('analytics_view')}
               <svg className="w-3 h-3 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
               </svg>

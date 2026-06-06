@@ -151,18 +151,18 @@ export default async function CaroPage() {
             {/* overflow-x-auto + min-w to keep layout on small screens */}
             <div className="overflow-x-auto">
               {/* Header */}
-              <div className="grid grid-cols-[minmax(0,1fr)_56px_minmax(0,1fr)_100px_80px] gap-x-3 px-4 py-2.5 bg-cream/80 border-b border-line text-[11px] font-bold text-muted/60 uppercase tracking-widest min-w-[480px]">
+              <div className="grid grid-cols-[minmax(0,1fr)_64px_minmax(0,1fr)_100px_80px] gap-x-3 px-4 py-2.5 bg-cream/80 border-b border-line text-[11px] font-bold text-muted/60 uppercase tracking-widest min-w-[480px]">
                 <span className="flex items-center gap-1.5">
                   <span className="text-[9px] font-black text-blue-500">✕</span>
                   {t('history_player_x')}
                 </span>
                 <span className="flex items-center justify-center text-center">{t('history_vs')}</span>
-                <span className="flex items-center gap-1.5">
+                <span className="flex items-center gap-1.5 pl-2">
                   <span className="text-[9px] font-black text-rose">○</span>
                   {t('history_player_o')}
                 </span>
                 <span className="text-center">{t('history_result')}</span>
-                <span className="text-right">{t('history_time')}</span>
+                <span className="text-center">{t('history_time')}</span>
               </div>
               {/* Rows */}
               {rows.map((row, idx) => {
@@ -173,7 +173,7 @@ export default async function CaroPage() {
                 return (
                   <div
                     key={row.id}
-                    className={`grid grid-cols-[minmax(0,1fr)_56px_minmax(0,1fr)_100px_80px] gap-x-3 px-4 py-3.5 items-center text-[13px] transition-colors hover:bg-cream/60 min-w-[480px]
+                    className={`grid grid-cols-[minmax(0,1fr)_64px_minmax(0,1fr)_100px_80px] gap-x-3 px-4 py-3.5 items-center text-[13px] transition-colors hover:bg-cream/60 min-w-[480px]
                       ${myRow ? 'bg-rose/[0.03]' : ''}
                       ${idx < rows.length - 1 ? 'border-b border-line/50' : ''}
                     `}
@@ -186,7 +186,7 @@ export default async function CaroPage() {
                     <div className="flex items-center justify-center">
                       <span className="text-[10px] font-bold text-muted/50 bg-line/70 px-2 py-0.5 rounded-md tracking-wide">{t('history_vs')}</span>
                     </div>
-                    <div className={`flex items-center gap-1.5 min-w-0 ${isOWin ? 'font-semibold text-rose' : 'text-ink/90'}`}>
+                    <div className={`flex items-center gap-1.5 min-w-0 pl-2 ${isOWin ? 'font-semibold text-rose' : 'text-ink/90'}`}>
                       <span className="text-[10px] font-black text-rose flex-none">○</span>
                       <span className="truncate">{row.player_o_name}</span>
                       {isOWin && <span className="text-[13px] flex-none leading-none">🏆</span>}
@@ -200,7 +200,7 @@ export default async function CaroPage() {
                         <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-rose/10 text-rose border border-rose/20 whitespace-nowrap">{t('win_o')}</span>
                       )}
                     </div>
-                    <div className="text-right text-[11.5px] text-muted/60 whitespace-nowrap">
+                    <div className="text-center text-[11.5px] text-muted/60 whitespace-nowrap">
                       {row.finished_at ? relativeTime(row.finished_at, tCommon('just_now')) : '—'}
                     </div>
                   </div>

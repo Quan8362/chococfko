@@ -5,6 +5,7 @@ import './globals.css'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
 import ScrollToTopButton from '@/components/ScrollToTopButton'
+import AnalyticsTracker from '@/components/AnalyticsTracker'
 
 const SITE_NAME = 'Chợ Cóc FKO'
 const SITE_URL  = 'https://chococfko.com'
@@ -73,6 +74,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <main className="flex-1">{children}</main>
             <Footer />
             <ScrollToTopButton />
+            <AnalyticsTracker />
           </div>
         </NextIntlClientProvider>
       </body>

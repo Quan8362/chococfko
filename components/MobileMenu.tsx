@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
+import ChatUnreadBadge from './ChatUnreadBadge'
 
 interface MobileMenuProps {
   isAdmin?: boolean
@@ -51,6 +52,9 @@ export default function MobileMenu({ isLoggedIn }: MobileMenuProps) {
               </Link>
               <Link href="/cong-dong" onClick={close} className="flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
                 <span>💬</span> {t('community')}
+              </Link>
+              <Link href="/cong-dong/chat" onClick={close} className="flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
+                {t('chat')}<ChatUnreadBadge />
               </Link>
               <Link href="/confessions" onClick={close} className="flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
                 <span>🤫</span> {tConf('nav')}

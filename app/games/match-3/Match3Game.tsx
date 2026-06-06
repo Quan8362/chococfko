@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
-import type { CSSProperties } from 'react'
 import { useTranslations } from 'next-intl'
 import {
   createInitialBoard,
@@ -26,89 +25,171 @@ function lsGet(key: string): number { try { return Number(localStorage.getItem(k
 function lsSet(key: string, val: number) { try { localStorage.setItem(key, String(val)) } catch {} }
 
 // ── Candy definitions ─────────────────────────────────────────────────────────
-type CandyShape = 'circle' | 'diamond' | 'hexagon' | 'star' | 'pill' | 'teardrop'
+type Pattern   = 'diagonal' | 'horizontal' | 'dots' | 'swirl' | 'sparkle' | 'plain'
+type WrapShape = 'standard' | 'rounded' | 'sharp'
 
 type CandyDef = {
-  from: string
-  to: string
-  border: string
-  shadow: string
+  id: number
   label: string
-  shape: CandyShape
+  from: string      // body gradient light
+  to: string        // body gradient dark
+  wrap: string      // wrapper petal color
+  border: string    // ring/stroke color
+  shadow: string    // drop-shadow color
+  pattern: Pattern
+  wrapShape: WrapShape
 }
 
+// Each candy maps to tile.color index 0–5
 const CANDY: CandyDef[] = [
-  { from: '#fda4af', to: '#f43f5e', border: '#e11d48', shadow: 'rgba(244,63,94,0.50)',  label: 'pink',   shape: 'circle'   },
-  { from: '#93c5fd', to: '#2563eb', border: '#1d4ed8', shadow: 'rgba(37,99,235,0.45)',  label: 'blue',   shape: 'diamond'  },
-  { from: '#6ee7b7', to: '#059669', border: '#047857', shadow: 'rgba(5,150,105,0.45)',  label: 'green',  shape: 'hexagon'  },
-  { from: '#fde68a', to: '#d97706', border: '#b45309', shadow: 'rgba(217,119,6,0.50)',  label: 'amber',  shape: 'star'     },
-  { from: '#c4b5fd', to: '#7c3aed', border: '#5b21b6', shadow: 'rgba(124,58,237,0.45)', label: 'purple', shape: 'pill'    },
-  { from: '#5eead4', to: '#0d9488', border: '#0f766e', shadow: 'rgba(13,148,136,0.45)', label: 'teal',   shape: 'teardrop'},
+  { id: 0, label: 'pink',   from: '#fda4af', to: '#f43f5e', wrap: '#fecdd3', border: '#e11d48', shadow: 'rgba(244,63,94,0.50)',   pattern: 'diagonal',   wrapShape: 'standard' },
+  { id: 1, label: 'blue',   from: '#93c5fd', to: '#2563eb', wrap: '#bfdbfe', border: '#1d4ed8', shadow: 'rgba(37,99,235,0.45)',   pattern: 'plain',      wrapShape: 'rounded'  },
+  { id: 2, label: 'green',  from: '#6ee7b7', to: '#059669', wrap: '#a7f3d0', border: '#047857', shadow: 'rgba(5,150,105,0.45)',   pattern: 'dots',       wrapShape: 'standard' },
+  { id: 3, label: 'amber',  from: '#fde68a', to: '#d97706', wrap: '#fef08a', border: '#b45309', shadow: 'rgba(217,119,6,0.50)',   pattern: 'horizontal', wrapShape: 'sharp'    },
+  { id: 4, label: 'purple', from: '#c4b5fd', to: '#7c3aed', wrap: '#ddd6fe', border: '#5b21b6', shadow: 'rgba(124,58,237,0.45)', pattern: 'swirl',      wrapShape: 'sharp'    },
+  { id: 5, label: 'teal',   from: '#5eead4', to: '#0d9488', wrap: '#99f6e4', border: '#0f766e', shadow: 'rgba(13,148,136,0.45)', pattern: 'sparkle',    wrapShape: 'rounded'  },
 ]
 
-// ── Shape style factory ───────────────────────────────────────────────────────
-function getCandyShapeStyle(candy: CandyDef, isDragging: boolean): CSSProperties {
-  const bg = `radial-gradient(ellipse at 30% 25%, ${candy.from} 0%, ${candy.to} 100%)`
-  const borderColor = isDragging ? 'rgba(255,255,255,0.9)' : candy.border
-  const boxShadow = isDragging
-    ? `0 0 0 3px ${candy.border}, 0 6px 20px -4px ${candy.shadow}`
-    : `0 3px 10px -2px ${candy.shadow}, inset 0 1px 3px rgba(255,255,255,0.35)`
-  const filterVal = isDragging
-    ? `drop-shadow(0 0 5px ${candy.border}) drop-shadow(0 4px 12px ${candy.shadow})`
-    : `drop-shadow(0 3px 8px ${candy.shadow})`
-
-  switch (candy.shape) {
-    case 'circle':
-      return {
-        background: bg,
-        borderRadius: '50%',
-        border: `2.5px solid ${borderColor}`,
-        boxShadow,
-        overflow: 'hidden',
-      }
-    case 'diamond':
-      return {
-        background: bg,
-        borderRadius: '14%',
-        border: `2.5px solid ${borderColor}`,
-        boxShadow,
-        transform: 'rotate(45deg) scale(0.68)',
-        overflow: 'hidden',
-      }
-    case 'hexagon':
-      return {
-        background: bg,
-        clipPath: 'polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)',
-        filter: filterVal,
-        overflow: 'hidden',
-      }
-    case 'star':
-      return {
-        background: bg,
-        clipPath: 'polygon(50% 2%, 62% 34%, 97% 34%, 69% 55%, 80% 90%, 50% 70%, 20% 90%, 31% 55%, 3% 34%, 38% 34%)',
-        filter: filterVal,
-        overflow: 'hidden',
-      }
-    case 'pill':
-      return {
-        background: bg,
-        borderRadius: '30% 70% 70% 30% / 30% 30% 70% 70%',
-        border: `2.5px solid ${borderColor}`,
-        boxShadow,
-        overflow: 'hidden',
-      }
-    case 'teardrop':
-      return {
-        background: bg,
-        borderRadius: '50% 50% 50% 50% / 62% 62% 38% 38%',
-        border: `2.5px solid ${borderColor}`,
-        boxShadow,
-        overflow: 'hidden',
-      }
-  }
+// ── Wrapper petal SVG paths (in 64×64 viewBox) ────────────────────────────────
+// Each set: [left-upper, left-lower, right-upper, right-lower]
+const WRAP_PATHS: Record<WrapShape, string[]> = {
+  // Teardrop petals — balanced, mid-length
+  standard: [
+    'M17,30 C12,22 5,15 2,12 C6,18 11,25 16,30 Z',
+    'M17,34 C12,42 5,49 2,52 C6,46 11,39 16,34 Z',
+    'M47,30 C52,22 59,15 62,12 C58,18 53,25 48,30 Z',
+    'M47,34 C52,42 59,49 62,52 C58,46 53,39 48,34 Z',
+  ],
+  // Wider, softer petals that fan out more
+  rounded: [
+    'M17,30 C13,23 7,17 3,15 C5,20 10,26 15,30 Z',
+    'M17,34 C13,41 7,47 3,49 C5,44 10,38 15,34 Z',
+    'M47,30 C51,23 57,17 61,15 C59,20 54,26 49,30 Z',
+    'M47,34 C51,41 57,47 61,49 C59,44 54,38 49,34 Z',
+  ],
+  // Narrow, pointy petals
+  sharp: [
+    'M17,30 C10,20 3,12 1,10 C3,17 9,24 15,30 Z',
+    'M17,34 C10,44 3,52 1,54 C3,47 9,40 15,34 Z',
+    'M47,30 C54,20 61,12 63,10 C61,17 55,24 49,30 Z',
+    'M47,34 C54,44 61,52 63,54 C61,47 55,40 49,34 Z',
+  ],
 }
 
-type Phase = 'idle' | 'animating' | 'no_moves'
+// ── Candy icon — inline SVG wrapped-candy shape ───────────────────────────────
+function CandyIcon({ candy, isDragging }: { candy: CandyDef; isDragging: boolean }) {
+  const gId    = `cg${candy.id}`
+  const clipId = `ccp${candy.id}`
+  const paths  = WRAP_PATHS[candy.wrapShape]
+
+  return (
+    <svg
+      viewBox="0 0 64 64"
+      xmlns="http://www.w3.org/2000/svg"
+      className="w-full h-full block"
+      style={{
+        filter: isDragging
+          ? `drop-shadow(0 0 5px ${candy.border}) drop-shadow(0 3px 10px ${candy.shadow})`
+          : `drop-shadow(0 2px 7px ${candy.shadow})`,
+      }}
+    >
+      <defs>
+        <radialGradient id={gId} cx="38%" cy="32%" r="62%">
+          <stop offset="0%"   stopColor={candy.from} />
+          <stop offset="100%" stopColor={candy.to}   />
+        </radialGradient>
+        {/* Clip path for pattern + shine — scoped per candy type */}
+        <clipPath id={clipId}>
+          <circle cx="32" cy="32" r="15" />
+        </clipPath>
+      </defs>
+
+      {/* Wrapper petals — rendered behind body */}
+      {paths.map((d, i) => (
+        <path
+          key={i}
+          d={d}
+          fill={candy.wrap}
+          stroke={candy.border}
+          strokeWidth="0.7"
+          opacity="0.92"
+        />
+      ))}
+
+      {/* Body circle */}
+      <circle cx="32" cy="32" r="15" fill={`url(#${gId})`} />
+
+      {/* Pattern — clipped to body circle */}
+      <g clipPath={`url(#${clipId})`}>
+        {candy.pattern === 'diagonal' && (
+          <g transform="translate(32,32) rotate(42)">
+            <rect x="-18" y="-11" width="36" height="3.5" rx="1.5" fill="rgba(255,255,255,0.28)" />
+            <rect x="-18" y="-3"  width="36" height="3.5" rx="1.5" fill="rgba(255,255,255,0.28)" />
+            <rect x="-18" y="5"   width="36" height="3.5" rx="1.5" fill="rgba(255,255,255,0.28)" />
+          </g>
+        )}
+        {candy.pattern === 'horizontal' && (
+          <>
+            <rect x="17" y="23" width="30" height="3.5" rx="1.5" fill="rgba(255,255,255,0.30)" />
+            <rect x="17" y="30" width="30" height="3.5" rx="1.5" fill="rgba(255,255,255,0.30)" />
+            <rect x="17" y="37" width="30" height="3.5" rx="1.5" fill="rgba(255,255,255,0.30)" />
+          </>
+        )}
+        {candy.pattern === 'dots' && (
+          <>
+            <circle cx="26" cy="29" r="3"   fill="rgba(255,255,255,0.30)" />
+            <circle cx="37" cy="34" r="3"   fill="rgba(255,255,255,0.30)" />
+            <circle cx="29" cy="38" r="2.5" fill="rgba(255,255,255,0.30)" />
+            <circle cx="38" cy="25" r="2.5" fill="rgba(255,255,255,0.30)" />
+            <circle cx="25" cy="24" r="2"   fill="rgba(255,255,255,0.25)" />
+          </>
+        )}
+        {candy.pattern === 'swirl' && (
+          <path
+            d="M32,20 C40,22 42,30 37,35 C32,40 24,38 22,33 C20,28 24,23 28,26 C32,29 33,33 30,34"
+            stroke="rgba(255,255,255,0.38)"
+            strokeWidth="2.5"
+            fill="none"
+            strokeLinecap="round"
+          />
+        )}
+        {candy.pattern === 'sparkle' && (
+          <>
+            <line x1="32" y1="19" x2="32" y2="45" stroke="rgba(255,255,255,0.28)" strokeWidth="1.5" />
+            <line x1="19" y1="32" x2="45" y2="32" stroke="rgba(255,255,255,0.28)" strokeWidth="1.5" />
+            <line x1="23" y1="23" x2="41" y2="41" stroke="rgba(255,255,255,0.20)" strokeWidth="1.5" />
+            <line x1="41" y1="23" x2="23" y2="41" stroke="rgba(255,255,255,0.20)" strokeWidth="1.5" />
+          </>
+        )}
+        {candy.pattern === 'plain' && (
+          // Extra-large shine for the plain glossy jelly
+          <ellipse cx="30" cy="28" rx="9" ry="6" fill="rgba(255,255,255,0.22)" />
+        )}
+      </g>
+
+      {/* Glossy shine highlight — clipped to body */}
+      <g clipPath={`url(#${clipId})`}>
+        <ellipse
+          cx="26" cy="25" rx="6" ry="4"
+          fill="rgba(255,255,255,0.50)"
+          transform="rotate(-20 26 25)"
+        />
+        <circle cx="24" cy="23" r="2.5" fill="rgba(255,255,255,0.72)" />
+      </g>
+
+      {/* Body ring border */}
+      <circle cx="32" cy="32" r="15" fill="none" stroke={candy.border} strokeWidth="1.5" />
+
+      {/* Dragging white flash */}
+      {isDragging && (
+        <circle cx="32" cy="32" r="15" fill="rgba(255,255,255,0.20)" />
+      )}
+    </svg>
+  )
+}
+
+// ── Types ─────────────────────────────────────────────────────────────────────
+type Phase    = 'idle' | 'animating' | 'no_moves'
 type DragState = { r: number; c: number; x: number; y: number } | null
 
 // ── Main component ────────────────────────────────────────────────────────────
@@ -123,14 +204,14 @@ export default function Match3Game() {
   const [gamesPlayed, setGamesPlayed] = useState(0)
   const [phase, setPhase]             = useState<Phase>('idle')
 
-  const boardRef  = useRef<Board>([])
-  const scoreRef  = useRef(0)
-  const phaseRef  = useRef<Phase>('idle')
-  const dragRef   = useRef<DragState>(null)
+  const boardRef = useRef<Board>([])
+  const scoreRef = useRef(0)
+  const phaseRef = useRef<Phase>('idle')
+  const dragRef  = useRef<DragState>(null)
 
-  useEffect(() => { boardRef.current  = board  }, [board])
-  useEffect(() => { scoreRef.current  = score  }, [score])
-  useEffect(() => { phaseRef.current  = phase  }, [phase])
+  useEffect(() => { boardRef.current = board }, [board])
+  useEffect(() => { scoreRef.current = score }, [score])
+  useEffect(() => { phaseRef.current = phase }, [phase])
 
   // ── Init ──────────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -148,11 +229,7 @@ export default function Match3Game() {
     onDone: (finalBoard: Board) => void,
   ) => {
     const matches = findMatches(currentBoard)
-
-    if (matches.size === 0) {
-      onDone(currentBoard)
-      return
-    }
+    if (matches.size === 0) { onDone(currentBoard); return }
 
     const pts = calculateScore(matches.size)
     setMatched(new Set(matches))
@@ -175,10 +252,7 @@ export default function Match3Game() {
           lsSet(LS_BEST, next)
           return next
         })
-
-        setTimeout(() => {
-          processChain(filled, newScore, onDone)
-        }, 280)
+        setTimeout(() => { processChain(filled, newScore, onDone) }, 280)
       }, 280)
     }, 480)
   }, [])
@@ -186,38 +260,29 @@ export default function Match3Game() {
   // ── Execute swap ──────────────────────────────────────────────────────────
   const executeSwap = useCallback((sr: number, sc: number, tr: number, tc: number) => {
     if (phaseRef.current !== 'idle') return
-
     setPhase('animating')
     phaseRef.current = 'animating'
 
     const currentBoard = boardRef.current
     const currentScore = scoreRef.current
-
     const swapped = swapTiles(currentBoard, sr, sc, tr, tc)
     setBoard(swapped)
     boardRef.current = swapped
 
     setTimeout(() => {
       const matches = findMatches(swapped)
-
       if (matches.size === 0) {
         const restored = swapTiles(swapped, sr, sc, tr, tc)
         setBoard(restored)
         boardRef.current = restored
-        setTimeout(() => {
-          setPhase('idle')
-          phaseRef.current = 'idle'
-        }, 280)
+        setTimeout(() => { setPhase('idle'); phaseRef.current = 'idle' }, 280)
         return
       }
-
       processChain(swapped, currentScore, (finalBoard) => {
         if (!hasPossibleMoves(finalBoard)) {
-          setPhase('no_moves')
-          phaseRef.current = 'no_moves'
+          setPhase('no_moves'); phaseRef.current = 'no_moves'
         } else {
-          setPhase('idle')
-          phaseRef.current = 'idle'
+          setPhase('idle'); phaseRef.current = 'idle'
         }
       })
     }, 220)
@@ -236,25 +301,19 @@ export default function Match3Game() {
     const drag = dragRef.current
     dragRef.current = null
     setDragging(null)
-
     if (!drag || phaseRef.current !== 'idle') return
 
     const dx    = e.clientX - drag.x
     const dy    = e.clientY - drag.y
     const absDx = Math.abs(dx)
     const absDy = Math.abs(dy)
-
     if (absDx < 8 && absDy < 8) return
 
     let tr = drag.r, tc = drag.c
-    if (absDx >= absDy) {
-      tc = dx > 0 ? drag.c + 1 : drag.c - 1
-    } else {
-      tr = dy > 0 ? drag.r + 1 : drag.r - 1
-    }
+    if (absDx >= absDy) { tc = dx > 0 ? drag.c + 1 : drag.c - 1 }
+    else                 { tr = dy > 0 ? drag.r + 1 : drag.r - 1 }
 
     if (tr < 0 || tr >= BOARD_ROWS || tc < 0 || tc >= BOARD_COLS) return
-
     executeSwap(drag.r, drag.c, tr, tc)
   }, [executeSwap])
 
@@ -274,7 +333,6 @@ export default function Match3Game() {
     setMatched(new Set())
     setPhase('idle')
     phaseRef.current = 'idle'
-
     const n = lsGet(LS_PLAYED) + 1
     lsSet(LS_PLAYED, n)
     setGamesPlayed(n)
@@ -294,9 +352,7 @@ export default function Match3Game() {
           <span className="font-mono font-bold text-[22px] text-ink tabular-nums leading-none">{score}</span>
         </div>
         <div className="flex flex-col items-center gap-0.5 px-4 py-3 border-r border-line/50">
-          <span className="text-[10.5px] font-bold uppercase tracking-wider text-muted/60">
-            🏆 {t('best_label')}
-          </span>
+          <span className="text-[10.5px] font-bold uppercase tracking-wider text-muted/60">🏆 {t('best_label')}</span>
           <span className="font-mono font-bold text-[22px] text-rose tabular-nums leading-none">{bestScore}</span>
         </div>
         <div className="flex flex-col items-center gap-0.5 px-4 py-3">
@@ -327,7 +383,7 @@ export default function Match3Game() {
             className="grid w-full select-none"
             style={{
               gridTemplateColumns: `repeat(${BOARD_COLS}, 1fr)`,
-              gap: '5px',
+              gap: '4px',
               touchAction: 'none',
             }}
           >
@@ -337,7 +393,7 @@ export default function Match3Game() {
                   <div
                     key={`empty-${r}-${c}`}
                     className="aspect-square rounded-xl"
-                    style={{ background: 'rgba(0,0,0,0.06)' }}
+                    style={{ background: 'rgba(0,0,0,0.05)' }}
                   />
                 )
 
@@ -359,23 +415,11 @@ export default function Match3Game() {
                       isDragging
                         ? 'scale-110 z-10 cursor-grabbing'
                         : 'cursor-grab hover:scale-105 active:scale-95',
-                      isMatched
-                        ? 'scale-125 opacity-0 duration-300'
-                        : '',
+                      isMatched ? 'scale-125 opacity-0 duration-300' : '',
                       isAnimating ? 'cursor-default' : '',
                     ].join(' ')}
                   >
-                    {/* Candy shape */}
-                    <div
-                      className="absolute inset-0"
-                      style={getCandyShapeStyle(candy, isDragging)}
-                    >
-                      {/* Glossy shine */}
-                      <div
-                        className="absolute top-[13%] left-[16%] w-[30%] h-[24%] rounded-full pointer-events-none"
-                        style={{ background: 'rgba(255,255,255,0.55)', filter: 'blur(2px)' }}
-                      />
-                    </div>
+                    <CandyIcon candy={candy} isDragging={isDragging} />
                   </button>
                 )
               })

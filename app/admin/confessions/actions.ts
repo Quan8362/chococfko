@@ -15,7 +15,15 @@ export async function approveConfession(formData: FormData) {
     status: 'approved',
     approved_at: new Date().toISOString(),
   }).eq('id', id)
+  // Auto-resolve related pending notifications
+  await admin
+    .from('admin_notifications')
+    .update({ is_read: true, read_at: new Date().toISOString() })
+    .eq('target_type', 'confession')
+    .eq('target_id', id)
+    .eq('is_read', false)
   revalidatePath('/admin/confessions')
+  revalidatePath('/admin/notifications')
   revalidatePath('/confessions')
 }
 
@@ -27,7 +35,15 @@ export async function rejectConfession(formData: FormData) {
     status: 'rejected',
     rejected_reason: reason,
   }).eq('id', id)
+  // Auto-resolve related pending notifications
+  await admin
+    .from('admin_notifications')
+    .update({ is_read: true, read_at: new Date().toISOString() })
+    .eq('target_type', 'confession')
+    .eq('target_id', id)
+    .eq('is_read', false)
   revalidatePath('/admin/confessions')
+  revalidatePath('/admin/notifications')
   revalidatePath('/confessions')
 }
 
@@ -38,7 +54,15 @@ export async function deleteConfession(formData: FormData) {
     status: 'deleted',
     deleted_at: new Date().toISOString(),
   }).eq('id', id)
+  // Auto-resolve related pending notifications
+  await admin
+    .from('admin_notifications')
+    .update({ is_read: true, read_at: new Date().toISOString() })
+    .eq('target_type', 'confession')
+    .eq('target_id', id)
+    .eq('is_read', false)
   revalidatePath('/admin/confessions')
+  revalidatePath('/admin/notifications')
   revalidatePath('/confessions')
 }
 

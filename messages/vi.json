@@ -270,7 +270,11 @@
     "area_mountain_mid_seaview": "Trung bình · view biển",
     "area_mountain_cable_night": "Có cáp treo · ngắm đêm",
     "area_umi_near_dazaifu": "Umi-machi · gần Dazaifu",
-    "area_nokonoshima_island": "Đảo Nokonoshima"
+    "area_nokonoshima_island": "Đảo Nokonoshima",
+    "page_prev": "Trước",
+    "page_next": "Sau",
+    "page_label": "Trang",
+    "per_page": "mỗi trang"
   },
   "filters": {
     "all": "Tất cả",
@@ -818,7 +822,10 @@
     "analytics_event": "Sự kiện",
     "analytics_user_type": "Loại người dùng",
     "analytics_time": "Thời gian",
-    "analytics_no_data": "Chưa có dữ liệu trong khoảng thời gian này"
+    "analytics_no_data": "Chưa có dữ liệu trong khoảng thời gian này",
+    "analytics_search_placeholder": "Tìm kiếm theo đường dẫn hoặc sự kiện...",
+    "analytics_filter_all_events": "Tất cả sự kiện",
+    "analytics_no_activity": "Không tìm thấy hoạt động nào"
   },
   "games": {
     "page_badge": "🎮 Mini Game",
@@ -1297,6 +1304,10 @@
     "page_title": "Thông báo Admin",
     "page_desc": "Các thông báo về nội dung mới cần duyệt.",
     "filter_all": "Tất cả",
-    "filter_unread": "Chưa đọc"
+    "filter_unread": "Chưa đọc",
+    "confession_status_pending": "Đang chờ duyệt",
+    "confession_status_approved": "Đã duyệt",
+    "confession_status_rejected": "Đã từ chối",
+    "confession_status_deleted": "Đã xóa"
   }
 }

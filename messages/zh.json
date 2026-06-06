@@ -253,7 +253,11 @@
     "area_mountain_mid_seaview": "中级 · 海景绝佳",
     "area_mountain_cable_night": "缆车 · 夜景",
     "area_umi_near_dazaifu": "宇美町 · 太宰府附近",
-    "area_nokonoshima_island": "能古岛"
+    "area_nokonoshima_island": "能古岛",
+    "page_prev": "上一页",
+    "page_next": "下一页",
+    "page_label": "第",
+    "per_page": "条/页"
   },
   "filters": {
     "all": "全部",
@@ -801,7 +805,10 @@
     "analytics_event": "事件",
     "analytics_user_type": "用户类型",
     "analytics_time": "时间",
-    "analytics_no_data": "该时间段暂无数据"
+    "analytics_no_data": "该时间段暂无数据",
+    "analytics_search_placeholder": "按路径或事件搜索...",
+    "analytics_filter_all_events": "所有事件",
+    "analytics_no_activity": "未找到任何活动"
   },
   "games": {
     "destination_wheel": {
@@ -1280,6 +1287,10 @@
     "page_title": "管理员通知",
     "page_desc": "关于需要审核的新内容的通知。",
     "filter_all": "全部",
-    "filter_unread": "未读"
+    "filter_unread": "未读",
+    "confession_status_pending": "待审核",
+    "confession_status_approved": "已通过",
+    "confession_status_rejected": "已拒绝",
+    "confession_status_deleted": "已删除"
   }
 }

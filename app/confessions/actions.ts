@@ -56,7 +56,7 @@ export async function submitConfession(
     message: `${displayName}: ${title}`,
     target_type: 'confession',
     target_id: confessionData?.id ?? null,
-    target_url: '/admin/confessions',
+    target_url: '/admin/confessions?tab=pending',
     actor_id: user.id,
   })
 

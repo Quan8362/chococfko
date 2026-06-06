@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { checkIsAdmin, createAdminClient } from '@/lib/supabase/admin'
+import AnalyticsRecentClient, { type RecentEvent } from './AnalyticsRecentClient'
 
 export const dynamic = 'force-dynamic'
 
@@ -96,8 +97,14 @@ export default async function AdminAnalyticsPage({
     .sort((a, b) => b[1] - a[1])
     .slice(0, 10)
 
-  // Recent 30 events
-  const recent = events.slice(0, 30)
+  // Recent 500 events passed to client for pagination/filter
+  const recent: RecentEvent[] = events.slice(0, 500).map(e => ({
+    event_name: e.event_name,
+    path: e.path,
+    user_id: e.user_id,
+    created_at: e.created_at,
+    formatted_time: fmtDateTime(e.created_at),
+  }))
 
   // ── Period label ──────────────────────────────────────────────────────────
   const PERIOD_LABELS: Record<Period, string> = {
@@ -215,46 +222,8 @@ export default async function AdminAnalyticsPage({
         </div>
       </div>
 
-      {/* Recent activity */}
-      <div className="bg-paper border border-line rounded-2xl overflow-hidden">
-        <div className="px-5 py-3.5 bg-cream/60 border-b border-line flex items-center justify-between">
-          <h2 className="font-serif font-bold text-[16px] text-ink">
-            🕐 {t('analytics_recent')}
-          </h2>
-          <span className="text-[11px] text-muted/60">{t('analytics_last_n', { n: recent.length })}</span>
-        </div>
-        {recent.length === 0 ? (
-          <p className="px-5 py-8 text-center text-[13px] text-muted/60">{t('analytics_no_data')}</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[560px]">
-              <thead>
-                <tr className="text-[11px] font-bold text-muted/60 uppercase tracking-widest border-b border-line/60">
-                  <th className="px-5 py-2 text-left">{t('analytics_event')}</th>
-                  <th className="px-5 py-2 text-left">{t('analytics_path')}</th>
-                  <th className="px-5 py-2 text-left">{t('analytics_user_type')}</th>
-                  <th className="px-5 py-2 text-right">{t('analytics_time')}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-line/40">
-                {recent.map((ev, i) => (
-                  <tr key={i} className="hover:bg-cream/30 transition-colors text-[12.5px]">
-                    <td className="px-5 py-2.5 font-mono text-ink/80 whitespace-nowrap">{ev.event_name}</td>
-                    <td className="px-5 py-2.5 text-muted/70 truncate max-w-[200px]">{ev.path ?? '—'}</td>
-                    <td className="px-5 py-2.5">
-                      {ev.user_id
-                        ? <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200">logged in</span>
-                        : <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-600 border border-amber-200">anon</span>
-                      }
-                    </td>
-                    <td className="px-5 py-2.5 text-right text-muted/60 whitespace-nowrap">{fmtDateTime(ev.created_at)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+      {/* Recent activity — client component with search/filter/pagination */}
+      <AnalyticsRecentClient events={recent} />
     </div>
   )
 }

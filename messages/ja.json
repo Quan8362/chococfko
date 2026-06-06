@@ -270,7 +270,11 @@
     "area_mountain_mid_seaview": "中級 · 海の眺め",
     "area_mountain_cable_night": "ロープウェイあり · 夜景",
     "area_umi_near_dazaifu": "宇美町 · 太宰府近く",
-    "area_nokonoshima_island": "能古島"
+    "area_nokonoshima_island": "能古島",
+    "page_prev": "前へ",
+    "page_next": "次へ",
+    "page_label": "ページ",
+    "per_page": "件/ページ"
   },
   "filters": {
     "all": "すべて",
@@ -818,7 +822,10 @@
     "analytics_event": "イベント",
     "analytics_user_type": "ユーザー種別",
     "analytics_time": "時刻",
-    "analytics_no_data": "この期間のデータがありません"
+    "analytics_no_data": "この期間のデータがありません",
+    "analytics_search_placeholder": "パスまたはイベントで検索...",
+    "analytics_filter_all_events": "すべてのイベント",
+    "analytics_no_activity": "アクティビティが見つかりません"
   },
   "games": {
     "page_badge": "🎮 ミニゲーム",
@@ -1297,6 +1304,10 @@
     "page_title": "管理者通知",
     "page_desc": "審査が必要な新しいコンテンツの通知。",
     "filter_all": "すべて",
-    "filter_unread": "未読"
+    "filter_unread": "未読",
+    "confession_status_pending": "審査待ち",
+    "confession_status_approved": "承認済み",
+    "confession_status_rejected": "拒否済み",
+    "confession_status_deleted": "削除済み"
   }
 }

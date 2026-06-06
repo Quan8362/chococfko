@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import ChineseChessLobby from './ChineseChessLobby'
 import ChineseChessWaitingRooms from './ChineseChessWaitingRooms'
+import ChineseChessHistoryClient, { type ChessHistoryRow } from './ChineseChessHistoryClient'
 import { fetchWaitingChessRooms } from './actions'
 
 export const dynamic = 'force-dynamic'
@@ -48,11 +49,22 @@ export default async function ChineseChessPage() {
     admin
       .from('chinese_chess_history')
       .select('id,room_code,winner,end_reason,player_red,player_black,player_red_name,player_black_name,move_count,finished_at')
-      .limit(10),
+      .order('finished_at', { ascending: false })
+      .limit(100),
     fetchWaitingChessRooms(),
   ])
 
-  const rows = (history ?? []) as HistoryRow[]
+  const rawRows = (history ?? []) as HistoryRow[]
+  const justNow = tCommon('just_now')
+  const historyRows: ChessHistoryRow[] = rawRows.map(r => ({
+    id: r.id,
+    winner: r.winner,
+    player_red: r.player_red,
+    player_black: r.player_black,
+    player_red_name: r.player_red_name,
+    player_black_name: r.player_black_name,
+    time_label: r.finished_at ? relativeTime(r.finished_at, justNow) : '—',
+  }))
 
   return (
     <div className="max-w-[900px] mx-auto px-5 sm:px-6 py-10 pb-20">
@@ -187,68 +199,7 @@ export default async function ChineseChessPage() {
       <ChineseChessWaitingRooms initialRooms={waitingRooms} userId={user?.id ?? null} />
 
       {/* ── Match history ── */}
-      {rows.length > 0 && (
-        <div>
-          <h2 className="font-serif font-bold text-[20px] text-ink mb-4 flex items-center gap-2">
-            📜 {t('history_heading')}
-            <span className="text-[12px] font-normal text-muted/50 font-sans">({rows.length})</span>
-          </h2>
-          <div className="bg-paper border border-line rounded-2xl overflow-hidden">
-            <div className="overflow-x-auto">
-              {/* Header */}
-              <div className="grid grid-cols-[minmax(0,1fr)_64px_minmax(0,1fr)_80px_64px] gap-x-2 px-4 py-2.5 bg-cream/60 border-b border-line text-[11px] font-bold text-muted/60 uppercase tracking-widest min-w-[480px]">
-                <span>{t('history_red')}</span>
-                <span className="text-center">vs</span>
-                <span className="pl-2">{t('history_black')}</span>
-                <span className="text-center">Kết quả</span>
-                <span className="text-center">Time</span>
-              </div>
-              {rows.map((row, idx) => {
-                const isRW = row.winner === 'red'
-                const isBW = row.winner === 'black'
-                const isDraw = row.winner === 'draw'
-                const myRow = user && (row.player_red === user.id || row.player_black === user.id)
-                return (
-                  <div
-                    key={row.id}
-                    className={[
-                      'grid grid-cols-[minmax(0,1fr)_64px_minmax(0,1fr)_80px_64px] gap-x-2 px-4 py-3 items-center text-[12.5px] min-w-[480px]',
-                      myRow ? 'bg-rose/[0.03]' : '',
-                      idx < rows.length - 1 ? 'border-b border-line/50' : '',
-                    ].join(' ')}
-                  >
-                    <div className={`flex items-center gap-1.5 min-w-0 ${isRW ? 'font-semibold text-red-700' : 'text-ink'}`}>
-                      <span className="w-2 h-2 rounded-full bg-red-500 flex-none" />
-                      <span className="truncate">{row.player_red_name}</span>
-                      {isRW && <span className="flex-none text-[13px]">🏆</span>}
-                    </div>
-                    <div className="flex items-center justify-center">
-                      <span className="text-[10px] font-bold text-muted/50 bg-line/70 px-2 py-0.5 rounded-md tracking-wide">vs</span>
-                    </div>
-                    <div className={`flex items-center gap-1.5 min-w-0 pl-2 ${isBW ? 'font-semibold text-ink' : 'text-ink'}`}>
-                      <span className="w-2 h-2 rounded-full bg-zinc-700 flex-none" />
-                      <span className="truncate">{row.player_black_name}</span>
-                      {isBW && <span className="flex-none text-[13px]">🏆</span>}
-                    </div>
-                    <div className="flex justify-center">
-                      {isDraw ? (
-                        <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 border border-amber-200">{t('draw')}</span>
-                      ) : isRW ? (
-                        <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-700 border border-red-200">{t('win_red')}</span>
-                      ) : (
-                        <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-full bg-zinc-200 text-zinc-700 border border-zinc-300">{t('win_black')}</span>
-                      )}
-                    </div>
-                    <div className="text-center text-[11px] text-muted/55 whitespace-nowrap">
-                      {row.finished_at ? relativeTime(row.finished_at, tCommon('just_now')) : '—'}
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        </div>
-      )}
+      <ChineseChessHistoryClient rows={historyRows} userId={user?.id ?? null} />
     </div>
   )
 }

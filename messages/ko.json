@@ -253,7 +253,11 @@
     "area_mountain_mid_seaview": "보통 · 바다 전망",
     "area_mountain_cable_night": "케이블카 · 야경",
     "area_umi_near_dazaifu": "우미마치 · 다자이후 근처",
-    "area_nokonoshima_island": "노코노시마 섬"
+    "area_nokonoshima_island": "노코노시마 섬",
+    "page_prev": "이전",
+    "page_next": "다음",
+    "page_label": "페이지",
+    "per_page": "건/페이지"
   },
   "filters": {
     "all": "전체",
@@ -801,7 +805,10 @@
     "analytics_event": "이벤트",
     "analytics_user_type": "사용자 유형",
     "analytics_time": "시간",
-    "analytics_no_data": "해당 기간의 데이터가 없습니다"
+    "analytics_no_data": "해당 기간의 데이터가 없습니다",
+    "analytics_search_placeholder": "경로 또는 이벤트로 검색...",
+    "analytics_filter_all_events": "모든 이벤트",
+    "analytics_no_activity": "활동을 찾을 수 없습니다"
   },
   "games": {
     "destination_wheel": {
@@ -1280,6 +1287,10 @@
     "page_title": "관리자 알림",
     "page_desc": "검토가 필요한 새 콘텐츠 알림.",
     "filter_all": "전체",
-    "filter_unread": "읽지 않음"
+    "filter_unread": "읽지 않음",
+    "confession_status_pending": "심사 대기",
+    "confession_status_approved": "승인됨",
+    "confession_status_rejected": "거절됨",
+    "confession_status_deleted": "삭제됨"
   }
 }

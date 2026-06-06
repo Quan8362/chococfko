@@ -270,7 +270,11 @@
     "area_mountain_mid_seaview": "Moderate · Sea views",
     "area_mountain_cable_night": "Cable car · Night views",
     "area_umi_near_dazaifu": "Umi-machi · Near Dazaifu",
-    "area_nokonoshima_island": "Nokonoshima Island"
+    "area_nokonoshima_island": "Nokonoshima Island",
+    "page_prev": "Previous",
+    "page_next": "Next",
+    "page_label": "Page",
+    "per_page": "per page"
   },
   "filters": {
     "all": "All",
@@ -818,7 +822,10 @@
     "analytics_event": "Event",
     "analytics_user_type": "User type",
     "analytics_time": "Time",
-    "analytics_no_data": "No data for this period"
+    "analytics_no_data": "No data for this period",
+    "analytics_search_placeholder": "Search by path or event...",
+    "analytics_filter_all_events": "All events",
+    "analytics_no_activity": "No activity found"
   },
   "games": {
     "page_badge": "🎮 Mini Game",
@@ -1297,6 +1304,10 @@
     "page_title": "Admin Notifications",
     "page_desc": "Notifications about new content awaiting review.",
     "filter_all": "All",
-    "filter_unread": "Unread"
+    "filter_unread": "Unread",
+    "confession_status_pending": "Pending review",
+    "confession_status_approved": "Approved",
+    "confession_status_rejected": "Rejected",
+    "confession_status_deleted": "Deleted"
   }
 }

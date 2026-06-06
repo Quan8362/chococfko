@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
-import { checkIsAdmin } from '@/lib/supabase/admin'
+import { checkIsAdmin, createAdminClient } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
 import { getAllNotifications } from '@/lib/admin/notifications'
 import { markAsRead, markAllAsRead } from './actions'
@@ -37,6 +37,33 @@ export default async function AdminNotificationsPage({
 
   const t = await getTranslations('notifications')
   const all = await getAllNotifications(user.id, 100)
+
+  // Fetch current status for confession-type notifications
+  const confessionIds = all
+    .filter(n => n.target_type === 'confession' && n.target_id)
+    .map(n => n.target_id!)
+  const confessionStatusMap: Record<string, string> = {}
+  if (confessionIds.length > 0) {
+    const adminDb = createAdminClient()
+    const { data: confessions } = await adminDb
+      .from('confessions')
+      .select('id, status')
+      .in('id', confessionIds)
+    for (const c of (confessions ?? []) as { id: string; status: string }[]) {
+      confessionStatusMap[c.id] = c.status
+    }
+  }
+
+  // Resolve target_url based on current confession status
+  function getConfessionUrl(targetId: string | null): string {
+    if (!targetId) return '/admin/confessions?tab=all'
+    const status = confessionStatusMap[targetId]
+    if (!status) return '/admin/confessions?tab=all'
+    if (status === 'pending') return '/admin/confessions?tab=pending'
+    if (status === 'approved') return '/admin/confessions?tab=approved'
+    if (status === 'rejected') return '/admin/confessions?tab=rejected'
+    return '/admin/confessions?tab=all'
+  }
 
   const filter = searchParams.filter === 'unread' ? 'unread' : 'all'
   const shown = filter === 'unread' ? all.filter(n => !n.is_read) : all
@@ -129,6 +156,31 @@ export default async function AdminNotificationsPage({
                   {!notif.is_read && (
                     <span className="w-2 h-2 rounded-full bg-amber-400 flex-none" />
                   )}
+                  {/* Status badge for confession notifications */}
+                  {notif.target_type === 'confession' && notif.target_id && (() => {
+                    const cs = confessionStatusMap[notif.target_id]
+                    if (cs === 'approved') return (
+                      <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 whitespace-nowrap">
+                        {t('confession_status_approved')}
+                      </span>
+                    )
+                    if (cs === 'rejected') return (
+                      <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-full bg-red-50 text-red-600 border border-red-200 whitespace-nowrap">
+                        {t('confession_status_rejected')}
+                      </span>
+                    )
+                    if (cs === 'pending') return (
+                      <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 whitespace-nowrap">
+                        {t('confession_status_pending')}
+                      </span>
+                    )
+                    // 'deleted' or any unknown status → show gray deleted badge
+                    return (
+                      <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 border border-gray-200 whitespace-nowrap">
+                        {t('confession_status_deleted')}
+                      </span>
+                    )
+                  })()}
                 </div>
                 {notif.message && (
                   <p className="text-[12.5px] text-muted truncate mb-1">「{notif.message}」</p>
@@ -137,14 +189,31 @@ export default async function AdminNotificationsPage({
               </div>
 
               <div className="flex items-center gap-2 flex-none">
-                {notif.target_url && (
-                  <Link
-                    href={notif.target_url}
-                    className="text-[12px] font-semibold px-3 py-1.5 rounded-lg bg-teal-soft text-teal border border-teal/20 hover:bg-teal hover:text-white transition-all whitespace-nowrap"
-                  >
-                    {t('view_btn')}
-                  </Link>
-                )}
+                {(() => {
+                  // For confession notifications: hide View button if deleted or not found
+                  if (notif.target_type === 'confession') {
+                    const cs = confessionStatusMap[notif.target_id ?? '']
+                    if (!cs || cs === 'deleted') return null
+                    return (
+                      <Link
+                        href={getConfessionUrl(notif.target_id)}
+                        className="text-[12px] font-semibold px-3 py-1.5 rounded-lg bg-teal-soft text-teal border border-teal/20 hover:bg-teal hover:text-white transition-all whitespace-nowrap"
+                      >
+                        {t('view_btn')}
+                      </Link>
+                    )
+                  }
+                  // Other notification types: use target_url
+                  if (notif.target_url) return (
+                    <Link
+                      href={notif.target_url}
+                      className="text-[12px] font-semibold px-3 py-1.5 rounded-lg bg-teal-soft text-teal border border-teal/20 hover:bg-teal hover:text-white transition-all whitespace-nowrap"
+                    >
+                      {t('view_btn')}
+                    </Link>
+                  )
+                  return null
+                })()}
                 {!notif.is_read && (
                   <form action={markAsRead.bind(null, notif.id)}>
                     <button

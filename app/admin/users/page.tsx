@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { checkIsAdmin, createAdminClient } from '@/lib/supabase/admin'
+import AdminUsersClient, { type UserRow } from './AdminUsersClient'
 
 export const dynamic = 'force-dynamic'
 
@@ -25,29 +26,6 @@ type Profile = {
   avatar_url: string | null
   bio: string | null
   area: string | null
-}
-
-type UserRow = {
-  id: string
-  email: string
-  displayName: string
-  avatarUrl: string | null
-  provider: string
-  createdAt: string
-  lastSignIn: string | null
-  isAdmin: boolean
-  postCount: number
-  placeCount: number
-}
-
-function fmt(iso: string | null) {
-  if (!iso) return '—'
-  return new Date(iso).toLocaleString('vi-VN', {
-    timeZone: 'Asia/Tokyo',
-    day: '2-digit', month: '2-digit', year: 'numeric',
-    hour: '2-digit', minute: '2-digit', second: '2-digit',
-    hour12: false,
-  })
 }
 
 export default async function AdminUsers() {
@@ -108,12 +86,6 @@ export default async function AdminUsers() {
   const fbCount = users.filter(u => u.provider === 'facebook').length
   const emailCount = users.filter(u => u.provider === 'email').length
 
-  const PROVIDER_BADGE: Record<string, string> = {
-    google:   'bg-blue-50 text-blue-700 border-blue-200',
-    facebook: 'bg-indigo-50 text-indigo-700 border-indigo-200',
-    email:    'bg-paper text-muted border-line',
-  }
-
   return (
     <div className="max-w-[1100px] mx-auto px-6 py-10">
 
@@ -139,11 +111,11 @@ export default async function AdminUsers() {
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-8">
         {[
-          { label: admin_t('stat_total'), value: totalUsers, color: 'text-ink',       border: 'border-l-gold' },
-          { label: 'Email/pass',          value: emailCount,  color: 'text-muted',     border: 'border-l-line' },
-          { label: 'Google',              value: googleCount, color: 'text-blue-600',  border: 'border-l-blue-400' },
-          { label: 'Facebook',            value: fbCount,     color: 'text-indigo-600',border: 'border-l-indigo-400' },
-          { label: 'Admin',               value: adminCount,  color: 'text-amber-600', border: 'border-l-amber-400' },
+          { label: admin_t('stat_total'), value: totalUsers, color: 'text-ink',        border: 'border-l-gold'        },
+          { label: 'Email/pass',          value: emailCount,  color: 'text-muted',      border: 'border-l-line'        },
+          { label: 'Google',              value: googleCount, color: 'text-blue-600',   border: 'border-l-blue-400'    },
+          { label: 'Facebook',            value: fbCount,     color: 'text-indigo-600', border: 'border-l-indigo-400'  },
+          { label: 'Admin',               value: adminCount,  color: 'text-amber-600',  border: 'border-l-amber-400'   },
         ].map((s) => (
           <div key={s.label} className={`bg-paper shadow-card rounded-xl p-4 border-l-4 ${s.border}`}>
             <div className={`text-[28px] font-bold leading-none mb-1 ${s.color}`}>{s.value}</div>
@@ -152,88 +124,9 @@ export default async function AdminUsers() {
         ))}
       </div>
 
-      {/* Table header */}
-      <div className="hidden sm:grid grid-cols-[2fr_1fr_1.4fr_1.4fr_70px_70px_70px] gap-3 px-4 py-2 text-[11.5px] font-semibold text-muted uppercase tracking-[0.5px] border-b border-line mb-1">
-        <span>{admin_t('col_users')}</span>
-        <span>{admin_t('col_provider')}</span>
-        <span>{admin_t('col_registered_date')}</span>
-        <span>{admin_t('col_last_signin')}</span>
-        <span className="text-center">{admin_t('col_posts')}</span>
-        <span className="text-center">{admin_t('col_places')}</span>
-        <span className="text-center">{admin_t('col_role')}</span>
-      </div>
+      {/* Interactive table: search + filter + pagination */}
+      <AdminUsersClient users={users} />
 
-      {/* User list */}
-      <div className="space-y-1.5">
-        {users.map((u) => (
-          <div
-            key={u.id}
-            className={`bg-paper border rounded-xl px-4 py-3.5 grid grid-cols-1 sm:grid-cols-[2fr_1fr_1.4fr_1.4fr_70px_70px_70px] gap-2 sm:gap-3 sm:items-center transition-all hover:border-rose/25 hover:shadow-sm ${
-              u.isAdmin ? 'border-amber-200 bg-amber-50/30' : 'border-line'
-            }`}
-          >
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="w-9 h-9 rounded-full flex-none overflow-hidden bg-gradient-to-br from-rose/30 to-teal/30 grid place-items-center text-[14px] font-bold text-ink">
-                {u.avatarUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={u.avatarUrl} alt="" className="w-full h-full object-cover" />
-                ) : (
-                  u.displayName[0]?.toUpperCase()
-                )}
-              </div>
-              <div className="min-w-0">
-                <div className="font-semibold text-[13.5px] text-ink truncate leading-snug">{u.displayName}</div>
-                <div className="text-[11.5px] text-muted truncate">{u.email}</div>
-              </div>
-            </div>
-
-            <div>
-              <span className={`inline-flex items-center text-[11px] font-semibold px-2 py-[3px] rounded-full border capitalize ${PROVIDER_BADGE[u.provider] ?? PROVIDER_BADGE.email}`}>
-                {u.provider}
-              </span>
-            </div>
-
-            <div className="text-[11.5px] text-muted leading-snug">
-              {fmt(u.createdAt)}
-            </div>
-
-            <div className="text-[11.5px] text-muted leading-snug">
-              {u.lastSignIn ? fmt(u.lastSignIn) : (
-                <span className="text-muted/50 italic">{admin_t('last_signin_none')}</span>
-              )}
-            </div>
-
-            <div className="text-center">
-              <span className="text-[14px] font-bold text-ink">{u.postCount}</span>
-              <div className="text-[10px] text-muted">{admin_t('unit_posts')}</div>
-            </div>
-
-            <div className="text-center">
-              <span className="text-[14px] font-bold text-ink">{u.placeCount}</span>
-              <div className="text-[10px] text-muted">{admin_t('unit_places')}</div>
-            </div>
-
-            <div className="text-center">
-              {u.isAdmin ? (
-                <span className="inline-flex text-[11px] font-semibold px-2 py-[3px] rounded-full bg-amber-100 text-amber-700 border border-amber-200">
-                  Admin
-                </span>
-              ) : (
-                <span className="inline-flex text-[11px] font-semibold px-2 py-[3px] rounded-full bg-paper text-muted border border-line">
-                  {admin_t('role_user')}
-                </span>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {users.length === 0 && (
-        <div className="bg-paper border border-line rounded-2xl py-16 px-8 text-center">
-          <div className="text-[40px] mb-3">👥</div>
-          <p className="text-[15px] text-muted">{admin_t('no_users_empty')}</p>
-        </div>
-      )}
     </div>
   )
 }

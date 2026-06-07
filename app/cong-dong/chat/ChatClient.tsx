@@ -261,6 +261,8 @@ export default function ChatClient({
   const [sending, setSending] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [reportFeedback, setReportFeedback] = useState<string | null>(null)
+  const [showAttachMenu, setShowAttachMenu] = useState(false)
+  const [toastMsg, setToastMsg] = useState<string | null>(null)
 
   // Mention autocomplete
   const [mentionQuery, setMentionQuery] = useState<string | null>(null)
@@ -363,6 +365,7 @@ export default function ChatClient({
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const fileAttachInputRef = useRef<HTMLInputElement>(null)
+  const cameraInputRef = useRef<HTMLInputElement>(null)
   const atBottomRef = useRef(true)
   const currentRoomIdRef = useRef(initialRoomId)
   const mountedRef = useRef(true)
@@ -397,8 +400,10 @@ export default function ChatClient({
 
     const syncHeight = () => {
       const vvp = window.visualViewport
-      const h = vvp ? vvp.height : window.innerHeight
-      // CSS variable drives position:fixed height — no React re-render needed
+      // offsetTop + height = vị trí top của keyboard trong layout viewport.
+      // Dùng tổng này thay vì chỉ vvp.height để container bottom luôn flush
+      // với keyboard, kể cả khi iOS shift visual viewport offset > 0.
+      const h = vvp ? vvp.offsetTop + vvp.height : window.innerHeight
       root.style.setProperty('--vvp-h', `${h}px`)
       requestAnimationFrame(() => {
         const el = scrollRef.current
@@ -406,22 +411,16 @@ export default function ChatClient({
       })
     }
 
-    // iOS Safari can scroll the layout viewport when an input is focused even with
-    // overflow:hidden on body. Resetting scrollY on each visual-viewport scroll
-    // event cancels that movement before it causes a visible jump.
-    const preventBodyScroll = () => {
-      window.scrollTo(0, 0)
-    }
-
     syncHeight()
     window.visualViewport?.addEventListener('resize', syncHeight)
-    window.visualViewport?.addEventListener('scroll', preventBodyScroll)
+    // Dùng syncHeight thay vì scrollTo(0,0): tránh vòng lặp resize→scroll→resize
+    window.visualViewport?.addEventListener('scroll', syncHeight)
 
     return () => {
       document.documentElement.classList.remove('chat-mobile-lock')
       root.style.removeProperty('--vvp-h')
       window.visualViewport?.removeEventListener('resize', syncHeight)
-      window.visualViewport?.removeEventListener('scroll', preventBodyScroll)
+      window.visualViewport?.removeEventListener('scroll', syncHeight)
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -812,6 +811,11 @@ export default function ChatClient({
 
   const loadOlderRef = useRef(loadOlderMessages)
   useEffect(() => { loadOlderRef.current = loadOlderMessages }, [loadOlderMessages])
+
+  const messagesRef = useRef(messages)
+  useEffect(() => { messagesRef.current = messages }, [messages])
+  const hasMoreRef = useRef(hasMore)
+  useEffect(() => { hasMoreRef.current = hasMore }, [hasMore])
 
   useEffect(() => {
     const sentinel = topSentinelRef.current
@@ -1489,6 +1493,74 @@ export default function ChatClient({
     const result = await unpinMessage(messageId)
     if (result.error) { setError(t('error_unpin')); setTimeout(() => setError(null), 3000) }
   }
+
+  const showPinnedNotFound = useCallback(() => {
+    setToastMsg(t('pinned_msg_not_found'))
+    setTimeout(() => setToastMsg(null), 3000)
+  }, [t])
+
+  const scrollToPinnedMsg = useCallback(async (msgId: string) => {
+    const tryScroll = () => {
+      const el = document.getElementById(`msg-${msgId}`)
+      if (el && scrollRef.current) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        setHighlightedMsgId(msgId)
+        setTimeout(() => setHighlightedMsgId(null), 2500)
+        return true
+      }
+      return false
+    }
+
+    if (tryScroll()) return
+
+    // Message not in DOM — check if it's already in state (might be a render timing issue)
+    const alreadyInState = messagesRef.current.some(m => m.id === msgId)
+    if (alreadyInState) {
+      requestAnimationFrame(() => { if (!tryScroll()) showPinnedNotFound() })
+      return
+    }
+
+    // Message not yet loaded — fetch older batches until found
+    if (!hasMoreRef.current) { showPinnedNotFound(); return }
+
+    const supabase = createClient()
+    let found = false
+    let moreAvailable: boolean = hasMoreRef.current
+
+    while (!found && moreAvailable) {
+      const oldest = messagesRef.current[0]
+      if (!oldest) break
+
+      const { data } = await supabase
+        .from('community_chat_messages').select(MSG_SELECT)
+        .eq('room_id', currentRoomIdRef.current).eq('is_deleted', false)
+        .lt('created_at', oldest.created_at)
+        .order('created_at', { ascending: false }).limit(PAGE_SIZE)
+
+      if (!data || data.length === 0) { moreAvailable = false; break }
+
+      const older = (data as ChatMessage[]).reverse()
+      found = older.some(m => m.id === msgId)
+
+      setMessages(prev => {
+        const existingIds = new Set(prev.map(m => m.id))
+        return [...older.filter(m => !existingIds.has(m.id)), ...prev]
+      })
+
+      if (data.length < PAGE_SIZE) {
+        moreAvailable = false
+        setHasMore(false)
+      }
+
+      if (found) {
+        // Wait for React to render the new messages then scroll
+        setTimeout(() => { if (!tryScroll()) showPinnedNotFound() }, 150)
+        return
+      }
+    }
+
+    showPinnedNotFound()
+  }, [showPinnedNotFound])
 
   const handleCreatePoll = async () => {
     const q = pollQuestion.trim()
@@ -2184,16 +2256,20 @@ export default function ChatClient({
               <p className="text-[10.5px] font-semibold text-amber-600 mb-1 flex items-center gap-1">
                 📌 {t('pinned_messages')}
               </p>
-              <div className="space-y-1">
+              <div className="space-y-0.5">
                 {pinnedMessages.map(msg => (
-                  <div key={msg.id} className="flex items-start gap-2">
+                  <div
+                    key={msg.id}
+                    onClick={() => scrollToPinnedMsg(msg.id)}
+                    className="flex items-start gap-2 cursor-pointer hover:bg-amber-100/60 rounded-lg px-1.5 py-1 -mx-1.5 transition-colors"
+                  >
                     <p className="flex-1 min-w-0 text-[12px] text-ink leading-snug break-words">
                       <span className="font-medium text-muted/70 mr-1">{msg.display_name}:</span>
                       {msg.message.length > 100 ? msg.message.slice(0, 100) + '…' : msg.message}
                     </p>
                     {isAdmin && (
                       <button
-                        onClick={() => handleUnpin(msg.id)}
+                        onClick={(e) => { e.stopPropagation(); handleUnpin(msg.id) }}
                         className="flex-none text-[10px] text-amber-400 hover:text-amber-600 transition-colors shrink-0 mt-0.5 leading-none"
                         title={t('unpin_msg')}
                       >✕</button>
@@ -2201,6 +2277,13 @@ export default function ChatClient({
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* Toast: pinned msg not found */}
+          {toastMsg && (
+            <div className="flex-none mx-3 my-1 px-3 py-1.5 bg-ink/75 text-white text-[12px] rounded-xl text-center select-none">
+              {toastMsg}
             </div>
           )}
 
@@ -2918,18 +3001,13 @@ export default function ChatClient({
             </div>
           )}
 
-          {/* Input area */}
+          {/* Input area — Messenger style */}
           <div
-            className="flex-none px-3 py-3 border-t border-line flex gap-2 items-end bg-cream/30"
-            style={{ paddingBottom: 'max(12px, env(safe-area-inset-bottom, 12px))' }}
+            className="flex-none px-3 py-2 border-t border-line flex gap-2 items-center bg-paper relative"
+            style={{ paddingBottom: 'max(8px, env(safe-area-inset-bottom, 8px))' }}
           >
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              onChange={handleImageSelect}
-              className="hidden"
-            />
+            {/* Hidden file inputs */}
+            <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handleImageSelect} className="hidden" />
             <input
               ref={fileAttachInputRef}
               type="file"
@@ -2937,59 +3015,89 @@ export default function ChatClient({
               onChange={handleFileSelect}
               className="hidden"
             />
-            <button
-              type="button"
-              onClick={(e) => { e.stopPropagation(); openEmojiPicker('input') }}
-              className={`flex-none w-8 h-8 rounded-xl flex items-center justify-center transition-all text-[18px] shrink-0 ${
-                emojiPickerTarget === 'input'
-                  ? 'bg-rose/15 text-rose'
-                  : 'text-muted/50 hover:text-rose hover:bg-rose/10'
-              }`}
-              title={t('pick_emoji')}
-            >😊</button>
-            {chatMode !== 'dm' && (
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={sending || loadingRoom || !!imageFile || !!attachFile}
-              className="flex-none w-8 h-8 rounded-xl text-muted/50 hover:text-rose hover:bg-rose/10 flex items-center justify-center transition-all disabled:opacity-30 shrink-0"
-              title={t('send_image')}
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" strokeWidth="2" strokeLinecap="round" />
-                <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" stroke="none" />
-                <polyline points="21 15 16 10 5 21" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </button>
+            <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" onChange={handleImageSelect} className="hidden" />
+
+            {/* Attach menu popup — hiện phía trên nút + */}
+            {showAttachMenu && chatMode !== 'dm' && (
+              <>
+                <div className="fixed inset-0 z-10" onClick={() => setShowAttachMenu(false)} />
+                <div className="absolute bottom-full left-3 mb-2 z-20 bg-white rounded-2xl shadow-lg border border-line/30 p-2 min-w-[200px] overflow-hidden">
+                  <div className="grid grid-cols-2 gap-1">
+                    <button
+                      type="button"
+                      onClick={() => { fileInputRef.current?.click(); setShowAttachMenu(false) }}
+                      disabled={!!imageFile || !!attachFile}
+                      className="flex flex-col items-center gap-1.5 px-3 py-3 rounded-xl text-[12px] font-medium text-ink hover:bg-rose/8 active:bg-rose/15 transition-colors disabled:opacity-40"
+                    >
+                      <span className="w-9 h-9 rounded-full bg-rose/10 flex items-center justify-center">
+                        <svg className="w-[18px] h-[18px] text-rose" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <rect x="3" y="3" width="18" height="18" rx="2" ry="2" strokeWidth="2" strokeLinecap="round" />
+                          <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" stroke="none" />
+                          <polyline points="21 15 16 10 5 21" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </span>
+                      {t('send_image')}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { cameraInputRef.current?.click(); setShowAttachMenu(false) }}
+                      disabled={!!imageFile || !!attachFile}
+                      className="flex flex-col items-center gap-1.5 px-3 py-3 rounded-xl text-[12px] font-medium text-ink hover:bg-rose/8 active:bg-rose/15 transition-colors disabled:opacity-40"
+                    >
+                      <span className="w-9 h-9 rounded-full bg-rose/10 flex items-center justify-center">
+                        <svg className="w-[18px] h-[18px] text-rose" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" />
+                          <circle cx="12" cy="13" r="4" strokeWidth="2" strokeLinecap="round" />
+                        </svg>
+                      </span>
+                      {t('take_photo')}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { fileAttachInputRef.current?.click(); setShowAttachMenu(false) }}
+                      disabled={!!imageFile || !!attachFile}
+                      className="flex flex-col items-center gap-1.5 px-3 py-3 rounded-xl text-[12px] font-medium text-ink hover:bg-rose/8 active:bg-rose/15 transition-colors disabled:opacity-40"
+                    >
+                      <span className="w-9 h-9 rounded-full bg-rose/10 flex items-center justify-center">
+                        <svg className="w-[18px] h-[18px] text-rose" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                        </svg>
+                      </span>
+                      {t('send_file')}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setShowCreatePoll(true); setPollError(null); setShowAttachMenu(false) }}
+                      disabled={!!imageFile || !!attachFile}
+                      className="flex flex-col items-center gap-1.5 px-3 py-3 rounded-xl text-[12px] font-medium text-ink hover:bg-rose/8 active:bg-rose/15 transition-colors disabled:opacity-40"
+                    >
+                      <span className="w-9 h-9 rounded-full bg-rose/10 flex items-center justify-center">
+                        <svg className="w-[18px] h-[18px] text-rose" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <rect x="3" y="14" width="4" height="7" rx="1" strokeWidth="2" strokeLinecap="round" />
+                          <rect x="10" y="9" width="4" height="12" rx="1" strokeWidth="2" strokeLinecap="round" />
+                          <rect x="17" y="3" width="4" height="18" rx="1" strokeWidth="2" strokeLinecap="round" />
+                        </svg>
+                      </span>
+                      {t('create_poll')}
+                    </button>
+                  </div>
+                </div>
+              </>
             )}
+
+            {/* Nút + cho group mode */}
             {chatMode !== 'dm' && (
-            <button
-              type="button"
-              onClick={() => fileAttachInputRef.current?.click()}
-              disabled={sending || loadingRoom || !!imageFile || !!attachFile}
-              className="flex-none w-8 h-8 rounded-xl text-muted/50 hover:text-rose hover:bg-rose/10 flex items-center justify-center transition-all disabled:opacity-30 shrink-0"
-              title={t('send_file')}
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-              </svg>
-            </button>
+              <button
+                type="button"
+                onClick={() => setShowAttachMenu(v => !v)}
+                className={`flex-none w-9 h-9 rounded-full flex items-center justify-center transition-all font-semibold text-[20px] leading-none shrink-0 ${
+                  showAttachMenu ? 'bg-rose text-white shadow-sm' : 'bg-rose/10 text-rose hover:bg-rose/20'
+                }`}
+                title="Tùy chọn"
+              >+</button>
             )}
-            {chatMode !== 'dm' && (
-            <button
-              type="button"
-              onClick={() => { setShowCreatePoll(true); setPollError(null) }}
-              disabled={sending || loadingRoom || !!imageFile || !!attachFile}
-              className="flex-none w-8 h-8 rounded-xl text-muted/50 hover:text-rose hover:bg-rose/10 flex items-center justify-center transition-all disabled:opacity-30 shrink-0"
-              title={t('create_poll')}
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <rect x="3" y="14" width="4" height="7" rx="1" strokeWidth="2" strokeLinecap="round" />
-                <rect x="10" y="9" width="4" height="12" rx="1" strokeWidth="2" strokeLinecap="round" />
-                <rect x="17" y="3" width="4" height="18" rx="1" strokeWidth="2" strokeLinecap="round" />
-              </svg>
-            </button>
-            )}
+
+            {/* Textarea */}
             <textarea
               ref={inputRef}
               value={input}
@@ -2999,13 +3107,25 @@ export default function ChatClient({
               disabled={sending || loadingRoom}
               maxLength={500}
               rows={1}
-              className="flex-1 min-w-0 text-[16px] sm:text-[13.5px] px-3.5 py-2.5 rounded-2xl border border-line/80 bg-white focus:outline-none focus:border-rose/40 focus:ring-2 focus:ring-rose/8 placeholder:text-muted/35 disabled:opacity-50 text-ink resize-none shadow-sm"
+              className="flex-1 min-w-0 text-[16px] sm:text-[13.5px] px-3.5 py-2 rounded-full border border-line/60 bg-cream/60 focus:outline-none focus:border-rose/30 placeholder:text-muted/40 disabled:opacity-50 text-ink resize-none"
               style={{ maxHeight: '80px', overflowY: 'auto' }}
             />
+
+            {/* Emoji — bên phải textarea, trước nút gửi */}
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); openEmojiPicker('input') }}
+              className={`flex-none w-8 h-8 rounded-full flex items-center justify-center transition-all text-[18px] shrink-0 ${
+                emojiPickerTarget === 'input' ? 'bg-rose/15 text-rose' : 'text-muted/50 hover:text-rose hover:bg-rose/10'
+              }`}
+              title={t('pick_emoji')}
+            >😊</button>
+
+            {/* Nút gửi */}
             <button
               onClick={handleSend}
               disabled={!input.trim() && !imageFile && !attachFile || (chatMode === 'dm' ? dmSending : sending || loadingRoom)}
-              className="flex-none w-10 h-10 rounded-2xl bg-rose text-white flex items-center justify-center hover:bg-rose-deep transition-all disabled:opacity-40 shrink-0 shadow-sm active:scale-95"
+              className="flex-none w-9 h-9 rounded-full bg-rose text-white flex items-center justify-center hover:bg-rose-deep transition-all disabled:opacity-40 shrink-0 active:scale-95"
               title={uploading ? t('uploading') : t('send')}
             >
               {(chatMode === 'dm' ? dmSending : sending) ? (

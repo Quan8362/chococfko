@@ -45,6 +45,21 @@ function fmtDateTime(iso: string) {
   })
 }
 
+function fmtDate(d: Date) {
+  return d.toLocaleDateString('vi-VN', {
+    timeZone: JST, day: '2-digit', month: '2-digit', year: 'numeric',
+  })
+}
+
+function getPeriodRangeLabel(period: Period, since: Date): string {
+  const now = new Date()
+  const nowStr = now.toLocaleDateString('vi-VN', {
+    timeZone: JST, day: '2-digit', month: '2-digit', year: 'numeric',
+  })
+  if (period === 'today') return `Ngày ${nowStr}`
+  return `Từ ${fmtDate(since)} đến ${nowStr}`
+}
+
 export default async function AdminAnalyticsPage({
   searchParams,
 }: {
@@ -145,7 +160,7 @@ export default async function AdminAnalyticsPage({
       </div>
 
       {/* Period filter */}
-      <div className="flex gap-2 mb-8 flex-wrap">
+      <div className="flex gap-2 mb-3 flex-wrap">
         {PERIODS.map(p => (
           <Link
             key={p}
@@ -160,6 +175,9 @@ export default async function AdminAnalyticsPage({
           </Link>
         ))}
       </div>
+      <p className="text-[12px] text-muted/70 mb-7">
+        📅 {getPeriodRangeLabel(period, since)}
+      </p>
 
       {/* Stat cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-10">

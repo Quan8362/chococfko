@@ -1487,7 +1487,9 @@
     "dict_desc": "用日语、越南语、汉字或罗马字搜索",
     "search_label": "搜索",
     "feature_dict_desc": "快速查询日语↔越南语释义",
+    "feature_dictionary_desc": "搜索日语↔越南语单词、汉字、罗马字及例句。",
     "feature_vocab_desc": "按JLPT等级N5~N1学习词汇",
+    "feature_vocabulary_desc": "按JLPT等级学习词汇。",
     "feature_grammar_desc": "从入门到高级的日语语法",
     "feature_kanji_desc": "按部首和JLPT等级学汉字",
     "feature_flashcard_desc": "用单词卡练习词汇",
@@ -1624,6 +1626,7 @@
     "copied": "已复制",
     "related_words": "相关词汇",
     "word_not_found": "未找到该词",
-    "meanings_label": "含义"
+    "meanings_label": "含义",
+    "no_vietnamese_meaning": "暂无越南语释义"
   }
 }

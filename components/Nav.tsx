@@ -56,17 +56,17 @@ export default async function Nav() {
           <Link href="/cong-dong" className="px-3 py-1.5 rounded-lg hover:bg-line hover:text-rose transition-colors whitespace-nowrap">
             {t('community')}
           </Link>
-          <Link href="/cong-dong/chat" className="px-3 py-1.5 rounded-lg hover:bg-line hover:text-rose transition-colors whitespace-nowrap inline-flex items-center">
-            {t('chat')}<ChatUnreadBadge />
+          <Link href="/tieng-nhat" className="px-3 py-1.5 rounded-lg hover:bg-line hover:text-rose transition-colors whitespace-nowrap">
+            {tJp('nav')}
           </Link>
           <Link href="/confessions" className="px-3 py-1.5 rounded-lg hover:bg-line hover:text-rose transition-colors whitespace-nowrap">
             {tConf('nav')}
           </Link>
+          <Link href="/cong-dong/chat" className="px-3 py-1.5 rounded-lg hover:bg-line hover:text-rose transition-colors whitespace-nowrap inline-flex items-center">
+            {t('chat')}<ChatUnreadBadge />
+          </Link>
           <Link href="/games" className="px-3 py-1.5 rounded-lg hover:bg-line hover:text-rose transition-colors whitespace-nowrap">
             {t('mini_game')}
-          </Link>
-          <Link href="/tieng-nhat" className="px-3 py-1.5 rounded-lg hover:bg-line hover:text-rose transition-colors whitespace-nowrap">
-            {tJp('nav')}
           </Link>
         </nav>
 

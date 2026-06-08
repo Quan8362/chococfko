@@ -13,7 +13,7 @@ const COLORS: Record<string, string> = {
 export default function JlptBadge({ level }: JlptBadgeProps) {
   const color = COLORS[level] ?? 'bg-line text-muted border-line'
   return (
-    <span className={`inline-flex items-center text-[10px] font-bold tracking-wide px-2 py-0.5 rounded-full border ${color}`}>
+    <span className={`inline-flex items-center leading-none text-[10px] font-bold tracking-wide px-2 py-1 rounded-full border ${color}`}>
       {level}
     </span>
   )

@@ -1487,7 +1487,9 @@
     "dict_desc": "일본어, 베트남어, 한자 또는 로마자로 검색",
     "search_label": "검색",
     "feature_dict_desc": "일본어↔베트남어 의미를 빠르게 검색",
+    "feature_dictionary_desc": "일본어↔베트남어 단어·한자·로마자·예문 검색.",
     "feature_vocab_desc": "JLPT 레벨 N5~N1 단어 학습",
+    "feature_vocabulary_desc": "JLPT 레벨별 단어 학습.",
     "feature_grammar_desc": "초급부터 고급까지 일본어 문법",
     "feature_kanji_desc": "부수·JLPT 레벨별 한자 학습",
     "feature_flashcard_desc": "플래시카드로 단어 연습",
@@ -1624,6 +1626,7 @@
     "copied": "복사됨",
     "related_words": "관련 단어",
     "word_not_found": "단어를 찾을 수 없습니다",
-    "meanings_label": "의미"
+    "meanings_label": "의미",
+    "no_vietnamese_meaning": "베트남어 번역 없음"
   }
 }

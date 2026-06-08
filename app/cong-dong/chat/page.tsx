@@ -39,7 +39,7 @@ export type ChatMessage = {
   attachments?: ChatAttachment[] | null
 }
 
-export type ReactionItem = { emoji: string; count: number; hasMyReaction: boolean }
+export type ReactionItem = { emoji: string; count: number; hasMyReaction: boolean; users: string[] }
 export type ReactionsMap = Record<string, ReactionItem[]>
 
 export type PollVoter = {
@@ -81,16 +81,19 @@ const MSG_SELECT =
 function buildReactionsMap(
   rows: { message_id: string; user_id: string; emoji: string }[],
   userId: string,
+  profileMap: Record<string, string> = {},
 ): ReactionsMap {
   const map: ReactionsMap = {}
   for (const row of rows) {
     if (!map[row.message_id]) map[row.message_id] = []
     const existing = map[row.message_id].find(r => r.emoji === row.emoji)
+    const name = profileMap[row.user_id] ?? null
     if (existing) {
       existing.count++
       if (row.user_id === userId) existing.hasMyReaction = true
+      if (name && !existing.users.includes(name)) existing.users.push(name)
     } else {
-      map[row.message_id].push({ emoji: row.emoji, count: 1, hasMyReaction: row.user_id === userId })
+      map[row.message_id].push({ emoji: row.emoji, count: 1, hasMyReaction: row.user_id === userId, users: name ? [name] : [] })
     }
   }
   return map
@@ -164,10 +167,16 @@ export default async function CongDongChatPage({
         .from('community_chat_reactions')
         .select('message_id, user_id, emoji')
         .in('message_id', messageIds)
-      initialReactions = buildReactionsMap(
-        (reactionsData ?? []) as { message_id: string; user_id: string; emoji: string }[],
-        user.id,
-      )
+      const reactionRows = (reactionsData ?? []) as { message_id: string; user_id: string; emoji: string }[]
+      const reactorIds = Array.from(new Set(reactionRows.map(r => r.user_id)))
+      let reactionProfileMap: Record<string, string> = {}
+      if (reactorIds.length > 0) {
+        const { data: rProfiles } = await supabase.from('profiles').select('id, display_name').in('id', reactorIds)
+        for (const p of (rProfiles ?? []) as { id: string; display_name: string }[]) {
+          reactionProfileMap[p.id] = p.display_name
+        }
+      }
+      initialReactions = buildReactionsMap(reactionRows, user.id, reactionProfileMap)
     }
 
     // Fetch polls for messages that have polls

@@ -5,6 +5,7 @@ import { useTranslations, useLocale } from 'next-intl'
 import type { JapaneseWord } from './WordCard'
 import type { ProgressStatus } from './VocabularyCard'
 import ProgressBar from './ProgressBar'
+import { cleanMeaningText } from '@/lib/sanitize'
 
 type FlashAction = 'correct' | 'review' | 'wrong'
 
@@ -190,13 +191,29 @@ export default function FlashcardViewer({ words, isLoggedIn, onSave, loginMessag
               <div className="mb-4 space-y-1">
                 {locale === 'en' ? (
                   <>
-                    {current.meanings[0].en && <p className="text-[16px] font-semibold text-ink">🇬🇧 {current.meanings[0].en}</p>}
-                    {current.meanings[0].vi && <p className="text-[13.5px] text-muted">🇻🇳 {current.meanings[0].vi}</p>}
+                    {(current.meanings[0].en || current.meanings[0].vi) && (
+                      <p className="text-[16px] font-semibold text-ink">
+                        {cleanMeaningText(current.meanings[0].en || current.meanings[0].vi)}
+                      </p>
+                    )}
+                    {current.meanings[0].en && current.meanings[0].vi && (
+                      <p className="text-[13.5px] text-muted">{cleanMeaningText(current.meanings[0].vi)}</p>
+                    )}
                   </>
                 ) : (
                   <>
-                    <p className="text-[16px] font-semibold text-ink">🇻🇳 {current.meanings[0].vi}</p>
-                    {current.meanings[0].en && <p className="text-[13.5px] text-muted">🇬🇧 {current.meanings[0].en}</p>}
+                    {current.meanings[0].vi ? (
+                      <>
+                        <p className="text-[16px] font-semibold text-ink">{cleanMeaningText(current.meanings[0].vi)}</p>
+                        {current.meanings[0].en && (
+                          <p className="text-[13.5px] text-muted">{cleanMeaningText(current.meanings[0].en)}</p>
+                        )}
+                      </>
+                    ) : (
+                      current.meanings[0].en && (
+                        <p className="text-[16px] font-semibold text-ink">{cleanMeaningText(current.meanings[0].en)}</p>
+                      )
+                    )}
                   </>
                 )}
               </div>
@@ -204,10 +221,16 @@ export default function FlashcardViewer({ words, isLoggedIn, onSave, loginMessag
             {current.examples?.[0] && (
               <div className="pt-3 border-t border-line/60">
                 <p className="text-[13px] text-ink" lang="ja">{current.examples[0].ja}</p>
-                {locale === 'en'
-                  ? current.examples[0].en && <p className="text-[12px] text-muted italic mt-0.5">{current.examples[0].en}</p>
-                  : current.examples[0].vi && <p className="text-[12px] text-muted italic mt-0.5">{current.examples[0].vi}</p>
-                }
+                {(locale === 'en'
+                  ? (current.examples[0].en || current.examples[0].vi)
+                  : (current.examples[0].vi || current.examples[0].en)
+                ) && (
+                  <p className="text-[12px] text-muted italic mt-0.5">
+                    {locale === 'en'
+                      ? (current.examples[0].en || current.examples[0].vi)
+                      : (current.examples[0].vi || current.examples[0].en)}
+                  </p>
+                )}
               </div>
             )}
           </div>

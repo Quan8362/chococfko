@@ -3,10 +3,13 @@ import Link from 'next/link'
 import { getTranslations, getLocale } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import { getBookmarkIds } from '../../bookmark-actions'
+import { getOrFetchWordImage } from '../../image-actions'
 import JlptBadge from '@/components/japanese/JlptBadge'
 import BookmarkButton from '@/components/japanese/BookmarkButton'
 import CopyButton from '@/components/japanese/CopyButton'
+import WordImage from '@/components/japanese/WordImage'
 import WordCard, { type JapaneseWord } from '@/components/japanese/WordCard'
+import { cleanMeaningText } from '@/lib/sanitize'
 
 export const dynamic = 'force-dynamic'
 
@@ -24,7 +27,7 @@ const POS_EN: Record<string, string> = {
 
 async function fetchWord(wordParam: string) {
   const supabase = createClient()
-  const select = 'id,word,reading,romaji,jlpt_level,pos,meanings,examples,tags,frequency'
+  const select = 'id,word,reading,romaji,jlpt_level,pos,meanings,examples,tags,frequency,image_url,image_alt,image_source,image_credit_url,image_status,image_fetched_at'
 
   const { data: byWord } = await supabase
     .from('japanese_words')
@@ -76,7 +79,7 @@ export default async function WordDetailPage({ params }: { params: { word: strin
 
   if (!word) notFound()
 
-  const [relatedData, bookmarkIds] = await Promise.all([
+  const [relatedData, bookmarkIds, imageData] = await Promise.all([
     word.jlpt_level
       ? supabase
           .from('japanese_words')
@@ -88,6 +91,7 @@ export default async function WordDetailPage({ params }: { params: { word: strin
           .limit(4)
       : Promise.resolve({ data: [] }),
     user ? getBookmarkIds('word') : Promise.resolve([] as string[]),
+    getOrFetchWordImage(word),
   ])
 
   const relatedWords = (relatedData.data as JapaneseWord[]) ?? []
@@ -161,18 +165,33 @@ export default async function WordDetailPage({ params }: { params: { word: strin
                 <div key={i} className="space-y-0.5">
                   {locale === 'en' ? (
                     <>
-                      {m.en && <p className="text-[15px] text-ink font-medium leading-snug"><span className="text-[13px] mr-1.5">🇬🇧</span>{m.en}</p>}
-                      {m.vi && <p className="text-[13px] text-muted leading-snug"><span className="text-[11px] mr-1.5">🇻🇳</span>{m.vi}</p>}
+                      {m.en && <p className="text-[15px] text-ink font-medium leading-snug">{cleanMeaningText(m.en)}</p>}
+                      {m.vi && <p className="text-[13px] text-muted leading-snug">{cleanMeaningText(m.vi)}</p>}
                     </>
                   ) : (
                     <>
-                      {m.vi && <p className="text-[15px] text-ink font-medium leading-snug"><span className="text-[13px] mr-1.5">🇻🇳</span>{m.vi}</p>}
-                      {m.en && <p className="text-[13px] text-muted leading-snug"><span className="text-[11px] mr-1.5">🇬🇧</span>{m.en}</p>}
+                      {m.vi && <p className="text-[15px] text-ink font-medium leading-snug">{cleanMeaningText(m.vi)}</p>}
+                      {m.en && <p className="text-[13px] text-muted leading-snug">{cleanMeaningText(m.en)}</p>}
                     </>
                   )}
                 </div>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* Illustration image */}
+        {imageData.image_url && (
+          <div className="mb-6">
+            <p className="text-[10.5px] font-bold text-muted uppercase tracking-wide mb-3">
+              Ảnh minh họa
+            </p>
+            <WordImage
+              src={imageData.image_url}
+              alt={imageData.image_alt ?? `Ảnh minh họa cho từ ${word.word}`}
+              creditUrl={imageData.image_credit_url}
+              source={imageData.image_source}
+            />
           </div>
         )}
 

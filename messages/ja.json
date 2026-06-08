@@ -1504,7 +1504,9 @@
     "dict_desc": "日本語・ベトナム語・漢字・ローマ字で検索",
     "search_label": "検索",
     "feature_dict_desc": "日本語↔ベトナム語の意味をすばやく検索",
+    "feature_dictionary_desc": "日本語↔ベトナム語の単語・漢字・ローマ字・例文を検索。",
     "feature_vocab_desc": "JLPTレベルN5〜N1の単語を学ぶ",
+    "feature_vocabulary_desc": "JLPTレベル別に単語を学習。",
     "feature_grammar_desc": "初級から上級までの日本語文法",
     "feature_kanji_desc": "部首・JLPTレベル別に漢字を学ぶ",
     "feature_flashcard_desc": "フラッシュカードで単語を練習",
@@ -1641,6 +1643,7 @@
     "copied": "コピーしました",
     "related_words": "関連語",
     "word_not_found": "単語が見つかりません",
-    "meanings_label": "意味"
+    "meanings_label": "意味",
+    "no_vietnamese_meaning": "ベトナム語訳なし"
   }
 }

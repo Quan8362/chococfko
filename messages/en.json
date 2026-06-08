@@ -1504,7 +1504,9 @@
     "dict_desc": "Search Japanese, Vietnamese, kanji, or romaji",
     "search_label": "Search",
     "feature_dict_desc": "Look up Japanese-Vietnamese, Vietnamese-Japanese meanings instantly",
+    "feature_dictionary_desc": "Search Japanese-Vietnamese words, kanji, romaji, and examples.",
     "feature_vocab_desc": "Learn vocabulary by JLPT level N5-N1",
+    "feature_vocabulary_desc": "Learn JLPT vocabulary by level.",
     "feature_grammar_desc": "Japanese grammar from beginner to advanced",
     "feature_kanji_desc": "Learn kanji by radical and JLPT level",
     "feature_flashcard_desc": "Practice vocabulary with flashcards",
@@ -1641,6 +1643,7 @@
     "copied": "Copied",
     "related_words": "Related words",
     "word_not_found": "Word not found",
-    "meanings_label": "Meanings"
+    "meanings_label": "Meanings",
+    "no_vietnamese_meaning": "Vietnamese meaning not available"
   }
 }

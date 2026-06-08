@@ -1504,7 +1504,9 @@
     "dict_desc": "Tìm từ tiếng Nhật, tiếng Việt, kanji hoặc romaji",
     "search_label": "Tìm kiếm",
     "feature_dict_desc": "Tra nghĩa từ Nhật-Việt, Việt-Nhật nhanh chóng",
+    "feature_dictionary_desc": "Tra từ Nhật - Việt, kanji, romaji và ví dụ.",
     "feature_vocab_desc": "Học từ vựng theo cấp độ JLPT N5-N1",
+    "feature_vocabulary_desc": "Học từ vựng JLPT theo từng cấp độ.",
     "feature_grammar_desc": "Ngữ pháp tiếng Nhật từ cơ bản đến nâng cao",
     "feature_kanji_desc": "Học kanji theo bộ thủ và JLPT",
     "feature_flashcard_desc": "Luyện từ vựng bằng thẻ ghi nhớ",
@@ -1641,6 +1643,7 @@
     "copied": "Đã sao chép",
     "related_words": "Từ liên quan",
     "word_not_found": "Không tìm thấy từ này",
-    "meanings_label": "Nghĩa"
+    "meanings_label": "Nghĩa",
+    "no_vietnamese_meaning": "Chưa có nghĩa tiếng Việt"
   }
 }

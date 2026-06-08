@@ -28,6 +28,19 @@ export function sanitizeHtml(dirty: string): string {
 }
 
 /**
+ * Remove accidental language-code prefixes (e.g. "vn", "GB") from vocabulary
+ * meaning text that may have been baked in during dictionary imports.
+ * Also safe to call on clean data — has no effect if no prefix is present.
+ */
+export function cleanMeaningText(value?: string | null): string {
+  if (!value) return ''
+  return value
+    .trim()
+    .replace(/^(vn|vi|en|gb|jp|ja)\s*[:：\-–—]?\s*/i, '')
+    .trim()
+}
+
+/**
  * Strip all HTML tags and decode basic entities to get plain text.
  * Used to measure content length without counting HTML markup.
  */

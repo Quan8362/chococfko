@@ -16,7 +16,7 @@ const VALID_JLPT = ['N5', 'N4', 'N3', 'N2', 'N1']
 const VALID_CATEGORIES = ['vocabulary', 'kanji', 'grammar', 'reading', 'mixed']
 const VALID_DIFFICULTIES = ['easy', 'medium', 'hard']
 const VALID_POS = ['verb', 'noun', 'adjective', 'adverb', 'particle', 'conjunction', 'interjection']
-const MAX_FILE_BYTES = 5 * 1024 * 1024 // 5MB
+const MAX_FILE_BYTES = 20 * 1024 * 1024 // 20MB
 const PREVIEW_LIMIT = 20
 const CHUNK_SIZE = 100
 
@@ -78,7 +78,7 @@ function csvToObjects(text: string): Record<string, string>[] {
 
 function splitPipe(val: string | undefined): string[] | null {
   if (!val) return null
-  const arr = val.split('|').map(s => s.trim()).filter(Boolean)
+  const arr = val.split(/[|;,]/).map(s => s.trim()).filter(Boolean)
   return arr.length > 0 ? arr : null
 }
 
@@ -124,17 +124,24 @@ function validateWord(raw: Record<string, unknown>, i: number): RowResult {
   if (r.pos) {
     const arr = r.pos.startsWith('[')
       ? JSON.parse(r.pos)
-      : r.pos.split(/[|,]/).map((s: string) => s.trim()).filter(Boolean)
+      : r.pos.split(/[|,;]/).map((s: string) => s.trim()).filter(Boolean)
     const invalid = arr.filter((p: string) => !VALID_POS.includes(p))
     if (invalid.length > 0) errors.push(`Dòng ${rowNum}: pos không hợp lệ: ${invalid.join(', ')}`)
     pos = arr.filter((p: string) => VALID_POS.includes(p))
   }
 
-  // Parse examples
+  // Parse examples — JSON column first, then flat columns example_jp/reading/vi/en
   let examples: unknown = null
   if (r.examples_json || r.examples) {
     const raw = r.examples_json ?? r.examples
     try { examples = JSON.parse(raw) } catch { errors.push(`Dòng ${rowNum}: examples JSON không hợp lệ`) }
+  } else if (r.example_jp?.trim()) {
+    examples = [{
+      ja: r.example_jp.trim(),
+      reading: r.example_reading?.trim() || '',
+      vi: r.example_vi?.trim() || '',
+      en: r.example_en?.trim() || '',
+    }]
   }
 
   const data: ImportWordRow = {
@@ -147,6 +154,10 @@ function validateWord(raw: Record<string, unknown>, i: number): RowResult {
     examples,
     tags: splitPipe(r.tags),
     frequency: parseInt(r.frequency) || 0,
+    source: r.source?.trim() || null,
+    source_id: r.source_id?.trim() || null,
+    license: r.license?.trim() || null,
+    attribution: r.attribution?.trim() || null,
   }
 
   return { index: i, raw, data: errors.length === 0 ? data : undefined, errors }
@@ -283,10 +294,11 @@ const SAMPLES: Record<DataType, { json: object[]; csvHeaders: string; csvExample
       pos: ['verb'],
       meanings: [{ vi: 'ăn', en: 'to eat' }],
       examples: [{ ja: 'ご飯を食べる', reading: 'ごはんをたべる', vi: 'Ăn cơm', en: 'To eat rice' }],
-      tags: ['food'], frequency: 1000,
+      tags: ['food', 'daily'], frequency: 1000,
+      source: 'self', source_id: null, license: 'self-authored', attribution: null,
     }],
-    csvHeaders: 'word,reading,romaji,jlpt_level,pos,meaning_vi,meaning_en,tags,frequency',
-    csvExample: '食べる,たべる,taberu,N5,verb,ăn,to eat,food,1000',
+    csvHeaders: 'word,reading,romaji,jlpt_level,pos,meaning_vi,meaning_en,tags,frequency,source,license',
+    csvExample: '食べる,たべる,taberu,N5,verb,ăn,to eat,food|daily,1000,admin-import,self-authored',
   },
   kanji: {
     json: [{
@@ -396,7 +408,7 @@ export default function ImportClient() {
     if (!file) return
 
     if (file.size > MAX_FILE_BYTES) {
-      setFileError('File import quá lớn. Giới hạn tối đa 5MB.')
+      setFileError('File import quá lớn. Giới hạn tối đa 20MB.')
       return
     }
 
@@ -517,8 +529,8 @@ export default function ImportClient() {
           </button>
         </div>
         <p className="text-[11.5px] text-muted mt-2">
-          CSV: các trường nhiều giá trị (onyomi, tags, pos) dùng ký tự <code className="bg-cream px-1 rounded">|</code> làm phân cách.
-          JSON: dùng mảng JavaScript. Tối đa 5MB.
+          CSV: các trường nhiều giá trị (onyomi, tags, pos) dùng <code className="bg-cream px-1 rounded">|</code> hoặc <code className="bg-cream px-1 rounded">;</code> làm phân cách.
+          JSON: dùng mảng JavaScript. Tối đa 20MB.
         </p>
       </section>
 

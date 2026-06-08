@@ -144,19 +144,48 @@ function getInitial(name: string): string {
   return name ? name[0].toUpperCase() : '?'
 }
 
+function googleAvatarAt(url: string, size: number): string {
+  const stripped = url.replace(/=s\d+-c(\?.*)?$/, '').replace(/=s\d+(\?.*)?$/, '')
+  return `${stripped}=s${size}-c`
+}
+
+function upgradeAvatarUrl(url: string | null): string | null {
+  if (!url) return null
+  if (url.includes('lh3.googleusercontent.com') || url.includes('googleusercontent.com')) {
+    return googleAvatarAt(url, 64)
+  }
+  if (url.includes('fbcdn.net') || url.includes('facebook.com')) {
+    return url.replace(/[?&]width=\d+/, (m) => m.replace(/\d+/, '200'))
+      .replace(/[?&]height=\d+/, (m) => m.replace(/\d+/, '200'))
+  }
+  return url
+}
+
+// srcSet for DPR-accurate avatar rendering (no downscale = no softening)
+function avatarSrcSet(url: string | null): string | undefined {
+  if (!url) return undefined
+  if (url.includes('lh3.googleusercontent.com') || url.includes('googleusercontent.com')) {
+    return `${googleAvatarAt(url, 32)} 1x, ${googleAvatarAt(url, 64)} 2x, ${googleAvatarAt(url, 96)} 3x, ${googleAvatarAt(url, 128)} 4x`
+  }
+  return undefined
+}
+
 function buildReactionsMap(
   rows: { message_id: string; user_id: string; emoji: string }[],
   userId: string,
+  profileMap: Record<string, string> = {},
 ): ReactionsMap {
   const map: ReactionsMap = {}
   for (const row of rows) {
     if (!map[row.message_id]) map[row.message_id] = []
     const existing = map[row.message_id].find(r => r.emoji === row.emoji)
+    const name = profileMap[row.user_id] ?? null
     if (existing) {
       existing.count++
       if (row.user_id === userId) existing.hasMyReaction = true
+      if (name && !existing.users.includes(name)) existing.users.push(name)
     } else {
-      map[row.message_id].push({ emoji: row.emoji, count: 1, hasMyReaction: row.user_id === userId })
+      map[row.message_id].push({ emoji: row.emoji, count: 1, hasMyReaction: row.user_id === userId, users: name ? [name] : [] })
     }
   }
   return map
@@ -357,6 +386,7 @@ export default function ChatClient({
   const [copiedMsgId, setCopiedMsgId] = useState<string | null>(null)
   const [openMenuMsgId, setOpenMenuMsgId] = useState<string | null>(null)
   const [menuPos, setMenuPos] = useState<{ top: number; left: number } | null>(null)
+  const [reactionTooltipKey, setReactionTooltipKey] = useState<string | null>(null)
 
   // ── Refs ─────────────────────────────────────────────────────────────────────
   const bottomRef = useRef<HTMLDivElement>(null)
@@ -377,6 +407,8 @@ export default function ChatClient({
   const roomAvatarInputRef = useRef<HTMLInputElement>(null)
   const activeDmConvIdRef = useRef<string | null>(null)
   const dmScrollRef = useRef<HTMLDivElement>(null)
+  const profileCacheRef = useRef<Record<string, string>>({})
+  const reactionTooltipTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const dmScrollContainerRef = useRef<HTMLDivElement>(null)
   const lastHiddenAtRef = useRef<number | null>(null)
 
@@ -394,6 +426,13 @@ export default function ChatClient({
     if (smooth) el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' })
     else el.scrollTop = el.scrollHeight
   }, [])
+
+  // ── Profile cache: populate display names from loaded messages ───────────────
+  useEffect(() => {
+    for (const m of messages) {
+      if (m.user_id) profileCacheRef.current[m.user_id] = m.display_name
+    }
+  }, [messages])
 
   // ── Lifecycle ────────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -730,10 +769,15 @@ export default function ChatClient({
       const { data: reactionsData } = await supabase
         .from('community_chat_reactions').select('message_id, user_id, emoji')
         .in('message_id', messageIds)
-      newReactions = buildReactionsMap(
-        (reactionsData ?? []) as { message_id: string; user_id: string; emoji: string }[],
-        userId,
-      )
+      const reactionRows = (reactionsData ?? []) as { message_id: string; user_id: string; emoji: string }[]
+      const reactorIds = Array.from(new Set(reactionRows.map(r => r.user_id))).filter(id => !profileCacheRef.current[id])
+      if (reactorIds.length > 0) {
+        const { data: rProfiles } = await supabase.from('profiles').select('id, display_name').in('id', reactorIds)
+        for (const p of (rProfiles ?? []) as { id: string; display_name: string }[]) {
+          profileCacheRef.current[p.id] = p.display_name
+        }
+      }
+      newReactions = buildReactionsMap(reactionRows, userId, profileCacheRef.current)
     }
     if (!mountedRef.current) return
     setMessages(msgs)
@@ -811,10 +855,15 @@ export default function ChatClient({
     const { data: reactionsData } = await supabase
       .from('community_chat_reactions').select('message_id, user_id, emoji')
       .in('message_id', olderIds)
-    const olderReactions = buildReactionsMap(
-      (reactionsData ?? []) as { message_id: string; user_id: string; emoji: string }[],
-      userId,
-    )
+    const reactionRows = (reactionsData ?? []) as { message_id: string; user_id: string; emoji: string }[]
+    const reactorIds = Array.from(new Set(reactionRows.map(r => r.user_id))).filter(id => !profileCacheRef.current[id])
+    if (reactorIds.length > 0) {
+      const { data: rProfiles } = await supabase.from('profiles').select('id, display_name').in('id', reactorIds)
+      for (const p of (rProfiles ?? []) as { id: string; display_name: string }[]) {
+        profileCacheRef.current[p.id] = p.display_name
+      }
+    }
+    const olderReactions = buildReactionsMap(reactionRows, userId, profileCacheRef.current)
     setMessages(prev => [...older, ...prev])
     setReactions(prev => ({ ...olderReactions, ...prev }))
     setHasMore(data.length === PAGE_SIZE)
@@ -890,6 +939,10 @@ export default function ChatClient({
     if (!currentRoomId) return
     const supabase = createClient()
     let mounted = true
+    // After the first SUBSCRIBED, any subsequent SUBSCRIBED = reconnection after a drop.
+    // On reconnect, fetch the last few messages to fill the gap.
+    let everSubscribed = false
+
     const channel = supabase
       .channel(`community-chat-room-${currentRoomId}`)
       .on('postgres_changes', {
@@ -897,6 +950,7 @@ export default function ChatClient({
         filter: `room_id=eq.${currentRoomId}`,
       }, async (payload) => {
         if (!mounted) return
+        console.log('[ChatRT] INSERT room:', currentRoomId, 'id:', (payload.new as ChatMessage).id)
         let msg = payload.new as ChatMessage
         if (msg.is_deleted) return
         if (msg.has_attachment) {
@@ -904,12 +958,13 @@ export default function ChatClient({
           if (!mounted) return
           const { data: att } = await supabase
             .from('community_chat_attachments')
-            .select('id, storage_path, mime_type, file_size, file_name')
+            .select('id, storage_bucket, storage_path, mime_type, file_size, file_name')
             .eq('message_id', msg.id).maybeSingle()
           if (att) msg = { ...msg, attachments: [att as ChatAttachment] }
         }
         setMessages(prev => {
           if (prev.some(m => m.id === msg.id)) return prev
+          console.log('[ChatRT] Appended msg', msg.id, 'room:', msg.room_id)
           return [...prev, msg]
         })
         if (msg.has_poll) loadPollsForMessages([msg.id])
@@ -939,9 +994,36 @@ export default function ChatClient({
           }
         }
       })
-      .subscribe()
+      .subscribe(async (status) => {
+        console.log(`[ChatRT] Status: ${status} | room: ${currentRoomId}`)
+        if (status === 'SUBSCRIBED') {
+          if (everSubscribed && mounted) {
+            // Reconnected after a WebSocket drop — catch up on missed messages
+            console.log('[ChatRT] Reconnected — fetching missed messages for room', currentRoomId)
+            const { data } = await supabase
+              .from('community_chat_messages')
+              .select(MSG_SELECT)
+              .eq('room_id', currentRoomId)
+              .eq('is_deleted', false)
+              .order('created_at', { ascending: false })
+              .limit(10)
+            if (!mounted || !data) return
+            const recent = (data as ChatMessage[]).reverse()
+            setMessages(prev => {
+              const existingIds = new Set(prev.map(m => m.id))
+              const fresh = recent.filter(m => !existingIds.has(m.id))
+              if (fresh.length === 0) return prev
+              console.log('[ChatRT] Caught up', fresh.length, 'missed message(s)')
+              return [...prev, ...fresh].sort((a, b) => a.created_at < b.created_at ? -1 : 1)
+            })
+          }
+          everSubscribed = true
+        } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+          console.error('[ChatRT] Channel error/timeout for room:', currentRoomId, status)
+        }
+      })
     return () => { mounted = false; supabase.removeChannel(channel) }
-  }, [currentRoomId])
+  }, [currentRoomId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Realtime: reactions ────────────────────────────────────────────────────
   useEffect(() => {
@@ -954,11 +1036,17 @@ export default function ChatClient({
           if (!mounted) return
           const r = payload.new as { message_id: string; user_id: string; emoji: string }
           if (r.user_id === userId) return
+          const rName = profileCacheRef.current[r.user_id] ?? null
           setReactions(prev => {
             const msgR = [...(prev[r.message_id] ?? [])]
             const idx = msgR.findIndex(x => x.emoji === r.emoji)
-            if (idx >= 0) msgR[idx] = { ...msgR[idx], count: msgR[idx].count + 1 }
-            else msgR.push({ emoji: r.emoji, count: 1, hasMyReaction: false })
+            if (idx >= 0) {
+              const updated = { ...msgR[idx], count: msgR[idx].count + 1 }
+              if (rName && !updated.users.includes(rName)) updated.users = [...updated.users, rName]
+              msgR[idx] = updated
+            } else {
+              msgR.push({ emoji: r.emoji, count: 1, hasMyReaction: false, users: rName ? [rName] : [] })
+            }
             return { ...prev, [r.message_id]: msgR }
           })
         })
@@ -967,13 +1055,19 @@ export default function ChatClient({
           if (!mounted) return
           const r = payload.old as { message_id: string; user_id: string; emoji: string }
           if (r.user_id === userId) return
+          const dName = profileCacheRef.current[r.user_id] ?? null
           setReactions(prev => {
             const msgR = [...(prev[r.message_id] ?? [])]
             const idx = msgR.findIndex(x => x.emoji === r.emoji)
             if (idx >= 0) {
               const newCount = msgR[idx].count - 1
-              if (newCount <= 0) msgR.splice(idx, 1)
-              else msgR[idx] = { ...msgR[idx], count: newCount }
+              if (newCount <= 0) {
+                msgR.splice(idx, 1)
+              } else {
+                const updated = { ...msgR[idx], count: newCount }
+                if (dName) updated.users = updated.users.filter(u => u !== dName)
+                msgR[idx] = updated
+              }
             }
             return { ...prev, [r.message_id]: msgR }
           })
@@ -1482,13 +1576,16 @@ export default function ChatClient({
         const r = msgR[idx]
         if (r.hasMyReaction) {
           const newCount = r.count - 1
-          if (newCount <= 0) msgR.splice(idx, 1)
-          else msgR[idx] = { ...r, count: newCount, hasMyReaction: false }
+          if (newCount <= 0) {
+            msgR.splice(idx, 1)
+          } else {
+            msgR[idx] = { ...r, count: newCount, hasMyReaction: false, users: r.users.filter(u => u !== displayName) }
+          }
         } else {
-          msgR[idx] = { ...r, count: r.count + 1, hasMyReaction: true }
+          msgR[idx] = { ...r, count: r.count + 1, hasMyReaction: true, users: r.users.includes(displayName) ? r.users : [...r.users, displayName] }
         }
       } else {
-        msgR.push({ emoji, count: 1, hasMyReaction: true })
+        msgR.push({ emoji, count: 1, hasMyReaction: true, users: [displayName] })
       }
       return { ...prev, [messageId]: msgR }
     })
@@ -2023,7 +2120,7 @@ export default function ChatClient({
                     <div className="w-7 h-7 rounded-full overflow-hidden bg-rose/10 flex items-center justify-center text-[12px] font-bold text-rose shrink-0 relative">
                       {conv.other_avatar_url
                         // eslint-disable-next-line @next/next/no-img-element
-                        ? <img src={conv.other_avatar_url} alt="" className="w-full h-full object-cover" />
+                        ? <img src={upgradeAvatarUrl(conv.other_avatar_url)!} alt="" className="block w-full h-full object-cover" />
                         : getInitial(conv.other_display_name)}
                       {unreadDmIds.has(conv.id) && (
                         <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-rose rounded-full border-2 border-paper" />
@@ -2246,7 +2343,7 @@ export default function ChatClient({
                         <div className="flex-none w-5 h-5 rounded-full overflow-hidden bg-rose/10 flex items-center justify-center text-[9px] font-bold text-rose shrink-0 mt-0.5">
                           {msg.avatar_url
                             // eslint-disable-next-line @next/next/no-img-element
-                            ? <img src={msg.avatar_url} alt="" className="w-full h-full object-cover" />
+                            ? <img src={upgradeAvatarUrl(msg.avatar_url)!} alt="" className="block w-full h-full object-cover" />
                             : getInitial(msg.display_name)}
                         </div>
                         <div className="flex-1 min-w-0">
@@ -2322,11 +2419,11 @@ export default function ChatClient({
                     return (
                       <div key={msg.id} className={`flex gap-2 items-end ${isMe ? 'flex-row-reverse' : 'flex-row'}`}>
                         {!isMe && (
-                          <div className="w-7 h-7 rounded-full overflow-hidden bg-rose/10 flex items-center justify-center text-[11px] font-bold text-rose shrink-0">
+                          <div className="flex-none shrink-0" style={{ width: '32px', height: '32px' }}>
                             {msg.avatar_url
                               // eslint-disable-next-line @next/next/no-img-element
-                              ? <img src={msg.avatar_url} alt="" className="w-full h-full object-cover" />
-                              : getInitial(msg.display_name)}
+                              ? <img src={upgradeAvatarUrl(msg.avatar_url)!} srcSet={avatarSrcSet(msg.avatar_url) ?? undefined} alt="" className="rounded-full object-cover block" style={{ width: '32px', height: '32px' }} />
+                              : <div className="rounded-full bg-rose/10 flex items-center justify-center text-[12px] font-bold text-rose" style={{ width: '32px', height: '32px' }}>{getInitial(msg.display_name)}</div>}
                           </div>
                         )}
                         <div className={`max-w-[70%] flex flex-col gap-0.5 ${isMe ? 'items-end' : 'items-start'}`}>
@@ -2404,15 +2501,21 @@ export default function ChatClient({
                       } ${isMe ? 'flex-row-reverse' : 'flex-row'}`}
                     >
                       {/* Avatar */}
-                      <div className="relative flex-none w-7 h-7 shrink-0">
-                        <div className="w-7 h-7 rounded-full overflow-hidden bg-rose/10 flex items-center justify-center text-[12px] font-bold text-rose">
-                          {msg.avatar_url ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={msg.avatar_url} alt={msg.display_name} className="w-full h-full object-cover" />
-                          ) : (
-                            getInitial(msg.display_name)
-                          )}
-                        </div>
+                      <div className="relative flex-none shrink-0" style={{ width: '32px', height: '32px' }}>
+                        {msg.avatar_url ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={upgradeAvatarUrl(msg.avatar_url)!}
+                            srcSet={avatarSrcSet(msg.avatar_url) ?? undefined}
+                            alt={msg.display_name}
+                            className="rounded-full object-cover block"
+                            style={{ width: '32px', height: '32px' }}
+                          />
+                        ) : (
+                          <div className="rounded-full bg-rose/10 flex items-center justify-center text-[13px] font-bold text-rose" style={{ width: '32px', height: '32px' }}>
+                            {getInitial(msg.display_name)}
+                          </div>
+                        )}
                         {msg.user_id && onlineUserIds.has(msg.user_id) && (
                           <span
                             className="absolute bottom-0 right-0 w-2 h-2 rounded-full bg-emerald-400 border border-paper"
@@ -2682,20 +2785,39 @@ export default function ChatClient({
                         {/* Reactions */}
                         {msgReactions.length > 0 && (
                           <div className={`flex flex-wrap gap-1 px-1 ${isMe ? 'justify-end' : 'justify-start'}`}>
-                            {msgReactions.map(r => (
-                              <button
-                                key={r.emoji}
-                                onClick={(e) => { e.stopPropagation(); handleReact(msg.id, r.emoji) }}
-                                className={`flex items-center gap-0.5 text-[13px] px-1.5 py-0.5 rounded-full border transition-all ${
-                                  r.hasMyReaction
-                                    ? 'bg-rose/10 border-rose/30 text-rose font-semibold'
-                                    : 'bg-cream border-line text-ink hover:border-rose/20'
-                                }`}
-                              >
-                                <span>{r.emoji}</span>
-                                <span className="text-[11px] tabular-nums">{r.count}</span>
-                              </button>
-                            ))}
+                            {msgReactions.map(r => {
+                              const tooltipKey = `${msg.id}||${r.emoji}`
+                              const showTooltip = reactionTooltipKey === tooltipKey && r.users.length > 0
+                              return (
+                                <div key={r.emoji} className="relative">
+                                  <button
+                                    onClick={(e) => { e.stopPropagation(); handleReact(msg.id, r.emoji) }}
+                                    onMouseEnter={() => r.users.length > 0 && setReactionTooltipKey(tooltipKey)}
+                                    onMouseLeave={() => setReactionTooltipKey(null)}
+                                    onTouchStart={() => {
+                                      if (r.users.length === 0) return
+                                      if (reactionTooltipTimerRef.current) clearTimeout(reactionTooltipTimerRef.current)
+                                      setReactionTooltipKey(tooltipKey)
+                                      reactionTooltipTimerRef.current = setTimeout(() => setReactionTooltipKey(null), 2500)
+                                    }}
+                                    className={`flex items-center gap-0.5 text-[13px] px-1.5 py-0.5 rounded-full border transition-all ${
+                                      r.hasMyReaction
+                                        ? 'bg-rose/10 border-rose/30 text-rose font-semibold'
+                                        : 'bg-cream border-line text-ink hover:border-rose/20'
+                                    }`}
+                                  >
+                                    <span>{r.emoji}</span>
+                                    <span className="text-[11px] tabular-nums">{r.count}</span>
+                                  </button>
+                                  {showTooltip && (
+                                    <div className={`pointer-events-none absolute z-50 bottom-full mb-1.5 bg-ink/90 text-white text-[11px] leading-none rounded-lg px-2.5 py-1.5 shadow-lg whitespace-nowrap w-max max-w-[260px] overflow-hidden text-ellipsis ${isMe ? 'right-0' : 'left-0'}`}>
+                                      {r.users.slice(0, 5).join(', ')}
+                                      {r.users.length > 5 && ` và ${r.users.length - 5} người khác`}
+                                    </div>
+                                  )}
+                                </div>
+                              )
+                            })}
                           </div>
                         )}
 

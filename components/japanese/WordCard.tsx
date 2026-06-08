@@ -1,4 +1,5 @@
 import JlptBadge from './JlptBadge'
+import { cleanMeaningText } from '@/lib/sanitize'
 
 export type JapaneseWord = {
   id: string
@@ -11,6 +12,13 @@ export type JapaneseWord = {
   examples: { ja: string; reading: string; vi: string; en: string }[] | null
   tags: string[] | null
   frequency: number
+  // Image illustration fields (optional — only selected on detail page)
+  image_url?: string | null
+  image_alt?: string | null
+  image_source?: string | null
+  image_credit_url?: string | null
+  image_status?: string | null
+  image_fetched_at?: string | null
 }
 
 interface WordCardProps {
@@ -25,6 +33,14 @@ const POS_LABEL: Record<string, string> = {
   noun: 'N.',
   adjective: 'Adj.',
   adverb: 'Adv.',
+}
+
+const NO_VI_MEANING: Record<string, string> = {
+  vi: 'Chưa có nghĩa tiếng Việt',
+  en: 'Vietnamese meaning not available',
+  ja: 'ベトナム語訳なし',
+  ko: '베트남어 번역 없음',
+  zh: '暂无越南语释义',
 }
 
 export default function WordCard({ word, locale = 'vi', actionSlot, footerSlot }: WordCardProps) {
@@ -70,20 +86,33 @@ export default function WordCard({ word, locale = 'vi', actionSlot, footerSlot }
         <div className="mt-2 space-y-0.5">
           {locale === 'en' ? (
             <>
-              {firstMeaning.en && (
-                <p className="text-[14px] text-ink font-medium leading-snug">🇬🇧 {firstMeaning.en}</p>
+              {(firstMeaning.en || firstMeaning.vi) && (
+                <p className="text-[14px] text-ink font-medium leading-snug">
+                  {cleanMeaningText(firstMeaning.en || firstMeaning.vi)}
+                </p>
               )}
-              {firstMeaning.vi && (
-                <p className="text-[12.5px] text-muted leading-snug">🇻🇳 {firstMeaning.vi}</p>
+              {firstMeaning.en && firstMeaning.vi && (
+                <p className="text-[12.5px] text-muted leading-snug">{cleanMeaningText(firstMeaning.vi)}</p>
               )}
             </>
           ) : (
             <>
-              {firstMeaning.vi && (
-                <p className="text-[14px] text-ink font-medium leading-snug">🇻🇳 {firstMeaning.vi}</p>
-              )}
-              {firstMeaning.en && (
-                <p className="text-[12.5px] text-muted leading-snug">🇬🇧 {firstMeaning.en}</p>
+              {firstMeaning.vi ? (
+                <>
+                  <p className="text-[14px] text-ink font-medium leading-snug">{cleanMeaningText(firstMeaning.vi)}</p>
+                  {firstMeaning.en && (
+                    <p className="text-[12.5px] text-muted leading-snug">{cleanMeaningText(firstMeaning.en)}</p>
+                  )}
+                </>
+              ) : (
+                <>
+                  {firstMeaning.en && (
+                    <p className="text-[14px] text-ink font-medium leading-snug">{cleanMeaningText(firstMeaning.en)}</p>
+                  )}
+                  <span className="inline-flex items-center text-[10.5px] text-amber-600 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full mt-0.5">
+                    {NO_VI_MEANING[locale] ?? NO_VI_MEANING['vi']}
+                  </span>
+                </>
               )}
             </>
           )}
@@ -101,11 +130,15 @@ export default function WordCard({ word, locale = 'vi', actionSlot, footerSlot }
               {firstExample.reading}
             </p>
           )}
-          {locale === 'vi' && firstExample.vi && (
-            <p className="text-[12px] text-muted/80 mt-0.5 italic">{firstExample.vi}</p>
-          )}
-          {locale === 'en' && firstExample.en && (
-            <p className="text-[12px] text-muted/80 mt-0.5 italic">{firstExample.en}</p>
+          {(locale === 'en'
+            ? (firstExample.en || firstExample.vi)
+            : (firstExample.vi || firstExample.en)
+          ) && (
+            <p className="text-[12px] text-muted/80 mt-0.5 italic">
+              {locale === 'en'
+                ? (firstExample.en || firstExample.vi)
+                : (firstExample.vi || firstExample.en)}
+            </p>
           )}
         </div>
       )}

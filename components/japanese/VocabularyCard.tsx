@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import JlptBadge from './JlptBadge'
 import type { JapaneseWord } from './WordCard'
+import { cleanMeaningText } from '@/lib/sanitize'
 
 export type ProgressStatus = 'learning' | 'review' | 'mastered'
 
@@ -102,10 +103,10 @@ export default function VocabularyCard({
       {firstMeaning && (
         <div className="mb-3 space-y-0.5">
           {firstMeaning.vi && (
-            <p className="text-[14px] text-ink font-medium">🇻🇳 {firstMeaning.vi}</p>
+            <p className="text-[14px] text-ink font-medium">{cleanMeaningText(firstMeaning.vi)}</p>
           )}
           {firstMeaning.en && (
-            <p className="text-[12.5px] text-muted">🇬🇧 {firstMeaning.en}</p>
+            <p className="text-[12.5px] text-muted">{cleanMeaningText(firstMeaning.en)}</p>
           )}
         </div>
       )}

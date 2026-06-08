@@ -1,0 +1,235 @@
+word,reading,romaji,jlpt_level,pos,meaning_vi,meaning_en,tags,frequency,source,license,example_jp,example_reading,example_vi,example_en
+こんにちは,こんにちは,konnichiwa,N5,interjection,xin chào,hello,greeting|daily,980,self,self-authored,こんにちは！,こんにちは！,Xin chào!,Hello!
+おはようございます,おはようございます,ohayou gozaimasu,N5,interjection,chào buổi sáng (trang trọng),good morning (formal),greeting|morning,970,self,self-authored,おはようございます。,おはようございます。,Chào buổi sáng ạ.,Good morning.
+おはよう,おはよう,ohayou,N5,interjection,chào buổi sáng (thân mật),good morning (casual),greeting|morning,965,self,self-authored,おはよう！,おはよう！,Chào buổi sáng!,Good morning!
+こんばんは,こんばんは,konbanwa,N5,interjection,chào buổi tối,good evening,greeting|evening,950,self,self-authored,こんばんは。,こんばんは。,Chào buổi tối.,Good evening.
+さようなら,さようなら,sayounara,N5,interjection,tạm biệt,goodbye,greeting|farewell,940,self,self-authored,さようなら。,さようなら。,Tạm biệt.,Goodbye.
+ありがとうございます,ありがとうございます,arigatou gozaimasu,N5,interjection,cảm ơn (trang trọng),thank you (formal),greeting|polite,930,self,self-authored,ありがとうございます。,ありがとうございます。,Cảm ơn ạ.,Thank you very much.
+ありがとう,ありがとう,arigatou,N5,interjection,cảm ơn,thank you,greeting|daily,920,self,self-authored,ありがとう！,ありがとう！,Cảm ơn!,Thank you!
+すみません,すみません,sumimasen,N5,interjection,xin lỗi; xin phép hỏi,excuse me; I'm sorry,greeting|daily,910,self,self-authored,すみません。,すみません。,Xin lỗi.,Excuse me.
+ごめんなさい,ごめんなさい,gomen nasai,N5,interjection,xin lỗi (thành thật),I'm sorry (sincere),greeting|apology,905,self,self-authored,ごめんなさい。,ごめんなさい。,Xin lỗi nhé.,I'm sorry.
+はい,はい,hai,N5,interjection,vâng; đúng; có,yes; understood,daily|response,900,self,self-authored,はい、わかりました。,はい、わかりました。,Vâng tôi hiểu rồi.,Yes I understand.
+いいえ,いいえ,iie,N5,interjection,không (phủ định),no,daily|response,895,self,self-authored,いいえ、ちがいます。,いいえ、ちがいます。,Không không phải vậy.,No that is wrong.
+どうぞ,どうぞ,douzo,N5,interjection,xin mời; mời dùng,please; go ahead,daily|polite,885,self,self-authored,どうぞ。,どうぞ。,Xin mời.,Please go ahead.
+どういたしまして,どういたしまして,dou itashimashite,N5,interjection,không có chi; không dám,you're welcome,greeting|polite,875,self,self-authored,どういたしまして。,どういたしまして。,Không có chi.,You're welcome.
+いただきます,いただきます,itadakimasu,N5,interjection,lời mời trước bữa ăn,let's eat; I will receive,meal|daily,865,self,self-authored,いただきます！,いただきます！,Mời cơm!,Let's eat!
+ごちそうさまでした,ごちそうさまでした,gochisousama deshita,N5,interjection,cảm ơn bữa ăn,thank you for the meal,meal|daily,855,self,self-authored,ごちそうさまでした。,ごちそうさまでした。,Cảm ơn bữa ăn.,Thank you for the meal.
+わたし,わたし,watashi,N5,noun,tôi,I; me,pronoun|daily,850,self,self-authored,わたしは学生です。,わたしはがくせいです。,Tôi là sinh viên.,I am a student.
+わたしたち,わたしたち,watashitachi,N5,noun,chúng tôi,we; us,pronoun|daily,840,self,self-authored,わたしたちは日本語を勉強します。,わたしたちはにほんごをべんきょうします。,Chúng tôi học tiếng Nhật.,We study Japanese.
+あなた,あなた,anata,N5,noun,bạn; anh/chị,you,pronoun|daily,835,self,self-authored,あなたの名前は何ですか。,あなたのなまえはなんですか。,Bạn tên là gì?,What is your name?
+かれ,かれ,kare,N5,noun,anh ấy; chàng trai,he; him,pronoun|daily,825,self,self-authored,かれは学生です。,かれはがくせいです。,Anh ấy là sinh viên.,He is a student.
+かのじょ,かのじょ,kanojo,N5,noun,cô ấy; chị ấy,she; her,pronoun|daily,820,self,self-authored,かのじょは先生です。,かのじょはせんせいです。,Cô ấy là giáo viên.,She is a teacher.
+みんな,みんな,minna,N5,noun,mọi người; tất cả,everyone; all,daily|group,815,self,self-authored,みんなで食べましょう。,みんなでたべましょう。,Cùng nhau ăn nào.,Let's all eat together.
+だれ,だれ,dare,N5,noun,ai,who,question,810,self,self-authored,あの人はだれですか。,あのひとはだれですか。,Người kia là ai?,Who is that person?
+こちら,こちら,kochira,N5,noun,đây; hướng này; người này (lịch sự),this way; this person (polite),direction|polite,800,self,self-authored,こちらはやまださんです。,こちらはやまださんです。,Đây là anh Yamada.,This is Mr. Yamada.
+そちら,そちら,sochira,N5,noun,đó; hướng đó (lịch sự),that way; that person (polite),direction|polite,795,self,self-authored,そちらはどうですか。,そちらはどうですか。,Phía đó thế nào?,How is it there?
+あちら,あちら,achira,N5,noun,kia; hướng kia (lịch sự),over there; that person (polite),direction|polite,790,self,self-authored,お手洗いはあちらです。,おてあらいはあちらです。,Nhà vệ sinh ở phía kia.,The restroom is over there.
+お父さん,おとうさん,otousan,N5,noun,bố; cha (của người khác),father (someone else's),family,785,self,self-authored,お父さんはどこですか。,おとうさんはどこですか。,Bố bạn ở đâu?,Where is your father?
+お母さん,おかあさん,okaasan,N5,noun,mẹ (của người khác),mother (someone else's),family,780,self,self-authored,お母さんが呼んでいます。,おかあさんがよんでいます。,Mẹ bạn đang gọi đó.,Your mother is calling.
+父,ちち,chichi,N5,noun,bố tôi; cha tôi,my father,family,775,self,self-authored,父は会社員です。,ちちはかいしゃいんです。,Bố tôi là nhân viên công ty.,My father is a company employee.
+母,はは,haha,N5,noun,mẹ tôi,my mother,family,770,self,self-authored,母は料理が上手です。,はははりょうりがじょうずです。,Mẹ tôi nấu ăn giỏi.,My mother is good at cooking.
+お兄さん,おにいさん,oniisan,N5,noun,anh trai (của người khác),older brother (someone else's),family,765,self,self-authored,お兄さんは何歳ですか。,おにいさんはなんさいですか。,Anh trai bạn bao nhiêu tuổi?,How old is your older brother?
+お姉さん,おねえさん,oneesan,N5,noun,chị gái (của người khác),older sister (someone else's),family,760,self,self-authored,お姉さんはきれいですね。,おねえさんはきれいですね。,Chị gái bạn đẹp nhỉ.,Your older sister is pretty.
+弟,おとうと,otouto,N5,noun,em trai,younger brother,family,755,self,self-authored,弟は小学生です。,おとうとはしょうがくせいです。,Em trai tôi học tiểu học.,My younger brother is in elementary school.
+妹,いもうと,imouto,N5,noun,em gái,younger sister,family,750,self,self-authored,妹はかわいいです。,いもうとはかわいいです。,Em gái tôi dễ thương.,My younger sister is cute.
+家族,かぞく,kazoku,N5,noun,gia đình,family,family,745,self,self-authored,私の家族は四人です。,わたしのかぞくはよにんです。,Gia đình tôi có bốn người.,My family has four people.
+子供,こども,kodomo,N5,noun,trẻ em; con cái,child; children,family|daily,740,self,self-authored,子供たちが公園で遊んでいます。,こどもたちがこうえんであそんでいます。,Bọn trẻ đang chơi ở công viên.,The children are playing in the park.
+名前,なまえ,namae,N5,noun,tên; tên gọi,name,daily,735,self,self-authored,名前を書いてください。,なまえをかいてください。,Hãy viết tên của bạn.,Please write your name.
+人,ひと,hito,N5,noun,người; con người,person; people,daily,730,self,self-authored,あの人は先生ですか。,あのひとはせんせいですか。,Người kia có phải giáo viên không?,Is that person a teacher?
+今日,きょう,kyou,N5,noun,hôm nay,today,time|daily,725,self,self-authored,今日はいい天気ですね。,きょうはいいてんきですね。,Hôm nay thời tiết đẹp nhỉ.,The weather is nice today isn't it.
+昨日,きのう,kinou,N5,noun,hôm qua,yesterday,time|daily,720,self,self-authored,昨日は疲れました。,きのうはつかれました。,Hôm qua tôi mệt.,I was tired yesterday.
+明日,あした,ashita,N5,noun,ngày mai,tomorrow,time|daily,715,self,self-authored,明日また来てください。,あしたまたきてください。,Ngày mai hãy đến lại.,Please come again tomorrow.
+明後日,あさって,asatte,N5,noun,ngày kia,the day after tomorrow,time,710,self,self-authored,明後日は休みです。,あさってはやすみです。,Ngày kia tôi nghỉ.,The day after tomorrow is my day off.
+今,いま,ima,N5,noun,bây giờ; lúc này,now; right now,time|daily,705,self,self-authored,今何時ですか。,いまなんじですか。,Bây giờ là mấy giờ?,What time is it now?
+朝,あさ,asa,N5,noun,buổi sáng,morning,time|daily,700,self,self-authored,朝ごはんを食べましたか。,あさごはんをたべましたか。,Bạn đã ăn sáng chưa?,Did you eat breakfast?
+昼,ひる,hiru,N5,noun,buổi trưa; giữa trưa,noon; midday,time|daily,695,self,self-authored,昼ご飯はどこで食べますか。,ひるごはんはどこでたべますか。,Bạn ăn trưa ở đâu?,Where do you eat lunch?
+夜,よる,yoru,N5,noun,buổi tối; đêm,evening; night,time|daily,690,self,self-authored,夜は早く寝ます。,よるははやくねます。,Buổi tối tôi đi ngủ sớm.,I go to bed early at night.
+今年,ことし,kotoshi,N5,noun,năm nay,this year,time,685,self,self-authored,今年は忙しいです。,ことしはいそがしいです。,Năm nay tôi bận.,This year I am busy.
+来年,らいねん,rainen,N5,noun,năm sau,next year,time,680,self,self-authored,来年日本に行きます。,らいねんにほんにいきます。,Năm sau tôi đi Nhật.,I will go to Japan next year.
+去年,きょねん,kyonen,N5,noun,năm ngoái,last year,time,675,self,self-authored,去年日本語を始めました。,きょねんにほんごをはじめました。,Năm ngoái tôi bắt đầu học tiếng Nhật.,I started Japanese last year.
+来週,らいしゅう,raishuu,N5,noun,tuần sau,next week,time,670,self,self-authored,来週テストがあります。,らいしゅうてすとがあります。,Tuần sau có bài kiểm tra.,There is a test next week.
+先週,せんしゅう,senshuu,N5,noun,tuần trước,last week,time,665,self,self-authored,先週映画を見ました。,せんしゅうえいがをみました。,Tuần trước tôi xem phim.,I watched a movie last week.
+今週,こんしゅう,konshuu,N5,noun,tuần này,this week,time,660,self,self-authored,今週は忙しいです。,こんしゅうはいそがしいです。,Tuần này tôi bận.,I am busy this week.
+来月,らいげつ,raigetsu,N5,noun,tháng sau,next month,time,655,self,self-authored,来月旅行に行きます。,らいげつりょこうにいきます。,Tháng sau tôi đi du lịch.,I will travel next month.
+先月,せんげつ,sengetsu,N5,noun,tháng trước,last month,time,650,self,self-authored,先月日本に来ました。,せんげつにほんにきました。,Tháng trước tôi đến Nhật.,I came to Japan last month.
+毎日,まいにち,mainichi,N5,adverb,mỗi ngày; hàng ngày,every day,time|daily,645,self,self-authored,毎日日本語を練習します。,まいにちにほんごをれんしゅうします。,Tôi luyện tập tiếng Nhật mỗi ngày.,I practice Japanese every day.
+毎朝,まいあさ,maiasa,N5,adverb,mỗi buổi sáng; hàng sáng,every morning,time|daily,640,self,self-authored,毎朝コーヒーを飲みます。,まいあさこーひーをのみます。,Mỗi sáng tôi uống cà phê.,I drink coffee every morning.
+毎晩,まいばん,maiban,N5,adverb,mỗi buổi tối; hàng tối,every evening,time|daily,635,self,self-authored,毎晩本を読みます。,まいばんほんをよみます。,Mỗi tối tôi đọc sách.,I read a book every evening.
+時間,じかん,jikan,N5,noun,thời gian; giờ,time; hour,time|daily,630,self,self-authored,時間がありません。,じかんがありません。,Tôi không có thời gian.,I don't have time.
+先生,せんせい,sensei,N5,noun,thầy giáo; giáo viên,teacher,school|person,625,self,self-authored,先生に質問します。,せんせいにしつもんします。,Tôi hỏi thầy giáo.,I ask the teacher a question.
+学生,がくせい,gakusei,N5,noun,học sinh; sinh viên,student,school|person,620,self,self-authored,学生が多いです。,がくせいがおおいです。,Có nhiều học sinh.,There are many students.
+教室,きょうしつ,kyoushitsu,N5,noun,phòng học; lớp học,classroom,school|place,615,self,self-authored,教室に入ってください。,きょうしつにはいってください。,Hãy vào phòng học.,Please enter the classroom.
+本,ほん,hon,N5,noun,sách; quyển sách,book,school|daily,610,self,self-authored,本を読みます。,ほんをよみます。,Tôi đọc sách.,I read a book.
+ノート,ノート,nooto,N5,noun,vở; tập ghi chép,notebook,school|stationery,605,self,self-authored,ノートに書いてください。,ノートにかいてください。,Hãy viết vào vở.,Please write in your notebook.
+えんぴつ,えんぴつ,enpitsu,N5,noun,bút chì,pencil,school|stationery,600,self,self-authored,えんぴつで書きます。,えんぴつでかきます。,Tôi viết bằng bút chì.,I write with a pencil.
+ペン,ペン,pen,N5,noun,bút (mực),pen,school|stationery,595,self,self-authored,ペンを貸してください。,ペンをかしてください。,Cho tôi mượn bút.,Please lend me your pen.
+かばん,かばん,kaban,N5,noun,túi xách; cặp,bag,school|daily,590,self,self-authored,かばんの中に本があります。,かばんのなかにほんがあります。,Trong cặp có sách.,There is a book in the bag.
+日本語,にほんご,nihongo,N5,noun,tiếng Nhật,Japanese language,school|language,585,self,self-authored,日本語が好きです。,にほんごがすきです。,Tôi thích tiếng Nhật.,I like Japanese.
+英語,えいご,eigo,N5,noun,tiếng Anh,English language,school|language,580,self,self-authored,英語を話せますか。,えいごをはなせますか。,Bạn có nói được tiếng Anh không?,Can you speak English?
+テスト,テスト,tesuto,N5,noun,bài kiểm tra; thi,test; exam,school,575,self,self-authored,明日テストがあります。,あしたてすとがあります。,Ngày mai có bài kiểm tra.,There is a test tomorrow.
+クラス,クラス,kurasu,N5,noun,lớp học; lớp,class,school,570,self,self-authored,クラスに何人いますか。,クラスにはなんにんいますか。,Trong lớp có bao nhiêu người?,How many people are in the class?
+ご飯,ごはん,gohan,N5,noun,cơm; bữa ăn,rice; meal,food|daily,565,self,self-authored,ご飯を食べましょう。,ごはんをたべましょう。,Hãy ăn cơm nào.,Let's eat rice.
+パン,パン,pan,N5,noun,bánh mì,bread,food|daily,560,self,self-authored,朝はパンを食べます。,あさはパンをたべます。,Buổi sáng tôi ăn bánh mì.,I eat bread in the morning.
+卵,たまご,tamago,N5,noun,trứng,egg,food,555,self,self-authored,卵を二つ買いました。,たまごをふたつかいました。,Tôi mua hai quả trứng.,I bought two eggs.
+肉,にく,niku,N5,noun,thịt,meat,food,550,self,self-authored,肉が好きですか。,にくがすきですか。,Bạn có thích thịt không?,Do you like meat?
+魚,さかな,sakana,N5,noun,cá,fish,food,545,self,self-authored,魚を食べます。,さかなをたべます。,Tôi ăn cá.,I eat fish.
+野菜,やさい,yasai,N5,noun,rau; rau củ,vegetable,food|health,540,self,self-authored,野菜をたくさん食べてください。,やさいをたくさんたべてください。,Hãy ăn nhiều rau vào.,Please eat lots of vegetables.
+果物,くだもの,kudamono,N5,noun,hoa quả; trái cây,fruit,food,535,self,self-authored,果物が好きです。,くだものがすきです。,Tôi thích hoa quả.,I like fruit.
+水,みず,mizu,N5,noun,nước,water,food|drink|daily,530,self,self-authored,水を飲んでください。,みずをのんでください。,Hãy uống nước.,Please drink water.
+お茶,おちゃ,ocha,N5,noun,trà; nước trà,tea,drink|daily,525,self,self-authored,お茶を一杯どうぞ。,おちゃをいっぱいどうぞ。,Mời uống một tách trà.,Please have a cup of tea.
+コーヒー,コーヒー,koohii,N5,noun,cà phê,coffee,drink,520,self,self-authored,コーヒーが好きです。,コーヒーがすきです。,Tôi thích cà phê.,I like coffee.
+牛乳,ぎゅうにゅう,gyuunyuu,N5,noun,sữa bò,milk,drink|food,515,self,self-authored,毎朝牛乳を飲みます。,まいあさぎゅうにゅうをのみます。,Mỗi sáng tôi uống sữa.,I drink milk every morning.
+ビール,ビール,biiru,N5,noun,bia,beer,drink,510,self,self-authored,ビールを飲みますか。,ビールをのみますか。,Bạn có uống bia không?,Do you drink beer?
+お酒,おさけ,osake,N5,noun,rượu; sake,alcohol; sake,drink,505,self,self-authored,お酒はあまり飲みません。,おさけはあまりのみません。,Tôi không uống rượu lắm.,I don't drink much alcohol.
+砂糖,さとう,satou,N5,noun,đường,sugar,food|condiment,500,self,self-authored,コーヒーに砂糖を入れます。,コーヒーにさとうをいれます。,Tôi cho đường vào cà phê.,I put sugar in my coffee.
+塩,しお,shio,N5,noun,muối,salt,food|condiment,495,self,self-authored,塩を少し入れてください。,しおをすこしいれてください。,Cho một ít muối vào.,Put in a little salt please.
+りんご,りんご,ringo,N5,noun,táo,apple,food|fruit,490,self,self-authored,りんごを一つ食べます。,りんごをひとつたべます。,Tôi ăn một quả táo.,I eat one apple.
+みかん,みかん,mikan,N5,noun,quýt; cam quýt,mandarin orange,food|fruit,485,self,self-authored,みかんが甘いです。,みかんがあまいです。,Quýt ngọt nhỉ.,The mandarin orange is sweet.
+頭,あたま,atama,N5,noun,đầu; cái đầu,head,body,480,self,self-authored,頭が痛いです。,あたまがいたいです。,Tôi bị đau đầu.,I have a headache.
+目,め,me,N5,noun,mắt,eye,body,475,self,self-authored,目が疲れました。,めがつかれました。,Mắt tôi mỏi rồi.,My eyes are tired.
+耳,みみ,mimi,N5,noun,tai,ear,body,470,self,self-authored,耳が聞こえません。,みみがきこえません。,Tôi không nghe thấy.,I cannot hear.
+口,くち,kuchi,N5,noun,miệng; mồm,mouth,body,465,self,self-authored,口を大きく開けてください。,くちをおおきくあけてください。,Hãy há miệng to ra.,Please open your mouth wide.
+手,て,te,N5,noun,tay; bàn tay,hand,body|daily,460,self,self-authored,手を洗ってください。,てをあらってください。,Hãy rửa tay.,Please wash your hands.
+足,あし,ashi,N5,noun,chân; bàn chân,foot; leg,body,455,self,self-authored,足が痛いです。,あしがいたいです。,Chân tôi đau.,My leg hurts.
+体,からだ,karada,N5,noun,cơ thể; thân thể,body,body|health,450,self,self-authored,体に気をつけてください。,からだにきをつけてください。,Hãy giữ gìn sức khỏe.,Please take care of your body.
+病気,びょうき,byouki,N5,noun,bệnh; ốm,illness; sickness,health,445,self,self-authored,昨日から病気です。,きのうからびょうきです。,Tôi bị ốm từ hôm qua.,I have been sick since yesterday.
+薬,くすり,kusuri,N5,noun,thuốc,medicine,health,440,self,self-authored,薬を飲みます。,くすりをのみます。,Tôi uống thuốc.,I take medicine.
+家,いえ,ie,N5,noun,nhà; ngôi nhà,house; home,home|daily,435,self,self-authored,家に帰ります。,いえにかえります。,Tôi về nhà.,I return home.
+部屋,へや,heya,N5,noun,phòng; căn phòng,room,home,430,self,self-authored,部屋をきれいにしました。,へやをきれいにしました。,Tôi dọn phòng sạch rồi.,I cleaned the room.
+ドア,ドア,doa,N5,noun,cửa (ra vào),door,home,425,self,self-authored,ドアを閉めてください。,ドアをしめてください。,Hãy đóng cửa.,Please close the door.
+窓,まど,mado,N5,noun,cửa sổ,window,home,420,self,self-authored,窓を開けてもいいですか。,まどをあけてもいいですか。,Tôi mở cửa sổ được không?,May I open the window?
+テレビ,テレビ,terebi,N5,noun,tivi; truyền hình,television; TV,home|electronics,415,self,self-authored,テレビを見ます。,テレビをみます。,Tôi xem tivi.,I watch TV.
+電話,でんわ,denwa,N5,noun,điện thoại; cuộc gọi,telephone; phone call,home|electronics,410,self,self-authored,電話をかけます。,でんわをかけます。,Tôi gọi điện thoại.,I make a phone call.
+冷蔵庫,れいぞうこ,reizouko,N5,noun,tủ lạnh,refrigerator,home|appliance,405,self,self-authored,冷蔵庫に入れてください。,れいぞうこにいれてください。,Hãy cho vào tủ lạnh.,Please put it in the refrigerator.
+いす,いす,isu,N5,noun,ghế; chiếc ghế,chair,home|furniture,400,self,self-authored,いすに座ってください。,いすにすわってください。,Hãy ngồi xuống ghế.,Please sit in the chair.
+つくえ,つくえ,tsukue,N5,noun,bàn (học/làm việc),desk,home|furniture|school,395,self,self-authored,つくえの上に本があります。,つくえのうえにほんがあります。,Trên bàn có sách.,There is a book on the desk.
+時計,とけい,tokei,N5,noun,đồng hồ,clock; watch,daily|home,390,self,self-authored,時計を見ます。,とけいをみます。,Tôi xem đồng hồ.,I look at the clock.
+お金,おかね,okane,N5,noun,tiền,money,daily|finance,385,self,self-authored,お金がありません。,おかねがありません。,Tôi không có tiền.,I don't have money.
+電気,でんき,denki,N5,noun,điện; ánh đèn; đèn,electricity; electric light,daily|home,380,self,self-authored,電気を消してください。,でんきをけしてください。,Hãy tắt đèn.,Please turn off the light.
+新聞,しんぶん,shinbun,N5,noun,báo; tờ báo,newspaper,daily,375,self,self-authored,毎朝新聞を読みます。,まいあさしんぶんをよみます。,Mỗi sáng tôi đọc báo.,I read the newspaper every morning.
+写真,しゃしん,shashin,N5,noun,ảnh; bức ảnh,photo; photograph,daily,370,self,self-authored,写真を撮ってもいいですか。,しゃしんをとってもいいですか。,Tôi chụp ảnh được không?,May I take a photo?
+地図,ちず,chizu,N5,noun,bản đồ,map,daily|travel,365,self,self-authored,地図を見てください。,ちずをみてください。,Hãy xem bản đồ.,Please look at the map.
+バス,バス,basu,N5,noun,xe buýt; xe bus,bus,transport,360,self,self-authored,バスで行きます。,バスでいきます。,Tôi đi bằng xe buýt.,I go by bus.
+タクシー,タクシー,takushii,N5,noun,taxi,taxi,transport,355,self,self-authored,タクシーに乗ります。,タクシーにのります。,Tôi đi taxi.,I take a taxi.
+車,くるま,kuruma,N5,noun,xe hơi; ô tô,car; automobile,transport,350,self,self-authored,車で来ました。,くるまできました。,Tôi đến bằng xe hơi.,I came by car.
+自転車,じてんしゃ,jitensha,N5,noun,xe đạp,bicycle,transport,345,self,self-authored,自転車で学校に行きます。,じてんしゃでがっこうにいきます。,Tôi đi học bằng xe đạp.,I go to school by bicycle.
+道,みち,michi,N5,noun,con đường; đường đi,road; way; path,daily|transport,340,self,self-authored,道が分かりません。,みちがわかりません。,Tôi không biết đường.,I don't know the way.
+公園,こうえん,kouen,N5,noun,công viên,park,place|daily,335,self,self-authored,公園で散歩します。,こうえんでさんぽします。,Tôi đi dạo ở công viên.,I take a walk in the park.
+郵便局,ゆうびんきょく,yuubinkyoku,N5,noun,bưu điện,post office,place,330,self,self-authored,郵便局はどこですか。,ゆうびんきょくはどこですか。,Bưu điện ở đâu?,Where is the post office?
+スーパー,スーパー,suupaa,N5,noun,siêu thị,supermarket,place|shopping,325,self,self-authored,スーパーで買い物します。,スーパーでかいものします。,Tôi mua sắm ở siêu thị.,I shop at the supermarket.
+デパート,デパート,depaato,N5,noun,trung tâm thương mại,department store,place|shopping,320,self,self-authored,デパートに行きます。,デパートにいきます。,Tôi đi trung tâm thương mại.,I go to the department store.
+レストラン,レストラン,resutoran,N5,noun,nhà hàng,restaurant,place|food,315,self,self-authored,レストランで食べます。,レストランでたべます。,Tôi ăn ở nhà hàng.,I eat at a restaurant.
+ホテル,ホテル,hoteru,N5,noun,khách sạn,hotel,place|travel,310,self,self-authored,ホテルはきれいです。,ホテルはきれいです。,Khách sạn sạch sẽ.,The hotel is clean.
+駅,えき,eki,N5,noun,ga tàu; nhà ga,train station,transport|place,305,self,self-authored,駅はどこですか。,えきはどこですか。,Ga tàu ở đâu?,Where is the station?
+銀行,ぎんこう,ginkou,N5,noun,ngân hàng,bank,place|finance,300,self,self-authored,銀行はあそこです。,ぎんこうはあそこです。,Ngân hàng ở đằng kia.,The bank is over there.
+図書館,としょかん,toshokan,N5,noun,thư viện,library,place|school,295,self,self-authored,図書館で本を借ります。,としょかんでほんをかります。,Tôi mượn sách ở thư viện.,I borrow books at the library.
+空港,くうこう,kuukou,N5,noun,sân bay,airport,transport|travel,290,self,self-authored,空港まで遠いです。,くうこうまでとおいです。,Đến sân bay còn xa.,It is far to the airport.
+ある,ある,aru,N5,verb,có; tồn tại (vật/sự việc),to exist; to have (inanimate),daily,285,self,self-authored,机の上に本があります。,つくえのうえにほんがあります。,Trên bàn có sách.,There is a book on the desk.
+いる,いる,iru,N5,verb,có; ở (người/động vật),to be; to exist (animate),daily,280,self,self-authored,部屋に猫がいます。,へやにねこがいます。,Trong phòng có con mèo.,There is a cat in the room.
+する,する,suru,N5,verb,làm; thực hiện,to do,daily,275,self,self-authored,何をしますか。,なにをしますか。,Bạn làm gì?,What will you do?
+話す,はなす,hanasu,N5,verb,nói chuyện; nói; kể,to speak; to talk,daily|communication,270,self,self-authored,日本語で話してください。,にほんごではなしてください。,Hãy nói bằng tiếng Nhật.,Please speak in Japanese.
+読む,よむ,yomu,N5,verb,đọc,to read,daily|school,265,self,self-authored,本を読むのが好きです。,ほんをよむのがすきです。,Tôi thích đọc sách.,I like reading books.
+書く,かく,kaku,N5,verb,viết,to write,daily|school,260,self,self-authored,手紙を書きます。,てがみをかきます。,Tôi viết thư.,I write a letter.
+買う,かう,kau,N5,verb,mua,to buy,daily|shopping,255,self,self-authored,スーパーで野菜を買います。,スーパーでやさいをかいます。,Tôi mua rau ở siêu thị.,I buy vegetables at the supermarket.
+使う,つかう,tsukau,N5,verb,dùng; sử dụng,to use,daily,250,self,self-authored,このペンを使ってもいいですか。,このペンをつかってもいいですか。,Tôi dùng cây bút này được không?,May I use this pen?
+持つ,もつ,motsu,N5,verb,cầm; giữ; mang,to hold; to carry; to have,daily,245,self,self-authored,かばんを持ってください。,かばんをもってください。,Hãy mang cặp.,Please carry the bag.
+開ける,あける,akeru,N5,verb,mở (cửa; hộp),to open,daily|home,240,self,self-authored,窓を開けてください。,まどをあけてください。,Hãy mở cửa sổ.,Please open the window.
+閉める,しめる,shimeru,N5,verb,đóng (cửa; hộp),to close; to shut,daily|home,235,self,self-authored,ドアを閉めてください。,ドアをしめてください。,Hãy đóng cửa.,Please close the door.
+入れる,いれる,ireru,N5,verb,cho vào; đặt vào,to put in; to insert,daily,230,self,self-authored,砂糖をコーヒーに入れます。,さとうをコーヒーにいれます。,Tôi cho đường vào cà phê.,I put sugar into the coffee.
+出す,だす,dasu,N5,verb,lấy ra; đưa ra; nộp,to take out; to submit,daily,225,self,self-authored,宿題を出してください。,しゅくだいをだしてください。,Hãy nộp bài tập về nhà.,Please submit your homework.
+待つ,まつ,matsu,N5,verb,chờ; đợi,to wait,daily,220,self,self-authored,ちょっと待ってください。,ちょっとまってください。,Xin chờ một chút.,Please wait a moment.
+起きる,おきる,okiru,N5,verb,thức dậy; dậy,to wake up; to get up,daily|morning,215,self,self-authored,毎朝7時に起きます。,まいあさしちじにおきます。,Mỗi sáng tôi dậy lúc 7 giờ.,I wake up at 7 every morning.
+寝る,ねる,neru,N5,verb,ngủ; đi ngủ,to sleep; to go to bed,daily|home,210,self,self-authored,早く寝てください。,はやくねてください。,Hãy đi ngủ sớm.,Please go to bed early.
+帰る,かえる,kaeru,N5,verb,về; trở về nhà,to return home; to go back,daily,205,self,self-authored,今日は早く帰ります。,きょうははやくかえります。,Hôm nay tôi về sớm.,I will return home early today.
+入る,はいる,hairu,N5,verb,vào; đi vào; tham gia,to enter; to join,daily,200,self,self-authored,部屋に入ってください。,へやにはいってください。,Hãy vào phòng.,Please enter the room.
+出る,でる,deru,N5,verb,ra; đi ra; rời,to exit; to leave; to go out,daily,195,self,self-authored,8時に家を出ます。,はちじにいえをでます。,Tôi ra khỏi nhà lúc 8 giờ.,I leave the house at 8.
+乗る,のる,noru,N5,verb,lên (xe; tàu); đi bằng,to ride; to get on,transport,190,self,self-authored,電車に乗ります。,でんしゃにのります。,Tôi đi tàu điện.,I ride the train.
+降りる,おりる,oriru,N5,verb,xuống (xe; tàu),to get off; to descend,transport,185,self,self-authored,次の駅で降ります。,つぎのえきでおります。,Tôi xuống ở ga tiếp theo.,I get off at the next station.
+歩く,あるく,aruku,N5,verb,đi bộ,to walk,transport|daily,180,self,self-authored,駅まで歩きます。,えきまであるきます。,Tôi đi bộ đến ga.,I walk to the station.
+走る,はしる,hashiru,N5,verb,chạy; chạy bộ,to run,daily|sport,175,self,self-authored,毎朝公園を走ります。,まいあさこうえんをはしります。,Mỗi sáng tôi chạy bộ ở công viên.,I run in the park every morning.
+教える,おしえる,oshieru,N5,verb,dạy; chỉ; cho biết,to teach; to tell; to inform,school|daily,170,self,self-authored,日本語を教えています。,にほんごをおしえています。,Tôi đang dạy tiếng Nhật.,I am teaching Japanese.
+習う,ならう,narau,N5,verb,học (từ thầy); học hỏi,to learn (from a teacher),school,165,self,self-authored,ピアノを習っています。,ピアノをならっています。,Tôi đang học piano.,I am learning piano.
+会う,あう,au,N5,verb,gặp; gặp gỡ,to meet,daily|social,160,self,self-authored,友達に会います。,ともだちにあいます。,Tôi gặp bạn bè.,I meet my friend.
+知る,しる,shiru,N5,verb,biết; biết được,to know; to find out,daily,155,self,self-authored,その人を知っていますか。,そのひとをしっていますか。,Bạn có biết người đó không?,Do you know that person?
+分かる,わかる,wakaru,N5,verb,hiểu; hiểu rõ,to understand,daily,150,self,self-authored,日本語が分かりますか。,にほんごがわかりますか。,Bạn có hiểu tiếng Nhật không?,Do you understand Japanese?
+できる,できる,dekiru,N5,verb,có thể làm; giỏi,to be able to; can,daily,145,self,self-authored,日本語が少し話せます。,にほんごがすこしはなせます。,Tôi có thể nói một chút tiếng Nhật.,I can speak a little Japanese.
+思う,おもう,omou,N5,verb,nghĩ; cho rằng,to think; to feel,daily,140,self,self-authored,おもしろいと思います。,おもしろいとおもいます。,Tôi nghĩ là thú vị.,I think it is interesting.
+始める,はじめる,hajimeru,N5,verb,bắt đầu; khởi đầu,to begin; to start,daily,135,self,self-authored,日本語の勉強を始めます。,にほんごのべんきょうをはじめます。,Tôi bắt đầu học tiếng Nhật.,I start studying Japanese.
+終わる,おわる,owaru,N5,verb,kết thúc; xong; chấm dứt,to end; to finish,daily,130,self,self-authored,仕事が終わりました。,しごとがおわりました。,Công việc xong rồi.,Work is finished.
+売る,うる,uru,N5,verb,bán,to sell,daily|shopping,125,self,self-authored,この店で何を売っていますか。,このみせでなにをうっていますか。,Cửa hàng này bán gì?,What does this shop sell?
+貸す,かす,kasu,N5,verb,cho mượn; cho vay,to lend; to loan,daily,120,self,self-authored,ペンを貸してください。,ペンをかしてください。,Cho tôi mượn cây bút.,Please lend me your pen.
+借りる,かりる,kariru,N5,verb,mượn; vay,to borrow,daily,115,self,self-authored,図書館で本を借ります。,としょかんでほんをかります。,Tôi mượn sách ở thư viện.,I borrow books at the library.
+大きい,おおきい,ookii,N5,adjective,to; lớn; rộng,big; large,daily,110,self,self-authored,大きい犬がいます。,おおきいいぬがいます。,Có một con chó to.,There is a big dog.
+小さい,ちいさい,chiisai,N5,adjective,nhỏ; bé,small; little,daily,108,self,self-authored,小さい子供がいます。,ちいさいこどもがいます。,Có một đứa trẻ nhỏ.,There is a small child.
+高い,たかい,takai,N5,adjective,cao; đắt tiền,tall; high; expensive,daily,106,self,self-authored,このりんごは高いですね。,このりんごはたかいですね。,Táo này đắt nhỉ.,This apple is expensive isn't it.
+安い,やすい,yasui,N5,adjective,rẻ; phải chăng,cheap; inexpensive,daily|shopping,104,self,self-authored,このスーパーは安いです。,このスーパーはやすいです。,Siêu thị này rẻ.,This supermarket is cheap.
+新しい,あたらしい,atarashii,N5,adjective,mới,new,daily,102,self,self-authored,新しい本を買いました。,あたらしいほんをかいました。,Tôi mua sách mới.,I bought a new book.
+古い,ふるい,furui,N5,adjective,cũ; xưa,old (things),daily,100,self,self-authored,古い自転車があります。,ふるいじてんしゃがあります。,Có một cái xe đạp cũ.,There is an old bicycle.
+面白い,おもしろい,omoshiroi,N5,adjective,thú vị; hay; hài hước,interesting; funny,daily,98,self,self-authored,この映画はとても面白いです。,このえいがはとてもおもしろいです。,Bộ phim này rất thú vị.,This movie is very interesting.
+楽しい,たのしい,tanoshii,N5,adjective,vui; vui vẻ; thú vị,fun; enjoyable,daily,96,self,self-authored,毎日が楽しいです。,まいにちがたのしいです。,Mỗi ngày đều vui vẻ.,Every day is fun.
+難しい,むずかしい,muzukashii,N5,adjective,khó; khó khăn,difficult,school|daily,94,self,self-authored,この問題は難しいです。,このもんだいはむずかしいです。,Bài này khó.,This problem is difficult.
+やさしい,やさしい,yasashii,N5,adjective,dễ; dịu dàng; tốt bụng,easy; gentle; kind,daily,92,self,self-authored,先生はやさしいです。,せんせいはやさしいです。,Giáo viên tốt bụng.,The teacher is kind.
+いい,いい,ii,N5,adjective,tốt; được; ổn,good; fine; OK,daily,90,self,self-authored,今日はいい天気ですね。,きょうはいいてんきですね。,Hôm nay thời tiết tốt nhỉ.,The weather is nice today.
+悪い,わるい,warui,N5,adjective,xấu; tệ; có lỗi,bad; wrong,daily,88,self,self-authored,天気が悪いです。,てんきがわるいです。,Thời tiết xấu.,The weather is bad.
+暑い,あつい,atsui,N5,adjective,nóng (thời tiết; đồ ăn),hot (weather; food),weather|daily,86,self,self-authored,今日は暑いですね。,きょうはあついですね。,Hôm nay nóng nhỉ.,It is hot today isn't it.
+寒い,さむい,samui,N5,adjective,lạnh (thời tiết),cold (weather),weather|daily,84,self,self-authored,今日は寒いですね。,きょうはさむいですね。,Hôm nay lạnh nhỉ.,It is cold today isn't it.
+冷たい,つめたい,tsumetai,N5,adjective,lạnh (vật; đồ uống),cold (to the touch; drinks),daily|food,82,self,self-authored,冷たい水を飲みます。,つめたいみずをのみます。,Tôi uống nước lạnh.,I drink cold water.
+おいしい,おいしい,oishii,N5,adjective,ngon; ngon miệng,delicious; tasty,food|daily,80,self,self-authored,このケーキはとてもおいしいです。,このけーきはとてもおいしいです。,Cái bánh này ngon lắm.,This cake is very delicious.
+まずい,まずい,mazui,N5,adjective,không ngon; dở,not delicious; unpleasant,food,78,self,self-authored,この料理はまずいです。,このりょうりはまずいです。,Món ăn này không ngon.,This dish is not delicious.
+赤い,あかい,akai,N5,adjective,đỏ,red,color,76,self,self-authored,赤いりんごがあります。,あかいりんごがあります。,Có một quả táo đỏ.,There is a red apple.
+青い,あおい,aoi,N5,adjective,xanh (lam); xanh da trời,blue; green,color,74,self,self-authored,青い空がきれいです。,あおいそらがきれいです。,Bầu trời xanh đẹp.,The blue sky is beautiful.
+白い,しろい,shiroi,N5,adjective,trắng,white,color,72,self,self-authored,白い猫がいます。,しろいねこがいます。,Có một con mèo trắng.,There is a white cat.
+黒い,くろい,kuroi,N5,adjective,đen,black,color,70,self,self-authored,黒いかばんを持っています。,くろいかばんをもっています。,Tôi có một cái túi đen.,I have a black bag.
+長い,ながい,nagai,N5,adjective,dài,long,daily,68,self,self-authored,この道は長いです。,このみちはながいです。,Con đường này dài.,This road is long.
+短い,みじかい,mijikai,N5,adjective,ngắn,short,daily,66,self,self-authored,この鉛筆は短いです。,このえんぴつはみじかいです。,Cây bút chì này ngắn.,This pencil is short.
+上,うえ,ue,N5,noun,trên; phía trên; bề mặt trên,above; on top of,direction,64,self,self-authored,テーブルの上にコップがあります。,テーブルのうえにコップがあります。,Trên bàn có cái ly.,There is a glass on the table.
+下,した,shita,N5,noun,dưới; phía dưới; bên dưới,below; under,direction,62,self,self-authored,いすの下に猫がいます。,いすのしたにねこがいます。,Dưới ghế có con mèo.,There is a cat under the chair.
+左,ひだり,hidari,N5,noun,bên trái; trái,left,direction,60,self,self-authored,左に曲がってください。,ひだりにまがってください。,Hãy rẽ trái.,Please turn left.
+右,みぎ,migi,N5,noun,bên phải; phải,right,direction,58,self,self-authored,右に曲がってください。,みぎにまがってください。,Hãy rẽ phải.,Please turn right.
+前,まえ,mae,N5,noun,phía trước; trước,front; in front of; before,direction|time,56,self,self-authored,駅の前にあります。,えきのまえにあります。,Ở trước ga tàu.,It is in front of the station.
+後ろ,うしろ,ushiro,N5,noun,phía sau; sau lưng,back; behind,direction,54,self,self-authored,後ろを見てください。,うしろをみてください。,Hãy nhìn ra phía sau.,Please look behind.
+中,なか,naka,N5,noun,trong; bên trong; giữa,inside; in; among,direction,52,self,self-authored,箱の中に何がありますか。,はこのなかになにがありますか。,Trong hộp có gì?,What is inside the box?
+外,そと,soto,N5,noun,ngoài; bên ngoài,outside; outdoors,direction,50,self,self-authored,外は寒いです。,そとはさむいです。,Ngoài trời lạnh.,It is cold outside.
+近く,ちかく,chikaku,N5,noun,gần; gần đây; gần đó,near; nearby,direction,48,self,self-authored,駅の近くにスーパーがあります。,えきのちかくにスーパーがあります。,Gần ga có siêu thị.,There is a supermarket near the station.
+隣,となり,tonari,N5,noun,bên cạnh; kế bên,next to; neighboring,direction|daily,46,self,self-authored,となりの部屋がうるさいです。,となりのへやがうるさいです。,Phòng bên cạnh ồn.,The room next door is noisy.
+間,あいだ,aida,N5,noun,khoảng giữa; giữa; trong khi,between; during,direction|time,44,self,self-authored,銀行とスーパーの間にあります。,ぎんこうとスーパーのあいだにあります。,Ở giữa ngân hàng và siêu thị.,It is between the bank and the supermarket.
+何,なに,nani,N5,noun,cái gì; điều gì,what,question,42,self,self-authored,何が好きですか。,なにがすきですか。,Bạn thích cái gì?,What do you like?
+どこ,どこ,doko,N5,noun,ở đâu; nơi nào,where,question,41,self,self-authored,トイレはどこですか。,トイレはどこですか。,Nhà vệ sinh ở đâu?,Where is the restroom?
+いつ,いつ,itsu,N5,noun,khi nào; lúc nào,when,question|time,40,self,self-authored,いつ日本に来ましたか。,いつにほんにきましたか。,Bạn đến Nhật khi nào?,When did you come to Japan?
+どれ,どれ,dore,N5,noun,cái nào (trong nhiều thứ),which one,question,39,self,self-authored,どれが好きですか。,どれがすきですか。,Bạn thích cái nào?,Which one do you like?
+どう,どう,dou,N5,adverb,thế nào; như thế nào,how; what do you think,question,38,self,self-authored,気分はどうですか。,きぶんはどうですか。,Bạn cảm thấy thế nào?,How are you feeling?
+なぜ,なぜ,naze,N5,adverb,tại sao; vì sao,why,question,37,self,self-authored,なぜ遅れましたか。,なぜおくれましたか。,Tại sao bạn đến trễ?,Why were you late?
+いくら,いくら,ikura,N5,noun,bao nhiêu tiền; giá bao nhiêu,how much (money),question|shopping,36,self,self-authored,これはいくらですか。,これはいくらですか。,Cái này bao nhiêu tiền?,How much is this?
+いくつ,いくつ,ikutsu,N5,noun,mấy cái; bao nhiêu; mấy tuổi,how many; how old,question,35,self,self-authored,りんごはいくつありますか。,りんごはいくつありますか。,Có bao nhiêu quả táo?,How many apples are there?
+どんな,どんな,donna,N5,adjective,như thế nào; loại gì,what kind of,question,34,self,self-authored,どんな音楽が好きですか。,どんなおんがくがすきですか。,Bạn thích nhạc gì?,What kind of music do you like?
+どちら,どちら,dochira,N5,noun,bên nào; cái nào (trong hai),which of the two; which direction,question|direction,33,self,self-authored,どちらが好きですか。,どちらがすきですか。,Bạn thích cái nào hơn?,Which do you prefer?
+もう,もう,mou,N5,adverb,rồi; đã; không nữa,already; anymore,daily,32,self,self-authored,もう食べました。,もうたべました。,Tôi ăn rồi.,I have already eaten.
+まだ,まだ,mada,N5,adverb,vẫn còn; chưa,still; not yet,daily,31,self,self-authored,まだ食べていません。,まだたべていません。,Tôi chưa ăn.,I have not eaten yet.
+また,また,mata,N5,adverb,lại; lại nữa; hẹn gặp lại,again; also,daily,30,self,self-authored,またあとで。,またあとで。,Hẹn gặp lại sau.,See you later.
+もっと,もっと,motto,N5,adverb,nhiều hơn; hơn nữa,more; much more,daily,29,self,self-authored,もっとゆっくり話してください。,もっとゆっくりはなしてください。,Hãy nói chậm hơn nữa.,Please speak more slowly.
+とても,とても,totemo,N5,adverb,rất; vô cùng,very; quite,daily,28,self,self-authored,日本語はとても難しいです。,にほんごはとてもむずかしいです。,Tiếng Nhật rất khó.,Japanese is very difficult.
+ちょっと,ちょっと,chotto,N5,adverb,một chút; tí; một lúc,a little; a moment,daily,27,self,self-authored,ちょっと待ってください。,ちょっとまってください。,Xin chờ một chút.,Please wait a moment.
+ゆっくり,ゆっくり,yukkuri,N5,adverb,chậm; từ từ; thư thả,slowly; leisurely,daily,26,self,self-authored,ゆっくり話してください。,ゆっくりはなしてください。,Hãy nói chậm thôi.,Please speak slowly.
+よく,よく,yoku,N5,adverb,thường; thường xuyên; giỏi,often; well; frequently,daily,25,self,self-authored,よく映画を見ます。,よくえいがをみます。,Tôi thường xuyên xem phim.,I often watch movies.
+いつも,いつも,itsumo,N5,adverb,lúc nào cũng; luôn luôn,always; usually,daily,24,self,self-authored,いつもありがとうございます。,いつもありがとうございます。,Lúc nào cũng cảm ơn bạn.,Thank you always.
+ときどき,ときどき,tokidoki,N5,adverb,thỉnh thoảng; đôi khi,sometimes; occasionally,daily,23,self,self-authored,ときどきコーヒーを飲みます。,ときどきコーヒーをのみます。,Thỉnh thoảng tôi uống cà phê.,I sometimes drink coffee.
+あまり,あまり,amari,N5,adverb,không lắm; không mấy (phủ định),not very; not much (negation),daily,22,self,self-authored,あまり食べません。,あまりたべません。,Tôi không ăn nhiều lắm.,I don't eat much.
+そして,そして,soshite,N5,conjunction,và; rồi; sau đó,and then; and,conjunction|daily,21,self,self-authored,朝ごはんを食べて、そして学校に行きます。,あさごはんをたべて、そしてがっこうにいきます。,Tôi ăn sáng rồi đi học.,I eat breakfast and then go to school.
+でも,でも,demo,N5,conjunction,nhưng; tuy nhiên,but; however,conjunction|daily,20,self,self-authored,行きたいです。でもお金がありません。,いきたいです。でもおかねがありません。,Tôi muốn đi. Nhưng không có tiền.,I want to go. But I don't have money.
+これ,これ,kore,N5,noun,cái này; đây,this (thing),pronoun|daily,19,self,self-authored,これは何ですか。,これはなんですか。,Đây là cái gì?,What is this?
+それ,それ,sore,N5,noun,cái đó; đó,that (thing near you),pronoun|daily,18,self,self-authored,それをください。,それをください。,Cho tôi cái đó.,Please give me that.
+あれ,あれ,are,N5,noun,cái kia; kia,that (thing over there),pronoun|daily,17,self,self-authored,あれは何の建物ですか。,あれはなんのたてものですか。,Tòa nhà kia là gì?,What building is that over there?
+ここ,ここ,koko,N5,noun,đây; nơi đây; chỗ này,here; this place,place|daily,16,self,self-authored,ここに座ってください。,ここにすわってください。,Hãy ngồi đây.,Please sit here.
+そこ,そこ,soko,N5,noun,đó; nơi đó; chỗ đó,there; that place,place|daily,15,self,self-authored,そこに置いてください。,そこにおいてください。,Hãy đặt ở đó.,Please put it there.
+あそこ,あそこ,asoko,N5,noun,kia; nơi kia; chỗ kia,over there; that place,place|daily,14,self,self-authored,あそこに座りましょう。,あそこにすわりましょう。,Hãy ngồi ở đằng kia nào.,Let's sit over there.
+色,いろ,iro,N5,noun,màu; màu sắc,color,daily,13,self,self-authored,何色が好きですか。,なにいろがすきですか。,Bạn thích màu gì?,What color do you like?
+声,こえ,koe,N5,noun,giọng; tiếng; âm thanh,voice; sound,daily,12,self,self-authored,もっと大きい声で話してください。,もっとおおきいこえではなしてください。,Hãy nói to hơn.,Please speak in a louder voice.
+空,そら,sora,N5,noun,bầu trời; trời,sky,nature|daily,11,self,self-authored,空が青いですね。,そらがあおいですね。,Bầu trời xanh nhỉ.,The sky is blue isn't it.
+海,うみ,umi,N5,noun,biển; biển cả,sea; ocean,nature|travel,10,self,self-authored,海を見に行きます。,うみをみにいきます。,Tôi đi xem biển.,I go to see the sea.
+山,やま,yama,N5,noun,núi; ngọn núi,mountain,nature|travel,9,self,self-authored,山に登りたいです。,やまにのぼりたいです。,Tôi muốn leo núi.,I want to climb the mountain.
+川,かわ,kawa,N5,noun,sông; con sông,river,nature,8,self,self-authored,川のそばを歩きます。,かわのそばをあるきます。,Tôi đi bộ ven sông.,I walk along the river.
+花,はな,hana,N5,noun,hoa; bông hoa,flower,nature,7,self,self-authored,花がきれいですね。,はながきれいですね。,Hoa đẹp nhỉ.,The flowers are pretty aren't they.
+猫,ねこ,neko,N5,noun,con mèo,cat,animal,6,self,self-authored,猫を飼っています。,ねこをかっています。,Tôi nuôi mèo.,I have a cat.
+犬,いぬ,inu,N5,noun,con chó,dog,animal,5,self,self-authored,犬が好きです。,いぬがすきです。,Tôi thích chó.,I like dogs.
+元気,げんき,genki,N5,adjective,khỏe mạnh; vui vẻ; có năng lượng,healthy; energetic; fine,health|daily,4,self,self-authored,お元気ですか。,おげんきですか。,Bạn có khỏe không?,How are you?
+きれい,きれい,kirei,N5,adjective,đẹp; sạch sẽ,beautiful; clean,daily,3,self,self-authored,この部屋はきれいですね。,このへやはきれいですね。,Phòng này đẹp nhỉ.,This room is beautiful isn't it.

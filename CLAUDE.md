@@ -171,7 +171,25 @@ vercel --prod --yes
 
 ---
 
-## 11. Known Pitfalls
+## 11. Vocabulary Display Rules
+
+- Do **not** display language codes such as `VN`, `vn`, `VI`, `vi`, `GB`, `gb`, `EN`, `en`, `JP`, `jp`, `JA`, `ja` as prefixes before vocabulary meanings.
+- `meanings[].vi` must display only the Vietnamese meaning text; `meanings[].en` must display only the English meaning text.
+- Do **not** render text like `vn sửa chữa...`, `VN sửa chữa...`, `vi sửa chữa...`, `GB correction...`, or `EN correction...`.
+- Do **not** use flag emoji (🇻🇳, 🇬🇧, etc.) as inline text prefixes before meaning text — on Windows these render as country-code text ("VN", "GB"), which breaks the display.
+- If a language label is needed in the UI, use a **separate** UI label such as `Tiếng Việt` or `English`, never prepend it directly to the meaning text.
+- Always call `cleanMeaningText()` from `@/lib/sanitize` when rendering vocabulary meanings — it strips any accidental language code prefixes from imported dictionary data.
+- The final UI must look like:
+  - `sửa chữa, hiệu chỉnh`
+  - `correction, revision, to fix`
+- NOT like:
+  - `vn sửa chữa, hiệu chỉnh`
+  - `GB correction, revision, to fix`
+- Language codes are allowed only as internal metadata or keys, never as visible prefixes inside meaning text.
+
+---
+
+## 12. Known Pitfalls
 
 ### Cờ caro tournament
 - `spinSnapshot` trong `RandomWheelClient.tsx` — freeze wheel entries trong lúc quay, **không xóa**
@@ -193,7 +211,7 @@ vercel --prod --yes
 
 ---
 
-## 12. Workflow Khi Làm Task Mới
+## 13. Workflow Khi Làm Task Mới
 
 1. **Đọc yêu cầu** — xác định route/file nào liên quan
 2. **Chỉ đọc file liên quan** — không glob/read toàn bộ project
@@ -205,7 +223,7 @@ vercel --prod --yes
 
 ---
 
-## 13. Environment Variables (Tên — không có giá trị)
+## 14. Environment Variables (Tên — không có giá trị)
 
 ```
 NEXT_PUBLIC_SUPABASE_URL        # Supabase project URL

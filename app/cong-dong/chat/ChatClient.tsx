@@ -377,12 +377,28 @@ export default function ChatClient({
   const roomAvatarInputRef = useRef<HTMLInputElement>(null)
   const activeDmConvIdRef = useRef<string | null>(null)
   const dmScrollRef = useRef<HTMLDivElement>(null)
+  const dmScrollContainerRef = useRef<HTMLDivElement>(null)
   const lastHiddenAtRef = useRef<number | null>(null)
+
+  // ── Helpers ──────────────────────────────────────────────────────────────────
+  const scrollMsgsToBottom = useCallback((smooth = false) => {
+    const el = scrollRef.current
+    if (!el) return
+    if (smooth) el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' })
+    else el.scrollTop = el.scrollHeight
+  }, [])
+
+  const scrollDmToBottom = useCallback((smooth = false) => {
+    const el = dmScrollContainerRef.current
+    if (!el) return
+    if (smooth) el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' })
+    else el.scrollTop = el.scrollHeight
+  }, [])
 
   // ── Lifecycle ────────────────────────────────────────────────────────────────
   useEffect(() => {
-    const el = scrollRef.current
-    if (el) el.scrollTop = el.scrollHeight
+    window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior })
+    scrollMsgsToBottom(false)
     trackEvent('visit_chat', { userId })
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
@@ -433,8 +449,8 @@ export default function ChatClient({
   }, [newMsgCount])
 
   useEffect(() => {
-    if (atBottomRef.current) bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
+    if (atBottomRef.current) scrollMsgsToBottom(true)
+  }, [messages, scrollMsgsToBottom])
 
   // ── Emoji picker clickaway ────────────────────────────────────────────────
   useEffect(() => {
@@ -727,7 +743,7 @@ export default function ChatClient({
     setNewMsgCount(0)
     setPollsMap({})
     setLoadingRoom(false)
-    setTimeout(() => bottomRef.current?.scrollIntoView(), 80)
+    setTimeout(() => scrollMsgsToBottom(false), 80)
     // Load polls for any poll messages
     const pollMsgIds = msgs.filter(m => m.has_poll).map(m => m.id)
     if (pollMsgIds.length > 0) loadPollsForMessages(pollMsgIds)
@@ -994,7 +1010,7 @@ export default function ChatClient({
               if (prev.some(m => m.id === msg.id)) return prev
               return [...prev, msg]
             })
-            setTimeout(() => dmScrollRef.current?.scrollIntoView({ behavior: 'smooth' }), 0)
+            setTimeout(() => scrollDmToBottom(true), 0)
           }
           setDmConversations(prev => prev.map(c =>
             c.id !== msg.conversation_id ? c : {
@@ -1061,7 +1077,7 @@ export default function ChatClient({
     setSidebarTab('dms')
     setMobileView('chat')
     setUnreadDmIds(prev => { const next = new Set(prev); next.delete(conversationId); return next })
-    setTimeout(() => dmScrollRef.current?.scrollIntoView(), 80)
+    setTimeout(() => scrollDmToBottom(false), 80)
 
     setDmConversations(prev => {
       if (prev.some(c => c.id === conversationId)) return prev
@@ -1102,7 +1118,7 @@ export default function ChatClient({
     }
     setDmMessages(prev => [...prev, tempMsg])
     setInput('')
-    setTimeout(() => dmScrollRef.current?.scrollIntoView({ behavior: 'smooth' }), 0)
+    setTimeout(() => scrollDmToBottom(true), 0)
     inputRef.current?.focus()
     setDmSending(true)
     const result = await sendDmMessage(convId, msg)
@@ -1246,7 +1262,7 @@ export default function ChatClient({
       attachments: [{ id: tempPath, storage_bucket: STORAGE_BUCKET_FILES, storage_path: tempPath, mime_type: capturedFile.type, file_size: capturedFile.size, file_name: capturedFile.name }],
     }
     setMessages(prev => [...prev, tempMsg])
-    setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 0)
+    setTimeout(() => scrollMsgsToBottom(true), 0)
 
     setInput(''); setPendingMentions([]); setReplyingTo(null); setError(null); setMentionQuery(null)
     setAttachFile(null); inputRef.current?.focus()
@@ -1327,7 +1343,7 @@ export default function ChatClient({
     }
     setMessages(prev => [...prev, tempMsg])
     setSignedUrls(prev => ({ ...prev, [tempPath]: objectUrl }))
-    setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 0)
+    setTimeout(() => scrollMsgsToBottom(true), 0)
 
     // Clear UI immediately
     setInput(''); setPendingMentions([]); setReplyingTo(null); setError(null); setMentionQuery(null)
@@ -1415,7 +1431,7 @@ export default function ChatClient({
     }
     setMessages(prev => [...prev, tempMsg])
     setInput(''); setPendingMentions([]); setReplyingTo(null); setError(null); setMentionQuery(null)
-    setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 0)
+    setTimeout(() => scrollMsgsToBottom(true), 0)
     inputRef.current?.focus()
 
     setSending(true)
@@ -1586,7 +1602,7 @@ export default function ChatClient({
         .single()
       if (pollMsg) {
         setMessages(prev => prev.some(m => m.id === result.msgId) ? prev : [...prev, pollMsg as ChatMessage])
-        setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 50)
+        setTimeout(() => scrollMsgsToBottom(true), 50)
       }
       await loadPollsForMessages([result.msgId])
     }
@@ -1664,7 +1680,7 @@ export default function ChatClient({
   }
 
   const scrollToBottom = () => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    scrollMsgsToBottom(true)
     setNewMsgCount(0); atBottomRef.current = true
   }
 
@@ -2289,7 +2305,7 @@ export default function ChatClient({
 
           {/* ── DM messages area ───────────────────────────────────────────── */}
           {chatMode === 'dm' && (
-            <div className="flex-1 overflow-y-auto min-h-0 bg-gradient-to-b from-cream/15 to-paper/50 overscroll-contain">
+            <div ref={dmScrollContainerRef} className="flex-1 overflow-y-auto min-h-0 bg-gradient-to-b from-cream/15 to-paper/50 overscroll-contain">
               {dmMessages.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full gap-3 px-6 py-16">
                   <div className="w-14 h-14 rounded-2xl bg-rose/8 flex items-center justify-center">

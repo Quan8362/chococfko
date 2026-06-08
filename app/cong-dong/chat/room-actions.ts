@@ -69,7 +69,9 @@ export async function getRoomMembers(roomId: string): Promise<{
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'unauthenticated' }
 
-  const { data: membersData, error: membersError } = await supabase
+  const admin = createAdminClient()
+
+  const { data: membersData, error: membersError } = await admin
     .from('community_chat_room_members')
     .select('user_id, role, joined_at')
     .eq('room_id', roomId)
@@ -80,10 +82,14 @@ export async function getRoomMembers(roomId: string): Promise<{
   const memberIds = (membersData ?? []).map(m => m.user_id as string)
   if (memberIds.length === 0) return { members: [] }
 
-  const { data: profilesData } = await supabase
-    .from('profiles')
-    .select('id, display_name, avatar_url')
-    .in('id', memberIds)
+  const [{ data: profilesData }, { data: { users: authUsers } }] = await Promise.all([
+    admin.from('profiles').select('id, display_name, avatar_url').in('id', memberIds),
+    admin.auth.admin.listUsers({ perPage: 1000 }),
+  ])
+
+  const emailMap = new Map<string, string>(
+    authUsers.map(u => [u.id, u.email ?? ''])
+  )
 
   const profileMap: Record<string, { display_name: string | null; avatar_url: string | null }> = {}
   for (const p of profilesData ?? []) {
@@ -93,13 +99,18 @@ export async function getRoomMembers(roomId: string): Promise<{
     }
   }
 
-  const members: RoomMember[] = (membersData ?? []).map(m => ({
-    user_id: m.user_id as string,
-    role: m.role as 'owner' | 'admin' | 'member',
-    joined_at: m.joined_at as string,
-    display_name: profileMap[m.user_id as string]?.display_name ?? null,
-    avatar_url: profileMap[m.user_id as string]?.avatar_url ?? null,
-  }))
+  const members: RoomMember[] = (membersData ?? []).map(m => {
+    const uid = m.user_id as string
+    const profile = profileMap[uid]
+    const emailPrefix = emailMap.get(uid)?.split('@')[0] ?? null
+    return {
+      user_id: uid,
+      role: m.role as 'owner' | 'admin' | 'member',
+      joined_at: m.joined_at as string,
+      display_name: profile?.display_name || emailPrefix,
+      avatar_url: profile?.avatar_url ?? null,
+    }
+  })
 
   return { members }
 }
@@ -115,27 +126,63 @@ export async function searchUsersForRoom(
   const q = query.trim()
   if (!q) return { users: [] }
 
-  const { data: existingMembers } = await supabase
-    .from('community_chat_room_members')
-    .select('user_id')
-    .eq('room_id', roomId)
+  const admin = createAdminClient()
+
+  const [{ data: existingMembers }, { data: { users: authUsers } }] = await Promise.all([
+    admin.from('community_chat_room_members').select('user_id').eq('room_id', roomId),
+    admin.auth.admin.listUsers({ perPage: 1000 }),
+  ])
 
   const existingIds = new Set((existingMembers ?? []).map(m => m.user_id as string))
+  const qLower = q.toLowerCase()
 
-  const { data, error } = await supabase
+  // Build email map for all auth users
+  const emailMap = new Map<string, string>(
+    authUsers.map(u => [u.id, u.email ?? ''])
+  )
+
+  // IDs whose email/email-prefix matches the query
+  const emailMatchIds = authUsers
+    .filter(u => {
+      const email = u.email?.toLowerCase() ?? ''
+      return email.includes(qLower) || email.split('@')[0].includes(qLower)
+    })
+    .map(u => u.id)
+
+  // Search profiles by display_name (catches real names like "Đặng Thu Hà" → "đặng")
+  const { data: nameMatches } = await admin
     .from('profiles')
     .select('id, display_name, avatar_url')
     .ilike('display_name', `%${q}%`)
-    .not('display_name', 'is', null)
-    .limit(8)
+    .limit(20)
 
-  if (error) return { error: 'db_error' }
+  const nameMatchIds = new Set((nameMatches ?? []).map(p => p.id))
 
-  const users: UserSearchResult[] = (data ?? [])
-    .filter((p: { id: string }) => !existingIds.has(p.id))
-    .map((p: { id: string; display_name: string; avatar_url: string | null }) => ({
+  // Fetch profiles for email matches not already in name matches
+  const extraIds = emailMatchIds.filter(id => !nameMatchIds.has(id))
+  let extraProfiles: { id: string; display_name: string | null; avatar_url: string | null }[] = []
+  if (extraIds.length > 0) {
+    const { data } = await admin
+      .from('profiles')
+      .select('id, display_name, avatar_url')
+      .in('id', extraIds)
+      .limit(20)
+    extraProfiles = (data ?? [])
+  }
+
+  const combined = [...(nameMatches ?? []), ...extraProfiles]
+  const seen = new Set<string>()
+
+  const users: UserSearchResult[] = combined
+    .filter(p => {
+      if (existingIds.has(p.id) || seen.has(p.id)) return false
+      seen.add(p.id)
+      return true
+    })
+    .slice(0, 8)
+    .map(p => ({
       id: p.id,
-      display_name: p.display_name,
+      display_name: p.display_name || emailMap.get(p.id)?.split('@')[0] || '?',
       avatar_url: p.avatar_url,
     }))
 

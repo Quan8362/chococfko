@@ -24,9 +24,10 @@ async function getAuthState() {
 }
 
 export default async function Nav() {
-  const [t, tConf] = await Promise.all([
+  const [t, tConf, tJp] = await Promise.all([
     getTranslations('nav'),
     getTranslations('confessions'),
+    getTranslations('japanese'),
   ])
   const { user, isAdmin, avatarUrl } = await getAuthState()
   const displayName =
@@ -63,6 +64,9 @@ export default async function Nav() {
           </Link>
           <Link href="/games" className="px-3 py-1.5 rounded-lg hover:bg-line hover:text-rose transition-colors whitespace-nowrap">
             {t('mini_game')}
+          </Link>
+          <Link href="/tieng-nhat" className="px-3 py-1.5 rounded-lg hover:bg-line hover:text-rose transition-colors whitespace-nowrap">
+            {tJp('nav')}
           </Link>
         </nav>
 

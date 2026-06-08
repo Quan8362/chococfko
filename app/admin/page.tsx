@@ -317,6 +317,29 @@ export default async function AdminPage({
         </Link>
       </div>
 
+      {/* ── TIẾNG NHẬT SECTION ──────────────────────────────── */}
+      <div className="mb-10">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-serif font-bold text-[20px] tracking-[-0.2px] text-ink">🇯🇵 Tiếng Nhật</h2>
+          <Link href="/admin/tieng-nhat" className="text-[12px] font-semibold text-rose hover:underline">
+            Xem tất cả →
+          </Link>
+        </div>
+        <Link
+          href="/admin/tieng-nhat"
+          className="flex items-center gap-4 bg-paper border border-line rounded-2xl p-5 hover:border-rose/30 hover:-translate-y-0.5 hover:shadow-sm transition-all group"
+        >
+          <div className="text-[36px]">🇯🇵</div>
+          <div className="flex-1">
+            <h3 className="font-serif font-bold text-[16px] text-ink group-hover:text-rose transition-colors">Quản lý module Tiếng Nhật</h3>
+            <p className="text-[13px] text-muted mt-0.5">Từ điển, Kanji, Ngữ pháp, Quiz — thêm và chỉnh sửa nội dung học tiếng Nhật</p>
+          </div>
+          <svg className="w-5 h-5 text-muted group-hover:text-rose transition-colors shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+          </svg>
+        </Link>
+      </div>
+
       {/* ── PENDING PLACES SECTION ───────────────────────────── */}
       {pendingPlaces.length > 0 && (
         <div className="mb-10">

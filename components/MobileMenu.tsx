@@ -13,6 +13,7 @@ interface MobileMenuProps {
 export default function MobileMenu({ isLoggedIn }: MobileMenuProps) {
   const t = useTranslations('nav')
   const tConf = useTranslations('confessions')
+  const tJp = useTranslations('japanese')
   const [open, setOpen] = useState(false)
 
   useEffect(() => {
@@ -68,6 +69,9 @@ export default function MobileMenu({ isLoggedIn }: MobileMenuProps) {
               </Link>
               <Link href="/games" onClick={close} className="flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
                 {t('mini_game')}
+              </Link>
+              <Link href="/tieng-nhat" onClick={close} className="flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
+                <span>🇯🇵</span> {tJp('nav')}
               </Link>
               <Link href="/cong-dong/viet-bai" onClick={close} className="flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] font-semibold text-rose hover:bg-rose-soft transition-colors">
                 {t('write_post')}

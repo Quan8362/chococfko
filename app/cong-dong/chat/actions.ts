@@ -50,8 +50,23 @@ export async function sendMessage(
     user.email?.split('@')[0] ||
     'Thành viên'
 
-  // Resolve display names for mentioned users
-  const safeIds = (mentionedUserIds ?? []).filter(id => id !== user.id)
+  // Resolve display names for mentioned users.
+  // Server-side: also parse the message text for @Token patterns so that
+  // manually typed @mentions (without selecting from the autocomplete
+  // dropdown) still trigger notifications.
+  const atTokens = Array.from(new Set((trimmed.match(/@(\S+)/g) ?? []).map(t => t.slice(1))))
+  const clientIds = (mentionedUserIds ?? []).filter(id => id !== user.id)
+  let safeIds = clientIds
+  if (atTokens.length > 0) {
+    const { data: atProfiles } = await supabase
+      .from('profiles')
+      .select('id, display_name')
+      .in('display_name', atTokens)
+    const parsedIds = (atProfiles ?? [])
+      .map(p => p.id as string)
+      .filter(id => id !== user.id && !clientIds.includes(id))
+    if (parsedIds.length > 0) safeIds = Array.from(new Set([...clientIds, ...parsedIds]))
+  }
   let mentionedNames: string[] = []
   if (safeIds.length > 0) {
     const { data: mentionedProfiles } = await supabase
@@ -350,7 +365,19 @@ export async function saveImageMessage(
     user.email?.split('@')[0] ||
     'Thành viên'
 
-  const safeIds = (mentionedUserIds ?? []).filter(id => id !== user.id)
+  const atTokens = Array.from(new Set((trimmedCaption.match(/@(\S+)/g) ?? []).map(t => t.slice(1))))
+  const clientIds = (mentionedUserIds ?? []).filter(id => id !== user.id)
+  let safeIds = clientIds
+  if (atTokens.length > 0) {
+    const { data: atProfiles } = await supabase
+      .from('profiles')
+      .select('id, display_name')
+      .in('display_name', atTokens)
+    const parsedIds = (atProfiles ?? [])
+      .map(p => p.id as string)
+      .filter(id => id !== user.id && !clientIds.includes(id))
+    if (parsedIds.length > 0) safeIds = Array.from(new Set([...clientIds, ...parsedIds]))
+  }
   let mentionedNames: string[] = []
   if (safeIds.length > 0) {
     const { data: mentionedProfiles } = await supabase
@@ -478,7 +505,19 @@ export async function saveFileMessage(
     user.email?.split('@')[0] ||
     'Thành viên'
 
-  const safeIds = (mentionedUserIds ?? []).filter(id => id !== user.id)
+  const atTokens = Array.from(new Set((trimmedCaption.match(/@(\S+)/g) ?? []).map(t => t.slice(1))))
+  const clientIds = (mentionedUserIds ?? []).filter(id => id !== user.id)
+  let safeIds = clientIds
+  if (atTokens.length > 0) {
+    const { data: atProfiles } = await supabase
+      .from('profiles')
+      .select('id, display_name')
+      .in('display_name', atTokens)
+    const parsedIds = (atProfiles ?? [])
+      .map(p => p.id as string)
+      .filter(id => id !== user.id && !clientIds.includes(id))
+    if (parsedIds.length > 0) safeIds = Array.from(new Set([...clientIds, ...parsedIds]))
+  }
   let mentionedNames: string[] = []
   if (safeIds.length > 0) {
     const { data: mentionedProfiles } = await supabase

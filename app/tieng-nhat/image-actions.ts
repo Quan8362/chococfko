@@ -37,15 +37,26 @@ type WordInput = {
   image_fetched_at?: string | null
 }
 
+const PIXABAY_TTL_MS = 20 * 3_600_000 // Pixabay webformatURLs expire after ~24h
+
 export async function getOrFetchWordImage(word: WordInput): Promise<WordImageResult> {
   // Already cached in DB
   if (word.image_url) {
-    return {
-      image_url: word.image_url,
-      image_alt: word.image_alt ?? null,
-      image_source: word.image_source ?? null,
-      image_credit_url: word.image_credit_url ?? null,
+    // Pixabay webformatURLs expire after ~24h — skip cache if too old
+    const isPixabayStale =
+      word.image_source === 'pixabay' &&
+      word.image_fetched_at != null &&
+      Date.now() - new Date(word.image_fetched_at).getTime() > PIXABAY_TTL_MS
+
+    if (!isPixabayStale) {
+      return {
+        image_url: word.image_url,
+        image_alt: word.image_alt ?? null,
+        image_source: word.image_source ?? null,
+        image_credit_url: word.image_credit_url ?? null,
+      }
     }
+    // Stale Pixabay URL — fall through to re-fetch
   }
 
   // Skip if recently tried and failed (avoid hammering the API)

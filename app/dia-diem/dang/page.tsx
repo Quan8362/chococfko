@@ -225,7 +225,7 @@ export default async function DangDiaDiem({
               href="/"
               className="px-7 py-3 rounded-full border border-line text-[14.5px] font-semibold text-muted hover:bg-line hover:text-ink transition-all text-center"
             >
-              Huỷ
+              {t('cancel')}
             </Link>
           </div>
         </form>

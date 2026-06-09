@@ -95,13 +95,13 @@ export default async function LienHe() {
         {/* Feedback link */}
         <div className="bg-rose/5 border border-rose/20 rounded-2xl p-6 flex items-center justify-between gap-4 flex-wrap">
           <p className="text-[14.5px] text-muted">
-            Có ý kiến hoặc muốn báo lỗi?
+            {t('feedback_prompt')}
           </p>
           <Link
             href="/gop-y"
             className="flex-none font-semibold text-[13.5px] px-5 py-2.5 rounded-full bg-rose text-white hover:bg-rose-deep transition-colors"
           >
-            Góp ý →
+            {t('feedback_cta')}
           </Link>
         </div>
 

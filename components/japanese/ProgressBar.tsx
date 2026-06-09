@@ -1,3 +1,5 @@
+import { useTranslations } from 'next-intl'
+
 interface ProgressBarProps {
   total: number
   mastered: number
@@ -7,6 +9,7 @@ interface ProgressBarProps {
 }
 
 export default function ProgressBar({ total, mastered, review, learning, label }: ProgressBarProps) {
+  const t = useTranslations('japanese')
   if (total === 0) return null
 
   const masteredPct = Math.round((mastered / total) * 100)
@@ -21,21 +24,21 @@ export default function ProgressBar({ total, mastered, review, learning, label }
           <div
             className="bg-emerald-500 transition-all duration-500"
             style={{ width: `${masteredPct}%` }}
-            title={`Đã nhớ: ${mastered}`}
+            title={`${t('mastered')}: ${mastered}`}
           />
         )}
         {review > 0 && (
           <div
             className="bg-amber-400 transition-all duration-500"
             style={{ width: `${reviewPct}%` }}
-            title={`Cần ôn: ${review}`}
+            title={`${t('need_review')}: ${review}`}
           />
         )}
         {learning > 0 && (
           <div
             className="bg-blue-400 transition-all duration-500"
             style={{ width: `${learningPct}%` }}
-            title={`Đang học: ${learning}`}
+            title={`${t('status_learning')}: ${learning}`}
           />
         )}
       </div>

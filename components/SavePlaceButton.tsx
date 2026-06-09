@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 
 const STORAGE_KEY = 'chococfko_saved_places'
 const META_KEY = 'chococfko_saved_places_meta'
@@ -50,6 +51,7 @@ interface Props {
 
 export default function SavePlaceButton({ slug, name, area = '', img = '', categoryLabel = '', size = 'sm' }: Props) {
   const [saved, setSavedState] = useState(false)
+  const t = useTranslations('common')
 
   useEffect(() => {
     setSavedState(getSaved().includes(slug))
@@ -85,8 +87,8 @@ export default function SavePlaceButton({ slug, name, area = '', img = '', categ
   return (
     <button
       onClick={toggle}
-      aria-label={saved ? `Bỏ lưu ${name}` : `Lưu ${name}`}
-      title={saved ? `Bỏ lưu ${name}` : `Lưu ${name}`}
+      aria-label={saved ? t('unsave_place', { name }) : t('save_place', { name })}
+      title={saved ? t('unsave_place', { name }) : t('save_place', { name })}
       className={`${sz} flex items-center justify-center rounded-full transition-all duration-200 ${
         saved
           ? 'bg-rose text-white shadow-[0_2px_8px_-2px_rgba(194,24,91,0.5)]'

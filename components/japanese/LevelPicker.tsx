@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import JlptBadge from './JlptBadge'
 
 export const JLPT_LEVELS = ['N5', 'N4', 'N3', 'N2', 'N1'] as const
@@ -28,6 +29,7 @@ interface LevelPickerProps {
 }
 
 export default function LevelPicker({ levels }: LevelPickerProps) {
+  const t = useTranslations('japanese')
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {levels.map(({ level, desc, count, href, label, countLabel, countDisplay }) => (
@@ -40,7 +42,7 @@ export default function LevelPicker({ levels }: LevelPickerProps) {
             <JlptBadge level={level} />
             {(countDisplay ?? count > 0) && (
               <span className="text-[12px] text-muted">
-                {countDisplay ?? `${count} ${countLabel ?? 'từ'}`}
+                {countDisplay ?? `${count} ${countLabel ?? t('unit_word')}`}
               </span>
             )}
           </div>

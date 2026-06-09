@@ -13,18 +13,6 @@ import { cleanMeaningText } from '@/lib/sanitize'
 
 export const dynamic = 'force-dynamic'
 
-const POS_VI: Record<string, string> = {
-  verb: 'Động từ', noun: 'Danh từ', adjective: 'Tính từ',
-  adverb: 'Trạng từ', particle: 'Trợ từ', conjunction: 'Liên từ',
-  interjection: 'Thán từ', pronoun: 'Đại từ',
-}
-
-const POS_EN: Record<string, string> = {
-  verb: 'Verb', noun: 'Noun', adjective: 'Adjective',
-  adverb: 'Adverb', particle: 'Particle', conjunction: 'Conjunction',
-  interjection: 'Interjection', pronoun: 'Pronoun',
-}
-
 async function fetchWord(wordParam: string) {
   const supabase = createClient()
   const select = 'id,word,reading,romaji,jlpt_level,pos,meanings,examples,tags,frequency,image_url,image_alt,image_source,image_credit_url,image_status,image_fetched_at'
@@ -148,7 +136,7 @@ export default async function WordDetailPage({ params }: { params: { word: strin
           <div className="flex items-center gap-2 mb-6 flex-wrap">
             {word.pos.map(p => (
               <span key={p} className="text-[11px] font-semibold bg-rose/8 text-rose border border-rose/20 px-2.5 py-0.5 rounded-full">
-                {(locale === 'en' ? POS_EN[p] : POS_VI[p]) ?? p}
+                {t.has(`pos_${p}`) ? t(`pos_${p}`) : p}
               </span>
             ))}
           </div>
@@ -184,11 +172,11 @@ export default async function WordDetailPage({ params }: { params: { word: strin
         {imageData.image_url && (
           <WordImage
             src={imageData.image_url}
-            alt={imageData.image_alt ?? `Ảnh minh họa cho từ ${word.word}`}
+            alt={imageData.image_alt ?? t('image_alt_for_word', { word: word.word })}
             creditUrl={imageData.image_credit_url}
             source={imageData.image_source}
             wordId={word.id}
-            label="Ảnh minh họa"
+            label={t('illustration_label')}
           />
         )}
 

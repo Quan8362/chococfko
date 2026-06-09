@@ -39,7 +39,7 @@ export default async function PlacePostCard({ post }: { post: Post }) {
 
         {/* Community badge */}
         <span className="absolute top-3 right-3 z-[2] text-[10px] font-semibold px-2 py-[4px] rounded-full bg-teal/10 text-teal border border-teal/20">
-          👤 Cộng đồng
+          👤 {t("community_badge")}
         </span>
 
         {/* Fee badge */}

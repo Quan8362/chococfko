@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminNotification } from '@/lib/admin/notifications'
 
@@ -23,41 +24,42 @@ const CATEGORY_LABEL: Record<string, string> = {
   kids_playground: 'Khu vui chơi dành cho bé',
 }
 
-function mapAuthError(msg: string, lang: 'login' | 'register'): string {
+function mapAuthError(msg: string, lang: 'login' | 'register', t: (key: string) => string): string {
   const m = msg.toLowerCase()
   if (m.includes('invalid login credentials') || m.includes('invalid credentials'))
-    return 'Email hoặc mật khẩu không đúng. Vui lòng kiểm tra lại.'
+    return t('err_invalid_credentials')
   if (m.includes('email not confirmed'))
-    return 'Email chưa được xác nhận. Vui lòng kiểm tra hộp thư và bấm vào link xác nhận.'
+    return t('err_email_not_confirmed')
   if (m.includes('user already registered') || m.includes('already been registered') || m.includes('already exists'))
-    return 'Email này đã được sử dụng. Vui lòng đăng nhập hoặc dùng email khác.'
+    return t('err_email_in_use')
   if (m.includes('password should be at least'))
-    return 'Mật khẩu quá ngắn. Vui lòng nhập ít nhất 6 ký tự.'
+    return t('err_password_short')
   if (m.includes('unable to validate email') || m.includes('invalid email'))
-    return 'Email không hợp lệ. Vui lòng kiểm tra lại.'
+    return t('err_invalid_email')
   if (m.includes('email rate limit') || m.includes('rate limit'))
-    return 'Quá nhiều yêu cầu. Vui lòng thử lại sau vài phút.'
+    return t('err_rate_limit')
   if (m.includes('signup is disabled'))
-    return 'Đăng ký tạm thời bị vô hiệu. Vui lòng thử lại sau.'
+    return t('err_signup_disabled')
   if (lang === 'login')
-    return 'Đăng nhập thất bại. Vui lòng thử lại.'
-  return 'Đăng ký thất bại. Vui lòng thử lại.'
+    return t('err_login_failed')
+  return t('err_register_failed')
 }
 
 export async function signUp(formData: FormData) {
   const supabase = createClient()
+  const t = await getTranslations('auth')
   const displayName = (formData.get('display_name') as string ?? '').trim()
   const email = (formData.get('email') as string ?? '').trim()
   const password = formData.get('password') as string ?? ''
 
   if (!displayName || displayName.length < 2)
-    redirect(`/dang-ky?error=${encodeURIComponent('Tên hiển thị phải có ít nhất 2 ký tự.')}`)
+    redirect(`/dang-ky?error=${encodeURIComponent(t('err_display_name_short'))}`)
   if (displayName.length > 50)
-    redirect(`/dang-ky?error=${encodeURIComponent('Tên hiển thị không được quá 50 ký tự.')}`)
+    redirect(`/dang-ky?error=${encodeURIComponent(t('err_display_name_long'))}`)
   if (!email)
-    redirect(`/dang-ky?error=${encodeURIComponent('Email không được để trống.')}`)
+    redirect(`/dang-ky?error=${encodeURIComponent(t('err_email_empty'))}`)
   if (password.length < 6)
-    redirect(`/dang-ky?error=${encodeURIComponent('Mật khẩu phải có ít nhất 6 ký tự.')}`)
+    redirect(`/dang-ky?error=${encodeURIComponent(t('err_password_min'))}`)
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://chococfko.com'
   const { error } = await supabase.auth.signUp({
@@ -68,19 +70,20 @@ export async function signUp(formData: FormData) {
       emailRedirectTo: `${siteUrl}/auth/callback?next=${encodeURIComponent('/dang-nhap?confirmed=1')}`,
     },
   })
-  if (error) redirect(`/dang-ky?error=${encodeURIComponent(mapAuthError(error.message, 'register'))}`)
+  if (error) redirect(`/dang-ky?error=${encodeURIComponent(mapAuthError(error.message, 'register', t))}`)
   redirect(`/dang-ky?success=1&email=${encodeURIComponent(email)}`)
 }
 
 export async function signIn(formData: FormData) {
   const supabase = createClient()
+  const t = await getTranslations('auth')
   const email = (formData.get('email') as string ?? '').trim()
   const password = formData.get('password') as string ?? ''
 
   if (!email)
-    redirect(`/dang-nhap?error=${encodeURIComponent('Email không được để trống.')}`)
+    redirect(`/dang-nhap?error=${encodeURIComponent(t('err_email_empty'))}`)
   if (!password)
-    redirect(`/dang-nhap?error=${encodeURIComponent('Mật khẩu không được để trống.')}`)
+    redirect(`/dang-nhap?error=${encodeURIComponent(t('err_password_empty'))}`)
 
   const { error } = await supabase.auth.signInWithPassword({ email, password })
   if (error) {
@@ -88,7 +91,7 @@ export async function signIn(formData: FormData) {
     if (msg.includes('email not confirmed') || msg.includes('email_not_confirmed')) {
       redirect(`/dang-nhap?unconfirmed=1&email=${encodeURIComponent(email)}`)
     }
-    redirect(`/dang-nhap?error=${encodeURIComponent(mapAuthError(error.message, 'login'))}`)
+    redirect(`/dang-nhap?error=${encodeURIComponent(mapAuthError(error.message, 'login', t))}`)
   }
   revalidatePath('/', 'layout')
   redirect('/')
@@ -133,8 +136,9 @@ function generateSlug(name: string): string {
 
 export async function submitPlace(formData: FormData) {
   const supabase = createClient()
+  const t = await getTranslations('auth')
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/dang-nhap?error=' + encodeURIComponent('Bạn cần đăng nhập để đăng địa điểm'))
+  if (!user) redirect('/dang-nhap?error=' + encodeURIComponent(t('err_login_required_place')))
 
   const name = (formData.get('name') as string).trim()
   const category = (formData.get('category') as string) || 'food'
@@ -174,11 +178,12 @@ export async function submitPlace(formData: FormData) {
 
 export async function submitPost(formData: FormData) {
   const supabase = createClient()
+  const t = await getTranslations('auth')
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (!user) redirect('/dang-nhap?error=' + encodeURIComponent('Bạn cần đăng nhập để viết bài'))
+  if (!user) redirect('/dang-nhap?error=' + encodeURIComponent(t('err_login_required_post')))
 
   const category = (formData.get('category') as string) || 'food'
   const post_type = (formData.get('post_type') as string) || 'community'

@@ -55,8 +55,8 @@ export default function ChineseChessHistoryClient({
             <span>{t('history_red')}</span>
             <span className="text-center">vs</span>
             <span className="pl-2">{t('history_black')}</span>
-            <span className="text-center">Kết quả</span>
-            <span className="text-center">Time</span>
+            <span className="text-center">{t('history_result')}</span>
+            <span className="text-center">{t('history_time')}</span>
           </div>
           {/* Rows */}
           {pageItems.map((row, idx) => {

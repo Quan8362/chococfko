@@ -31,7 +31,7 @@ export default function MobileMenu({ isLoggedIn }: MobileMenuProps) {
     <>
       <button
         onClick={() => setOpen(v => !v)}
-        aria-label="Mở menu"
+        aria-label={t('open_menu')}
         aria-expanded={open}
         className="md:hidden flex flex-col justify-center gap-[5px] p-2 -mr-1"
       >

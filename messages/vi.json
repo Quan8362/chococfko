@@ -29,7 +29,8 @@
     "map": "Bản đồ",
     "mini_game": "🎮 Mini Game",
     "chat": "Chat",
-    "japanese": "Học tiếng Nhật"
+    "japanese": "Học tiếng Nhật",
+    "open_menu": "Mở menu"
   },
   "home": {
     "write_cta": "✍️ Viết bài",
@@ -100,7 +101,23 @@
     "email_confirmed_sub": "Tài khoản của bạn đã sẵn sàng. Đăng nhập ngay bên dưới.",
     "unconfirmed_note": "Email chưa được xác nhận. Vui lòng kiểm tra hộp thư và bấm link xác nhận trước khi đăng nhập.",
     "resend_for_email": "Gửi lại cho",
-    "confirm_required": "Bạn cần xác nhận email trước khi sử dụng chức năng này."
+    "confirm_required": "Bạn cần xác nhận email trước khi sử dụng chức năng này.",
+    "err_invalid_credentials": "Email hoặc mật khẩu không đúng. Vui lòng kiểm tra lại.",
+    "err_email_not_confirmed": "Email chưa được xác nhận. Vui lòng kiểm tra hộp thư và bấm vào link xác nhận.",
+    "err_email_in_use": "Email này đã được sử dụng. Vui lòng đăng nhập hoặc dùng email khác.",
+    "err_password_short": "Mật khẩu quá ngắn. Vui lòng nhập ít nhất 6 ký tự.",
+    "err_invalid_email": "Email không hợp lệ. Vui lòng kiểm tra lại.",
+    "err_rate_limit": "Quá nhiều yêu cầu. Vui lòng thử lại sau vài phút.",
+    "err_signup_disabled": "Đăng ký tạm thời bị vô hiệu. Vui lòng thử lại sau.",
+    "err_login_failed": "Đăng nhập thất bại. Vui lòng thử lại.",
+    "err_register_failed": "Đăng ký thất bại. Vui lòng thử lại.",
+    "err_display_name_short": "Tên hiển thị phải có ít nhất 2 ký tự.",
+    "err_display_name_long": "Tên hiển thị không được quá 50 ký tự.",
+    "err_email_empty": "Email không được để trống.",
+    "err_password_min": "Mật khẩu phải có ít nhất 6 ký tự.",
+    "err_password_empty": "Mật khẩu không được để trống.",
+    "err_login_required_place": "Bạn cần đăng nhập để đăng địa điểm",
+    "err_login_required_post": "Bạn cần đăng nhập để viết bài"
   },
   "image_upload": {
     "drag_drop": "Kéo thả ảnh vào đây",
@@ -158,7 +175,34 @@
     "back_place": "← Về trang Khám phá",
     "success_sub_place": "Bài viết đang chờ admin duyệt. Khi được duyệt, địa điểm sẽ xuất hiện đúng chủ đề trong trang Khám phá.",
     "view_explore": "Xem trang Khám phá",
-    "write_another_place": "Đăng địa điểm khác"
+    "write_another_place": "Đăng địa điểm khác",
+    "editor_bold": "In đậm (Ctrl+B)",
+    "editor_italic": "In nghiêng (Ctrl+I)",
+    "editor_underline": "Gạch chân",
+    "editor_strike": "Gạch ngang",
+    "editor_paragraph": "Đoạn văn",
+    "editor_h2": "Tiêu đề lớn (H2)",
+    "editor_h3": "Tiêu đề nhỏ (H3)",
+    "editor_bullet_list": "Danh sách chấm",
+    "editor_ordered_list": "Danh sách số",
+    "editor_blockquote": "Trích dẫn",
+    "editor_align_left": "Căn trái",
+    "editor_align_center": "Căn giữa",
+    "editor_align_right": "Căn phải",
+    "editor_link_prompt": "Nhập URL (vd: https://...):",
+    "editor_insert_link": "Chèn link",
+    "editor_insert_image": "Chèn ảnh vào bài",
+    "editor_horizontal_rule": "Đường kẻ ngang",
+    "editor_block_label": "Block:",
+    "editor_undo": "Hoàn tác (Ctrl+Z)",
+    "editor_redo": "Làm lại (Ctrl+Shift+Z)",
+    "editor_placeholder_default": "Hãy chia sẻ cảm nhận của bạn: địa điểm này có gì hay, nên đi lúc nào, cách đi ra sao, chi phí khoảng bao nhiêu?",
+    "editor_draft_found": "Bạn có bản nháp chưa hoàn thành.",
+    "editor_draft_restore": "Khôi phục",
+    "editor_draft_discard": "Bỏ qua",
+    "editor_uploading": "Đang tải ảnh lên...",
+    "editor_word_count": "{count} từ",
+    "editor_draft_saved": "Đã lưu nháp"
   },
   "comments": {
     "title": "Bình luận",
@@ -206,6 +250,7 @@
     "bodyLabel": "Mô tả chi tiết",
     "bodyPlaceholder": "Viết chi tiết về địa điểm: cách đến, giờ mở cửa, món nên thử...",
     "submitBtn": "Gửi địa điểm (chờ admin duyệt)",
+    "cancel": "Huỷ",
     "successHeading": "Địa điểm đã gửi!",
     "successSub": "Địa điểm của bạn đang chờ admin duyệt. Khi được duyệt, sẽ xuất hiện đúng chủ đề trong trang Khám phá.",
     "viewExplore": "Xem trang Khám phá",
@@ -276,7 +321,11 @@
     "page_prev": "Trước",
     "page_next": "Sau",
     "page_label": "Trang",
-    "per_page": "mỗi trang"
+    "per_page": "mỗi trang",
+    "community_badge": "Cộng đồng",
+    "save_place": "Lưu {name}",
+    "unsave_place": "Bỏ lưu {name}",
+    "you": "Bạn"
   },
   "filters": {
     "all": "Tất cả",
@@ -347,7 +396,8 @@
     "avatarHint": "JPG, PNG hoặc WebP. Tối đa 5MB.",
     "avatarErrType": "Chỉ chấp nhận file ảnh (JPG, PNG, WebP)",
     "avatarErrSize": "Ảnh không được quá 5MB",
-    "avatarErrUpload": "Lỗi upload: "
+    "avatarErrUpload": "Lỗi upload: ",
+    "back_home": "Trang chủ"
   },
   "footer": {
     "tagline": "\"Đi cùng nhau, kể cho nhau, để Fukuoka thành nhà.\"",
@@ -479,6 +529,8 @@
     "about_desc": "Nơi cộng đồng người Việt tại Fukuoka chia sẻ địa điểm ăn uống, vui chơi và khám phá thành phố. Mọi nội dung đều đến từ trải nghiệm thật của thành viên.",
     "email_label": "Email",
     "social_label": "Mạng xã hội",
+    "feedback_prompt": "Có ý kiến hoặc muốn báo lỗi?",
+    "feedback_cta": "Góp ý →",
     "back": "← Về trang chủ"
   },
   "policy_page": {
@@ -559,6 +611,7 @@
   },
   "confessions": {
     "nav": "FKO Confessions",
+    "insert_gif": "Chèn GIF",
     "title": "FKO Confessions",
     "subtitle": "Nơi bạn có thể chia sẻ câu chuyện, suy nghĩ và tâm sự ẩn danh cùng cộng đồng FKO.",
     "writeButton": "Viết confession",
@@ -724,6 +777,12 @@
     "users_desc": "Xem danh sách thành viên đã đăng ký",
     "users_view_list": "Xem danh sách",
     "confessions_desc": "Duyệt và quản lý confession ẩn danh",
+    "chat_title": "Quản lý Chat",
+    "chat_desc": "Duyệt và xóa tin nhắn cộng đồng",
+    "japanese_section_heading": "Tiếng Nhật",
+    "japanese_view_all": "Xem tất cả →",
+    "japanese_card_title": "Quản lý module Tiếng Nhật",
+    "japanese_card_desc": "Từ điển, Kanji, Ngữ pháp, Quiz — thêm và chỉnh sửa nội dung học tiếng Nhật",
     "pending_places_heading": "Địa điểm chờ duyệt",
     "n_pending_label": "{n} chờ duyệt",
     "community_posts_heading": "Bài viết cộng đồng",
@@ -854,7 +913,8 @@
       "empty_category": "Chủ đề này chưa có địa điểm để quay.",
       "empty_hint": "Vui lòng chọn chủ đề khác.",
       "breadcrumb": "Mini Game",
-      "solo": "1 người"
+      "solo": "1 người",
+      "place_count": "{count} địa điểm"
     },
     "caro": {
       "badge": "⚫ Cờ Caro",
@@ -1030,7 +1090,15 @@
       "leaderboard_win_rate": "Tỉ lệ %",
       "leaderboard_empty": "Chưa có dữ liệu",
       "leaderboard_empty_sub": "Hãy tham gia một giải đấu để xuất hiện trên bảng xếp hạng",
-      "leaderboard_view": "Xem bảng xếp hạng"
+      "leaderboard_view": "Xem bảng xếp hạng",
+      "tournaments_link": "Giải đấu →",
+      "view_tournaments_link": "Xem giải đấu →",
+      "you_label": "(Bạn)",
+      "leaderboard_players_footer": "{count} người chơi · Dữ liệu cập nhật theo kết quả giải đấu",
+      "tournament_view_detail": "Xem chi tiết",
+      "realtime_update": "Cập nhật realtime",
+      "slots_available": "Còn chỗ trống!",
+      "eliminated_label": "Bị loại"
     },
     "chinese_chess": {
       "badge": "🎮 Cờ Tướng",
@@ -1059,6 +1127,8 @@
       "history_vs": "VS",
       "history_red": "Quân Đỏ",
       "history_black": "Quân Đen",
+      "history_result": "Kết quả",
+      "history_time": "Thời gian",
       "win_red": "Đỏ thắng",
       "win_black": "Đen thắng",
       "draw": "Hòa",
@@ -1310,7 +1380,12 @@
     "confession_status_pending": "Đang chờ duyệt",
     "confession_status_approved": "Đã duyệt",
     "confession_status_rejected": "Đã từ chối",
-    "confession_status_deleted": "Đã xóa"
+    "confession_status_deleted": "Đã xóa",
+    "mention_dm_room": "Tin nhắn riêng",
+    "mention_mentioned_you": "{name} đề cập đến bạn",
+    "mention_badge": "@ đề cập",
+    "close": "Đóng",
+    "view_now": "Xem ngay →"
   },
   "community_chat": {
     "title": "Chat cộng đồng",
@@ -1474,7 +1549,13 @@
     "search_users_placeholder": "Tìm tên người dùng...",
     "search_hint": "Nhập ít nhất 2 ký tự để tìm kiếm",
     "new_dm": "Nhắn tin mới",
-    "start_dm": "Gửi tin nhắn đầu tiên"
+    "start_dm": "Gửi tin nhắn đầu tiên",
+    "member_fallback": "Thành viên",
+    "close": "Đóng",
+    "vote_count_tooltip": "{count} lượt",
+    "and_n_others": "và {count} người khác",
+    "attach_options": "Tùy chọn",
+    "you_inline": "(bạn)"
   },
   "japanese": {
     "nav": "Học tiếng Nhật",
@@ -1644,6 +1725,17 @@
     "related_words": "Từ liên quan",
     "word_not_found": "Không tìm thấy từ này",
     "meanings_label": "Nghĩa",
-    "no_vietnamese_meaning": "Chưa có nghĩa tiếng Việt"
+    "no_vietnamese_meaning": "Chưa có nghĩa tiếng Việt",
+    "unit_word": "từ",
+    "pos_verb": "Động từ",
+    "pos_noun": "Danh từ",
+    "pos_adjective": "Tính từ",
+    "pos_adverb": "Trạng từ",
+    "pos_particle": "Trợ từ",
+    "pos_conjunction": "Liên từ",
+    "pos_interjection": "Thán từ",
+    "pos_pronoun": "Đại từ",
+    "image_alt_for_word": "Ảnh minh họa cho từ {word}",
+    "illustration_label": "Ảnh minh họa"
   }
 }

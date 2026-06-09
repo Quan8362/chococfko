@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import { checkIsAdmin } from '@/lib/supabase/admin'
 import ChatClient from './ChatClient'
@@ -105,6 +106,7 @@ export default async function CongDongChatPage({
   searchParams: { room?: string }
 }) {
   const supabase = createClient()
+  const t = await getTranslations('community_chat')
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) redirect('/dang-nhap')
@@ -216,7 +218,7 @@ export default async function CongDongChatPage({
               has_my_vote: myVoteOptionIds.includes(opt.id),
               voters: optVotes.map((v: Record<string, string>) => ({
                 user_id: v.user_id,
-                display_name: profileMap[v.user_id]?.display_name ?? 'Thành viên',
+                display_name: profileMap[v.user_id]?.display_name ?? t('member_fallback'),
                 avatar_url: profileMap[v.user_id]?.avatar_url ?? null,
               })),
             }
@@ -240,7 +242,7 @@ export default async function CongDongChatPage({
     profileResult.data?.display_name ||
     (user.user_metadata?.display_name as string | undefined) ||
     user.email?.split('@')[0] ||
-    'Thành viên'
+    t('member_fallback')
 
   return (
     <ChatClient

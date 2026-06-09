@@ -745,7 +745,7 @@ export default function ChatClient({
           has_my_vote: myVoteOptionIds.includes(opt.id),
           voters: optVotes.map((v: Record<string, string>) => ({
             user_id: v.user_id,
-            display_name: profileMap[v.user_id]?.display_name ?? 'Thành viên',
+            display_name: profileMap[v.user_id]?.display_name ?? t('member_fallback'),
             avatar_url: profileMap[v.user_id]?.avatar_url ?? null,
           })),
         }
@@ -2287,7 +2287,7 @@ export default function ChatClient({
                 <button
                   onClick={openGroupChat}
                   className="hidden md:flex flex-none w-7 h-7 rounded-full text-muted/40 hover:text-ink hover:bg-cream items-center justify-center transition-all text-[14px]"
-                  title="Đóng"
+                  title={t('close')}
                 >✕</button>
               </>
             ) : (
@@ -2622,7 +2622,7 @@ export default function ChatClient({
                                                   return next
                                                 })}
                                                 className="w-4 h-4 flex items-center justify-center text-muted/35 hover:text-rose transition-colors"
-                                                title={`${opt.vote_count} lượt`}
+                                                title={t('vote_count_tooltip', { count: opt.vote_count })}
                                               >
                                                 <svg className={`w-3 h-3 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
@@ -2844,7 +2844,7 @@ export default function ChatClient({
                                   {showTooltip && (
                                     <div className={`pointer-events-none absolute z-50 bottom-full mb-1.5 bg-ink/90 text-white text-[11px] leading-none rounded-lg px-2.5 py-1.5 shadow-lg whitespace-nowrap w-max max-w-[260px] overflow-hidden text-ellipsis ${isMe ? 'right-0' : 'left-0'}`}>
                                       {r.users.slice(0, 5).join(', ')}
-                                      {r.users.length > 5 && ` và ${r.users.length - 5} người khác`}
+                                      {r.users.length > 5 && ` ${t('and_n_others', { count: r.users.length - 5 })}`}
                                     </div>
                                   )}
                                 </div>
@@ -3264,7 +3264,7 @@ export default function ChatClient({
                 className={`flex-none w-9 h-9 rounded-full flex items-center justify-center transition-all font-semibold text-[20px] leading-none shrink-0 ${
                   showAttachMenu ? 'bg-rose text-white shadow-sm' : 'bg-rose/10 text-rose hover:bg-rose/20'
                 }`}
-                title="Tùy chọn"
+                title={t('attach_options')}
               >+</button>
             )}
 
@@ -3714,8 +3714,8 @@ export default function ChatClient({
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-[13px] font-medium text-ink truncate">
-                          {member.display_name ?? 'Thành viên'}
-                          {member.user_id === userId && <span className="text-muted/40 font-normal ml-1 text-[11px]">(bạn)</span>}
+                          {member.display_name ?? t('member_fallback')}
+                          {member.user_id === userId && <span className="text-muted/40 font-normal ml-1 text-[11px]">{t('you_inline')}</span>}
                         </p>
                         {member.role !== 'member' && (
                           <p className="text-[10.5px] text-muted/60">

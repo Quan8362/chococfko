@@ -242,7 +242,7 @@ export default function DestinationWheel({ places, categories }: Props) {
           {/* Place count hint */}
           {!noPlaces && (
             <p className="text-[11px] text-muted/50 mt-3">
-              {filteredPlaces.length} địa điểm
+              {t('place_count', { count: filteredPlaces.length })}
             </p>
           )}
         </div>

@@ -41,7 +41,7 @@ export default async function HoSoPage({
         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
         </svg>
-        Trang chủ
+        {t('back_home')}
       </Link>
 
       {/* Page header */}

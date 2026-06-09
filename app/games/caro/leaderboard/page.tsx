@@ -83,7 +83,7 @@ export default async function CaroLeaderboardPage() {
           href="/games/caro/tournaments"
           className="flex-none text-[12.5px] font-medium text-muted hover:text-rose transition-colors mt-1"
         >
-          Giải đấu →
+          {t('tournaments_link')}
         </Link>
       </div>
 
@@ -97,7 +97,7 @@ export default async function CaroLeaderboardPage() {
             href="/games/caro/tournaments"
             className="inline-block mt-5 text-[13px] font-semibold text-rose hover:underline"
           >
-            Xem giải đấu →
+            {t('view_tournaments_link')}
           </Link>
         </div>
       ) : (
@@ -178,7 +178,7 @@ export default async function CaroLeaderboardPage() {
                           <span className={`font-semibold truncate max-w-[180px] ${isMe ? 'text-rose' : 'text-ink'}`}>
                             {displayName}
                             {isMe && (
-                              <span className="ml-1.5 text-[10px] font-normal text-rose/60">(Bạn)</span>
+                              <span className="ml-1.5 text-[10px] font-normal text-rose/60">{t('you_label')}</span>
                             )}
                           </span>
                         </div>
@@ -234,7 +234,7 @@ export default async function CaroLeaderboardPage() {
           </div>
 
           <div className="px-5 py-3 bg-cream/40 border-t border-line text-[11.5px] text-muted/50 text-center">
-            {leaderboard.length} {leaderboard.length === 1 ? 'người chơi' : 'người chơi'} · Dữ liệu cập nhật theo kết quả giải đấu
+            {t('leaderboard_players_footer', { count: leaderboard.length })}
           </div>
         </div>
       )}

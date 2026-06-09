@@ -29,7 +29,8 @@
     "map": "地图",
     "mini_game": "🎮 小游戏",
     "chat": "聊天",
-    "japanese": "学日语"
+    "japanese": "学日语",
+    "open_menu": "打开菜单"
   },
   "home": {
     "write_cta": "✍️ 写文章",
@@ -100,10 +101,43 @@
     "email_confirmed_sub": "您的账号已准备就绪，请在下方登录。",
     "unconfirmed_note": "您的邮箱尚未验证。请检查收件箱并点击验证链接后再登录。",
     "resend_for_email": "重发给",
-    "confirm_required": "使用此功能前，请先验证您的邮箱。"
+    "confirm_required": "使用此功能前，请先验证您的邮箱。",
+    "err_invalid_credentials": "邮箱或密码不正确。请重新检查。",
+    "err_email_not_confirmed": "邮箱尚未验证。请查收邮件并点击验证链接。",
+    "err_email_in_use": "该邮箱已被使用。请登录或使用其他邮箱。",
+    "err_password_short": "密码太短。请至少输入 6 个字符。",
+    "err_invalid_email": "邮箱无效。请重新检查。",
+    "err_rate_limit": "请求过于频繁。请几分钟后再试。",
+    "err_signup_disabled": "注册暂时已停用。请稍后再试。",
+    "err_login_failed": "登录失败。请重试。",
+    "err_register_failed": "注册失败。请重试。",
+    "err_display_name_short": "显示名称至少需要 2 个字符。",
+    "err_display_name_long": "显示名称不能超过 50 个字符。",
+    "err_email_empty": "邮箱不能为空。",
+    "err_password_min": "密码至少需要 6 个字符。",
+    "err_password_empty": "密码不能为空。",
+    "err_login_required_place": "您需要登录才能发布地点",
+    "err_login_required_post": "您需要登录才能发表文章"
+  },
+  "image_upload": {
+    "drag_drop": "将图片拖放到此处",
+    "or_click": "或点击选择 · JPG, PNG, WebP · 最大 5MB",
+    "hint": "✨ 精美的照片让你的帖子更出彩",
+    "uploading": "正在上传图片...",
+    "uploaded": "照片已上传",
+    "change": "更换照片",
+    "err_type": "仅接受图片文件 (JPG, PNG, WebP)",
+    "err_size": "图片不能超过 5MB",
+    "err_upload_prefix": "上传错误："
   },
   "post_form": {
     "heading": "分享地点",
+    "callout_tip": "提示",
+    "callout_warning": "注意",
+    "callout_cost": "费用",
+    "callout_transit": "交通",
+    "callout_highlight": "亮点",
+    "callout_add_prefix": "添加区块：",
     "sub": "说说你刚去过的地方吧。",
     "writing_as": "发布者：",
     "title_label": "地点名称 / 标题",
@@ -141,7 +175,34 @@
     "back_place": "← 返回探索页",
     "success_sub_place": "您的帖子正在等待审核。审核通过后，该地点将出现在探索页面的对应分类中。",
     "view_explore": "查看探索页面",
-    "write_another_place": "再发布一个地点"
+    "write_another_place": "再发布一个地点",
+    "editor_bold": "加粗 (Ctrl+B)",
+    "editor_italic": "斜体 (Ctrl+I)",
+    "editor_underline": "下划线",
+    "editor_strike": "删除线",
+    "editor_paragraph": "段落",
+    "editor_h2": "大标题 (H2)",
+    "editor_h3": "小标题 (H3)",
+    "editor_bullet_list": "项目符号列表",
+    "editor_ordered_list": "编号列表",
+    "editor_blockquote": "引用",
+    "editor_align_left": "左对齐",
+    "editor_align_center": "居中对齐",
+    "editor_align_right": "右对齐",
+    "editor_link_prompt": "输入网址 (例如 https://...):",
+    "editor_insert_link": "插入链接",
+    "editor_insert_image": "插入图片",
+    "editor_horizontal_rule": "水平线",
+    "editor_block_label": "区块:",
+    "editor_undo": "撤销 (Ctrl+Z)",
+    "editor_redo": "重做 (Ctrl+Shift+Z)",
+    "editor_placeholder_default": "分享你的感受：这个地方有什么特别之处、什么时候去、怎么去、大概花费多少？",
+    "editor_draft_found": "你有一篇未完成的草稿。",
+    "editor_draft_restore": "恢复",
+    "editor_draft_discard": "忽略",
+    "editor_uploading": "正在上传图片...",
+    "editor_word_count": "{count} 字",
+    "editor_draft_saved": "草稿已保存"
   },
   "comments": {
     "title": "评论",
@@ -189,6 +250,7 @@
     "bodyLabel": "详细描述",
     "bodyPlaceholder": "地点详情：交通方式、营业时间、推荐菜品等...",
     "submitBtn": "提交地点（等待审核）",
+    "cancel": "取消",
     "successHeading": "提交成功！",
     "successSub": "您的地点正在等待管理员审核。通过后将显示在探索页面的相应分类中。",
     "viewExplore": "查看探索页面",
@@ -259,7 +321,11 @@
     "page_prev": "上一页",
     "page_next": "下一页",
     "page_label": "第",
-    "per_page": "条/页"
+    "per_page": "条/页",
+    "community_badge": "社区",
+    "save_place": "保存 {name}",
+    "unsave_place": "取消保存 {name}",
+    "you": "你"
   },
   "filters": {
     "all": "全部",
@@ -330,7 +396,8 @@
     "avatarHint": "JPG、PNG 或 WebP，最大 5MB。",
     "avatarErrType": "仅支持图片文件（JPG、PNG、WebP）",
     "avatarErrSize": "图片不能超过 5MB",
-    "avatarErrUpload": "上传错误："
+    "avatarErrUpload": "上传错误：",
+    "back_home": "首页"
   },
   "footer": {
     "tagline": "\"一起旅行，一起分享，让福冈成为家。\"",
@@ -462,6 +529,8 @@
     "about_desc": "福冈越南人社区分享美食、活动和城市探索的地方。所有内容都来自成员的真实体验。",
     "email_label": "电子邮件",
     "social_label": "社交媒体",
+    "feedback_prompt": "有意见或想报告问题吗？",
+    "feedback_cta": "提交反馈 →",
     "back": "← 返回首页"
   },
   "policy_page": {
@@ -542,6 +611,7 @@
   },
   "confessions": {
     "nav": "FKO Confessions",
+    "insert_gif": "插入 GIF",
     "title": "FKO Confessions",
     "subtitle": "在FKO社区匿名分享你的故事、想法和心声。",
     "writeButton": "写一篇 confession",
@@ -707,6 +777,12 @@
     "users_desc": "查看注册会员列表",
     "users_view_list": "查看列表",
     "confessions_desc": "审核和管理匿名告白",
+    "chat_title": "聊天管理",
+    "chat_desc": "审核和删除社区消息",
+    "japanese_section_heading": "日语",
+    "japanese_view_all": "查看全部 →",
+    "japanese_card_title": "管理日语模块",
+    "japanese_card_desc": "词典、汉字、语法、测验 — 添加和编辑日语学习内容",
     "pending_places_heading": "待审核的地点",
     "n_pending_label": "{n}个待审核",
     "community_posts_heading": "社区帖子",
@@ -832,7 +908,8 @@
       "empty_category": "此分类暂无地点。",
       "empty_hint": "请选择其他分类。",
       "breadcrumb": "迷你游戏",
-      "solo": "1人"
+      "solo": "1人",
+      "place_count": "{count} 个地点"
     },
     "page_badge": "🎮 小游戏",
     "page_heading": "娱乐角 — 与社区一起玩",
@@ -1013,7 +1090,15 @@
       "leaderboard_win_rate": "胜率",
       "leaderboard_empty": "暂无数据",
       "leaderboard_empty_sub": "参加赛事即可出现在排行榜上",
-      "leaderboard_view": "查看排行榜"
+      "leaderboard_view": "查看排行榜",
+      "tournaments_link": "比赛 →",
+      "view_tournaments_link": "查看比赛 →",
+      "you_label": "(你)",
+      "leaderboard_players_footer": "{count} 名玩家 · 数据根据比赛结果更新",
+      "tournament_view_detail": "查看详情",
+      "realtime_update": "实时更新",
+      "slots_available": "有空位！",
+      "eliminated_label": "淘汰"
     },
     "chinese_chess": {
       "badge": "🎮 中国象棋",
@@ -1042,6 +1127,8 @@
       "history_vs": "VS",
       "history_red": "红方",
       "history_black": "黑方",
+      "history_result": "结果",
+      "history_time": "时间",
       "win_red": "红方胜",
       "win_black": "黑方胜",
       "draw": "和棋",
@@ -1293,7 +1380,12 @@
     "confession_status_pending": "待审核",
     "confession_status_approved": "已通过",
     "confession_status_rejected": "已拒绝",
-    "confession_status_deleted": "已删除"
+    "confession_status_deleted": "已删除",
+    "mention_dm_room": "私信",
+    "mention_mentioned_you": "{name} 提到了你",
+    "mention_badge": "@ 提及",
+    "close": "关闭",
+    "view_now": "立即查看 →"
   },
   "community_chat": {
     "title": "社区聊天",
@@ -1457,7 +1549,13 @@
     "search_users_placeholder": "按名字搜索...",
     "search_hint": "请输入至少2个字符",
     "new_dm": "新建消息",
-    "start_dm": "发送第一条消息"
+    "start_dm": "发送第一条消息",
+    "member_fallback": "成员",
+    "close": "关闭",
+    "vote_count_tooltip": "{count} 票",
+    "and_n_others": "等 {count} 人",
+    "attach_options": "选项",
+    "you_inline": "(你)"
   },
   "japanese": {
     "nav": "学日语",
@@ -1627,6 +1725,17 @@
     "related_words": "相关词汇",
     "word_not_found": "未找到该词",
     "meanings_label": "含义",
-    "no_vietnamese_meaning": "暂无越南语释义"
+    "no_vietnamese_meaning": "暂无越南语释义",
+    "unit_word": "词",
+    "pos_verb": "动词",
+    "pos_noun": "名词",
+    "pos_adjective": "形容词",
+    "pos_adverb": "副词",
+    "pos_particle": "助词",
+    "pos_conjunction": "连词",
+    "pos_interjection": "感叹词",
+    "pos_pronoun": "代词",
+    "image_alt_for_word": "「{word}」的插图",
+    "illustration_label": "插图"
   }
 }

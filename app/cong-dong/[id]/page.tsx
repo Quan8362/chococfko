@@ -39,7 +39,8 @@ async function getCurrentUser() {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return null
-    const name = user.user_metadata?.display_name || user.email?.split('@')[0] || 'Bạn'
+    const t = await getTranslations('common')
+    const name = user.user_metadata?.display_name || user.email?.split('@')[0] || t('you')
     return { id: user.id, name, initial: name[0].toUpperCase() }
   } catch {
     return null

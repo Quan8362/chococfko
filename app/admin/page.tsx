@@ -281,9 +281,9 @@ export default async function AdminPage({
               💬
             </div>
             <h2 className="font-serif font-bold text-[16.5px] text-ink mb-1 group-hover:text-violet-600 transition-colors">
-              Quản lý Chat
+              {admin_t('chat_title')}
             </h2>
-            <p className="text-[13px] text-muted mb-3.5 leading-relaxed">Duyệt và xóa tin nhắn cộng đồng</p>
+            <p className="text-[13px] text-muted mb-3.5 leading-relaxed">{admin_t('chat_desc')}</p>
             <span className="inline-flex items-center gap-1 text-[12px] font-semibold text-violet-600 bg-violet-50 px-2.5 py-1 rounded-full">
               {admin_t('manage')}
               <svg className="w-3 h-3 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -320,9 +320,9 @@ export default async function AdminPage({
       {/* ── TIẾNG NHẬT SECTION ──────────────────────────────── */}
       <div className="mb-10">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-serif font-bold text-[20px] tracking-[-0.2px] text-ink">🇯🇵 Tiếng Nhật</h2>
+          <h2 className="font-serif font-bold text-[20px] tracking-[-0.2px] text-ink">🇯🇵 {admin_t('japanese_section_heading')}</h2>
           <Link href="/admin/tieng-nhat" className="text-[12px] font-semibold text-rose hover:underline">
-            Xem tất cả →
+            {admin_t('japanese_view_all')}
           </Link>
         </div>
         <Link
@@ -331,8 +331,8 @@ export default async function AdminPage({
         >
           <div className="text-[36px]">🇯🇵</div>
           <div className="flex-1">
-            <h3 className="font-serif font-bold text-[16px] text-ink group-hover:text-rose transition-colors">Quản lý module Tiếng Nhật</h3>
-            <p className="text-[13px] text-muted mt-0.5">Từ điển, Kanji, Ngữ pháp, Quiz — thêm và chỉnh sửa nội dung học tiếng Nhật</p>
+            <h3 className="font-serif font-bold text-[16px] text-ink group-hover:text-rose transition-colors">{admin_t('japanese_card_title')}</h3>
+            <p className="text-[13px] text-muted mt-0.5">{admin_t('japanese_card_desc')}</p>
           </div>
           <svg className="w-5 h-5 text-muted group-hover:text-rose transition-colors shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />

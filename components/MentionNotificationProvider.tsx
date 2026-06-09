@@ -1,8 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 
 type MentionNotif = {
@@ -23,28 +22,53 @@ function fireOsNotification(
   body: string,
   icon: string | null,
   tag: string,
-  onClick: () => void,
+  url: string,
 ) {
   if (typeof Notification === 'undefined' || Notification.permission !== 'granted') return
-  const n = new Notification(title, {
+
+  const opts = {
     body,
     icon: icon ?? '/logo-nav.png',
     badge: '/logo-nav.png',
     tag,
     requireInteraction: false,
-  })
-  n.onclick = () => { onClick(); n.close() }
+  }
+
+  function fallback() {
+    console.log('[mention] using basic Notification()')
+    const n = new Notification(title, opts)
+    n.onclick = () => { n.close(); window.focus(); window.location.href = url }
+  }
+
+  // Fire-and-forget: không await, không block callback
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistration('/').then(reg => {
+      console.log('[mention] SW reg active:', !!reg?.active)
+      if (reg?.active) {
+        reg.showNotification(title, { ...opts, data: { url } })
+          .then(() => console.log('[mention] SW showNotification OK'))
+          .catch(err => { console.log('[mention] SW showNotification error:', err); fallback() })
+        return
+      }
+      fallback()
+    }).catch(err => { console.log('[mention] getRegistration error:', err); fallback() })
+  } else {
+    fallback()
+  }
 }
 
 export default function MentionNotificationProvider() {
-  const router = useRouter()
-  // Store router in ref so the Realtime async callback always has the latest instance
-  const routerRef = useRef(router)
-  useEffect(() => { routerRef.current = router }, [router])
-
+  const tn = useTranslations('notifications')
   const [userId, setUserId] = useState<string | null>(null)
   const [notifs, setNotifs] = useState<MentionNotif[]>([])
   const timers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map())
+
+  // Register service worker
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(() => {})
+    }
+  }, [])
 
   // Auth state
   useEffect(() => {
@@ -67,6 +91,7 @@ export default function MentionNotificationProvider() {
   // Realtime subscription to community_chat_mentions
   useEffect(() => {
     if (!userId) return
+    console.log('[mention] subscribing for userId:', userId)
     const supabase = createClient()
 
     const channel = supabase
@@ -80,12 +105,13 @@ export default function MentionNotificationProvider() {
           filter: `mentioned_user_id=eq.${userId}`,
         },
         async (payload) => {
+          console.log('[mention] realtime event received:', payload.new)
           const { id: mentionId, message_id, room_id } = payload.new as {
             id: string
             message_id: string
             room_id: string | null
           }
-          const [{ data: msg }, { data: roomData }] = await Promise.all([
+          const [{ data: msg, error: msgErr }, { data: roomData }] = await Promise.all([
             supabase
               .from('community_chat_messages')
               .select('display_name, avatar_url, message')
@@ -99,6 +125,7 @@ export default function MentionNotificationProvider() {
                   .single()
               : Promise.resolve({ data: null }),
           ])
+          console.log('[mention] msg:', msg, 'msgErr:', msgErr)
           if (!msg) return
 
           const room = roomData as { key: string; name: string } | null
@@ -109,31 +136,35 @@ export default function MentionNotificationProvider() {
             window.location.pathname.includes('/cong-dong/chat') &&
             room &&
             params.get('room') === room.key
-          ) return
+          ) {
+            console.log('[mention] suppressed — user is in same room')
+            return
+          }
 
           const preview = (msg.message ?? '')
             .replace(/<[^>]+>/g, '')
             .trim()
             .slice(0, 60)
-          const roomName = room?.name ?? 'Tin nhắn riêng'
+          const roomName = room?.name ?? tn('mention_dm_room')
           const roomUrl = room ? `/cong-dong/chat?room=${room.key}` : '/cong-dong/chat'
+
+          console.log('[mention] hidden:', document.hidden, 'hasFocus:', document.hasFocus())
 
           // Browser is backgrounded / tab not focused → OS system notification
           if (document.hidden || !document.hasFocus()) {
+            console.log('[mention] firing OS notification, permission:', Notification.permission)
             fireOsNotification(
-              `${msg.display_name ?? '?'} đề cập đến bạn`,
+              tn('mention_mentioned_you', { name: msg.display_name ?? '?' }),
               `${roomName}: ${preview}${preview.length >= 60 ? '…' : ''}`,
               msg.avatar_url ?? null,
               mentionId,
-              () => {
-                window.focus()
-                routerRef.current.push(roomUrl)
-              },
+              roomUrl,
             )
             return
           }
 
           // Tab is active → in-app popup
+          console.log('[mention] showing in-app popup')
           const notif: MentionNotif = {
             id: mentionId,
             senderName: msg.display_name ?? '???',
@@ -159,7 +190,9 @@ export default function MentionNotificationProvider() {
           timers.current.set(mentionId, t)
         }
       )
-      .subscribe()
+      .subscribe((status) => {
+        console.log('[mention] subscription status:', status)
+      })
 
     return () => { supabase.removeChannel(channel) }
   }, [userId])
@@ -212,7 +245,7 @@ export default function MentionNotificationProvider() {
               {/* Message info */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5 mb-0.5">
-                  <span className="text-[10.5px] font-bold text-rose">@ đề cập</span>
+                  <span className="text-[10.5px] font-bold text-rose">{tn('mention_badge')}</span>
                   <span className="text-muted/40 text-[10px]">·</span>
                   <span className="text-[10.5px] text-muted truncate">{notif.roomName}</span>
                 </div>
@@ -229,7 +262,7 @@ export default function MentionNotificationProvider() {
               <button
                 onClick={() => dismiss(notif.id)}
                 className="flex-none text-muted/40 hover:text-muted transition-colors mt-0.5 p-0.5"
-                aria-label="Đóng"
+                aria-label={tn('close')}
               >
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -239,13 +272,13 @@ export default function MentionNotificationProvider() {
 
             {/* View button */}
             <div className="mt-2.5 flex justify-end">
-              <Link
+              <a
                 href={notif.roomUrl}
                 onClick={() => dismiss(notif.id)}
                 className="text-[12px] font-semibold px-4 py-1.5 rounded-lg bg-rose text-white hover:bg-rose-deep transition-colors"
               >
-                Xem ngay →
-              </Link>
+                {tn('view_now')}
+              </a>
             </div>
           </div>
         </div>

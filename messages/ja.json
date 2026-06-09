@@ -29,7 +29,8 @@
     "map": "マップ",
     "mini_game": "🎮 ミニゲーム",
     "chat": "チャット",
-    "japanese": "日本語を学ぶ"
+    "japanese": "日本語を学ぶ",
+    "open_menu": "メニューを開く"
   },
   "home": {
     "write_cta": "✍️ 投稿する",
@@ -100,7 +101,23 @@
     "email_confirmed_sub": "アカウントの準備が整いました。以下からログインしてください。",
     "unconfirmed_note": "メールアドレスがまだ確認されていません。受信ボックスを確認し、確認リンクをクリックしてからログインしてください。",
     "resend_for_email": "再送先",
-    "confirm_required": "この機能を使用する前にメールアドレスを確認してください。"
+    "confirm_required": "この機能を使用する前にメールアドレスを確認してください。",
+    "err_invalid_credentials": "メールアドレスまたはパスワードが正しくありません。もう一度ご確認ください。",
+    "err_email_not_confirmed": "メールアドレスが未確認です。受信トレイを確認し、確認リンクをクリックしてください。",
+    "err_email_in_use": "このメールアドレスは既に使用されています。ログインするか別のメールアドレスをご利用ください。",
+    "err_password_short": "パスワードが短すぎます。6文字以上で入力してください。",
+    "err_invalid_email": "メールアドレスが無効です。もう一度ご確認ください。",
+    "err_rate_limit": "リクエストが多すぎます。数分後にもう一度お試しください。",
+    "err_signup_disabled": "現在登録は一時的に無効です。後でもう一度お試しください。",
+    "err_login_failed": "ログインに失敗しました。もう一度お試しください。",
+    "err_register_failed": "登録に失敗しました。もう一度お試しください。",
+    "err_display_name_short": "表示名は2文字以上で入力してください。",
+    "err_display_name_long": "表示名は50文字以内で入力してください。",
+    "err_email_empty": "メールアドレスを入力してください。",
+    "err_password_min": "パスワードは6文字以上で入力してください。",
+    "err_password_empty": "パスワードを入力してください。",
+    "err_login_required_place": "場所を投稿するにはログインが必要です",
+    "err_login_required_post": "投稿するにはログインが必要です"
   },
   "image_upload": {
     "drag_drop": "ここに画像をドラッグ＆ドロップ",
@@ -158,7 +175,34 @@
     "back_place": "← スポット一覧へ",
     "success_sub_place": "投稿はレビュー待ちです。承認されると、スポットページの正しいカテゴリに表示されます。",
     "view_explore": "スポット一覧を見る",
-    "write_another_place": "別の場所を投稿する"
+    "write_another_place": "別の場所を投稿する",
+    "editor_bold": "太字 (Ctrl+B)",
+    "editor_italic": "斜体 (Ctrl+I)",
+    "editor_underline": "下線",
+    "editor_strike": "取り消し線",
+    "editor_paragraph": "段落",
+    "editor_h2": "大見出し (H2)",
+    "editor_h3": "小見出し (H3)",
+    "editor_bullet_list": "箇条書きリスト",
+    "editor_ordered_list": "番号付きリスト",
+    "editor_blockquote": "引用",
+    "editor_align_left": "左揃え",
+    "editor_align_center": "中央揃え",
+    "editor_align_right": "右揃え",
+    "editor_link_prompt": "URLを入力 (例: https://...):",
+    "editor_insert_link": "リンクを挿入",
+    "editor_insert_image": "画像を挿入",
+    "editor_horizontal_rule": "水平線",
+    "editor_block_label": "ブロック:",
+    "editor_undo": "元に戻す (Ctrl+Z)",
+    "editor_redo": "やり直す (Ctrl+Shift+Z)",
+    "editor_placeholder_default": "感想を共有しましょう：この場所の魅力、行くのに良い時間、行き方、費用の目安は？",
+    "editor_draft_found": "未完成の下書きがあります。",
+    "editor_draft_restore": "復元",
+    "editor_draft_discard": "破棄",
+    "editor_uploading": "画像をアップロード中...",
+    "editor_word_count": "{count} 語",
+    "editor_draft_saved": "下書きを保存しました"
   },
   "comments": {
     "title": "コメント",
@@ -206,6 +250,7 @@
     "bodyLabel": "詳細説明",
     "bodyPlaceholder": "場所の詳細：アクセス、営業時間、おすすめメニューなど...",
     "submitBtn": "場所を投稿する（審査待ち）",
+    "cancel": "キャンセル",
     "successHeading": "投稿しました！",
     "successSub": "投稿はAdmin審査中です。承認後、正しいカテゴリのスポットページに表示されます。",
     "viewExplore": "スポット一覧を見る",
@@ -276,7 +321,11 @@
     "page_prev": "前へ",
     "page_next": "次へ",
     "page_label": "ページ",
-    "per_page": "件/ページ"
+    "per_page": "件/ページ",
+    "community_badge": "コミュニティ",
+    "save_place": "{name} を保存",
+    "unsave_place": "{name} の保存を解除",
+    "you": "あなた"
   },
   "filters": {
     "all": "すべて",
@@ -347,7 +396,8 @@
     "avatarHint": "JPG、PNG、WebP対応。最大5MB。",
     "avatarErrType": "画像ファイルのみ受け付けます（JPG, PNG, WebP）",
     "avatarErrSize": "画像は5MB以下にしてください",
-    "avatarErrUpload": "アップロードエラー: "
+    "avatarErrUpload": "アップロードエラー: ",
+    "back_home": "ホーム"
   },
   "footer": {
     "tagline": "\"一緒に旅して、シェアして、福岡をホームに。\"",
@@ -479,6 +529,8 @@
     "about_desc": "福岡在住のベトナム人コミュニティが、飲食スポット、アクティビティ、街の発見をシェアする場所。コンテンツはすべてメンバーのリアルな体験から生まれています。",
     "email_label": "メールアドレス",
     "social_label": "SNS",
+    "feedback_prompt": "ご意見やバグ報告はありますか？",
+    "feedback_cta": "フィードバックを送る →",
     "back": "← ホームへ戻る"
   },
   "policy_page": {
@@ -559,6 +611,7 @@
   },
   "confessions": {
     "nav": "FKO Confessions",
+    "insert_gif": "GIFを挿入",
     "title": "FKO Confessions",
     "subtitle": "FKOコミュニティで匿名で思いや気持ちをシェアできる場所。",
     "writeButton": "コンフェッションを書く",
@@ -724,6 +777,12 @@
     "users_desc": "登録済みメンバーを確認する",
     "users_view_list": "一覧を見る",
     "confessions_desc": "匿名告白を審査・管理する",
+    "chat_title": "チャット管理",
+    "chat_desc": "コミュニティのメッセージを審査・削除する",
+    "japanese_section_heading": "日本語",
+    "japanese_view_all": "すべて見る →",
+    "japanese_card_title": "日本語モジュールの管理",
+    "japanese_card_desc": "辞書、漢字、文法、クイズ — 日本語学習コンテンツの追加と編集",
     "pending_places_heading": "承認待ちの場所",
     "n_pending_label": "{n}件 承認待ち",
     "community_posts_heading": "コミュニティ投稿",
@@ -854,7 +913,8 @@
       "empty_category": "このカテゴリには場所がありません。",
       "empty_hint": "別のカテゴリを選んでください。",
       "breadcrumb": "ミニゲーム",
-      "solo": "1人"
+      "solo": "1人",
+      "place_count": "{count} 件のスポット"
     },
     "caro": {
       "badge": "⚫ 五目並べ",
@@ -1030,7 +1090,15 @@
       "leaderboard_win_rate": "勝率",
       "leaderboard_empty": "データなし",
       "leaderboard_empty_sub": "大会に参加してランキングに掲載されましょう",
-      "leaderboard_view": "リーダーボードを見る"
+      "leaderboard_view": "リーダーボードを見る",
+      "tournaments_link": "大会 →",
+      "view_tournaments_link": "大会を見る →",
+      "you_label": "(あなた)",
+      "leaderboard_players_footer": "{count} 人のプレイヤー · データは大会結果に基づいて更新されます",
+      "tournament_view_detail": "詳細を見る",
+      "realtime_update": "リアルタイム更新",
+      "slots_available": "空きあり！",
+      "eliminated_label": "敗退"
     },
     "chinese_chess": {
       "badge": "🎮 象棋",
@@ -1059,6 +1127,8 @@
       "history_vs": "VS",
       "history_red": "赤",
       "history_black": "黒",
+      "history_result": "結果",
+      "history_time": "時間",
       "win_red": "赤の勝ち",
       "win_black": "黒の勝ち",
       "draw": "引き分け",
@@ -1310,7 +1380,12 @@
     "confession_status_pending": "審査待ち",
     "confession_status_approved": "承認済み",
     "confession_status_rejected": "拒否済み",
-    "confession_status_deleted": "削除済み"
+    "confession_status_deleted": "削除済み",
+    "mention_dm_room": "ダイレクトメッセージ",
+    "mention_mentioned_you": "{name} があなたにメンションしました",
+    "mention_badge": "@ メンション",
+    "close": "閉じる",
+    "view_now": "今すぐ見る →"
   },
   "community_chat": {
     "title": "コミュニティチャット",
@@ -1474,7 +1549,13 @@
     "search_users_placeholder": "名前で検索...",
     "search_hint": "2文字以上入力してください",
     "new_dm": "新しいメッセージ",
-    "start_dm": "最初のメッセージを送る"
+    "start_dm": "最初のメッセージを送る",
+    "member_fallback": "メンバー",
+    "close": "閉じる",
+    "vote_count_tooltip": "{count} 票",
+    "and_n_others": "他 {count} 人",
+    "attach_options": "オプション",
+    "you_inline": "(あなた)"
   },
   "japanese": {
     "nav": "日本語を学ぶ",
@@ -1644,6 +1725,17 @@
     "related_words": "関連語",
     "word_not_found": "単語が見つかりません",
     "meanings_label": "意味",
-    "no_vietnamese_meaning": "ベトナム語訳なし"
+    "no_vietnamese_meaning": "ベトナム語訳なし",
+    "unit_word": "語",
+    "pos_verb": "動詞",
+    "pos_noun": "名詞",
+    "pos_adjective": "形容詞",
+    "pos_adverb": "副詞",
+    "pos_particle": "助詞",
+    "pos_conjunction": "接続詞",
+    "pos_interjection": "感動詞",
+    "pos_pronoun": "代名詞",
+    "image_alt_for_word": "「{word}」の挿絵",
+    "illustration_label": "挿絵"
   }
 }

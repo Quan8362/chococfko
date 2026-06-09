@@ -136,7 +136,7 @@ function Toolbar({
             <Btn
               onClick={() => { setShowGif(!showGif); setShowEmoji(false) }}
               active={showGif}
-              title="Chèn GIF"
+              title={t('insert_gif')}
             >
               <span className="text-[9.5px] font-extrabold tracking-tight">GIF</span>
             </Btn>

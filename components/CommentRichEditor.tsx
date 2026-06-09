@@ -112,7 +112,7 @@ export default function CommentRichEditor({ name, placeholder, resetKey = 0 }: P
             <Btn
               onClick={() => { setShowGif(!showGif); setShowEmoji(false) }}
               active={showGif}
-              title="Chèn GIF"
+              title={t('insert_gif')}
             >
               <span className="text-[9px] font-extrabold tracking-tight">GIF</span>
             </Btn>

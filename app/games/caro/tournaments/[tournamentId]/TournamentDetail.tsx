@@ -74,8 +74,9 @@ function getRoundLabel(t: (k: string, v?: Record<string, unknown>) => string, ro
 }
 
 function LiveDot() {
+  const t = useTranslations('games.caro')
   return (
-    <span className="relative inline-flex h-2 w-2 flex-none ml-1.5" title="Cập nhật realtime">
+    <span className="relative inline-flex h-2 w-2 flex-none ml-1.5" title={t('realtime_update')}>
       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60" />
       <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
     </span>
@@ -395,7 +396,7 @@ export default function TournamentDetail({
               <>
                 <p className="text-[14.5px] font-semibold text-ink mb-0.5">{t('tournament_join_btn')}</p>
                 <p className="text-[13px] text-muted">
-                  {t('tournament_participants_count', { count: activeParticipants.length, max: tournament.max_players })} — Còn chỗ trống!
+                  {t('tournament_participants_count', { count: activeParticipants.length, max: tournament.max_players })} — {t('slots_available')}
                 </p>
               </>
             )}
@@ -403,7 +404,7 @@ export default function TournamentDetail({
           <div className="flex gap-2">
             {!userId && isOpen && (
               <Link href="/dang-nhap" className="font-semibold text-[13.5px] px-6 py-2.5 rounded-full bg-rose text-white hover:bg-rose-deep transition-all shadow-[0_2px_10px_-2px_rgba(194,24,91,0.35)]">
-                Đăng nhập
+                {t('login_btn')}
               </Link>
             )}
             {userId && !hasJoined && !isFull && isOpen && (
@@ -460,7 +461,7 @@ export default function TournamentDetail({
                     <p className={`text-[13.5px] font-semibold truncate ${isEliminated ? 'line-through text-muted/50' : 'text-ink'}`}>
                       {isChampion && '🏆 '}
                       {p.display_name}
-                      {isMe && <span className="ml-1.5 text-[10px] text-rose font-bold">(Bạn)</span>}
+                      {isMe && <span className="ml-1.5 text-[10px] text-rose font-bold">{t('you_label')}</span>}
                     </p>
                     <p className="text-[11px] text-muted/50">
                       {new Date(p.joined_at).toLocaleDateString('vi-VN')}
@@ -471,7 +472,7 @@ export default function TournamentDetail({
                       ✓ {t('tournament_participant_ready')}
                     </span>
                   )}
-                  {isEliminated && <span className="text-[11px] text-muted/40 flex-none">Bị loại</span>}
+                  {isEliminated && <span className="text-[11px] text-muted/40 flex-none">{t('eliminated_label')}</span>}
                 </div>
               )
             })}
@@ -528,7 +529,7 @@ export default function TournamentDetail({
                             <td className="px-4 py-3 text-muted/40 font-mono text-[11px]">{i + 1}</td>
                             <td className="px-3 py-3 font-semibold text-ink truncate max-w-[160px]">
                               {nameMap[s.user_id] ?? s.user_id.slice(0, 8)}
-                              {isMe && <span className="ml-1.5 text-[10px] text-rose font-bold">(Bạn)</span>}
+                              {isMe && <span className="ml-1.5 text-[10px] text-rose font-bold">{t('you_label')}</span>}
                               {i === 0 && <span className="ml-1 text-[12px]">🥇</span>}
                             </td>
                             <td className="text-center px-2 py-3 text-muted/70">{s.played}</td>

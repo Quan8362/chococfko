@@ -76,7 +76,7 @@ function TournamentCard({ t, tour }: { t: (k: string, v?: Record<string, unknown
           href={`/games/caro/tournaments/${tour.id}`}
           className="flex-1 text-center text-[13px] font-semibold py-2.5 rounded-xl bg-ink text-white hover:bg-ink/85 transition-all"
         >
-          Xem chi tiết
+          {t('tournament_view_detail')}
         </Link>
         {isOpen && (
           <Link

@@ -29,7 +29,8 @@
     "map": "지도",
     "mini_game": "🎮 미니게임",
     "chat": "채팅",
-    "japanese": "일본어 배우기"
+    "japanese": "일본어 배우기",
+    "open_menu": "메뉴 열기"
   },
   "home": {
     "write_cta": "✍️ 글쓰기",
@@ -100,10 +101,43 @@
     "email_confirmed_sub": "계정이 준비되었습니다. 아래에서 로그인하세요.",
     "unconfirmed_note": "이메일이 아직 확인되지 않았습니다. 받은 편지함에서 인증 링크를 클릭한 후 로그인하세요.",
     "resend_for_email": "재발송 대상",
-    "confirm_required": "이 기능을 사용하기 전에 이메일을 확인해야 합니다."
+    "confirm_required": "이 기능을 사용하기 전에 이메일을 확인해야 합니다.",
+    "err_invalid_credentials": "이메일 또는 비밀번호가 올바르지 않습니다. 다시 확인해 주세요.",
+    "err_email_not_confirmed": "이메일이 확인되지 않았습니다. 받은 편지함을 확인하고 확인 링크를 클릭해 주세요.",
+    "err_email_in_use": "이미 사용 중인 이메일입니다. 로그인하거나 다른 이메일을 사용해 주세요.",
+    "err_password_short": "비밀번호가 너무 짧습니다. 6자 이상 입력해 주세요.",
+    "err_invalid_email": "유효하지 않은 이메일입니다. 다시 확인해 주세요.",
+    "err_rate_limit": "요청이 너무 많습니다. 몇 분 후 다시 시도해 주세요.",
+    "err_signup_disabled": "현재 가입이 일시적으로 비활성화되었습니다. 나중에 다시 시도해 주세요.",
+    "err_login_failed": "로그인에 실패했습니다. 다시 시도해 주세요.",
+    "err_register_failed": "가입에 실패했습니다. 다시 시도해 주세요.",
+    "err_display_name_short": "표시 이름은 2자 이상이어야 합니다.",
+    "err_display_name_long": "표시 이름은 50자를 초과할 수 없습니다.",
+    "err_email_empty": "이메일을 입력해 주세요.",
+    "err_password_min": "비밀번호는 6자 이상이어야 합니다.",
+    "err_password_empty": "비밀번호를 입력해 주세요.",
+    "err_login_required_place": "장소를 등록하려면 로그인이 필요합니다",
+    "err_login_required_post": "글을 작성하려면 로그인이 필요합니다"
+  },
+  "image_upload": {
+    "drag_drop": "여기에 이미지를 끌어다 놓으세요",
+    "or_click": "또는 클릭하여 선택 · JPG, PNG, WebP · 최대 5MB",
+    "hint": "✨ 멋진 사진은 게시물을 돋보이게 합니다",
+    "uploading": "이미지 업로드 중...",
+    "uploaded": "사진 업로드됨",
+    "change": "사진 변경",
+    "err_type": "이미지 파일만 허용됩니다 (JPG, PNG, WebP)",
+    "err_size": "이미지는 5MB 이하여야 합니다",
+    "err_upload_prefix": "업로드 오류: "
   },
   "post_form": {
     "heading": "장소 공유하기",
+    "callout_tip": "팁",
+    "callout_warning": "참고",
+    "callout_cost": "비용",
+    "callout_transit": "가는 길",
+    "callout_highlight": "추천 포인트",
+    "callout_add_prefix": "블록 추가: ",
     "sub": "최근 방문한 곳에 대해 알려주세요.",
     "writing_as": "작성자:",
     "title_label": "장소 이름 / 제목",
@@ -141,7 +175,34 @@
     "back_place": "← 탐색 페이지로",
     "success_sub_place": "게시글이 검토 대기 중입니다. 승인되면 탐색 페이지의 해당 카테고리에 표시됩니다.",
     "view_explore": "탐색 페이지 보기",
-    "write_another_place": "다른 장소 등록하기"
+    "write_another_place": "다른 장소 등록하기",
+    "editor_bold": "굵게 (Ctrl+B)",
+    "editor_italic": "기울임 (Ctrl+I)",
+    "editor_underline": "밑줄",
+    "editor_strike": "취소선",
+    "editor_paragraph": "단락",
+    "editor_h2": "큰 제목 (H2)",
+    "editor_h3": "작은 제목 (H3)",
+    "editor_bullet_list": "글머리 기호 목록",
+    "editor_ordered_list": "번호 목록",
+    "editor_blockquote": "인용",
+    "editor_align_left": "왼쪽 정렬",
+    "editor_align_center": "가운데 정렬",
+    "editor_align_right": "오른쪽 정렬",
+    "editor_link_prompt": "URL 입력 (예: https://...):",
+    "editor_insert_link": "링크 삽입",
+    "editor_insert_image": "이미지 삽입",
+    "editor_horizontal_rule": "가로줄",
+    "editor_block_label": "블록:",
+    "editor_undo": "실행 취소 (Ctrl+Z)",
+    "editor_redo": "다시 실행 (Ctrl+Shift+Z)",
+    "editor_placeholder_default": "여러분의 생각을 공유해 주세요: 이 장소의 매력, 언제 가면 좋은지, 가는 방법, 대략적인 비용은?",
+    "editor_draft_found": "완성하지 않은 초안이 있습니다.",
+    "editor_draft_restore": "복원",
+    "editor_draft_discard": "버리기",
+    "editor_uploading": "이미지 업로드 중...",
+    "editor_word_count": "{count} 단어",
+    "editor_draft_saved": "초안 저장됨"
   },
   "comments": {
     "title": "댓글",
@@ -189,6 +250,7 @@
     "bodyLabel": "상세 설명",
     "bodyPlaceholder": "장소 상세 정보: 교통편, 영업시간, 추천 메뉴 등...",
     "submitBtn": "장소 등록 (검토 대기 중)",
+    "cancel": "취소",
     "successHeading": "등록 완료!",
     "successSub": "장소가 관리자 검토 중입니다. 승인 후 탐색 페이지의 해당 카테고리에 표시됩니다.",
     "viewExplore": "탐색 페이지 보기",
@@ -259,7 +321,11 @@
     "page_prev": "이전",
     "page_next": "다음",
     "page_label": "페이지",
-    "per_page": "건/페이지"
+    "per_page": "건/페이지",
+    "community_badge": "커뮤니티",
+    "save_place": "{name} 저장",
+    "unsave_place": "{name} 저장 해제",
+    "you": "나"
   },
   "filters": {
     "all": "전체",
@@ -330,7 +396,8 @@
     "avatarHint": "JPG, PNG 또는 WebP. 최대 5MB.",
     "avatarErrType": "이미지 파일만 허용됩니다 (JPG, PNG, WebP)",
     "avatarErrSize": "이미지는 5MB 이하여야 합니다",
-    "avatarErrUpload": "업로드 오류: "
+    "avatarErrUpload": "업로드 오류: ",
+    "back_home": "홈"
   },
   "footer": {
     "tagline": "\"함께 여행하고, 함께 나누고, 후쿠오카를 집으로.\"",
@@ -462,6 +529,8 @@
     "about_desc": "후쿠오카 베트남인 커뮤니티가 맛집, 액티비티, 도시 발견을 공유하는 공간. 모든 콘텐츠는 멤버의 실제 경험에서 나옵니다.",
     "email_label": "이메일",
     "social_label": "소셜 미디어",
+    "feedback_prompt": "의견이 있거나 버그를 신고하고 싶으신가요?",
+    "feedback_cta": "의견 보내기 →",
     "back": "← 홈으로 돌아가기"
   },
   "policy_page": {
@@ -542,6 +611,7 @@
   },
   "confessions": {
     "nav": "FKO Confessions",
+    "insert_gif": "GIF 삽입",
     "title": "FKO Confessions",
     "subtitle": "FKO 커뮤니티에서 익명으로 이야기, 생각, 마음을 나눌 수 있는 공간.",
     "writeButton": "컨페션 작성",
@@ -707,6 +777,12 @@
     "users_desc": "등록된 회원 목록 보기",
     "users_view_list": "목록 보기",
     "confessions_desc": "익명 고백을 검토하고 관리합니다",
+    "chat_title": "채팅 관리",
+    "chat_desc": "커뮤니티 메시지를 검토하고 삭제합니다",
+    "japanese_section_heading": "일본어",
+    "japanese_view_all": "전체 보기 →",
+    "japanese_card_title": "일본어 모듈 관리",
+    "japanese_card_desc": "사전, 한자, 문법, 퀴즈 — 일본어 학습 콘텐츠 추가 및 편집",
     "pending_places_heading": "승인 대기 중인 장소",
     "n_pending_label": "{n}개 승인 대기",
     "community_posts_heading": "커뮤니티 게시물",
@@ -832,7 +908,8 @@
       "empty_category": "이 카테고리에는 장소가 없습니다.",
       "empty_hint": "다른 카테고리를 선택해 주세요.",
       "breadcrumb": "미니게임",
-      "solo": "1인"
+      "solo": "1인",
+      "place_count": "{count} 곳"
     },
     "page_badge": "🎮 미니게임",
     "page_heading": "재미 코너 — 함께 즐겨요",
@@ -1013,7 +1090,15 @@
       "leaderboard_win_rate": "승률",
       "leaderboard_empty": "데이터 없음",
       "leaderboard_empty_sub": "대회에 참가하여 리더보드에 등록하세요",
-      "leaderboard_view": "리더보드 보기"
+      "leaderboard_view": "리더보드 보기",
+      "tournaments_link": "토너먼트 →",
+      "view_tournaments_link": "토너먼트 보기 →",
+      "you_label": "(나)",
+      "leaderboard_players_footer": "{count} 명의 플레이어 · 데이터는 토너먼트 결과에 따라 업데이트됩니다",
+      "tournament_view_detail": "자세히 보기",
+      "realtime_update": "실시간 업데이트",
+      "slots_available": "자리 있음!",
+      "eliminated_label": "탈락"
     },
     "chinese_chess": {
       "badge": "🎮 장기",
@@ -1042,6 +1127,8 @@
       "history_vs": "VS",
       "history_red": "빨강",
       "history_black": "검정",
+      "history_result": "결과",
+      "history_time": "시간",
       "win_red": "빨강 승리",
       "win_black": "검정 승리",
       "draw": "무승부",
@@ -1293,7 +1380,12 @@
     "confession_status_pending": "심사 대기",
     "confession_status_approved": "승인됨",
     "confession_status_rejected": "거절됨",
-    "confession_status_deleted": "삭제됨"
+    "confession_status_deleted": "삭제됨",
+    "mention_dm_room": "다이렉트 메시지",
+    "mention_mentioned_you": "{name} 님이 회원님을 언급했습니다",
+    "mention_badge": "@ 언급",
+    "close": "닫기",
+    "view_now": "지금 보기 →"
   },
   "community_chat": {
     "title": "커뮤니티 채팅",
@@ -1457,7 +1549,13 @@
     "search_users_placeholder": "이름으로 검색...",
     "search_hint": "2글자 이상 입력하세요",
     "new_dm": "새 메시지",
-    "start_dm": "첫 메시지를 보내세요"
+    "start_dm": "첫 메시지를 보내세요",
+    "member_fallback": "회원",
+    "close": "닫기",
+    "vote_count_tooltip": "{count} 표",
+    "and_n_others": "외 {count}명",
+    "attach_options": "옵션",
+    "you_inline": "(나)"
   },
   "japanese": {
     "nav": "일본어 배우기",
@@ -1627,6 +1725,17 @@
     "related_words": "관련 단어",
     "word_not_found": "단어를 찾을 수 없습니다",
     "meanings_label": "의미",
-    "no_vietnamese_meaning": "베트남어 번역 없음"
+    "no_vietnamese_meaning": "베트남어 번역 없음",
+    "unit_word": "단어",
+    "pos_verb": "동사",
+    "pos_noun": "명사",
+    "pos_adjective": "형용사",
+    "pos_adverb": "부사",
+    "pos_particle": "조사",
+    "pos_conjunction": "접속사",
+    "pos_interjection": "감탄사",
+    "pos_pronoun": "대명사",
+    "image_alt_for_word": "「{word}」 단어 삽화",
+    "illustration_label": "삽화"
   }
 }

@@ -29,7 +29,8 @@
     "map": "Map",
     "mini_game": "🎮 Mini Game",
     "chat": "Chat",
-    "japanese": "Learn Japanese"
+    "japanese": "Learn Japanese",
+    "open_menu": "Open menu"
   },
   "home": {
     "write_cta": "✍️ Write a post",
@@ -100,7 +101,23 @@
     "email_confirmed_sub": "Your account is ready. Sign in below.",
     "unconfirmed_note": "Your email has not been confirmed. Please check your inbox and click the confirmation link before signing in.",
     "resend_for_email": "Resend for",
-    "confirm_required": "You need to confirm your email before using this feature."
+    "confirm_required": "You need to confirm your email before using this feature.",
+    "err_invalid_credentials": "Incorrect email or password. Please try again.",
+    "err_email_not_confirmed": "Email not confirmed. Please check your inbox and click the confirmation link.",
+    "err_email_in_use": "This email is already in use. Please log in or use another email.",
+    "err_password_short": "Password is too short. Please enter at least 6 characters.",
+    "err_invalid_email": "Invalid email. Please check again.",
+    "err_rate_limit": "Too many requests. Please try again in a few minutes.",
+    "err_signup_disabled": "Sign-up is temporarily disabled. Please try again later.",
+    "err_login_failed": "Login failed. Please try again.",
+    "err_register_failed": "Registration failed. Please try again.",
+    "err_display_name_short": "Display name must be at least 2 characters.",
+    "err_display_name_long": "Display name must not exceed 50 characters.",
+    "err_email_empty": "Email cannot be empty.",
+    "err_password_min": "Password must be at least 6 characters.",
+    "err_password_empty": "Password cannot be empty.",
+    "err_login_required_place": "You need to log in to post a place",
+    "err_login_required_post": "You need to log in to write a post"
   },
   "image_upload": {
     "drag_drop": "Drag & drop image here",
@@ -158,7 +175,34 @@
     "back_place": "← Back to Explore",
     "success_sub_place": "Your post is pending review. Once approved, the place will appear in the correct category on the Explore page.",
     "view_explore": "View Explore page",
-    "write_another_place": "Add another place"
+    "write_another_place": "Add another place",
+    "editor_bold": "Bold (Ctrl+B)",
+    "editor_italic": "Italic (Ctrl+I)",
+    "editor_underline": "Underline",
+    "editor_strike": "Strikethrough",
+    "editor_paragraph": "Paragraph",
+    "editor_h2": "Large heading (H2)",
+    "editor_h3": "Small heading (H3)",
+    "editor_bullet_list": "Bullet list",
+    "editor_ordered_list": "Numbered list",
+    "editor_blockquote": "Quote",
+    "editor_align_left": "Align left",
+    "editor_align_center": "Align center",
+    "editor_align_right": "Align right",
+    "editor_link_prompt": "Enter URL (e.g. https://...):",
+    "editor_insert_link": "Insert link",
+    "editor_insert_image": "Insert image",
+    "editor_horizontal_rule": "Horizontal rule",
+    "editor_block_label": "Block:",
+    "editor_undo": "Undo (Ctrl+Z)",
+    "editor_redo": "Redo (Ctrl+Shift+Z)",
+    "editor_placeholder_default": "Share your thoughts: what makes this place special, when to go, how to get there, roughly how much it costs?",
+    "editor_draft_found": "You have an unfinished draft.",
+    "editor_draft_restore": "Restore",
+    "editor_draft_discard": "Discard",
+    "editor_uploading": "Uploading image...",
+    "editor_word_count": "{count} words",
+    "editor_draft_saved": "Draft saved"
   },
   "comments": {
     "title": "Comments",
@@ -206,6 +250,7 @@
     "bodyLabel": "Detailed description",
     "bodyPlaceholder": "Details about the place: how to get there, opening hours, what to order...",
     "submitBtn": "Submit place (pending review)",
+    "cancel": "Cancel",
     "successHeading": "Place submitted!",
     "successSub": "Your place is pending admin review. Once approved, it will appear in the correct category on the Explore page.",
     "viewExplore": "View Explore page",
@@ -276,7 +321,11 @@
     "page_prev": "Previous",
     "page_next": "Next",
     "page_label": "Page",
-    "per_page": "per page"
+    "per_page": "per page",
+    "community_badge": "Community",
+    "save_place": "Save {name}",
+    "unsave_place": "Unsave {name}",
+    "you": "You"
   },
   "filters": {
     "all": "All",
@@ -347,7 +396,8 @@
     "avatarHint": "JPG, PNG or WebP. Up to 5MB.",
     "avatarErrType": "Only image files accepted (JPG, PNG, WebP)",
     "avatarErrSize": "Image must be under 5MB",
-    "avatarErrUpload": "Upload error: "
+    "avatarErrUpload": "Upload error: ",
+    "back_home": "Home"
   },
   "footer": {
     "tagline": "\"Explore together, share together, make Fukuoka home.\"",
@@ -479,6 +529,8 @@
     "about_desc": "A place where the Vietnamese community in Fukuoka shares food spots, activities, and city discoveries. All content comes from real member experiences.",
     "email_label": "Email",
     "social_label": "Social media",
+    "feedback_prompt": "Have feedback or want to report a bug?",
+    "feedback_cta": "Send feedback →",
     "back": "← Back to home"
   },
   "policy_page": {
@@ -559,6 +611,7 @@
   },
   "confessions": {
     "nav": "FKO Confessions",
+    "insert_gif": "Insert GIF",
     "title": "FKO Confessions",
     "subtitle": "A place to share your stories, thoughts, and feelings anonymously with the FKO community.",
     "writeButton": "Write a confession",
@@ -724,6 +777,12 @@
     "users_desc": "View registered members",
     "users_view_list": "View list",
     "confessions_desc": "Review and manage anonymous confessions",
+    "chat_title": "Chat Management",
+    "chat_desc": "Review and delete community messages",
+    "japanese_section_heading": "Japanese",
+    "japanese_view_all": "View all →",
+    "japanese_card_title": "Manage Japanese module",
+    "japanese_card_desc": "Dictionary, Kanji, Grammar, Quiz — add and edit Japanese learning content",
     "pending_places_heading": "Places pending review",
     "n_pending_label": "{n} pending",
     "community_posts_heading": "Community posts",
@@ -854,7 +913,8 @@
       "empty_category": "No places available in this category.",
       "empty_hint": "Please choose another category.",
       "breadcrumb": "Mini Game",
-      "solo": "1 player"
+      "solo": "1 player",
+      "place_count": "{count} places"
     },
     "caro": {
       "badge": "⚫ Gomoku",
@@ -1030,7 +1090,15 @@
       "leaderboard_win_rate": "Win %",
       "leaderboard_empty": "No data yet",
       "leaderboard_empty_sub": "Join a tournament to appear on the leaderboard",
-      "leaderboard_view": "View leaderboard"
+      "leaderboard_view": "View leaderboard",
+      "tournaments_link": "Tournaments →",
+      "view_tournaments_link": "View tournaments →",
+      "you_label": "(You)",
+      "leaderboard_players_footer": "{count} players · Data updated from tournament results",
+      "tournament_view_detail": "View details",
+      "realtime_update": "Real-time update",
+      "slots_available": "Spots available!",
+      "eliminated_label": "Eliminated"
     },
     "chinese_chess": {
       "badge": "🎮 Chinese Chess",
@@ -1059,6 +1127,8 @@
       "history_vs": "VS",
       "history_red": "Red",
       "history_black": "Black",
+      "history_result": "Result",
+      "history_time": "Time",
       "win_red": "Red wins",
       "win_black": "Black wins",
       "draw": "Draw",
@@ -1310,7 +1380,12 @@
     "confession_status_pending": "Pending review",
     "confession_status_approved": "Approved",
     "confession_status_rejected": "Rejected",
-    "confession_status_deleted": "Deleted"
+    "confession_status_deleted": "Deleted",
+    "mention_dm_room": "Direct message",
+    "mention_mentioned_you": "{name} mentioned you",
+    "mention_badge": "@ mention",
+    "close": "Close",
+    "view_now": "View now →"
   },
   "community_chat": {
     "title": "Community Chat",
@@ -1474,7 +1549,13 @@
     "search_users_placeholder": "Search by name...",
     "search_hint": "Enter at least 2 characters to search",
     "new_dm": "New message",
-    "start_dm": "Send the first message"
+    "start_dm": "Send the first message",
+    "member_fallback": "Member",
+    "close": "Close",
+    "vote_count_tooltip": "{count} votes",
+    "and_n_others": "and {count} others",
+    "attach_options": "Options",
+    "you_inline": "(you)"
   },
   "japanese": {
     "nav": "Learn Japanese",
@@ -1644,6 +1725,17 @@
     "related_words": "Related words",
     "word_not_found": "Word not found",
     "meanings_label": "Meanings",
-    "no_vietnamese_meaning": "Vietnamese meaning not available"
+    "no_vietnamese_meaning": "Vietnamese meaning not available",
+    "unit_word": "words",
+    "pos_verb": "Verb",
+    "pos_noun": "Noun",
+    "pos_adjective": "Adjective",
+    "pos_adverb": "Adverb",
+    "pos_particle": "Particle",
+    "pos_conjunction": "Conjunction",
+    "pos_interjection": "Interjection",
+    "pos_pronoun": "Pronoun",
+    "image_alt_for_word": "Illustration for the word {word}",
+    "illustration_label": "Illustration"
   }
 }

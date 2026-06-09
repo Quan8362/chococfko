@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import JlptBadge from './JlptBadge'
 import type { JapaneseWord } from './WordCard'
 import { cleanMeaningText } from '@/lib/sanitize'
@@ -28,17 +29,18 @@ const STATUS_STYLE: Record<ProgressStatus, string> = {
   learning: 'bg-blue-100 text-blue-800 border-blue-300',
 }
 
-const STATUS_LABEL: Record<ProgressStatus, string> = {
-  mastered: '✓ Đã nhớ',
-  review:   '↺ Cần ôn',
-  learning: '… Đang học',
-}
-
 export default function VocabularyCard({
   word, progress, isLoggedIn, onAction, loginMessage
 }: VocabularyCardProps) {
+  const t = useTranslations('japanese')
   const [busy, setBusy] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
+
+  const STATUS_LABEL: Record<ProgressStatus, string> = {
+    mastered: `✓ ${t('mastered')}`,
+    review:   `↺ ${t('need_review')}`,
+    learning: `… ${t('status_learning')}`,
+  }
 
   const firstMeaning = word.meanings?.[0]
   const firstExample = word.examples?.[0]
@@ -128,14 +130,14 @@ export default function VocabularyCard({
           disabled={busy}
           className="flex items-center gap-1 text-[12px] font-semibold px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition-colors disabled:opacity-50"
         >
-          ✓ Đã nhớ
+          ✓ {t('mastered')}
         </button>
         <button
           onClick={() => handleAction('review')}
           disabled={busy}
           className="flex items-center gap-1 text-[12px] font-semibold px-3 py-1.5 rounded-lg bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 transition-colors disabled:opacity-50"
         >
-          ↺ Cần ôn
+          ↺ {t('need_review')}
         </button>
       </div>
 

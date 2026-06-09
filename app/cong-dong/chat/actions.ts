@@ -122,7 +122,7 @@ export async function sendMessage(
 
   const { id: msgId, created_at: createdAt } = newMsg as { id: string; created_at: string }
 
-  // Insert mention records (non-blocking — failure doesn't abort message)
+  // Insert mention records via admin client to bypass RLS
   if (safeIds.length > 0) {
     const mentionRows = safeIds.map(uid => ({
       message_id: msgId,
@@ -130,7 +130,9 @@ export async function sendMessage(
       mentioned_by: user.id,
       room_id: roomId,
     }))
-    await supabase.from('community_chat_mentions').insert(mentionRows)
+    const admin = createAdminClient()
+    const { error: mentionErr } = await admin.from('community_chat_mentions').insert(mentionRows)
+    if (mentionErr) console.error('[sendMessage] mention insert failed:', mentionErr.message)
   }
 
   return { ok: true, msgId, createdAt }
@@ -211,9 +213,14 @@ export async function toggleReaction(
     if (error) return { error: 'db_error' }
     return { ok: true, removed: true }
   } else {
+    const { data: msg } = await supabase
+      .from('community_chat_messages')
+      .select('room_id')
+      .eq('id', messageId)
+      .single()
     const { error } = await supabase
       .from('community_chat_reactions')
-      .insert({ message_id: messageId, user_id: user.id, emoji })
+      .insert({ message_id: messageId, user_id: user.id, emoji, room_id: msg?.room_id ?? null })
     if (error) return { error: 'db_error' }
     return { ok: true }
   }
@@ -453,7 +460,9 @@ export async function saveImageMessage(
       mentioned_by: user.id,
       room_id: roomId,
     }))
-    await supabase.from('community_chat_mentions').insert(mentionRows)
+    const admin = createAdminClient()
+    const { error: mentionErr } = await admin.from('community_chat_mentions').insert(mentionRows)
+    if (mentionErr) console.error('[saveImageMessage] mention insert failed:', mentionErr.message)
   }
 
   return { ok: true, msgId: (newMsg as { id: string }).id }
@@ -594,7 +603,9 @@ export async function saveFileMessage(
       mentioned_by: user.id,
       room_id: roomId,
     }))
-    await supabase.from('community_chat_mentions').insert(mentionRows)
+    const admin = createAdminClient()
+    const { error: mentionErr } = await admin.from('community_chat_mentions').insert(mentionRows)
+    if (mentionErr) console.error('[saveFileMessage] mention insert failed:', mentionErr.message)
   }
 
   return { ok: true, msgId: (newMsg as { id: string }).id }

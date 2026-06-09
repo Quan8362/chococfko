@@ -203,9 +203,15 @@ function getAtQuery(text: string, cursorPos: number): { query: string; start: nu
 function renderMessageContent(
   text: string,
   mentionedNames: string[] | null,
+  mentionedUserIds: string[] | null,
   currentUserDisplayName: string,
+  onMentionClick?: (userId: string, displayName: string) => void,
 ): React.ReactNode {
   if (!mentionedNames?.length) return text
+  const nameToUserId: Record<string, string> = {}
+  if (mentionedUserIds) {
+    mentionedNames.forEach((name, i) => { if (mentionedUserIds[i]) nameToUserId[name] = mentionedUserIds[i] })
+  }
   const mentionSet = new Set(mentionedNames)
   const parts = text.split(/(@[^\s]+)/g)
   const nodes: React.ReactNode[] = []
@@ -218,16 +224,18 @@ function renderMessageContent(
     const suffix = rawName.slice(name.length)
     if (!mentionSet.has(name)) { nodes.push(part); continue }
     const isMe = name === currentUserDisplayName
-    nodes.push(
-      <span
-        key={i}
-        className={`rounded-sm px-0.5 font-semibold ${
-          isMe ? 'bg-rose/20 text-rose' : 'bg-sky-100 text-sky-700'
-        }`}
-      >
-        {'@' + name}
-      </span>
-    )
+    const mentionedUserId = nameToUserId[name]
+    const cls = `rounded-sm px-0.5 font-semibold ${isMe ? 'bg-rose/20 text-rose' : 'bg-sky-100 text-sky-700'}`
+    if (mentionedUserId && onMentionClick) {
+      nodes.push(
+        <button key={i} type="button" onClick={() => onMentionClick(mentionedUserId, name)}
+          className={`${cls} cursor-pointer hover:underline`}>
+          {'@' + name}
+        </button>
+      )
+    } else {
+      nodes.push(<span key={i} className={cls}>{'@' + name}</span>)
+    }
     if (suffix) nodes.push(suffix)
   }
   return <>{nodes}</>
@@ -561,12 +569,20 @@ export default function ChatClient({
       if (!mountedRef.current) return
       setMentionLoading(true)
       const supabase = createClient()
-      const { data } = await supabase
-        .from('profiles')
-        .select('id, display_name, avatar_url')
-        .ilike('display_name', `%${mentionQuery}%`)
-        .not('display_name', 'is', null)
-        .limit(8)
+      const currentRoom = localRooms.find(r => r.id === currentRoomIdRef.current)
+      let data: UserSuggestion[] = []
+      if (currentRoom?.is_private) {
+        const { data: rpcData } = await supabase.rpc('get_room_mention_suggestions', {
+          p_room_id: currentRoomIdRef.current,
+          p_query: mentionQuery ?? '',
+        })
+        data = (rpcData ?? []) as UserSuggestion[]
+      } else {
+        const { data: rpcData } = await supabase.rpc('get_mention_suggestions', {
+          p_query: mentionQuery ?? '',
+        })
+        data = (rpcData ?? []) as UserSuggestion[]
+      }
       if (!mountedRef.current) return
       setMentionLoading(false)
       setMentionUsers((data ?? []) as UserSuggestion[])
@@ -810,7 +826,11 @@ export default function ChatClient({
 
   // ── Switch room ───────────────────────────────────────────────────────────
   const switchRoom = useCallback(async (room: Room) => {
-    if (room.id === currentRoomIdRef.current) return
+    setChatMode('group')
+    if (room.id === currentRoomIdRef.current) {
+      setTimeout(() => scrollMsgsToBottom(false), 50)
+      return
+    }
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current)
     currentRoomIdRef.current = room.id
     setCurrentRoomId(room.id)
@@ -832,7 +852,7 @@ export default function ChatClient({
     trackEvent('switch_chat_room', { userId })
     await loadRoomMessages(room.id)
     await updateReadState(room.id)
-  }, [loadRoomMessages, updateReadState, userId])
+  }, [loadRoomMessages, updateReadState, userId, scrollMsgsToBottom])
 
   // ── Load older messages ──────────────────────────────────────────────────
   const loadOlderMessages = useCallback(async () => {
@@ -1027,12 +1047,15 @@ export default function ChatClient({
 
   // ── Realtime: reactions ────────────────────────────────────────────────────
   useEffect(() => {
+    if (!currentRoomId) return
     const supabase = createClient()
     let mounted = true
     const channel = supabase
-      .channel('community-chat-reactions-global')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'community_chat_reactions' },
-        (payload) => {
+      .channel(`community-chat-reactions-${currentRoomId}`)
+      .on('postgres_changes', {
+        event: 'INSERT', schema: 'public', table: 'community_chat_reactions',
+        filter: `room_id=eq.${currentRoomId}`,
+      }, (payload) => {
           if (!mounted) return
           const r = payload.new as { message_id: string; user_id: string; emoji: string }
           if (r.user_id === userId) return
@@ -1050,8 +1073,10 @@ export default function ChatClient({
             return { ...prev, [r.message_id]: msgR }
           })
         })
-      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'community_chat_reactions' },
-        (payload) => {
+      .on('postgres_changes', {
+        event: 'DELETE', schema: 'public', table: 'community_chat_reactions',
+        filter: `room_id=eq.${currentRoomId}`,
+      }, (payload) => {
           if (!mounted) return
           const r = payload.old as { message_id: string; user_id: string; emoji: string }
           if (r.user_id === userId) return
@@ -1074,7 +1099,7 @@ export default function ChatClient({
         })
       .subscribe()
     return () => { mounted = false; supabase.removeChannel(channel) }
-  }, [userId])
+  }, [currentRoomId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── DM: load conversation list when tab switches to DMs ──────────────────
   useEffect(() => {
@@ -1193,6 +1218,11 @@ export default function ChatClient({
     setDmMessages([])
     setDmPartner(null)
   }, [])
+
+  const handleMentionClick = useCallback((mentionedUserId: string, mentionedName: string) => {
+    if (mentionedUserId === userId) return
+    openDm({ id: mentionedUserId, display_name: mentionedName, avatar_url: null })
+  }, [openDm, userId])
 
   const handleSendDm = async () => {
     const convId = activeDmConvIdRef.current
@@ -2530,6 +2560,8 @@ export default function ChatClient({
                           <span className="text-[10.5px] text-muted/60 px-1 leading-none">{msg.display_name}</span>
                         )}
 
+                        <div className={`flex items-end gap-1 ${isMe ? 'flex-row-reverse' : 'flex-row'}`}>
+                          <div className="flex flex-col gap-0.5 min-w-0">
                         {/* Poll card – compact redesign */}
                         {msg.has_poll && (() => {
                           const poll = pollsMap[msg.id]
@@ -2737,7 +2769,7 @@ export default function ChatClient({
                                 )}
                                 {msg.message !== '[image]' && msg.message !== '[file]' && (
                                   <p className="mt-1 text-[12.5px] leading-snug text-ink">
-                                    {renderMessageContent(msg.message, msg.mentioned_names, displayName)}
+                                    {renderMessageContent(msg.message, msg.mentioned_names, msg.mentioned_user_ids, displayName, handleMentionClick)}
                                   </p>
                                 )}
                               </div>
@@ -2777,7 +2809,7 @@ export default function ChatClient({
                                 </div>
                               </div>
                             ) : (
-                              renderMessageContent(msg.message, msg.mentioned_names, displayName)
+                              renderMessageContent(msg.message, msg.mentioned_names, msg.mentioned_user_ids, displayName, handleMentionClick)
                             )
                           )}
                         </div>}
@@ -2822,15 +2854,8 @@ export default function ChatClient({
                         )}
 
 
-                        {/* Meta + action menu */}
-                        <div className={`flex items-center gap-1.5 px-1 ${isMe ? 'flex-row-reverse' : 'flex-row'}`}>
-                          <span className="text-[10px] text-muted/40 leading-none tabular-nums">
-                            {formatTokyo(msg.created_at)}
-                          </span>
-                          {msg.edited_at && (
-                            <span className="text-[9.5px] text-muted/30 italic leading-none">{t('edited_label')}</span>
-                          )}
-                          <div className="relative">
+                          </div>
+                          <div className="relative flex-none self-center">
                             <button
                               onClick={(e) => {
                                 e.stopPropagation()
@@ -2966,6 +2991,14 @@ export default function ChatClient({
                               </div>
                             )}
                           </div>
+                        </div>
+                        <div className={`flex items-center gap-1.5 px-1 ${isMe ? 'flex-row-reverse' : 'flex-row'}`}>
+                          <span className="text-[10px] text-muted/40 leading-none tabular-nums">
+                            {formatTokyo(msg.created_at)}
+                          </span>
+                          {msg.edited_at && (
+                            <span className="text-[9.5px] text-muted/30 italic leading-none">{t('edited_label')}</span>
+                          )}
                         </div>
                       </div>
                     </div>

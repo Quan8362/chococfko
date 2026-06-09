@@ -8,6 +8,7 @@ Context guide cho Claude Code. Đọc file này đầu tiên trước khi làm b
 
 **Tên:** Chợ Cóc FKO — nền tảng cộng đồng người Việt (địa điểm, bài viết, mini game, giải đấu)  
 **Domain:** https://chococfko.com  
+**GitHub:** https://github.com/Quan8362/chococfko (git root = `web/`, remote = origin)  
 **Working directory:** `web/` (toàn bộ Next.js app nằm ở đây)
 
 ---

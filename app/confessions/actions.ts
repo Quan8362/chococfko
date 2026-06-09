@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient, checkIsAdmin } from '@/lib/supabase/admin'
 import { isUuid } from '@/lib/confessions'
 import { sanitizeHtml, stripHtml } from '@/lib/sanitize'
 import { createAdminNotification } from '@/lib/admin/notifications'
@@ -108,11 +109,23 @@ export async function deleteConfessionComment(formData: FormData) {
   const confessionId = (formData.get('confession_id') as string ?? '').trim()
   if (!commentId || !confessionId) return
 
-  await supabase
+  const admin = createAdminClient()
+  const { data: comment } = await admin
+    .from('confession_comments')
+    .select('user_id')
+    .eq('id', commentId)
+    .single()
+
+  if (!comment) return
+
+  const isOwner = comment.user_id === user.id
+  const isAdmin = await checkIsAdmin()
+  if (!isOwner && !isAdmin) return
+
+  await admin
     .from('confession_comments')
     .update({ deleted_at: new Date().toISOString(), status: 'deleted' })
     .eq('id', commentId)
-    .eq('user_id', user.id)
 
   revalidatePath(`/confessions/${confessionId}`)
 }

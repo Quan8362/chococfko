@@ -6,6 +6,7 @@ import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
 import ScrollToTopButton from '@/components/ScrollToTopButton'
 import AnalyticsTracker from '@/components/AnalyticsTracker'
+import MentionNotificationProvider from '@/components/MentionNotificationProvider'
 
 const SITE_NAME = 'Chợ Cóc FKO'
 const SITE_URL  = 'https://chococfko.com'
@@ -75,6 +76,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <Footer />
             <ScrollToTopButton />
             <AnalyticsTracker />
+            <MentionNotificationProvider />
           </div>
         </NextIntlClientProvider>
       </body>

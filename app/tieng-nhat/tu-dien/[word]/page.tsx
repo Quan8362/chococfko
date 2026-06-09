@@ -191,6 +191,7 @@ export default async function WordDetailPage({ params }: { params: { word: strin
               alt={imageData.image_alt ?? `Ảnh minh họa cho từ ${word.word}`}
               creditUrl={imageData.image_credit_url}
               source={imageData.image_source}
+              wordId={word.id}
             />
           </div>
         )}

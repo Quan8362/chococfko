@@ -61,6 +61,15 @@ body::before {
 .animate-fadein   { animation: fadeIn 0.15s ease both; }
 .animate-slidedown { animation: slideDown 0.2s ease both; }
 
+@keyframes mentionShrink {
+  from { transform: scaleX(1); }
+  to   { transform: scaleX(0); }
+}
+.animate-mention-shrink {
+  animation: mentionShrink 6s linear forwards;
+  transform-origin: left;
+}
+
 /* Scrollbar */
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { scrollbar-width: none; }

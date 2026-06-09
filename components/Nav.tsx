@@ -36,10 +36,10 @@ export default async function Nav() {
 
   return (
     <header className="sticky top-0 z-[100] bg-[rgba(250,244,234,0.92)] backdrop-blur-md border-b border-line">
-      <div className="max-w-[1240px] mx-auto px-4 sm:px-6 h-[68px] flex items-center justify-between md:grid md:grid-cols-[1fr_auto_1fr] md:items-center">
+      <div className="relative max-w-[1240px] mx-auto px-4 sm:px-6 h-[68px] flex items-center justify-between">
 
         {/* Logo — bên trái */}
-        <Link href="/" className="flex items-center shrink-0 md:justify-self-start">
+        <Link href="/" className="flex items-center shrink-0">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/logo-nav.png"
@@ -48,8 +48,8 @@ export default async function Nav() {
           />
         </Link>
 
-        {/* Desktop nav — cột giữa, ẩn trên mobile */}
-        <nav className="hidden md:flex items-center gap-0.5 text-[13.5px] font-medium text-[#6b5b50]">
+        {/* Desktop nav — absolute center */}
+        <nav className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center gap-0.5 text-[13.5px] font-medium text-[#6b5b50]">
           <Link href="/" className="px-3 py-1.5 rounded-lg hover:bg-line hover:text-rose transition-colors whitespace-nowrap">
             {t('explore')}
           </Link>
@@ -71,7 +71,7 @@ export default async function Nav() {
         </nav>
 
         {/* Right actions — bên phải */}
-        <div className="flex items-center gap-2.5 md:justify-self-end">
+        <div className="flex items-center gap-2.5">
           <LanguageSwitcher />
 
           {isAdmin && <AdminNotificationBell />}

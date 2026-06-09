@@ -1,15 +1,17 @@
 'use client'
 
 import { useState } from 'react'
+import { clearWordImage } from '@/app/tieng-nhat/image-clear-action'
 
 interface WordImageProps {
   src: string
   alt: string
   creditUrl?: string | null
   source?: string | null
+  wordId?: string
 }
 
-export default function WordImage({ src, alt, creditUrl, source }: WordImageProps) {
+export default function WordImage({ src, alt, creditUrl, source, wordId }: WordImageProps) {
   const [errored, setErrored] = useState(false)
 
   if (errored) return null
@@ -20,8 +22,10 @@ export default function WordImage({ src, alt, creditUrl, source }: WordImageProp
         src={src}
         alt={alt}
         className="w-full h-[200px] sm:h-[240px] object-cover"
-        loading="lazy"
-        onError={() => setErrored(true)}
+        onError={() => {
+          setErrored(true)
+          if (wordId) clearWordImage(wordId)
+        }}
       />
       {creditUrl && (
         <a

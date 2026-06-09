@@ -117,6 +117,25 @@ Chỉ tạo migration mới, không sửa file cũ. Các file quan trọng:
 - Khi thêm key mới: cập nhật **cả 5 file** cùng lúc
 - Không để key i18n hiện trực tiếp trên UI (nghĩa là missing translation)
 
+### ⚠️ CRITICAL — i18n Zero-Hardcode Rule (bắt buộc tuyệt đối)
+**Mọi text hiển thị trên UI — kể cả label, placeholder, tooltip, toast, error message, button, heading, empty state — phải dùng i18n key. Không bao giờ hardcode chuỗi tiếng Việt (hay bất kỳ ngôn ngữ nào) trực tiếp trong JSX hoặc TypeScript.**
+
+Khi chọn ngôn ngữ EN / JA / KO / ZH, toàn bộ trang phải hiển thị bằng ngôn ngữ đó. Không được có bất kỳ chữ tiếng Việt nào còn sót lại.
+
+**Checklist bắt buộc mỗi khi tạo feature mới hoặc sửa UI:**
+1. Mọi string trên UI → thay bằng `t('key')` (không phải inline text)
+2. Thêm key vào **cả 5 file** `messages/*.json` cùng lúc — không bỏ sót file nào
+3. Không dùng fallback tiếng Việt hardcode trong component (`text ?? 'Mặc định'` → dùng `text ?? t('default')`)
+4. Placeholder của `<input>` / `<textarea>` → `placeholder={t('key')}`, không hardcode
+5. Dynamic text (tên user, số đếm) → dùng interpolation: `t('key', { name, count })`
+6. Tên trang trong `<title>` / `metadata.title` → phải dùng i18n (hoặc tên brand không cần dịch)
+
+**Vi phạm phổ biến cần tránh:**
+- `<p>Không có dữ liệu</p>` ← SAI
+- `placeholder="Nhập tên..."` ← SAI
+- `` toast(`Đã lưu thành công`) `` ← SAI
+- `return <div>Đang tải...</div>` ← SAI
+
 ---
 
 ## 7. Coding Rules

@@ -36,7 +36,7 @@ export default async function Nav() {
 
   return (
     <header className="sticky top-0 z-[100] bg-[rgba(250,244,234,0.92)] backdrop-blur-md border-b border-line">
-      <div className="relative max-w-[1240px] mx-auto px-4 sm:px-6 h-[68px] flex items-center justify-between">
+      <div className="max-w-[1240px] mx-auto px-4 sm:px-6 h-[68px] flex items-center">
 
         {/* Logo — bên trái */}
         <Link href="/" className="flex items-center shrink-0">
@@ -49,7 +49,7 @@ export default async function Nav() {
         </Link>
 
         {/* Desktop nav — absolute center */}
-        <nav className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center gap-0.5 text-[13.5px] font-medium text-[#6b5b50]">
+        <nav className="hidden md:flex flex-1 justify-center items-center gap-0.5 text-[13.5px] font-medium text-[#6b5b50]">
           <Link href="/" className="px-3 py-1.5 rounded-lg hover:bg-line hover:text-rose transition-colors whitespace-nowrap">
             {t('explore')}
           </Link>
@@ -71,7 +71,7 @@ export default async function Nav() {
         </nav>
 
         {/* Right actions — bên phải */}
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2.5 ml-auto shrink-0">
           <LanguageSwitcher />
 
           {isAdmin && <AdminNotificationBell />}

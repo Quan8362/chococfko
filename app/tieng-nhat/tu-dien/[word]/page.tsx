@@ -182,18 +182,14 @@ export default async function WordDetailPage({ params }: { params: { word: strin
 
         {/* Illustration image */}
         {imageData.image_url && (
-          <div className="mb-6">
-            <p className="text-[10.5px] font-bold text-muted uppercase tracking-wide mb-3">
-              Ảnh minh họa
-            </p>
-            <WordImage
-              src={imageData.image_url}
-              alt={imageData.image_alt ?? `Ảnh minh họa cho từ ${word.word}`}
-              creditUrl={imageData.image_credit_url}
-              source={imageData.image_source}
-              wordId={word.id}
-            />
-          </div>
+          <WordImage
+            src={imageData.image_url}
+            alt={imageData.image_alt ?? `Ảnh minh họa cho từ ${word.word}`}
+            creditUrl={imageData.image_credit_url}
+            source={imageData.image_source}
+            wordId={word.id}
+            label="Ảnh minh họa"
+          />
         )}
 
         {/* Examples */}

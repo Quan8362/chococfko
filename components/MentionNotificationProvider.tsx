@@ -85,26 +85,29 @@ export default function MentionNotificationProvider() {
             message_id: string
             room_id: string | null
           }
-          if (!room_id) return
-
-          const [{ data: msg }, { data: room }] = await Promise.all([
+          const [{ data: msg }, { data: roomData }] = await Promise.all([
             supabase
               .from('community_chat_messages')
               .select('display_name, avatar_url, message')
               .eq('id', message_id)
               .single(),
-            supabase
-              .from('community_chat_rooms')
-              .select('key, name')
-              .eq('id', room_id)
-              .single(),
+            room_id
+              ? supabase
+                  .from('community_chat_rooms')
+                  .select('key, name')
+                  .eq('id', room_id)
+                  .single()
+              : Promise.resolve({ data: null }),
           ])
-          if (!msg || !room) return
+          if (!msg) return
+
+          const room = roomData as { key: string; name: string } | null
 
           // Suppress if user is already viewing this exact room
           const params = new URLSearchParams(window.location.search)
           if (
             window.location.pathname.includes('/cong-dong/chat') &&
+            room &&
             params.get('room') === room.key
           ) return
 
@@ -112,13 +115,14 @@ export default function MentionNotificationProvider() {
             .replace(/<[^>]+>/g, '')
             .trim()
             .slice(0, 60)
-          const roomUrl = `/cong-dong/chat?room=${room.key}`
+          const roomName = room?.name ?? 'Tin nhắn riêng'
+          const roomUrl = room ? `/cong-dong/chat?room=${room.key}` : '/cong-dong/chat'
 
           // Browser is backgrounded / tab not focused → OS system notification
           if (document.hidden || !document.hasFocus()) {
             fireOsNotification(
               `${msg.display_name ?? '?'} đề cập đến bạn`,
-              `${room.name}: ${preview}${preview.length >= 60 ? '…' : ''}`,
+              `${roomName}: ${preview}${preview.length >= 60 ? '…' : ''}`,
               msg.avatar_url ?? null,
               mentionId,
               () => {
@@ -135,7 +139,7 @@ export default function MentionNotificationProvider() {
             senderName: msg.display_name ?? '???',
             senderAvatar: msg.avatar_url ?? null,
             messagePreview: preview,
-            roomName: room.name,
+            roomName,
             roomUrl,
             entering: false,
           }

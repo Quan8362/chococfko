@@ -172,7 +172,7 @@ async function fetchExistingWords(db: Db, words: string[]): Promise<Map<string, 
   const map = new Map<string, ExistingWord>()
   if (words.length === 0) return map
 
-  const PAGE = 400
+  const PAGE = 80
   for (let i = 0; i < words.length; i += PAGE) {
     const chunk = words.slice(i, i + PAGE)
     const result = await db

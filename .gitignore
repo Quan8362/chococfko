@@ -7,3 +7,7 @@
 next-env.d.ts
 
 .vercel
+
+# JMdict raw source files (too large for git)
+data/source/JMdict_e
+data/source/JMdict_e.gz

@@ -3,6 +3,8 @@
 /out
 .env*.local
 .DS_Store
+# Windows reserved-name junk file (breaks `git add -A`)
+/nul
 *.tsbuildinfo
 next-env.d.ts
 

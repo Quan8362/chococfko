@@ -35,7 +35,6 @@ function fireOsNotification(
   }
 
   function fallback() {
-    console.log('[mention] using basic Notification()')
     const n = new Notification(title, opts)
     n.onclick = () => { n.close(); window.focus(); window.location.href = url }
   }
@@ -43,15 +42,12 @@ function fireOsNotification(
   // Fire-and-forget: không await, không block callback
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.getRegistration('/').then(reg => {
-      console.log('[mention] SW reg active:', !!reg?.active)
       if (reg?.active) {
-        reg.showNotification(title, { ...opts, data: { url } })
-          .then(() => console.log('[mention] SW showNotification OK'))
-          .catch(err => { console.log('[mention] SW showNotification error:', err); fallback() })
+        reg.showNotification(title, { ...opts, data: { url } }).catch(fallback)
         return
       }
       fallback()
-    }).catch(err => { console.log('[mention] getRegistration error:', err); fallback() })
+    }).catch(fallback)
   } else {
     fallback()
   }
@@ -80,18 +76,19 @@ export default function MentionNotificationProvider() {
     return () => subscription.unsubscribe()
   }, [])
 
-  // Ask for OS notification permission when user logs in
+  // Ask for OS notification permission on the first user interaction (a real user
+  // gesture) rather than abruptly on load — less intrusive, higher accept rate.
   useEffect(() => {
     if (!userId) return
-    if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
-      Notification.requestPermission()
-    }
+    if (typeof Notification === 'undefined' || Notification.permission !== 'default') return
+    const ask = () => { Notification.requestPermission().catch(() => {}) }
+    window.addEventListener('pointerdown', ask, { once: true })
+    return () => window.removeEventListener('pointerdown', ask)
   }, [userId])
 
   // Realtime subscription to community_chat_mentions
   useEffect(() => {
     if (!userId) return
-    console.log('[mention] subscribing for userId:', userId)
     const supabase = createClient()
 
     const channel = supabase
@@ -105,13 +102,12 @@ export default function MentionNotificationProvider() {
           filter: `mentioned_user_id=eq.${userId}`,
         },
         async (payload) => {
-          console.log('[mention] realtime event received:', payload.new)
           const { id: mentionId, message_id, room_id } = payload.new as {
             id: string
             message_id: string
             room_id: string | null
           }
-          const [{ data: msg, error: msgErr }, { data: roomData }] = await Promise.all([
+          const [{ data: msg }, { data: roomData }] = await Promise.all([
             supabase
               .from('community_chat_messages')
               .select('display_name, avatar_url, message')
@@ -125,7 +121,6 @@ export default function MentionNotificationProvider() {
                   .single()
               : Promise.resolve({ data: null }),
           ])
-          console.log('[mention] msg:', msg, 'msgErr:', msgErr)
           if (!msg) return
 
           const room = roomData as { key: string; name: string } | null
@@ -137,7 +132,6 @@ export default function MentionNotificationProvider() {
             room &&
             params.get('room') === room.key
           ) {
-            console.log('[mention] suppressed — user is in same room')
             return
           }
 
@@ -148,11 +142,8 @@ export default function MentionNotificationProvider() {
           const roomName = room?.name ?? tn('mention_dm_room')
           const roomUrl = room ? `/cong-dong/chat?room=${room.key}` : '/cong-dong/chat'
 
-          console.log('[mention] hidden:', document.hidden, 'hasFocus:', document.hasFocus())
-
           // Browser is backgrounded / tab not focused → OS system notification
           if (document.hidden || !document.hasFocus()) {
-            console.log('[mention] firing OS notification, permission:', Notification.permission)
             fireOsNotification(
               tn('mention_mentioned_you', { name: msg.display_name ?? '?' }),
               `${roomName}: ${preview}${preview.length >= 60 ? '…' : ''}`,
@@ -164,7 +155,6 @@ export default function MentionNotificationProvider() {
           }
 
           // Tab is active → in-app popup
-          console.log('[mention] showing in-app popup')
           const notif: MentionNotif = {
             id: mentionId,
             senderName: msg.display_name ?? '???',
@@ -190,9 +180,7 @@ export default function MentionNotificationProvider() {
           timers.current.set(mentionId, t)
         }
       )
-      .subscribe((status) => {
-        console.log('[mention] subscription status:', status)
-      })
+      .subscribe()
 
     return () => { supabase.removeChannel(channel) }
   }, [userId])

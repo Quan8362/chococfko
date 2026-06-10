@@ -35,6 +35,16 @@ export default function AdminNotificationBellClient({
 }: Props) {
   const t = useTranslations('notifications')
   const router = useRouter()
+
+  // Localize the title by notification type (DB stores a Vietnamese fallback)
+  function localizedTitle(type: string, fallback: string | null): string {
+    switch (type) {
+      case 'new_pending_post':       return t('admin_notif_title_new_pending_post')
+      case 'new_pending_place':      return t('admin_notif_title_new_pending_place')
+      case 'new_pending_confession': return t('admin_notif_title_new_pending_confession')
+      default:                       return fallback ?? t('dropdown_title')
+    }
+  }
   const [open, setOpen]     = useState(false)
   const [unread, setUnread] = useState(initialUnread)
   const [items, setItems]   = useState<AdminNotification[]>(initialNotifications)
@@ -182,7 +192,7 @@ export default function AdminNotificationBellClient({
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5">
                       <p className={`text-[12.5px] font-semibold leading-snug ${notif.is_read ? 'text-ink/60' : 'text-ink'}`}>
-                        {notif.title}
+                        {localizedTitle(notif.type, notif.title)}
                       </p>
                       {!notif.is_read && (
                         <span className="w-1.5 h-1.5 rounded-full bg-amber-400 flex-none" />

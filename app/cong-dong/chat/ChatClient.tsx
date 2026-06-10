@@ -200,6 +200,40 @@ function getAtQuery(text: string, cursorPos: number): { query: string; start: nu
   return { query: afterAt, start: atIdx }
 }
 
+// Supabase Realtime postgres_changes sometimes delivers text[]/uuid[] columns as
+// raw Postgres array literals ("{a,b}") instead of JS arrays. Normalize so
+// mention highlighting works for clients that receive a message via realtime
+// (not only the sender's optimistic copy or a fresh server load).
+function pgTextArray(v: unknown): string[] | null {
+  if (v == null) return null
+  if (Array.isArray(v)) return v as string[]
+  if (typeof v !== 'string') return null
+  const s = v.trim()
+  if (!s.startsWith('{')) return s ? [s] : null
+  if (s === '{}') return []
+  const inner = s.slice(1, -1)
+  const out: string[] = []
+  let cur = ''
+  let inQuotes = false
+  for (let i = 0; i < inner.length; i++) {
+    const ch = inner[i]
+    if (ch === '"') { inQuotes = !inQuotes; continue }
+    if (ch === '\\' && i + 1 < inner.length) { cur += inner[++i]; continue }
+    if (ch === ',' && !inQuotes) { out.push(cur); cur = ''; continue }
+    cur += ch
+  }
+  out.push(cur)
+  return out
+}
+
+function normalizeMsgArrays(msg: ChatMessage): ChatMessage {
+  return {
+    ...msg,
+    mentioned_names: pgTextArray(msg.mentioned_names),
+    mentioned_user_ids: pgTextArray(msg.mentioned_user_ids),
+  }
+}
+
 function renderMessageContent(
   text: string,
   mentionedNames: string[] | null,
@@ -270,6 +304,7 @@ export default function ChatClient({
   initialReactions,
   initialPollsMap,
   myMembershipMap,
+  initialHighlightMsgId,
 }: {
   userId: string
   displayName: string
@@ -283,6 +318,7 @@ export default function ChatClient({
   initialReactions: ReactionsMap
   initialPollsMap: PollsMap
   myMembershipMap: Record<string, { role: 'owner' | 'admin' | 'member' }>
+  initialHighlightMsgId?: string
 }) {
   const t = useTranslations('community_chat')
   const locale = useLocale()
@@ -460,6 +496,17 @@ export default function ChatClient({
     window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior })
     scrollMsgsToBottom(false)
     trackEvent('visit_chat', { userId })
+    // Opened from a mention notification → scroll to + highlight that message
+    if (initialHighlightMsgId) {
+      setTimeout(() => {
+        const el = document.getElementById(`msg-${initialHighlightMsgId}`)
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+          setHighlightedMsgId(initialHighlightMsgId)
+          setTimeout(() => setHighlightedMsgId(null), 2800)
+        }
+      }, 350)
+    }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     return () => {
@@ -984,7 +1031,7 @@ export default function ChatClient({
       }, async (payload) => {
         if (!mounted) return
         console.log('[ChatRT] INSERT room:', currentRoomId, 'id:', (payload.new as ChatMessage).id)
-        let msg = payload.new as ChatMessage
+        let msg = normalizeMsgArrays(payload.new as ChatMessage)
         if (msg.is_deleted) return
         if (msg.has_attachment) {
           await new Promise(r => setTimeout(r, 400))
@@ -1008,7 +1055,7 @@ export default function ChatClient({
         filter: `room_id=eq.${currentRoomId}`,
       }, (payload) => {
         if (!mounted) return
-        const updated = payload.new as ChatMessage
+        const updated = normalizeMsgArrays(payload.new as ChatMessage)
         if (updated.is_deleted) {
           setMessages(prev => prev.filter(m => m.id !== updated.id))
           setPinnedMessages(prev => prev.filter(m => m.id !== updated.id))
@@ -1368,6 +1415,7 @@ export default function ChatClient({
     trackTyping(false)
     const validMentions = pendingMentions.filter(m => caption.includes('@' + m.displayName))
     const mentionedUserIds = validMentions.length > 0 ? validMentions.map(m => m.userId) : undefined
+    const mentionedNames = validMentions.length > 0 ? validMentions.map(m => m.displayName) : undefined
     const roomId = currentRoomIdRef.current
     const replySnapshot = replyingTo
     const capturedFile = attachFile
@@ -1421,7 +1469,7 @@ export default function ChatClient({
 
     const result = await saveFileMessage(
       storagePath, capturedFile.name, capturedFile.type, capturedFile.size,
-      roomId, caption || undefined, mentionedUserIds, replySnapshot?.id,
+      roomId, caption || undefined, mentionedUserIds, mentionedNames, replySnapshot?.id,
     )
     if (result.error) {
       await supabase.storage.from(STORAGE_BUCKET_FILES).remove([storagePath])
@@ -1446,6 +1494,7 @@ export default function ChatClient({
     trackTyping(false)
     const validMentions = pendingMentions.filter(m => caption.includes('@' + m.displayName))
     const mentionedUserIds = validMentions.length > 0 ? validMentions.map(m => m.userId) : undefined
+    const mentionedNames = validMentions.length > 0 ? validMentions.map(m => m.displayName) : undefined
     const roomId = currentRoomIdRef.current
     const replySnapshot = replyingTo
     const capturedFile = imageFile
@@ -1506,7 +1555,7 @@ export default function ChatClient({
 
     const result = await saveImageMessage(
       storagePath, capturedFile.name, capturedFile.type, capturedFile.size,
-      roomId, caption || undefined, mentionedUserIds, replySnapshot?.id,
+      roomId, caption || undefined, mentionedUserIds, mentionedNames, replySnapshot?.id,
     )
     if (result.error) {
       await supabase.storage.from(STORAGE_BUCKET).remove([storagePath])
@@ -1541,6 +1590,7 @@ export default function ChatClient({
     trackTyping(false)
     const validMentions = pendingMentions.filter(m => msg.includes('@' + m.displayName))
     const mentionedUserIds = validMentions.length > 0 ? validMentions.map(m => m.userId) : undefined
+    const mentionedNames = validMentions.length > 0 ? validMentions.map(m => m.displayName) : undefined
     const roomId = currentRoomIdRef.current
     const replySnapshot = replyingTo
 
@@ -1573,7 +1623,7 @@ export default function ChatClient({
     inputRef.current?.focus()
 
     setSending(true)
-    const result = await sendMessage(msg, roomId, mentionedUserIds, replySnapshot?.id)
+    const result = await sendMessage(msg, roomId, mentionedUserIds, mentionedNames, replySnapshot?.id)
     setSending(false)
     if (!result.error) {
       trackEvent('send_chat_message', { userId })

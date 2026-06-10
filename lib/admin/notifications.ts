@@ -1,6 +1,7 @@
 // Server-only: Admin notification helpers using service role client
 
 import { createAdminClient } from '@/lib/supabase/admin'
+import { sendPushToUsers } from '@/lib/push/send'
 
 export type NotificationType =
   | 'new_pending_post'
@@ -82,7 +83,18 @@ export async function createAdminNotification(params: {
 
     const { error } = await admin.from('admin_notifications').insert(rows)
     if (error) console.error('[notification] insert error:', error.message)
-    else console.log(`[notification] Created ${rows.length} notification(s) for admins`)
+
+    // Background/closed-tab push to every admin recipient
+    const recipientsToExclude = params.actor_id ? new Set([params.actor_id]) : new Set<string>()
+    await sendPushToUsers(
+      adminUserIds.filter(id => !recipientsToExclude.has(id)),
+      {
+        title: params.title,
+        body: params.message ?? undefined,
+        url: params.target_url ?? '/admin',
+        tag: `admin-${params.type}-${params.target_id ?? ''}`,
+      },
+    )
   } catch (err) {
     console.error('[notification] unexpected error:', err)
   }

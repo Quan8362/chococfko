@@ -17,42 +17,6 @@ type MentionNotif = {
 const AUTO_MS = 6000
 const MAX_NOTIFS = 3
 
-function fireOsNotification(
-  title: string,
-  body: string,
-  icon: string | null,
-  tag: string,
-  url: string,
-) {
-  if (typeof Notification === 'undefined' || Notification.permission !== 'granted') return
-
-  const opts = {
-    body,
-    icon: icon ?? '/logo-nav.png',
-    badge: '/logo-nav.png',
-    tag,
-    requireInteraction: false,
-  }
-
-  function fallback() {
-    const n = new Notification(title, opts)
-    n.onclick = () => { n.close(); window.focus(); window.location.href = url }
-  }
-
-  // Fire-and-forget: không await, không block callback
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.getRegistration('/').then(reg => {
-      if (reg?.active) {
-        reg.showNotification(title, { ...opts, data: { url } }).catch(fallback)
-        return
-      }
-      fallback()
-    }).catch(fallback)
-  } else {
-    fallback()
-  }
-}
-
 export default function MentionNotificationProvider() {
   const tn = useTranslations('notifications')
   const [userId, setUserId] = useState<string | null>(null)
@@ -78,6 +42,21 @@ export default function MentionNotificationProvider() {
 
   // OS notification permission is requested explicitly via NotificationPermissionBanner
   // (a clear user gesture), so we don't auto-prompt here.
+
+  // Navigate when the service worker asks (after a notification click). Using
+  // window.location here always works, unlike SW client.navigate() which fails
+  // for windows the SW doesn't control.
+  useEffect(() => {
+    if (!('serviceWorker' in navigator)) return
+    const onMsg = (e: MessageEvent) => {
+      const data = e.data as { type?: string; url?: string } | null
+      if (data?.type === 'notification-navigate' && data.url) {
+        window.location.assign(data.url)
+      }
+    }
+    navigator.serviceWorker.addEventListener('message', onMsg)
+    return () => navigator.serviceWorker.removeEventListener('message', onMsg)
+  }, [])
 
   // Realtime subscription to community_chat_mentions
   useEffect(() => {
@@ -118,38 +97,36 @@ export default function MentionNotificationProvider() {
 
           const room = roomData as { key: string; name: string } | null
 
-          // Suppress if user is already viewing this exact room
-          const params = new URLSearchParams(window.location.search)
-          if (
-            window.location.pathname.includes('/cong-dong/chat') &&
-            room &&
-            params.get('room') === room.key
-          ) {
-            return
+          // Tab not focused (background / minimized / closed) → Web Push shows the
+          // OS notification via the service worker. Leave it.
+          if (document.hidden || !document.hasFocus()) return
+
+          // Focused → the push also fired an OS notification. Close it (user is in
+          // the app) and show the in-app toast instead.
+          if ('serviceWorker' in navigator) {
+            const closeIt = () => navigator.serviceWorker.getRegistration()
+              .then(reg => reg?.getNotifications({ tag: `mention-${message_id}` }))
+              .then(ns => (ns || []).forEach(n => n.close()))
+              .catch(() => {})
+            closeIt()
+            setTimeout(closeIt, 1500)
           }
+
+          const params = new URLSearchParams(window.location.search)
+          const viewingThisRoom =
+            window.location.pathname.includes('/cong-dong/chat') &&
+            room && params.get('room') === room.key
+          // Focused & actively viewing this room → they see the message live.
+          if (viewingThisRoom) return
 
           const preview = (msg.message ?? '')
             .replace(/<[^>]+>/g, '')
             .trim()
             .slice(0, 60)
           const roomName = room?.name ?? tn('mention_dm_room')
-          const roomUrl = room ? `/cong-dong/chat?room=${room.key}` : '/cong-dong/chat'
-
-          // Backgrounded / unfocused tab → OS system notification, but only when
-          // permission was granted. Otherwise fall through to the in-app popup so
-          // the mention is still visible when the user returns to the tab.
-          const canOsNotify =
-            typeof Notification !== 'undefined' && Notification.permission === 'granted'
-          if ((document.hidden || !document.hasFocus()) && canOsNotify) {
-            fireOsNotification(
-              tn('mention_mentioned_you', { name: msg.display_name ?? '?' }),
-              `${roomName}: ${preview}${preview.length >= 60 ? '…' : ''}`,
-              msg.avatar_url ?? null,
-              mentionId,
-              roomUrl,
-            )
-            return
-          }
+          const roomUrl = room
+            ? `/cong-dong/chat?room=${room.key}&msg=${message_id}`
+            : `/cong-dong/chat?msg=${message_id}`
 
           // Tab is active → in-app popup
           const notif: MentionNotif = {

@@ -106,7 +106,7 @@ function buildReactionsMap(
 export default async function CongDongChatPage({
   searchParams,
 }: {
-  searchParams: { room?: string }
+  searchParams: { room?: string; msg?: string }
 }) {
   const supabase = createClient()
   const t = await getTranslations('community_chat')
@@ -261,6 +261,7 @@ export default async function CongDongChatPage({
       initialReactions={initialReactions}
       initialPollsMap={initialPollsMap}
       myMembershipMap={myMembershipMap}
+      initialHighlightMsgId={typeof searchParams.msg === 'string' ? searchParams.msg : undefined}
     />
   )
 }

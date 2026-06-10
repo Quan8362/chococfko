@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient, checkIsAdmin } from '@/lib/supabase/admin'
+import { sendPushToUsers } from '@/lib/push/send'
 
 const RATE_LIMIT_COUNT = 5
 const RATE_LIMIT_SECONDS = 60
@@ -14,10 +15,68 @@ export type UserSuggestion = {
   avatar_url: string | null
 }
 
+// Background/closed-tab push to mentioned users. Best-effort; resolves the room
+// key so the click deep-links to the right room.
+async function sendMentionPush(
+  supabase: ReturnType<typeof createClient>,
+  userIds: string[],
+  senderName: string,
+  text: string,
+  roomId: string,
+  msgId: string,
+): Promise<void> {
+  const { data: roomRow } = await supabase
+    .from('community_chat_rooms').select('key').eq('id', roomId).maybeSingle()
+  const roomParam = (roomRow?.key as string | undefined) ?? roomId
+  const preview = text.replace(/\s+/g, ' ').trim().slice(0, 80) || '💬'
+  await sendPushToUsers(userIds, {
+    title: `${senderName} đã nhắc đến bạn`,
+    body: preview,
+    url: `/cong-dong/chat?room=${roomParam}&msg=${msgId}`,
+    tag: `mention-${msgId}`,
+  })
+}
+
+// Resolve mentions to (id, name) pairs. Trusts the names the client inserted —
+// they match the @text and use the email-prefix fallback for users without a
+// display_name (which profiles.display_name alone would miss, dropping the
+// mention entirely). Then adds manually-typed @tokens that match a display_name.
+async function resolveMentions(
+  supabase: ReturnType<typeof createClient>,
+  text: string,
+  selfId: string,
+  mentionedUserIds?: string[],
+  mentionedNames?: string[],
+): Promise<{ ids: string[]; names: string[] }> {
+  const idToName = new Map<string, string>()
+  const cIds = mentionedUserIds ?? []
+  const cNames = mentionedNames ?? []
+  cIds.forEach((id, i) => {
+    if (id && id !== selfId && cNames[i]) idToName.set(id, cNames[i])
+  })
+
+  const atTokens = Array.from(new Set((text.match(/@(\S+)/g) ?? []).map(t => t.slice(1))))
+  const known = new Set(idToName.values())
+  const unknown = atTokens.filter(tk => !known.has(tk))
+  if (unknown.length > 0) {
+    const { data: atProfiles } = await supabase
+      .from('profiles').select('id, display_name').in('display_name', unknown)
+    for (const p of atProfiles ?? []) {
+      const id = p.id as string
+      const dn = p.display_name as string | null
+      if (id !== selfId && dn && !idToName.has(id)) idToName.set(id, dn)
+    }
+  }
+
+  const ids = Array.from(idToName.keys())
+  return { ids, names: ids.map(id => idToName.get(id) as string) }
+}
+
 export async function sendMessage(
   message: string,
   roomId: string,
   mentionedUserIds?: string[],
+  mentionedNames?: string[],
   replyToId?: string,
 ): Promise<{ ok?: boolean; error?: string; msgId?: string; createdAt?: string }> {
   const supabase = createClient()
@@ -50,38 +109,8 @@ export async function sendMessage(
     user.email?.split('@')[0] ||
     'Thành viên'
 
-  // Resolve display names for mentioned users.
-  // Server-side: also parse the message text for @Token patterns so that
-  // manually typed @mentions (without selecting from the autocomplete
-  // dropdown) still trigger notifications.
-  const atTokens = Array.from(new Set((trimmed.match(/@(\S+)/g) ?? []).map(t => t.slice(1))))
-  const clientIds = (mentionedUserIds ?? []).filter(id => id !== user.id)
-  let safeIds = clientIds
-  if (atTokens.length > 0) {
-    const { data: atProfiles } = await supabase
-      .from('profiles')
-      .select('id, display_name')
-      .in('display_name', atTokens)
-    const parsedIds = (atProfiles ?? [])
-      .map(p => p.id as string)
-      .filter(id => id !== user.id && !clientIds.includes(id))
-    if (parsedIds.length > 0) safeIds = Array.from(new Set([...clientIds, ...parsedIds]))
-  }
-  let mentionedNames: string[] = []
-  if (safeIds.length > 0) {
-    const { data: mentionedProfiles } = await supabase
-      .from('profiles')
-      .select('id, display_name')
-      .in('id', safeIds)
-    const nameById: Record<string, string> = {}
-    for (const p of mentionedProfiles ?? []) {
-      if (p.display_name) nameById[p.id as string] = p.display_name as string
-    }
-    // Keep mentioned_user_ids and mentioned_names index-aligned so the client
-    // can map each @name back to its user id (drives the click-to-DM link).
-    safeIds = safeIds.filter(id => nameById[id])
-    mentionedNames = safeIds.map(id => nameById[id])
-  }
+  const { ids: safeIds, names: resolvedNames } =
+    await resolveMentions(supabase, trimmed, user.id, mentionedUserIds, mentionedNames)
 
   // Snapshot reply context — validates same room + not deleted
   let replyToMessage: string | null = null
@@ -115,7 +144,7 @@ export async function sendMessage(
       avatar_url: profile?.avatar_url ?? null,
       message: trimmed,
       mentioned_user_ids: safeIds,
-      mentioned_names: mentionedNames,
+      mentioned_names: resolvedNames,
       reply_to_id: replyToId ?? null,
       reply_to_message: replyToMessage,
       reply_to_display_name: replyToDisplayName,
@@ -138,6 +167,8 @@ export async function sendMessage(
     const admin = createAdminClient()
     const { error: mentionErr } = await admin.from('community_chat_mentions').insert(mentionRows)
     if (mentionErr) console.error('[sendMessage] mention insert failed:', mentionErr.message)
+
+    await sendMentionPush(supabase, safeIds, displayName, trimmed, roomId, msgId)
   }
 
   return { ok: true, msgId, createdAt }
@@ -343,6 +374,7 @@ export async function saveImageMessage(
   roomId: string,
   caption?: string,
   mentionedUserIds?: string[],
+  mentionedNames?: string[],
   replyToId?: string,
 ): Promise<{ ok?: boolean; error?: string; msgId?: string }> {
   const supabase = createClient()
@@ -377,34 +409,8 @@ export async function saveImageMessage(
     user.email?.split('@')[0] ||
     'Thành viên'
 
-  const atTokens = Array.from(new Set((trimmedCaption.match(/@(\S+)/g) ?? []).map(t => t.slice(1))))
-  const clientIds = (mentionedUserIds ?? []).filter(id => id !== user.id)
-  let safeIds = clientIds
-  if (atTokens.length > 0) {
-    const { data: atProfiles } = await supabase
-      .from('profiles')
-      .select('id, display_name')
-      .in('display_name', atTokens)
-    const parsedIds = (atProfiles ?? [])
-      .map(p => p.id as string)
-      .filter(id => id !== user.id && !clientIds.includes(id))
-    if (parsedIds.length > 0) safeIds = Array.from(new Set([...clientIds, ...parsedIds]))
-  }
-  let mentionedNames: string[] = []
-  if (safeIds.length > 0) {
-    const { data: mentionedProfiles } = await supabase
-      .from('profiles')
-      .select('id, display_name')
-      .in('id', safeIds)
-    const nameById: Record<string, string> = {}
-    for (const p of mentionedProfiles ?? []) {
-      if (p.display_name) nameById[p.id as string] = p.display_name as string
-    }
-    // Keep mentioned_user_ids and mentioned_names index-aligned so the client
-    // can map each @name back to its user id (drives the click-to-DM link).
-    safeIds = safeIds.filter(id => nameById[id])
-    mentionedNames = safeIds.map(id => nameById[id])
-  }
+  const { ids: safeIds, names: resolvedNames } =
+    await resolveMentions(supabase, trimmedCaption, user.id, mentionedUserIds, mentionedNames)
 
   let replyToMessage: string | null = null
   let replyToDisplayName: string | null = null
@@ -435,7 +441,7 @@ export async function saveImageMessage(
       avatar_url: profile?.avatar_url ?? null,
       message: trimmedCaption || '[image]',
       mentioned_user_ids: safeIds,
-      mentioned_names: mentionedNames,
+      mentioned_names: resolvedNames,
       has_attachment: true,
       reply_to_id: replyToId ?? null,
       reply_to_message: replyToMessage,
@@ -473,6 +479,8 @@ export async function saveImageMessage(
     const admin = createAdminClient()
     const { error: mentionErr } = await admin.from('community_chat_mentions').insert(mentionRows)
     if (mentionErr) console.error('[saveImageMessage] mention insert failed:', mentionErr.message)
+
+    await sendMentionPush(supabase, safeIds, displayName, trimmedCaption || '📷 Ảnh', roomId, (newMsg as { id: string }).id)
   }
 
   return { ok: true, msgId: (newMsg as { id: string }).id }
@@ -486,6 +494,7 @@ export async function saveFileMessage(
   roomId: string,
   caption?: string,
   mentionedUserIds?: string[],
+  mentionedNames?: string[],
   replyToId?: string,
 ): Promise<{ ok?: boolean; error?: string; msgId?: string }> {
   const supabase = createClient()
@@ -524,34 +533,8 @@ export async function saveFileMessage(
     user.email?.split('@')[0] ||
     'Thành viên'
 
-  const atTokens = Array.from(new Set((trimmedCaption.match(/@(\S+)/g) ?? []).map(t => t.slice(1))))
-  const clientIds = (mentionedUserIds ?? []).filter(id => id !== user.id)
-  let safeIds = clientIds
-  if (atTokens.length > 0) {
-    const { data: atProfiles } = await supabase
-      .from('profiles')
-      .select('id, display_name')
-      .in('display_name', atTokens)
-    const parsedIds = (atProfiles ?? [])
-      .map(p => p.id as string)
-      .filter(id => id !== user.id && !clientIds.includes(id))
-    if (parsedIds.length > 0) safeIds = Array.from(new Set([...clientIds, ...parsedIds]))
-  }
-  let mentionedNames: string[] = []
-  if (safeIds.length > 0) {
-    const { data: mentionedProfiles } = await supabase
-      .from('profiles')
-      .select('id, display_name')
-      .in('id', safeIds)
-    const nameById: Record<string, string> = {}
-    for (const p of mentionedProfiles ?? []) {
-      if (p.display_name) nameById[p.id as string] = p.display_name as string
-    }
-    // Keep mentioned_user_ids and mentioned_names index-aligned so the client
-    // can map each @name back to its user id (drives the click-to-DM link).
-    safeIds = safeIds.filter(id => nameById[id])
-    mentionedNames = safeIds.map(id => nameById[id])
-  }
+  const { ids: safeIds, names: resolvedNames } =
+    await resolveMentions(supabase, trimmedCaption, user.id, mentionedUserIds, mentionedNames)
 
   let replyToMessage: string | null = null
   let replyToDisplayName: string | null = null
@@ -582,7 +565,7 @@ export async function saveFileMessage(
       avatar_url: profile?.avatar_url ?? null,
       message: trimmedCaption || '[file]',
       mentioned_user_ids: safeIds,
-      mentioned_names: mentionedNames,
+      mentioned_names: resolvedNames,
       has_attachment: true,
       reply_to_id: replyToId ?? null,
       reply_to_message: replyToMessage,
@@ -621,6 +604,8 @@ export async function saveFileMessage(
     const admin = createAdminClient()
     const { error: mentionErr } = await admin.from('community_chat_mentions').insert(mentionRows)
     if (mentionErr) console.error('[saveFileMessage] mention insert failed:', mentionErr.message)
+
+    await sendMentionPush(supabase, safeIds, displayName, trimmedCaption || '📎 File', roomId, (newMsg as { id: string }).id)
   }
 
   return { ok: true, msgId: (newMsg as { id: string }).id }

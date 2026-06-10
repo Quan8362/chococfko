@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
+import { subscribeToPush } from '@/lib/push/subscribe'
 
 const DISMISS_KEY = 'notif-perm-dismissed'
 
@@ -13,9 +14,17 @@ export default function NotificationPermissionBanner() {
 
   useEffect(() => {
     if (typeof window === 'undefined' || typeof Notification === 'undefined') return
-    // Already granted → nothing to do. Denied → we can't re-prompt programmatically,
-    // but we still show a hint so the user knows why popups don't appear.
-    if (Notification.permission === 'granted') return
+    // Already granted → make sure this browser has an active push subscription
+    // (covers users who granted permission before push was introduced).
+    if (Notification.permission === 'granted') {
+      const supabase = createClient()
+      supabase.auth.getUser().then(({ data: { user } }) => {
+        if (user) subscribeToPush()
+      })
+      return
+    }
+    // Denied → we can't re-prompt programmatically, but we still show a hint so
+    // the user knows why popups don't appear.
     if (localStorage.getItem(DISMISS_KEY) === '1' && Notification.permission !== 'denied') return
 
     // Only for logged-in users (notifications target a specific account)
@@ -31,6 +40,8 @@ export default function NotificationPermissionBanner() {
     try {
       const res = await Notification.requestPermission()
       if (res === 'granted') {
+        // Register this browser for background/closed-tab push
+        subscribeToPush()
         // Immediate confirmation so the user sees the OS popup works right away
         try {
           if ('serviceWorker' in navigator) {

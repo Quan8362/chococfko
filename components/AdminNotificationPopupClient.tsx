@@ -23,40 +23,6 @@ const TYPE_EMOJI: Record<string, string> = {
   new_pending_confession: '🤫',
 }
 
-function fireOsNotification(
-  title: string,
-  body: string,
-  tag: string,
-  url: string | null,
-) {
-  if (typeof Notification === 'undefined' || Notification.permission !== 'granted') return
-
-  const opts = {
-    body,
-    icon: '/logo-nav.png',
-    badge: '/logo-nav.png',
-    tag,
-    requireInteraction: false,
-  }
-
-  function fallback() {
-    const n = new Notification(title, opts)
-    n.onclick = () => { n.close(); window.focus(); if (url) window.location.href = url }
-  }
-
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.getRegistration('/').then(reg => {
-      if (reg?.active) {
-        reg.showNotification(title, { ...opts, data: { url } }).catch(fallback)
-        return
-      }
-      fallback()
-    }).catch(fallback)
-  } else {
-    fallback()
-  }
-}
-
 export default function AdminNotificationPopupClient({ userId }: { userId: string }) {
   const t = useTranslations('notifications')
   const [notifs, setNotifs] = useState<AdminPopup[]>([])
@@ -97,23 +63,27 @@ export default function AdminNotificationPopupClient({ userId }: { userId: strin
           // Don't popup for the admin's own submissions (the bell still records it)
           if (n.actor_id && n.actor_id === userId) return
 
-          // Suppress if the admin is already on the matching moderation page
+          // Tab not focused → Web Push shows the OS notification. Leave it.
+          if (document.hidden || !document.hasFocus()) return
+
+          // Focused → close the push OS notification (user is in the app), then
+          // show the in-app toast instead.
+          if ('serviceWorker' in navigator) {
+            const tag = `admin-${n.type}-${n.target_id ?? ''}`
+            const closeIt = () => navigator.serviceWorker.getRegistration()
+              .then(reg => reg?.getNotifications({ tag }))
+              .then(ns => (ns || []).forEach(no => no.close()))
+              .catch(() => {})
+            closeIt()
+            setTimeout(closeIt, 1500)
+          }
+
+          // Already on the matching moderation page → no need.
           const targetPath = n.target_url ? n.target_url.split('?')[0] : null
           if (targetPath && window.location.pathname === targetPath) return
 
           const title = localizedTitle(n.type, n.title)
-          const body = n.message ?? ''
           const emoji = TYPE_EMOJI[n.type] ?? '🔔'
-
-          // Backgrounded tab → OS / Windows system notification, but only when
-          // permission was actually granted. Otherwise fall through to the in-app
-          // toast so the admin still sees it when they return to the tab.
-          const canOsNotify =
-            typeof Notification !== 'undefined' && Notification.permission === 'granted'
-          if ((document.hidden || !document.hasFocus()) && canOsNotify) {
-            fireOsNotification(`${emoji} ${title}`, body, n.id, n.target_url)
-            return
-          }
 
           // Active tab → in-app corner toast
           const popup: AdminPopup = {

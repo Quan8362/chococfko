@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
 import { checkIsAdmin, createAdminClient } from '@/lib/supabase/admin'
 import { adminDeleteMessage, adminRestoreMessage, adminPinMessage, adminUnpinMessage } from './actions'
 
@@ -39,6 +40,7 @@ export default async function AdminChatPage({
 }) {
   if (!(await checkIsAdmin())) redirect('/')
 
+  const at = await getTranslations('admin')
   const admin = createAdminClient()
 
   const tab = (['all', 'reported', 'deleted'].includes(searchParams.tab ?? '')
@@ -102,9 +104,9 @@ export default async function AdminChatPage({
   const totalReported = allMessages.filter((m) => (reportCounts.get(m.id) ?? 0) > 0).length
 
   const TABS = [
-    { key: 'all', label: 'Tất cả', count: allMessages.filter(m => !m.is_deleted).length },
-    { key: 'reported', label: 'Bị báo cáo', count: totalReported },
-    { key: 'deleted', label: 'Đã xóa', count: allMessages.filter(m => m.is_deleted).length },
+    { key: 'all', label: at('chat_tab_all'), count: allMessages.filter(m => !m.is_deleted).length },
+    { key: 'reported', label: at('chat_tab_reported'), count: totalReported },
+    { key: 'deleted', label: at('chat_tab_deleted'), count: allMessages.filter(m => m.is_deleted).length },
   ]
 
   return (
@@ -119,12 +121,12 @@ export default async function AdminChatPage({
           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
-          Admin Dashboard
+          {at('admin_dashboard_label')}
         </Link>
         <h1 className="font-serif font-bold text-[28px] tracking-[-0.3px] text-ink">
-          💬 Quản lý Chat
+          💬 {at('chat_title')}
         </h1>
-        <p className="text-muted text-[14px] mt-1">Xem và quản lý tin nhắn cộng đồng</p>
+        <p className="text-muted text-[14px] mt-1">{at('chat_page_subtitle')}</p>
       </div>
 
       {/* Room filter */}
@@ -137,7 +139,7 @@ export default async function AdminChatPage({
               : 'border-line text-muted hover:border-ink hover:text-ink'
           }`}
         >
-          Tất cả phòng
+          {at('chat_all_rooms')}
         </Link>
         {roomList.map((room) => (
           <Link
@@ -180,7 +182,7 @@ export default async function AdminChatPage({
 
       {/* Message list */}
       {shown.length === 0 ? (
-        <div className="text-center py-16 text-muted text-[14px]">Không có tin nhắn nào</div>
+        <div className="text-center py-16 text-muted text-[14px]">{at('chat_no_messages')}</div>
       ) : (
         <div className="space-y-2">
           {shown.map((msg) => {
@@ -210,14 +212,14 @@ export default async function AdminChatPage({
                     <span className="text-[11px] bg-line/60 text-muted px-1.5 py-0.5 rounded-md">{roomName}</span>
                     {reportCount > 0 && (
                       <span className="text-[11px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-md font-bold">
-                        🚩 {reportCount} báo cáo
+                        🚩 {at('chat_report_count', { count: reportCount })}
                       </span>
                     )}
                     {msg.is_pinned && (
-                      <span className="text-[11px] bg-amber-50 text-amber-600 border border-amber-200 px-1.5 py-0.5 rounded-md font-bold">📌 Đã ghim</span>
+                      <span className="text-[11px] bg-amber-50 text-amber-600 border border-amber-200 px-1.5 py-0.5 rounded-md font-bold">📌 {at('chat_pinned')}</span>
                     )}
                     {msg.is_deleted && (
-                      <span className="text-[11px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded-md font-bold">Đã xóa</span>
+                      <span className="text-[11px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded-md font-bold">{at('chat_deleted_badge')}</span>
                     )}
                   </div>
                   <p className="text-[13px] text-ink break-words leading-snug">
@@ -240,7 +242,7 @@ export default async function AdminChatPage({
                         type="submit"
                         className="text-[12px] font-medium text-red-500 hover:text-red-700 transition-colors whitespace-nowrap"
                       >
-                        Xóa
+                        {at('action_delete')}
                       </button>
                     </form>
                   ) : (
@@ -254,7 +256,7 @@ export default async function AdminChatPage({
                         type="submit"
                         className="text-[12px] font-medium text-emerald-600 hover:text-emerald-800 transition-colors whitespace-nowrap"
                       >
-                        Khôi phục
+                        {at('chat_restore')}
                       </button>
                     </form>
                   )}
@@ -270,7 +272,7 @@ export default async function AdminChatPage({
                           type="submit"
                           className="text-[12px] font-medium text-amber-600 hover:text-amber-800 transition-colors whitespace-nowrap"
                         >
-                          Bỏ ghim
+                          {at('chat_unpin')}
                         </button>
                       </form>
                     ) : (
@@ -284,7 +286,7 @@ export default async function AdminChatPage({
                           type="submit"
                           className="text-[12px] font-medium text-muted hover:text-amber-600 transition-colors whitespace-nowrap"
                         >
-                          📌 Ghim
+                          📌 {at('chat_pin')}
                         </button>
                       </form>
                     )

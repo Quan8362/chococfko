@@ -207,9 +207,9 @@ export default async function AdminEditPlace({ params }: { params: { slug: strin
       {/* ── Translations section ─────────────────────────────────────────────── */}
       <div className="mt-10 pt-8 border-t border-line">
         <div className="flex items-center gap-3 mb-6">
-          <h2 className="font-serif font-bold text-[22px] text-ink">🌐 Bản dịch nội dung</h2>
+          <h2 className="font-serif font-bold text-[22px] text-ink">🌐 {admin_t('tx_section_title')}</h2>
           <span className="text-[12px] font-semibold px-2.5 py-0.5 rounded-full bg-teal/10 text-teal border border-teal/20">
-            {existingTranslations.length}/{LOCALES.length} ngôn ngữ
+            {admin_t('tx_lang_count', { n: existingTranslations.length, total: LOCALES.length })}
           </span>
         </div>
 
@@ -227,11 +227,11 @@ export default async function AdminEditPlace({ params }: { params: { slug: strin
                   <span className="font-semibold text-[14px] text-ink flex-1">{label}</span>
                   {hasTx ? (
                     <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200">
-                      ✓ Đã có bản dịch
+                      ✓ {admin_t('tx_has')}
                     </span>
                   ) : (
                     <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 border border-amber-200">
-                      Chưa có
+                      {admin_t('tx_none')}
                     </span>
                   )}
                 </summary>
@@ -243,25 +243,25 @@ export default async function AdminEditPlace({ params }: { params: { slug: strin
                     <div className="grid sm:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-[12.5px] font-semibold mb-1.5 text-[#5c4d44]">
-                          Khu vực ({label})
+                          {admin_t('tx_field_area', { label })}
                         </label>
                         <input
                           type="text"
                           name="area"
                           defaultValue={tx?.area ?? ''}
-                          placeholder={`Khu vực bằng ${label}...`}
+                          placeholder={admin_t('tx_area_ph', { label })}
                           className="w-full text-[13.5px] px-3.5 py-2.5 border border-line rounded-xl bg-white focus:outline-none focus:border-rose"
                         />
                       </div>
                       <div>
                         <label className="block text-[12.5px] font-semibold mb-1.5 text-[#5c4d44]">
-                          Mô tả ngắn ({label})
+                          {admin_t('tx_field_desc', { label })}
                         </label>
                         <input
                           type="text"
                           name="short_description"
                           defaultValue={tx?.short_description ?? ''}
-                          placeholder={`Mô tả ngắn bằng ${label}...`}
+                          placeholder={admin_t('tx_desc_ph', { label })}
                           className="w-full text-[13.5px] px-3.5 py-2.5 border border-line rounded-xl bg-white focus:outline-none focus:border-rose"
                         />
                       </div>
@@ -269,13 +269,13 @@ export default async function AdminEditPlace({ params }: { params: { slug: strin
 
                     <div>
                       <label className="block text-[12.5px] font-semibold mb-1.5 text-[#5c4d44]">
-                        Nội dung chi tiết ({label}) — HTML
+                        {admin_t('tx_field_content', { label })}
                       </label>
                       <textarea
                         name="content"
                         defaultValue={tx?.content ?? ''}
                         rows={5}
-                        placeholder="Dán HTML nội dung dịch tại đây..."
+                        placeholder={admin_t('tx_content_ph')}
                         className="w-full text-[12.5px] font-mono px-3.5 py-2.5 border border-line rounded-xl bg-white focus:outline-none focus:border-rose resize-y"
                       />
                     </div>
@@ -284,7 +284,7 @@ export default async function AdminEditPlace({ params }: { params: { slug: strin
                       type="submit"
                       className="font-semibold text-[13px] px-6 py-2.5 rounded-full bg-rose text-white hover:bg-rose-deep transition-all shadow-[0_2px_8px_-2px_rgba(194,24,91,0.4)]"
                     >
-                      {hasTx ? '💾 Cập nhật bản dịch' : '➕ Lưu bản dịch'}
+                      {hasTx ? admin_t('tx_update') : admin_t('tx_save')}
                     </button>
                   </form>
                 </div>

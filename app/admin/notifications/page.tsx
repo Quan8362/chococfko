@@ -15,13 +15,13 @@ const TYPE_EMOJI: Record<string, string> = {
   new_pending_confession: '🤫',
 }
 
-function relTime(iso: string): string {
+function relTime(iso: string, t: (key: string, values?: Record<string, string | number>) => string): string {
   const diff = Math.floor((Date.now() - new Date(iso).getTime()) / 60000)
-  if (diff < 1) return 'vừa xong'
-  if (diff < 60) return `${diff} phút trước`
+  if (diff < 1) return t('rel_just_now')
+  if (diff < 60) return t('rel_minutes_ago', { n: diff })
   const h = Math.floor(diff / 60)
-  if (h < 24) return `${h} giờ trước`
-  return `${Math.floor(h / 24)} ngày trước`
+  if (h < 24) return t('rel_hours_ago', { n: h })
+  return t('rel_days_ago', { n: Math.floor(h / 24) })
 }
 
 export default async function AdminNotificationsPage({
@@ -195,7 +195,7 @@ export default async function AdminNotificationsPage({
                 {notif.message && (
                   <p className="text-[12.5px] text-muted truncate mb-1">「{notif.message}」</p>
                 )}
-                <p className="text-[11.5px] text-muted/50">{relTime(notif.created_at)}</p>
+                <p className="text-[11.5px] text-muted/50">{relTime(notif.created_at, t)}</p>
               </div>
 
               <div className="flex items-center gap-2 flex-none">

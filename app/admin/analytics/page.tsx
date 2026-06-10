@@ -51,13 +51,13 @@ function fmtDate(d: Date) {
   })
 }
 
-function getPeriodRangeLabel(period: Period, since: Date): string {
+function getPeriodRangeLabel(period: Period, since: Date, t: (key: string, values?: Record<string, string | number>) => string): string {
   const now = new Date()
   const nowStr = now.toLocaleDateString('vi-VN', {
     timeZone: JST, day: '2-digit', month: '2-digit', year: 'numeric',
   })
-  if (period === 'today') return `Ngày ${nowStr}`
-  return `Từ ${fmtDate(since)} đến ${nowStr}`
+  if (period === 'today') return t('analytics_period_day', { date: nowStr })
+  return t('analytics_period_range', { from: fmtDate(since), to: nowStr })
 }
 
 export default async function AdminAnalyticsPage({
@@ -176,7 +176,7 @@ export default async function AdminAnalyticsPage({
         ))}
       </div>
       <p className="text-[12px] text-muted/70 mb-7">
-        📅 {getPeriodRangeLabel(period, since)}
+        📅 {getPeriodRangeLabel(period, since, t)}
       </p>
 
       {/* Stat cards */}

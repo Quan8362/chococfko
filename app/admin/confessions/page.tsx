@@ -223,8 +223,7 @@ export default async function AdminConfessionsPage({
             ⚠️ {admin_t('db_error_label')} {confErr.message}
             {confErr.message.includes('does not exist') && (
               <span className="block mt-1 text-[12px]">
-                Bảng <code>confessions</code> chưa tồn tại. Hãy chạy file{' '}
-                <code>supabase/migration_confessions.sql</code> trong Supabase SQL Editor.
+                {admin_t('confessions_table_missing')}
               </span>
             )}
           </div>

@@ -2,6 +2,7 @@
 
 import { useState, useTransition, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import JlptBadge from '@/components/japanese/JlptBadge'
 import { upsertQuiz, toggleQuizPublished } from '../actions'
 import type { AdminQuiz } from './page'
@@ -16,6 +17,7 @@ function getOptionText(q: AdminQuiz, key: string) {
 }
 
 export default function QuizClient({ initialQuizzes }: { initialQuizzes: AdminQuiz[] }) {
+  const t = useTranslations('admin_jp')
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [isOpen, setIsOpen] = useState(false)
@@ -49,7 +51,7 @@ export default function QuizClient({ initialQuizzes }: { initialQuizzes: AdminQu
     startTransition(async () => {
       const res = await upsertQuiz(fd)
       if (res?.error) showToast('error', res.error)
-      else { showToast('success', '✓ Đã lưu thành công'); setIsOpen(false); router.refresh() }
+      else { showToast('success', t('toast_saved')); setIsOpen(false); router.refresh() }
     })
   }
 
@@ -57,7 +59,7 @@ export default function QuizClient({ initialQuizzes }: { initialQuizzes: AdminQu
     startTransition(async () => {
       const res = await toggleQuizPublished(id, !current)
       if (res?.error) showToast('error', res.error)
-      else { showToast('success', !current ? '✓ Đã hiển thị' : '✓ Đã ẩn'); router.refresh() }
+      else { showToast('success', !current ? t('toast_shown') : t('toast_hidden')); router.refresh() }
     })
   }
 
@@ -66,37 +68,37 @@ export default function QuizClient({ initialQuizzes }: { initialQuizzes: AdminQu
       <div className="flex flex-wrap gap-3 mb-5 items-center justify-between">
         <div className="flex flex-wrap gap-2">
           <input value={filterQ} onChange={e => setFilterQ(e.target.value)}
-            placeholder="Tìm câu hỏi..." className={`${INPUT} w-48`} />
+            placeholder={t('filter_search_quiz_ph')} className={`${INPUT} w-48`} />
           <select value={filterLevel} onChange={e => setFilterLevel(e.target.value)} className={`${INPUT} w-28`}>
-            <option value="">Tất cả cấp</option>
+            <option value="">{t('filter_all_levels')}</option>
             {JLPT.map(l => <option key={l} value={l}>{l}</option>)}
           </select>
           <select value={filterCat} onChange={e => setFilterCat(e.target.value)} className={`${INPUT} w-36`}>
-            <option value="">Tất cả loại</option>
+            <option value="">{t('filter_all_cat')}</option>
             {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
           <select value={filterStatus} onChange={e => setFilterStatus(e.target.value as never)} className={`${INPUT} w-36`}>
-            <option value="all">Tất cả</option>
-            <option value="published">Xuất bản</option>
-            <option value="hidden">Đã ẩn</option>
+            <option value="all">{t('filter_all')}</option>
+            <option value="published">{t('stat_published')}</option>
+            <option value="hidden">{t('stat_hidden')}</option>
           </select>
         </div>
         <button onClick={() => { setEditItem(null); setIsOpen(true) }}
           className="flex items-center gap-1.5 bg-rose text-white text-[13px] font-semibold px-4 py-2 rounded-xl hover:bg-rose-deep transition-colors">
-          + Thêm câu hỏi
+          + {t('add_quiz')}
         </button>
       </div>
 
-      <p className="text-[12px] text-muted mb-3">{displayed.length} / {initialQuizzes.length} câu hỏi</p>
+      <p className="text-[12px] text-muted mb-3">{t('count_quiz', { shown: displayed.length, total: initialQuizzes.length })}</p>
 
       {displayed.length === 0 ? (
-        <div className="bg-paper border border-line rounded-2xl p-12 text-center text-muted">Không tìm thấy câu hỏi nào</div>
+        <div className="bg-paper border border-line rounded-2xl p-12 text-center text-muted">{t('no_quiz_found')}</div>
       ) : (
         <div className="overflow-x-auto rounded-2xl border border-line">
           <table className="w-full text-[13px]">
             <thead className="bg-cream border-b border-line">
               <tr>
-                {['Câu hỏi', 'JLPT', 'Loại', 'Đáp án đúng', 'Độ khó', 'Trạng thái', 'Hành động'].map(h => (
+                {[t('col_question'), 'JLPT', t('col_category'), t('col_correct'), t('col_difficulty'), t('col_status'), t('col_actions')].map(h => (
                   <th key={h} className="text-left px-4 py-3 text-muted font-semibold whitespace-nowrap">{h}</th>
                 ))}
               </tr>
@@ -117,15 +119,15 @@ export default function QuizClient({ initialQuizzes }: { initialQuizzes: AdminQu
                   <td className="px-4 py-3 text-muted">{q.difficulty}</td>
                   <td className="px-4 py-3">
                     <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full border ${q.is_published ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200'}`}>
-                      {q.is_published ? 'Hiển thị' : 'Đã ẩn'}
+                      {q.is_published ? t('status_shown') : t('stat_hidden')}
                     </span>
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1.5 justify-end">
-                      <button onClick={() => { setEditItem(q); setIsOpen(true) }} className="text-[12px] font-semibold px-2.5 py-1 rounded-lg bg-cream border border-line text-ink hover:border-rose/40 hover:text-rose transition-colors">Sửa</button>
+                      <button onClick={() => { setEditItem(q); setIsOpen(true) }} className="text-[12px] font-semibold px-2.5 py-1 rounded-lg bg-cream border border-line text-ink hover:border-rose/40 hover:text-rose transition-colors">{t('btn_edit')}</button>
                       <button onClick={() => handleToggle(q.id, q.is_published)} disabled={isPending}
                         className={`text-[12px] font-semibold px-2.5 py-1 rounded-lg border transition-colors ${q.is_published ? 'bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100' : 'bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100'}`}>
-                        {q.is_published ? 'Ẩn' : 'Hiện'}
+                        {q.is_published ? t('btn_hide') : t('btn_show')}
                       </button>
                     </div>
                   </td>
@@ -141,7 +143,7 @@ export default function QuizClient({ initialQuizzes }: { initialQuizzes: AdminQu
           onClick={e => { if (e.target === e.currentTarget) setIsOpen(false) }}>
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl my-8" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between px-6 py-4 border-b border-line">
-              <h2 className="font-bold text-[16px] text-ink">{editItem ? 'Chỉnh sửa câu hỏi' : 'Thêm câu hỏi mới'}</h2>
+              <h2 className="font-bold text-[16px] text-ink">{editItem ? t('modal_edit_quiz') : t('modal_add_quiz')}</h2>
               <button onClick={() => setIsOpen(false)} className="text-muted hover:text-ink transition-colors">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
@@ -152,20 +154,20 @@ export default function QuizClient({ initialQuizzes }: { initialQuizzes: AdminQu
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-[11px] font-semibold text-muted uppercase tracking-wide mb-1">Cấp JLPT</label>
+                  <label className="block text-[11px] font-semibold text-muted uppercase tracking-wide mb-1">{t('field_jlpt')}</label>
                   <select name="jlpt_level" defaultValue={editItem?.jlpt_level ?? ''} className={INPUT}>
-                    <option value="">Chưa phân loại</option>
+                    <option value="">{t('jlpt_unclassified')}</option>
                     {JLPT.map(l => <option key={l} value={l}>{l}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-[11px] font-semibold text-muted uppercase tracking-wide mb-1">Loại</label>
+                  <label className="block text-[11px] font-semibold text-muted uppercase tracking-wide mb-1">{t('col_category')}</label>
                   <select name="category" defaultValue={editItem?.category ?? 'mixed'} className={INPUT}>
                     {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-[11px] font-semibold text-muted uppercase tracking-wide mb-1">Độ khó</label>
+                  <label className="block text-[11px] font-semibold text-muted uppercase tracking-wide mb-1">{t('col_difficulty')}</label>
                   <select name="difficulty" defaultValue={editItem?.difficulty ?? 'medium'} className={INPUT}>
                     {DIFFICULTIES.map(d => <option key={d} value={d}>{d}</option>)}
                   </select>
@@ -173,36 +175,36 @@ export default function QuizClient({ initialQuizzes }: { initialQuizzes: AdminQu
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-muted uppercase tracking-wide mb-1">Câu hỏi (Nhật) *</label>
+                <label className="block text-[11px] font-semibold text-muted uppercase tracking-wide mb-1">{t('field_question_ja_required')}</label>
                 <input name="question" required lang="ja" defaultValue={editItem?.question ?? ''} className={INPUT} placeholder="＿に　なにを　いれますか。" />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-semibold text-muted uppercase tracking-wide mb-1">Furigana (reading)</label>
+                  <label className="block text-[11px] font-semibold text-muted uppercase tracking-wide mb-1">{t('field_question_reading')}</label>
                   <input name="question_reading" lang="ja" defaultValue={editItem?.question_reading ?? ''} className={INPUT} placeholder="Reading..." />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-semibold text-muted uppercase tracking-wide mb-1">Câu hỏi (Việt)</label>
+                  <label className="block text-[11px] font-semibold text-muted uppercase tracking-wide mb-1">{t('field_question_vi')}</label>
                   <input name="question_vi" defaultValue={editItem?.question_vi ?? ''} className={INPUT} placeholder="Điền vào chỗ trống..." />
                 </div>
                 <div className="col-span-2">
-                  <label className="block text-[11px] font-semibold text-muted uppercase tracking-wide mb-1">Question (English)</label>
+                  <label className="block text-[11px] font-semibold text-muted uppercase tracking-wide mb-1">{t('field_question_en')}</label>
                   <input name="question_en" defaultValue={editItem?.question_en ?? ''} className={INPUT} placeholder="Fill in the blank..." />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-muted uppercase tracking-wide mb-2">Đáp án A / B / C / D *</label>
+                <label className="block text-[11px] font-semibold text-muted uppercase tracking-wide mb-2">{t('field_options_required')}</label>
                 {(['A', 'B', 'C', 'D'] as const).map(key => (
                   <div key={key} className="flex items-center gap-2 mb-2">
                     <span className="text-[13px] font-bold text-muted w-5 shrink-0">{key}</span>
-                    <input name={`option_${key}`} required defaultValue={getOptionText(editItem!, key)} className={INPUT} placeholder={`Đáp án ${key}`} />
+                    <input name={`option_${key}`} required defaultValue={getOptionText(editItem!, key)} className={INPUT} placeholder={t('option_ph', { key })} />
                   </div>
                 ))}
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-muted uppercase tracking-wide mb-2">Đáp án đúng *</label>
+                <label className="block text-[11px] font-semibold text-muted uppercase tracking-wide mb-2">{t('field_correct_required')}</label>
                 <div className="flex items-center gap-4">
                   {(['A', 'B', 'C', 'D'] as const).map(key => (
                     <label key={key} className="flex items-center gap-1.5 cursor-pointer text-[14px] font-bold text-ink">
@@ -215,28 +217,28 @@ export default function QuizClient({ initialQuizzes }: { initialQuizzes: AdminQu
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-semibold text-muted uppercase tracking-wide mb-1">Giải thích (Việt)</label>
+                  <label className="block text-[11px] font-semibold text-muted uppercase tracking-wide mb-1">{t('field_explanation_vi')}</label>
                   <textarea name="explanation_vi" rows={2} defaultValue={editItem?.explanation_vi ?? ''} className={`${INPUT} resize-y`} placeholder="Vì..." />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-semibold text-muted uppercase tracking-wide mb-1">Explanation (English)</label>
+                  <label className="block text-[11px] font-semibold text-muted uppercase tracking-wide mb-1">{t('field_explanation_en')}</label>
                   <textarea name="explanation_en" rows={2} defaultValue={editItem?.explanation_en ?? ''} className={`${INPUT} resize-y`} placeholder="Because..." />
                 </div>
               </div>
 
               <label className="flex items-center gap-2 text-[13px] text-ink cursor-pointer">
                 <input type="checkbox" name="is_published" defaultChecked={editItem?.is_published ?? true} className="accent-rose" />
-                Hiển thị công khai
+                {t('publish_public')}
               </label>
 
               <div className="flex items-center gap-3 justify-end pt-3 border-t border-line">
                 <button type="button" onClick={() => setIsOpen(false)}
                   className="px-4 py-2 text-[13px] font-semibold text-muted border border-line rounded-xl hover:bg-cream transition-colors">
-                  Hủy
+                  {t('btn_cancel')}
                 </button>
                 <button type="submit" disabled={isPending}
                   className="px-5 py-2 text-[13px] font-semibold bg-rose text-white rounded-xl hover:bg-rose-deep transition-colors disabled:opacity-60">
-                  {isPending ? 'Đang lưu…' : 'Lưu'}
+                  {isPending ? t('btn_saving') : t('btn_save')}
                 </button>
               </div>
             </form>

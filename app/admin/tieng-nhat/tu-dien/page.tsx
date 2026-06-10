@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
 import { checkIsAdmin, createAdminClient } from '@/lib/supabase/admin'
 import type { JapaneseWord } from '@/components/japanese/WordCard'
 import WordsClient from './WordsClient'
@@ -12,6 +13,7 @@ export type AdminWord = JapaneseWord & { is_published: boolean }
 export default async function WordsAdminPage() {
   if (!(await checkIsAdmin())) redirect('/')
 
+  const t = await getTranslations('admin_jp')
   const admin = createAdminClient()
   const { data } = await admin
     .from('japanese_words')
@@ -24,15 +26,15 @@ export default async function WordsAdminPage() {
       <nav className="flex items-center gap-1.5 text-[12.5px] text-muted mb-8">
         <Link href="/admin" className="hover:text-rose transition-colors">Admin</Link>
         <span>/</span>
-        <Link href="/admin/tieng-nhat" className="hover:text-rose transition-colors">Tiếng Nhật</Link>
+        <Link href="/admin/tieng-nhat" className="hover:text-rose transition-colors">{t('breadcrumb')}</Link>
         <span>/</span>
-        <span className="text-ink">Từ điển</span>
+        <span className="text-ink">{t('section_dictionary')}</span>
       </nav>
 
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="font-serif font-bold text-[24px] text-ink">📖 Quản lý Từ điển</h1>
-          <p className="text-[13px] text-muted mt-1">Thêm, sửa và quản lý từ trong bảng japanese_words</p>
+          <h1 className="font-serif font-bold text-[24px] text-ink">📖 {t('page_dict_heading')}</h1>
+          <p className="text-[13px] text-muted mt-1">{t('page_dict_subtitle')}</p>
         </div>
       </div>
 

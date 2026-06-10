@@ -4,6 +4,7 @@ import { useState, useRef } from 'react'
 import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { updateProfile } from './actions'
+import { avatarSrc } from '@/lib/avatar'
 
 interface Props {
   userId: string
@@ -148,7 +149,7 @@ export default function ProfileForm({
             {avatarUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
-                src={avatarUrl}
+                src={avatarSrc(avatarUrl)}
                 alt={initialName}
                 width={112}
                 height={112}

@@ -6,9 +6,11 @@ import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
 import ScrollToTopButton from '@/components/ScrollToTopButton'
 import AnalyticsTracker from '@/components/AnalyticsTracker'
+import { checkIsAdmin } from '@/lib/supabase/admin'
 import MentionNotificationProvider from '@/components/MentionNotificationProvider'
 import AdminNotificationPopup from '@/components/AdminNotificationPopup'
 import NotificationPermissionBanner from '@/components/NotificationPermissionBanner'
+import CommentNotificationProvider from '@/components/CommentNotificationProvider'
 
 const SITE_NAME = 'Chợ Cóc FKO'
 const SITE_URL  = 'https://chococfko.com'
@@ -67,6 +69,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const locale   = await getLocale()
   const messages = await getMessages()
+  const isAdmin  = await checkIsAdmin()
 
   return (
     <html lang={locale}>
@@ -85,8 +88,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <main className="flex-1">{children}</main>
             <Footer />
             <ScrollToTopButton />
-            <AnalyticsTracker />
+            <AnalyticsTracker isAdmin={isAdmin} />
             <MentionNotificationProvider />
+            <CommentNotificationProvider />
             <AdminNotificationPopup />
             <NotificationPermissionBanner />
           </div>

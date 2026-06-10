@@ -30,7 +30,7 @@ export type AdminNotification = {
 const ADMIN_CACHE_TTL = 5 * 60 * 1000
 let adminIdCache: { ids: string[]; expires: number } | null = null
 
-async function getAdminUserIds(): Promise<string[]> {
+export async function getAdminUserIds(): Promise<string[]> {
   const raw = process.env.ADMIN_EMAILS ?? ''
   const adminEmails = new Set(raw.split(',').map(e => e.trim()).filter(Boolean))
   if (!adminEmails.size) return []

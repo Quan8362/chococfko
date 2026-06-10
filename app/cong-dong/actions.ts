@@ -3,6 +3,8 @@
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { isUuid } from '@/lib/posts'
+import { sanitizeHtml, stripHtml } from '@/lib/sanitize'
+import { notifyNewComment } from '@/lib/notifications/comments'
 
 export type CommentResult = { ok?: true; error?: string } | null
 
@@ -15,20 +17,39 @@ export async function submitComment(
   if (!user) return { error: 'login_required' }
 
   const postId = (formData.get('post_id') as string ?? '').trim()
-  const content = (formData.get('content') as string ?? '').trim()
+  const rawContent = (formData.get('content') as string ?? '').trim()
 
   if (!isUuid(postId)) return { error: 'invalid_post' }
-  if (!content) return { error: 'empty' }
-  if (content.length > 1000) return { error: 'too_long' }
+  const textContent = stripHtml(rawContent)
+  const hasImage = /<img\b/i.test(rawContent)
+  if (!textContent && !hasImage) return { error: 'empty' }
+  if (textContent.length > 1000) return { error: 'too_long' }
 
-  const { error } = await supabase.from('comments').insert({
+  const content = sanitizeHtml(rawContent)
+
+  const { data: inserted, error } = await supabase.from('comments').insert({
     post_id: postId,
     user_id: user.id,
     content,
     status: 'approved',
+  }).select('id').single()
+
+  if (error || !inserted) return { error: error?.message ?? 'db_error' }
+
+  // Notify other participants of this post's comment thread
+  const { data: profile } = await supabase
+    .from('profiles').select('display_name, avatar_url').eq('id', user.id).single()
+  await notifyNewComment({
+    commentTable: 'comments',
+    postColumn: 'post_id',
+    postId,
+    commentId: inserted.id as string,
+    targetUrl: `/cong-dong/${postId}?c=${inserted.id}`,
+    actorId: user.id,
+    actorName: profile?.display_name || user.email?.split('@')[0] || 'Thành viên',
+    actorAvatar: profile?.avatar_url ?? null,
   })
 
-  if (error) return { error: error.message }
   revalidatePath(`/cong-dong/${postId}`)
   return { ok: true }
 }

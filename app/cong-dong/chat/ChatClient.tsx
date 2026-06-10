@@ -6,6 +6,7 @@ import dynamic from 'next/dynamic'
 import { useTranslations, useLocale } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { trackEvent } from '@/lib/analytics'
+import { avatarSrc } from '@/lib/avatar'
 
 const EmojiPicker = dynamic(() => import('@emoji-mart/react'), { ssr: false })
 import {
@@ -151,21 +152,21 @@ function googleAvatarAt(url: string, size: number): string {
 
 function upgradeAvatarUrl(url: string | null): string | null {
   if (!url) return null
+  let upgraded = url
   if (url.includes('lh3.googleusercontent.com') || url.includes('googleusercontent.com')) {
-    return googleAvatarAt(url, 64)
-  }
-  if (url.includes('fbcdn.net') || url.includes('facebook.com')) {
-    return url.replace(/[?&]width=\d+/, (m) => m.replace(/\d+/, '200'))
+    upgraded = googleAvatarAt(url, 64)
+  } else if (url.includes('fbcdn.net') || url.includes('facebook.com')) {
+    upgraded = url.replace(/[?&]width=\d+/, (m) => m.replace(/\d+/, '200'))
       .replace(/[?&]height=\d+/, (m) => m.replace(/\d+/, '200'))
   }
-  return url
+  return avatarSrc(upgraded)
 }
 
 // srcSet for DPR-accurate avatar rendering (no downscale = no softening)
 function avatarSrcSet(url: string | null): string | undefined {
   if (!url) return undefined
   if (url.includes('lh3.googleusercontent.com') || url.includes('googleusercontent.com')) {
-    return `${googleAvatarAt(url, 32)} 1x, ${googleAvatarAt(url, 64)} 2x, ${googleAvatarAt(url, 96)} 3x, ${googleAvatarAt(url, 128)} 4x`
+    return `${avatarSrc(googleAvatarAt(url, 32))} 1x, ${avatarSrc(googleAvatarAt(url, 64))} 2x, ${avatarSrc(googleAvatarAt(url, 96))} 3x, ${avatarSrc(googleAvatarAt(url, 128))} 4x`
   }
   return undefined
 }
@@ -495,7 +496,7 @@ export default function ChatClient({
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior })
     scrollMsgsToBottom(false)
-    trackEvent('visit_chat', { userId })
+    if (!isAdmin) trackEvent('visit_chat', { userId })
     // Opened from a mention notification → scroll to + highlight that message
     if (initialHighlightMsgId) {
       setTimeout(() => {
@@ -909,7 +910,7 @@ export default function ChatClient({
     setSearchQuery('')
     setSearchResults([])
     window.history.replaceState(null, '', `/cong-dong/chat?room=${room.key ?? room.id}`)
-    trackEvent('switch_chat_room', { userId })
+    if (!isAdmin) trackEvent('switch_chat_room', { userId })
     await loadRoomMessages(room.id)
     await updateReadState(room.id)
   }, [loadRoomMessages, updateReadState, userId, scrollMsgsToBottom])
@@ -1626,7 +1627,7 @@ export default function ChatClient({
     const result = await sendMessage(msg, roomId, mentionedUserIds, mentionedNames, replySnapshot?.id)
     setSending(false)
     if (!result.error) {
-      trackEvent('send_chat_message', { userId })
+      if (!isAdmin) trackEvent('send_chat_message', { userId })
       if (result.msgId && result.createdAt) {
         // Replace temp message with confirmed ID; if realtime already delivered it, just remove the temp
         setMessages(prev => {
@@ -2356,7 +2357,7 @@ export default function ChatClient({
                 <div className="w-8 h-8 rounded-full overflow-hidden bg-rose/10 flex items-center justify-center text-[14px] font-bold text-rose shrink-0">
                   {dmPartner.avatar
                     // eslint-disable-next-line @next/next/no-img-element
-                    ? <img src={dmPartner.avatar} alt="" className="w-full h-full object-cover" />
+                    ? <img src={avatarSrc(dmPartner.avatar)} alt="" className="w-full h-full object-cover" />
                     : getInitial(dmPartner.name)}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -2717,7 +2718,7 @@ export default function ChatClient({
                                             <div key={v.user_id} className="flex items-center gap-1.5 py-0.5">
                                               {v.avatar_url
                                                 // eslint-disable-next-line @next/next/no-img-element
-                                                ? <img src={v.avatar_url} alt={v.display_name} className="w-4 h-4 rounded-full object-cover shrink-0" />
+                                                ? <img src={avatarSrc(v.avatar_url)} alt={v.display_name} className="w-4 h-4 rounded-full object-cover shrink-0" />
                                                 : <div className="w-4 h-4 rounded-full bg-rose/15 flex items-center justify-center text-[6px] font-bold text-rose shrink-0">{v.display_name?.[0]?.toUpperCase() ?? '?'}</div>
                                               }
                                               <span className="text-[11px] text-muted/65 truncate">{v.display_name}</span>
@@ -3164,7 +3165,7 @@ export default function ChatClient({
                     <div className="flex-none w-6 h-6 rounded-full bg-rose/10 flex items-center justify-center text-[11px] font-bold text-rose overflow-hidden shrink-0">
                       {u.avatar_url ? (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={u.avatar_url} alt={u.display_name} className="w-full h-full object-cover" />
+                        <img src={avatarSrc(u.avatar_url)} alt={u.display_name} className="w-full h-full object-cover" />
                       ) : (
                         getInitial(u.display_name)
                       )}
@@ -3779,7 +3780,7 @@ export default function ChatClient({
                         <div className="w-7 h-7 rounded-full overflow-hidden bg-rose/10 flex items-center justify-center text-[12px] font-bold text-rose">
                           {member.avatar_url ? (
                             // eslint-disable-next-line @next/next/no-img-element
-                            <img src={member.avatar_url} alt={member.display_name ?? ''} className="w-full h-full object-cover" />
+                            <img src={avatarSrc(member.avatar_url)} alt={member.display_name ?? ''} className="w-full h-full object-cover" />
                           ) : (
                             getInitial(member.display_name ?? '?')
                           )}
@@ -3878,7 +3879,7 @@ export default function ChatClient({
                           <div className="flex-none w-6 h-6 rounded-full overflow-hidden bg-rose/10 flex items-center justify-center text-[11px] font-bold text-rose shrink-0">
                             {user.avatar_url ? (
                               // eslint-disable-next-line @next/next/no-img-element
-                              <img src={user.avatar_url} alt={user.display_name} className="w-full h-full object-cover" />
+                              <img src={avatarSrc(user.avatar_url)} alt={user.display_name} className="w-full h-full object-cover" />
                             ) : (
                               getInitial(user.display_name)
                             )}
@@ -4010,7 +4011,7 @@ export default function ChatClient({
                     <div className="w-9 h-9 rounded-full overflow-hidden bg-rose/10 flex items-center justify-center text-[14px] font-bold text-rose shrink-0">
                       {user.avatar_url
                         // eslint-disable-next-line @next/next/no-img-element
-                        ? <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
+                        ? <img src={avatarSrc(user.avatar_url)} alt="" className="w-full h-full object-cover" />
                         : getInitial(user.display_name)}
                     </div>
                     <span className="flex-1 text-[13.5px] font-medium text-ink">{user.display_name}</span>

@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { checkIsAdmin, createAdminClient } from '@/lib/supabase/admin'
+import { getAdminUserIds } from '@/lib/admin/notifications'
 import AnalyticsRecentClient, { type RecentEvent } from './AnalyticsRecentClient'
 
 export const dynamic = 'force-dynamic'
@@ -75,15 +76,27 @@ export default async function AdminAnalyticsPage({
 
   const admin = createAdminClient()
   const since = getPeriodStart(period)
+  const adminIds = new Set(await getAdminUserIds())
 
-  const { data: rawEvents } = await admin
-    .from('analytics_events')
-    .select('event_name, path, user_id, anonymous_visitor_id, session_id, created_at')
-    .gte('created_at', since.toISOString())
-    .order('created_at', { ascending: false })
-    .limit(10000)
+  // Fetch ALL events for the period. PostgREST caps each request at 1000 rows
+  // (which is why the total was always stuck at 1,000), so page through with
+  // .range() until exhausted.
+  const allEvents: Event[] = []
+  const PAGE_ROWS = 1000
+  for (let from = 0; from < 100000; from += PAGE_ROWS) {
+    const { data } = await admin
+      .from('analytics_events')
+      .select('event_name, path, user_id, anonymous_visitor_id, session_id, created_at')
+      .gte('created_at', since.toISOString())
+      .order('created_at', { ascending: false })
+      .range(from, from + PAGE_ROWS - 1)
+    if (!data || data.length === 0) break
+    allEvents.push(...(data as Event[]))
+    if (data.length < PAGE_ROWS) break
+  }
 
-  const events: Event[] = (rawEvents ?? []) as Event[]
+  // Exclude admin activity — events recorded with an admin user_id.
+  const events: Event[] = allEvents.filter(e => !(e.user_id && adminIds.has(e.user_id)))
 
   // ── Aggregate ──────────────────────────────────────────────────────────────
   const pageViews    = events.filter(e => e.event_name === 'page_view').length

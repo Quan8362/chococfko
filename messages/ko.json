@@ -1663,7 +1663,10 @@
     "enable_notif_btn": "켜기",
     "enable_notif_later": "나중에",
     "enable_notif_denied": "알림이 차단되어 있습니다. 브라우저 설정(주소창 옆 🔒 아이콘)에서 다시 켜주세요.",
-    "enable_notif_granted": "알림이 켜졌습니다!"
+    "enable_notif_granted": "알림이 켜졌습니다!",
+    "comment_notif_badge": "새 댓글",
+    "comment_notif_body": "회원님이 참여한 게시물에 댓글을 남겼습니다",
+    "comment_notif_someone": "누군가"
   },
   "community_chat": {
     "title": "커뮤니티 채팅",

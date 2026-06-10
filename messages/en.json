@@ -1663,7 +1663,10 @@
     "enable_notif_btn": "Enable",
     "enable_notif_later": "Later",
     "enable_notif_denied": "Notifications are blocked. Re-enable them in your browser settings (the 🔒 icon next to the address bar).",
-    "enable_notif_granted": "Notifications enabled!"
+    "enable_notif_granted": "Notifications enabled!",
+    "comment_notif_badge": "New comment",
+    "comment_notif_body": "just commented on a post you're in",
+    "comment_notif_someone": "Someone"
   },
   "community_chat": {
     "title": "Community Chat",

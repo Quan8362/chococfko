@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import { useTranslations } from 'next-intl'
+import { avatarSrc } from '@/lib/avatar'
 
 export type UserRow = {
   id: string
@@ -131,7 +132,7 @@ export default function AdminUsersClient({ users }: { users: UserRow[] }) {
                 <div className="w-9 h-9 rounded-full flex-none overflow-hidden bg-gradient-to-br from-rose/30 to-teal/30 grid place-items-center text-[14px] font-bold text-ink">
                   {u.avatarUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={u.avatarUrl} alt="" className="w-full h-full object-cover" />
+                    <img src={avatarSrc(u.avatarUrl)} alt="" className="w-full h-full object-cover" />
                   ) : (
                     u.displayName[0]?.toUpperCase()
                   )}

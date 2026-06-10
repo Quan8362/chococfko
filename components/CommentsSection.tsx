@@ -1,11 +1,15 @@
 'use client'
 
+import dynamic from 'next/dynamic'
 import { useFormState, useFormStatus } from 'react-dom'
-import { useEffect, useRef } from 'react'
-import { useRouter } from 'next/navigation'
+import { useEffect, useRef, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useTranslations, useLocale } from 'next-intl'
 import { submitComment, deleteComment, type CommentResult } from '@/app/cong-dong/actions'
+import { avatarSrc } from '@/lib/avatar'
+
+const CommentRichEditor = dynamic(() => import('@/components/CommentRichEditor'), { ssr: false })
 
 export type Comment = {
   id: string
@@ -55,13 +59,32 @@ export default function CommentsSection({ postId, comments, currentUser, isAdmin
   const router = useRouter()
   const formRef = useRef<HTMLFormElement>(null)
   const [state, formAction] = useFormState(submitComment, INIT)
+  const [editorResetKey, setEditorResetKey] = useState(0)
+  const searchParams = useSearchParams()
+  const [highlightCommentId, setHighlightCommentId] = useState<string | null>(null)
 
   useEffect(() => {
     if (state?.ok) {
       formRef.current?.reset()
+      setEditorResetKey((k) => k + 1)
       router.refresh()
     }
   }, [state, router])
+
+  // Opened from a comment notification → scroll to + highlight that comment
+  useEffect(() => {
+    const cid = searchParams.get('c')
+    if (!cid) return
+    const timer = setTimeout(() => {
+      const el = document.getElementById(`comment-${cid}`)
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        setHighlightCommentId(cid)
+        setTimeout(() => setHighlightCommentId(null), 2800)
+      }
+    }, 350)
+    return () => clearTimeout(timer)
+  }, [searchParams, comments])
 
   const errorMsg = state?.error === 'empty' ? t('errorEmpty')
     : state?.error === 'too_long' ? t('errorTooLong')
@@ -96,13 +119,19 @@ export default function CommentsSection({ postId, comments, currentUser, isAdmin
             const initial = (c.author_name?.[0] ?? '?').toUpperCase()
 
             return (
-              <div key={c.id} className="flex gap-3 group">
+              <div
+                key={c.id}
+                id={`comment-${c.id}`}
+                className={`flex gap-3 group scroll-mt-24 rounded-2xl transition-shadow ${
+                  highlightCommentId === c.id ? 'ring-2 ring-rose/50 ring-offset-2' : ''
+                }`}
+              >
                 {/* Avatar */}
                 <div className="flex-none mt-0.5">
                   {c.author_avatar ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
-                      src={c.author_avatar}
+                      src={avatarSrc(c.author_avatar)}
                       alt={c.author_name ?? ''}
                       className="w-8 h-8 rounded-full object-cover"
                     />
@@ -146,9 +175,16 @@ export default function CommentsSection({ postId, comments, currentUser, isAdmin
                     )}
                   </div>
 
-                  <p className="text-[14px] text-[#3a2d22] leading-[1.65] whitespace-pre-wrap break-words">
-                    {c.content}
-                  </p>
+                  {c.content.trimStart().startsWith('<') ? (
+                    <div
+                      className="rich-content comment-content text-[14px] text-[#3a2d22] leading-[1.65]"
+                      dangerouslySetInnerHTML={{ __html: c.content }}
+                    />
+                  ) : (
+                    <p className="text-[14px] text-[#3a2d22] leading-[1.65] whitespace-pre-wrap break-words">
+                      {c.content}
+                    </p>
+                  )}
                 </div>
               </div>
             )
@@ -170,12 +206,10 @@ export default function CommentsSection({ postId, comments, currentUser, isAdmin
             {/* Form */}
             <form ref={formRef} action={formAction} className="flex-1 flex flex-col gap-2">
               <input type="hidden" name="post_id" value={postId} />
-              <textarea
+              <CommentRichEditor
                 name="content"
-                rows={3}
-                maxLength={1000}
                 placeholder={t('placeholder')}
-                className="w-full text-[14px] px-3.5 py-2.5 border border-line rounded-xl bg-white focus:outline-none focus:border-rose/60 resize-none placeholder:text-muted/60 text-ink transition-colors"
+                resetKey={editorResetKey}
               />
               {errorMsg && (
                 <p className="text-[12.5px] text-red-600">{errorMsg}</p>

@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { signOut } from '@/app/auth/actions'
+import { avatarSrc } from '@/lib/avatar'
 
 interface UserMenuProps {
   displayName: string
@@ -24,7 +25,7 @@ function Avatar({
     return (
       // eslint-disable-next-line @next/next/no-img-element
       <img
-        src={avatarUrl}
+        src={avatarSrc(avatarUrl)}
         alt=""
         width={px * 2}
         height={px * 2}

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
+import { avatarSrc } from '@/lib/avatar'
 
 type MentionNotif = {
   id: string
@@ -192,7 +193,7 @@ export default function MentionNotificationProvider() {
               {notif.senderAvatar ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
-                  src={notif.senderAvatar}
+                  src={avatarSrc(notif.senderAvatar)}
                   alt={notif.senderName}
                   referrerPolicy="no-referrer"
                   crossOrigin="anonymous"

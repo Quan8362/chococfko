@@ -1663,7 +1663,10 @@
     "enable_notif_btn": "开启",
     "enable_notif_later": "稍后",
     "enable_notif_denied": "通知已被屏蔽。请在浏览器设置（地址栏旁的🔒图标）中重新开启。",
-    "enable_notif_granted": "通知已开启！"
+    "enable_notif_granted": "通知已开启！",
+    "comment_notif_badge": "新评论",
+    "comment_notif_body": "刚在你参与的帖子下发表了评论",
+    "comment_notif_someone": "有人"
   },
   "community_chat": {
     "title": "社区聊天",

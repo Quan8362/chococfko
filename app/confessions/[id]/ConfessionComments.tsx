@@ -3,13 +3,14 @@
 import dynamic from 'next/dynamic'
 import { useFormState, useFormStatus } from 'react-dom'
 import { useEffect, useRef, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useTranslations, useLocale } from 'next-intl'
 import { submitConfessionComment, deleteConfessionComment, type CommentResult } from '../actions'
 import { type ConfessionComment } from '@/lib/confessions'
 import AnonAvatar from '@/components/AnonAvatar'
 import { generateAnonId } from '@/lib/anon'
+import { avatarSrc } from '@/lib/avatar'
 
 const CommentRichEditor = dynamic(() => import('@/components/CommentRichEditor'), { ssr: false })
 
@@ -27,7 +28,7 @@ function UserAvatar({ src, name }: { src: string; name: string }) {
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src={src}
+      src={avatarSrc(src)}
       alt={name}
       width={32}
       height={32}
@@ -88,6 +89,8 @@ export default function ConfessionComments({
   const [state, formAction] = useFormState(submitConfessionComment, INIT)
   const [isAnonymous, setIsAnonymous] = useState(false)
   const [editorResetKey, setEditorResetKey] = useState(0)
+  const searchParams = useSearchParams()
+  const [highlightCommentId, setHighlightCommentId] = useState<string | null>(null)
 
   useEffect(() => {
     if (state?.ok) {
@@ -96,6 +99,21 @@ export default function ConfessionComments({
       router.refresh()
     }
   }, [state, router])
+
+  // Opened from a comment notification → scroll to + highlight that comment
+  useEffect(() => {
+    const cid = searchParams.get('c')
+    if (!cid) return
+    const timer = setTimeout(() => {
+      const el = document.getElementById(`comment-${cid}`)
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        setHighlightCommentId(cid)
+        setTimeout(() => setHighlightCommentId(null), 2800)
+      }
+    }, 350)
+    return () => clearTimeout(timer)
+  }, [searchParams, comments])
 
   const errorMsg =
     state?.error === 'empty'               ? t('commentEmpty')
@@ -139,7 +157,13 @@ export default function ConfessionComments({
             const isHtml = c.content.trimStart().startsWith('<')
 
             return (
-              <div key={c.id} className="group flex gap-3">
+              <div
+                key={c.id}
+                id={`comment-${c.id}`}
+                className={`group flex gap-3 scroll-mt-24 rounded-2xl transition-shadow ${
+                  highlightCommentId === c.id ? 'ring-2 ring-rose/50 ring-offset-2' : ''
+                }`}
+              >
 
                 {/* Avatar */}
                 <div className="flex-none mt-0.5">
@@ -190,7 +214,7 @@ export default function ConfessionComments({
 
                   {isHtml ? (
                     <div
-                      className="rich-content text-[14.5px] text-[#3a2d22] leading-[1.7]"
+                      className="rich-content comment-content text-[14.5px] text-[#3a2d22] leading-[1.7]"
                       dangerouslySetInnerHTML={{ __html: c.content }}
                     />
                   ) : (

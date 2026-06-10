@@ -1663,7 +1663,10 @@
     "enable_notif_btn": "オンにする",
     "enable_notif_later": "後で",
     "enable_notif_denied": "通知がブロックされています。ブラウザの設定（アドレスバー横の🔒アイコン）から再度有効にしてください。",
-    "enable_notif_granted": "通知をオンにしました！"
+    "enable_notif_granted": "通知をオンにしました！",
+    "comment_notif_badge": "新しいコメント",
+    "comment_notif_body": "あなたが参加した投稿にコメントしました",
+    "comment_notif_someone": "誰か"
   },
   "community_chat": {
     "title": "コミュニティチャット",

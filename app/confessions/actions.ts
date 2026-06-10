@@ -6,6 +6,7 @@ import { createAdminClient, checkIsAdmin } from '@/lib/supabase/admin'
 import { isUuid } from '@/lib/confessions'
 import { sanitizeHtml, stripHtml } from '@/lib/sanitize'
 import { createAdminNotification } from '@/lib/admin/notifications'
+import { notifyNewComment } from '@/lib/notifications/comments'
 
 export type ConfessionResult = { ok?: true; error?: string } | null
 
@@ -82,20 +83,42 @@ export async function submitConfessionComment(
   if (!isUuid(confessionId)) return { error: 'invalid_confession' }
 
   const textContent = stripHtml(rawContent)
-  if (!textContent) return { error: 'content_empty' }
+  const hasImage = /<img\b/i.test(rawContent)
+  if (!textContent && !hasImage) return { error: 'content_empty' }
   if (textContent.length > 1000) return { error: 'too_long' }
 
   const content = sanitizeHtml(rawContent)
 
-  const { error } = await supabase.from('confession_comments').insert({
+  const { data: inserted, error } = await supabase.from('confession_comments').insert({
     confession_id: confessionId,
     user_id: user.id,
     content,
     is_anonymous: isAnonymous,
     status: 'approved',
+  }).select('id').single()
+
+  if (error || !inserted) return { error: error?.message ?? 'db_error' }
+
+  // Notify other participants. Hide identity if the comment is anonymous.
+  let actorName: string | null = null
+  let actorAvatar: string | null = null
+  if (!isAnonymous) {
+    const { data: profile } = await supabase
+      .from('profiles').select('display_name, avatar_url').eq('id', user.id).single()
+    actorName = profile?.display_name || user.email?.split('@')[0] || 'Thành viên'
+    actorAvatar = profile?.avatar_url ?? null
+  }
+  await notifyNewComment({
+    commentTable: 'confession_comments',
+    postColumn: 'confession_id',
+    postId: confessionId,
+    commentId: inserted.id as string,
+    targetUrl: `/confessions/${confessionId}?c=${inserted.id}`,
+    actorId: user.id,
+    actorName,
+    actorAvatar,
   })
 
-  if (error) return { error: error.message }
   revalidatePath(`/confessions/${confessionId}`)
   return { ok: true }
 }

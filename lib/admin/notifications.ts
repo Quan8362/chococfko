@@ -23,23 +23,32 @@ export type AdminNotification = {
 }
 
 // ── Look up admin user IDs from ADMIN_EMAILS env var ──────────────────────────
-// Uses listUsers (first 1000 users) which covers any realistic site size
+// Uses listUsers (first 1000 users) which covers any realistic site size.
+// Cached per server instance (5 min TTL) so we don't scan the whole user list
+// on every single post/place/confession submission.
+const ADMIN_CACHE_TTL = 5 * 60 * 1000
+let adminIdCache: { ids: string[]; expires: number } | null = null
+
 async function getAdminUserIds(): Promise<string[]> {
   const raw = process.env.ADMIN_EMAILS ?? ''
   const adminEmails = new Set(raw.split(',').map(e => e.trim()).filter(Boolean))
   if (!adminEmails.size) return []
+
+  if (adminIdCache && adminIdCache.expires > Date.now()) return adminIdCache.ids
 
   const admin = createAdminClient()
 
   const { data, error } = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 })
   if (error) {
     console.error('[notification] listUsers error:', error.message)
-    return []
+    return adminIdCache?.ids ?? []
   }
 
-  return (data?.users ?? [])
+  const ids = (data?.users ?? [])
     .filter(u => u.email && adminEmails.has(u.email))
     .map(u => u.id)
+  adminIdCache = { ids, expires: Date.now() + ADMIN_CACHE_TTL }
+  return ids
 }
 
 // ── Create one notification per admin — non-critical, errors are logged ───────

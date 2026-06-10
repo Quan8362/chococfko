@@ -8,6 +8,7 @@ import ScrollToTopButton from '@/components/ScrollToTopButton'
 import AnalyticsTracker from '@/components/AnalyticsTracker'
 import MentionNotificationProvider from '@/components/MentionNotificationProvider'
 import AdminNotificationPopup from '@/components/AdminNotificationPopup'
+import NotificationPermissionBanner from '@/components/NotificationPermissionBanner'
 
 const SITE_NAME = 'Chợ Cóc FKO'
 const SITE_URL  = 'https://chococfko.com'
@@ -87,6 +88,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <AnalyticsTracker />
             <MentionNotificationProvider />
             <AdminNotificationPopup />
+            <NotificationPermissionBanner />
           </div>
         </NextIntlClientProvider>
       </body>

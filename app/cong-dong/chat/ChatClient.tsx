@@ -229,7 +229,7 @@ function renderMessageContent(
     const name = match[1]
     const isMe = name === currentUserDisplayName
     const mentionedUserId = nameToUserId[name]
-    const cls = `rounded-sm px-0.5 font-semibold ${isMe ? 'bg-rose/20 text-rose' : 'bg-sky-100 text-sky-700'}`
+    const cls = `font-semibold ${isMe ? 'text-rose' : 'text-sky-600'}`
     if (mentionedUserId && onMentionClick) {
       nodes.push(
         <button key={key++} type="button" onClick={() => onMentionClick(mentionedUserId, name)}
@@ -422,6 +422,8 @@ export default function ChatClient({
   const pendingSignedUrlsRef = useRef<Set<string>>(new Set())
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const presenceChannelRef = useRef<any>(null)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const reactionChannelRef = useRef<any>(null)
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const roomAvatarInputRef = useRef<HTMLInputElement>(null)
   const activeDmConvIdRef = useRef<string | null>(null)
@@ -1056,68 +1058,57 @@ export default function ChatClient({
     return () => { mounted = false; supabase.removeChannel(channel) }
   }, [currentRoomId]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ── Realtime: reactions ────────────────────────────────────────────────────
+  // ── Realtime: reactions (Broadcast, not postgres_changes) ──────────────────
+  // postgres_changes DELETE events are unreliable (dropped even with REPLICA
+  // IDENTITY FULL on many Supabase setups), so un-reacting never synced. We
+  // broadcast the delta from the acting client instead — symmetric and reliable
+  // for both add and remove.
   useEffect(() => {
     if (!currentRoomId) return
     const supabase = createClient()
     let mounted = true
-    const channel = supabase
-      .channel(`community-chat-reactions-${currentRoomId}`)
-      .on('postgres_changes', {
-        event: 'INSERT', schema: 'public', table: 'community_chat_reactions',
-        filter: `room_id=eq.${currentRoomId}`,
-      }, (payload) => {
-          if (!mounted) return
-          const r = payload.new as { message_id: string; user_id: string; emoji: string }
-          if (r.user_id === userId) return
-          const rName = profileCacheRef.current[r.user_id] ?? null
-          setReactions(prev => {
-            const msgR = [...(prev[r.message_id] ?? [])]
-            const idx = msgR.findIndex(x => x.emoji === r.emoji)
+    const channel = supabase.channel(`community-chat-reactions-${currentRoomId}`, {
+      config: { broadcast: { self: false } },
+    })
+    reactionChannelRef.current = channel
+    channel
+      .on('broadcast', { event: 'reaction' }, ({ payload }) => {
+        if (!mounted) return
+        const p = payload as {
+          messageId: string; emoji: string; action: 'add' | 'remove'
+          userId: string; displayName: string | null
+        }
+        if (!p?.messageId || !p?.emoji) return
+        if (p.userId === userId) return
+        const actorName = p.displayName ?? null
+        setReactions(prev => {
+          const msgR = [...(prev[p.messageId] ?? [])]
+          const idx = msgR.findIndex(x => x.emoji === p.emoji)
+          if (p.action === 'add') {
             if (idx >= 0) {
               const updated = { ...msgR[idx], count: msgR[idx].count + 1 }
-              if (rName && !updated.users.includes(rName)) updated.users = [...updated.users, rName]
+              if (actorName && !updated.users.includes(actorName)) updated.users = [...updated.users, actorName]
               msgR[idx] = updated
             } else {
-              msgR.push({ emoji: r.emoji, count: 1, hasMyReaction: false, users: rName ? [rName] : [] })
+              msgR.push({ emoji: p.emoji, count: 1, hasMyReaction: false, users: actorName ? [actorName] : [] })
             }
-            return { ...prev, [r.message_id]: msgR }
-          })
-        })
-      .on('postgres_changes', {
-        // No room_id filter: Supabase evaluates DELETE filters against payload.old,
-        // which silently drops events for DELETEs — so removals never reached other
-        // clients. We subscribe to all reaction deletes and scope client-side instead.
-        event: 'DELETE', schema: 'public', table: 'community_chat_reactions',
-      }, (payload) => {
-          if (!mounted) return
-          const r = payload.old as { message_id?: string; user_id?: string; emoji?: string; room_id?: string }
-          // Requires REPLICA IDENTITY FULL so payload.old carries these columns.
-          if (!r.message_id || !r.emoji) return
-          if (r.room_id && r.room_id !== currentRoomId) return
-          if (r.user_id === userId) return
-          const messageId = r.message_id
-          const emoji = r.emoji
-          const dName = r.user_id ? profileCacheRef.current[r.user_id] ?? null : null
-          setReactions(prev => {
-            if (!prev[messageId]) return prev
-            const msgR = [...prev[messageId]]
-            const idx = msgR.findIndex(x => x.emoji === emoji)
+          } else {
             if (idx >= 0) {
               const newCount = msgR[idx].count - 1
               if (newCount <= 0) {
                 msgR.splice(idx, 1)
               } else {
                 const updated = { ...msgR[idx], count: newCount }
-                if (dName) updated.users = updated.users.filter(u => u !== dName)
+                if (actorName) updated.users = updated.users.filter(u => u !== actorName)
                 msgR[idx] = updated
               }
             }
-            return { ...prev, [messageId]: msgR }
-          })
+          }
+          return { ...prev, [p.messageId]: msgR }
         })
+      })
       .subscribe()
-    return () => { mounted = false; supabase.removeChannel(channel) }
+    return () => { mounted = false; reactionChannelRef.current = null; supabase.removeChannel(channel) }
   }, [currentRoomId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── DM: load conversation list when tab switches to DMs ──────────────────
@@ -1643,7 +1634,22 @@ export default function ChatClient({
       return { ...prev, [messageId]: msgR }
     })
     const result = await toggleReaction(messageId, emoji)
-    if (result.error) setReactions(snapshot)
+    if (result.error) { setReactions(snapshot); return }
+    // Broadcast the confirmed delta to other clients (reliable for add + remove)
+    const ch = reactionChannelRef.current
+    if (ch) {
+      ch.send({
+        type: 'broadcast',
+        event: 'reaction',
+        payload: {
+          messageId,
+          emoji,
+          action: result.removed ? 'remove' : 'add',
+          userId,
+          displayName,
+        },
+      })
+    }
   }
 
   const handlePin = async (messageId: string) => {

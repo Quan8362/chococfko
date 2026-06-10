@@ -1657,7 +1657,13 @@
     "admin_review_now": "今すぐ承認 →",
     "admin_notif_title_new_pending_post": "承認待ちの新しいコミュニティ投稿",
     "admin_notif_title_new_pending_place": "承認待ちの新しいスポット",
-    "admin_notif_title_new_pending_confession": "承認待ちの新しいFKO Confession"
+    "admin_notif_title_new_pending_confession": "承認待ちの新しいFKO Confession",
+    "enable_notif_title": "通知をオンにする",
+    "enable_notif_desc": "他のタブやアプリを開いていてもデスクトップにポップアップが表示されます。",
+    "enable_notif_btn": "オンにする",
+    "enable_notif_later": "後で",
+    "enable_notif_denied": "通知がブロックされています。ブラウザの設定（アドレスバー横の🔒アイコン）から再度有効にしてください。",
+    "enable_notif_granted": "通知をオンにしました！"
   },
   "community_chat": {
     "title": "コミュニティチャット",

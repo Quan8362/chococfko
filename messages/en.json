@@ -1657,7 +1657,13 @@
     "admin_review_now": "Review now →",
     "admin_notif_title_new_pending_post": "New community post to review",
     "admin_notif_title_new_pending_place": "New place to review",
-    "admin_notif_title_new_pending_confession": "New FKO Confession to review"
+    "admin_notif_title_new_pending_confession": "New FKO Confession to review",
+    "enable_notif_title": "Enable notifications",
+    "enable_notif_desc": "Get a desktop popup even when you're on another tab or app.",
+    "enable_notif_btn": "Enable",
+    "enable_notif_later": "Later",
+    "enable_notif_denied": "Notifications are blocked. Re-enable them in your browser settings (the 🔒 icon next to the address bar).",
+    "enable_notif_granted": "Notifications enabled!"
   },
   "community_chat": {
     "title": "Community Chat",

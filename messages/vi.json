@@ -1657,7 +1657,13 @@
     "admin_review_now": "Duyệt ngay →",
     "admin_notif_title_new_pending_post": "Bài viết cộng đồng mới cần duyệt",
     "admin_notif_title_new_pending_place": "Địa điểm mới cần duyệt",
-    "admin_notif_title_new_pending_confession": "FKO Confession mới cần duyệt"
+    "admin_notif_title_new_pending_confession": "FKO Confession mới cần duyệt",
+    "enable_notif_title": "Bật thông báo",
+    "enable_notif_desc": "Nhận popup trên màn hình ngay cả khi bạn đang ở tab/ứng dụng khác.",
+    "enable_notif_btn": "Bật ngay",
+    "enable_notif_later": "Để sau",
+    "enable_notif_denied": "Thông báo đang bị chặn. Hãy bật lại trong cài đặt trình duyệt (biểu tượng 🔒 cạnh thanh địa chỉ).",
+    "enable_notif_granted": "Đã bật thông báo!"
   },
   "community_chat": {
     "title": "Chat cộng đồng",

@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { useState } from 'react'
 
 interface WordImageProps {
@@ -21,12 +22,14 @@ export default function WordImage({ src, alt, creditUrl, source, label }: WordIm
       {label && (
         <p className="text-[10.5px] font-bold text-muted uppercase tracking-wide mb-3">{label}</p>
       )}
-      <div className="relative rounded-2xl overflow-hidden bg-cream/40 border border-line/60">
-        <img
+      <div className="relative rounded-2xl overflow-hidden bg-cream/40 border border-line/60 h-[200px] sm:h-[240px]">
+        <Image
           src={src}
           alt={alt}
-          className="w-full h-[200px] sm:h-[240px] object-cover"
+          fill
+          className="object-cover"
           onError={() => setErrored(true)}
+          unoptimized={false}
         />
         {creditUrl && (
           <a

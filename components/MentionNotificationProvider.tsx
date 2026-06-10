@@ -76,15 +76,8 @@ export default function MentionNotificationProvider() {
     return () => subscription.unsubscribe()
   }, [])
 
-  // Ask for OS notification permission on the first user interaction (a real user
-  // gesture) rather than abruptly on load — less intrusive, higher accept rate.
-  useEffect(() => {
-    if (!userId) return
-    if (typeof Notification === 'undefined' || Notification.permission !== 'default') return
-    const ask = () => { Notification.requestPermission().catch(() => {}) }
-    window.addEventListener('pointerdown', ask, { once: true })
-    return () => window.removeEventListener('pointerdown', ask)
-  }, [userId])
+  // OS notification permission is requested explicitly via NotificationPermissionBanner
+  // (a clear user gesture), so we don't auto-prompt here.
 
   // Realtime subscription to community_chat_mentions
   useEffect(() => {
@@ -142,8 +135,12 @@ export default function MentionNotificationProvider() {
           const roomName = room?.name ?? tn('mention_dm_room')
           const roomUrl = room ? `/cong-dong/chat?room=${room.key}` : '/cong-dong/chat'
 
-          // Browser is backgrounded / tab not focused → OS system notification
-          if (document.hidden || !document.hasFocus()) {
+          // Backgrounded / unfocused tab → OS system notification, but only when
+          // permission was granted. Otherwise fall through to the in-app popup so
+          // the mention is still visible when the user returns to the tab.
+          const canOsNotify =
+            typeof Notification !== 'undefined' && Notification.permission === 'granted'
+          if ((document.hidden || !document.hasFocus()) && canOsNotify) {
             fireOsNotification(
               tn('mention_mentioned_you', { name: msg.display_name ?? '?' }),
               `${roomName}: ${preview}${preview.length >= 60 ? '…' : ''}`,

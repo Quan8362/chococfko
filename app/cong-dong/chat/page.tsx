@@ -4,7 +4,10 @@ import { createClient } from '@/lib/supabase/server'
 import { checkIsAdmin } from '@/lib/supabase/admin'
 import ChatClient from './ChatClient'
 
-export const metadata = { title: 'Chat cộng đồng · Chợ Cóc FKO' }
+export async function generateMetadata() {
+  const t = await getTranslations('meta')
+  return { title: `${t('community_chat')} · Chợ Cóc FKO` }
+}
 export const dynamic = 'force-dynamic'
 
 export type Room = {

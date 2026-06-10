@@ -4,7 +4,10 @@ import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import ProfileForm from './ProfileForm'
 
-export const metadata = { title: 'Hồ sơ cá nhân · Chợ Cóc FKO' }
+export async function generateMetadata() {
+  const tm = await getTranslations('meta')
+  return { title: `${tm('profile')} · Chợ Cóc FKO` }
+}
 export const dynamic = 'force-dynamic'
 
 export default async function HoSoPage({

@@ -1063,6 +1063,22 @@
     "stat_hidden": "Hidden",
     "manage": "Manage"
   },
+  "meta": {
+    "post_place": "Post a place",
+    "write_post": "Write a post",
+    "community": "Community",
+    "profile": "My profile",
+    "community_chat": "Community chat",
+    "admin_chat": "Chat management",
+    "admin_places": "Places",
+    "admin_notifications": "Admin notifications",
+    "site_tagline": "The Fukuoka guide for Vietnamese people",
+    "site_tagline_short": "Fukuoka guide",
+    "site_description": "A community of Vietnamese people in Fukuoka — sharing food spots, beaches, mountains, parks, Vietnamese restaurants and trips.",
+    "site_twitter_description": "A community of Vietnamese people in Fukuoka — food spots, beaches, parks, Vietnamese restaurants.",
+    "site_keywords": "Fukuoka, Vietnamese, places, community, food, travel, Japan",
+    "site_og_image_alt": "Chợ Cóc FKO — Fukuoka guide"
+  },
   "games": {
     "page_badge": "🎮 Mini Game",
     "page_heading": "Fun Corner — Play with the community",

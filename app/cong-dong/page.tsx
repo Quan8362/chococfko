@@ -4,7 +4,10 @@ import { posts as staticPosts, getPostsFromDb } from '@/lib/posts'
 import { checkIsAdmin } from '@/lib/supabase/admin'
 import PostFeed from '@/components/PostFeed'
 
-export const metadata = { title: 'Cộng đồng · Chợ Cóc FKO' }
+export async function generateMetadata() {
+  const t = await getTranslations('meta')
+  return { title: `${t('community')} · Chợ Cóc FKO` }
+}
 export const dynamic = 'force-dynamic'
 
 export default async function CongDong() {

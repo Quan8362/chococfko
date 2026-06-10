@@ -1063,6 +1063,22 @@
     "stat_hidden": "已隐藏",
     "manage": "管理"
   },
+  "meta": {
+    "post_place": "发布地点",
+    "write_post": "写帖子",
+    "community": "社区",
+    "profile": "我的资料",
+    "community_chat": "社区聊天",
+    "admin_chat": "聊天管理",
+    "admin_places": "地点",
+    "admin_notifications": "管理员通知",
+    "site_tagline": "越南人的福冈指南",
+    "site_tagline_short": "福冈指南",
+    "site_description": "福冈的越南人社区 — 分享美食地点、海滩、山、公园、越南餐厅和旅行。",
+    "site_twitter_description": "福冈的越南人社区 — 美食地点、海滩、公园、越南餐厅。",
+    "site_keywords": "福冈, 越南人, 地点, 社区, 美食, 旅游, 日本",
+    "site_og_image_alt": "Chợ Cóc FKO — 福冈指南"
+  },
   "games": {
     "destination_wheel": {
       "title": "目的地转盘",

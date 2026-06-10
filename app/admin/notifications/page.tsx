@@ -7,7 +7,10 @@ import { getAllNotifications } from '@/lib/admin/notifications'
 import { markAsRead, markAllAsRead } from './actions'
 
 export const dynamic = 'force-dynamic'
-export const metadata = { title: 'Thông báo Admin · Chợ Cóc FKO' }
+export async function generateMetadata() {
+  const t = await getTranslations('meta')
+  return { title: `${t('admin_notifications')} · Chợ Cóc FKO` }
+}
 
 const TYPE_EMOJI: Record<string, string> = {
   new_pending_post:       '📝',

@@ -1063,6 +1063,22 @@
     "stat_hidden": "Đã ẩn",
     "manage": "Quản lý"
   },
+  "meta": {
+    "post_place": "Đăng địa điểm",
+    "write_post": "Viết bài chia sẻ",
+    "community": "Cộng đồng",
+    "profile": "Hồ sơ cá nhân",
+    "community_chat": "Chat cộng đồng",
+    "admin_chat": "Quản lý chat",
+    "admin_places": "Địa điểm",
+    "admin_notifications": "Thông báo Admin",
+    "site_tagline": "Cẩm nang Fukuoka của người Việt",
+    "site_tagline_short": "Cẩm nang Fukuoka",
+    "site_description": "Cộng đồng người Việt tại Fukuoka — chia sẻ địa điểm ăn uống, biển, núi, công viên, quán Việt và những chuyến đi.",
+    "site_twitter_description": "Cộng đồng người Việt tại Fukuoka — địa điểm ăn uống, biển, công viên, quán Việt.",
+    "site_keywords": "Fukuoka, người Việt, địa điểm, cộng đồng, ăn uống, du lịch, Nhật Bản",
+    "site_og_image_alt": "Chợ Cóc FKO — Cẩm nang Fukuoka"
+  },
   "games": {
     "page_badge": "🎮 Mini Game",
     "page_heading": "Góc vui — Chơi cùng cộng đồng",

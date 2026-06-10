@@ -3,7 +3,10 @@ import { redirect } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { checkIsAdmin, createAdminClient } from '@/lib/supabase/admin'
 
-export const metadata = { title: 'Admin · Tiếng Nhật · Chợ Cóc FKO' }
+export async function generateMetadata() {
+  const t = await getTranslations('admin_jp')
+  return { title: `Admin · ${t('breadcrumb')} · Chợ Cóc FKO` }
+}
 export const dynamic = 'force-dynamic'
 
 export default async function JapaneseAdminPage() {

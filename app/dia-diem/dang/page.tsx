@@ -8,7 +8,10 @@ import ImageUpload from '@/components/ImageUpload'
 
 const RichTextEditor = dynamic(() => import('@/components/RichTextEditor'), { ssr: false })
 
-export const metadata = { title: 'Đăng địa điểm · Chợ Cóc FKO' }
+export async function generateMetadata() {
+  const t = await getTranslations('meta')
+  return { title: `${t('post_place')} · Chợ Cóc FKO` }
+}
 
 async function getUser() {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return null

@@ -73,9 +73,14 @@ export async function sendMessage(
       .from('profiles')
       .select('id, display_name')
       .in('id', safeIds)
-    mentionedNames = (mentionedProfiles ?? [])
-      .map(p => p.display_name as string | null)
-      .filter((n): n is string => Boolean(n))
+    const nameById: Record<string, string> = {}
+    for (const p of mentionedProfiles ?? []) {
+      if (p.display_name) nameById[p.id as string] = p.display_name as string
+    }
+    // Keep mentioned_user_ids and mentioned_names index-aligned so the client
+    // can map each @name back to its user id (drives the click-to-DM link).
+    safeIds = safeIds.filter(id => nameById[id])
+    mentionedNames = safeIds.map(id => nameById[id])
   }
 
   // Snapshot reply context — validates same room + not deleted
@@ -391,9 +396,14 @@ export async function saveImageMessage(
       .from('profiles')
       .select('id, display_name')
       .in('id', safeIds)
-    mentionedNames = (mentionedProfiles ?? [])
-      .map(p => p.display_name as string | null)
-      .filter((n): n is string => Boolean(n))
+    const nameById: Record<string, string> = {}
+    for (const p of mentionedProfiles ?? []) {
+      if (p.display_name) nameById[p.id as string] = p.display_name as string
+    }
+    // Keep mentioned_user_ids and mentioned_names index-aligned so the client
+    // can map each @name back to its user id (drives the click-to-DM link).
+    safeIds = safeIds.filter(id => nameById[id])
+    mentionedNames = safeIds.map(id => nameById[id])
   }
 
   let replyToMessage: string | null = null
@@ -533,9 +543,14 @@ export async function saveFileMessage(
       .from('profiles')
       .select('id, display_name')
       .in('id', safeIds)
-    mentionedNames = (mentionedProfiles ?? [])
-      .map(p => p.display_name as string | null)
-      .filter((n): n is string => Boolean(n))
+    const nameById: Record<string, string> = {}
+    for (const p of mentionedProfiles ?? []) {
+      if (p.display_name) nameById[p.id as string] = p.display_name as string
+    }
+    // Keep mentioned_user_ids and mentioned_names index-aligned so the client
+    // can map each @name back to its user id (drives the click-to-DM link).
+    safeIds = safeIds.filter(id => nameById[id])
+    mentionedNames = safeIds.map(id => nameById[id])
   }
 
   let replyToMessage: string | null = null

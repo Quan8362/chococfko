@@ -1063,6 +1063,22 @@
     "stat_hidden": "非表示",
     "manage": "管理"
   },
+  "meta": {
+    "post_place": "場所を投稿",
+    "write_post": "投稿を書く",
+    "community": "コミュニティ",
+    "profile": "マイプロフィール",
+    "community_chat": "コミュニティチャット",
+    "admin_chat": "チャット管理",
+    "admin_places": "スポット",
+    "admin_notifications": "管理者通知",
+    "site_tagline": "ベトナム人のための福岡ガイド",
+    "site_tagline_short": "福岡ガイド",
+    "site_description": "福岡に住むベトナム人コミュニティ — グルメスポット、海、山、公園、ベトナム料理店、旅の情報を共有。",
+    "site_twitter_description": "福岡に住むベトナム人コミュニティ — グルメスポット、海、公園、ベトナム料理店。",
+    "site_keywords": "福岡, ベトナム人, スポット, コミュニティ, グルメ, 旅行, 日本",
+    "site_og_image_alt": "Chợ Cóc FKO — 福岡ガイド"
+  },
   "games": {
     "page_badge": "🎮 ミニゲーム",
     "page_heading": "楽しいコーナー — みんなで遊ぼう",

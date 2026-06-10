@@ -4,7 +4,10 @@ import { getTranslations } from 'next-intl/server'
 import { checkIsAdmin, createAdminClient } from '@/lib/supabase/admin'
 import { adminDeleteMessage, adminRestoreMessage, adminPinMessage, adminUnpinMessage } from './actions'
 
-export const metadata = { title: 'Quản lý chat · Admin Chợ Cóc FKO' }
+export async function generateMetadata() {
+  const t = await getTranslations('meta')
+  return { title: `${t('admin_chat')} · Admin Chợ Cóc FKO` }
+}
 export const dynamic = 'force-dynamic'
 
 type FilterTab = 'all' | 'reported' | 'deleted'

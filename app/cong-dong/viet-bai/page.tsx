@@ -18,7 +18,10 @@ function DraftClearer() {
   )
 }
 
-export const metadata = { title: 'Viết bài chia sẻ · Chợ Cóc FKO' }
+export async function generateMetadata() {
+  const t = await getTranslations('meta')
+  return { title: `${t('write_post')} · Chợ Cóc FKO` }
+}
 
 async function getUser() {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return null

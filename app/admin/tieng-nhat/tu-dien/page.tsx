@@ -5,7 +5,10 @@ import { checkIsAdmin, createAdminClient } from '@/lib/supabase/admin'
 import type { JapaneseWord } from '@/components/japanese/WordCard'
 import WordsClient from './WordsClient'
 
-export const metadata = { title: 'Admin · Từ điển · Chợ Cóc FKO' }
+export async function generateMetadata() {
+  const t = await getTranslations('admin_jp')
+  return { title: `Admin · ${t('section_dictionary')} · Chợ Cóc FKO` }
+}
 export const dynamic = 'force-dynamic'
 
 export type AdminWord = JapaneseWord & { is_published: boolean }

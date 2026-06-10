@@ -5,7 +5,10 @@ import { checkIsAdmin, createAdminClient } from '@/lib/supabase/admin'
 import type { JapaneseGrammar } from '@/components/japanese/GrammarCard'
 import GrammarClient from './GrammarClient'
 
-export const metadata = { title: 'Admin · Ngữ pháp · Chợ Cóc FKO' }
+export async function generateMetadata() {
+  const t = await getTranslations('admin_jp')
+  return { title: `Admin · ${t('section_grammar')} · Chợ Cóc FKO` }
+}
 export const dynamic = 'force-dynamic'
 
 export type AdminGrammar = JapaneseGrammar & { is_published: boolean }

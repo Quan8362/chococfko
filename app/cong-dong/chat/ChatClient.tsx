@@ -212,32 +212,37 @@ function renderMessageContent(
   if (mentionedUserIds) {
     mentionedNames.forEach((name, i) => { if (mentionedUserIds[i]) nameToUserId[name] = mentionedUserIds[i] })
   }
-  const mentionSet = new Set(mentionedNames)
-  const parts = text.split(/(@[^\s]+)/g)
+  // Match `@` + any known mentioned name. Display names may contain spaces
+  // (e.g. "Luong Van Quan"), so we can't rely on a `@[^\s]+` split — instead we
+  // build a regex from the exact mentioned names, longest first so a multi-word
+  // name wins over a shorter prefix.
+  const uniqueNames = Array.from(new Set(mentionedNames)).filter(Boolean).sort((a, b) => b.length - a.length)
+  if (uniqueNames.length === 0) return text
+  const escaped = uniqueNames.map(n => n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+  const re = new RegExp(`@(${escaped.join('|')})`, 'g')
   const nodes: React.ReactNode[] = []
-
-  for (let i = 0; i < parts.length; i++) {
-    const part = parts[i]
-    if (!part.startsWith('@')) { nodes.push(part); continue }
-    const rawName = part.slice(1)
-    const name = rawName.replace(/[,.:;!?()\[\]{}'"]+$/, '')
-    const suffix = rawName.slice(name.length)
-    if (!mentionSet.has(name)) { nodes.push(part); continue }
+  let lastIndex = 0
+  let key = 0
+  let match: RegExpExecArray | null
+  while ((match = re.exec(text)) !== null) {
+    if (match.index > lastIndex) nodes.push(text.slice(lastIndex, match.index))
+    const name = match[1]
     const isMe = name === currentUserDisplayName
     const mentionedUserId = nameToUserId[name]
     const cls = `rounded-sm px-0.5 font-semibold ${isMe ? 'bg-rose/20 text-rose' : 'bg-sky-100 text-sky-700'}`
     if (mentionedUserId && onMentionClick) {
       nodes.push(
-        <button key={i} type="button" onClick={() => onMentionClick(mentionedUserId, name)}
+        <button key={key++} type="button" onClick={() => onMentionClick(mentionedUserId, name)}
           className={`${cls} cursor-pointer hover:underline`}>
           {'@' + name}
         </button>
       )
     } else {
-      nodes.push(<span key={i} className={cls}>{'@' + name}</span>)
+      nodes.push(<span key={key++} className={cls}>{'@' + name}</span>)
     }
-    if (suffix) nodes.push(suffix)
+    lastIndex = match.index + match[0].length
   }
+  if (lastIndex < text.length) nodes.push(text.slice(lastIndex))
   return <>{nodes}</>
 }
 
@@ -1074,16 +1079,24 @@ export default function ChatClient({
           })
         })
       .on('postgres_changes', {
+        // No room_id filter: Supabase evaluates DELETE filters against payload.old,
+        // which silently drops events for DELETEs — so removals never reached other
+        // clients. We subscribe to all reaction deletes and scope client-side instead.
         event: 'DELETE', schema: 'public', table: 'community_chat_reactions',
-        filter: `room_id=eq.${currentRoomId}`,
       }, (payload) => {
           if (!mounted) return
-          const r = payload.old as { message_id: string; user_id: string; emoji: string }
+          const r = payload.old as { message_id?: string; user_id?: string; emoji?: string; room_id?: string }
+          // Requires REPLICA IDENTITY FULL so payload.old carries these columns.
+          if (!r.message_id || !r.emoji) return
+          if (r.room_id && r.room_id !== currentRoomId) return
           if (r.user_id === userId) return
-          const dName = profileCacheRef.current[r.user_id] ?? null
+          const messageId = r.message_id
+          const emoji = r.emoji
+          const dName = r.user_id ? profileCacheRef.current[r.user_id] ?? null : null
           setReactions(prev => {
-            const msgR = [...(prev[r.message_id] ?? [])]
-            const idx = msgR.findIndex(x => x.emoji === r.emoji)
+            if (!prev[messageId]) return prev
+            const msgR = [...prev[messageId]]
+            const idx = msgR.findIndex(x => x.emoji === emoji)
             if (idx >= 0) {
               const newCount = msgR[idx].count - 1
               if (newCount <= 0) {
@@ -1094,7 +1107,7 @@ export default function ChatClient({
                 msgR[idx] = updated
               }
             }
-            return { ...prev, [r.message_id]: msgR }
+            return { ...prev, [messageId]: msgR }
           })
         })
       .subscribe()
@@ -1521,7 +1534,11 @@ export default function ChatClient({
     if (imageFile) { await handleSendImage(); return }
     if (attachFile) { await handleSendFile(); return }
     const msg = input.trim()
-    if (!msg || sending || !currentRoomIdRef.current) return
+    // Note: we intentionally don't gate on `sending` here. The message is rendered
+    // optimistically and the input is cleared synchronously, so the send feels
+    // instant and the user can immediately type/send the next message without
+    // waiting for the previous server round-trip.
+    if (!msg || !currentRoomIdRef.current) return
     if (msg.length > 500) { setError(t('error_too_long')); return }
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current)
     trackTyping(false)
@@ -1531,7 +1548,7 @@ export default function ChatClient({
     const replySnapshot = replyingTo
 
     // Show message immediately before server round-trip
-    const tempId = `temp_${Date.now()}`
+    const tempId = `temp_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
     const tempMsg: ChatMessage = {
       id: tempId,
       user_id: userId,
@@ -3275,7 +3292,7 @@ export default function ChatClient({
               onChange={handleInputChange}
               onKeyDown={handleKeyDown}
               placeholder={(imageFile || attachFile) ? t('add_caption') : 'Aa'}
-              disabled={sending || loadingRoom}
+              disabled={loadingRoom || uploading}
               maxLength={500}
               rows={1}
               className="flex-1 min-w-0 text-[16px] sm:text-[13.5px] px-3.5 py-2 rounded-full border border-line/60 bg-cream/60 focus:outline-none focus:border-rose/30 placeholder:text-muted/40 disabled:opacity-50 text-ink resize-none"
@@ -3295,11 +3312,11 @@ export default function ChatClient({
             {/* Nút gửi */}
             <button
               onClick={handleSend}
-              disabled={!input.trim() && !imageFile && !attachFile || (chatMode === 'dm' ? dmSending : sending || loadingRoom)}
+              disabled={(!input.trim() && !imageFile && !attachFile) || loadingRoom || uploading}
               className="flex-none w-9 h-9 rounded-full bg-rose text-white flex items-center justify-center hover:bg-rose-deep transition-all disabled:opacity-40 shrink-0 active:scale-95"
               title={uploading ? t('uploading') : t('send')}
             >
-              {(chatMode === 'dm' ? dmSending : sending) ? (
+              {uploading ? (
                 <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />

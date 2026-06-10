@@ -6,7 +6,10 @@ import { categories } from '@/lib/places'
 import { seedPlaces } from './actions'
 import DeletePlaceButton from './DeletePlaceButton'
 
-export const metadata = { title: 'Admin · Địa điểm · Chợ Cóc FKO' }
+export async function generateMetadata() {
+  const t = await getTranslations('meta')
+  return { title: `Admin · ${t('admin_places')} · Chợ Cóc FKO` }
+}
 export const dynamic = 'force-dynamic'
 
 const CAT_EMOJI: Record<string, string> = {

@@ -4,7 +4,10 @@ import { getTranslations } from 'next-intl/server'
 import { checkIsAdmin } from '@/lib/supabase/admin'
 import ImportClient from './ImportClient'
 
-export const metadata = { title: 'Admin · Import dữ liệu · Chợ Cóc FKO' }
+export async function generateMetadata() {
+  const t = await getTranslations('admin_jp')
+  return { title: `Admin · ${t('import_data')} · Chợ Cóc FKO` }
+}
 export const dynamic = 'force-dynamic'
 
 export default async function ImportPage() {

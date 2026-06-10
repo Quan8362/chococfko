@@ -1063,6 +1063,22 @@
     "stat_hidden": "숨김",
     "manage": "관리"
   },
+  "meta": {
+    "post_place": "장소 등록",
+    "write_post": "글쓰기",
+    "community": "커뮤니티",
+    "profile": "내 프로필",
+    "community_chat": "커뮤니티 채팅",
+    "admin_chat": "채팅 관리",
+    "admin_places": "장소",
+    "admin_notifications": "관리자 알림",
+    "site_tagline": "베트남인을 위한 후쿠오카 가이드",
+    "site_tagline_short": "후쿠오카 가이드",
+    "site_description": "후쿠오카의 베트남인 커뮤니티 — 맛집, 바다, 산, 공원, 베트남 음식점, 여행 정보를 공유합니다.",
+    "site_twitter_description": "후쿠오카의 베트남인 커뮤니티 — 맛집, 바다, 공원, 베트남 음식점.",
+    "site_keywords": "후쿠오카, 베트남인, 장소, 커뮤니티, 맛집, 여행, 일본",
+    "site_og_image_alt": "Chợ Cóc FKO — 후쿠오카 가이드"
+  },
   "games": {
     "destination_wheel": {
       "title": "목적지 룰렛",

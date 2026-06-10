@@ -287,6 +287,12 @@ export default function ChatClient({
   const t = useTranslations('community_chat')
   const locale = useLocale()
 
+  // Public rooms have a fixed key → show the localized name; private rooms keep their custom name.
+  const roomLabel = (room: Room) =>
+    !room.is_private && room.key && PUBLIC_ROOM_DEFS[room.key]
+      ? t(`room_${room.key}` as Parameters<typeof t>[0])
+      : room.name
+
   // ── Core chat state ──────────────────────────────────────────────────────────
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages)
   const [pinnedMessages, setPinnedMessages] = useState<ChatMessage[]>(initialPinnedMessages)
@@ -2207,7 +2213,7 @@ export default function ChatClient({
                     }`}
                   >
                     <RoomAvatarIcon room={room} size="sm" />
-                    <span className="flex-1 truncate">{room.name}</span>
+                    <span className="flex-1 truncate">{roomLabel(room)}</span>
                   </button>
                 ))}
               </>
@@ -2311,7 +2317,7 @@ export default function ChatClient({
               <>
             {currentRoom && <RoomAvatarIcon room={currentRoom} size="md" />}
             <div className="flex-1 min-w-0">
-              <p className="text-[14px] font-bold text-ink truncate leading-tight">{currentRoom?.name ?? ''}</p>
+              <p className="text-[14px] font-bold text-ink truncate leading-tight">{currentRoom ? roomLabel(currentRoom) : ''}</p>
               {onlineUserIds.size > 0 && (
                 <p className="flex items-center gap-1 text-[10.5px] text-emerald-500 leading-none mt-0.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />

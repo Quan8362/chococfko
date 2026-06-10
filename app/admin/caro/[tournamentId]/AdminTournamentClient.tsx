@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import {
@@ -62,15 +63,6 @@ const MATCH_STATUS_COLOR: Record<string, string> = {
   walkover: 'text-amber-700 bg-amber-50 border-amber-200',
 }
 
-const STATUS_LABEL: Record<string, string> = {
-  draft: 'Bản nháp',
-  registration_open: 'Đang mở đăng ký',
-  registration_closed: 'Đã chốt đăng ký',
-  in_progress: 'Đang thi đấu',
-  finished: 'Đã kết thúc',
-  cancelled: 'Đã hủy',
-}
-
 // ── Props ─────────────────────────────────────────────────────────────────────
 type Props = {
   tournament: CaroTournament
@@ -84,6 +76,7 @@ type Props = {
 export default function AdminTournamentClient({
   tournament, participants, matches, groups, groupMembers, nameMap,
 }: Props) {
+  const t = useTranslations('games.caro')
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [feedback, setFeedback] = useState<string | null>(null)
@@ -99,8 +92,11 @@ export default function AdminTournamentClient({
   const allGroupMatchesDone = groupMatches.length > 0 && groupMatches.every(m => m.status === 'finished' || m.status === 'walkover')
   const hasKnockout = knockoutMatches.length > 0
 
-  function showFeedback(msg: string) {
+  const [feedbackError, setFeedbackError] = useState(false)
+
+  function showFeedback(msg: string, isError = false) {
     setFeedback(msg)
+    setFeedbackError(isError)
     setTimeout(() => setFeedback(null), 4000)
   }
 
@@ -108,9 +104,9 @@ export default function AdminTournamentClient({
     startTransition(async () => {
       const result = await fn()
       if (result && 'error' in result) {
-        showFeedback(`Lỗi: ${result.error}`)
+        showFeedback(`${t('admin_action_error_prefix')}${result.error}`, true)
       } else {
-        showFeedback('Thành công!')
+        showFeedback(t('admin_action_success'))
         router.refresh()
       }
     })
@@ -122,18 +118,18 @@ export default function AdminTournamentClient({
   }
 
   function handleGenerateBracket() {
-    if (!window.confirm('Tạo bracket cho giải đấu này? Hành động này không thể hoàn tác.')) return
+    if (!window.confirm(t('admin_confirm_bracket'))) return
     doAction(() => generateBracket(tournament.id))
   }
 
   function handleGenerateGroups() {
-    if (!window.confirm('Chia bảng thi đấu? Hành động này không thể hoàn tác.')) return
+    if (!window.confirm(t('admin_confirm_groups'))) return
     doAction(() => generateGroupStage(tournament.id))
   }
 
   function handleGenerateKnockout() {
     const apg = tournament.advance_per_group ?? 1
-    if (!window.confirm(`Tạo vòng knock-out từ top ${apg} mỗi bảng?`)) return
+    if (!window.confirm(t('admin_confirm_knockout', { n: apg }))) return
     doAction(() => generateKnockout(tournament.id, apg))
   }
 
@@ -142,15 +138,15 @@ export default function AdminTournamentClient({
   }
 
   function handleWalkover(matchId: string, match: TournamentMatch) {
-    if (!match.player_x_id && !match.player_o_id) { showFeedback('Chưa có người chơi'); return }
-    const pxName = match.player_x_id ? (nameMap[match.player_x_id] ?? 'Người chơi X') : null
-    const poName = match.player_o_id ? (nameMap[match.player_o_id] ?? 'Người chơi O') : null
+    if (!match.player_x_id && !match.player_o_id) { showFeedback(t('admin_no_players'), true); return }
+    const pxName = match.player_x_id ? (nameMap[match.player_x_id] ?? t('admin_player_x')) : null
+    const poName = match.player_o_id ? (nameMap[match.player_o_id] ?? t('admin_player_o')) : null
     const choice = pxName && poName
-      ? window.prompt(`Ai thắng walkover?\n1. ${pxName}\n2. ${poName}\n\nNhập 1 hoặc 2:`)
+      ? window.prompt(t('admin_walkover_prompt', { x: pxName, o: poName }))
       : null
     if (choice !== '1' && choice !== '2') return
     const winnerId = choice === '1' ? match.player_x_id! : match.player_o_id!
-    if (!window.confirm('Bạn có chắc muốn cho người chơi này thắng do đối thủ vắng mặt không?')) return
+    if (!window.confirm(t('admin_walkover_confirm'))) return
     doAction(() => setWalkover(matchId, winnerId))
   }
 
@@ -173,24 +169,24 @@ export default function AdminTournamentClient({
           </p>
           {match.room_code && (
             <Link href={`/games/caro/${match.room_code}`} className="text-[11px] text-teal hover:underline">
-              Phòng: {match.room_code}
+              {t('admin_room_prefix')}{match.room_code}
             </Link>
           )}
         </div>
         <span className={`text-[10.5px] font-bold px-2 py-0.5 rounded-full border flex-none ${MATCH_STATUS_COLOR[match.status] ?? MATCH_STATUS_COLOR.pending}`}>
-          {match.status}
+          {t(`match_status_${match.status}` as Parameters<typeof t>[0])}
         </span>
         <div className="flex gap-1.5 flex-none flex-wrap">
           {canCreateRoom && (
             <button onClick={() => handleCreateRoom(match.id)} disabled={isPending}
               className="text-[11px] font-semibold px-3 py-1.5 rounded-lg bg-rose text-white hover:bg-rose-deep disabled:opacity-60 transition-all">
-              Tạo phòng
+              {t('admin_create_room_btn')}
             </button>
           )}
           {canWalkover && (
             <button onClick={() => handleWalkover(match.id, match)} disabled={isPending}
               className="text-[11px] font-semibold px-3 py-1.5 rounded-lg bg-amber-100 text-amber-700 hover:bg-amber-200 disabled:opacity-60 transition-all">
-              Walkover
+              {t('admin_walkover_btn')}
             </button>
           )}
         </div>
@@ -201,7 +197,7 @@ export default function AdminTournamentClient({
   return (
     <div className="space-y-8">
       {feedback && (
-        <div className={`px-4 py-3 rounded-xl text-[13px] font-medium ${feedback.startsWith('Lỗi') ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}`}>
+        <div className={`px-4 py-3 rounded-xl text-[13px] font-medium ${feedbackError ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}`}>
           {feedback}
         </div>
       )}
@@ -210,47 +206,47 @@ export default function AdminTournamentClient({
       <div className="bg-paper border border-line rounded-2xl p-6">
         <div className="flex items-start justify-between gap-3 flex-wrap mb-4">
           <div>
-            <p className="text-[11px] text-muted/50 mb-0.5">Trạng thái · {isGroupStage ? 'Vòng bảng' : 'Loại trực tiếp'}</p>
-            <p className="text-[15px] font-bold text-ink">{STATUS_LABEL[tournament.status] ?? tournament.status}</p>
+            <p className="text-[11px] text-muted/50 mb-0.5">{t('admin_status_label_prefix')}{isGroupStage ? t('admin_type_group_short') : t('admin_type_single_short')}</p>
+            <p className="text-[15px] font-bold text-ink">{t(`tournament_status_${tournament.status}` as Parameters<typeof t>[0])}</p>
           </div>
           <div className="flex flex-wrap gap-2">
             {tournament.status === 'draft' && (
               <button onClick={() => changeStatus('registration_open')} disabled={isPending}
                 className="text-[12.5px] font-semibold px-4 py-2 rounded-xl bg-teal text-white hover:bg-teal/85 transition-all disabled:opacity-60">
-                Mở đăng ký
+                {t('admin_open_registration_btn')}
               </button>
             )}
             {tournament.status === 'registration_open' && (
-              <button onClick={() => changeStatus('registration_closed', 'Chốt danh sách? Người chơi sẽ không thể đăng ký thêm.')} disabled={isPending}
+              <button onClick={() => changeStatus('registration_closed', t('admin_confirm_close_reg'))} disabled={isPending}
                 className="text-[12.5px] font-semibold px-4 py-2 rounded-xl bg-amber-500 text-white hover:bg-amber-600 transition-all disabled:opacity-60">
-                Chốt đăng ký
+                {t('admin_close_registration_btn')}
               </button>
             )}
             {/* Single elimination: generate bracket */}
             {!isGroupStage && tournament.status === 'registration_closed' && matches.length === 0 && (
               <button onClick={handleGenerateBracket} disabled={isPending}
                 className="text-[12.5px] font-semibold px-4 py-2 rounded-xl bg-rose text-white hover:bg-rose-deep transition-all disabled:opacity-60">
-                🎲 Tạo cặp đấu
+                {t('admin_generate_bracket_btn')}
               </button>
             )}
             {/* Group stage: generate groups */}
             {isGroupStage && tournament.status === 'registration_closed' && !hasGroups && (
               <button onClick={handleGenerateGroups} disabled={isPending}
                 className="text-[12.5px] font-semibold px-4 py-2 rounded-xl bg-rose text-white hover:bg-rose-deep transition-all disabled:opacity-60">
-                🎲 Chia bảng
+                {t('admin_generate_groups_btn')}
               </button>
             )}
             {/* Group stage: generate knockout after group stage done */}
             {isGroupStage && hasGroups && allGroupMatchesDone && !hasKnockout && (
               <button onClick={handleGenerateKnockout} disabled={isPending}
                 className="text-[12.5px] font-semibold px-4 py-2 rounded-xl bg-teal text-white hover:bg-teal/85 transition-all disabled:opacity-60">
-                🏆 Tạo vòng knock-out
+                {t('admin_generate_knockout_btn')}
               </button>
             )}
             {!['finished', 'cancelled'].includes(tournament.status) && (
-              <button onClick={() => changeStatus('cancelled', 'Bạn có chắc muốn hủy giải đấu này không? Hành động này không thể hoàn tác.')} disabled={isPending}
+              <button onClick={() => changeStatus('cancelled', t('admin_confirm_cancel'))} disabled={isPending}
                 className="text-[12.5px] font-semibold px-4 py-2 rounded-xl border border-red-200 text-red-600 bg-red-50 hover:bg-red-100 transition-all disabled:opacity-60">
-                Hủy giải đấu
+                {t('admin_cancel_tournament_btn')}
               </button>
             )}
           </div>
@@ -258,40 +254,40 @@ export default function AdminTournamentClient({
 
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 text-center">
           <div className="bg-cream rounded-xl p-3">
-            <p className="text-[11px] text-muted/50">Người tham gia</p>
+            <p className="text-[11px] text-muted/50">{t('admin_stat_participants')}</p>
             <p className="text-[22px] font-bold text-ink">{activeParticipants.length}<span className="text-[13px] font-normal text-muted/40">/{tournament.max_players}</span></p>
           </div>
           <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3">
-            <p className="text-[11px] text-emerald-700/70">Đã check-in</p>
+            <p className="text-[11px] text-emerald-700/70">{t('admin_stat_checked_in')}</p>
             <p className="text-[22px] font-bold text-emerald-700">{checkedInCount}<span className="text-[13px] font-normal text-emerald-600/50">/{activeParticipants.length}</span></p>
           </div>
           {isGroupStage ? (
             <>
               <div className="bg-cream rounded-xl p-3">
-                <p className="text-[11px] text-muted/50">Số bảng</p>
+                <p className="text-[11px] text-muted/50">{t('admin_stat_num_groups')}</p>
                 <p className="text-[22px] font-bold text-ink">{groups.length || tournament.num_groups || '—'}</p>
               </div>
               <div className="bg-cream rounded-xl p-3">
-                <p className="text-[11px] text-muted/50">Trận vòng bảng</p>
+                <p className="text-[11px] text-muted/50">{t('admin_stat_group_matches')}</p>
                 <p className="text-[22px] font-bold text-ink">{groupMatches.length}</p>
               </div>
               <div className="bg-cream rounded-xl p-3">
-                <p className="text-[11px] text-muted/50">Đã kết thúc</p>
+                <p className="text-[11px] text-muted/50">{t('admin_stat_finished')}</p>
                 <p className="text-[22px] font-bold text-ink">{groupMatches.filter(m => m.status === 'finished' || m.status === 'walkover').length}</p>
               </div>
             </>
           ) : (
             <>
               <div className="bg-cream rounded-xl p-3">
-                <p className="text-[11px] text-muted/50">Vòng đấu</p>
+                <p className="text-[11px] text-muted/50">{t('admin_stat_rounds')}</p>
                 <p className="text-[22px] font-bold text-ink">{rounds.length}</p>
               </div>
               <div className="bg-cream rounded-xl p-3">
-                <p className="text-[11px] text-muted/50">Trận đã tạo</p>
+                <p className="text-[11px] text-muted/50">{t('admin_stat_matches_created')}</p>
                 <p className="text-[22px] font-bold text-ink">{matches.length}</p>
               </div>
               <div className="bg-cream rounded-xl p-3">
-                <p className="text-[11px] text-muted/50">Trận kết thúc</p>
+                <p className="text-[11px] text-muted/50">{t('admin_stat_matches_finished')}</p>
                 <p className="text-[22px] font-bold text-ink">{matches.filter(m => m.status === 'finished' || m.status === 'walkover').length}</p>
               </div>
             </>
@@ -302,10 +298,10 @@ export default function AdminTournamentClient({
       {/* ── Participants ───────────────────────────────────────────────────── */}
       <div>
         <h2 className="font-serif font-bold text-[18px] text-ink mb-3">
-          Người tham gia ({activeParticipants.length})
+          {t('admin_participants_heading', { count: activeParticipants.length })}
         </h2>
         {activeParticipants.length === 0 ? (
-          <p className="text-[13px] text-muted/60 text-center py-8 bg-cream/50 border border-dashed border-line rounded-xl">Chưa có người tham gia.</p>
+          <p className="text-[13px] text-muted/60 text-center py-8 bg-cream/50 border border-dashed border-line rounded-xl">{t('admin_no_participants')}</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {activeParticipants.map((p, idx) => (
@@ -321,7 +317,7 @@ export default function AdminTournamentClient({
                   p.status === 'checked_in' ? 'bg-emerald-100 text-emerald-700' :
                   'bg-cream text-muted/60'
                 }`}>
-                  {p.status === 'checked_in' ? '✓ sẵn sàng' : p.status}
+                  {p.status === 'checked_in' ? t('admin_ready_badge') : p.status}
                 </span>
               </div>
             ))}
@@ -332,7 +328,7 @@ export default function AdminTournamentClient({
       {/* ── Group stage: groups + standings + matches ──────────────────────── */}
       {isGroupStage && hasGroups && (
         <div className="space-y-8">
-          <h2 className="font-serif font-bold text-[18px] text-ink">Vòng bảng</h2>
+          <h2 className="font-serif font-bold text-[18px] text-ink">{t('admin_group_stage_heading')}</h2>
           {groups.map(group => {
             const members = groupMembers.filter(m => m.group_id === group.id)
             const gMatches = matches.filter(m => m.group_id === group.id)
@@ -342,7 +338,7 @@ export default function AdminTournamentClient({
               <div key={group.id} className="bg-paper border border-line rounded-2xl overflow-hidden">
                 <div className="px-5 py-3.5 bg-cream/70 border-b border-line">
                   <h3 className="font-bold text-[15px] text-ink">{group.name}</h3>
-                  <p className="text-[11.5px] text-muted/60">{members.length} người · {gMatches.length} trận</p>
+                  <p className="text-[11.5px] text-muted/60">{t('admin_group_meta', { members: members.length, matches: gMatches.length })}</p>
                 </div>
 
                 {/* Standings table */}
@@ -351,12 +347,12 @@ export default function AdminTournamentClient({
                     <thead>
                       <tr className="border-b border-line bg-cream/40">
                         <th className="text-left px-4 py-2 font-semibold text-muted/60">#</th>
-                        <th className="text-left px-4 py-2 font-semibold text-muted/60">Người chơi</th>
-                        <th className="text-center px-2 py-2 font-semibold text-muted/60">Trận</th>
-                        <th className="text-center px-2 py-2 font-semibold text-muted/60">Thắng</th>
-                        <th className="text-center px-2 py-2 font-semibold text-muted/60">Hòa</th>
-                        <th className="text-center px-2 py-2 font-semibold text-muted/60">Thua</th>
-                        <th className="text-center px-2 py-2 font-bold text-ink">Điểm</th>
+                        <th className="text-left px-4 py-2 font-semibold text-muted/60">{t('admin_col_player')}</th>
+                        <th className="text-center px-2 py-2 font-semibold text-muted/60">{t('admin_col_played')}</th>
+                        <th className="text-center px-2 py-2 font-semibold text-muted/60">{t('admin_col_wins')}</th>
+                        <th className="text-center px-2 py-2 font-semibold text-muted/60">{t('admin_col_draws')}</th>
+                        <th className="text-center px-2 py-2 font-semibold text-muted/60">{t('admin_col_losses')}</th>
+                        <th className="text-center px-2 py-2 font-bold text-ink">{t('admin_col_points')}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -378,7 +374,7 @@ export default function AdminTournamentClient({
                 {/* Group matches */}
                 {gMatches.length > 0 && (
                   <div className="px-4 py-4 space-y-2 border-t border-line/50">
-                    <p className="text-[11.5px] font-bold text-muted/50 uppercase tracking-widest mb-3">Kết quả trận</p>
+                    <p className="text-[11.5px] font-bold text-muted/50 uppercase tracking-widest mb-3">{t('admin_match_results')}</p>
                     {gMatches.map(match => <MatchCard key={match.id} match={match} />)}
                   </div>
                 )}
@@ -392,7 +388,7 @@ export default function AdminTournamentClient({
       {knockoutMatches.length > 0 && (
         <div>
           <h2 className="font-serif font-bold text-[18px] text-ink mb-4">
-            {isGroupStage ? '🏆 Vòng knock-out' : 'Trận đấu'}
+            {isGroupStage ? t('admin_knockout_heading') : t('admin_matches_heading')}
           </h2>
           <div className="space-y-6">
             {rounds.map(round => {
@@ -400,7 +396,7 @@ export default function AdminTournamentClient({
               return (
                 <div key={round}>
                   <h3 className="text-[12px] font-bold uppercase tracking-widest text-muted/50 mb-2 flex items-center gap-2">
-                    <span className="h-px flex-1 bg-line" />Vòng {round}<span className="h-px flex-1 bg-line" />
+                    <span className="h-px flex-1 bg-line" />{t('admin_round_label', { n: round })}<span className="h-px flex-1 bg-line" />
                   </h3>
                   <div className="space-y-2">
                     {roundMatches.map(match => <MatchCard key={match.id} match={match} />)}
@@ -415,7 +411,7 @@ export default function AdminTournamentClient({
       {/* ── Single elimination matches (no groups) ────────────────────────── */}
       {!isGroupStage && matches.length > 0 && rounds.length === 0 && (
         <div>
-          <h2 className="font-serif font-bold text-[18px] text-ink mb-4">Trận đấu</h2>
+          <h2 className="font-serif font-bold text-[18px] text-ink mb-4">{t('admin_matches_heading')}</h2>
           <div className="space-y-2">
             {matches.map(match => <MatchCard key={match.id} match={match} />)}
           </div>

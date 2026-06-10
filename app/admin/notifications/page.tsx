@@ -38,6 +38,16 @@ export default async function AdminNotificationsPage({
   const t = await getTranslations('notifications')
   const all = await getAllNotifications(user.id, 100)
 
+  // Localize notification title by type (DB stores a Vietnamese fallback)
+  function localizedTitle(type: string, fallback: string | null): string {
+    switch (type) {
+      case 'new_pending_post':       return t('admin_notif_title_new_pending_post')
+      case 'new_pending_place':      return t('admin_notif_title_new_pending_place')
+      case 'new_pending_confession': return t('admin_notif_title_new_pending_confession')
+      default:                       return fallback ?? t('page_title')
+    }
+  }
+
   // Fetch current status for confession-type notifications
   const confessionIds = all
     .filter(n => n.target_type === 'confession' && n.target_id)
@@ -151,7 +161,7 @@ export default async function AdminNotificationsPage({
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-0.5 flex-wrap">
                   <p className={`text-[13.5px] font-semibold ${notif.is_read ? 'text-ink/70' : 'text-ink'}`}>
-                    {notif.title}
+                    {localizedTitle(notif.type, notif.title)}
                   </p>
                   {!notif.is_read && (
                     <span className="w-2 h-2 rounded-full bg-amber-400 flex-none" />

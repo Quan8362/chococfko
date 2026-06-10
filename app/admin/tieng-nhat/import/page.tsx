@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
 import { checkIsAdmin } from '@/lib/supabase/admin'
 import ImportClient from './ImportClient'
 
@@ -9,20 +10,22 @@ export const dynamic = 'force-dynamic'
 export default async function ImportPage() {
   if (!(await checkIsAdmin())) redirect('/')
 
+  const t = await getTranslations('admin_jp')
+
   return (
     <div className="max-w-[960px] mx-auto px-6 py-10">
       <nav className="flex items-center gap-1.5 text-[12.5px] text-muted mb-8">
         <Link href="/admin" className="hover:text-rose transition-colors">Admin</Link>
         <span>/</span>
-        <Link href="/admin/tieng-nhat" className="hover:text-rose transition-colors">Tiếng Nhật</Link>
+        <Link href="/admin/tieng-nhat" className="hover:text-rose transition-colors">{t('breadcrumb')}</Link>
         <span>/</span>
-        <span className="text-ink">Import dữ liệu</span>
+        <span className="text-ink">{t('import_data')}</span>
       </nav>
 
       <div className="mb-8">
-        <h1 className="font-serif font-bold text-[24px] text-ink">📥 Import dữ liệu</h1>
+        <h1 className="font-serif font-bold text-[24px] text-ink">📥 {t('import_data')}</h1>
         <p className="text-[13px] text-muted mt-1">
-          Nhập dữ liệu hàng loạt từ file JSON hoặc CSV. Chỉ dùng dữ liệu hợp pháp (JMdict, JLPT wordlists open license, v.v.).
+          {t('import_page_desc')}
         </p>
       </div>
 

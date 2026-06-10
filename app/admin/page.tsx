@@ -131,7 +131,7 @@ export default async function AdminPage({
     all:      { title: admin_t('empty_all_title'),      sub: admin_t('empty_all_sub') },
   }
 
-  const totalPending = byStatus.pending.length + pendingPlaces.length
+  const totalPending = byStatus.pending.length + pendingPlaces.length + pendingConfessionsCount
 
   return (
     <div className="max-w-[1100px] mx-auto px-6 py-10">

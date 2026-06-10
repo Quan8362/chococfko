@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import { getTranslations } from 'next-intl/server'
 import { checkIsAdmin } from '@/lib/supabase/admin'
 import { getTournamentForAdmin } from '../actions'
 import AdminTournamentClient from './AdminTournamentClient'
@@ -10,6 +11,8 @@ export const dynamic = 'force-dynamic'
 export default async function AdminTournamentDetailPage({ params }: { params: { tournamentId: string } }) {
   const isAdmin = await checkIsAdmin()
   if (!isAdmin) redirect('/')
+
+  const t = await getTranslations('games.caro')
 
   const { tournament, participants, matches, groups, groupMembers } = await getTournamentForAdmin(params.tournamentId)
   if (!tournament) notFound()
@@ -41,7 +44,7 @@ export default async function AdminTournamentDetailPage({ params }: { params: { 
       <div className="flex items-center gap-1.5 text-[12.5px] text-muted mb-7">
         <Link href="/admin" className="hover:text-rose transition-colors">Admin</Link>
         <span>/</span>
-        <Link href="/admin/caro" className="hover:text-rose transition-colors">Cờ caro</Link>
+        <Link href="/admin/caro" className="hover:text-rose transition-colors">{t('title')}</Link>
         <span>/</span>
         <span className="text-ink/70 truncate max-w-[200px]">{tournament.title}</span>
       </div>

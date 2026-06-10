@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
+import { useTranslations } from 'next-intl'
 import { importWords, importKanji, importGrammar, importQuiz } from './import-actions'
 import type {
   ImportWordRow,
@@ -31,6 +32,8 @@ type RowResult = {
   data?: ImportWordRow | ImportKanjiRow | ImportGrammarRow | ImportQuizRow
   errors: string[]
 }
+
+type TFn = (key: string, values?: Record<string, string | number>) => string
 
 // ─── CSV Parser ──────────────────────────────────────────────────────────────
 
@@ -82,23 +85,23 @@ function splitPipe(val: string | undefined): string[] | null {
   return arr.length > 0 ? arr : null
 }
 
-function validateJlpt(val: string | undefined, rowNum: number, errors: string[]) {
+function validateJlpt(val: string | undefined, rowNum: number, errors: string[], t: TFn) {
   const jlpt = val?.trim() || null
   if (jlpt && !VALID_JLPT.includes(jlpt)) {
-    errors.push(`Dòng ${rowNum}: jlpt_level "${jlpt}" không hợp lệ (phải là ${VALID_JLPT.join('/')})`)
+    errors.push(t('err_jlpt_invalid', { row: rowNum, jlpt, valid: VALID_JLPT.join('/') }))
   }
   return jlpt && VALID_JLPT.includes(jlpt) ? jlpt : null
 }
 
-function validateWord(raw: Record<string, unknown>, i: number): RowResult {
+function validateWord(raw: Record<string, unknown>, i: number, t: TFn): RowResult {
   const errors: string[] = []
   const r = raw as Record<string, string>
   const rowNum = i + 1
 
   const word = r.word?.trim()
-  if (!word) errors.push(`Dòng ${rowNum}: Thiếu trường bắt buộc 'word'`)
+  if (!word) errors.push(t('err_missing_field', { row: rowNum, field: 'word' }))
 
-  const jlpt_level = validateJlpt(r.jlpt_level, rowNum, errors)
+  const jlpt_level = validateJlpt(r.jlpt_level, rowNum, errors, t)
 
   // Parse meanings — supports JSON array or flat meaning_vi/meaning_en fields
   let meanings: { vi: string; en: string }[] = []
@@ -106,7 +109,7 @@ function validateWord(raw: Record<string, unknown>, i: number): RowResult {
     try {
       const parsed = JSON.parse(r.meanings)
       if (Array.isArray(parsed)) meanings = parsed.filter((m: { vi?: string; en?: string }) => m.vi || m.en)
-    } catch { errors.push(`Dòng ${rowNum}: Trường 'meanings' không phải JSON hợp lệ`) }
+    } catch { errors.push(t('err_meanings_json', { row: rowNum })) }
   } else {
     for (let idx = 0; idx < 3; idx++) {
       const vi = (r[`meaning_${idx}_vi`] ?? r.meaning_vi ?? '').trim()
@@ -117,7 +120,7 @@ function validateWord(raw: Record<string, unknown>, i: number): RowResult {
       }
     }
   }
-  if (meanings.length === 0) errors.push(`Dòng ${rowNum}: Nên có ít nhất 1 nghĩa (meaning_vi hoặc meaning_en)`)
+  if (meanings.length === 0) errors.push(t('err_need_meaning', { row: rowNum }))
 
   // Parse POS — supports JSON array or | separated
   let pos: string[] | null = null
@@ -126,7 +129,7 @@ function validateWord(raw: Record<string, unknown>, i: number): RowResult {
       ? JSON.parse(r.pos)
       : r.pos.split(/[|,;]/).map((s: string) => s.trim()).filter(Boolean)
     const invalid = arr.filter((p: string) => !VALID_POS.includes(p))
-    if (invalid.length > 0) errors.push(`Dòng ${rowNum}: pos không hợp lệ: ${invalid.join(', ')}`)
+    if (invalid.length > 0) errors.push(t('err_pos_invalid', { row: rowNum, list: invalid.join(', ') }))
     pos = arr.filter((p: string) => VALID_POS.includes(p))
   }
 
@@ -134,7 +137,7 @@ function validateWord(raw: Record<string, unknown>, i: number): RowResult {
   let examples: unknown = null
   if (r.examples_json || r.examples) {
     const raw = r.examples_json ?? r.examples
-    try { examples = JSON.parse(raw) } catch { errors.push(`Dòng ${rowNum}: examples JSON không hợp lệ`) }
+    try { examples = JSON.parse(raw) } catch { errors.push(t('err_examples_json', { row: rowNum })) }
   } else if (r.example_jp?.trim()) {
     examples = [{
       ja: r.example_jp.trim(),
@@ -163,16 +166,16 @@ function validateWord(raw: Record<string, unknown>, i: number): RowResult {
   return { index: i, raw, data: errors.length === 0 ? data : undefined, errors }
 }
 
-function validateKanji(raw: Record<string, unknown>, i: number): RowResult {
+function validateKanji(raw: Record<string, unknown>, i: number, t: TFn): RowResult {
   const errors: string[] = []
   const r = raw as Record<string, string>
   const rowNum = i + 1
 
   const character = r.character?.trim()
-  if (!character) errors.push(`Dòng ${rowNum}: Thiếu trường bắt buộc 'character'`)
-  else if (Array.from(character).length > 2) errors.push(`Dòng ${rowNum}: 'character' nên là 1 ký tự kanji`)
+  if (!character) errors.push(t('err_missing_field', { row: rowNum, field: 'character' }))
+  else if (Array.from(character).length > 2) errors.push(t('err_character_single', { row: rowNum }))
 
-  const jlpt_level = validateJlpt(r.jlpt_level, rowNum, errors)
+  const jlpt_level = validateJlpt(r.jlpt_level, rowNum, errors, t)
 
   // Meanings
   let meanings: { vi: string; en: string }[] | null = null
@@ -180,13 +183,13 @@ function validateKanji(raw: Record<string, unknown>, i: number): RowResult {
   const en = r.meaning_en?.trim() || ''
   if (vi || en) meanings = [{ vi, en }]
   else if (r.meanings) {
-    try { meanings = JSON.parse(r.meanings) } catch { errors.push(`Dòng ${rowNum}: meanings JSON không hợp lệ`) }
+    try { meanings = JSON.parse(r.meanings) } catch { errors.push(t('err_meanings_json', { row: rowNum })) }
   }
 
   // Examples
   let examples: unknown = null
   if (r.examples_json || r.examples) {
-    try { examples = JSON.parse(r.examples_json ?? r.examples) } catch { errors.push(`Dòng ${rowNum}: examples JSON không hợp lệ`) }
+    try { examples = JSON.parse(r.examples_json ?? r.examples) } catch { errors.push(t('err_examples_json', { row: rowNum })) }
   }
 
   const data: ImportKanjiRow = {
@@ -203,23 +206,23 @@ function validateKanji(raw: Record<string, unknown>, i: number): RowResult {
   return { index: i, raw, data: errors.length === 0 ? data : undefined, errors }
 }
 
-function validateGrammar(raw: Record<string, unknown>, i: number): RowResult {
+function validateGrammar(raw: Record<string, unknown>, i: number, t: TFn): RowResult {
   const errors: string[] = []
   const r = raw as Record<string, string>
   const rowNum = i + 1
 
   const pattern = r.pattern?.trim()
-  if (!pattern) errors.push(`Dòng ${rowNum}: Thiếu trường bắt buộc 'pattern'`)
+  if (!pattern) errors.push(t('err_missing_field', { row: rowNum, field: 'pattern' }))
 
-  const jlpt_level = validateJlpt(r.jlpt_level, rowNum, errors)
+  const jlpt_level = validateJlpt(r.jlpt_level, rowNum, errors, t)
 
   const meaning_vi = r.meaning_vi?.trim() || null
   const meaning_en = r.meaning_en?.trim() || null
-  if (!meaning_vi && !meaning_en) errors.push(`Dòng ${rowNum}: Nên có ít nhất meaning_vi hoặc meaning_en`)
+  if (!meaning_vi && !meaning_en) errors.push(t('err_need_meaning_grammar', { row: rowNum }))
 
   let examples: unknown = null
   if (r.examples_json || r.examples) {
-    try { examples = JSON.parse(r.examples_json ?? r.examples) } catch { errors.push(`Dòng ${rowNum}: examples JSON không hợp lệ`) }
+    try { examples = JSON.parse(r.examples_json ?? r.examples) } catch { errors.push(t('err_examples_json', { row: rowNum })) }
   }
 
   const data: ImportGrammarRow = {
@@ -236,35 +239,35 @@ function validateGrammar(raw: Record<string, unknown>, i: number): RowResult {
   return { index: i, raw, data: errors.length === 0 ? data : undefined, errors }
 }
 
-function validateQuiz(raw: Record<string, unknown>, i: number): RowResult {
+function validateQuiz(raw: Record<string, unknown>, i: number, t: TFn): RowResult {
   const errors: string[] = []
   const r = raw as Record<string, string>
   const rowNum = i + 1
 
   const question = r.question?.trim()
-  if (!question) errors.push(`Dòng ${rowNum}: Thiếu trường bắt buộc 'question'`)
+  if (!question) errors.push(t('err_missing_field', { row: rowNum, field: 'question' }))
 
-  const jlpt_level = validateJlpt(r.jlpt_level, rowNum, errors)
+  const jlpt_level = validateJlpt(r.jlpt_level, rowNum, errors, t)
 
   const category = r.category?.trim() || 'mixed'
   if (r.category && !VALID_CATEGORIES.includes(category)) {
-    errors.push(`Dòng ${rowNum}: category "${category}" không hợp lệ (${VALID_CATEGORIES.join('/')})`)
+    errors.push(t('err_category_invalid', { row: rowNum, category, valid: VALID_CATEGORIES.join('/') }))
   }
 
   const difficulty = r.difficulty?.trim() || 'medium'
   if (r.difficulty && !VALID_DIFFICULTIES.includes(difficulty)) {
-    errors.push(`Dòng ${rowNum}: difficulty "${difficulty}" không hợp lệ (easy/medium/hard)`)
+    errors.push(t('err_difficulty_invalid', { row: rowNum, difficulty }))
   }
 
   const correct_answer = r.correct_answer?.trim().toUpperCase()
   if (!['A', 'B', 'C', 'D'].includes(correct_answer)) {
-    errors.push(`Dòng ${rowNum}: correct_answer phải là A/B/C/D`)
+    errors.push(t('err_correct_answer', { row: rowNum }))
   }
 
   const options: { key: string; text: string }[] = []
   for (const key of ['A', 'B', 'C', 'D']) {
     const text = (r[`option_${key}`] ?? '').trim()
-    if (!text) errors.push(`Dòng ${rowNum}: Thiếu đáp án option_${key}`)
+    if (!text) errors.push(t('err_missing_option', { row: rowNum, key }))
     else options.push({ key, text })
   }
 
@@ -347,11 +350,11 @@ function downloadBlob(content: string, filename: string, mime: string) {
 
 // ─── Preview columns ──────────────────────────────────────────────────────────
 
-function previewCols(type: DataType): string[] {
-  if (type === 'words') return ['Từ', 'Reading', 'JLPT', 'Từ loại', 'Nghĩa vi']
-  if (type === 'kanji') return ['Chữ', 'JLPT', 'Onyomi', 'Kunyomi', 'Nghĩa vi']
-  if (type === 'grammar') return ['Pattern', 'JLPT', 'Nghĩa vi', 'Cấu trúc']
-  return ['Câu hỏi', 'JLPT', 'Loại', 'Đáp án đúng']
+function previewCols(type: DataType, t: TFn): string[] {
+  if (type === 'words') return [t('col_word'), 'Reading', 'JLPT', t('col_pos'), t('col_meaning_vi')]
+  if (type === 'kanji') return [t('col_character'), 'JLPT', 'Onyomi', 'Kunyomi', t('col_meaning_vi')]
+  if (type === 'grammar') return ['Pattern', 'JLPT', t('col_meaning_vi'), t('col_structure')]
+  return [t('col_question'), 'JLPT', t('col_category'), t('col_correct')]
 }
 
 function previewCells(type: DataType, data: ImportWordRow | ImportKanjiRow | ImportGrammarRow | ImportQuizRow): string[] {
@@ -374,6 +377,7 @@ function previewCells(type: DataType, data: ImportWordRow | ImportKanjiRow | Imp
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function ImportClient() {
+  const t = useTranslations('admin_jp')
   const fileRef = useRef<HTMLInputElement>(null)
 
   const [dataType, setDataType] = useState<DataType>('words')
@@ -408,7 +412,7 @@ export default function ImportClient() {
     if (!file) return
 
     if (file.size > MAX_FILE_BYTES) {
-      setFileError('File import quá lớn. Giới hạn tối đa 20MB.')
+      setFileError(t('err_file_too_large'))
       return
     }
 
@@ -423,17 +427,17 @@ export default function ImportClient() {
     try {
       if (ext === 'json') {
         const parsed = JSON.parse(text)
-        if (!Array.isArray(parsed)) { setFileError('JSON phải là một mảng [ ... ]'); return }
+        if (!Array.isArray(parsed)) { setFileError(t('err_json_not_array')); return }
         rawRows = parsed
       } else if (ext === 'csv') {
         rawRows = csvToObjects(text)
-        if (rawRows.length === 0) { setFileError('CSV không có dữ liệu (kiểm tra header row)'); return }
+        if (rawRows.length === 0) { setFileError(t('err_csv_empty')); return }
       } else {
-        setFileError('Chỉ hỗ trợ file .json hoặc .csv')
+        setFileError(t('err_unsupported_file'))
         return
       }
     } catch {
-      setFileError('Không thể đọc file — kiểm tra lại định dạng JSON/CSV')
+      setFileError(t('err_read_file'))
       return
     }
 
@@ -442,7 +446,7 @@ export default function ImportClient() {
       : dataType === 'grammar' ? validateGrammar
       : validateQuiz
 
-    const results = rawRows.map((raw, i) => validator(raw, i))
+    const results = rawRows.map((raw, i) => validator(raw, i, t))
     setAllRows(results)
     setStage('preview')
   }
@@ -478,9 +482,9 @@ export default function ImportClient() {
   }
 
   const DATA_TYPES: { key: DataType; label: string; emoji: string }[] = [
-    { key: 'words', label: 'Từ điển', emoji: '📖' },
+    { key: 'words', label: t('section_dictionary'), emoji: '📖' },
     { key: 'kanji', label: 'Kanji', emoji: '漢' },
-    { key: 'grammar', label: 'Ngữ pháp', emoji: '✏️' },
+    { key: 'grammar', label: t('section_grammar'), emoji: '✏️' },
     { key: 'quiz', label: 'Quiz', emoji: '🎯' },
   ]
 
@@ -489,7 +493,7 @@ export default function ImportClient() {
 
       {/* ── Step 1: Data type ────────────────────────────────────── */}
       <section className="bg-paper border border-line rounded-2xl p-6">
-        <h2 className="text-[13px] font-bold text-muted uppercase tracking-wide mb-3">1. Chọn loại dữ liệu</h2>
+        <h2 className="text-[13px] font-bold text-muted uppercase tracking-wide mb-3">{t('step1_title')}</h2>
         <div className="flex flex-wrap gap-2">
           {DATA_TYPES.map(dt => (
             <button key={dt.key} onClick={() => handleTypeChange(dt.key)}
@@ -507,7 +511,7 @@ export default function ImportClient() {
 
       {/* ── Step 2: Download sample ──────────────────────────────── */}
       <section className="bg-paper border border-line rounded-2xl p-6">
-        <h2 className="text-[13px] font-bold text-muted uppercase tracking-wide mb-3">2. Tải file mẫu</h2>
+        <h2 className="text-[13px] font-bold text-muted uppercase tracking-wide mb-3">{t('step2_title')}</h2>
         <div className="flex flex-wrap gap-2">
           <button
             onClick={() => downloadBlob(
@@ -516,7 +520,7 @@ export default function ImportClient() {
               'application/json'
             )}
             className="flex items-center gap-1.5 px-4 py-2 bg-cream border border-line rounded-xl text-[13px] font-semibold text-ink hover:border-rose/40 hover:text-rose transition-colors">
-            ⬇ Tải JSON mẫu
+            ⬇ {t('download_json_sample')}
           </button>
           <button
             onClick={() => downloadBlob(
@@ -525,28 +529,27 @@ export default function ImportClient() {
               'text/csv;charset=utf-8'
             )}
             className="flex items-center gap-1.5 px-4 py-2 bg-cream border border-line rounded-xl text-[13px] font-semibold text-ink hover:border-rose/40 hover:text-rose transition-colors">
-            ⬇ Tải CSV mẫu
+            ⬇ {t('download_csv_sample')}
           </button>
         </div>
         <p className="text-[11.5px] text-muted mt-2">
-          CSV: các trường nhiều giá trị (onyomi, tags, pos) dùng <code className="bg-cream px-1 rounded">|</code> hoặc <code className="bg-cream px-1 rounded">;</code> làm phân cách.
-          JSON: dùng mảng JavaScript. Tối đa 20MB.
+          {t('sample_hint')}
         </p>
       </section>
 
       {/* ── Step 3: Upload file ──────────────────────────────────── */}
       <section className="bg-paper border border-line rounded-2xl p-6">
-        <h2 className="text-[13px] font-bold text-muted uppercase tracking-wide mb-3">3. Chọn file</h2>
+        <h2 className="text-[13px] font-bold text-muted uppercase tracking-wide mb-3">{t('step3_title')}</h2>
         <div className="flex items-center gap-3 flex-wrap">
           <label className="flex items-center gap-2 px-4 py-2 bg-rose text-white rounded-xl text-[13px] font-semibold cursor-pointer hover:bg-rose-deep transition-colors">
-            📂 Chọn file JSON/CSV
+            📂 {t('choose_file')}
             <input ref={fileRef} type="file" accept=".json,.csv" onChange={handleFile} className="hidden" />
           </label>
           {fileName && (
             <div className="flex items-center gap-2 text-[13px] text-ink">
               <span className="text-emerald-600">✓</span>
               <span className="font-medium">{fileName}</span>
-              <button onClick={resetFile} className="text-muted hover:text-rose transition-colors text-[11px]">✕ xóa</button>
+              <button onClick={resetFile} className="text-muted hover:text-rose transition-colors text-[11px]">✕ {t('remove')}</button>
             </div>
           )}
         </div>
@@ -561,21 +564,21 @@ export default function ImportClient() {
       {/* ── Step 4: Preview ─────────────────────────────────────── */}
       {stage !== 'idle' && allRows.length > 0 && (
         <section className="bg-paper border border-line rounded-2xl p-6">
-          <h2 className="text-[13px] font-bold text-muted uppercase tracking-wide mb-3">4. Xem trước</h2>
+          <h2 className="text-[13px] font-bold text-muted uppercase tracking-wide mb-3">{t('step4_title')}</h2>
 
           {/* Summary */}
           <div className="flex flex-wrap gap-3 mb-4">
             <div className="flex items-center gap-2 bg-cream border border-line rounded-xl px-3 py-2 text-[13px]">
-              <span className="text-muted">Tổng</span>
+              <span className="text-muted">{t('stat_total')}</span>
               <span className="font-bold text-ink">{allRows.length}</span>
             </div>
             <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2 text-[13px]">
-              <span className="text-emerald-700">✓ Hợp lệ</span>
+              <span className="text-emerald-700">✓ {t('valid')}</span>
               <span className="font-bold text-emerald-700">{validRows.length}</span>
             </div>
             {invalidRows.length > 0 && (
               <div className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-xl px-3 py-2 text-[13px]">
-                <span className="text-red-600">✗ Lỗi</span>
+                <span className="text-red-600">✗ {t('errors')}</span>
                 <span className="font-bold text-red-600">{invalidRows.length}</span>
               </div>
             )}
@@ -584,7 +587,7 @@ export default function ImportClient() {
           {/* Validation error list (max 10 shown) */}
           {invalidRows.length > 0 && (
             <div className="mb-4 bg-red-50 border border-red-200 rounded-xl p-3 max-h-[160px] overflow-y-auto">
-              <p className="text-[11px] font-bold text-red-700 uppercase tracking-wide mb-2">Danh sách lỗi</p>
+              <p className="text-[11px] font-bold text-red-700 uppercase tracking-wide mb-2">{t('error_list')}</p>
               <ul className="space-y-0.5">
                 {invalidRows.slice(0, 30).flatMap(r => r.errors).map((err, i) => (
                   <li key={i} className="text-[12px] text-red-600 flex items-start gap-1.5">
@@ -593,7 +596,7 @@ export default function ImportClient() {
                   </li>
                 ))}
                 {invalidRows.length > 30 && (
-                  <li className="text-[11px] text-red-500 italic">…và {invalidRows.length - 30} lỗi khác</li>
+                  <li className="text-[11px] text-red-500 italic">{t('and_n_more_errors', { n: invalidRows.length - 30 })}</li>
                 )}
               </ul>
             </div>
@@ -601,17 +604,17 @@ export default function ImportClient() {
 
           {/* Preview table */}
           <p className="text-[11.5px] text-muted mb-2">
-            Hiển thị {Math.min(PREVIEW_LIMIT, allRows.length)} / {allRows.length} dòng đầu tiên
+            {t('showing_first_rows', { shown: Math.min(PREVIEW_LIMIT, allRows.length), total: allRows.length })}
           </p>
           <div className="overflow-x-auto rounded-xl border border-line">
             <table className="w-full text-[12px]">
               <thead className="bg-cream border-b border-line">
                 <tr>
                   <th className="text-left px-3 py-2 text-muted font-semibold w-10">#</th>
-                  {previewCols(dataType).map(col => (
+                  {previewCols(dataType, t).map(col => (
                     <th key={col} className="text-left px-3 py-2 text-muted font-semibold whitespace-nowrap">{col}</th>
                   ))}
-                  <th className="text-left px-3 py-2 text-muted font-semibold">Trạng thái</th>
+                  <th className="text-left px-3 py-2 text-muted font-semibold">{t('col_status')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-line/40">
@@ -622,7 +625,7 @@ export default function ImportClient() {
                       ? previewCells(dataType, row.data).map((cell, ci) => (
                           <td key={ci} className="px-3 py-2 text-ink max-w-[140px] truncate" lang="ja">{cell}</td>
                         ))
-                      : previewCols(dataType).map((_, ci) => (
+                      : previewCols(dataType, t).map((_, ci) => (
                           <td key={ci} className="px-3 py-2 text-red-400">—</td>
                         ))
                     }
@@ -643,22 +646,22 @@ export default function ImportClient() {
       {/* ── Step 5: Import ───────────────────────────────────────── */}
       {stage === 'preview' && validRows.length > 0 && (
         <section className="bg-paper border border-line rounded-2xl p-6">
-          <h2 className="text-[13px] font-bold text-muted uppercase tracking-wide mb-4">5. Bắt đầu import</h2>
+          <h2 className="text-[13px] font-bold text-muted uppercase tracking-wide mb-4">{t('step5_title')}</h2>
 
           <label className="flex items-center gap-2 text-[13px] text-ink cursor-pointer mb-5">
             <input type="checkbox" checked={isPublished} onChange={e => setIsPublished(e.target.checked)} className="accent-rose" />
-            Import dạng đã xuất bản (hiển thị ngay cho người dùng)
+            {t('import_as_published')}
           </label>
 
           {invalidRows.length > 0 && (
             <div className="mb-4 text-[12.5px] text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2.5">
-              ⚠ {invalidRows.length} dòng lỗi sẽ bị bỏ qua. Chỉ import {validRows.length} dòng hợp lệ.
+              ⚠ {t('invalid_skipped_note', { invalid: invalidRows.length, valid: validRows.length })}
             </div>
           )}
 
           <button onClick={handleImport}
             className="flex items-center gap-2 bg-rose text-white text-[13px] font-semibold px-6 py-3 rounded-xl hover:bg-rose-deep transition-colors">
-            📥 Bắt đầu import {validRows.length} dòng
+            📥 {t('start_import_n', { n: validRows.length })}
           </button>
         </section>
       )}
@@ -666,7 +669,7 @@ export default function ImportClient() {
       {/* ── Progress ─────────────────────────────────────────────── */}
       {stage === 'importing' && (
         <section className="bg-paper border border-line rounded-2xl p-6">
-          <h2 className="text-[13px] font-bold text-muted uppercase tracking-wide mb-4">Đang import...</h2>
+          <h2 className="text-[13px] font-bold text-muted uppercase tracking-wide mb-4">{t('importing')}</h2>
           <div className="w-full bg-cream border border-line rounded-full h-3 overflow-hidden mb-3">
             <div
               className="h-full bg-rose rounded-full transition-all duration-300"
@@ -674,7 +677,7 @@ export default function ImportClient() {
             />
           </div>
           <p className="text-[13px] text-muted">
-            {progress.done} / {progress.total} dòng
+            {t('progress_rows', { done: progress.done, total: progress.total })}
           </p>
         </section>
       )}
@@ -682,29 +685,29 @@ export default function ImportClient() {
       {/* ── Result ───────────────────────────────────────────────── */}
       {stage === 'done' && result && (
         <section className="bg-paper border border-line rounded-2xl p-6">
-          <h2 className="text-[13px] font-bold text-muted uppercase tracking-wide mb-4">Kết quả import</h2>
+          <h2 className="text-[13px] font-bold text-muted uppercase tracking-wide mb-4">{t('import_result')}</h2>
           <div className="flex flex-wrap gap-3 mb-4">
             <div className="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 text-center">
               <div className="text-[28px] font-bold text-emerald-700">{result.success}</div>
-              <div className="text-[11px] text-emerald-600 font-semibold">Thành công</div>
+              <div className="text-[11px] text-emerald-600 font-semibold">{t('result_success')}</div>
             </div>
             {result.failed > 0 && (
               <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-center">
                 <div className="text-[28px] font-bold text-red-600">{result.failed}</div>
-                <div className="text-[11px] text-red-500 font-semibold">Thất bại (DB)</div>
+                <div className="text-[11px] text-red-500 font-semibold">{t('result_failed')}</div>
               </div>
             )}
             {result.skipped > 0 && (
               <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-center">
                 <div className="text-[28px] font-bold text-amber-600">{result.skipped}</div>
-                <div className="text-[11px] text-amber-500 font-semibold">Bỏ qua (validation)</div>
+                <div className="text-[11px] text-amber-500 font-semibold">{t('result_skipped')}</div>
               </div>
             )}
           </div>
 
           {result.errors.length > 0 && (
             <div className="bg-red-50 border border-red-200 rounded-xl p-3 max-h-[180px] overflow-y-auto mb-4">
-              <p className="text-[11px] font-bold text-red-700 uppercase tracking-wide mb-2">Lỗi DB</p>
+              <p className="text-[11px] font-bold text-red-700 uppercase tracking-wide mb-2">{t('db_errors')}</p>
               <ul className="space-y-0.5">
                 {result.errors.map((err, i) => (
                   <li key={i} className="text-[12px] text-red-600">• {err}</li>
@@ -715,7 +718,7 @@ export default function ImportClient() {
 
           <button onClick={resetFile}
             className="px-4 py-2 text-[13px] font-semibold border border-line bg-cream rounded-xl hover:bg-line transition-colors">
-            ← Import file khác
+            ← {t('import_another')}
           </button>
         </section>
       )}

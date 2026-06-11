@@ -1,0 +1,502 @@
+Total candidates: 5219
+
+大都会	だいとかい	1414600	metropolis
+大東亜共栄圏	だいとうあきょうえいけん	1414630	Greater East Asia Co-Prosperity Sphere
+大統一理論	だいとういつりろん	1414640	grand unified theory
+大統領	だいとうりょう	1414650	president (of a country)
+大統領選	だいとうりょうせん	1414660	presidential election
+大統領選挙	だいとうりょうせんきょ	1414670	presidential election
+大豆	だいず	1414680	soya bean (Glycine max)
+大同小異	だいどうしょうい	1414690	essentially the same with only minor differences
+大わらわ	おおわらわ	1414700	working feverishly
+大徳	だいとく	1414720	great virtue
+大日	だいにち	1414730	Mahavairocana (Tathagata)
+大入り	おおいり	1414740	large attendance
+大脳	だいのう	1414750	cerebrum
+大波	おおなみ	1414760	billow
+大陪審	だいばいしん	1414770	grand jury
+大麦	おおむぎ	1414780	barley (Hordeum vulgare)
+大反対	だいはんたい	1414800	strong opposition
+大瓶	おおびん	1414820	large bottle
+大部分	だいぶぶん	1414850	most part
+大風呂敷	おおぶろしき	1414860	large furoshiki
+大幅	おおはば	1414870	big
+大幅刷新	おおはばさっしん	1414880	widescale reform
+大仏	だいぶつ	1414890	large statue of Buddha (trad. at least 4.8m high)
+大分	だいぶ	1414920	considerably
+大分県	おおいたけん	1414940	Ōita Prefecture (Kyūshū)
+大文字	おおもじ	1414950	uppercase letter
+大文節	だいぶんせつ	1414970	large paragraph
+大柄	おおがら	1414980	large build
+大別	たいべつ	1414990	general classification
+大便	だいべん	1415010	feces
+大砲	たいほう	1415030	(large) gun
+大望	たいもう	1415040	aspiration
+大麻	たいま	1415060	hemp
+大枚	たいまい	1415070	large sum (of money)
+大名	だいみょう	1415080	daimyo (Japanese feudal lord)
+大木	たいぼく	1415090	large tree
+大目玉	おおめだま	1415120	good scolding
+大要	たいよう	1415130	summary
+大理石	だいりせき	1415140	marble
+大陸間弾道ミサイル	たいりくかんだんどうミサイル	1415160	Intercontinental Ballistic Missile
+大陸棚	たいりくだな	1415170	continental shelf
+大粒	おおつぶ	1415180	large drop (of rain, sweat, tears, etc.)
+大量	たいりょう	1415190	large quantity
+大量生産	たいりょうせいさん	1415200	mass production
+大量破壊兵器	たいりょうはかいへいき	1415210	weapon of mass destruction
+大和絵	やまとえ	1415220	Yamato-e (classical Japan decorative paintings)
+大和魂	やまとだましい	1415230	the Japanese spirit
+大和時代	やまとじだい	1415240	Yamato period (300-550 CE)
+大嘴	おおはし	1415250	toucan
+第	だい	1415260	prefix for forming ordinal numbers
+第一位	だいいちい	1415280	first place
+第一印象	だいいちいんしょう	1415290	first impression
+第一課	だいいっか	1415300	lesson one
+第一楽章	だいいちがくしょう	1415310	first movement (mus)
+第一章	だいいっしょう	1415320	chapter one
+第一条	だいいちじょう	1415330	first article
+第一審	だいいっしん	1415340	first hearing
+第一人者	だいいちにんしゃ	1415350	leading person
+第一部長	だいいちぶちょう	1415360	assistant chief of staff, g1
+第一歩	だいいっぽ	1415370	first step
+第三者	だいさんしゃ	1415380	third party
+第三部長	だいさんぶちょう	1415390	assistant chief of staff, g3
+第二	だいに	1415400	second
+第二次	だいにじ	1415410	the second ...
+第二次大戦	だいにじたいせん	1415420	Second World War (1939-1945)
+第二部長	だいにぶちょう	1415430	assistant chief of staff, g2
+第二量子化	だいにりょうしか	1415440	second quantisation
+第六感	だいろっかん	1415450	the sixth sense
+醍醐味	だいごみ	1415460	the real pleasure (of something)
+題材	だいざい	1415480	subject
+題名	だいめい	1415490	title
+題目	だいもく	1415500	title
+鷹	たか	1415510	hawk
+滝口	たきぐち	1415530	top of a waterfall
+滝川	たきがわ	1415540	rapids
+滝壷	たきつぼ	1415550	plunge basin
+滝登り	たきのぼり	1415560	(fish) climbing (swimming) up waterfall
+卓	たく	1415580	table
+卓越	たくえつ	1415590	preeminence
+卓越風	たくえつふう	1415600	prevailing wind
+卓球	たっきゅう	1415610	table tennis
+卓見	たっけん	1415620	excellent idea
+卓効	たっこう	1415630	great efficiency
+卓識	たくしき	1415640	clearsightedness
+卓出	たくしゅつ	1415650	excellence
+卓上	たくじょう	1415660	desktop
+卓上電話	たくじょうでんわ	1415670	desk phone
+卓説	たくせつ	1415680	excellent opinion
+卓抜	たくばつ	1415690	excellence
+卓筆	たくひつ	1415700	excellent literary work
+卓用	たくよう	1415710	desk (equipment)
+卓論	たくろん	1415720	sound argument
+卓話会	たくわかい	1415730	round table meeting or talks
+啄木鳥	きつつき	1415740	woodpecker
+宅	たく	1415750	house
+宅急便	たっきゅうびん	1415760	TA-Q-BIN (express home delivery service provided by Yamato Transport)
+宅地	たくち	1415770	building lot
+宅配	たくはい	1415780	home delivery
+宅配便	たくはいびん	1415790	express home delivery service
+托鉢	たくはつ	1415800	religious mendicancy
+択一	たくいつ	1415810	choosing one from among several
+択一的	たくいつてき	1415820	alternative
+拓殖	たくしょく	1415830	colonization
+拓本	たくほん	1415840	rubbing
+沢	さわ	1415850	mountain stream
+沢庵	たくあん	1415860	pickled daikon radish
+託つ	かこつ	1415880	to complain about
+託ける	かこつける	1415890	to use as a pretext
+託児所	たくじしょ	1415900	creche
+託宣	たくせん	1415910	oracle
+託送	たくそう	1415920	consignment
+濁り点	にごりてん	1415950	voiced consonant marks
+濁音	だくおん	1415970	syllable with a voiced consonant (in Japanese)
+濁点	だくてん	1415980	dakuten
+濁流	だくりゅう	1415990	muddy stream
+諾否	だくひ	1416000	consent or refusal
+茸	きのこ	1416010	mushroom
+凧揚げ	たこあげ	1416030	kite flying
+叩きのめす	たたきのめす	1416060	to knock down
+叩き割る	たたきわる	1416070	to smash
+叩き起こす	たたきおこす	1416080	to wake (someone) up (roughly)
+叩き出す	たたきだす	1416100	to begin to strike
+叩き消す	たたきけす	1416110	to beat out (a fire)
+叩き切る	たたききる	1416120	to hack
+叩き潰す	たたきつぶす	1416130	to (hit and) crush
+叩きつける	たたきつける	1416140	to throw violently against
+叩き伏せる	たたきふせる	1416150	to knock down
+叩き落とす	たたきおとす	1416160	to knock down
+但し	ただし	1416190	but
+但し付き	ただしづき	1416200	conditional
+達	たち	1416220	pluralizing suffix (esp. for people and animals; formerly honorific)
+達する	たっする	1416230	to reach
+達人	たつじん	1416250	master
+達成度	たっせいど	1416270	level of achievement
+達磨	だるま	1416280	daruma
+辰	たつ	1416290	the Dragon (fifth sign of the Chinese zodiac)
+辰年	たつどし	1416300	year of the Dragon
+奪い合う	うばいあう	1416310	to scramble for
+奪い取る	うばいとる	1416320	to plunder
+奪い返す	うばいかえす	1416330	to take back
+奪回	だっかい	1416350	recovery
+奪格	だっかく	1416360	ablative
+奪還	だっかん	1416370	recapture
+奪取	だっしゅ	1416380	usurpation
+脱ぎ捨てる	ぬぎすてる	1416390	to throw off (clothes)
+脱げる	ぬげる	1416410	to come off
+脱する	だっする	1416420	to escape from
+脱衣場	だついじょう	1416430	dressing room
+脱臼	だっきゅう	1416440	dislocation
+脱却	だっきゃく	1416450	ridding oneself
+脱穀	だっこく	1416460	threshing (e.g. rice)
+脱穀機	だっこくき	1416470	threshing machine
+脱獄囚	だつごくしゅう	1416480	escaped prisoner
+脱脂綿	だっしめん	1416490	absorbent cotton
+脱字	だつじ	1416500	omitted character
+脱字記号	だつじきごう	1416510	caret (symbol for omitted word)
+脱出	だっしゅつ	1416520	escape
+脱色	だっしょく	1416530	decolourization
+脱水	だっすい	1416540	dehydration (removal of water)
+脱税	だつぜい	1416550	tax evasion
+脱線	だっせん	1416560	derailment
+脱退	だったい	1416570	withdrawal (e.g. from an organization)
+脱腸	だっちょう	1416580	abdominal hernia
+脱兎のごとく	だっとのごとく	1416590	(at) high speed
+脱法行為	だっぽうこうい	1416610	evasion of the law
+脱帽	だつぼう	1416620	removing one's hat
+脱毛	だつもう	1416630	hair loss
+脱漏	だつろう	1416650	omission
+脱疽	だっそ	1416660	gangrene
+竪琴	たてごと	1416670	harp
+たどり着く	たどりつく	1416680	to (finally) arrive at
+棚上げ	たなあげ	1416730	shelving (a matter, plan, etc.)
+谷川	たにがわ	1416750	mountain stream
+谷底	たにぞこ	1416760	valley floor
+狸蕎麦	たぬきそば	1416780	soba with tempura batter
+鱈	たら	1416790	gadid (any fish of the family Gadidae, incl. cod, haddock, whiting and pollack)
+たら子	たらこ	1416800	cod roe (roe of any fish from family Gadidae, esp. salted walleye pollack roe)
+鱈腹	たらふく	1416810	(eating or drinking) to one's heart's content
+誰か	だれか	1416840	someone
+誰でも	だれでも	1416850	anyone
+断固	だんこ	1419600	firm
+断固抗議	だんここうぎ	1419610	firm opposition
+断行	だんこう	1419620	decisive action
+断罪	だんざい	1419630	judgment (of a crime)
+断種	だんしゅ	1419640	sterilization
+断食	だんじき	1419650	fasting
+断水	だんすい	1419660	suspension of water supply
+断線	だんせん	1419680	disconnection
+断層	だんそう	1419700	fault
+断続	だんぞく	1419710	intermittence
+断腸	だんちょう	1419720	heartbreak
+断腸の思い	だんちょうのおもい	1419730	heartbroken thoughts
+断定	だんてい	1419740	conclusion
+断頭台	だんとうだい	1419750	(beheading) block
+断熱材	だんねつざい	1419760	heat insulating material
+断熱的	だんねつてき	1419770	adiabatic
+断念	だんねん	1419780	abandoning (hope, plans)
+断片	だんぺん	1419790	fragment
+断末魔	だんまつま	1419800	one's last moments
+断面	だんめん	1419810	section
+暖かい人	あたたかいひと	1419820	warmhearted person
+暖かさ	あたたかさ	1419830	warmth
+暖色	だんしょく	1419840	warm colour
+暖冬	だんとう	1419850	mild winter
+暖房	だんぼう	1419860	(indoor) heating
+暖房機	だんぼうき	1419870	heater
+暖流	だんりゅう	1419880	warm current
+暖簾	のれん	1419890	(short) curtain hung at shop entrance
+暖炉	だんろ	1419900	fireplace
+檀君	だんくん	1419910	mythical founder of Korea
+段ボール	ダンボール	1419930	(corrugated) cardboard
+段差	だんさ	1419960	difference in grades (e.g. in go, shoji, etc.)
+男っぽい	おとこっぽい	1420000	manly
+男の人	おとこのひと	1420020	man
+男らしい	おとこらしい	1420030	manly
+男泣き	おとこなき	1420050	man's weeping (esp. of someone not prone to tears)
+男根	だんこん	1420060	penis
+男子	だんし	1420070	boy
+男子高	だんしこう	1420080	boys' high school
+男子用	だんしよう	1420090	for men
+男爵	だんしゃく	1420100	baron
+男女	だんじょ	1420110	men and women
+男女同権	だんじょどうけん	1420120	equal rights among men and women
+男娼	だんしょう	1420130	male prostitute
+男色	だんしょく	1420140	male homosexuality
+男親	おとこおや	1420150	father
+男性	だんせい	1420160	man
+男性用	だんせいよう	1420170	for use by men
+男前	おとこまえ	1420180	handsome man
+男装	だんそう	1420190	disguising oneself as a man
+男尊女卑	だんそんじょひ	1420200	male domination of women
+男風呂	おとこぶろ	1420210	men's bath
+男便所	おとこべんじょ	1420220	men's toilet
+男優	だんゆう	1420230	(male) actor
+談じ込む	だんじこむ	1420240	to have a talk with
+談合	だんごう	1420260	bid rigging
+談笑	だんしょう	1420270	friendly chat
+値安	ねやす	1420290	cheap
+値遇	ちぐう	1420300	being appreciated by one's employer
+値積もり	ねづもり	1420310	estimation
+値切る	ねぎる	1420320	to drive a bargain
+値増し	ねまし	1420330	price hike
+値段表	ねだんひょう	1420350	price list
+値段付け	ねだんづけ	1420360	pricing at
+値動き	ねうごき	1420370	price movement
+知ったかぶり	しったかぶり	1420380	pretending to know
+知らせる	しらせる	1420410	to notify
+知らない	しらない	1420420	unknown
+知らない間に	しらないあいだに	1420430	before one knows it
+知り合う	しりあう	1420450	to get to know each other
+知り始める	しりはじめる	1420460	to begin to know
+知る限り	しるかぎり	1420480	as far as I know
+知れ渡る	しれわたる	1420500	to become widely known
+知覚	ちかく	1420510	perception
+知遇	ちぐう	1420520	favour
+知恵	ちえ	1420530	wisdom
+知恵を絞る	ちえをしぼる	1420540	to rack one's brain
+知恵者	ちえしゃ	1420550	wise man
+知見	ちけん	1420560	knowledge
+知己	ちき	1420570	acquaintance
+知識工学	ちしきこうがく	1420600	knowledge engineering
+知識表現	ちしきひょうげん	1420610	knowledge representation
+知性	ちせい	1420630	intelligence
+知性的	ちせいてき	1420640	intellectual
+知的	ちてき	1420650	intellectual
+知的財産	ちてきざいさん	1420660	intellectual property
+知的所有権	ちてきしょゆうけん	1420670	intellectual property rights
+知能	ちのう	1420680	intelligence
+知名	ちめい	1420690	well-known
+知名度	ちめいど	1420700	degree of familiarity
+知命	ちめい	1420710	age 50
+知力	ちりょく	1420720	intellectual power
+地が出る	じがでる	1420740	to reveal one's true colors (colours)
+地でいく	じでいく	1420750	to do for real
+地べた	じべた	1420770	ground
+地位	ちい	1420780	(social) position
+地衣	ちい	1420790	lichen
+地域時刻	ちいきじこく	1420810	local time
+地域的分布	ちいきてきぶんぷ	1420820	regional distribution
+地域紛争	ちいきふんそう	1420830	regional conflict
+地下げ	じさげ	1420850	decreasing land prices
+地下化	ちかか	1420860	burying
+地下街	ちかがい	1420870	underground shopping center
+地下茎	ちかけい	1420880	underground stem
+地下道	ちかどう	1420910	subterranean tunnel
+地下二階	ちかにかい	1420920	second basement level
+地価	ちか	1420930	the price of land
+地殻	ちかく	1420940	(Earth's) crust
+地殻変動	ちかくへんどう	1420950	diastrophism (movement and deformation of the earth's crust)
+地すべり	じすべり	1420960	landslide
+地球	ちきゅう	1420970	Earth
+地球規模	ちきゅうきぼ	1420990	global scale
+地球儀	ちきゅうぎ	1421000	Earth globe (model)
+地球物理学	ちきゅうぶつりがく	1421010	geophysics
+地区	ちく	1421020	district
+地形図	ちけいず	1421040	topographic map
+地検	ちけん	1421050	District Public Prosecutor's Office
+地元	じもと	1421060	home area
+地元警察	じもとけいさつ	1421070	local police
+地元紙	じもとし	1421080	local newspaper
+地裁	ちさい	1421100	district court
+地誌	ちし	1421110	topography
+地軸	ちじく	1421120	earth's axis
+地質	ちしつ	1421130	geological features
+地質学	ちしつがく	1421140	geology
+地主	じぬし	1421150	landowner
+地酒	じざけ	1421160	local sake
+地所	じしょ	1421170	estate
+地上	ちじょう	1421180	above ground
+地上げ	じあげ	1421190	buying up plots of land
+地上げ屋	じあげや	1421200	land shark
+地震	じしん	1421210	earthquake
+地震学	じしんがく	1421220	seismology
+地震学者	じしんがくしゃ	1421230	seismologist
+地震計	じしんけい	1421240	seismograph
+地震国	じしんこく	1421250	earthquake-prone country
+地震帯	じしんたい	1421260	earthquake zone
+地震探鉱	じしんたんこう	1421270	seismic mineral exploration
+地震雷火事親父	じしんかみなりかじおやじ	1421280	things to fear: earthquakes, thunder, fires and, most of all, fathers
+地図	ちず	1421290	map
+地勢	ちせい	1421300	topography
+地租	ちそ	1421310	land tax
+地蔵	じぞう	1421330	Kshitigarbha (bodhisattva who looks over children, travellers and the underworld)
+地対空	ちたいくう	1421340	surface-to-air
+地対地	ちたいち	1421350	surface-to-surface (missile, etc.)
+地帯	ちたい	1421360	zone
+地代	ちだい	1421370	land rent
+地点	ちてん	1421380	spot
+地頭	じとう	1421390	lord of a manor
+地道	じみち	1421400	steady
+地平	ちへい	1421430	level ground
+地方債	ちほうさい	1421460	municipal bond
+地方裁判所	ちほうさいばんしょ	1421470	district court
+地方時	ちほうじ	1421480	local time
+地名	ちめい	1421500	place name
+地面	じめん	1421510	ground
+地雷原	じらいげん	1421530	minefield
+地理	ちり	1421540	geography
+地理学	ちりがく	1421550	geography
+地力	ちりょく	1421560	fertility
+恥	はじ	1421590	shame
+恥じらう	はじらう	1421600	to feel shy
+恥じ入る	はじいる	1421620	to feel deeply ashamed (of)
+恥ずかしがる	はずかしがる	1421640	to be shy of
+恥を忍ぶ	はじをしのぶ	1421650	to abide one's shame
+恥骨	ちこつ	1421660	pubis
+恥辱	ちじょく	1421670	disgrace
+恥毛	ちもう	1421690	pubic hair
+痴漢	ちかん	1421710	molester
+痴情	ちじょう	1421720	being struck mad by love
+痴人	ちじん	1421730	dunce
+痴態	ちたい	1421740	foolishness
+痴呆	ちほう	1421750	dementia
+稚気	ちき	1421760	childishness
+稚魚	ちぎょ	1421770	fry
+稚児	ちご	1421780	infant
+稚鰤	わらさ	1421800	middle-sized Japanese amberjack (species of yellowtail, Seriola quinqueradiata)
+置き引き	おきびき	1421810	walking off with someone's bag
+中心的	ちゅうしんてき	1424600	central
+中心的役割	ちゅうしんてきやくわり	1424610	central role
+中心点	ちゅうしんてん	1424620	center
+中震	ちゅうしん	1424630	moderate earthquake
+中水道	ちゅうすいどう	1424640	gray-water system
+中数	ちゅうすう	1424650	mean
+中枢神経系統	ちゅうすうしんけいけいとう	1424670	central nervous system
+中枢性	ちゅうすうせい	1424680	central (nervous system)
+中世	ちゅうせい	1424690	Middle Ages (in Japan esp. the Kamakura and Muromachi periods)
+中世史	ちゅうせいし	1424700	medieval history
+中性子	ちゅうせいし	1424720	neutron
+中性洗剤	ちゅうせいせんざい	1424730	neutral detergent
+中正	ちゅうせい	1424740	impartiality
+中西部	ちゅうせいぶ	1424760	middle west
+中積み	なかづみ	1424770	loading in the middle
+中折り	なかおり	1424780	folded in the middle
+中折れ帽	なかおれぼう	1424800	felt hat
+中折れ帽子	なかおれぼうし	1424810	felt hat
+中絶	ちゅうぜつ	1424820	abortion
+中前	ちゅうぜん	1424830	front of center field
+中ソ	ちゅうソ	1424850	China and the Soviet Union
+中速	ちゅうそく	1424860	intermediate gear
+中尊	ちゅうぞん	1424870	central image (e.g. in a Buddha triad)
+中退	ちゅうたい	1424880	leaving school during a term
+中隊	ちゅうたい	1424890	company
+中断	ちゅうだん	1424900	interruption
+中段	ちゅうだん	1424910	half-way up a slope or stairway
+中だるみ	なかだるみ	1424920	slump
+中柱	なかばしら	1424930	middle pillar
+中長期	ちゅうちょうき	1424940	mid-to-long term
+中通り	ちゅうどおり	1424950	medium quality
+中通り	なかどおり	1424960	intermediate street
+中低	なかびく	1424970	hollow
+中庭	なかにわ	1424980	courtyard
+中ほど	なかほど	1424990	(about) middle
+中天	ちゅうてん	1425000	mid-air
+中点	ちゅうてん	1425010	middle point
+中塗り	なかぬり	1425020	intermediate coat of paint or lacquer
+中途	ちゅうと	1425030	halfway
+中途退学	ちゅうとたいがく	1425040	leaving school during a term
+中砥	なかと	1425060	medium-grade millstone
+中島	なかじま	1425070	island in a pond or river
+中東	ちゅうとう	1425080	Middle East
+中等	ちゅうとう	1425090	second grade
+中等学校	ちゅうとうがっこう	1425100	secondary school
+中等教育	ちゅうとうきょういく	1425110	secondary education
+中等教員	ちゅうとうきょういん	1425120	secondary teachers
+中堂	ちゅうどう	1425130	main temple building
+中道派	ちゅうどうは	1425150	middle-of-the-roaders
+中毒	ちゅうどく	1425160	poisoning
+中南米	ちゅうなんべい	1425170	Central and South America
+中二階	ちゅうにかい	1425180	mezzanine floor
+中肉	ちゅうにく	1425190	medium build
+中肉中背	ちゅうにくちゅうぜい	1425200	medium build
+中日	ちゅうにち	1425210	China and Japan
+中日	なかび	1425220	middle day (of a sumo tournament, theatrical run, etc.)
+中入り	なかいり	1425230	intermission (during a play, sumo, etc.)
+中年	ちゅうねん	1425240	middle-age
+中年者	ちゅうねんもの	1425250	middle-aged person
+中年増	ちゅうどしま	1425260	woman approaching middle age
+中脳	ちゅうのう	1425270	midbrain
+中農	ちゅうのう	1425280	middle-class farmer
+中波	ちゅうは	1425290	medium wave
+中波長	ちゅうはちょう	1425300	medium wave
+中破	ちゅうは	1425310	medium damage
+中背	ちゅうぜい	1425320	average height
+中判	ちゅうばん	1425330	medium size
+中半	ちゅうはん	1425340	middle
+中飯	ちゅうはん	1425350	the noonday meal
+中盤	ちゅうばん	1425360	middle stage
+中盤戦	ちゅうばんせん	1425370	the midst of a campaign
+中瓶	ちゅうびん	1425380	medium-sized bottle (of beer)
+中部	ちゅうぶ	1425390	center
+中部アフリカ	ちゅうぶアフリカ	1425400	Central Africa
+中部太平洋	ちゅうぶたいへいよう	1425410	Central Pacific
+中幅	ちゅうはば	1425420	medium-width cloth (approx. 45 cm wide)
+中っ腹	ちゅうっぱら	1425430	anger (held in check)
+中腹	ちゅうふく	1425440	halfway up (down) a mountain
+中分	ちゅうぶん	1425460	dividing into two halves
+中柄	ちゅうがら	1425470	medium size
+中米	ちゅうべい	1425480	Central America
+中保	ちゅうほ	1425490	mediation
+中帽	なかぼう	1425500	helmet
+中幕	なかまく	1425510	middle act
+中庸	ちゅうよう	1425520	middle way
+中葉	ちゅうよう	1425530	about the middle (of an era)
+中立	ちゅうりつ	1425540	neutrality
+中立国	ちゅうりつこく	1425550	neutral country
+中立性	ちゅうりつせい	1425560	neutrality
+中立地帯	ちゅうりつちたい	1425570	neutral zone
+中立面	ちゅうりつめん	1425580	neutral plane
+中略	ちゅうりゃく	1425590	omission (of middle part of a text)
+中流	ちゅうりゅう	1425600	mid-stream
+中流社会	ちゅうりゅうしゃかい	1425630	middle class
+中力粉	ちゅうりきこ	1425640	all-purpose flour
+中労委	ちゅうろうい	1425650	Central Labor Relations Committee
+中老	ちゅうろう	1425660	middle age
+中和	ちゅうわ	1425670	neutralization
+中刳り	なかぐり	1425680	boring
+中ぐり盤	なかぐりばん	1425690	boring machine
+中夭	ちゅうよう	1425700	dying young
+仲	なか	1425710	relation
+仲がいい	なかがいい	1425720	close
+仲違い	なかたがい	1425730	falling out (with)
+仲夏	ちゅうか	1425740	midsummer
+仲介	ちゅうかい	1425750	agency
+仲介者	ちゅうかいしゃ	1425760	mediator
+仲介物	ちゅうかいぶつ	1425770	intermediary
+中間	ちゅうげん	1425780	samurai's attendant
+仲間はずれ	なかまはずれ	1425800	being left out
+仲間割れ	なかまわれ	1425810	split among friends
+仲間値段	なかまねだん	1425820	trade price
+仲間同士	なかまどうし	1425830	peers
+仲間入り	なかまいり	1425840	joining (a group)
+仲間褒め	なかまぼめ	1425850	mutual admiration
+仲居	なかい	1425860	waitress (in a ryokan or traditional restaurant)
+仲兄	ちゅうけい	1425870	the younger of two elder brothers
+仲裁裁判所	ちゅうさいさいばんしょ	1425910	court of arbitration
+仲裁者	ちゅうさいしゃ	1425920	arbitrator
+仲裁人	ちゅうさいにん	1425930	arbitrator
+仲春	ちゅうしゅん	1425940	second month of the lunar calendar
+仲人	なこうど	1425960	matchmaker
+仲人口	なこうどぐち	1425970	matchmaker's story
+中値	なかね	1425990	medium or average price
+仲冬	ちゅうとう	1426010	eleventh month of the lunar calendar
+仲働き	なかばたらき	1426020	maid (not working in the kitchen or living quarters)
+仲買	なかがい	1426030	brokerage
+仲買人	なかがいにん	1426040	broker
+仲保	ちゅうほ	1426050	mediation
+仲睦まじい	なかむつまじい	1426060	harmonious
+仲立ち	なかだち	1426070	mediation
+仲立人	なかだちにん	1426080	middleman
+仲良く	なかよく	1426090	on good terms (with)
+宙返り	ちゅうがえり	1426110	somersault
+忠義	ちゅうぎ	1426120	loyalty
+忠孝	ちゅうこう	1426130	loyalty and filial piety
+忠告	ちゅうこく	1426140	advice
+忠臣蔵	ちゅうしんぐら	1426160	(story of the) Forty-seven Rōnin
+忠誠	ちゅうせい	1426170	loyalty
+抽出	ちゅうしゅつ	1426180	extraction
+抽象	ちゅうしょう	1426190	abstraction
+抽象美術	ちゅうしょうびじゅつ	1426210	abstract art

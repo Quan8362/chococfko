@@ -1,0 +1,502 @@
+Total candidates: 5636
+
+鶏舎	けいしゃ	1253000	poultry house
+鶏頭	けいとう	1253010	silver cock's comb (Celosia argentea, esp. crested cock's comb, Celosia argentea var. cristata)
+鶏肉	とりにく	1253020	chicken meat
+鶏鳴	けいめい	1253030	crowing of a cock
+鶏卵	けいらん	1253040	hen's egg
+芸者	げいしゃ	1253050	geisha
+芸術作品	げいじゅつさくひん	1253080	work of art
+芸術的	げいじゅつてき	1253090	artistic
+芸人	げいにん	1253100	(TV) comedian
+芸大	げいだい	1253110	university of arts
+芸能界	げいのうかい	1253140	show business
+芸風	げいふう	1253160	performing style
+芸名	げいめい	1253170	stage name
+迎え	むかえ	1253180	meeting
+迎え撃つ	むかえうつ	1253200	to meet (the enemy) and attack
+迎え酒	むかえざけ	1253210	hair of the dog
+迎え入れる	むかえいれる	1253220	to show in
+迎撃	げいげき	1253230	intercept
+迎撃機	げいげきき	1253240	interceptor
+迎合	げいごう	1253250	ingratiation
+迎賓館	げいひんかん	1253260	reception hall (esp. for visiting state dignitaries)
+鯨	クジラ	1253270	whale (Cetacea spp.)
+鯨飲	げいいん	1253280	drinking hard
+鯨肉	げいにく	1253290	whale meat
+鯨油	げいゆ	1253300	whale oil
+劇	げき	1253310	drama
+劇映画	げきえいが	1253320	film drama
+劇化	げきか	1253330	dramatization
+劇界	げきかい	1253340	the stage
+劇剤	げきざい	1253350	powerful medicine
+劇作	げきさく	1253360	playwriting
+劇作家	げきさっか	1253370	playwright
+劇詩	げきし	1253380	dramatic poem
+激臭	げきしゅう	1253390	pungent smell
+劇暑	げきしょ	1253400	severe heat
+劇場通い	げきじょうがよい	1253420	attending shows
+劇団	げきだん	1253450	troupe
+劇壇	げきだん	1253460	the stage
+劇談	げきだん	1253470	talk on drama
+劇通	げきつう	1253480	dramatic expert
+劇道	げきどう	1253500	drama
+劇毒	げきどく	1253510	deadly poison
+劇評	げきひょう	1253520	drama criticism
+劇文学	げきぶんがく	1253530	dramatic literature
+劇薬	げきやく	1253540	powerful medicine
+打ち合う	うちあう	1253560	to hit each other
+撃つ	うつ	1253570	to shoot (a gun, person, etc.)
+撃砕	げきさい	1253580	pulverising
+撃退	げきたい	1253590	repulse
+撃沈	げきちん	1253600	(attacking and) sinking (a ship)
+撃墜	げきつい	1253610	shooting down (an aircraft)
+撃破	げきは	1253620	defeating
+撃滅	げきめつ	1253630	destruction
+激化	げきか	1253640	intensification
+激賞	げきしょう	1253660	high praise
+激戦	げきせん	1253680	fierce battle
+激闘	げきとう	1253710	fierce fighting
+激動	げきどう	1253720	violent shock
+激突	げきとつ	1253730	crash
+激発	げきはつ	1253740	fit
+激流	げきりゅう	1253750	raging stream
+桁橋	けたばし	1253810	girder bridge
+傑士	けっし	1253850	great man
+傑出	けっしゅつ	1253860	being outstanding
+傑人	けつじん	1253870	outstanding person
+傑物	けつぶつ	1253880	great person
+欠かす	かかす	1253890	to miss (doing)
+欠く	かく	1253900	to chip
+欠け	かけ	1253910	fragment
+欠員	けついん	1253930	vacant position
+欠課	けっか	1253940	cutting class
+欠勤	けっきん	1253960	absence (from work)
+欠勤届	けっきんとどけ	1253970	report of an absence (at work)
+欠航	けっこう	1253980	cancellation (of a flight or sea voyage)
+欠字	けつじ	1253990	omission of a character
+欠除	けつじょ	1254000	removal
+欠伸	あくび	1254010	yawn
+欠席届	けっせきとどけ	1254030	report of a school absence
+欠損	けっそん	1254040	deficit
+欠番	けつばん	1254070	missing number
+欠文	けつぶん	1254080	piece of writing with a missing part
+欠落	けつらく	1254110	lack
+欠礼	けつれい	1254120	failure to pay one's compliments
+決して	けっして	1254130	(not) ever
+決まりきった	きまりきった	1254150	fixed
+きまり悪い	きまりわるい	1254160	embarrassed
+決まり文句	きまりもんく	1254170	set phrase
+決め付ける	きめつける	1254210	to fix upon (one-sidedly)
+決壊	けっかい	1254230	burst (e.g. dam, embankment, levee)
+決議	けつぎ	1254240	resolution
+決行	けっこう	1254250	doing (with resolve)
+決済	けっさい	1254260	settlement (of an account)
+決済手段	けっさいしゅだん	1254270	method of payment
+決裁	けっさい	1254280	sanction
+決死	けっし	1254300	preparedness for death
+決死隊	けっしたい	1254310	suicide corps
+決勝	けっしょう	1254320	decision of a contest
+決勝戦	けっしょうせん	1254330	championship game
+決戦	けっせん	1254350	decisive battle
+決然	けつぜん	1254360	decisive
+決定権	けっていけん	1254390	right to decide
+決闘	けっとう	1254410	duel
+決別	けつべつ	1254420	separation
+決裂	けつれつ	1254430	breakdown (of talks, negotiations, etc.)
+潔癖	けっぺき	1254470	fastidiousness
+穴だらけにする	あなだらけにする	1254500	to fill with holes
+穴ぼこ	あなぼこ	1254510	hole
+穴開け器	あなあけき	1254520	(hole) punch
+穴居	けっきょ	1254530	cave dwelling
+穴居人	けっきょじん	1254540	cave dweller
+穴熊	あなぐま	1254550	badger
+穴子	あなご	1254560	conger eel (esp. the common Japanese conger, Conger myriaster)
+穴場	あなば	1254570	good place not many people know about
+穴蔵	あなぐら	1254580	cellar
+結び合わせる	むすびあわせる	1254620	to tie
+結びつき	むすびつき	1254630	connection
+結びつく	むすびつく	1254640	to be related
+結び目	むすびめ	1254660	knot
+結わえる	ゆわえる	1254680	to bind
+結果論	けっかろん	1254700	hindsight-based opinion
+結核	けっかく	1254710	tuberculosis
+結球	けっきゅう	1254720	head (of cabbage, lettuce, etc.)
+結言	けつげん	1254740	summary
+結語	けつご	1254750	conclusion
+結合子	けつごうし	1254780	association
+結婚指輪	けっこんゆびわ	1254800	wedding ring
+結婚祝い	けっこんいわい	1254820	wedding present
+結婚披露宴	けっこんひろうえん	1254830	wedding reception banquet
+結社	けっしゃ	1254840	association
+結社の自由	けっしゃのじゆう	1254850	freedom of association
+結集	けっしゅう	1254860	concentration (of efforts, forces, etc.)
+結晶系	けっしょうけい	1254880	system of crystallization
+結審	けっしん	1254890	conclusion of trial
+結成	けっせい	1254900	formation
+結石	けっせき	1254910	calculus
+結節	けっせつ	1254920	knot
+結託	けったく	1254940	conspiracy
+結腸	けっちょう	1254950	colon
+結党	けっとう	1254960	formation of a (political) party
+結納	ゆいのう	1254970	traditional Japanese engagement ceremony involving ritual gift exchange between families
+結髪	けっぱつ	1254980	hairdressing
+結膜	けつまく	1254990	conjunctiva
+結膜炎	けつまくえん	1255000	conjunctivitis
+結紮	けっさつ	1255030	ligation
+結紮糸	けっさつし	1255040	ligature
+結紮術	けっさつじゅつ	1255050	ligature
+血の巡りが悪い	ちのめぐりがわるい	1255070	dim-witted
+血の巡りの悪い	ちのめぐりのわるい	1255080	dim-witted
+血も涙もない	ちもなみだもない	1255090	cold-blooded
+血を引く	ちをひく	1255100	to be descended from
+血液ガス	けつえきガス	1255130	blood gases
+血液凝固	けつえきぎょうこ	1255140	blood clotting
+血液循環	けつえきじゅんかん	1255160	blood circulation
+血縁	けつえん	1255170	blood relationship
+血眼	ちまなこ	1255190	bloodshot eyes
+血気	けっき	1255200	vigor
+血球	けっきゅう	1255210	blood cell
+血筋	ちすじ	1255220	lineage
+血行	けっこう	1255230	circulation (of the blood)
+血行障害	けっこうしょうがい	1255240	disturbance (blockage) of blood flow
+血痕	けっこん	1255250	bloodstain
+血祭り	ちまつり	1255260	killing an enemy soldier before the start of a battle to raise spirits
+血小板	けっしょうばん	1255270	platelet
+血色	けっしょく	1255280	complexion
+血色素	けっしきそ	1255290	red blood pigment
+血清	けっせい	1255300	serum
+血相	けっそう	1255310	expression
+血族	けつぞく	1255320	blood relative
+血族関係	けつぞくかんけい	1255330	consanguinity
+血潮	ちしお	1255340	spurt of blood
+血糖	けっとう	1255350	blood sugar
+血統	けっとう	1255360	lineage
+血豆	ちまめ	1255370	blood blister
+血肉	けつにく	1255380	blood relative
+血餅	けっぺい	1255390	(blood) clot
+血友病	けつゆうびょう	1255400	hemophilia
+血涙	けつるい	1255410	bitter tears
+検討委員会	けんとういいんかい	1258010	investigative commission
+検尿	けんにょう	1258020	urinalysis
+検波	けんぱ	1258030	detection (e.g. of radio waves)
+検便	けんべん	1258040	stool (feces) examination
+検問	けんもん	1258050	inspection
+検問所	けんもんじょ	1258060	check station
+検量線	けんりょうせん	1258070	calibration curve
+権	けん	1258080	right (to do something)
+権威	けんい	1258090	authority
+権益	けんえき	1258100	(one's) interests
+権化	ごんげ	1258110	incarnation (of Buddha or bodhisattva)
+権原	けんげん	1258120	origin of rights
+権限	けんげん	1258130	power
+権勢	けんせい	1258140	power
+権能	けんのう	1258150	authority
+権柄	けんぺい	1258160	power
+権柄ずく	けんぺいずく	1258170	overbearing
+権謀	けんぼう	1258180	scheme
+権謀術数	けんぼうじゅっすう	1258190	trickery
+権利行使	けんりこうし	1258210	exercise of a right
+権力	けんりょく	1258220	(political) power
+権力闘争	けんりょくとうそう	1258230	power struggle
+牽引	けんいん	1258240	traction
+牽引車	けんいんしゃ	1258250	tractor
+牽引力	けんいんりょく	1258260	pulling power
+牽強	けんきょう	1258270	distortion of facts
+牽強付会	けんきょうふかい	1258280	strained (argument, interpretation, etc.)
+牽制球	けんせいきゅう	1258300	pickoff throw
+牽束	けんそく	1258310	restraint
+牽連	けんれん	1258320	related to
+犬猿の仲	けんえんのなか	1258340	like cats and dogs
+犬歯	けんし	1258350	eyetooth
+犬舎	けんしゃ	1258360	kennel
+犬儒学派	けんじゅがくは	1258370	Cynic school
+犬小屋	いぬごや	1258380	kennel
+犬かき	いぬかき	1258390	dog paddle (swimming style)
+犬張子	いぬはりこ	1258400	papier-mâché dog
+犬追物	いぬおうもの	1258410	inuoumono
+献金	けんきん	1258420	donation
+献血	けんけつ	1258430	blood donation
+献上	けんじょう	1258440	presenting (to)
+献身	けんしん	1258450	devotion
+献体	けんたい	1258460	body donation
+献呈	けんてい	1258470	presentation
+献呈本	けんていぼん	1258480	presentation book
+献納	けんのう	1258490	offering
+研学	けんがく	1258510	study
+研究チーム	けんきゅうチーム	1258530	research team
+研究員	けんきゅういん	1258540	researcher
+研究会	けんきゅうかい	1258550	research society
+研究開発	けんきゅうかいはつ	1258560	research and development
+研究室	けんきゅうしつ	1258570	laboratory
+研究者	けんきゅうしゃ	1258590	researcher
+研究生	けんきゅうせい	1258600	research student
+研究発表	けんきゅうはっぴょう	1258610	research publication
+研究分野	けんきゅうぶんや	1258620	research area
+研究論文	けんきゅうろんぶん	1258630	research paper
+研削	けんさく	1258640	grinding
+研削盤	けんさくばん	1258650	grinder
+研修員	けんしゅういん	1258670	trainee
+研修課	けんしゅうか	1258680	training section
+研修生	けんしゅうせい	1258690	trainee
+研鑽	けんさん	1258700	diligent study
+絹	きぬ	1258710	silk
+絹織物	きぬおりもの	1258730	silk goods
+絹針	きぬばり	1258740	needle for silkwork
+絹地	きぬじ	1258750	silk fabrics
+絹布	けんぷ	1258760	silk
+絹本	けんぽん	1258770	silk canvas
+絹綿	きぬわた	1258780	silk floss
+絹目	きぬめ	1258790	matte finish (e.g. of photographs)
+絹さや	きぬさや	1258800	snow pea
+県	けん	1258810	prefecture (of Japan)
+県営	けんえい	1258820	(under) prefectural management
+県下	けんか	1258830	in the prefecture
+県会	けんかい	1258840	prefectural assembly
+県議	けんぎ	1258850	prefectural assembly member
+県警	けんけい	1258860	prefectural police
+県知事	けんちじ	1258870	prefectural governor
+県庁	けんちょう	1258880	prefectural office
+県庁所在地	けんちょうしょざいち	1258890	prefectural capital
+県道	けんどう	1258900	prefectural road
+県内	けんない	1258910	within the prefecture
+県民	けんみん	1258920	resident of a prefecture
+県民会館	けんみんかいかん	1258930	prefectural meeting hall
+県立	けんりつ	1258940	prefectural
+肩をすくめる	かたをすくめる	1258970	to shrug one's shoulders
+肩を持つ	かたをもつ	1258980	to side with (someone)
+肩寄せる	かたよせる	1258990	to be (standing) together, an arm across the other's shoulder
+肩こり	かたこり	1259000	stiff neck
+肩巾	ひれ	1259010	shawl (on shoulder of woman's dress)
+肩車	かたぐるま	1259020	giving someone a ride on one's shoulders
+肩章	けんしょう	1259030	shoulder mark
+肩身	かたみ	1259040	shoulders
+肩身が狭い	かたみがせまい	1259050	feeling ashamed
+肩身が広い	かたみがひろい	1259060	(feeling) proud
+肩先	かたさき	1259070	(top of) shoulder
+肩当て	かたあて	1259080	shoulder pad
+肩入れ	かたいれ	1259090	support
+肩部	けんぶ	1259100	shoulder
+肩幅	かたはば	1259110	shoulder width (breadth)
+見え透く	みえすく	1259150	to be transparent
+見かけ上	みかけじょう	1259160	apparent
+見くびる	みくびる	1259170	to underrate
+見すぼらしい	みすぼらしい	1259180	shabby
+見せしめ	みせしめ	1259190	(making a) lesson (of)
+見せびらかす	みせびらかす	1259200	to show off
+見せ掛け	みせかけ	1259220	seeming
+見せつける	みせつける	1259230	to make a display of
+見て取る	みてとる	1259260	to perceive
+見やる	みやる	1259280	to look at
+見違える	みちがえる	1259300	to mistake (for something or someone else)
+見逸れる	みそれる	1259310	to fail to recognize
+見栄を張る	みえをはる	1259320	to be pretentious
+見越す	みこす	1259330	to anticipate
+見猿	みざる	1259340	see-no-evil monkey (one of the three wise monkeys)
+見下げる	みさげる	1259350	to look down over
+見下す	みくだす	1259360	to look down (on)
+見下ろす	みおろす	1259370	to overlook
+見果てる	みはてる	1259380	to see through to the finish
+見回す	みまわす	1259400	to look around
+見開き	みひらき	1259410	(two-page) spread
+見開く	みひらく	1259420	to open (one's eyes) wide
+見覚える	みおぼえる	1259430	to remember
+見学	けんがく	1259440	inspection
+見学者	けんがくしゃ	1259450	visitor (to a factory, school, lab., etc.)
+見間違い	みまちがい	1259460	misjudgement
+見間違える	みまちがえる	1259470	to misperceive visually
+見境	みさかい	1259480	distinction
+見計らう	みはからう	1259510	to choose at one's own discretion
+見誤る	みあやまる	1259520	to mistake (for something or someone else)
+見交わす	みかわす	1259530	to exchange glances
+見向く	みむく	1259540	to look around
+見合い	みあい	1259550	(formal) meeting with a view to marriage
+お見合い	おみあい	1259555	(formal) meeting with a view to marriage
+見頃	みごろ	1259590	best time to see
+見殺し	みごろし	1259600	letting (someone) die without helping
+見参	けんざん	1259610	seeing
+見識	けんしき	1259630	views
+見失う	みうしなう	1259640	to lose sight of
+見捨てる	みすてる	1259660	to abandon
+見者	けんしゃ	1259670	sightseer
+見受ける	みうける	1259690	to catch sight of
+見習う	みならう	1259700	to follow (someone's) example
+見出し語	みだしご	1259720	headword (in a dictionary)
+見上げる	みあげる	1259740	to look up at
+見据える	みすえる	1259750	to stare fixedly at
+見すます	みすます	1259760	to observe carefully
+見晴らす	みはらす	1259780	to command a view
+見積もる	みつもる	1259790	to estimate
+見積書	みつもりしょ	1259800	written estimate
+見損ねる	みそこねる	1259850	to miss seeing
+見知らぬ	みしらぬ	1259860	strange
+見地	けんち	1259870	point of view
+見張る	みはる	1259880	to stand watch
+見直し	みなおし	1259890	review
+見当がつかない	けんとうがつかない	1259940	having not the slightest idea
+見当たる	みあたる	1259950	to be found
+見透かす	みすかす	1259960	to see through (a lie, scheme, etc.)
+見納め	みおさめ	1259970	last look
+見抜く	みぬく	1259980	to see through
+見物人	けんぶつにん	1260010	spectator
+見分ける	みわける	1260020	to distinguish
+見聞	けんぶん	1260030	information
+見聞き	みきき	1260040	information
+見方によって	みかたによって	1260080	depending on how you look at it
+見飽きる	みあきる	1260090	to get tired of seeing
+見本市	みほんいち	1260110	trade fair
+見目良い	みめよい	1260120	good-looking
+見優り	みまさり	1260130	compare favourably
+見劣り	みおとり	1260160	unfavourable comparison
+見咎める	みとがめる	1260170	to find fault with
+謙称	けんしょう	1260200	self-deprecating term
+謙譲	けんじょう	1260210	modesty
+謙譲の美徳	けんじょうのびとく	1260220	modest virtue
+謙遜	けんそん	1260240	modesty
+謙遜語	けんそんご	1260250	humble language
+賢才	けんさい	1260270	man of ability
+賢者	けんじゃ	1260280	wise person
+幻滅	げんめつ	1263010	disillusionment
+幻惑	げんわく	1263020	fascination
+弦音	つるおと	1263030	sound of vibrating bowstring
+弦楽	げんがく	1263050	music for strings
+弦楽器	げんがっき	1263060	string instrument
+弦楽五重奏曲	げんがくごじゅうそうきょく	1263070	string quintet
+弦楽四重奏曲	げんがくしじゅうそうきょく	1263080	string quartet
+弦月	げんげつ	1263090	half-moon
+減圧	げんあつ	1263130	decompression
+減価	げんか	1263140	price reduction
+減価償却	げんかしょうきゃく	1263150	depreciation
+減額	げんがく	1263160	reduction (esp. in price or cost)
+減刑	げんけい	1263170	reduction of penalty
+減産	げんさん	1263180	decrease in production
+減資	げんし	1263190	reduction of capital
+減収	げんしゅう	1263200	fall
+減少	げんしょう	1263210	decrease
+減食	げんしょく	1263220	cutting down on food intake
+減衰	げんすい	1263230	attenuation
+減衰器	げんすいき	1263240	attenuator
+減数	げんすう	1263250	decreasing in number
+減税	げんぜい	1263260	tax reduction
+減速	げんそく	1263270	deceleration
+減退	げんたい	1263280	decline
+減点	げんてん	1263290	subtracting points
+減配	げんぱい	1263300	reduction in a dividend
+減反	げんたん	1263310	reduction (of crop size)
+減俸	げんぽう	1263320	salary reduction
+減法	げんぽう	1263330	subtraction
+減免	げんめん	1263340	reduction and exemption (e.g. taxes)
+減量	げんりょう	1263350	loss in weight (esp. body weight)
+源	みなもと	1263360	source (of a river)
+源氏物語	げんじものがたり	1263370	The Tale of Genji (Heian-period classic)
+源泉	げんせん	1263380	source (of a spring, etc.)
+源流	げんりゅう	1263390	source (e.g. of a river)
+玄関先	げんかんさき	1263410	entrance
+玄関番	げんかんばん	1263420	doorkeeper
+玄孫	げんそん	1263440	great-great-grandchild
+玄麦	げんばく	1263450	unpolished wheat or barley
+玄武岩	げんぶがん	1263460	basalt
+玄米	げんまい	1263470	unpolished rice
+玄米茶	げんまいちゃ	1263480	green tea with roasted brown rice
+現に	げんに	1263500	actually
+現価	げんか	1263520	current price
+現況	げんきょう	1263530	present condition
+現業	げんぎょう	1263540	on-site work
+現金引き出し	げんきんひきだし	1263560	cash withdrawal
+現金及び預金	げんきんおよびよきん	1263570	cash on hand and in banks
+現金自動支払機	げんきんじどうしはらいき	1263580	cash dispenser
+現金自動預払機	げんきんじどうあずけばらいき	1263590	automatic teller machine
+現金自動預金支払機	げんきんじどうよきんしはらいき	1263600	automatic teller machine
+現金正価	げんきんせいか	1263610	cash price
+現金払い	げんきんばらい	1263620	cash payment
+現行	げんこう	1263630	present
+現在のところ	げんざいのところ	1263660	at the present time
+現在地	げんざいち	1263670	present location
+現時代	げんじだい	1263680	the present era
+現時点	げんじてん	1263690	present point (i.e. in history)
+現実	げんじつ	1263710	reality
+現実主義	げんじつしゅぎ	1263720	realism
+現実的	げんじつてき	1263730	realistic
+現住所	げんじゅうしょ	1263740	(present) address
+現象	げんしょう	1263750	phenomenon
+現状	げんじょう	1263770	present condition
+現職	げんしょく	1263780	present post
+現世	げんせ	1263790	this world
+現像	げんぞう	1263800	development (of film)
+現代	げんだい	1263810	present age
+現代科学	げんだいかがく	1263820	present-day science
+現代詩	げんだいし	1263830	modern poetry
+現代人	げんだいじん	1263840	modern person
+現代文明	げんだいぶんめい	1263850	modern civilization
+現地駐在員	げんちちゅうざいいん	1263870	employee resident at an overseas work location
+現物	げんぶつ	1263880	actual article or goods
+現役	げんえき	1263890	active duty
+現用	げんよう	1263900	currently used
+絃声	げんせい	1263920	sound of the strings
+弦線	げんせん	1263930	catgut
+舷側	げんそく	1263940	ship's side
+言いなりになる	いいなりになる	1263950	to do exactly what one is told to do
+言い回し	いいまわし	1263960	expression
+言い改める	いいあらためる	1263970	to correct oneself
+言い開く	いいひらく	1263980	to justify
+言い含める	いいふくめる	1263990	to explain clearly
+言い寄る	いいよる	1264000	to court
+言い及ぶ	いいおよぶ	1264010	to refer to
+言交わす	いいかわす	1264020	to have a chat with
+言い込める	いいこめる	1264030	to talk down
+言い散らす	いいちらす	1264040	to spread (a report)
+言い捨てる	いいすてる	1264050	to say (something) over one's shoulder
+言い習わす	いいならわす	1264060	to say as a tradition
+言いふらす	いいふらす	1264090	to spread (e.g. a rumor)
+言い争う	いいあらそう	1264110	to quarrel
+言い草	いいぐさ	1264120	remarks
+言い送る	いいおくる	1264130	to send a message
+言い足す	いいたす	1264140	to say something additional
+言い替えるなら	いいかえるなら	1264160	if we put this another way
+言い伝える	いいつたえる	1264180	to hand down (a story, legend, etc.)
+言い当てる	いいあてる	1264200	to guess right
+言い抜ける	いいぬける	1264210	to explain away
+言い表す	いいあらわす	1264220	to express (in words)
+言い負かす	いいまかす	1264240	to defeat (someone) in an argument
+言い紛らす	いいまぎらす	1264260	to equivocate
+言い聞かす	いいきかす	1264270	to tell
+言い募る	いいつのる	1264300	to argue vehemently
+言い暮らす	いいくらす	1264310	to pass the time talking
+言い放つ	いいはなつ	1264320	to declare
+言い方	いいかた	1264330	way of saying (something)
+言うまでもない	いうまでもない	1264350	goes without saying
+言ったって	いったって	1264360	even if I told you
+言わぬが花	いわぬがはな	1264370	some things are better left unsaid
+言わば	いわば	1264380	so to speak
+言わ猿	いわざる	1264390	say-no-evil monkey (one of the three wise monkeys)
+言外	げんがい	1264400	unexpressed
+言及	げんきゅう	1264410	reference
+言語	げんご	1264420	language
+言語学	げんごがく	1264430	linguistics
+言語学者	げんごがくしゃ	1264440	linguist
+言語道断	ごんごどうだん	1264450	outrageous
+言語特有	げんごとくゆう	1264460	language specific
+言行	げんこう	1264470	speech and behaviour (behavior)
+言行一致	げんこういっち	1264480	acting up to one's words
+言質	げんち	1264490	commitment
+言説	げんせつ	1264500	remark
+言伝	ことづて	1264510	(oral) message
+言動	げんどう	1264520	speech and conduct
+言明	げんめい	1264530	declaration
+実行に移る	じっこうにうつる	1264550	to put into action
+言葉遣い	ことばづかい	1264560	speech
+言霊	ことだま	1264570	mystical power inherent in words
+言論	げんろん	1264580	(one's) speech
+言論を封殺する	げんろんをふうさつする	1264590	to suppress the freedom of speech
+諺	ことわざ	1264600	proverb
+限りない	かぎりない	1264620	unlimited
+限りなく	かぎりなく	1264630	unlimitedly
+限界点	げんかいてん	1264660	threshold
+限定	げんてい	1264670	limit
+限定的	げんていてき	1264680	limited
+限度	げんど	1264690	limit
+限度額	げんどがく	1264700	limit (amount, e.g. on credit card, loan, expenditure)
+ヲコト点	をことてん	1264720	diacritical marks used for interpreting classical Chinese
+個	こ	1264740	counter for (small) things or pieces
+個人	こじん	1264770	individual
+個人タクシー	こじんタクシー	1264780	privately owned taxi

@@ -1,0 +1,502 @@
+Total candidates: 1494
+
+犯罪率	はんざいりつ	2000000	crime rate
+皮膚炭疽	ひふたんそ	2000020	cutaneous anthrax
+皮膚潰瘍	ひふかいよう	2000030	skin ulcer
+避妊ピル	ひにんピル	2000040	contraceptive pill
+非常事態政府	ひじょうじたいせいふ	2000060	emergency government
+非常任理事国	ひじょうにんりじこく	2000070	non-permanent member (UN Security Council)
+非常用対策案	ひじょうようたいさくあん	2000080	contingency plan
+非対称戦争	ひたいしょうせんそう	2000100	asymmetric war
+非定型肺炎	ひていけいはいえん	2000110	atypical pneumonia
+飛沫感染	ひまつかんせん	2000120	droplet infection
+微生物分解	びせいぶつぶんかい	2000130	biodegradation
+美容整形手術	びようせいけいしゅじゅつ	2000140	cosmetic surgery
+漂流難民	ひょうりゅうなんみん	2000160	boat people
+評価引当金	ひょうかひきあてきん	2000170	valuation allowance
+病原性大腸菌	びょうげんせいだいちょうきん	2000180	pathogenic E. coli bacteria (i.e. Escherichia coli O157:H7)
+貧困線	ひんこんせん	2000190	poverty line
+不安障害	ふあんしょうがい	2000200	anxiety disorder
+不況型倒産	ふきょうがたとうさん	2000210	recession-induced bankruptcy
+不交付	ふこうふ	2000220	not granted
+不在者投票	ふざいしゃとうひょう	2000230	absentee ballot | absentee voting
+不支持率	ふしじりつ	2000240	disapproval rating
+不信任決議	ふしんにんけつぎ	2000250	vote of censure | vote of no confidence
+不信任動議	ふしんにんどうぎ	2000260	censure motion
+不正スタート	ふせいスタート	2000270	false start
+不正会計	ふせいかいけい	2000280	accounting fraud | irregular accounting
+不正会計処理	ふせいかいけいしょり	2000290	improper bookkeeping
+不妊治療	ふにんちりょう	2000310	infertility treatment
+不要会社	ふようがいしゃ	2000320	commutative justice | justitia commutativa
+不良債権処理	ふりょうさいけんしょり	2000330	disposal of bad loans
+婦女暴行	ふじょぼうこう	2000350	sexual assault (of a woman) | rape
+普通社債	ふつうしゃさい	2000360	straight bond | SB
+負債総額	ふさいそうがく	2000390	aggregate amount of indebtedness
+負債比率	ふさいひりつ	2000400	debt ratio
+武器査察	ぶきささつ	2000410	weapons inspection
+武器輸出禁止	ぶきゆしゅつきんし	2000420	arms embargo
+武力攻撃	ぶりょくこうげき	2000430	armed attack
+風薫る	かぜかおる	2000440	(subject to the) cool light breeze in early summer
+風力タービン	ふうりょくタービン	2000460	wind turbine | windmill
+副大統領候補	ふくだいとうりょうこうほ	2000470	vice-presidential candidate | running mate
+福利厚生費	ふくりこうせいひ	2000480	welfare expense
+複製防止技術	ふくせいぼうしぎじゅつ	2000490	anticopying technology
+複占	ふくせん	2000500	duopoly
+払込資本	はらいこみしほん	2000510	paid-in capital
+分だけ	ぶんだけ	2000520	in proportion to | just as much as
+分別ゴミ	ぶんべつゴミ	2000530	dividing up rubbish into burnable and non-burnable
+粉飾決算	ふんしょくけっさん	2000540	fraudulent accounting | window-dressing settlement of accounts | creative accounting
+文具	ぶんぐ	2000550	stationery
+文明諸国	ぶんめいしょこく	2000560	civilized world | civilised world
+文明世界	ぶんめいせかい	2000570	civilized world | civilised world
+兵站支援	へいたんしえん	2000580	logistical support
+平均月収	へいきんげっしゅう	2000590	average monthly salary
+平和維持部隊	へいわいじぶたい	2000600	peacekeeping force
+平和主義憲法	へいわしゅぎけんぽう	2000610	pacifist constitution
+米国預託証券	べいこくよたくしょうけん	2000620	American depositary receipt | ADR
+偏執症患者	へんしつしょうかんじゃ	2000630	paranoid (person)
+変性疾患	へんせいしっかん	2000640	degenerative disease
+弁護士費用	べんごしひよう	2000650	legal fee
+保育施設	ほいくしせつ	2000660	child-rearing facility
+保険制度	ほけんせいど	2000670	insurance regime
+保護政策	ほごせいさく	2000680	protectionism
+歩兵師団	ほへいしだん	2000690	infantry division
+補筆	ほひつ	2000710	retouch | correction | improvement
+放火殺人	ほうかさつじん	2000750	murder-arson
+放射線医学	ほうしゃせんいがく	2000760	radiology
+放射線治療	ほうしゃせんちりょう	2000770	radiation therapy
+放射線被曝	ほうしゃせんひばく	2000780	radiation exposure
+放射能攻撃	ほうしゃのうこうげき	2000790	radiological attack
+放射能漏れ	ほうしゃのうもれ	2000800	radiation leakage
+放送権	ほうそうけん	2000810	broadcasting rights
+放送免許	ほうそうめんきょ	2000820	broadcast license | broadcast licence
+法科大学院	ほうかだいがくいん	2000830	law school
+法史学	ほうしがく	2000840	legal history (studies)
+法制史学	ほうせいしがく	2000850	legal history (studies)
+法秩序	ほうちつじょ	2000860	legal order
+法廷証言	ほうていしょうげん	2000870	court testimony
+法的行為	ほうてきこうい	2000880	legal action
+飽和市場	ほうわいちば	2000900	saturated market
+亡命希望者	ぼうめいきぼうしゃ	2000910	asylum seeker
+傍論	ぼうろん	2000920	digression | dicta | dictums
+暴力団抗争	ぼうりょくだんこうそう	2000930	gangland war
+貿易保険	ぼうえきほけん	2000940	trade insurance
+防衛能力	ぼうえいのうりょく	2000950	defense capability | defence capability
+防弾ガラス	ぼうだんガラス	2000960	bulletproof glass
+卜骨	ぼっこつ	2000970	fortune-telling using animal bones
+勃起障害	ぼっきしょうがい	2000980	erectile dysfunction | ED
+本社移転	ほんしゃいてん	2000990	headquarter shift
+本真	ほんま	2001000	truth | reality
+魔術的経済学	まじゅつてきけいざいがく	2001030	voodoo economics
+埋め立てゴミ	うめたてゴミ	2001040	landfill waste
+慢性疾患	まんせいしっかん	2001060	chronic disease | chronic illness
+未公開株式	みこうかいかぶしき	2001070	private equity
+未払いローン	みはらいローン	2001080	outstanding loan
+民間部門	みんかんぶもん	2001100	private sector
+民主改革	みんしゅかいかく	2001110	democratic reform
+民主主義国家	みんしゅしゅぎこっか	2001120	democratic nation | democratic country
+無印	むじるし	2001130	unlabeled | unbranded
+無印商品	むじるししょうひん	2001140	unbranded goods
+無菌性髄膜炎	むきんせいずいまくえん	2001150	aseptic meningitis
+無血革命	むけつかくめい	2001160	bloodless revolution
+無言電話	むごんでんわ	2001170	silent phone call (form of harassment)
+無効票	むこうひょう	2001180	spoilt vote | faulty ballot
+無罪放免	むざいほうめん	2001190	acquittal
+無政府状態	むせいふじょうたい	2001200	anarchy | state of anarchy
+無担保債務	むたんぽさいむ	2001220	unsecured debt
+無党派層	むとうはそう	2001230	unaffiliated voters | floating voters | swinging voters
+無法状態	むほうじょうたい	2001240	lawlessness
+免疫系	めんえきけい	2001270	immune system
+免疫細胞	めんえきさいぼう	2001280	immune cell
+綿パン	めんパン	2001290	cotton pants
+目ぼしい	めぼしい	2001300	notable | important | chief | valuable | conspicuous | outstanding
+問責決議	もんせきけつぎ	2001310	(decision to) censure (as issued by the upper house of parliament)
+問題債権	もんだいさいけん	2001320	problem loans
+夜間着陸訓練	やかんちゃくりくくんれん	2001330	night landing practice | NLP
+野党指導者	やとうしどうしゃ	2001340	opposition leader
+野党連合	やとうれんごう	2001350	opposition alliance
+薬草療法	やくそうりょうほう	2001360	herbal therapy
+薬物検査	やくぶつけんさ	2001370	drug test
+薬物使用	やくぶつしよう	2001380	drug use
+薬物治療	やくぶつちりょう	2001390	drug treatment | drug therapy | pharmacotherapy | medication
+薬物統制	やくぶつとうせい	2001400	drug control
+薬物不法所持	やくぶつふほうしょじ	2001410	drug possession
+薬物乱用	やくぶつらんよう	2001420	substance abuse | drug abuse | drug misuse
+油田掘削施設	ゆでんくっさくしせつ	2001430	oil rig
+輸出関連株	ゆしゅつかんれんかぶ	2001440	export-related shares
+有機ゴミ	ゆうきゴミ	2001460	organic waste
+有機汚染物質	ゆうきおせんぶっしつ	2001470	organic pollutant
+有機水銀	ゆうきすいぎん	2001480	organic mercury
+有権解釈	ゆうけんかいしゃく	2001490	authoritative interpretation (of a law) | binding interpretation
+有効成分	ゆうこうせいぶん	2001500	active ingredient
+有罪答弁	ゆうざいとうべん	2001510	guilty plea
+有線テレビ	ゆうせんテレビ	2001520	closed-circuit television | community antenna television | CATV | pay TV
+予算削減	よさんさくげん	2001530	budget cut
+予算配分	よさんはいぶん	2001540	budgetary allocation
+予防的治療	よぼうてきちりょう	2001550	prophylactic treatment
+余剰人員	よじょうじんいん	2001560	excess personnel | redundant staff
+与党連立	よとうれんりつ	2001570	ruling coalition
+預金保護	よきんほご	2001590	bank deposit guarantee
+預金保証	よきんほしょう	2001600	bank deposit guarantee
+預金利率	よきんりりつ	2001610	deposit interest rate
+預貯金残高	よちょきんざんだか	2001620	bank balance
+幼児死亡率	ようじしぼうりつ	2001630	infant mortality rate
+様子見ムード	ようすみムード	2001650	wait-and-see mood
+羊水穿刺	ようすいせんし	2001670	amniocentesis
+要求払い預金	ようきゅうはらいよきん	2001680	demand deposit
+利益幅	りえきはば	2001700	profit margin
+利子支払い	りししはらい	2001710	interest payment
+裏取引	うらとりひき	2001730	backroom deal
+流動性預金	りゅうどうせいよきん	2001750	liquid deposit
+留保利益	りゅうほりえき	2001760	retained earnings
+旅行保険	りょこうほけん	2001770	travel insurance
+量的緩和	りょうてきかんわ	2001780	quantitative easing
+量的金融緩和	りょうてききんゆうかんわ	2001790	quantitative easing
+領空侵犯	りょうくうしんぱん	2001800	airspace incursion | airspace violation
+倫理的投資	りんりてきとうし	2001810	ethical investment
+臨界前核実験	りんかいぜんかくじっけん	2001820	subcritical nuclear experiment
+臨戦態勢	りんせんたいせい	2001830	war preparation
+累積投票	るいせきとうひょう	2001840	cumulative voting
+冷媒	れいばい	2001850	refrigerant | coolant
+劣化ウラン	れっかウラン	2001860	depleted uranium
+連結子会社	れんけつこがいしゃ	2001870	consolidated subsidiary
+連結純利益	れんけつじゅんりえき	2001880	consolidated net profit
+連結利益	れんけつりえき	2001890	consolidated profit
+連続殺人犯	れんぞくさつじんはん	2001900	serial killer
+連続放火	れんぞくほうか	2001910	a series of arson cases
+連立野党	れんりつやとう	2001920	opposition coalition party
+連立与党	れんりつよとう	2001930	ruling coalition party
+炉心溶融	ろしんようゆう	2001940	core meltdown | meltdown | nuclear reactor core meltdown
+路上犯罪	ろじょうはんざい	2001950	street crime
+労使交渉	ろうしこうしょう	2001960	labor-management negotiation | labour-management negotiation
+労働基準局	ろうどうきじゅんきょく	2001970	labor standards bureau | labour standards bureau
+労働許可証	ろうどうきょかしょう	2001980	work permit
+労働交渉	ろうどうこうしょう	2001990	labor negotiation | labour negotiation
+労働者集会	ろうどうしゃしゅうかい	2002010	labor rally | labour rally
+労働者派遣法	ろうどうしゃはけんほう	2002020	Act for Securing the Proper Operation of Worker Dispatching Undertakings and Improved Working Condit
+労働人口	ろうどうじんこう	2002030	work force
+労働問題	ろうどうもんだい	2002040	labor problem | labour problem
+労働力削減	ろうどうりょくさくげん	2002050	workforce reduction
+他人迷惑	たにんめいわく	2050000	nuisance (annoyance, inconvenience) to people around one | social nuisance
+堕落腐敗	だらくふはい	2050010	debasement | corruption | degradation
+団塊世代	だんかいせだい	2050020	the babyboomers | the baby boom generation
+弾丸飛雨	だんがんひう	2050030	hail of bullets | heavy bombardment
+単純素朴	たんじゅんそぼく	2050040	plain and simple | naive
+断章取義	だんしょうしゅぎ	2050050	interpreting (and using) a passage without regard to its context
+男性本位	だんせいほんい	2050060	male orientation | male-oriented
+耽溺生活	たんできせいかつ	2050070	a fast (dissolute) life | a life of follies | a life given to dissolute pleasures
+知育偏重	ちいくへんちょう	2050090	too much intellectual training | overemphasis on intellectual education
+地下工作	ちかこうさく	2050100	underground activities | secret maneuvering
+知行一致	ちこういっち	2050110	unity (consistency) of knowledge and action
+蟄居閉門	ちっきょへいもん	2050120	house arrest | being placed in confinement at home
+秩序整然	ちつじょせいぜん	2050130	in good order | in perfect order | orderly | well-organized
+知徳円満	ちとくえんまん	2050140	having both (wide) knowledge and (high) virtue
+知徳兼備	ちとくけんび	2050150	having both (wide) knowledge and (high) virtue
+知徳合一	ちとくごういつ	2050160	the unity of knowledge and virtue
+忠義一途	ちゅうぎいちず	2050170	staunch (steadfast, single-hearted) in one's devotion to his master (lord)
+忠義一徹	ちゅうぎいってつ	2050180	staunch (steadfast, single-hearted) in one's devotion to his master (lord)
+忠孝仁義	ちゅうこうじんぎ	2050190	loyalty, filial piety, humanity, and justice
+中道右派	ちゅうどううは	2050200	right-of-center faction (group) | center-right (centre)
+中道左派	ちゅうどうさは	2050210	left-of-center faction (group)
+中道路線	ちゅうどうろせん	2050220	moderate line | middle-of-the-road policy line
+注文相撲	ちゅうもんずもう	2050230	bout that goes according to a wrestler's strategy | match that goes according to one's plan
+忠勇無双	ちゅうゆうむそう	2050240	of peerless loyalty and bravery
+寵愛一身	ちょうあいいっしん	2050250	standing highest in one's master's favor | monopolizing the affection (favor) of the lord | being th
+朝雲暮雨	ちょううんぼう	2050260	sexual liaison | morning clouds and evening rain
+長講一席	ちょうこういっせき	2050270	(make) a long talk (discourse, lecture)
+長尺映画	ちょうじゃくえいが	2050280	long film (movie)
+長者番付	ちょうじゃばんづけ	2050290	list of the richest people | billionaires list
+超世俗的	ちょうせぞくてき	2050310	unworldly | supermundane | free from worldly cares (concerns)
+長汀曲浦	ちょうていきょくほ	2050320	long stretch of winding beach
+町人気質	ちょうにんかたぎ	2050330	townsman's (independent) spirit | mercantile spirit
+町人根性	ちょうにんこんじょう	2050340	townsman's (independent) spirit | mercantile spirit
+町人風情	ちょうにんふぜい	2050350	(the likes of) a mere tradesman
+直言直筆	ちょくげんちょくひつ	2050360	speak and write plainly (frankly) | speak and write without reserve
+千代万代	ちよよろずよ	2050370	for ever and ever | (through) eternity | countless ages | till the end of time
+沈魚落雁	ちんぎょらくがん	2050380	charms of a uniquely beautiful woman | (so beautiful that) fish stay on the bottom of water and flyi
+沈黙寡言	ちんもくかげん	2050400	taciturn | reticent
+追善興行	ついぜんこうぎょう	2050410	memorial performance | performance in memory of someone
+痛快淋漓	つうかいりんり	2050420	very thrilling | extremely delightful | awfully pleasant | intensely satisfying
+九十九髪	つくもがみ	2050430	an old woman's gray hair
+都合次第	つごうしだい	2050440	depending on the (one's) situation (circumstances) | at one's pleasure
+強気相場	つよきそうば	2050450	bull market | bullish market | strong market
+停頓状態	ていとんじょうたい	2050460	standstill | deadlock | stalemate | doldrums | stagnant conditions
+丁寧懇切	ていねいこんせつ	2050470	kind, careful, and thorough (of an explanation, advice, etc.) | thoughtful and scrupulous
+手枷足枷	てかせあしかせ	2050480	manacles | shackles | fetters
+出前講師	でまえこうし	2050500	lecturer on demand | guest speaker on demand
+天涯地角	てんがいちかく	2050510	two places being far apart
+天涯万里	てんがいばんり	2050520	very far away | the heavenly shores
+天涯比隣	てんがいひりん	2050530	a great distance does not detract from the feeling (relationship) of endearment | feeling as though 
+天下国家	てんかこっか	2050540	the world and the nation | the state of the world | high affairs of state
+天下第一	てんかだいいち	2050550	the best in the land | the best of its kind in the country | par excellence in the whole country
+天下多事	てんかたじ	2050560	eventful times for the nation (world) | the nation (world) being in turmoil | the storm clouds gathe
+天下統一	てんかとういつ	2050570	unification of the whole country
+天下万民	てんかばんみん	2050580	the whole nation | all the people in the land
+天下無類	てんかむるい	2050590	peerless (unparalleled, matchless, unequaled) in the country
+天気次第	てんきしだい	2050600	being dependent on what the weather is like
+点検商法	てんけんしょうほう	2050610	unscrupulous business practice of making sales by posing as an inspector and declaring the need for 
+電光一閃	でんこういっせん	2050620	flash of lightning
+電光朝露	でんこうちょうろ	2050630	fleeting | evanescent
+天候不順	てんこうふじゅん	2050640	unseasonable weather | fickle weather | bad weather
+店主敬白	てんしゅけいはく	2050650	Store owner, at your service | Yours truly, the Store Owner
+天上天下	てんじょうてんげ	2050660	the whole world | throughout heaven and earth
+転生輪廻	てんしょうりんね	2050670	all things being in flux through the endless circle of birth, death, and rebirth | the circle of tra
+天真流露	てんしんりゅうろ	2050690	manifestation (revelation) of one's natural sincerity (naivete)
+天孫降臨	てんそんこうりん	2050700	the descent to earth of the grandson of the sun goddess
+天地有情	てんちうじょう	2050710	the sentient world | all sentient beings
+天地晦冥	てんちかいめい	2050720	the world is covered in darkness | all is plunged into darkness
+天地玄黄	てんちげんこう	2050730	heaven is black and earth is yellow | heaven and earth
+天地長久	てんちちょうきゅう	2050740	heaven and earth are eternal
+天地鳴動	てんちめいどう	2050750	rumbling and shaking of the earth
+天敵関係	てんてきかんけい	2050760	relationship of being natural enemies
+天覧試合	てんらんじあい	2050770	game held with the Emperor in attendance
+天理人道	てんりじんどう	2050780	the laws of nature and humanity
+天理人情	てんりにんじょう	2050790	the laws of nature and humanity
+東夷西戎	とういせいじゅう	2050800	barbarians to the east and to the west (from the perspective of old China)
+韜晦趣味	とうかいしゅみ	2050810	propensity to efface oneself | being prone to conceal one's talent
+道具一式	どうぐいっしき	2050830	set of tools (implements) | kit | outfit
+道化芝居	どうけしばい	2050840	farce | low comedy
+動向把握	どうこうはあく	2050850	grasping the trend | firmly understanding how the situation is developing | getting a good sense of 
+桃紅柳緑	とうこうりゅうりょく	2050860	beautiful scenery of spring
+東西古今	とうざいここん	2050870	all times and places | everywhen and everywhere
+道心堅固	どうしんけんご	2050880	being of firm (unshakable) faith and strict practice
+当世気質	とうせいかたぎ	2050890	the way of the world in our time | the frame of mind of the people nowadays
+当代第一	とうだいだいいち	2050920	the greatest of the day
+当代無双	とうだいむそう	2050930	being unsurpassed (unparalleled) at present
+当代無比	どうだいむひ	2050940	being unsurpassed (unparalleled) at present
+到着次第	とうちゃくしだい	2050950	upon arrival of an item (items) | as soon as one arrives
+撞着矛盾	どうちゃくむじゅん	2050960	self-contradiction
+胴長短足	どうながたんそく	2050970	having a long torso and short legs | long-bodied and short-legged
+道徳堅固	どうとくけんご	2050980	of strict morals (moral principles) | highly moral
+道徳退廃	どうとくたいはい	2050990	moral decadence (decline, corruption)
+唐突千万	とうとつせんばん	2051000	very sudden | very abrupt
+党派根性	とうはこんじょう	2051010	partisan spirit (prejudice) | partisanship | factionalism
+逃亡生活	とうぼうせいかつ	2051030	life on the run
+当方負担	とうほうふたん	2051040	(at) our expense | (on) our risk
+道楽仕事	どうらくしごと	2051050	work done for enjoyment (as a diversion) | dilettante work
+道理至極	どうりしごく	2051070	very reasonable | being perfectly consistent with reason | standing to reason
+当惑気味	とうわくぎみ	2051080	being somewhat puzzled | looking somewhat baffled
+時世時節	ときよじせつ	2051090	times and situations | the course of events of the times | a turn of Fortune's wheel
+得意淡然	とくいたんぜん	2051100	not letting oneself puffed up by one's success | maintaining a serene state of mind when one has ach
+得意分野	とくいぶんや	2051110	one's field of expertise | one's strong area
+読書三到	どくしょさんとう	2051120	using mind, mouth and eyes to understand a book fully
+読書三余	どくしょさんよ	2051130	winter, night, and rainy weather | the ideal conditions for reading
+読書百遍	どくしょひゃっぺん	2051140	repeated reading (makes the meaning clear) | reading something again and again (will lead one to rea
+徳政一揆	とくせいいっき	2051150	uprising demanding debt cancellation orders (Muromachi period)
+特種記者	とくだねきしゃ	2051160	scoop reporter | scoop artist
+独立自存	どくりつじそん	2051170	independence and self-reliance
+屠蘇機嫌	とそきげん	2051180	feeling a little drunk with the New Year's sake
+屠蘇気分	とそきぶん	2051190	festive New Year's mood
+突貫作業	とっかんさぎょう	2051200	rush work | crash program | working on a crash basis | working at top speed
+突如異変	とつじょいへん	2051210	sudden and dramatic event (incident) | sudden and strange phenomenon
+殿様商売	とのさましょうばい	2051220	dilettantish business | amateurish business
+殿様商法	とのさましょうほう	2051230	amateurish way of doing business
+友達感覚	ともだちかんかく	2051250	feeling like friends | the feeling of friendship
+努力奮励	どりょくふんれい	2051260	making strenuous efforts | exerting oneself
+奴隷根性	どれいこんじょう	2051270	servile character (disposition)
+泥棒稼業	どろぼうかぎょう	2051280	professional thievery
+遁世生活	とんせいせいかつ	2051290	living in seclusion | retired from the world
+緞帳芝居	どんちょうしばい	2051300	low-class kabuki theater | low-class play
+緞帳役者	どんちょうやくしゃ	2051310	low-class actor (kabuki) | actor who plays in low-class or cheap theater
+内縁関係	ないえんかんけい	2051320	de facto marriage | common-law marriage | living together as husband and wife without formal marriag
+内外多事	ないがいたじ	2051330	things being very eventful at home and abroad
+内職商法	ないしょくしょうほう	2051340	work-at-home scheme (scam in which the offer of a highly paid work-at-home job is used to lure victi
+内部工作	ないぶこうさく	2051350	internal maneuvering | secret maneuvering (within an organization) | reconciling the various views w
+内部対立	ないぶたいりつ	2051360	internal strife | internal struggle
+内部犯行	ないぶはんこう	2051370	inside job
+内面世界	ないめんせかい	2051380	one's world within | one's inner world
+長居無用	ながいむよう	2051390	there's no point in staying (here) any longer | there's no point in prolonging a (the) visit | there
+仲間喧嘩	なかまげんか	2051400	quarrel among friends | quarrel among ourselves (themselves)
+名題役者	なだいやくしゃ	2051410	chief actor in a kabuki play | star actor | leading actors of a troupe
+鍋底景気	なべぞこけいき	2051430	lingering recession | an economy that lingers in the doldrums after bottoming out
+南無三宝	なむさんぼう	2051440	Homage to the Three Jewels (Buddha, Dharma and Sangha) | oh no! | good heavens! | oops
+成田離婚	なりたりこん	2051460	Narita divorce | divorce of a newlywed couple upon returning (to Narita Airport) from their honeymoo
+軟弱外交	なんじゃくがいこう	2051470	weak foreign policy | weak-kneed diplomacy
+軟弱路線	なんじゃくろせん	2051480	weak-hearted approach | soft line | easier way (route)
+南蛮渡来	なんばんとらい	2051490	imported to Japan by early European traders
+難問山積	なんもんさんせき	2051500	mountain (pile) of difficult problems
+苦手意識	にがていしき	2051510	awareness that one is not good at something | feelings of inferiority
+二重三重	にじゅうさんじゅう	2051520	twofold and threefold | doubled and redoubled
+二十四気	にじゅうしき	2051530	the 24 seasonal divisions of a year in the old lunar calendar
+日中勤務	にっちゅうきんむ	2051540	daytime work | day shift
+二転三転	にてんさんてん	2051550	changing again and again | seesawing back and forth | being in a state of flux
+二枚看板	にまいかんばん	2051560	the two leading actors (in a play) | the two star players | the two distinctive features | the two m
+女房孝行	にょうぼうこうこう	2051580	being devoted to one's wife | uxorious
+女房天下	にょうぼうてんか	2051590	husband being henpecked | house where the wife is the boss | petticoat government
+如実知見	にょじつちけん	2051600	perceiving reality as it is | true awareness of reality
+女人結界	にょにんけっかい	2051610	prohibition against women entering a sacred area
+如法暗夜	にょほうあんや	2051620	total (utter) darkness
+人気稼業	にんきかぎょう	2051630	popular occupation | occupation largely dependent on public favor
+人気失墜	にんきしっつい	2051640	decline in public favor | fall in popularity
+人気絶頂	にんきぜっちょう	2051650	height of one's popularity | peak of one's popularity
+人気抜群	にんきばつぐん	2051660	outstanding popularity
+人気沸騰	にんきふっとう	2051670	(enjoying) tumultuous popularity
+人間不在	にんげんふざい	2051680	being devoid of consideration for human beings
+人間不信	にんげんふしん	2051690	distrust of (other) human beings
+人間模様	にんげんもよう	2051700	fabric (pattern) of human relationships
+人情風俗	にんじょうふうぞく	2051710	manners, customs and popular sentiments
+熱血教師	ねっけつきょうし	2051730	enthusiastic schoolteacher | passionate teacher
+捏造記事	ねつぞうきじ	2051740	fabricated article | fabricated (news) story | cooked-up (news) report
+念願成就	ねんがんじょうじゅ	2051750	attainment of one's most cherished desire | one's earnest prayer being answered
+年少気鋭	ねんしょうきえい	2051760	being young and spirited | being young and full of go
+念仏往生	ねんぶつおうじょう	2051770	being reborn in the Pure Land through the invocation of the nembutsu
+年末年始	ねんまつねんし	2051780	year-end and New Year holidays (e.g. from December 29 to January 3)
+灰色高官	はいいろこうかん	2051790	high official suspected of corruption
+廃合整理	はいごうせいり	2051800	reorganization | restructuring
+買収工作	ばいしゅうこうさく	2051810	bribery scheme | acquisition maneuver
+背反行為	はいはんこうい	2051830	act of disobedience (betrayal) | violation | breach | infraction | infringement
+売名行為	ばいめいこうい	2051840	act of self-advertisement | publicity stunt
+破壊工作	はかいこうさく	2051850	sabotage | subversive activities
+場外市場	じょうがいしじょう	2051860	over-the-counter market | OTC market | retail market next to a wholesale market | outer market
+破壊分子	はかいぶんし	2051880	subversive | subversive element
+波及効果	はきゅうこうか	2051920	ripple effect | spillover effect | propagation effect
+博学多識	はくがくたしき	2051930	erudition and extensive knowledge
+白紙委任	はくしいにん	2051940	carte blanche | blank check | blank cheque | unconditional authority
+白紙還元	はくしかんげん	2051950	being returned (sent back) to the drawing board
+博識多才	はくしきたさい	2051960	wide knowledge and versatile talents | profound learning and varied attainments
+爆弾宣言	ばくだんせんげん	2051980	bombshell announcement (declaration)
+爆弾発表	ばくだんはっぴょう	2051990	bombshell announcement (statement)
+白昼公然	はくちゅうこうぜん	2052000	openly and in broad daylight
+白馬非馬	はくばひば	2052010	sophistry | sophism | false syllogism
+博覧多識	はくらんたしき	2052020	erudition and extensive knowledge | widely read and well-informed
+迫力満点	はくりょくまんてん	2052030	full impact | packing a punch
+暴露戦術	ばくろせんじゅつ	2052040	exposure tactics | muckraking tactics
+白話小説	はくわしょうせつ	2052050	novel written in colloquial Chinese
+箱物行政	はこものぎょうせい	2052060	government (public policy) focusing on the construction of public (community) buildings
+八大地獄	はちだいじごく	2052070	The Eight Greater Hells
+跋扈跳梁	ばっこちょうりょう	2052080	evildoers being rampant and roaming at will
+抜山蓋世	ばつざんがいせい	2052090	great strength and energy (of a mighty hero) | Herculean strength and vitality
+十七条憲法	じゅうしちじょうけんぽう	2100000	The Seventeen-Article Constitution
+延喜式	えんぎしき	2100010	Engi-Shiki (set of ancient Japanese governmental regulations)
+平将門の乱	たいらのまさかどのらん	2100020	Taira-no-Masakado Rebellion (939-940 CE)
+後漢	ごかん	2100030	Later Han dynasty (of China; 25-220 CE) | Eastern Han dynasty | Later Han dynasty (of China; 947-950
+太政大臣	だいじょうだいじん	2100040	Grand Minister | Chancellor of the Realm
+長篠の戦い	ながしののたたかい	2100050	Battle of Nagashino (1575)
+天保の大飢饉	てんぽうのだいききん	2100060	Great Tempo Famine
+大日本帝国	だいにっぽんていこく	2100090	Empire of Japan (Japan's official name under the Meiji Constitution)
+甲午農民戦争	こうごのうみんせんそう	2100100	Donghak Peasant Revolution (Korea; 1894-1895)
+下関条約	しものせきじょうやく	2100110	Treaty of Shimonoseki (1895)
+秦	しん	2100140	Qin dynasty (of China; 221-207 BCE) | Ch'in dynasty
+オスマン朝	オスマンちょう	2100160	Ottoman (Osmanli) dynasty
+イラン革命	イランかくめい	2100180	Iranian Revolution (1978)
+享保の改革	きょうほうのかいかく	2100190	Kyōhō Reforms (1736 economic reforms)
+盧溝橋事件	ろこうきょうじけん	2100200	Marco Polo Bridge Incident (July 7, 1937)
+国民新党	こくみんしんとう	2100210	Kokumin Shinto | People's New Party (Japanese political party)
+蕭索	しょうさく	2100220	lonely
+喊声	かんせい	2100230	battle cry | war cry
+つと	つと	2100240	quickly | calmly | intently
+蔵する	ぞうする	2100250	to store | to contain
+顆	か	2100260	condyle | counter for grains and small spheres
+すすり込む	すすりこむ	2100270	to slurp noisily
+咳く	せく	2100290	to cough
+鬢	びん	2100300	sidelocks | hair at the temples
+風呂敷包み	ふろしきづつみ	2100310	something wrapped in a furoshiki
+外光	がいこう	2100320	light from outside | natural light
+フランス革命	フランスかくめい	2100350	French Revolution (1789-1799)
+大統領補佐官	だいとうりょうほさかん	2100370	presidential aide
+過ちを犯す	あやまちをおかす	2100380	to make an error
+使命感	しめいかん	2100390	sense of duty | sense of purpose | vocation
+御成敗式目	ごせいばいしきもく	2100400	Formulary of Adjudications (51-article Joei legal code)
+映像作家	えいぞうさっか	2100420	filmmaker
+終助詞	しゅうじょし	2100450	sentence-ending particle (e.g. "ka", "na", "yo", "kashira")
+話	わ	2100460	counter for stories, episodes of TV series, etc.
+寒々しい	さむざむしい	2100470	bleak | chilly | dreary
+核燃料化	かくねんりょうか	2100480	(nuclear fuel) enrichment
+刺激薬	しげきやく	2100490	stimulant | irritant
+今週末	こんしゅうまつ	2100500	this weekend
+を通して	をとおして	2100520	through | throughout | through (the good offices of) | by way of
+出世コース	しゅっせコース	2100530	career track | promotional track | fast track | upward mobility
+国づくり	くにづくり	2100560	nation building
+地方都市	ちほうとし	2100580	provincial city | provincial town | suburban city | regional towns and cities
+尾ける	つける	2100600	to follow (someone) | to shadow | to tail | to stalk
+示準化石	しじゅんかせき	2100610	index fossil | zone fossil | guide fossil | indicator fossil
+打ち始める	うちはじめる	2100630	to begin (emphatically) | to launch | to embark on
+統幕会議	とうばくかいぎ	2100650	Joint Staff Council
+約束を守る	やくそくをまもる	2100680	to keep a promise | to keep one's word
+約束を破る	やくそくをやぶる	2100690	to break a promise | to go back on one's word | to renege
+約束破る	やくそくやぶる	2100700	to break a promise | to go back on one's word | to renege
+かも知れん	かもしれん	2100710	may | might | perhaps | may be | possibly
+仲が悪い	なかがわるい	2100720	on bad terms | at loggerheads
+勃つ	たつ	2100730	to have an erection | to become erect
+とすれば	とすれば	2100740	then | if so | if
+としたら	としたら	2100750	if it happens that | if we make ... | if we take ... | if we assume ... | what if ...?
+となれば	となれば	2100760	where ... is concerned | when it becomes | if it becomes
+となったら	となったら	2100770	where ... is concerned | when it becomes | if it becomes
+予約を取る	よやくをとる	2100790	to make an appointment | to make a reservation
+クオンツ分析	クオンツぶんせき	2100810	quantitative analysis (esp. financial)
+クオンツ運用	クオンツうんよう	2100820	quantitative investment management
+挿れる	いれる	2100850	to insert (usu. as part of sexual intercourse)
+こちらの話	こちらのはなし	2100860	matter being discussed (e.g. in a private conversation) | our side of the story (in contrast to anot
+ホラを吹く	ほらをふく	2100870	to boast | to brag | to talk big
+ホラ話	ほらばなし	2100880	tall story | tall tale | cock-and-bull story | bullshit
+御徒面子	おかちめんこ	2100890	(woman's) ugly or homely face | old bag
+となる	となる	2100900	to become | to be
+耐久商品	たいきゅうしょうひん	2100910	durable (consumer) goods
+毘盧遮那	びるしゃな	2100920	Vairocana (Buddha who symbolizes the entirety of the phenomenological world)
+遮那	しゃな	2100930	Mahavairocana (Bodhisattva)
+波風が立つ	なみかぜがたつ	2100950	to be discordant | to have discord
+波風を立てる	なみかぜをたてる	2100960	to make trouble | to make waves | to cause discord
+黙示的	もくしてき	2100970	implied | implicit
+星人	せいじん	2100990	person from (the planet of)
+ある意味で	あるいみで	2101010	in a sense | in some way | to an extent
+ある意味では	あるいみでは	2101020	in a sense | in some way | to an extent
+州法	しゅうほう	2101030	state law (e.g. in the US) | state statute
+教科書問題	きょうかしょもんだい	2101080	controversy over school textbooks (i.e. history texts avoiding reference to Japanese military, etc. 
+脱構築	だつこうちく	2101120	deconstruction
+氏	し	2101130	Mr | Mrs | Ms | Miss | clan | he | him | counter for people
+全財産	ぜんざいさん	2101150	everything one owns
+二次配布	にじはいふ	2101160	redistribution
+ついつい	ついつい	2101170	unintentionally | unconsciously | by mistake | heedlessly | against one's better judgement (judgment
+ガリ専	ガリせん	2101220	person physically attracted to thin people
+外専	がいせん	2101230	gaijin hunter | person who only dates (non-Asian) foreigners
+名祖	なおや	2101250	eponym (person after whom something is named)
+冠名	かんめい	2101260	particular word that an owner includes in the names of their racehorses
+自然資源	しぜんしげん	2101280	natural resources
+ねぶた祭り	ねぶたまつり	2101350	Nebuta Festival (in Aomori, August 2-7)
+佞武多	ねぶた	2101360	Nebuta | nighttime festival in Tōhoku (esp. Aomori)
+爪ヤスリ	つめヤスリ	2101370	nail file
+甲斐路	かいじ	2101380	bright red table grape, a cross between a Flame Tokay and a Neo Muscat
+断尾	だんび	2101390	cropping a tail
+元気を出す	げんきをだす	2101410	to cheer up
+顔を出す	かおをだす	2101420	to turn up | to make an appearance | to put in an appearance | to drop by
+専門性	せんもんせい	2101430	specialization | specialty | speciality | expertise
+副助詞	ふくじょし	2101450	adverbial particle (e.g. "bakari", "nado", "kurai", "hodo")
+霖雨	りんう	2101460	long spell of rain
+私雨	わたくしあめ	2101470	local rainfall (esp. at the top of a mountain) | isolated showers
+集客交流	しゅうきゃくこうりゅう	2101490	hospitality (industry)
+青緑	あおみどり	2101510	blue-green | turquoise | aqua | spirogyra | algae forming pond scum
+補助定理	ほじょていり	2101540	lemma
+括弧閉じ	かっことじ	2101550	closing bracket | closing parenthesis
+ブチ切れ	ぶちぎれ	2101560	blowing one's top | losing it | flipping out
+申請人	しんせいにん	2101570	applicant
+宣誓人	せんせいじん	2101590	affiant (person who executes an affidavit)
+生り物	なりもの	2101600	farm products | harvest | crop | fruit | berries | fruit tree
+板絵	いたえ	2101610	artwork on wood, canvas, metal sheet, etc.
+木板	もくはん	2101620	wooden board | woodblock | woodblock printing
+木印	もくいん	2101630	carved wooden seal
+得てして	えてして	2101640	often (happens) | tend to | be apt to | be likely to
+皇籍	こうせき	2101650	membership of the Imperial family
+都々逸	どどいつ	2101690	dodoitsu | unrhymed non-metrical Japanese popular love song or limerick in the 7-7-7-5 syllable patt
+杏仁豆腐	あんにんどうふ	2101710	(Chinese-style) almond jelly | dessert of powdered and jellied apricot kernels with fruit
+最後の最後	さいごのさいご	2101720	the last moment | the very end
+心打たれる	こころうたれる	2101730	to be (deeply) touched by | to be struck by
+社会福祉法人	しゃかいふくしほうじん	2101750	social welfare service corporation
+膣液	ちつえき	2101760	vaginal secretion (during arousal) | vaginal lubricant
+膣分泌液	ちつぶんぴつえき	2101770	vaginal secretion (during arousal) | vaginal lubricant
+基本理念	きほんりねん	2101780	basic principle | fundamental principle
+国家間	こっかかん	2101800	cross-national
+社会保障費	しゃかいほしょうひ	2101810	cost of social security | social welfare spending
+目的税	もくてきぜい	2101820	earmarked tax | special-purpose tax
+がさごそ	がさごそ	2101830	rustling (sound)
+がたん	がたん	2101860	with a bang | with a crash | with a bump | with a jolt | suddenly (fall) | sharply
+がっぽがっぽ	がっぽがっぽ	2101890	in large quantities
+我鳴る	がなる	2101910	to yell | to shout | to scream | to bawl
+がばっと	がばっと	2101930	suddenly | all of a sudden | quickly | emphatically | energetically
+がぶ飲み	がぶのみ	2101940	swigging | gulping down | guzzling | quaffing
+がぶる	がぶる	2101950	to pitch (e.g. a boat) | to force out an opponent
+がぼがぼ	がぼがぼ	2101960	squelching | gurgling | bubbling | raking in (money) | rolling in | hand over fist
+殻	がら	2101970	chicken bones (e.g. for soup) | chicken carcass | poor-quality coke (coal) | left-overs | remnants
+がらんがらん	がらんがらん	2101990	clanging
+味を占める	あじをしめる	2102010	to be encouraged by initial success | to get a taste for | to yearn for more
+足を運ぶ	あしをはこぶ	2102020	to go (to) | to make one's way (to) | to visit
+今をときめく	いまをときめく	2102130	at the height of one's power or influence | at the peak of one's popularity

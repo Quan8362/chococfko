@@ -1,0 +1,302 @@
+Total candidates: 1339
+
+鶏舎	けいしゃ	1253000	poultry house
+鶏頭	けいとう	1253010	silver cock's comb (Celosia argentea, esp. crested cock's comb, Celosia argentea var. cristata)
+鶏肉	とりにく	1253020	chicken meat | fowl | poultry | bird meat
+鶏鳴	けいめい	1253030	crowing of a cock | crowing of a rooster | cockcrow | dawn | daybreak | hour of the Ox (around 2am)
+鶏卵	けいらん	1253040	hen's egg
+芸者	げいしゃ	1253050	geisha | professional female entertainer, usu. at traditional banquets
+芸術家	げいじゅつか	1253070	artist
+芸術作品	げいじゅつさくひん	1253080	work of art | artwork | objet d'art
+芸術的	げいじゅつてき	1253090	artistic
+芸大	げいだい	1253110	university of arts | arts college
+芸当	げいとう	1253120	performance | trick | feat | stunt | extraordinary deed | daring act | bold move
+芸能界	げいのうかい	1253140	show business | entertainment industry | world of entertainment
+芸能人	げいのうじん	1253150	entertainer | performer | celebrity | entertainment personality
+芸風	げいふう	1253160	performing style | acting style
+芸名	げいめい	1253170	stage name
+迎え	むかえ	1253180	meeting | greeting | welcome | person sent to meet a visitor
+迎え撃つ	むかえうつ	1253200	to meet (the enemy) and attack | to engage (the approaching enemy) | to confront | to intercept
+迎え酒	むかえざけ	1253210	hair of the dog | morning drink to get rid of a hangover
+迎え入れる	むかえいれる	1253220	to show in | to usher in
+迎撃	げいげき	1253230	intercept | interception | counter-attack
+迎撃機	げいげきき	1253240	interceptor | interceptor aircraft
+迎合	げいごう	1253250	ingratiation | pandering | catering (to) | going along with (someone or something) | accommodating o
+迎賓館	げいひんかん	1253260	reception hall (esp. for visiting state dignitaries) | guest house | State Guest House (esp. Akasaka
+鯨	クジラ	1253270	whale (Cetacea spp.)
+鯨飲	げいいん	1253280	drinking hard | drinking like a fish
+鯨肉	げいにく	1253290	whale meat
+鯨油	げいゆ	1253300	whale oil
+劇	げき	1253310	drama | play | powerful drug
+劇映画	げきえいが	1253320	film drama
+劇化	げきか	1253330	dramatization | dramatisation
+劇界	げきかい	1253340	the stage | theatrical world
+劇剤	げきざい	1253350	powerful medicine | violent poison
+劇作	げきさく	1253360	playwriting
+劇作家	げきさっか	1253370	playwright | dramatist
+劇詩	げきし	1253380	dramatic poem | dramatic poetry | dramatic verse
+激臭	げきしゅう	1253390	pungent smell | sharp smell | strong odor (odour)
+劇暑	げきしょ	1253400	severe heat | intense heat | oppressive heat
+劇場	げきじょう	1253410	theatre | theater | playhouse
+劇場通い	げきじょうがよい	1253420	attending shows
+劇壇	げきだん	1253460	the stage | the theatrical world
+劇談	げきだん	1253470	talk on drama
+劇通	げきつう	1253480	dramatic expert
+劇的	げきてき	1253490	dramatic | exciting | touching | extreme
+劇道	げきどう	1253500	drama | dramatic art
+劇毒	げきどく	1253510	deadly poison
+劇評	げきひょう	1253520	drama criticism
+劇文学	げきぶんがく	1253530	dramatic literature
+劇薬	げきやく	1253540	powerful medicine | strong poison
+打ち合う	うちあう	1253560	to hit each other | to exchange blows | to fight
+撃つ	うつ	1253570	to shoot (a gun, person, etc.) | to fire
+撃砕	げきさい	1253580	pulverising
+撃退	げきたい	1253590	repulse | repelling (e.g. the enemy) | driving back
+撃沈	げきちん	1253600	(attacking and) sinking (a ship) | sending (a ship) to the bottom
+撃墜	げきつい	1253610	shooting down (an aircraft)
+撃破	げきは	1253620	defeating | crushing | smashing | destroying
+撃滅	げきめつ	1253630	destruction | annihilation | extermination
+激化	げきか	1253640	intensification | aggravation
+激減	げきげん	1253650	dramatic decrease | sharp drop | sudden fall
+激賞	げきしょう	1253660	high praise | lavish praise | enthusiastic praise | raving (about)
+激情	げきじょう	1253670	violent emotion | passion | fury
+激戦	げきせん	1253680	fierce battle | hard-fought battle | hot contest | severe fight
+激増	げきぞう	1253690	sharp increase | sudden rise
+激怒	げきど	1253700	rage | fury
+激闘	げきとう	1253710	fierce fighting
+激動	げきどう	1253720	violent shock | agitation | turbulence | turmoil | upheaval | excitement
+激突	げきとつ	1253730	crash | smashing (into) | ramming | (violent) collision | clash (of views, interests, teams, etc.) |
+激発	げきはつ	1253740	fit | spasm | outburst
+激流	げきりゅう	1253750	raging stream | rapids
+激励	げきれい	1253760	encouragement | spurring (on) | cheering (on)
+激烈	げきれつ	1253770	violence | vehemence | fury | fervour | fervor | severity | fierceness | keenness
+隙	すき	1253780	gap | opening | room | space | break | interval | spare moment | spare time | unguarded moment | car
+隙間	すきま	1253790	gap | opening | aperture | crevice | crack | chink | space | spare moment | interval | break | ungua
+桁	けた	1253800	column | beam | girder | crossbeam | spar | yard | digit | decade | order of magnitude
+桁橋	けたばし	1253810	girder bridge
+傑作	けっさく	1253840	masterpiece | masterwork | chef d'oeuvre | fine piece of work | (unintentionally) hilarious | absurd
+傑士	けっし	1253850	great man | hero | outstanding person | distinguished person
+傑出	けっしゅつ	1253860	being outstanding | excelling | being foremost
+傑人	けつじん	1253870	outstanding person | distinguished person | person of high caliber
+傑物	けつぶつ	1253880	great person | distinguished person | outstanding figure | giant | person of high caliber
+欠かす	かかす	1253890	to miss (doing) | to fail (to do) | to do without
+欠く	かく	1253900	to chip | to nick | to break | to crack | to lack
+欠け	かけ	1253910	fragment | splinter | wane (of the Moon)
+欠ける	かける	1253920	to chip | to be chipped | to break (off) | to be damaged | to be missing (from a set, team, etc.) | 
+欠員	けついん	1253930	vacant position | vacancy | opening | unfilled position
+欠課	けっか	1253940	cutting class | absence from school
+欠陥	けっかん	1253950	defect | fault | flaw | deformity | deficiency | shortage | gap
+欠勤	けっきん	1253960	absence (from work)
+欠勤届	けっきんとどけ	1253970	report of an absence (at work)
+欠航	けっこう	1253980	cancellation (of a flight or sea voyage)
+欠字	けつじ	1253990	omission of a character | omitted character | blank type | insertion of blank spaces before and afte
+欠除	けつじょ	1254000	removal | omission | lusting
+欠伸	あくび	1254010	yawn | yawning | kanji "yawning" radical (radical 76)
+欠席	けっせき	1254020	absence | non-attendance
+欠席届	けっせきとどけ	1254030	report of a school absence
+欠損	けっそん	1254040	deficit | shortage | loss | being partially broken | being partially missing | being partially remov
+欠点	けってん	1254050	fault | defect | flaw | weak point | weakness | shortcoming | drawback | failure (in an examination)
+欠如	けつじょ	1254060	lack | absence | shortage | deficiency | privation
+欠番	けつばん	1254070	missing number
+欠文	けつぶん	1254080	piece of writing with a missing part | missing part (sentence, passage, etc.) | lacuna
+欠片	かけら	1254090	fragment | broken piece | chip | splinter | shard | ounce (of truth, conscience, etc.) | trace | shr
+欠乏	けつぼう	1254100	deficiency | insufficiency | shortage | lack | want | dearth | scarcity
+欠落	けつらく	1254110	lack | absence | omission
+決して	けっして	1254130	(not) ever | (not) by any means | (not) in the least | (not) in any way | (not) at all
+決する	けっする	1254140	to decide | to determine | to resolve | to be decided | to break and overflow (e.g. levee) | to coll
+決まりきった	きまりきった	1254150	fixed | obvious | commonplace
+きまり悪い	きまりわるい	1254160	embarrassed | ashamed
+決まり文句	きまりもんく	1254170	set phrase | stock phrase | conventional expression | usual wording | cliché | clichéd line
+決め込む	きめこむ	1254190	to take for granted | to assume | to be convinced (that) | to jump to the conclusion (that) | to pre
+決め手	きめて	1254200	decider | person who decides | decisive factor | clincher | key | trump card | winning move | decisi
+決め付ける	きめつける	1254210	to fix upon (one-sidedly) | to (ignore someone's position and) arbitrarily decide something is the c
+決意	けつい	1254220	decision | determination | resolution
+決壊	けっかい	1254230	burst (e.g. dam, embankment, levee) | breach | collapse | washout | rupture
+決議	けつぎ	1254240	resolution | vote | decision
+決行	けっこう	1254250	doing (with resolve) | carrying out (e.g. a plan)
+決済	けっさい	1254260	settlement (of an account) | liquidation of debts | payment
+決済手段	けっさいしゅだん	1254270	method of payment
+決裁	けっさい	1254280	sanction | approval | decision
+決死	けっし	1254300	preparedness for death | do-or-die spirit
+決死隊	けっしたい	1254310	suicide corps
+決勝	けっしょう	1254320	decision of a contest | finals
+決勝戦	けっしょうせん	1254330	championship game | finals (of a tournament) | deciding round
+決心	けっしん	1254340	determination | resolution
+決戦	けっせん	1254350	decisive battle | deciding match | play-off
+決然	けつぜん	1254360	decisive | resolute | determined | firm
+決断	けつだん	1254370	decision | determination
+決定	けってい	1254380	decision | determination
+決定権	けっていけん	1254390	right to decide | having say (in a decision)
+決定的	けっていてき	1254400	definite | final | decisive | conclusive
+決闘	けっとう	1254410	duel | shoot-out
+決別	けつべつ	1254420	separation | farewell | parting
+決裂	けつれつ	1254430	breakdown (of talks, negotiations, etc.) | breaking off | rupture
+潔い	いさぎよい	1254440	gracious (defeat, apology, etc.) | graceful | honourable (e.g. death) | noble | gallant | brave | ma
+潔白	けっぱく	1254460	innocence | guiltlessness | purity | uprightness | integrity
+潔癖	けっぺき	1254470	fastidiousness | love of cleanliness
+穴	あな	1254480	hole | opening | orifice | perforation | pit | hollow | cavity | hole (e.g. in the ground) | burrow 
+穴	けつ	1254490	ass | arse | buttocks | rear | end | acupuncture point | hole | notch
+穴ぼこ	あなぼこ	1254510	hole | hollow | pothole (road, pavement, etc.)
+穴開け器	あなあけき	1254520	(hole) punch | stiletto
+穴居	けっきょ	1254530	cave dwelling | troglodytism
+穴居人	けっきょじん	1254540	cave dweller | caveman
+穴熊	あなぐま	1254550	badger | Eurasian badger (Meles meles) | anaguma castle (defensive opening)
+穴子	あなご	1254560	conger eel (esp. the common Japanese conger, Conger myriaster) | garden eel
+穴場	あなば	1254570	good place not many people know about | great little-known spot | good out-of-the-way place | well-k
+穴蔵	あなぐら	1254580	cellar | cave | hole in the ground
+結う	ゆう	1254600	to do up (hair) | to dress | to arrange | to tie | to bind | to fasten | to make (a fence)
+結び	むすび	1254610	ending | conclusion | join | union | connecting | knot | knotting | onigiri | rice ball
+結び合わせる	むすびあわせる	1254620	to tie | to link | to connect | to correlate
+結びつき	むすびつき	1254630	connection | relation
+結びつく	むすびつく	1254640	to be related | to be connected | to be joined together | to result in | to lead to | to bring about
+結びつける	むすびつける	1254650	to tie (to) | to fasten | to attach | to join | to bind | to connect (one thing with another) | to l
+結び目	むすびめ	1254660	knot
+結ぶ	むすぶ	1254670	to tie | to bind | to link | to bear (fruit) | to close (e.g. deal) | to confirm | to conclude | to 
+結わえる	ゆわえる	1254680	to bind | to fasten | to tie up
+結果論	けっかろん	1254700	hindsight-based opinion
+結核	けっかく	1254710	tuberculosis | TB | concretion
+結球	けっきゅう	1254720	head (of cabbage, lettuce, etc.) | forming a head | coming to a head
+結言	けつげん	1254740	summary | wrap-up
+結語	けつご	1254750	conclusion | concluding remarks
+結構	けっこう	1254760	splendid | nice | wonderful | delightful | lovely | excellent | fine | sufficient | satisfactory | e
+結合	けつごう	1254770	combination | union | joining | linking | coupling | bond | join (in relational algebra)
+結合子	けつごうし	1254780	association | connector
+結婚指輪	けっこんゆびわ	1254800	wedding ring | wedding band
+結婚祝い	けっこんいわい	1254820	wedding present
+結婚披露宴	けっこんひろうえん	1254830	wedding reception banquet
+結社	けっしゃ	1254840	association | society
+結社の自由	けっしゃのじゆう	1254850	freedom of association
+結集	けっしゅう	1254860	concentration (of efforts, forces, etc.) | gathering together | regimentation | marshalling | mobili
+結晶	けっしょう	1254870	crystal | crystallization | crystallisation | fruits (of labor, union, etc.)
+結晶系	けっしょうけい	1254880	system of crystallization | system of crystallisation
+結審	けっしん	1254890	conclusion of trial | conclusion of a hearing
+結成	けっせい	1254900	formation | combination
+結石	けっせき	1254910	calculus | stone
+結節	けっせつ	1254920	knot | nodule | tubercule | node
+結束	けっそく	1254930	union | unity | solidarity | bundling | binding | tying | putting on (clothes, armour, etc.)
+結託	けったく	1254940	conspiracy | collusion
+結腸	けっちょう	1254950	colon
+結党	けっとう	1254960	formation of a (political) party
+結納	ゆいのう	1254970	traditional Japanese engagement ceremony involving ritual gift exchange between families | ceremonia
+結髪	けっぱつ	1254980	hairdressing | hairdo
+結膜	けつまく	1254990	conjunctiva
+結膜炎	けつまくえん	1255000	conjunctivitis
+結末	けつまつ	1255010	end | conclusion
+結紮	けっさつ	1255030	ligation | ligature
+結紮糸	けっさつし	1255040	ligature
+結紮術	けっさつじゅつ	1255050	ligature
+血も涙もない	ちもなみだもない	1255090	cold-blooded | unfeeling | heartless | heart of stone | inconsiderate
+血を引く	ちをひく	1255100	to be descended from | to inherit (a disposition, etc.) from one's ancestors
+血液ガス	けつえきガス	1255130	blood gases
+血液凝固	けつえきぎょうこ	1255140	blood clotting | blood coagulation | coagulation | coagulant
+血液型	けつえきがた	1255150	blood type | blood group
+血液循環	けつえきじゅんかん	1255160	blood circulation
+血縁	けつえん	1255170	blood relationship | consanguinity | blood relative
+血眼	ちまなこ	1255190	bloodshot eyes | (doing something in a) frenzy
+山川	さんせん	1303000	mountains and rivers
+山荘	さんそう	1303010	mountain villa | mountain retreat | mountain cottage
+山賊	さんぞく	1303020	bandit | brigand
+山地	さんち	1303030	mountainous region | mountainous district | hilly district
+山茶花	さざんか	1303040	sasanqua (Camellia sasanqua)
+山中	さんちゅう	1303050	in the mountains | among the mountains
+山頂	さんちょう	1303060	summit (of a mountain)
+山登り	やまのぼり	1303070	mountain climbing | mountaineering
+山刀	やまがたな	1303080	woodman's hatchet
+山道	やまみち	1303090	mountain road | mountain trail
+山猫	やまねこ	1303100	wildcat (European wildcat, Iriomote cat, Tsushima cat, etc.) | wild cat | stray cat
+山猫争議	やまねこそうぎ	1303110	wildcat strike
+山肌	やまはだ	1303120	mountain's surface | bare surface of a mountain
+山彦	やまびこ	1303130	echo (esp. one reverberating in the mountains) | mountain god | mountain guardian deity
+山伏	やまぶし	1303140	yamabushi | practitioner of Shugendō | itinerant Buddhist monk
+山腹	さんぷく	1303150	hillside | mountainside
+山分け	やまわけ	1303160	equal division (of profits, prize money, etc.) | equal split
+山並み	やまなみ	1303170	mountain range | mountain belt
+山崩れ	やまくずれ	1303180	landslide
+山脈	さんみゃく	1303190	mountain range | mountain belt
+山羊	やぎ	1303200	goat
+山羊座	やぎざ	1303210	Capricornus (constellation) | Capricorn | the Goat
+山梨県	やまなしけん	1303220	Yamanashi Prefecture (Chūbu area)
+山林	さんりん	1303230	mountain forest | forest on a mountain | forest land | woodland | mountains and forests
+山林学	さんりんがく	1303240	forestry
+山椒	さんしょう	1303250	Japanese pepper (species of Sichuan pepper, Zanthoxylum piperitum) | Japanese prickly ash
+山椒魚	サンショウウオ	1303260	salamander
+惨い	むごい	1303270	cruel | merciless | pitiless | brutal | atrocious | inhuman | tragic | horrible | terrible | dreadfu
+惨め	みじめ	1303280	miserable | wretched | unhappy | sad | pitiable
+惨禍	さんか	1303290	calamity | disaster | catastrophe
+惨害	さんがい	1303300	heavy damage | havoc | ravages
+惨劇	さんげき	1303310	tragedy | tragic event
+惨殺	ざんさつ	1303320	slaughter | massacre
+惨死	ざんし	1303330	tragic death | violent death
+惨事	さんじ	1303340	disaster | tragedy | tragic incident | horrible accident
+惨状	さんじょう	1303350	disastrous scene | terrible spectacle
+惨落	さんらく	1303360	slump | sudden fall of market price
+惨憺	さんたん	1303370	miserable | pitiful | tragic | wretched | horrible | terrible | painstaking
+撒き散らす	まきちらす	1303390	to scatter | to spread
+散ける	ばらける	1303410	to come apart | to unravel | to come loose | to become disarrayed (e.g. of hair)
+散らし	ちらし	1303440	leaflet | flyer | handbill | scattering | sushi rice in a box or bowl with a variety of ingredients 
+ちらし寿司	ちらしずし	1303450	chirashi | chirashizushi | sushi rice in a box or bowl with a variety of ingredients sprinkled on to
+散らす	ちらす	1303460	to scatter | to cause a shower of | to disperse | to distribute | to spread | to resolve (a symptom,
+散らばら	ちらばら	1303470	here and there | scattered about | to be scattered around
+散らばる	ちらばる	1303480	to be scattered about | to disperse | to be littered (with)
+散会	さんかい	1303500	adjournment
+散見	さんけん	1303510	being seen here and there | appearing in various places
+散在	さんざい	1303520	to be scattered | to straggle | to be found here and there
+散財	さんざい	1303530	extravagant spending | wasteful spending | splurging | squandering
+散策	さんさく	1303540	walking | strolling | roaming | wandering | exploring
+散水	さんすい	1303550	sprinkling water over | water sprinkling
+散弾	さんだん	1303560	shot | buckshot
+散弾銃	さんだんじゅう	1303570	shotgun
+散発	さんぱつ	1303580	sporadic | scattering
+散髪	さんぱつ	1303590	(having a) haircut | hair-cutting | hair-dressing | messy hair | untied hair | unkempt hair
+散布	さんぷ	1303600	dissemination | scattering | sprinkling | spraying
+散文	さんぶん	1303610	prose
+散漫	さんまん	1303630	vague | desultory | distracted | loose | half-hearted | diffuse | scattered
+散乱	さんらん	1303640	dispersion | scattering | spreading out | diffusion
+桟橋	さんばし	1303650	wharf | bridge | jetty | pier
+桟道	さんどう	1303660	plank path (on a steep mountainside, cliff face, etc.) | walkway
+桟敷	さじき	1303670	dress circle (of a theatre) | (first) balcony | box | stands (seating for spectators)
+燦々	さんさん	1303680	brilliant | bright
+燦然	さんぜん	1303690	brilliant | radiant | bright | sparkling
+燦爛	さんらん	1303700	brilliant | bright | radiant
+珊瑚	さんご	1303710	coral
+サンゴ礁	さんごしょう	1303720	coral reef
+産院	さんいん	1303730	maternity hospital
+産科	さんか	1303740	obstetrics | obstetrical department | maternity division
+産科学	さんかがく	1303750	obstetrics
+産休	さんきゅう	1303760	maternity leave | paternity leave
+産業	さんぎょう	1303770	industry | livelihood | occupation
+産業機械	さんぎょうきかい	1303780	industrial machinery
+産後	さんご	1303790	after childbirth | postpartum
+産児制限	さんじせいげん	1303800	birth control
+産出	さんしゅつ	1303810	production | output | turning out | extraction (e.g. of minerals)
+産地	さんち	1303820	producing area | place of origin | growing district | home (of a plant or animal) | habitat | locali
+産着	うぶぎ	1303830	clothes for a newborn baby | baby clothes
+産婆	さんば	1303840	midwife
+産婦人科	さんふじんか	1303850	maternity and gynaecology department (gynecology) | department of obstetrics and gynaecology (gyneco
+産婦人科医	さんふじんかい	1303860	obstetrician-gynecologist | obstetrician and gynaecologist | ob-gyn
+産物	さんぶつ	1303870	product | produce | result | fruit
+産毛	うぶげ	1303880	downy hair | down | vellus hair | peach fuzz | fluff | lanugo
+産卵	さんらん	1303890	egg-laying | spawning
+産卵口	さんらんこう	1303900	vulva | vulvae
+算術	さんじゅつ	1303920	arithmetic
+算法	さんぽう	1303980	arithmetic | algorithm
+蚕	かいこ	1304000	silkworm (Bombyx mori)
+蚕業	さんぎょう	1304010	sericulture
+蚕具	さんぐ	1304020	sericultural equipment
+蚕座	さんざ	1304030	silkworm basket
+蚕糸	さんし	1304040	silk thread | silk yarn
+蚕糸業	さんしぎょう	1304050	sericulture industry
+蚕糸試験所	さんししけんじょ	1304060	silk experiment station
+蚕紙	さんし	1304070	silkworm-egg paper
+蚕児	さんじ	1304080	silkworm
+蚕室	さんしつ	1304090	silkworm-raising room
+蚕種	さんしゅ	1304100	silkworm-egg card
+蚕食	さんしょく	1304110	encroachment | making inroads (into) | (slow but steady) invasion
+蚕卵	さんらん	1304120	silkworm egg
+蚕卵紙	さんらんし	1304130	silkworm-egg paper
+賛歌	さんか	1304140	song of praise | eulogy | paean | hymn
+讃賞	さんしょう	1304150	praise
+賛助	さんじょ	1304190	support | patronage
+賛同	さんどう	1304210	approval | endorsement
+賛否両論	さんぴりょうろん	1304230	arguments for and against | pros and cons | mixed reception | mixed reviews
+賛美	さんび	1304240	praise | glorification | extolment

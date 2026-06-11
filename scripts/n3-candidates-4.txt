@@ -1,0 +1,502 @@
+Total candidates: 802
+
+曼谷	バンコク	1100160	Bangkok (Thailand)
+バ行	バぎょう	1100370	classification for Japanese verb with the dictionary form ending in "bu" | "ba" column or row of the
+パーソナル化	パーソナルか	1100720	personalization | personalisation | product stopping being a luxury item
+パイプ爆弾	パイプばくだん	1101160	pipe bomb
+パイプ役	パイプやく	1101170	go-between | intermediary | mediator
+巴基斯担	パキスタン	1101370	Pakistan
+パターン認識	パターンにんしき	1101630	pattern recognition
+パチンコ台	パチンコだい	1101670	pachinko machine
+巴布	パップ	1101900	poultice
+伴天連	バテレン	1101930	padre | title for Portuguese Jesuits who came to Japan in the 16th century | Christianity | Christia
+巴奈馬	パナマ	1102040	Panama
+芒果	マンゴー	1130020	mango (Mangifera indica)
+ま行	まぎょう	1130360	the "ma" column of the Japanese syllabary table (ma, mi, mu, me, mo)
+木乃伊	ミイラ	1130450	mummy
+ＭｉＧ	ミグ	1130540	Mig (Russian aeroplane, airplane) | MIG
+弥撒	ミサ	1130560	(Catholic) Mass
+ミサイル防衛	ミサイルぼうえい	1130590	missile defence | missile defense
+ＭＩＰＳ	ミップス	1131060	MIPS | million instructions per second
+ミドル級	ミドルきゅう	1131230	middleweight class
+粍	ミリメートル	1131930	millimeter | millimetre
+竓	ミリリットル	1131940	millilitre | milliliter | mL
+ミリ波	ミリは	1131950	milli-wave
+ムール貝	ムールがい	1132260	(edible) mussel (esp. the Mediterranean mussel or blue mussel)
+医術	いじゅつ	1160000	medicine | medical art | medical skills
+医書	いしょ	1160010	medical book
+医籍	いせき	1160020	register of physicians
+医大	いだい	1160030	medical university | medical college | medical school
+医長	いちょう	1160040	medical director | chief physician
+医伯	いはく	1160060	doctor
+医博	いはく	1160070	doctor of medicine | MD
+医務	いむ	1160080	medical affairs
+医務室	いむしつ	1160090	doctor's office | medical office | sickbay
+医薬	いやく	1160100	medicine | (pharmaceutical) drug | medical treatment | medical practice and dispensing of drugs
+医薬品	いやくひん	1160110	medical and pharmaceutical products | medicinal supplies | drugs | pharmaceuticals | medicine
+医薬分業	いやくぶんぎょう	1160120	separation of medical and dispensary practice
+医用	いよう	1160130	medical use
+医療	いりょう	1160140	medical treatment | medical care
+医療サービス	いりょうサービス	1160150	medical service
+医療チーム	いりょうチーム	1160160	medical team
+医療器械	いりょうきかい	1160170	medical appliances | surgical instruments
+医療機関	いりょうきかん	1160180	medical institution
+医療材料	いりょうざいりょう	1160190	medical supplies
+医療施設	いりょうしせつ	1160200	medical facility
+医療車	いりょうしゃ	1160210	clinic car | traveling clinic | travelling clinic
+医療制度	いりょうせいど	1160220	health care system
+医療伝道	いりょうでんどう	1160230	medical missionary work
+医療品	いりょうひん	1160240	medical supplies
+医療保険	いりょうほけん	1160250	medical-care insurance
+医療報酬	いりょうほうしゅう	1160260	medical fee
+医療法人	いりょうほうじん	1160270	medical corporation
+医療輸送機	いりょうゆそうき	1160280	medical transport (plane)
+医療用	いりょうよう	1160290	medical use
+井桁	いげた	1160320	well curb consisting of wooden beams crossed at the ends | pattern resembling the symbol # | paralle
+井戸	いど	1160330	water well
+井戸屋形	いどやかた	1160340	well roof
+井戸掘り	いどほり	1160350	well digging | well digger
+井戸綱	いどづな	1160360	well rope
+井戸車	いどぐるま	1160370	well pulley
+井戸水	いどみず	1160380	well water
+井戸側	いどがわ	1160390	well curb
+井戸替え	いどがえ	1160400	well cleaning
+井戸端	いどばた	1160410	side of well
+井戸端会議	いどばたかいぎ	1160420	content-free chat | idle gossip | watercooler talk
+井戸浚え	いどさらえ	1160430	well cleaning
+井綱	いづな	1160440	well rope
+井守	いもり	1160450	newt (esp. the Japanese fire belly newt, Cynops pyrrhogaster)
+井泉	せいせん	1160460	(water) well | well water
+井底	せいてい	1160470	well bottom | narrow place
+井筒	いづつ	1160480	well curb | well kerb | family crest design based on a square wooden well curb
+亥年	いどし	1160490	year of the Boar | year of the Pig
+域外	いきがい	1160500	outside the area
+域内	いきない	1160510	inside the area
+育ち	そだち	1160520	growth | breeding | growing up (in, as) | upbringing
+育ち行く	そだちゆく	1160530	to grow up
+育て	そだて	1160550	bringing up | raising
+育ての親	そだてのおや	1160560	foster parents
+育て上げる	そだてあげる	1160580	to raise (to maturity) | to bring up | to rear | to train | to educate
+育て親	そだておや	1160590	foster parent
+育て方	そだてかた	1160600	method of bringing up | method of raising
+育英	いくえい	1160610	education of gifted young people | providing financial support to gifted students | education
+育英会	いくえいかい	1160620	scholarship society | educational society | honor society
+育児	いくじ	1160630	childcare | child-rearing | nursing | upbringing
+育児院	いくじいん	1160640	orphanage | nursery school
+育児園	いくじえん	1160650	baby nursery | baby-farm
+育児時間	いくじじかん	1160660	nursing time
+育児室	いくじしつ	1160670	nursery
+育児食	いくじしょく	1160680	baby food
+育児法	いくじほう	1160690	child-rearing practice
+育種	いくしゅ	1160700	breeding (of plants or animals)
+育種家	いくしゅか	1160710	breeder | grower
+育種所	いくしゅじょ	1160720	(plant) nursery
+育雛器	いくすうき	1160730	breeder
+育成栽培	いくせいさいばい	1160740	vegetable and fruit growing
+育苗	いくびょう	1160750	raising seedlings
+育毛剤	いくもうざい	1160760	hair growth formula | hair growth agent
+磯巾着	いそぎんちゃく	1160770	sea anemone
+磯辺	いそべ	1160780	seashore | beach | food wrapped in nori
+一か八か	いちかばちか	1160800	sink or swim | all or nothing | hit or miss | make or break
+ひとっ走り	ひとっぱしり	1160810	(short) run | drive | ride | spin
+一つ一つ	ひとつひとつ	1160830	one-by-one | separately | in detail
+一つ事	ひとつこと	1160840	the same thing
+一つ書き	ひとつがき	1160850	an item | itemization | itemisation
+一つ心	ひとつこころ	1160860	one mind | the whole heart | wholeheartedness
+一つ身	ひとつみ	1160870	baby clothes
+１つ星	ひとつぼし	1160880	one star (rating) | evening star | morning star
+一つ置き	ひとつおき	1160890	alternate | every other one
+一つ置きに	ひとつおきに	1160900	alternately
+一つ目	ひとつめ	1160910	one-eyed | first (in a series) | initial
+一つ話	ひとつばなし	1160920	anecdote | common talk
+一に	いつに	1160930	solely | entirely | only | or | sharing | together
+一の膳	いちのぜん	1160940	1st course at a banquet
+一も二もなく	いちもにもなく	1160960	unhesitatingly
+一握	いちあく	1160970	a handful (of)
+一握り	ひとにぎり	1160980	a handful (of) | small amount (of) | small number (of) | trouncing | crushing | putting down (with e
+一葦	いちい	1160990	one reed | small boat | one person
+一安心	ひとあんしん	1161000	feeling of relief (for the time being) | peace of mind (for now)
+一案	いちあん	1161010	idea | plan
+一位	いちい	1161020	first place | first rank | units position (of a number)
+一尉	いちい	1161030	captain (JASDF, JGSDF) | lieutenant (senior grade; JMSDF)
+一意	いちい	1161040	one meaning | one thought | wholeheartedly | single-mindedly | devotedly | unique
+一意専心	いちいせんしん	1161050	single-mindedly | wholeheartedly | with all one's heart | with one's heart and soul
+一衣帯水	いちいたいすい	1161060	(being separated only by a) narrow strip of water | narrow strait (channel, river)
+一員	いちいん	1161070	one person | one member
+一因	いちいん	1161080	one cause | one reason | one factor
+一飲み	ひとのみ	1161090	swallowing in one gulp | downing | mouthful | bite | sipping | sip | thinking nothing of one's oppon
+一院制	いちいんせい	1161100	unicameral system | unicameralism
+一羽	いちわ	1161110	one (bird or rabbit)
+一雨	ひとあめ	1161120	shower | rainfall
+一円	いちえん	1161130	one yen | throughout (an area) | whole district
+１円玉	いちえんだま	1161140	one-yen coin
+一円札	いちえんさつ	1161150	one-yen bill
+一塩	ひとしお	1161160	slightly salted | lightly salted
+一応	いちおう	1161170	more or less | though not quite satisfactorily | after a fashion | pretty much | roughly | so far as
+一押し	ひとおし	1161180	a push | another effort | one more effort
+一億	いちおく	1161190	100,000,000 | one hundred million | 10^8
+一音節	いちおんせつ	1161200	monosyllable
+一家団欒	いっかだんらん	1161210	happy family get-together
+一稼ぎ	ひとかせぎ	1161220	making some money | earning
+一箇年	いっかねん	1161240	one year
+一花	ひとはな	1161250	one flower | single flower | success | prosperity
+一荷	いっか	1161260	one load
+一過	いっか	1161270	passing (e.g. of a typhoon) | going past
+一過性	いっかせい	1161280	transient (symptom, phenomenon) | temporary | passing | fleeting
+一画	いっかく	1161290	one plot (of land) | one (city) block | one area | one lot | one brush stroke | one kanji stroke
+一介	いっかい	1161300	a mere ... | only a ... | insignificant
+一回り	ひとまわり	1161320	one round | one turn | a circuit (of) | one size (larger or smaller) | one cycle of the twelve years
+一回忌	いっかいき	1161330	first anniversary of a person's death | first death anniversary
+一回戦	いっかいせん	1161340	first game | first round (of tennis, etc.)
+一回分	いっかいぶん	1161350	dose | installment | instalment
+一塊	いっかい	1161360	one lump | one group
+一角	いっかく	1161400	corner | section | point | part | one horn | pillar (of a group, system, etc.) | member (of an organ
+一角獣	いっかくじゅう	1161420	unicorn | narwhal | qilin (Chinese unicorn)
+一郭	いっかく	1161430	one block | enclosure
+１割	いちわり	1161440	ten percent
+一割引き	いちわりびき	1161450	10% off sale
+一喝	いっかつ	1161460	sharp, loud rebuke | bark | roar | rebuke used in Zen to achieve enlightenment
+一括	いっかつ	1161470	lumping together | summing up | bundle | lump | batch
+一括め	ひとくるめ	1161480	one bunch | one bundle | one lot
+一括り	ひとくくり	1161490	lumping together | putting all together
+一括式	いっかつしき	1161500	batch mode | batch style
+一巻	いっかん	1161510	one roll | one book | one volume | first volume | rolling once | wrapping once around
+一汗	ひとあせ	1161540	doing a job | riding and sweating up a horse
+一環	いっかん	1161550	link (e.g. in a chain of events) | part (of a plan, campaign, activities, etc.) | monocyclic
+一管	いっかん	1161560	one flute | one brush
+一貫	いっかん	1161570	consistency | coherence | integration | one kan (approx. 3.75 kg) | one piece of sushi
+一貫して	いっかんして	1161580	consistently
+一貫性	いっかんせい	1161590	consistency
+一貫番号	いっかんばんごう	1161600	serial number
+一間	いっけん	1161610	one ken (approx. 1.8 m)
+一間	ひとま	1161620	one room
+一閑張り	いっかんばり	1161630	lacquered papier-mâché
+一丸	いちがん	1161640	one lump | one body | one group
+一眼	いちがん	1161650	one eye | single-lens (reflex camera) | one eye (in a group of stones)
+一眼レフ	いちがんレフ	1161660	single-lens reflex camera | SLR
+一喜一憂	いっきいちゆう	1161670	alternating between happiness and anxiety | swinging between joy and sorrow | being glad and sad by 
+一旗	ひとはた	1161680	(one) flag
+一期	いちご	1161690	one's whole life | one's lifetime
+一期	いっき	1161695	one term | one period | first term | first period
+一期一会	いちごいちえ	1161700	once-in-a-lifetime encounter | uniquely precious experience | one lifetime, one meeting
+一機軸	いちきじく	1161710	new method
+一気	いっき	1161720	one breath | chug! | drink!
+一気に	いっきに	1161730	in one go | in one gulp | in one breath | without stopping | without pausing | without a rest | in o
+一騎	いっき	1161760	one horseman
+一騎当千	いっきとうせん	1161770	being a match for a thousand | being a mighty warrior (combatant, player)
+一儀	いちぎ	1161780	one matter | one case | physical intimacy | sexual intercourse
+一義	いちぎ	1161790	one meaning | primary importance | primary significance | primary consideration | a reason | a truth
+一義的	いちぎてき	1161800	having a single meaning | allowing only one interpretation | unequivocal | unambiguous | principal |
+一議	いちぎ	1161810	one discussion | one meeting | one conference | objection
+一菊	いっきく	1161820	one scoop (of water)
+一級	いっきゅう	1161840	one grade | first-class | primary
+一挙	いっきょ	1161850	one effort | one action
+一挙一動	いっきょいちどう	1161860	one's every action | every single move
+一挙手一投足	いっきょしゅいっとうそく	1161870	one's every action | every single move | slight effort | least trouble | small amount of work
+一挙両得	いっきょりょうとく	1161880	killing two birds with one stone | serving two ends
+一興	いっきょう	1161890	amusement | fun | brief entertainment
+一驚	いっきょう	1161900	surprise | amazement
+一局	いっきょく	1161910	one game (of go, shogi, etc.) | one board (go, shogi, etc.) | one office (of a broadcasting station,
+一局部	いちきょくぶ	1161920	one part
+一曲	いっきょく	1161930	tune (melody, piece of music)
+一斤	いっきん	1161940	1 kin (approx. 0.6 kg) | 1 loaf of bread
+一筋道	ひとすじみち	1161950	straight road
+一筋縄	ひとすじなわ	1161960	(piece of) rope | ordinary method
+一句	いっく	1161970	phrase (verse, line) | one haiku-poem
+一区	いっく	1161990	district | ward | lot
+１コマ	ひとコマ	1162000	one scene | one frame | one shot | one exposure | one cell | one panel (comic)
+一具	いちぐ	1162010	one set
+一遇	いちぐう	1162020	one meeting
+一群	いちぐん	1162030	group | flock | crowd | herd | wide expanse (of flowers)
+一群れ	ひとむれ	1162040	group | flock | crowd | herd | wide expanse (of flowers)
+一軍	いちぐん	1162050	an army | the whole army | the entire force | first team | first-string players | the cool kids | th
+一系	いっけい	1162060	single-family lineage
+一計	いっけい	1162070	plan
+一芸	いちげい	1162080	an art | one talent
+一撃	いちげき	1162090	one blow | one hit | one stroke | summiting on the first attempt (oft. without prior knowledge about
+一決	いっけつ	1162110	agreed | settled
+１月	いちがつ	1162120	January | first month of the lunar calendar
+一件	いっけん	1162140	(one) matter | (one) item | (one) case
+一犬	いっけん	1162150	one dog
+加圧水炉	かあつすいろ	1190000	pressurized water reactor | pressurised water reactor | PWR
+加温	かおん	1190010	heating | heat
+加害	かがい	1190020	assault | violence | damaging (someone)
+加冠	かかん	1190040	crowning a boy with a traditional cap for the first time at a coming-of-age ceremony | person in cha
+加虐	かぎゃく	1190050	causing pain | sadism
+加虐愛	かぎゃくあい	1190060	sadism
+加給	かきゅう	1190070	raising salaries
+加減	かげん	1190080	degree | extent | amount | balance | state | condition | (health) condition | state of health | adju
+加減乗除	かげんじょうじょ	1190090	the four arithmetical operations (addition, subtraction, multiplication, division)
+加減抵抗器	かげんていこうき	1190100	rheostat | potentiometer | adjustable resistor
+加護	かご	1190110	divine protection
+加工	かこう	1190120	manufacturing | processing | treatment | machining
+加工業	かこうぎょう	1190130	processing industries
+加工産業	かこうさんぎょう	1190140	manufacturing industry
+加工紙	かこうし	1190150	processed paper | coated paper
+架工歯	かこうし	1190160	pontic
+加工税	かこうぜい	1190170	processing tax
+加工賃	かこうちん	1190180	processing fees
+加工費	かこうひ	1190190	processing cost
+加工品	かこうひん	1190200	processed goods | finished goods
+加工貿易	かこうぼうえき	1190210	processing trade
+加号	かごう	1190220	plus sign | sign of addition
+加算	かさん	1190230	addition | adding | supplement
+加算器	かさんき	1190240	adder (written) | adding machine
+加餐	かさん	1190250	caring for one's health
+加持	かじ	1190260	prayer (to get rid of misfortune, disease, etc.) | incantation | faith healing | adhisthana (blessin
+加湿	かしつ	1190270	humidification
+加除	かじょ	1190290	insertion and deletion
+加除式	かじょしき	1190300	looseleaf
+加振	かしん	1190310	excitation
+加水	かすい	1190320	adding water | dilution with water
+加水分解	かすいぶんかい	1190330	hydrolysis
+加数	かすう	1190340	addend
+加勢	かせい	1190350	assistance | backing | reinforcements
+加増	かぞう	1190360	increase | addition
+加速	かそく	1190370	acceleration | speeding up
+加速運動	かそくうんどう	1190380	accelerated motion
+加速度	かそくど	1190390	acceleration
+加糖	かとう	1190410	sweetening | sweetened
+加糖粉乳	かとうふんにゅう	1190420	sweetened powdered milk
+加入	かにゅう	1190430	joining (a club, organization, etc.) | becoming a member | entry | admission | subscription | affili
+加入金	かにゅうきん	1190440	admission fee
+加入権	かにゅうけん	1190450	NTT permission-to-procure-a-phone-line
+加入者	かにゅうしゃ	1190460	affiliate | member | entrant | participant | (telephone) subscriber | (insurance) holder
+加熱	かねつ	1190470	heating | application of heat
+加年	かねん	1190480	adding years
+カノン砲	カノンほう	1190490	cannon (esp. high-velocity artillery)
+加配	かはい	1190500	additional ration
+加配米	かはいまい	1190510	extra rice ration
+加判	かはん	1190520	affixing a seal
+加判人	かはんにん	1190530	signatory
+加筆	かひつ	1190540	improvement (to a piece of writing or painting) | revision | correction | touching up
+加俸	かほう	1190550	extra allowance
+加法	かほう	1190560	addition
+加味	かみ	1190570	seasoning | flavoring | flavouring | addition | inclusion | taking into account
+加盟	かめい	1190580	joining (an association, agreement, etc.) | participation | affiliation | accession
+加盟国	かめいこく	1190590	member nation | member state | signatory
+加盟者	かめいしゃ	1190600	participant | member
+加盟店	かめいてん	1190610	participating store | participating merchant | member store | franchise store | franchisee
+加役	かやく	1190620	temporary extra work
+加薬	かやく	1190630	spices | condiments | seasoning | adjuvant (in Chinese medicine) | addition of an adjuvant | meat, f
+加養	かよう	1190640	caring for the sick | taking care of oneself
+加里	カリ	1190650	potassium | potash | potassium carbonate
+加硫	かりゅう	1190660	vulcanizing (rubber)
+加硫法	かりゅうほう	1190670	vulcanization | vulcanisation
+加療	かりょう	1190680	medical treatment | medical care
+加齢	かれい	1190690	aging | ageing | growing older
+加禄	かろく	1190700	increase in a samurai's stipend
+可	か	1190710	acceptable | satisfactory | allowed | permitted | approval | being in favour | (a) vote in favour | 
+可からず	べからず	1190720	must not (do) | should not | do not | cannot
+可愛がる	かわいがる	1190730	to be affectionate to | to treat tenderly | to dote on | to show one's love (for) | to cherish | to 
+可愛らしい	かわいらしい	1190740	lovely | sweet | pretty | cute | adorable
+可換群	かかんぐん	1190770	Abelian group | commutative group
+可逆	かぎゃく	1190780	reversible | invertible
+可逆反応	かぎゃくはんのう	1190790	reversible reaction
+可及的	かきゅうてき	1190800	as ... as possible
+可決	かけつ	1190810	approval | adoption (of a motion, bill, etc.) | passage
+可視	かし	1190820	visibility
+可視化	かしか	1190830	visualization (of data, results, etc.) | visualisation | making visible (something that was previous
+可視光線	かしこうせん	1190840	visible ray
+可笑しい	おかしい	1190860	funny | amusing | comical | laughable | ridiculous | strange | odd | funny | peculiar | weird | wron
+可塑	かそ	1190870	moldable | plastic
+可塑剤	かそざい	1190880	plasticizer | plasticiser
+可塑性	かそせい	1190890	plasticity
+可塑物	かそぶつ	1190900	plastics
+可塑物質	かそぶっしつ	1190910	plastics
+可鍛性	かたんせい	1190920	malleability
+可鍛鉄	かたんてつ	1190930	malleable iron
+可聴	かちょう	1190940	audible
+可聴距離	かちょうきょり	1190950	audible distance
+可聴度	かちょうど	1190960	audibility
+可動	かどう	1190970	mobile | moveable
+可動堰	かどうぜき	1190980	canal gates | river gates
+可動橋	かどうきょう	1190990	movable bridge
+可動性	かどうせい	1191000	mobility
+可読	かどく	1191010	readable
+可読性	かどくせい	1191020	readability | legibility
+可燃	かねん	1191030	inflammable | flammable | combustible | burnable
+可燃性	かねんせい	1191040	combustibility | inflammability | combustible | inflammable
+可燃物	かねんぶつ	1191050	combustibles | inflammables | flammables | burnables
+可能であれば	かのうであれば	1191070	if possible
+可能性が高い	かのうせいがたかい	1191090	very likely | very probable
+可能選択	かのうせんたく	1191100	available choice
+可能動詞	かのうどうし	1191110	potential verb | -eru verb derived from -u verbs expressing potentiality
+可能法	かのうほう	1191120	potential mood
+可否	かひ	1191130	propriety | right and wrong | advisability | possibility | pro and con | ayes and noes
+可分	かぶん	1191140	divisible | separable
+可分性	かぶんせい	1191150	divisibility
+可変	かへん	1191160	variable | changeable | convertible | controllable
+可変数	かへんすう	1191170	variable number
+可変性	かへんせい	1191180	variability | mutability
+可変長	かへんちょう	1191190	variable-length
+可変抵抗器	かへんていこうき	1191200	variable resistor | rheostat | potentiometer
+可溶	かよう	1191210	soluble | solubilizing | solubilising
+可溶性	かようせい	1191220	solubility
+可用	かよう	1191230	available | in service
+可用性	かようせい	1191240	availability
+可憐	かれん	1191250	sweet (e.g. young girls, flowers blooming) | touchingly lovely | cute | pitiful | pitiable
+可撓	かとう	1191260	flexible
+可鎔性	かようせい	1191270	fusibility (in metallurgy)
+嘉賞	かしょう	1191290	approval | praise
+嘉例	かれい	1191310	happy precedent
+夏衣	なつごろも	1191330	summer clothes
+夏羽織	なつばおり	1191340	summer haori (coat)
+夏越し	なつごし	1191350	keeping over the summer
+夏掛け	なつがけ	1191360	summer-use futon
+夏期学校	かきがっこう	1191370	summer school
+夏期大学	かきだいがく	1191390	university summer school | college summer school
+夏季休暇	かききゅうか	1191400	summer vacation
+夏菊	なつぎく	1191410	early chrysanthemums
+夏休み	なつやすみ	1191420	summer vacation | summer holiday
+夏枯れ	なつがれ	1191430	summer slump
+夏山	なつやま	1191440	summery mountain | mountain that is often climbed in summer
+夏至線	げしせん	1191470	Tropic of Cancer
+夏至点	げしてん	1191480	summer solstitial point
+夏時間	なつじかん	1191490	daylight saving time | daylight savings time | summer time
+夏時刻	なつじこく	1191500	daylight saving time | daylight savings time | summer time
+夏場	なつば	1191510	summertime | summer season
+夏場所	なつばしょ	1191520	Summer Tournament (held in Tokyo in May)
+夏蝉	なつぜみ	1191530	summer cicadas
+夏大根	なつだいこん	1191550	summer daikon
+夏着	なつぎ	1191560	summer clothes
+夏虫	なつむし	1191570	summer insect | summer insects
+夏日	かじつ	1191580	summer day
+夏負け	なつまけ	1191590	suffering from summer heat
+夏服	なつふく	1191600	summer clothes | summer wear | summer uniform
+夏物	なつもの	1191610	summer clothing | summer wear | summer goods
+夏帽子	なつぼうし	1191620	summer hat | straw hat
+夏みかん	なつみかん	1191630	natsumikan (Citrus natsudaidai) | Japanese summer orange
+夏眠	かみん	1191640	estivation | aestivation | summer sleep
+夏木立	なつこだち	1191650	grove in summer
+夏野	なつの	1191660	summer fields
+夏炉冬扇	かろとうせん	1191670	summer fires and winter fans | useless things
+嫁	よめ	1191680	bride | (one's) daughter-in-law | wife
+嫁ぐ	とつぐ	1191690	to marry (of a woman) | to become a bride | to marry into (a family) | to have sexual intercourse
+嫁菜	よめな	1191700	Aster yomena (Asiatic species of aster)
+嫁取り	よめとり	1191710	taking a wife
+嫁入り	よめいり	1191720	marriage | wedding
+家	うち	1191740	one's house | one's home | one's family | one's household | house
+家	け	1191750	house | family
+家運	かうん	1191770	fortunes of a family
+家屋	かおく	1191780	house | building
+家格	かかく	1191790	family status
+家学	かがく	1191800	hereditary learning
+家鴨	アヒル	1191810	domestic duck
+家教	かきょう	1191820	tutor
+家郷	かきょう	1191830	one's homeland | one's old home
+家業	かぎょう	1191840	family business | family trade | one's occupation | one's trade
+家禽	かきん	1191850	(domestic) fowl | poultry
+家筋	いえすじ	1191860	lineage | pedigree | family line
+家具屋	かぐや	1191880	furniture store | furniture dealer
+家兄	かけい	1191890	my older brother
+家系	かけい	1191900	family lineage
+家計	かけい	1191910	household economy | family finances
+家計簿	かけいぼ	1191920	household account book
+家憲	かけん	1191930	family constitution
+家元	いえもと	1191940	head of a school (of music, dance) | head family of a school
+家財	かざい	1191950	household belongings | household goods | family fortune | family assets
+家作	かさく	1191960	house for rent | house to let | building a house | built house
+家産	かさん	1191970	family property
+家事	かじ	1191980	housework | domestic chores | family affairs | household matters
+家主	やぬし	1191990	landlord | landlady | house owner | home owner | head of the household
+家集	かしゅう	1192000	collected waka poems (of a single poet)
+家什	かじゅう	1192010	furniture | fixtures
+家従	かじゅう	1192020	steward | butler | attendant
+家出	いえで	1192030	running away from home | elopement | outing | going out | becoming a Buddhist monk | entering the pr
+家書	かしょ	1192040	letter from home
+家常	かじょう	1192050	everyday things
+家職	かしょく	1192060	family trade | family business | steward (of an estate)
+家信	かしん	1192070	word from home
+家臣	かしん	1192080	vassal | retainer
+家人	かじん	1192090	occupant of a house | family member | household member (incl. servants)
+家政	かせい	1192100	household economy | housekeeping | homemaking
+家政婦	かせいふ	1192110	housekeeper | maid
+家声	かせい	1192120	honour of the family | honor of the family
+家相	かそう	1192130	aspect, position, layout, etc. of a house (determining the residents' fortune) | physiognomy of a ho
+家蔵	かぞう	1192140	household possessions
+幾何	きか	1220010	geometry
+幾何学	きかがく	1220020	geometry
+幾千	いくせん	1220030	thousands
+幾多	いくた	1220040	many | numerous
+幾日	いくにち	1220050	(for) how many days | what day (of the month)
+幾分	いくぶん	1220060	somewhat | to some extent | to some degree | some | part | portion
+忌まわしい	いまわしい	1220070	abhorrent | abominable | detestable | disgusting | horrid | repugnant | ominous | inauspicious | unl
+忌み	いみ	1220080	mourning | abstinence | taboo | religious purification | pure | holy
+忌む	いむ	1220090	to avoid | to refrain from | to shun | to detest
+忌中	きちゅう	1220100	mourning period | (in) mourning
+忌日	きにち	1220110	anniversary of a person's death (on which Buddhist commemorative rites, etc. are performed) | 49th d
+忌避	きひ	1220120	evasion | avoidance | shirking | recusation (of a judge) | taking exception (to a judge) | challenge
+忌憚	きたん	1220130	reserve | modesty | hesitation | restraint | abhorrence | repugnance | loathing | dislike
+忌諱	きき	1220140	displeasure | offense | offence | disliking
+揮発	きはつ	1220160	volatilization | volatilisation
+揮発性	きはつせい	1220170	volatility
+揮発度	きはつど	1220180	volatility
+揮発物質	きはつぶっしつ	1220190	volatile substance
+揮発油	きはつゆ	1220200	gasoline | petrol | petroleum | benzine | volatile oil
+机上	きじょう	1220220	on the desk | theoretical | academic | armchair (e.g. plan) | desktop | paper | not yet implemented
+机上の空論	きじょうのくうろん	1220230	armchair theory | impracticable plan | unworkable idea
+旗	はた	1220240	flag | pataka (banner) | banner (administrative division of Inner Mongolia)
+旗艦	きかん	1220250	flagship
+旗手	きしゅ	1220260	standard-bearer | flag-bearer
+旗色	はたいろ	1220270	situation | outlook | one's allegiance | affiliation | position
+旗頭	はたがしら	1220280	leader | boss | upper part of a flag | (Okinawa) bamboo poles with an attached vertical flag and an 
+旗揚げ	はたあげ	1220290	raising an army | raising a banner | launching a new group | launching a business | launching a new 
+旗幟	きし	1220300	flag | banner | ensign | emblem | (one's) stance | position | opinion
+既に	すでに	1220310	already | previously | before | undeniably | unmistakably | in the first place
+すんでの事	すんでのこと	1220320	almost | very nearly
+すんでの所で	すんでのところで	1220330	almost | very nearly | only just | barely | just in time
+既往症	きおうしょう	1220340	illness that one had in the past | previous illness | medical history | anamnesis
+既婚	きこん	1220350	married
+既婚者	きこんしゃ	1220360	married person
+既婚男性	きこんだんせい	1220370	married man
+既視感	きしかん	1220380	déjà vu
+既製	きせい	1220420	ready-made | off the shelf
+既製服	きせいふく	1220430	ready-made clothes | ready-to-wear clothes | off-the-rack clothes | off-the-peg clothes
+既設	きせつ	1220440	established | existing
+既存	きそん	1220450	existing
+既知	きち	1220460	(already) known | established
+既定	きてい	1220470	established | fixed | prearranged | predetermined
+既定値	きていち	1220480	default value
+既得	きとく	1220490	vested | already acquired
+既得権	きとくけん	1220500	vested rights
+既報	きほう	1220510	previous report | previous announcement
+既約	きやく	1220520	irreducible
+既約表現	きやくひょうげん	1220530	irreducible representation
+期	き	1220540	period | time | opportunity | chance | occasion | age | term (e.g. in office) | session (e.g. of par
+期待値	きたいち	1220580	expected value | expectation | expectations | expectation value (in quantum mechanics)
+期待通り	きたいどおり	1220590	as hoped for | as expected
+期内	きない	1220600	during a period | while
+期日	きじつ	1220610	fixed date | appointed date | set date | deadline | due date
+期末	きまつ	1220620	end of term
+期末試験	きまつしけん	1220630	final exam | term-end examination | end-of-term examination
+棋士	きし	1220640	professional shogi player | professional go player
+棋譜	きふ	1220650	record of a game of go, shogi, chess, etc.
+棄却	ききゃく	1220660	rejection | dismissal | turning down | abandoning | renunciation
+棄権	きけん	1220670	abstention (from voting) | renunciation (of a right) | withdrawal (from a contest)
+棄権者	きけんしゃ	1220680	non-voter
+棄言葉	すてことば	1220690	sharp parting remark
+棄市	きし	1220700	execution by decapitation followed by public display of the body (form of punishment in ancient Chin
+棄世	きせい	1220710	death
+棄背	きはい	1220720	giving up and turning back
+棄約	きやく	1220730	breaking a promise
+棄老	きろう	1220740	historical or legendary practice of abandoning old people in the mountains, etc.
+棄捐	きえん	1220750	donation | abandonment
+機	はた	1220760	loom
+機運	きうん	1220770	opportunity | chance | good time (to do) | trend | tendency | momentum
+機影	きえい	1220780	image of an airplane (in the sky) | sight of an airplane | shadow of an airplane
+機化	きか	1220790	mechanization | mechanisation
+機械	きかい	1220810	machine | mechanism | instrument | appliance | apparatus
+機械化	きかいか	1220820	mechanization | mechanisation
+機械警備	きかいけいび	1220830	card-key system
+機械語	きかいご	1220840	machine language | machine code
+機械文明	きかいぶんめい	1220850	technical civilization | technical civilisation
+機械翻訳	きかいほんやく	1220860	machine translation | mechanical translation | automatic translation
+機関	きかん	1220870	engine | agency | organisation | organization | institution | organ | body | system | facility | fac
+機関車	きかんしゃ	1220880	locomotive | engine
+機関銃	きかんじゅう	1220890	machine gun
+機器	きき	1220900	device | equipment | machinery | apparatus
+機宜	きぎ	1220910	opportuneness | timeliness | opportunity | occasion
+機業家	きぎょうか	1220920	textile industrialist
+機嫌	きげん	1220930	humour | humor | temper | mood | spirits | safety | health | well-being | one's situation | in a goo
+機構	きこう	1220940	mechanism | machinery | system | structure | organization | framework

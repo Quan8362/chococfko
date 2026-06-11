@@ -1,0 +1,502 @@
+Total candidates: 5621
+
+騒がしい	さわがしい	1403000	noisy
+騒がす	さわがす	1403010	to annoy
+騒ぎ	さわぎ	1403020	uproar
+騒ぎ立てる	さわぎたてる	1403030	to make a great fuss
+騒めく	ざわめく	1403050	to be noisy
+騒音	そうおん	1403060	noise
+騒然	そうぜん	1403070	noisy
+騒乱	そうらん	1403090	disturbance
+騒霊	そうれい	1403100	poltergeist
+増す	ます	1403120	to increase
+増やし	ふやし	1403130	increase
+増員	ぞういん	1403140	increasing the number of staff
+増援	ぞうえん	1403150	reinforcement (e.g. of troops)
+増加	ぞうか	1403160	increase
+増刊	ぞうかん	1403170	special issue (of a magazine, etc.)
+増刊号	ぞうかんごう	1403180	special issue
+増強	ぞうきょう	1403190	reinforcement
+増減	ぞうげん	1403200	increase and decrease
+増刷	ぞうさつ	1403210	additional printing
+増産	ぞうさん	1403220	increase in production
+増資	ぞうし	1403230	increase of capital
+増収	ぞうしゅう	1403240	increase in yield
+増殖	ぞうしょく	1403250	increase
+増殖炉	ぞうしょくろ	1403260	breeder reactor
+増進	ぞうしん	1403270	promoting
+増税	ぞうぜい	1403280	tax increase
+増設	ぞうせつ	1403290	adding (equipment, facilities, etc.)
+増設率	ぞうせつりつ	1403300	expansion rate
+増大	ぞうだい	1403310	enlargement
+増築	ぞうちく	1403320	addition to a building
+増長	ぞうちょう	1403330	growing impudent
+増訂	ぞうてい	1403340	revision and expansion (of a work)
+増訂版	ぞうていばん	1403350	enlarged and revised edition
+増幅	ぞうふく	1403360	amplification
+増幅器	ぞうふくき	1403370	amplifier
+増分	ぞうぶん	1403380	increment
+憎しみ	にくしみ	1403400	hatred
+憎まれっ子	にくまれっこ	1403410	hated child
+憎まれ口	にくまれぐち	1403420	abusive language
+憎まれ役	にくまれやく	1403430	thankless role
+憎らしい	にくらしい	1403450	odious
+憎悪	ぞうお	1403460	hatred
+臓	ぞう	1403470	viscera
+臓器	ぞうき	1403480	internal organs
+臓器移植	ぞうきいしょく	1403490	organ transplant
+臓物	ぞうもつ	1403500	entrails
+蔵書	ぞうしょ	1403510	collection of books
+蔵相	ぞうしょう	1403520	Minister of Finance
+蔵入れ	くらいれ	1403530	warehousing
+贈り主	おくりぬし	1403540	sender (of a present)
+贈収賄	ぞうしゅうわい	1403560	bribery
+贈呈	ぞうてい	1403570	presentation (of a gift, prize, etc.)
+贈答	ぞうとう	1403580	exchange of presents
+贈与	ぞうよ	1403590	donation
+贈与証書	ぞうよしょうしょ	1403600	testimonial
+贈賄	ぞうわい	1403610	giving a bribe
+作り付け	つくりつけ	1403630	built-in
+造園術	ぞうえんじゅつ	1403640	art of landscape gardening
+造形	ぞうけい	1403650	molding
+造形美術	ぞうけいびじゅつ	1403660	the plastic arts
+造語	ぞうご	1403680	coinage
+造作	ぞうさ	1403690	trouble
+造作	ぞうさく	1403700	building (esp. a house)
+造作ない	ぞうさない	1403710	no trouble
+造船	ぞうせん	1403720	shipbuilding
+造兵廠	ぞうへいしょう	1403730	armory
+造林	ぞうりん	1403750	forestation
+促音	そくおん	1403770	geminate consonant (small "tsu" in Japanese)
+促進	そくしん	1403780	promotion
+促進剤	そくしんざい	1403790	accelerant
+促成	そくせい	1403800	promotion of growth
+促成栽培	そくせいさいばい	1403810	forcing (plants, vegetables, etc.)
+側む	そばむ	1403840	to lean to one side
+側める	そばめる	1403850	to shove to one side
+側圧	そくあつ	1403860	lateral pressure
+側泳	そばえい	1403870	side stroke
+側近	そっきん	1403890	close aide (of a powerful person)
+側近く	そばちかく	1403900	nearby
+側近者	そっきんしゃ	1403910	close associate
+側溝	そっこう	1403920	gutter
+側根	そっこん	1403930	lateral root
+側仕え	そばづかえ	1403940	personal attendant
+側射	そくしゃ	1403960	flanking fire
+側車	そくしゃ	1403970	side car
+側線	そくせん	1403990	sidetrack
+側背	そくはい	1404000	flank
+側部	そくぶ	1404010	the side
+側辺	そくへん	1404030	corner
+側面観	そくめんかん	1404050	side view
+側面図	そくめんず	1404060	side view
+側役	そばやく	1404070	personal attendant
+即する	そくする	1404090	to conform to
+即位	そくい	1404110	accession to the throne
+即応	そくおう	1404120	compliance
+即興曲	そっきょうきょく	1404140	impromptu
+即金	そっきん	1404150	spot cash
+即効	そっこう	1404160	immediate effect
+即座に	そくざに	1404190	immediately
+即時	そくじ	1404210	prompt
+即時性	そくじせい	1404220	promptness
+即時停戦	そくじていせん	1404230	immediate cease-fire
+即値	そくち	1404260	immediate
+即日出荷	そくじつしゅっか	1404290	same day shipping
+即売	そくばい	1404300	selling on the spot
+息をする	いきをする	1404330	to breathe
+息をつく	いきをつく	1404340	to take a breath
+息を殺す	いきをころす	1404350	to hold one's breath
+息を吹き返す	いきをふきかえす	1404360	to resume breathing
+息を弾ませる	いきをはずませる	1404370	to pant
+息子さん	むすこさん	1404400	son
+束	たば	1404450	bundle
+束	つか	1404460	strut
+束ね	たばね	1404470	bundle
+束ね積む	たばねつむ	1404480	to shock (grain)
+束帯	そくたい	1404500	old ceremonial court dress
+束髪	そくはつ	1404520	hairstyle introduced in the Meiji era consisting in a bun or chignon tied at the back of the head
+束脩	そくしゅう	1404530	entrance fee
+測候所	そっこうじょ	1404540	weather measurement station
+測地	そくち	1404550	geodetic survey
+測長機	そくちょうき	1404560	length measuring machine
+測度	そくど	1404580	measure
+測量機械	そくりょうきかい	1404600	surveying instrument
+測量技師	そくりょうぎし	1404610	surveyor
+測量図	そくりょうず	1404620	survey map
+足が出る	あしがでる	1404640	to exceed the budget
+足が遅い	あしがおそい	1404650	to be slow-footed
+足がつく	あしがつく	1404660	to be traced (of a criminal)
+足しになる	たしになる	1404670	to be of help
+足し算	たしざん	1404680	addition
+足の甲	あしのこう	1404710	top of the foot
+足の指	あしのゆび	1404720	toe
+足らず	たらず	1404730	less than
+足を組む	あしをくむ	1404760	to cross one's legs
+足回り	あしまわり	1404780	suspension system (of a vehicle)
+足技	あしわざ	1404790	foot technique (in judo, sumo wrestling, etc.)
+足蹴	あしげ	1404850	kick
+足ずり	あしずり	1404870	stamping one's feet (in anger, frustration, etc.)
+足早に	あしばやに	1404890	briskly (walk)
+足速い	あしばやい	1404900	swift-footed
+足駄	あしだ	1404910	high clogs
+足払い	あしばらい	1404940	ashibarai
+足利時代	あしかがじだい	1404960	Ashikaga period (i.e. Muromachi period; 1336-1573)
+足労	そくろう	1404970	trouble of going somewhere
+速戦即決	そくせんそっけつ	1405020	quick battle for a quick victory
+速断	そくだん	1405040	rash decision
+速度計	そくどけい	1405060	speedometer
+速力	そくりょく	1405080	speed
+速力度	そくりょくど	1405090	speed
+俗っぽい	ぞくっぽい	1405110	vulgar
+俗に言う	ぞくにいう	1405130	what is colloquially called
+俗悪	ぞくあく	1405140	vulgar
+俗縁	ぞくえん	1405150	worldly connection
+俗化	ぞっか	1405160	vulgarization
+俗歌	ぞっか	1405170	popular song
+俗解	ぞっかい	1405180	explanation in common language
+俗界	ぞっかい	1405190	secular life
+俗学	ぞくがく	1405200	popular learning
+俗楽	ぞくがく	1405210	popular music
+俗間	ぞっかん	1405220	the world
+俗眼	ぞくがん	1405230	popular opinion
+俗議	ぞくぎ	1405240	popular opinion
+俗曲	ぞっきょく	1405250	folk song
+俗形	ぞくぎょう	1405260	the figure of the common man
+俗見	ぞっけん	1405270	popular view
+俗言	ぞくげん	1405280	colloquial language
+俗諺	ぞくげん	1405290	proverb
+俗語	ぞくご	1405300	colloquialism
+俗向き	ぞくむき	1405310	appealing to the public
+俗才	ぞくさい	1405320	worldly wisdom
+俗事	ぞくじ	1405330	worldly affairs
+俗字	ぞくじ	1405340	informal variant of a Chinese character
+俗耳	ぞくじ	1405350	vulgar ears
+俗趣味	ぞくしゅみ	1405360	vulgar taste
+俗儒	ぞくじゅ	1405370	mediocre scholar
+俗受け	ぞくうけ	1405380	popular appeal
+俗習	ぞくしゅう	1405390	custom
+俗臭	ぞくしゅう	1405400	vulgarity
+俗衆	ぞくしゅう	1405410	people
+俗書	ぞくしょ	1405420	cheap fiction
+俗情	ぞくじょう	1405440	worldly-mindedness
+俗信	ぞくしん	1405450	folk belief
+俗人	ぞくじん	1405460	person with low tastes
+俗塵	ぞくじん	1405470	the (dusty) world
+俗世	ぞくせ	1405480	this world
+俗世界	ぞくせかい	1405490	everyday world
+俗世間	ぞくせけん	1405500	this world
+俗姓	ぞくしょう	1405510	secular surname (of a priest)
+多変量解析	たへんりょうかいせき	1408000	multivariate analysis
+多辺形	たへんけい	1408010	polygon
+多弁	たべん	1408020	talkativeness
+多方面に	たほうめんに	1408030	at many levels
+多忙	たぼう	1408040	being very busy
+多面	ためん	1408050	many-sided
+多面角	ためんかく	1408060	polyhedral angle
+多面体	ためんたい	1408070	polyhedron
+多目的	たもくてき	1408090	multipurpose
+多様	たよう	1408100	diverse
+多様化	たようか	1408110	diversification
+多様性	たようせい	1408120	diversity
+多用	たよう	1408130	busyness
+多羅	たら	1408160	palmyra
+多量	たりょう	1408170	large quantity
+太った	ふとった	1408190	plump
+太っちょ	ふとっちょ	1408200	fatty
+太っ腹	ふとっぱら	1408210	generous
+太マラ	ふとマラ	1408230	big penis
+太極拳	たいきょくけん	1408240	grand ultimate fist
+太古	たいこ	1408260	ancient times
+太もも	ふともも	1408270	thigh
+太鼓	たいこ	1408280	drum
+太鼓判	たいこばん	1408290	large seal
+太字	ふとじ	1408310	boldface
+太書き	ふとがき	1408320	broad-pointed (of writing instruments)
+太祖	たいそ	1408330	founder
+太刀	たち	1408340	long sword (as opposed to the shorter katana)
+太刀打ち	たちうち	1408350	crossing swords
+太平洋	たいへいよう	1408360	Pacific Ocean
+太陽光線	たいようこうせん	1408380	sunlight
+太陽光発電	たいようこうはつでん	1408390	solar power (generation)
+太陽暦	たいようれき	1408400	solar calendar
+唾	つば	1408410	saliva
+唾液	だえき	1408420	saliva
+堕する	だする	1408440	to degenerate
+堕胎	だたい	1408460	abortion
+堕胎医	だたいい	1408470	doctor who performs abortions
+堕落	だらく	1408480	depravity
+堕落坊主	だらくぼうず	1408490	apostate priest
+惰力	だりょく	1408500	inertia
+妥協	だきょう	1408510	compromise
+妥協案	だきょうあん	1408520	compromise plan
+妥結	だけつ	1408530	settlement
+妥当	だとう	1408540	valid
+妥当性	だとうせい	1408550	validity
+惰気	だき	1408560	indolence
+惰性	だせい	1408570	force of habit
+惰眠	だみん	1408580	idle slumber
+打ち下ろす	うちおろす	1408600	to strike someone a blow
+打ち解けにくい	うちとけにくい	1408610	difficult to make friends with
+打ち解ける	うちとける	1408620	to open up (to someone)
+打ち噛ます	ぶちかます	1408640	to ram one's opponent head-first in the initial charge
+打ち砕く	うちくだく	1408660	to smash
+打ち勝つ	うちかつ	1408680	to conquer (e.g. an enemy)
+打ち据える	うちすえる	1408710	to strike (someone) down
+打ち切る	うちきる	1408720	to stop
+打ち破る	うちやぶる	1408730	to break
+打ち鳴らす	うちならす	1408760	to ring (a bell)
+打ち滅ぼす	うちほろぼす	1408770	to destroy
+打ってつけ	うってつけ	1408780	ideal
+打つ手	うつて	1408820	way to do (something)
+打つ手がない	うつてがない	1408830	no way to do
+ぶん殴る	ぶんなぐる	1408840	to hit hard
+打開	だかい	1408850	break in the deadlock
+打楽器	だがっき	1408860	percussion instrument
+打撃	だげき	1408870	blow
+打鍵	だけん	1408880	keystroke
+打算的	ださんてき	1408890	calculating
+打者	だしゃ	1408900	batter
+打診	だしん	1408910	percussion
+打数	だすう	1408920	times at bat
+打線	だせん	1408930	batting line-up
+打倒	だとう	1408940	overthrow
+打破	だは	1408950	breaking down
+打撲	だぼく	1408960	blow
+打撲傷	だぼくしょう	1408970	bruise
+打率	だりつ	1408980	batting average
+舵	かじ	1408990	rudder
+楕円	だえん	1409000	ellipse
+陀羅尼	だらに	1409010	dharani
+駄菓子	だがし	1409020	penny candy
+駄犬	だけん	1409030	mongrel
+駄作	ださく	1409040	poor piece of work
+駄洒落	だじゃれ	1409050	feeble joke
+駄賃	だちん	1409060	reward
+駄文	だぶん	1409070	poor piece of writing
+駄弁	だべん	1409080	foolish tale
+駄弁る	だべる	1409090	to jabber
+駄法螺	だぼら	1409100	big talk
+体を惜しむ	からだをおしむ	1409170	to be lazy
+体を粉にする	からだをこにする	1409180	to work assiduously
+体位	たいい	1409190	physique
+体育の日	たいいくのひ	1409210	Health and Sports Day (national holiday; second Monday in October)
+体育家	たいいくか	1409220	physical culturist
+体液	たいえき	1409240	body fluid
+体温器	たいおんき	1409260	(clinical) thermometer
+体外	たいがい	1409280	ectogenesis
+体外受精	たいがいじゅせい	1409290	in vitro fertilization
+体外離脱	たいがいりだつ	1409300	out-of-body experience
+体格	たいかく	1409310	build
+体格検査	たいかくけんさ	1409320	physical examination
+体技	たいぎ	1409340	fighting sport
+体躯	たいく	1409350	body
+体刑	たいけい	1409360	corporal punishment
+体系	たいけい	1409390	system
+体系化	たいけいか	1409400	systematization
+体系的	たいけいてき	1409410	systematic
+体験	たいけん	1409420	(practical) experience
+体験談	たいけんだん	1409430	story of one's experience
+体現	たいげん	1409440	personification
+体言	たいげん	1409450	uninflectable nominal (in Japanese)
+体腔	たいこう	1409460	body cavity
+体腔壁	たいこうへき	1409470	body wall
+体裁上	ていさいじょう	1409490	for appearances' sake
+体裁ぶる	ていさいぶる	1409500	to put on airs
+体裁よく	ていさいよく	1409510	tastefully
+体臭	たいしゅう	1409530	body odor
+体制	たいせい	1409550	order
+体積抵抗	たいせきていこう	1409570	volume resistivity
+体操場	たいそうじょう	1409590	gymnasium
+体中	からだじゅう	1409600	all over the body
+体調	たいちょう	1409610	physical condition
+体長	たいちょう	1409620	length (of an animal)
+体得	たいとく	1409630	mastery
+体内	たいない	1409640	interior of the body
+体認	たいにん	1409650	understanding based on experience
+体熱	たいねつ	1409660	body heat
+体罰	たいばつ	1409670	corporal punishment
+体つき	からだつき	1409680	body build
+体貌	たいぼう	1409690	appearance
+体面	たいめん	1409700	honour
+態様	たいよう	1409710	state
+体要	たいよう	1409720	important point
+体良く	ていよく	1409730	decently
+体量	たいりょう	1409740	body weight
+体量器	たいりょうき	1409750	scales for weighing
+堆石	たいせき	1409770	(terminal) moraine
+堆積	たいせき	1409780	accumulation
+堆肥	たいひ	1409790	compost
+対	つい	1409810	pair
+対して	たいして	1409820	for
+対案	たいあん	1409830	counter-proposal
+対応値	たいおうち	1409860	corresponding value
+対応版	たいおうばん	1409870	corresponding version
+対外	たいがい	1409880	external
+対外政策	たいがいせいさく	1409890	foreign policy
+対格	たいかく	1409900	accusative case
+対角	たいかく	1409910	diagonal
+対角化	たいかくか	1409920	diagonalisation
+対角線	たいかくせん	1409930	diagonal (line)
+対岸	たいがん	1409940	opposite shore
+対義語	たいぎご	1409950	antonym
+対局者	たいきょくしゃ	1409960	player (of go, shogi, etc.)
+対空ミサイル	たいくうミサイル	1409970	anti-aircraft missile
+対空砲火	たいくうほうか	1409980	anti-aircraft fire
+対偶	たいぐう	1409990	pair
+対決	たいけつ	1410000	confrontation
+対向	たいこう	1410010	counter-
+対抗	たいこう	1410020	opposition
+対抗部隊	たいこうぶたい	1410030	opposing forces
+対校試合	たいこうじあい	1410040	inter-school match
+対支	たいし	1410060	concerning China
+対処	たいしょ	1410070	dealing with
+対照	たいしょう	1410080	contrast
+対症	たいしょう	1410090	specific (e.g. antibody)
+対称	たいしょう	1410100	symmetry
+対称性	たいしょうせい	1410110	symmetry
+対象	たいしょう	1410120	target
+対象体	たいしょうたい	1410140	object
+対象範囲	たいしょうはんい	1410150	scope
+対情報	たいじょうほう	1410160	counter-intelligence
+対審	たいしん	1410170	confrontation
+対数	たいすう	1410180	logarithm
+対戦車ミサイル	たいせんしゃミサイル	1410200	anti-tank missile
+対戦車火器	たいせんしゃかき	1410210	anti-tank weapons
+対弾道弾	たいだんどうだん	1410220	anti-ballistic (missile)
+対談	たいだん	1410230	talk
+対談者	たいだんしゃ	1410240	interlocutor
+対等	たいとう	1410250	equality (esp. of status)
+対比	たいひ	1410260	contrast
+対面	たいめん	1410270	meeting face-to-face
+大安	たいあん	1413010	day that is lucky the whole day (in the traditional calendar)
+大威徳明王	だいいとくみょうおう	1413020	Yamantaka Vidya-raja
+大尉	たいい	1413030	captain (Army, US Marine Corps, USAF)
+大意	たいい	1413040	synopsis
+大域	たいいき	1413050	wide area
+大宇宙	だいうちゅう	1413060	macrocosmos
+大雨	おおあめ	1413070	heavy rain
+大嘘	おおうそ	1413080	outrageous lie
+大奥	おおおく	1413100	inner palace (in Edo Castle)
+大奥様	おおおくさま	1413110	lady of the house
+大王	だいおう	1413120	great king
+大家	おおや	1413140	landlord
+大家族	だいかぞく	1413160	large family
+大火	たいか	1413170	large fire
+大晦日	おおみそか	1413190	New Year's Eve
+大海	たいかい	1413200	ocean
+大ハズレ	おおはずれ	1413210	utter failure
+大外刈り	おおそとがり	1413220	osotogari (judo)
+大学卒	だいがくそつ	1413270	university graduate
+大掛かり	おおがかり	1413280	large-scale
+大企業	だいきぎょう	1413300	large company
+大喜び	おおよろこび	1413310	great joy
+大器晩成	たいきばんせい	1413320	great talents mature late
+大気	たいき	1413330	atmosphere
+大気汚染	たいきおせん	1413340	air pollution
+大規模	だいきぼ	1413350	large-scale
+大規模集積回路	だいきぼしゅうせきかいろ	1413360	large-scale integration
+大規模戦争	だいきぼせんそう	1413370	all-out war
+大義名分	たいぎめいぶん	1413380	just cause
+大詰めを迎える	おおづめをむかえる	1413400	to approach the finale
+大虐殺	だいぎゃくさつ	1413410	massacre
+大急ぎ	おおいそぎ	1413420	great hurry
+大鋸屑	おがくず	1413440	sawdust
+大漁	たいりょう	1413450	big catch (fishing)
+大競争	だいきょうそう	1413460	megacompetition
+大仰	おおぎょう	1413470	exaggerated
+大局	たいきょく	1413480	general situation
+大筋	おおすじ	1413490	outline
+大金	たいきん	1413500	large amount of money
+大空	おおぞら	1413510	wide open sky
+大型	おおがた	1413530	large
+大型タンカー	おおがたタンカー	1413540	(petroleum) super tanker
+大型トラック	おおがたトラック	1413550	large truck
+大型機	おおがたき	1413560	large passenger aircraft
+大圏	たいけん	1413580	great circle
+大圏コース	たいけんコース	1413590	great circle route
+大圏航路	たいけんこうろ	1413600	great circle sailing route
+大言壮語	たいげんそうご	1413620	big talk
+大虎	おおとら	1413630	big tiger
+大鼓	おおつづみ	1413640	large hand drum
+大公	たいこう	1413650	archduke
+大好きになる	だいすきになる	1413670	to come to like a lot
+大好物	だいこうぶつ	1413680	(one's) favourite food
+大工	だいく	1413690	carpenter
+大慌て	おおあわて	1413700	great haste
+大国	たいこく	1413710	large country
+大黒柱	だいこくばしら	1413720	central pillar (of a building)
+大根	だいこん	1413730	daikon (variety of large white Oriental radish, Raphanus sativus var. longipinnatus)
+大佐	たいさ	1413740	colonel
+大差	たいさ	1413750	great difference
+大災害	だいさいがい	1413760	great disaster
+大祭	たいさい	1413770	grand festival
+大祭り	おおまつり	1413780	grand festival
+大祭司	だいさいし	1413790	High Priest (of Israel)
+大阪府	おおさかふ	1413820	Osaka Prefecture (Kinki area)
+大作	たいさく	1413830	large-scale work
+大皿	おおざら	1413850	large plate
+大使	たいし	1413880	ambassador
+大使公邸	たいしこうてい	1413900	ambassador's residence
+大司教	だいしきょう	1413910	archbishop (Catholic)
+大志	たいし	1413920	ambition
+大枝	おおえだ	1413930	large branch
+大字	おおあざ	1413950	larger section (of village)
+大寺院	だいじいん	1413960	large temple
+大赦	たいしゃ	1413970	amnesty
+大社	たいしゃ	1413980	grand shrine
+大主教	だいしゅきょう	1414000	archbishop (Orthodox, Anglican, etc.)
+大手	おおて	1414010	major company
+大樹	たいじゅ	1414020	large tree
+大修道院	だいしゅうどういん	1414030	abbey
+大修道院長	だいしゅうどういんちょう	1414040	abbot
+大衆	たいしゅう	1414050	general public
+大衆文学	たいしゅうぶんがく	1414060	popular literature
+大暑	たいしょ	1414070	blistering heat
+大書	たいしょ	1414080	writing in large letters
+大女	おおおんな	1414090	huge woman
+大勝	たいしょう	1414100	great victory
+大笑い	おおわらい	1414120	great laughter
+大詔	たいしょう	1414130	imperial rescript
+大賞	たいしょう	1414140	big prize
+大人げない	おとなげない	1414180	immature
+大人っぽい	おとなっぽい	1414200	grown-up (manner, etc.)
+大水	おおみず	1414210	flood
+大勢	おおぜい	1414220	crowd of people
+大成功	だいせいこう	1414240	great success
+大正	たいしょう	1414250	Taishō era (1912.7.30-1926.12.25)
+大正時代	たいしょうじだい	1414260	Taishō period (1912-1926)
+大盛り	おおもり	1414280	large serving
+大聖	たいせい	1414290	great sage
+大声	おおごえ	1414300	loud voice
+大西洋	たいせいよう	1414310	Atlantic Ocean
+大西洋横断	たいせいようおうだん	1414320	trans-Atlantic
+大昔	おおむかし	1414330	ancient times
+大雪	おおゆき	1414350	heavy snow
+大戦	たいせん	1414360	great war
+大全	たいぜん	1414370	complete collection
+大掃除	おおそうじ	1414390	major cleanup
+大相撲	おおずもう	1414400	professional sumo wrestling
+大騒ぎ	おおさわぎ	1414410	clamour
+大蔵	おおくら	1414420	Ministry of Finance
+大蔵省	おおくらしょう	1414430	Ministry of Finance (1869-2001)
+大蔵大臣	おおくらだいじん	1414440	Minister of Finance
+大損	おおぞん	1414450	heavy loss
+大多数	だいたすう	1414460	great majority
+大隊	だいたい	1414480	battalion
+大代	だいだい	1414490	main telephone number
+大男	おおおとこ	1414510	big man
+大地	だいち	1414520	earth
+大地アース	だいちアース	1414530	earth ground
+大地震	おおじしん	1414540	major earthquake
+大中小	だいちゅうしょう	1414550	large, medium and small (businesses, rooms, etc.)
+大腸	だいちょう	1414560	large intestine
+大通り	おおどおり	1414570	main street
+大敵	たいてき	1414590	great rival
+大都会	だいとかい	1414600	metropolis
+大都市	だいとし	1414610	metropolis
+大東亜共栄圏	だいとうあきょうえいけん	1414630	Greater East Asia Co-Prosperity Sphere
+大統一理論	だいとういつりろん	1414640	grand unified theory
+大統領	だいとうりょう	1414650	president (of a country)
+大統領選	だいとうりょうせん	1414660	presidential election
+大統領選挙	だいとうりょうせんきょ	1414670	presidential election

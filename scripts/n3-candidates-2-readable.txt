@@ -1,0 +1,500 @@
+3	蚕具	さんぐ	1304020	sericultural equipment
+4	蚕糸	さんし	1304040	silk thread | silk yarn
+5	蚕糸試験所	さんししけんじょ	1304060	silk experiment station
+6	蚕食	さんしょく	1304110	encroachment | making inroads (into) | (slow but steady) invasion
+7	賛歌	さんか	1304140	song of praise | eulogy | paean | hymn
+8	讃賞	さんしょう	1304150	praise
+9	賛助	さんじょ	1304190	support | patronage
+10	賛否両論	さんぴりょうろん	1304230	arguments for and against | pros and cons | mixed reception | mixed reviews
+11	賛美	さんび	1304240	praise | glorification | extolment
+12	酸	さん	1304260	acid | sourness | sour taste
+13	酸い	すい	1304270	sour | acid
+14	酸化	さんか	1304290	oxidation | oxidization
+15	酸化物	さんかぶつ	1304300	oxide
+16	酸化防止剤	さんかぼうしざい	1304310	antioxidant
+17	酸欠	さんけつ	1304320	oxygen deficiency | oxygen shortage | lack of oxygen
+18	酸性	さんせい	1304330	acidity | acidic
+19	酸性雨	さんせいう	1304340	acid rain
+20	酸素	さんそ	1304350	oxygen (O)
+21	酸素供給	さんそきょうきゅう	1304360	oxygen supply
+22	酸中毒	さんちゅうどく	1304370	acid poisoning
+23	酸度	さんど	1304380	acidity
+24	酸味	さんみ	1304390	sourness | acidity
+25	斬る	きる	1304400	to kill (a human) using a blade (sword, machete, knife, etc.) | to slice (off) | to lop (off) | to c
+26	斬新	ざんしん	1304410	novel | original | new | innovative
+27	暫く	しばらく	1304420	for a moment | for a minute | for a while | for some time | for the time being | for now | it's been
+28	暫くすると	しばらくすると	1304430	after a short time | in a short while | a short time later
+29	暫時	ざんじ	1304440	short while
+30	暫定	ざんてい	1304450	provisional | temporary | tentative | interim
+31	暫定協定	ざんていきょうてい	1304460	provisional agreement | modus vivendi
+32	暫定政府	ざんていせいふ	1304470	interim government | provisional government | caretaker government
+33	残り	のこり	1304480	remainder | remnant | the rest | what is left | balance | leftovers
+34	残り火	のこりび	1304490	embers
+35	残り物	のこりもの	1304500	leftovers (esp. food) | remnants
+36	残骸	ざんがい	1304520	ruins | wreckage | wreck | broken remains | debris
+37	残基	ざんき	1304530	residue
+38	残虐	ざんぎゃく	1304540	cruel | brutal | savage | barbarous
+39	残響	ざんきょう	1304550	reverberation | echo
+40	残金	ざんきん	1304570	remaining money
+41	残光	ざんこう	1304580	afterglow
+42	残高	ざんだか	1304590	(bank) balance | remainder
+43	残酷	ざんこく	1304600	cruel | brutal | ruthless | merciless | inhuman
+44	残暑	ざんしょ	1304620	late summer heat | lingering summer heat
+45	残心	ざんしん	1304630	continued alertness | unrelaxed alertness | remaining on one's guard | being prepared for a counters
+46	残像	ざんぞう	1304640	afterimage | after image
+47	残存	ざんぞん	1304650	survival | remaining | being extant | being left
+48	残忍	ざんにん	1304670	brutal | cruel | merciless | ruthless | cold-blooded
+49	残念ながら	ざんねんながら	1304700	unfortunately | regrettably
+50	残飯	ざんぱん	1304710	leftover food | leftovers | food scraps
+51	残務	ざんむ	1304720	remaining business
+52	残留	ざんりゅう	1304740	staying behind | remaining | residual
+53	仕	し	1304750	official | civil service
+54	仕える	つかえる	1304760	to serve | to work for | to attend
+55	仕え女	つかえめ	1304770	maidservant
+56	仕え奉る	つかえまつる	1304780	to serve | to build as commanded
+57	仕る	つかまつる	1304790	to do | to perform | to carry out | to serve | to wait upon | to attend
+58	仕を致す	しをいたす	1304800	to resign
+59	仕掛かり	しかかり	1304810	commencement
+60	仕掛ける	しかける	1304820	to start | to begin | to commence | to challenge | to pick (a fight) | to make (war) | to draw (a re
+61	仕掛け花火	しかけはなび	1304830	fireworks piece
+62	仕掛け地雷	しかけじらい	1304840	booby trap
+63	仕官	しかん	1304850	government service | entering government service | finding a new lord or master to serve (of a ronin
+64	仕儀	しぎ	1304860	situation | developments | outcome
+65	仕業	しわざ	1304870	deed (esp. negative) | act | action | one's doing | one's work
+66	仕兼ねない	しかねない	1304880	likely to do | liable to do | (quite) capable of doing | may (well) do | might do | could do | would
+67	し兼ねる	しかねる	1304890	to be reluctant to do | to hesitate to do | to be unable to do | to not be in a position to do
+68	仕口	しくち	1304900	method | way
+69	幸せ者	しあわせもの	1304910	fortunate person | lucky fellow | lucky dog
+70	仕込み	しこみ	1304920	training | education | upbringing | stocking up | laying in | preparation (e.g. ingredients) | girl
+71	仕込み杖	しこみづえ	1304930	swordstick | sword cane | loaded cane
+72	仕込む	しこむ	1304940	to train | to teach | to educate | to acquire (information) | to learn | to cram | to stock | to sto
+73	し始める	しはじめる	1304960	to begin (doing) | to start (doing)
+74	仕事師	しごとし	1304980	workman | enterpriser | schemer
+75	仕事場	しごとば	1304990	place where one works | construction site | working area
+76	仕事台	しごとだい	1305000	workbench | work table
+77	仕事着	しごとぎ	1305010	work clothes | business suit
+78	仕事中	しごとちゅう	1305020	at work | in the midst of work | working
+79	仕事日	しごとび	1305030	work day
+80	仕事箱	しごとばこ	1305040	workbox
+81	仕事部屋	しごとべや	1305050	workroom
+82	仕事柄	しごとがら	1305060	for work | in a manner related to work
+83	仕手	して	1305070	doer | performer | shite | protagonist | hero | leading part | main character | speculator
+84	仕手株	してかぶ	1305080	speculative stock
+85	仕出し	しだし	1305090	food delivery service | catering | walk-on part (in a play or film) | background actor | extra
+86	仕出し屋	しだしや	1305100	caterer
+87	し出す	しだす	1305110	to begin to do | to start doing | to cater | to make and deliver (food)
+88	仕上げ払い	しあげばらい	1305150	piecework pay
+89	仕上工	しあげこう	1305160	finishing workman | finisher | fitter
+90	仕切る	しきる	1305180	to partition | to divide | to mark off | to direct | to manage | to run | to organize | to take resp
+91	仕切れない	しきれない	1305190	impossible to do
+92	仕組む	しくむ	1305200	to devise | to arrange | to plan | to plot
+93	仕草	しぐさ	1305210	gesture | movement | action | behavior | behaviour | bearing | mannerism | acting | performance
+94	仕送り	しおくり	1305220	allowance | remittance | sending (someone) an allowance
+95	仕打ち	しうち	1305230	(poor) treatment | (bad) behavior | behaviour | action | act
+96	仕替える	しかえる	1305240	to do over | to start anew
+97	仕置き	しおき	1305250	punishment (esp. spanking a child) | criminal punishment (esp. execution; Edo period)
+98	仕置き者	しおきもの	1305260	punished criminal
+99	仕置場	しおきば	1305270	execution ground
+100	し直す	しなおす	1305280	to do over | to remake | to resume
+101	し慣れる	しなれる	1305290	to be used to doing | to be experienced in
+102	仕入れ	しいれ	1305300	buying (of stock, materials, etc.) | purchasing | stocking | laying in | procurement
+103	仕入れる	しいれる	1305310	to buy (stock, materials, etc.) | to purchase | to lay in | to stock | to procure | to get | to obta
+104	仕入れ先	しいれさき	1305320	supplier
+105	仕入れ物	しいれもの	1305330	stock of goods received
+106	仕付け	しつけ	1305340	tacking (in needlework) | basting | planting (esp. rice seedlings) | discipline | training | teachin
+107	仕付ける	しつける	1305350	to be used to | to get accustomed to | to be in the habit of doing | to train | to discipline | to t
+108	しつけ糸	しつけいと	1305360	tacking | basting (thread)
+109	しまい込む	しまいこむ	1305370	to put away | to stow away | to tuck away | to hoard
+110	しもた屋	しもたや	1305390	store that has been gone out of business | household that lives without carrying on a business
+111	仕舞物	しまいもの	1305400	goods left unsold
+112	仕返し	しかえし	1305410	payback | tit for tat | retaliation | revenge | doing over again | redoing
+113	仕方がない	しかたがない	1305420	there's no (other) way | cannot be helped | unavoidable | inevitable | (there's) nothing one can do
+114	仕方のない	しかたのない	1305430	cannot be helped | unavoidable | inevitable | (there's) nothing one can do | having no choice | poin
+115	仕方ない	しかたない	1305440	there's no (other) way | cannot be helped | unavoidable | inevitable | (there's) nothing one can do
+116	仕方なしに	しかたなしに	1305450	helplessly | reluctantly
+117	仕方話	しかたばなし	1305460	talking with gestures
+118	仕訳書	しわけしょ	1305470	specifications
+119	仕訳帳	しわけちょう	1305480	book-keeping journal
+120	仕訳表	しわけひょう	1305490	journal (accounts)
+121	仕様	しよう	1305500	way | method | means | resource | remedy | (technical) specification
+122	仕様がない	しょうがない	1305510	there's no (other) way | cannot be helped | unavoidable | inevitable | (there's) nothing one can do
+123	仕様のない	しようのない	1305520	hopeless | good-for-nothing | incorrigible | beyond redemption | foolish | preposterous | absurd
+124	仕様書	しようしょ	1305530	manual | instructions | guide | specification document | specifications | blueprint
+125	仕様書き	しようがき	1305540	manual | instructions | guide | specification document | specifications | blueprint
+126	仕立て	したて	1305550	tailoring | sewing | cut | (special) preparation | teaching | training
+127	仕立てる	したてる	1305560	to tailor | to make (clothing) | to train | to bring up | to make it seem like | to pass off | to tu
+128	仕立て屋	したてや	1305570	tailor | dressmaker
+129	仕立て下ろし	したておろし	1305580	brand new (clothes)
+130	仕立て直し	したてなおし	1305590	alteration (esp. of suits and kimonos) | re-tailoring | remaking
+131	仕立て方	したてかた	1305600	style of clothes | method of tailoring | method of training
+132	仕立券	したてけん	1305610	free dressmaking ticket (with a purchase of cloth)
+133	仕立物	したてもの	1305620	sewing | tailoring | newly tailored clothes
+134	仕留める	しとめる	1305630	to bring down (an animal, opponent, etc.) | to kill | to shoot dead | to shoot down
+135	仕拵え	しこしらえ	1305640	preparation (e.g. of land for tilling) | ground clearance | clearing
+136	仔虫	しちゅう	1305660	larva
+137	伺い事	うかがいごと	1305680	inquiry | enquiry
+138	伺う	うかがう	1305700	to call on someone | to call at a place | to pay a visit | to wait on someone | to ask | to inquire
+139	伺候	しこう	1305710	waiting upon (someone)
+140	使い	つかい	1305720	errand | mission | going on an errand | messenger | bearer | errand boy | errand girl | familiar spi
+141	使い勝手	つかいがって	1305730	ease of use | user-friendliness | usability | utility | convenience
+142	使いこなす	つかいこなす	1305740	to handle (men) | to master (a tool) | to manage | to acquire a command of (a language)
+143	使い果たす	つかいはたす	1305750	to use up | to squander
+144	使いすぎる	つかいすぎる	1305760	to use excessively | to use too much | to spend too much | to overwork someone
+145	使い慣らす	つかいならす	1305770	to accustom oneself to using | to train | to break in (horses)
+146	使い慣れる	つかいなれる	1305780	to get used to using | to get accustomed to using
+147	使い古す	つかいふるす	1305790	to wear out (something)
+148	使い込む	つかいこむ	1305800	to embezzle | to misappropriate | to peculate | to accustom oneself to using | to use for a long tim
+149	使い頃	つかいごろ	1305810	handy
+150	使い残し	つかいのこし	1305820	remnant | remainder | odds and ends | leavings
+151	使い残り	つかいのこり	1305830	remnant | remainder | odds and ends | leavings
+152	使い手	つかいて	1305840	user | consumer | employer | master (e.g. of swordsmanship) | prodigal | spendthrift
+153	使いで	つかいで	1305850	lasting quality | good wearing ability | going a long way
+154	使い尽くす	つかいつくす	1305860	to use up | to squander
+155	使い切る	つかいきる	1305870	to use up | to exhaust | to wear out
+156	使い先	つかいさき	1305880	the place where one is sent on an errand
+157	使い賃	つかいちん	1305890	messenger tip or charge
+158	使い道	つかいみち	1305900	purpose | utility | objective | way to use something
+159	使い物	つかいもの	1305910	useful thing | usable article | present | gift
+160	使い分け	つかいわけ	1305920	proper use | using (different things) for different purposes
+161	使い分ける	つかいわける	1305930	to use properly | to use (different things) for different purposes
+162	使い歩き	つかいあるき	1305940	running errands | errand boy | errand girl
+163	使いよう	つかいよう	1305960	how to use
+164	使い立て	つかいだて	1305970	causing you trouble
+165	使い料	つかいりょう	1305980	use
+166	使者	ししゃ	1306000	messenger | envoy | emissary
+167	使者を遣わす	ししゃをつかわす	1306010	to dispatch a messenger | to despatch a messenger
+168	使臣	ししん	1306020	envoy
+169	使節	しせつ	1306030	envoy | ambassador | delegate | emissary | mission
+170	使節団	しせつだん	1306040	mission | delegation
+171	使丁	してい	1306050	servant | janitor | messenger
+172	使徒	しと	1306060	apostle | disciple
+173	使徒継承	しとけいしょう	1306070	apostolic succession
+174	使徒行伝	しとぎょうでん	1306080	Acts of the Apostles (book of the Bible)
+175	使徒書	しとしょ	1306090	the Epistles (of the New Testament)
+176	使徒書簡	しとしょかん	1306100	the Epistles (of the New Testament)
+177	使徒承伝	しとしょうでん	1306110	apostolic succession
+178	使徒信経	しとしんきょう	1306120	Apostle's Creed
+179	使徒信条	しとしんじょう	1306130	Apostles' Creed
+180	使徒達	しとたち	1306140	the Apostles
+181	使途	しと	1306150	purpose for which money is spent | the way money is spent | how goods are used
+182	使命	しめい	1306160	mission | errand | task | duty | obligation
+183	使命者	しめいしゃ	1306170	messenger
+184	使役	しえき	1306180	setting (someone) to work | employment | using | causative
+185	上塗り	うわぬり	1354000	final coat (of paint, plaster, varnish, etc.) | finish | glazing | adding more of the same (of somet
+186	上棟	じょうとう	1354010	raising the ridgepole
+187	上棟式	じょうとうしき	1354020	ridgepole-raising ceremony
+188	上等	じょうとう	1354030	superior | first-class | excellent | top quality | (that's) just fine! | bring it on!
+189	上等品	じょうとうひん	1354040	first-class article
+190	上等兵	じょうとうへい	1354050	private first-class (army) | airman first class (air force) | lance corporal (US Marines; Commonweal
+191	上等兵曹	じょうとうへいそう	1354060	chief petty officer
+192	上騰	じょうとう	1354070	advance | rise | jump
+193	上働き	うわばたらき	1354080	housemaid | cleaning lady
+194	上納	じょうのう	1354090	payment (to the government, authorities, etc.) | land tax (often paid in rice) | tribute
+195	上納金	じょうのうきん	1354100	money paid to authorities | money paid to the government | money forcibly collected by yakuza bosses
+196	上納米	じょうのうまい	1354110	rice-tax delivery
+197	上馬	じょうば	1354120	excellent horse
+198	上背	うわぜい	1354130	stature | height
+199	上白	じょうはく	1354140	first-class rice
+200	上箱	うわばこ	1354150	outer box | outer casing
+201	上半	じょうはん	1354160	first half | upper half
+202	上半身	じょうはんしん	1354180	upper half of the body | upper body
+203	上番	じょうばん	1354190	being on duty
+204	上紐	うわひも	1354200	outside string (on a package)
+205	上表	じょうひょう	1354210	memorial to the emperor
+206	上表紙	うわびょうし	1354220	cover | front cover | wrapper | jacket
+207	上品	じょうぼん	1354240	Buddhism's highest paradise
+208	上部	じょうぶ	1354250	top part | surface
+209	上部構造	じょうぶこうぞう	1354260	superstructure
+210	上服	うわふく	1354270	outer garment
+211	上覆	うわおおい	1354280	cover | covering
+212	上物	じょうもの	1354290	high-quality goods | choice goods
+213	上分別	じょうふんべつ	1354300	good idea | wise policy
+214	上文	じょうぶん	1354310	the foregoing | the forgoing
+215	上聞	じょうぶん	1354320	an imperial hearing
+216	上米	じょうまい	1354330	first-class rice
+217	上辺	うわべ	1354340	exterior | surface | outside | outward appearance | looks
+218	上辺	じょうへん	1354350	upper side (of a go, chess or othello board)
+219	上包み	うわづつみ	1354360	cover | wrapper | envelope
+220	上方贅六	かみがたぜいろく	1354370	people from Kansai
+221	上面	うわつら	1354380	surface | appearances | exterior
+222	上目	うわめ	1354400	upward glance | upturned eyes
+223	上役	うわやく	1354410	one's superior | higher-up | boss | senior
+224	上諭	じょうゆ	1354420	imperial edict
+225	上翼	じょうよく	1354430	upper wing of a plane
+226	上洛	じょうらく	1354440	going to Kyoto | visiting Kyoto
+227	上欄	じょうらん	1354450	top or preceding horizontal column
+228	上覧	じょうらん	1354460	imperial inspection
+229	上履き	うわばき	1354470	hallway slippers | indoor shoes
+230	上陸	じょうりく	1354480	landing | going ashore | disembarkation | making landfall (of a typhoon) | striking land | hitting l
+231	上陸用舟艇	じょうりくようしゅうてい	1354490	landing craft
+232	上略	じょうりゃく	1354500	first paragraphs omitted
+233	上流	じょうりゅう	1354510	upper stream | upper course | upper reaches | upstream | upper classes
+234	上流社会	じょうりゅうしゃかい	1354520	upper classes
+235	上例	じょうれい	1354530	above example
+236	上腕	じょうわん	1354540	upper arm
+237	上まぶた	うわまぶた	1354550	upper eyelid
+238	上膊	じょうはく	1354560	upper arm
+239	上臈	じょうろう	1354570	court lady | noblewoman
+240	丈	たけ	1354600	height | stature | length (esp. of clothing) | all (one has) | everything | magnificence (of a waka
+241	丈長	たけなが	1354610	tall
+242	丈余	じょうよ	1354640	over ten feet
+243	乗じる	じょうじる	1354650	to take advantage of | to follow blindly | to multiply
+244	乗ずる	じょうずる	1354660	to take advantage of | to follow blindly | to multiply
+245	乗っかる	のっかる	1354670	to get on | to climb on
+246	乗っ切る	のっきる	1354710	to overcome | to get through
+247	乗り	のり	1354720	riding | ride | spread (of paints) | -seater (e.g. two-seater) | (getting into the) mood | (entering
+248	乗りこなす	のりこなす	1354730	to manage skillfully | to manoeuvre (e.g. car, horse) | to maneuver
+249	乗りにくい	のりにくい	1354740	hard to ride
+250	乗り移す	のりうつす	1354750	to transfer (a stowaway)
+251	乗り移る	のりうつる	1354760	to change (buses, boats, etc.) | to transfer (to) | to possess (of a god, spirit, etc.)
+252	乗り越し料金	のりこしりょうきん	1354780	excess fare (for going too far)
+253	乗り越す	のりこす	1354790	to ride past (one's stop) | to overshoot | to climb over | to get over | to overtake (a vehicle) | t
+254	乗り過ごす	のりすごす	1354800	to ride past | to miss one's stop (train, bus, etc.)
+255	乗り回す	のりまわす	1354810	to drive (a car) around | to ride (a bicycle) around
+256	乗り回る	のりまわる	1354820	to ride around
+257	乗りかかる	のりかかる	1354830	to be about to get on (a train, bus, etc.) | to be about to board | to start (doing) | to begin | to
+258	乗り掛ける	のりかける	1354840	to be about to board | to be riding on | to get on top of | to lean over | to set about | to collide
+259	乗り換え場	のりかえば	1354850	platform for transfer
+260	乗り気	のりき	1354860	interest | eagerness | enthusiasm
+261	乗り継ぐ	のりつぐ	1354870	to connect (with a different flight, train, etc.) | to make a connection | to change (planes, trains
+262	乗り降り	のりおり	1354880	getting on and off (a vehicle) | boarding and alighting
+263	乗り合わす	のりあわす	1354890	to happen to ride together | to share a vehicle
+264	乗り合わせる	のりあわせる	1354900	to happen to ride together | to share a vehicle | to (operate a) carpool
+265	乗り込む	のりこむ	1354910	to board (a train, plane, etc.) | to get into (a car) | to get on (a bus) | to go on board | to get
+266	乗り捨てる	のりすてる	1354920	to get off | to abandon (a ship or vehicle)
+267	乗り取る	のりとる	1354930	to capture | to occupy | to usurp
+268	乗り出す	のりだす	1354940	to set out | to set sail | to embark on (a new venture) | to set out (to achieve something) | to beg
+269	乗り上げる	のりあげる	1354950	to run up onto (e.g. sidewalk) | to run aground | to be stranded
+270	乗り進める	のりすすめる	1354960	to ride forth
+271	乗り組む	のりくむ	1354980	to get on aboard | to join a ship
+272	乗り損なう	のりそこなう	1354990	to miss (e.g. train, plane)
+273	乗り遅れる	のりおくれる	1355000	to miss (a train, bus, etc.) | to fail to keep up with (e.g. the times) | to be left behind by
+274	乗り通る	のりとおる	1355010	to ride through | to ride along
+275	乗りつぶす	のりつぶす	1355020	to drive into the ground (e.g. car) | to ride to death (e.g. horse)
+276	乗りならす	のりならす	1355030	to break in (a horse)
+277	乗り入る	のりいる	1355040	to ride into (a place) | to drive into (a place)
+278	乗り入れる	のりいれる	1355050	to drive into | to ride into | to extend (a railway line, bus route, etc.) into | to link (a railway
+279	乗り馬	のりうま	1355060	riding horse | saddle horse
+280	乗り飛ばす	のりとばす	1355070	to tear along (a road)
+281	乗り付け	のりつけ	1355080	one's regular taxi
+282	乗り付ける	のりつける	1355090	to arrive (by car, bike, etc.) | to drive up to | to draw up at | to get used to riding | to get use
+283	乗り戻す	のりもどす	1355100	to ride (a horse) back | to drive (a car) back
+284	乗りいい	のりいい	1355110	easy to ride | riding well
+285	乗員	じょういん	1355130	crew member | crewman | crew
+286	乗換駅	のりかええき	1355140	transfer station | transfer point
+287	乗換券	のりかえけん	1355150	transfer ticket
+288	乗艦	じょうかん	1355160	boarding a warship | serving on a warship | warship in which one serves
+289	乗降	じょうこう	1355170	getting on and off | embarking and disembarking
+290	乗降車優先	じょうこうしゃゆうせん	1355180	priority to pedestrians
+291	乗降場	じょうこうじょう	1355190	(station) platform
+292	乗号	じょうごう	1355200	multiplication sign | sign of multiplication
+293	乗合	のりあい	1355210	riding together | fellow passenger | joint partnership
+294	乗合自動車	のりあいじどうしゃ	1355220	bus (on a regular route) | transit bus | fixed-route bus
+295	乗合船	のりあいぶね	1355230	ferryboat | ferry | passenger boat | shared fishing boat
+296	乗合馬車	のりあいばしゃ	1355240	stagecoach
+297	乗算	じょうざん	1355250	multiplication
+298	乗算器	じょうざんき	1355260	multiplier (written)
+299	乗車	じょうしゃ	1355270	boarding (a train, bus, etc.) | getting into (e.g. a taxi)
+300	乗車駅	じょうしゃえき	1355280	entraining point
+301	乗車券	じょうしゃけん	1355290	ticket (for bus, train, etc.) | passenger ticket | basic fare ticket (not valid on limited express t
+302	乗車口	じょうしゃぐち	1355300	entrance (for passengers at a train station) | passenger door (on a train, bus, etc.)
+303	乗車賃	じょうしゃちん	1355310	railway fare
+304	乗除	じょうじょ	1355320	multiplication and division
+305	乗数	じょうすう	1355330	multiplier | multiplier factor
+306	乗数効果	じょうすうこうか	1355340	multiplier effect
+307	乗積	じょうせき	1355350	product
+308	乗船	じょうせん	1355360	embarking (a ship) | embarkation | boarding | ship (carrying someone)
+309	乗組	のりくみ	1355370	crew
+310	乗組員	のりくみいん	1355380	crew (of a ship, airplane, etc.) | crew member
+311	乗馬	じょうば	1355390	horse riding | horseback riding | mounting a horse | mount | riding horse | saddle horse | horse one
+312	乗馬靴	じょうばぐつ	1355400	riding boots
+313	乗馬隊	じょうばたい	1355410	mounted corps | cavalcade
+314	乗馬服	じょうばふく	1355420	riding habit
+315	乗法	じょうほう	1355430	multiplication
+316	乗務員	じょうむいん	1355440	transport staff (driver, conductor, etc.) | crew member | crewman
+317	乗用自動車	じょうようじどうしゃ	1355450	passenger vehicle
+318	乗用車	じょうようしゃ	1355460	(passenger) car | automobile
+319	乗冪	じょうべき	1355470	power
+320	冗	じょう	1355480	waste | uselessness | redundance
+321	冗員	じょういん	1355490	supernumerary | superfluous staff | excess personnel | useless staff
+322	冗官	じょうかん	1355500	supernumerary official
+323	冗句	じょうく	1355510	redundant phrase | joke
+324	冗言	じょうげん	1355520	chatter | useless words
+325	冗多	じょうた	1355530	superabundance
+326	冗談	じょうだん	1355540	joke | jest | funny story
+327	冗談口	じょうだんぐち	1355550	joke
+328	冗談事	じょうだんごと	1355560	joking matter
+329	冗長	じょうちょう	1355580	tedious | verbose | wordy | lengthy | longwinded | prolix | redundancy
+330	冗長性	じょうちょうせい	1355590	redundancy
+331	冗長度	じょうちょうど	1355600	redundancy (information theory)
+332	冗費	じょうひ	1355610	unnecessary expense
+333	冗筆	じょうひつ	1355620	worthless painting and writing
+334	冗物	じょうぶつ	1355630	redundancy | superfluity
+335	冗文	じょうぶん	1355640	redundancy
+336	冗漫	じょうまん	1355650	verbosity
+337	冗用	じょうよう	1355660	unnecessary work | unnecessary expense
+338	剰費	じょうひ	1355680	unnecessary expenses
+339	剰余	じょうよ	1355690	surplus | balance | remainder | remainder
+340	剰余金	じょうよきん	1355700	surplus | balance
+341	城	しろ	1355710	castle
+342	城下	じょうか	1355720	land near a castle | castle town
+343	城下町	じょうかまち	1355730	castle town | city in Japan that developed around the castle of a feudal lord
+344	城郭	じょうかく	1355740	castle | citadel | fortress | castle walls | enclosure
+345	城主	じょうしゅ	1355750	lord of a castle
+346	城代	じょうだい	1355760	chamberlain | castle keeper
+347	城壁	じょうへき	1355770	castle wall | town walls | defensive wall | rampart
+348	城門	じょうもん	1355780	castle gate
+349	場	ば	1355790	place | spot | space | field | discipline | sphere | realm | occasion | situation | scene (of a play
+350	場違い	ばちがい	1355800	out-of-place | inappropriate | sticking out like a sore thumb | produced at an unorthodox location
+351	場合による	ばあいによる	1355830	to depend (on the situation) | to be handled case by case
+352	場合を除き	ばあいをのぞき	1355840	excluding the case when | when not
+353	場所柄	ばしょがら	1355860	character of a place | situation | location | occasion
+354	場所柄弁えず	ばしょがらわきまえず	1355870	not in keeping with the occasion
+355	場内	じょうない	1355880	in-house | (on) the grounds | (in) the premises | hall | theatre | theater
+356	場末	ばすえ	1355890	outskirts (of a town) | run-down district
+357	場味	ばあじ	1355900	market sentiment
+358	嬢	じょう	1355930	unmarried woman | Miss | -ess | -ette
+359	常	とこ	1355940	constant | unchanging | eternal
+360	常しなえ	とこしなえ	1355960	eternity
+361	常軌	じょうき	1355980	normal course (of action) | proper course | regular way
+362	常時	じょうじ	1355990	usually | ordinarily | always | continuous | 24-hour (operation, care, etc.) | constant | always on
+363	常習	じょうしゅう	1356010	custom | common practice | habit
+364	常習者	じょうしゅうしゃ	1356020	habitual offender | addict
+365	常習犯	じょうしゅうはん	1356030	habitual criminal | recidivist | recidivism | habitual criminal activity
+366	常世	とこよ	1356040	eternalness | forever unchanging | distant land over the sea | world of the dead
+367	常世の国	とこよのくに	1356050	land of the dead | netherworld | distant country
+368	常設	じょうせつ	1356060	standing (committee) | permanent (exhibit)
+369	常体	じょうたい	1356070	direct style
+370	常駐	じょうちゅう	1356080	permanent stationing | staying permanently | resident (program, file, etc.)
+371	常日頃	つねひごろ	1356090	everyday | always | at all times | frequently
+372	常任	じょうにん	1356100	standing | regular | permanent
+373	常任委員	じょうにんいいん	1356110	member of a standing committee
+374	常分数	じょうぶんすう	1356120	proper fraction
+375	常務	じょうむ	1356130	managing director | executive director | routine business | regular business
+376	常用	じょうよう	1356140	habitual use | daily use
+377	常用漢字	じょうようかんじ	1356150	jōyō kanji | kanji for common use | list of 2,136 kanji designated for common use (introduced in 198
+378	常用対数	じょうようたいすう	1356160	common logarithm | base-10 logarithm
+379	常用癖	じょうようへき	1356170	addiction
+380	側背	そくはい	1404000	flank
+381	側部	そくぶ	1404010	the side
+382	側辺	そくへん	1404030	corner
+383	側面	そくめん	1404040	side | flank | profile | sidelight | lateral | aspect | dimension
+384	側面観	そくめんかん	1404050	side view
+385	側面図	そくめんず	1404060	side view
+386	側役	そばやく	1404070	personal attendant
+387	則る	のっとる	1404080	to follow (a rule, precedent, style, etc.) | to conform to | to be in accordance with
+388	即する	そくする	1404090	to conform to | to agree with | to be adapted to | to be based on
+389	即ち	すなわち	1404100	that is (to say) | namely | i.e. | precisely | exactly | just | nothing but | neither more nor less
+390	即位	そくい	1404110	accession to the throne | enthronement
+391	即興	そっきょう	1404130	improvisation | improvised | impromptu | extempore | ad-lib | off-the-cuff
+392	即興曲	そっきょうきょく	1404140	impromptu
+393	即金	そっきん	1404150	spot cash | cash payment | immediate payment (in cash) | cash down
+394	即効	そっこう	1404160	immediate effect | instant effect
+395	即刻	そっこく	1404170	immediately | at once | instantly
+396	即座	そくざ	1404180	immediate | right there on the spot | impromptu | instant | instantaneous
+397	即座に	そくざに	1404190	immediately | right away | on the spot
+398	即死	そくし	1404200	instant death
+399	即時	そくじ	1404210	prompt | immediate | in real time
+400	即時性	そくじせい	1404220	promptness | timeliness
+401	即時停戦	そくじていせん	1404230	immediate cease-fire
+402	即席	そくせき	1404240	impromptu | improvised | extempore | ad-lib | off-the-cuff | instant (e.g. ramen)
+403	即断	そくだん	1404250	prompt decision | snap judgement | snap judgment
+404	即値	そくち	1404260	immediate
+405	即答	そくとう	1404270	immediate reply
+406	即日	そくじつ	1404280	(on) the same day
+407	即日出荷	そくじつしゅっか	1404290	same day shipping
+408	即売	そくばい	1404300	selling on the spot
+409	即物的	そくぶつてき	1404310	practical | matter-of-fact | realistic | utilitarian | pragmatic
+410	息	いき	1404320	breath | breathing | concord | harmony | rapport | steam (coming off hot food, tea, etc.) | (water)
+411	息をする	いきをする	1404330	to breathe
+412	息をつく	いきをつく	1404340	to take a breath | to take a short rest
+413	息を殺す	いきをころす	1404350	to hold one's breath | to catch one's breath
+414	息を吹き返す	いきをふきかえす	1404360	to resume breathing | to come around | to come back to life
+415	息を弾ませる	いきをはずませる	1404370	to pant | to gasp | to be short of breath | to be excited
+416	息継ぎ	いきつぎ	1404380	taking a breath (while singing, swimming, etc.) | short break | breather
+417	息子さん	むすこさん	1404400	son
+418	息吹	いぶき	1404410	breath | sign (of something new and fresh) | breath (of spring, fresh air, etc.) | vitality
+419	息切れ	いきぎれ	1404420	shortness of breath | panting | puffing | running out of steam (of the economy, a project, etc.) | l
+420	息抜き	いきぬき	1404430	taking a breather | relaxation | rest | vent | ventilation opening
+421	束	たば	1404450	bundle | bunch | sheaf
+422	束	つか	1404460	strut | short vertical post | thickness (of a book minus the cover, a sheaf of paper, etc.) | handbr
+423	束ね	たばね	1404470	bundle | control | management
+424	束ね積む	たばねつむ	1404480	to shock (grain)
+425	つかの間	つかのま	1404490	moment | brief space of time
+426	束帯	そくたい	1404500	old ceremonial court dress
+427	束縛	そくばく	1404510	restraint | restriction | fetters | yoke | shackles | binding | confinement with rope
+428	束髪	そくはつ	1404520	hairstyle introduced in the Meiji era consisting in a bun or chignon tied at the back of the head
+429	束脩	そくしゅう	1404530	entrance fee | initiation fee | registration fee | present to a teacher | gift of dried meat from a
+430	測候所	そっこうじょ	1404540	weather measurement station
+431	測地	そくち	1404550	geodetic survey
+432	測長機	そくちょうき	1404560	length measuring machine
+433	測定	そくてい	1404570	measurement
+434	測度	そくど	1404580	measure
+435	測量	そくりょう	1404590	measurement | surveying
+436	測量機械	そくりょうきかい	1404600	surveying instrument | surveyor's level
+437	測量技師	そくりょうぎし	1404610	surveyor | surveying engineer
+438	測量図	そくりょうず	1404620	survey map
+439	足が出る	あしがでる	1404640	to exceed the budget | to overrun the budget | to have a deficit | to go into the red | to have a se
+440	足が遅い	あしがおそい	1404650	to be slow-footed
+441	足がつく	あしがつく	1404660	to be traced (of a criminal) | to be tracked | to have a (male) lover
+442	足しになる	たしになる	1404670	to be of help | to be useful | to go toward
+443	足し算	たしざん	1404680	addition
+444	足の甲	あしのこう	1404710	top of the foot | instep | dorsum of the foot | dorsum pedis
+445	足の指	あしのゆび	1404720	toe
+446	足らず	たらず	1404730	less than | under | short of | not even | insufficient | lacking
+447	足る	たる	1404750	to be sufficient | to be enough | to be worth doing | to be worthy of | to deserve | to do (the job)
+448	足を組む	あしをくむ	1404760	to cross one's legs
+449	足音	あしおと	1404770	(sound of) footsteps | sense or sign that something is approaching
+450	足回り	あしまわり	1404780	suspension system (of a vehicle) | undercarriage | area around one's feet | footwear
+451	足技	あしわざ	1404790	foot technique (in judo, sumo wrestling, etc.) | footwork | tricks performed with the feet
+452	足腰	あしこし	1404810	legs and loins | lower body | foundations | underpinnings
+453	足止め	あしどめ	1404820	preventing (someone) from leaving | confinement | keeping indoors | inducement to stay | being stran
+454	足取り	あしどり	1404830	gait | walk | stride | pace | step | manner of walking | trace (e.g. of route taken by hunted crimin
+455	足蹴	あしげ	1404850	kick | treating (someone) poorly
+456	足場	あしば	1404860	scaffold | scaffolding | foothold | footing | foothold (e.g. in business) | foundation | base | conv
+457	足ずり	あしずり	1404870	stamping one's feet (in anger, frustration, etc.) | scuffing the ground
+458	足早	あしばや	1404880	fast (walking) | quick | brisk | quick (passing of time) | rapid | swift
+459	足早に	あしばやに	1404890	briskly (walk) | at a quick pace
+460	足速い	あしばやい	1404900	swift-footed | light-footed
+461	足駄	あしだ	1404910	high clogs | rain clogs
+462	足踏み	あしぶみ	1404930	stepping (in place) | stamping (up and down) | stomping | marking time (for a soldier) | standstill
+463	足払い	あしばらい	1404940	ashibarai | foot sweep | sweeping one's opponent's legs from under them (judo, etc.)
+464	足並み	あしなみ	1404950	pace | step
+465	足利時代	あしかがじだい	1404960	Ashikaga period (i.e. Muromachi period; 1336-1573)
+466	足労	そくろう	1404970	trouble of going somewhere
+467	速やか	すみやか	1405000	quick | speedy | prompt | rapid | swift
+468	速記	そっき	1405010	shorthand | stenography
+469	速戦即決	そくせんそっけつ	1405020	quick battle for a quick victory | blitzkrieg
+470	速達	そくたつ	1405030	express | special delivery
+471	速断	そくだん	1405040	rash decision | jumping to a conclusion
+472	速度計	そくどけい	1405060	speedometer
+473	速報	そくほう	1405070	news flash | prompt report | bulletin | quick announcement
+474	速力	そくりょく	1405080	speed
+475	速力度	そくりょくど	1405090	speed | velocity
+476	俗に	ぞくに	1405120	commonly (called, said, etc.) | popularly | colloquially | in common parlance
+477	俗に言う	ぞくにいう	1405130	what is colloquially called | what is commonly referred to as | what is popularly known as | so-call
+478	俗縁	ぞくえん	1405150	worldly connection
+479	俗歌	ぞっか	1405170	popular song | folk song | ditty | ballad
+480	俗解	ぞっかい	1405180	explanation in common language
+481	俗界	ぞっかい	1405190	secular life | workaday world
+482	俗学	ぞくがく	1405200	popular learning | worldly study
+483	俗楽	ぞくがく	1405210	popular music | common people's music (as opposed to court music)
+484	俗間	ぞっかん	1405220	the world | the public
+485	俗眼	ぞくがん	1405230	popular opinion
+486	俗議	ぞくぎ	1405240	popular opinion
+487	俗曲	ぞっきょく	1405250	folk song | ballad
+488	俗形	ぞくぎょう	1405260	the figure of the common man
+489	俗見	ぞっけん	1405270	popular view | laymen's opinion
+490	俗言	ぞくげん	1405280	colloquial language
+491	俗諺	ぞくげん	1405290	proverb | popular saying
+492	俗向き	ぞくむき	1405310	appealing to the public | popular
+493	俗才	ぞくさい	1405320	worldly wisdom | practical wisdom
+494	俗事	ぞくじ	1405330	worldly affairs | everyday affairs | common cares | routine work | daily chores
+495	俗字	ぞくじ	1405340	informal variant of a Chinese character | popular form of a Chinese character
+496	俗儒	ぞくじゅ	1405370	mediocre scholar
+497	俗受け	ぞくうけ	1405380	popular appeal
+498	俗習	ぞくしゅう	1405390	custom | usage
+499	俗衆	ぞくしゅう	1405410	people | crowd | masses | the public
+500	俗書	ぞくしょ	1405420	cheap fiction
+501	俗称	ぞくしょう	1405430	common name | popular name | secular name (of a Buddhist monk)
+502	俗情	ぞくじょう	1405440	worldly-mindedness | worldly affairs

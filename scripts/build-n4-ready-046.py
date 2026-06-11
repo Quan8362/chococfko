@@ -1,0 +1,111 @@
+# -*- coding: utf-8 -*-
+"""Writes jmdict-n4-vi-ready-046.csv -- 14 rows."""
+
+OUT = r"C:\Users\QuanLV17\Downloads\chococfko-web\web\data\japanese\jmdict-n4-vi-ready-046.csv"
+HEADER = "word,reading,romaji,jlpt_level,pos,meaning_vi,meaning_en,tags,frequency,source,source_id,license,attribution,example_jp,example_reading,example_vi,example_en,review_status,meaning_source"
+LIC = "CC BY-SA 3.0 — verify at edrdg.org before production use"
+
+def q(v):
+    return '"' + str(v).replace('"', '""') + '"'
+
+def row(word, reading, lvl, pos, vi, en, src_id,
+        ex_jp="", ex_rd="", ex_vi="", ex_en=""):
+    return ",".join([
+        q(word), q(reading), q(""), q(lvl), q(pos),
+        q(vi), q(en), q(""), q("0"), q("jmdict"), q(src_id),
+        q(LIC), q("JMdict/EDRDG"),
+        q(ex_jp), q(ex_rd), q(ex_vi), q(ex_en),
+        q("ai_draft"), q("jmdict_ai"),
+    ])
+
+ROWS = [
+    row("観光地","かんこうち","N4","n",
+        "khu du lịch | điểm tham quan | địa danh du lịch",
+        "tourist attraction | sight-seeing area",
+        "1214890",
+        "有名な観光地を訪れる。","ゆうめいなかんこうちをおとずれる。",
+        "Đến thăm khu du lịch nổi tiếng.","Visit a famous tourist attraction."),
+    row("出発点","しゅっぱつてん","N4","n",
+        "điểm xuất phát | điểm khởi đầu | điểm bắt đầu",
+        "starting point | point of departure",
+        "1340010",
+        "出発点に戻る。","しゅっぱつてんにもどる。",
+        "Quay trở lại điểm xuất phát.","Return to the starting point."),
+    row("旅行者","りょこうしゃ","N4","n",
+        "khách du lịch | người du lịch | lữ khách",
+        "traveller | traveler",
+        "1553180",
+        "旅行者が多い。","りょこうしゃがおおい。",
+        "Có nhiều khách du lịch.","There are many travelers."),
+    row("値引き","ねびき","N4","n|vs|vt",
+        "giảm giá | chiết khấu | cắt giảm giá",
+        "price reduction | discount",
+        "1600190",
+        "10%値引きしてもらう。","じゅっぱーせんとねびきしてもらう。",
+        "Được giảm giá 10%.","Get a 10% discount."),
+    row("お釣り","おつり","N4","n",
+        "tiền thối lại | tiền trả lại | tiền dư",
+        "change (money returned when you overpay) | toilet splashback",
+        "1270550",
+        "お釣りを受け取る。","おつりをうけとる。",
+        "Nhận tiền thối lại.","Receive change."),
+    row("両替","りょうがえ","N4","n|vs|vt",
+        "đổi tiền | đổi ngoại tệ | đổi tiền lẻ",
+        "change | money exchange | exchanging money",
+        "1553820",
+        "ドルを円に両替する。","どるをえんにりょうがえする。",
+        "Đổi đô sang yên.","Exchange dollars for yen."),
+    row("名所","めいしょ","N4","n",
+        "danh thắng | địa danh nổi tiếng | nơi nổi tiếng",
+        "famous place | noted place | place of scenic or historical interest | tourist attraction",
+        "1531600",
+        "名所を巡る。","めいしょをめぐる。",
+        "Tham quan các danh thắng.","Tour the famous places."),
+    row("名所","などころ","N4","n",
+        "tên gọi bộ phận (công cụ, vũ khí) | địa danh nổi tiếng (cách đọc cổ)",
+        "name of a part (of a tool, weapon, musical instrument, etc.) | famous place",
+        "2858841",
+        "刀のなどころ。","かたなのなどころ。",
+        "Tên gọi các bộ phận của kiếm.","The name of parts of a sword."),
+    row("土産","みやげ","N4","n",
+        "quà lưu niệm | đặc sản địa phương mua làm quà | quà du lịch",
+        "local specialty or souvenir bought as a gift while travelling | present | souvenir",
+        "1445360",
+        "旅行の土産を買う。","りょこうのみやげをかう。",
+        "Mua quà lưu niệm khi đi du lịch.","Buy souvenirs on a trip."),
+    row("土産","どさん","N4","n",
+        "sản phẩm địa phương | đặc sản vùng đất | quà (cách đọc Hán-Nhật)",
+        "product of the land | present | souvenir",
+        "1702340",
+        "地方の土産。","ちほうのどさん。",
+        "Đặc sản địa phương.","Local product."),
+    row("姑","しゅうとめ","N4","n",
+        "mẹ chồng | mẹ vợ",
+        "mother-in-law | one's husband's or wife's mother",
+        "1266770",
+        "姑と仲良くする。","しゅうとめとなかよくする。",
+        "Hòa thuận với mẹ chồng.","Get along well with one's mother-in-law."),
+    row("義理の兄","ぎりのあに","N4","exp|n",
+        "anh rể | anh chồng | anh vợ",
+        "one's brother-in-law | stepbrother (elder)",
+        "2010700",
+        "義理の兄が助けてくれた。","ぎりのあにがたすけてくれた。",
+        "Anh rể đã giúp tôi.","My brother-in-law helped me."),
+    row("義理の姉","ぎりのあね","N4","exp|n",
+        "chị dâu | chị vợ | chị chồng",
+        "one's sister-in-law | stepsister (elder)",
+        "2010710",
+        "義理の姉と話す。","ぎりのあねとはなす。",
+        "Nói chuyện với chị dâu.","Talk with one's sister-in-law."),
+    row("舅","しゅうと","N4","n",
+        "bố chồng | bố vợ | cha chồng | cha vợ",
+        "father-in-law | one's husband's or wife's father",
+        "1571280",
+        "舅と仲良くする。","しゅうととなかよくする。",
+        "Hòa thuận với bố chồng.","Get along well with one's father-in-law."),
+]
+
+content = HEADER + "\n" + "\n".join(ROWS) + "\n"
+with open(OUT, "w", encoding="utf-8", newline="\n") as f:
+    f.write(content)
+print(f"Written {len(ROWS)} rows to {OUT}")

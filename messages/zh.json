@@ -2036,6 +2036,11 @@
     "pos_pref": "前缀",
     "pos_unknown": "其他词性",
     "kanji_practice_title": "汉字书写练习",
-    "kanji_practice_no_stroke": "暂无该汉字的笔顺数据。"
+    "kanji_practice_no_stroke": "暂无该汉字的笔顺数据。",
+    "kanji_practice_hanviet": "汉越",
+    "kanji_stroke_loading": "加载中…",
+    "kanji_stroke_replay": "重播",
+    "kanji_stroke_practice": "试写",
+    "kanji_stroke_practicing": "请书写…"
   }
 }

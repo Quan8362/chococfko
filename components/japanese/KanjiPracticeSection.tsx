@@ -1,13 +1,17 @@
 import { getTranslations, getLocale } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import { extractKanji } from '@/lib/japanese/kanji'
-import KanjiCard, { type JapaneseKanji } from './KanjiCard'
+import type { JapaneseKanji } from './KanjiCard'
+import KanjiPracticeCard from './KanjiPracticeCard'
 
 interface KanjiPracticeSectionProps {
   /** The Japanese vocabulary word to extract Kanji from. */
   word: string
   className?: string
 }
+
+const SELECT_BASE = 'id,character,jlpt_level,onyomi,kunyomi,meanings,stroke_count,radical,examples,tags'
+const SELECT_FULL = `${SELECT_BASE},han_viet`
 
 export default async function KanjiPracticeSection({ word, className = '' }: KanjiPracticeSectionProps) {
   const chars = extractKanji(word)
@@ -20,23 +24,36 @@ export default async function KanjiPracticeSection({ word, className = '' }: Kan
   ])
 
   const supabase = createClient()
-  const { data } = await supabase
+
+  // Try selecting han_viet; fall back gracefully if the column hasn't been
+  // migrated yet so the page never breaks.
+  const full = await supabase
     .from('japanese_kanji')
-    .select('id,character,jlpt_level,onyomi,kunyomi,meanings,stroke_count,radical,examples,tags')
+    .select(SELECT_FULL)
     .in('character', chars)
     .eq('is_published', true)
 
+  let data = full.data as JapaneseKanji[] | null
+  if (full.error) {
+    const base = await supabase
+      .from('japanese_kanji')
+      .select(SELECT_BASE)
+      .in('character', chars)
+      .eq('is_published', true)
+    data = base.data as JapaneseKanji[] | null
+  }
+
   const byChar = new Map<string, JapaneseKanji>(
-    ((data as JapaneseKanji[] | null) ?? []).map(k => [k.character, k]),
+    (data ?? []).map(k => [k.character, k]),
   )
 
   const labels = {
     onyomi: t('onyomi'),
     kunyomi: t('kunyomi'),
     stroke_count: t('stroke_count'),
-    radical: t('radical'),
-    example_words: t('example_words'),
+    han_viet: t('kanji_practice_hanviet'),
   }
+  const noStrokeText = t('kanji_practice_no_stroke')
 
   return (
     <section className={className}>
@@ -44,30 +61,16 @@ export default async function KanjiPracticeSection({ word, className = '' }: Kan
         {t('kanji_practice_title')}
       </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {chars.map(ch => {
-          const kanji = byChar.get(ch)
-          if (kanji) {
-            return <KanjiCard key={ch} kanji={kanji} locale={locale} labels={labels} />
-          }
-          // No DB record / no stroke data for this Kanji yet — clean fallback card.
-          return (
-            <div
-              key={ch}
-              className="bg-paper border border-line rounded-2xl p-5 flex flex-col items-center justify-center gap-3 text-center min-h-[160px]"
-            >
-              <span
-                lang="ja"
-                className="text-[72px] font-bold text-ink leading-none select-all"
-                style={{ fontFamily: "'Noto Serif JP', 'Noto Sans JP', serif" }}
-              >
-                {ch}
-              </span>
-              <p className="text-[12.5px] text-muted leading-snug">
-                {t('kanji_practice_no_stroke')}
-              </p>
-            </div>
-          )
-        })}
+        {chars.map(ch => (
+          <KanjiPracticeCard
+            key={ch}
+            char={ch}
+            kanji={byChar.get(ch) ?? null}
+            locale={locale}
+            labels={labels}
+            noStrokeText={noStrokeText}
+          />
+        ))}
       </div>
     </section>
   )

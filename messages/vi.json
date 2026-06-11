@@ -2036,6 +2036,11 @@
     "pos_pref": "Tiền tố",
     "pos_unknown": "Loại từ khác",
     "kanji_practice_title": "Luyện viết Kanji",
-    "kanji_practice_no_stroke": "Chưa có dữ liệu thứ tự nét cho chữ Kanji này."
+    "kanji_practice_no_stroke": "Chưa có dữ liệu thứ tự nét cho chữ Kanji này.",
+    "kanji_practice_hanviet": "Hán Việt",
+    "kanji_stroke_loading": "Đang tải…",
+    "kanji_stroke_replay": "Xem lại",
+    "kanji_stroke_practice": "Viết thử",
+    "kanji_stroke_practicing": "Đang viết…"
   }
 }

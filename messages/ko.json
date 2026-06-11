@@ -2036,6 +2036,11 @@
     "pos_pref": "접두사",
     "pos_unknown": "기타 품사",
     "kanji_practice_title": "한자 쓰기 연습",
-    "kanji_practice_no_stroke": "아직 이 한자의 획순 데이터가 없습니다."
+    "kanji_practice_no_stroke": "아직 이 한자의 획순 데이터가 없습니다.",
+    "kanji_practice_hanviet": "한월",
+    "kanji_stroke_loading": "불러오는 중…",
+    "kanji_stroke_replay": "다시 보기",
+    "kanji_stroke_practice": "써 보기",
+    "kanji_stroke_practicing": "써 보세요…"
   }
 }

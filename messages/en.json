@@ -2036,6 +2036,11 @@
     "pos_pref": "Prefix",
     "pos_unknown": "Other part of speech",
     "kanji_practice_title": "Kanji writing practice",
-    "kanji_practice_no_stroke": "Stroke order data is not available for this Kanji yet."
+    "kanji_practice_no_stroke": "Stroke order data is not available for this Kanji yet.",
+    "kanji_practice_hanviet": "Sino-Vietnamese",
+    "kanji_stroke_loading": "Loading…",
+    "kanji_stroke_replay": "Replay",
+    "kanji_stroke_practice": "Practice",
+    "kanji_stroke_practicing": "Your turn…"
   }
 }

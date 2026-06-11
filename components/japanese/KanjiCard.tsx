@@ -23,6 +23,7 @@ export interface JapaneseKanji {
   radical: string | null
   examples: KanjiExample[] | null
   tags: string[] | null
+  han_viet?: string | null
 }
 
 interface KanjiCardProps {

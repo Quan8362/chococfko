@@ -2042,6 +2042,8 @@
     "kanji_stroke_loading": "加载中…",
     "kanji_stroke_replay": "重播",
     "kanji_stroke_practice": "试写",
-    "kanji_stroke_practicing": "请书写…"
+    "kanji_stroke_practicing": "请书写…",
+    "kanji_practice_close": "关闭",
+    "search_clear": "清除搜索"
   }
 }

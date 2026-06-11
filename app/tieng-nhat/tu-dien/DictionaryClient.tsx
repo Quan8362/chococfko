@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import DictionarySearchBox from '@/components/japanese/DictionarySearchBox'
 import WordCard, { type JapaneseWord } from '@/components/japanese/WordCard'
@@ -27,11 +28,14 @@ interface DictionaryClientProps {
 export default function DictionaryClient({ initialWords, initialQuery, isLoggedIn, initialBookmarkedWordIds }: DictionaryClientProps) {
   const t = useTranslations('japanese')
   const locale = useLocale()
+  const router = useRouter()
   const [query, setQuery] = useState(initialQuery)
   const [results, setResults] = useState<JapaneseWord[]>(initialWords)
   const [loading, setLoading] = useState(false)
   const [suggestions, setSuggestions] = useState<SuggestionWord[]>([])
   const [showSuggestions, setShowSuggestions] = useState(false)
+  const [activeIndex, setActiveIndex] = useState(-1)
+  const SUGGESTIONS_ID = 'jp-search-suggestions'
   const [history, setHistory] = useState<string[]>([])
   const [historyReady, setHistoryReady] = useState(false)
 
@@ -111,11 +115,42 @@ export default function DictionaryClient({ initialWords, initialQuery, isLoggedI
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query])
 
+  // Reset the keyboard highlight whenever the suggestion set changes.
+  useEffect(() => { setActiveIndex(-1) }, [suggestions])
+
   function handleSuggestionSelect(word: string) {
     setQuery(word)
     setSuggestions([])
     setShowSuggestions(false)
+    setActiveIndex(-1)
     saveToHistory(word)
+  }
+
+  function moveActive(dir: 1 | -1) {
+    if (!suggestions.length) return
+    if (!showSuggestions) setShowSuggestions(true)
+    setActiveIndex(i => {
+      if (dir === 1) return i < 0 ? 0 : (i + 1) % suggestions.length
+      return i <= 0 ? suggestions.length - 1 : i - 1
+    })
+  }
+
+  // Enter on a highlighted suggestion → go straight to its detail page.
+  function handleEnterSelect(): boolean {
+    if (showSuggestions && activeIndex >= 0 && suggestions[activeIndex]) {
+      const w = suggestions[activeIndex].word
+      saveToHistory(w)
+      setShowSuggestions(false)
+      setActiveIndex(-1)
+      router.push(`/tieng-nhat/tu-dien/${encodeURIComponent(w)}`)
+      return true
+    }
+    return false
+  }
+
+  function handleEscape() {
+    setShowSuggestions(false)
+    setActiveIndex(-1)
   }
 
   function handleHistoryClick(q: string) {
@@ -178,12 +213,23 @@ export default function DictionaryClient({ initialWords, initialQuery, isLoggedI
           onFocus={handleSearchFocus}
           onBlur={handleSearchBlur}
           onSubmit={handleSearchSubmit}
+          onArrowDown={() => moveActive(1)}
+          onArrowUp={() => moveActive(-1)}
+          onEnterSelect={handleEnterSelect}
+          onEscape={handleEscape}
+          listboxId={SUGGESTIONS_ID}
+          activeOptionId={activeIndex >= 0 ? `${SUGGESTIONS_ID}-opt-${activeIndex}` : undefined}
+          expanded={showSuggestions && suggestions.length > 0}
+          clearLabel={t('search_clear')}
         />
         {showSuggestions && (
           <SearchSuggestions
             suggestions={suggestions}
             onSelect={handleSuggestionSelect}
             locale={locale}
+            activeIndex={activeIndex}
+            onActiveChange={setActiveIndex}
+            listboxId={SUGGESTIONS_ID}
           />
         )}
       </div>

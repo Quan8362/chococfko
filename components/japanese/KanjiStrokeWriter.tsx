@@ -12,11 +12,15 @@ interface KanjiStrokeWriterProps {
   size?: number
   /** Rendered when this Kanji has no stroke data in KanjiVG. */
   noDataFallback: React.ReactNode
+  /** When provided, the "Practice" button calls this (e.g. opens a popup) instead of quizzing inline. */
+  onPractice?: () => void
+  /** Start directly in writing-practice (quiz) mode instead of just animating. */
+  autoQuiz?: boolean
 }
 
 type Status = 'loading' | 'ready' | 'error'
 
-export default function KanjiStrokeWriter({ char, size = 150, noDataFallback }: KanjiStrokeWriterProps) {
+export default function KanjiStrokeWriter({ char, size = 150, noDataFallback, onPractice, autoQuiz = false }: KanjiStrokeWriterProps) {
   const t = useTranslations('japanese')
   const containerRef = useRef<HTMLDivElement>(null)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -62,7 +66,17 @@ export default function KanjiStrokeWriter({ char, size = 150, noDataFallback }: 
         },
       })
       writerRef.current = writer
-      writer.animateCharacter()
+      if (autoQuiz) {
+        setQuizzing(true)
+        writer.quiz({
+          showHintAfterMisses: 3,
+          onComplete: () => {
+            if (writerRef.current) setQuizzing(false)
+          },
+        })
+      } else {
+        writer.animateCharacter()
+      }
     })()
 
     return () => {
@@ -75,7 +89,7 @@ export default function KanjiStrokeWriter({ char, size = 150, noDataFallback }: 
       if (containerRef.current) containerRef.current.innerHTML = ''
       writerRef.current = null
     }
-  }, [char, size])
+  }, [char, size, autoQuiz])
 
   const handleReplay = () => {
     const w = writerRef.current
@@ -131,14 +145,14 @@ export default function KanjiStrokeWriter({ char, size = 150, noDataFallback }: 
         </button>
         <button
           type="button"
-          onClick={handlePractice}
-          disabled={status !== 'ready' || quizzing}
+          onClick={() => (onPractice ? onPractice() : handlePractice())}
+          disabled={status !== 'ready' || (!onPractice && quizzing)}
           className="inline-flex flex-1 min-w-[68px] items-center justify-center gap-1 text-[11px] font-semibold text-white bg-rose px-2 py-1 rounded-lg hover:bg-rose-deep transition-colors disabled:opacity-40"
         >
           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
           </svg>
-          {quizzing ? t('kanji_stroke_practicing') : t('kanji_stroke_practice')}
+          {!onPractice && quizzing ? t('kanji_stroke_practicing') : t('kanji_stroke_practice')}
         </button>
       </div>
     </div>

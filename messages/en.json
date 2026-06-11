@@ -2042,6 +2042,8 @@
     "kanji_stroke_loading": "Loading…",
     "kanji_stroke_replay": "Replay",
     "kanji_stroke_practice": "Practice",
-    "kanji_stroke_practicing": "Your turn…"
+    "kanji_stroke_practicing": "Your turn…",
+    "kanji_practice_close": "Close",
+    "search_clear": "Clear search"
   }
 }

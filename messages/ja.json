@@ -2042,6 +2042,8 @@
     "kanji_stroke_loading": "読み込み中…",
     "kanji_stroke_replay": "再生",
     "kanji_stroke_practice": "書いてみる",
-    "kanji_stroke_practicing": "あなたの番…"
+    "kanji_stroke_practicing": "あなたの番…",
+    "kanji_practice_close": "閉じる",
+    "search_clear": "検索をクリア"
   }
 }

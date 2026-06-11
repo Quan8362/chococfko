@@ -1,5 +1,9 @@
+'use client'
+
+import { useState } from 'react'
 import JlptBadge from './JlptBadge'
 import KanjiStrokeWriter from './KanjiStrokeWriter'
+import KanjiPracticeModal from './KanjiPracticeModal'
 import type { JapaneseKanji } from './KanjiCard'
 
 interface KanjiPracticeCardProps {
@@ -31,6 +35,7 @@ function ReadingRow({ label, value }: { label: string; value: string }) {
 const WRITER_SIZE = 96
 
 export default function KanjiPracticeCard({ char, kanji, locale, labels, noStrokeText }: KanjiPracticeCardProps) {
+  const [practiceOpen, setPracticeOpen] = useState(false)
   const meaning = kanji?.meanings?.[0]
   const meaningText = (locale === 'en' ? meaning?.en : meaning?.vi) || meaning?.en || meaning?.vi
 
@@ -52,10 +57,24 @@ export default function KanjiPracticeCard({ char, kanji, locale, labels, noStrok
 
   return (
     <div className="flex gap-3.5 py-4 first:pt-1 last:pb-1">
-      {/* Stroke order animation + writing practice */}
+      {/* Stroke order animation; "Practice" opens the large writing popup */}
       <div className="shrink-0">
-        <KanjiStrokeWriter char={char} size={WRITER_SIZE} noDataFallback={noDataFallback} />
+        <KanjiStrokeWriter
+          char={char}
+          size={WRITER_SIZE}
+          noDataFallback={noDataFallback}
+          onPractice={() => setPracticeOpen(true)}
+        />
       </div>
+
+      {practiceOpen && (
+        <KanjiPracticeModal
+          char={char}
+          kanji={kanji}
+          locale={locale}
+          onClose={() => setPracticeOpen(false)}
+        />
+      )}
 
       {/* Metadata */}
       <div className="min-w-0 flex-1 flex flex-col gap-1.5">

@@ -2042,6 +2042,8 @@
     "kanji_stroke_loading": "Đang tải…",
     "kanji_stroke_replay": "Xem lại",
     "kanji_stroke_practice": "Viết thử",
-    "kanji_stroke_practicing": "Đang viết…"
+    "kanji_stroke_practicing": "Đang viết…",
+    "kanji_practice_close": "Đóng",
+    "search_clear": "Xóa tìm kiếm"
   }
 }

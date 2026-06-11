@@ -2042,6 +2042,8 @@
     "kanji_stroke_loading": "불러오는 중…",
     "kanji_stroke_replay": "다시 보기",
     "kanji_stroke_practice": "써 보기",
-    "kanji_stroke_practicing": "써 보세요…"
+    "kanji_stroke_practicing": "써 보세요…",
+    "kanji_practice_close": "닫기",
+    "search_clear": "검색 지우기"
   }
 }

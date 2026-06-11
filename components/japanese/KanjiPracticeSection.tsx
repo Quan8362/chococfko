@@ -60,7 +60,7 @@ export default async function KanjiPracticeSection({ word, className = '' }: Kan
       <h2 className="font-serif font-bold text-[17px] text-ink mb-4">
         {t('kanji_practice_title')}
       </h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4">
         {chars.map(ch => (
           <KanjiPracticeCard
             key={ch}

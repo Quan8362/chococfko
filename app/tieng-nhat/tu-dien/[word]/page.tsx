@@ -11,6 +11,7 @@ import WordImage from '@/components/japanese/WordImage'
 import PosBadges from '@/components/japanese/PosBadges'
 import KanjiPracticeSection from '@/components/japanese/KanjiPracticeSection'
 import WordCard, { type JapaneseWord } from '@/components/japanese/WordCard'
+import { urlLevel } from '@/components/japanese/LevelPicker'
 import { cleanMeaningText } from '@/lib/sanitize'
 
 export const dynamic = 'force-dynamic'
@@ -78,7 +79,7 @@ export default async function WordDetailPage({ params }: { params: { word: strin
           .eq('jlpt_level', word.jlpt_level)
           .eq('is_published', true)
           .order('frequency', { ascending: false })
-          .limit(4)
+          .limit(6)
       : Promise.resolve({ data: [] }),
     user ? getBookmarkIds('word') : Promise.resolve([] as string[]),
     getOrFetchWordImage(word),
@@ -93,7 +94,7 @@ export default async function WordDetailPage({ params }: { params: { word: strin
   const tViewDetail = t('view_detail')
 
   return (
-    <div className="max-w-[800px] mx-auto px-5 sm:px-6 py-10 pb-20">
+    <div className="max-w-[1200px] mx-auto px-5 sm:px-6 py-10 pb-20">
 
       {/* Breadcrumb */}
       <nav className="flex items-center gap-1.5 text-[12.5px] text-muted mb-8 flex-wrap">
@@ -104,8 +105,14 @@ export default async function WordDetailPage({ params }: { params: { word: strin
         <span className="text-ink font-medium" lang="ja">{word.word}</span>
       </nav>
 
+      {/* 2-column layout on desktop, stacked on mobile */}
+      <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-6 lg:items-start">
+
+      {/* LEFT COLUMN — main vocabulary content */}
+      <div className="min-w-0">
+
       {/* Main card */}
-      <div className="bg-paper border border-line rounded-3xl p-6 sm:p-8 mb-10 shadow-sm">
+      <div className="bg-paper border border-line rounded-3xl p-6 sm:p-8 shadow-sm">
 
         {/* Word + bookmark */}
         <div className="flex items-start justify-between gap-4 mb-5">
@@ -224,16 +231,52 @@ export default async function WordDetailPage({ params }: { params: { word: strin
           </Link>
         </div>
       </div>
+      </div>
 
-      {/* Kanji writing practice */}
-      <KanjiPracticeSection word={word.word} className="mb-10" />
+      {/* RIGHT SIDEBAR — Kanji practice + related preview (sticky on desktop) */}
+      <aside className="mt-6 lg:mt-0 lg:sticky lg:top-[90px] space-y-6">
+        <KanjiPracticeSection word={word.word} />
 
-      {/* Related words */}
+        {/* Related words preview — desktop only */}
+        {relatedWords.length > 0 && (
+          <div className="hidden lg:block bg-paper border border-line rounded-2xl p-4 shadow-sm">
+            <h2 className="font-serif font-bold text-[15px] text-ink mb-2">{t('related_words')}</h2>
+            <ul className="divide-y divide-line/50">
+              {relatedWords.slice(0, 4).map(w => {
+                const m = w.meanings?.[0]
+                const snippet = locale === 'en' ? (m?.en || m?.vi) : (m?.vi || m?.en)
+                return (
+                  <li key={w.id}>
+                    <Link
+                      href={`/tieng-nhat/tu-dien/${encodeURIComponent(w.word)}`}
+                      className="group flex items-baseline gap-2 py-2"
+                    >
+                      <span lang="ja" className="text-[15px] font-bold text-ink group-hover:text-rose transition-colors shrink-0">
+                        {w.word}
+                      </span>
+                      {w.reading && w.reading !== w.word && (
+                        <span lang="ja" className="text-[11px] text-muted shrink-0">{w.reading}</span>
+                      )}
+                      {snippet && (
+                        <span className="text-[12px] text-muted truncate">{cleanMeaningText(snippet)}</span>
+                      )}
+                    </Link>
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
+        )}
+      </aside>
+
+      </div>
+
+      {/* Full related words — below the 2-column layout, inside the same container */}
       {relatedWords.length > 0 && (
-        <section>
+        <section className="mt-10">
           <h2 className="font-serif font-bold text-[17px] text-ink mb-4">{t('related_words')}</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {relatedWords.map(w => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {relatedWords.slice(0, 6).map(w => (
               <WordCard
                 key={w.id}
                 word={w}
@@ -263,6 +306,19 @@ export default async function WordDetailPage({ params }: { params: { word: strin
               />
             ))}
           </div>
+          {word.jlpt_level && (
+            <div className="mt-5 text-center">
+              <Link
+                href={`/tieng-nhat/tu-vung/${urlLevel(word.jlpt_level)}`}
+                className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-rose border border-rose/30 bg-rose/5 hover:bg-rose/10 px-4 py-2 rounded-full transition-colors"
+              >
+                {t('view_more')}
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
+            </div>
+          )}
         </section>
       )}
     </div>

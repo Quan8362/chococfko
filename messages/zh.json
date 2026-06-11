@@ -2017,6 +2017,25 @@
     "pos_interjection": "感叹词",
     "pos_pronoun": "代词",
     "image_alt_for_word": "「{word}」的插图",
-    "illustration_label": "插图"
+    "illustration_label": "插图",
+    "pos_adj_i": "い形容词",
+    "pos_adj_na": "な形容词",
+    "pos_adj_no": "の形容词（修饰名词）",
+    "pos_adj_pn": "连体词",
+    "pos_adv": "副词",
+    "pos_n": "名词",
+    "pos_v": "动词",
+    "pos_v1": "一段动词（第2类）",
+    "pos_v5": "五段动词（第1类）",
+    "pos_vs": "する动词",
+    "pos_vt": "他动词",
+    "pos_vi": "自动词",
+    "pos_exp": "短语 / 惯用句",
+    "pos_prt": "助词",
+    "pos_suf": "后缀",
+    "pos_pref": "前缀",
+    "pos_unknown": "其他词性",
+    "kanji_practice_title": "汉字书写练习",
+    "kanji_practice_no_stroke": "暂无该汉字的笔顺数据。"
   }
 }

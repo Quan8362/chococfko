@@ -9,6 +9,7 @@ import Underline from '@tiptap/extension-underline'
 import { useCallback, useRef, useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
+import { compressImage } from '@/lib/imageCompress'
 
 const DRAFT_KEY = 'ccc-post-draft'
 
@@ -284,9 +285,10 @@ export default function RichTextEditor({
   const handleImageUpload = useCallback(async (file: File) => {
     if (!file.type.startsWith('image/')) return
     setUploading(true)
-    const ext = file.name.split('.').pop() ?? 'jpg'
+    const compressed = await compressImage(file)
+    const ext = compressed.name.split('.').pop() ?? 'jpg'
     const path = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}.${ext}`
-    const { data, error } = await supabase.storage.from('post-images').upload(path, file)
+    const { data, error } = await supabase.storage.from('post-images').upload(path, compressed, { cacheControl: '31536000', contentType: compressed.type })
     setUploading(false)
     if (error || !data) return
     const { data: { publicUrl } } = supabase.storage.from('post-images').getPublicUrl(data.path)

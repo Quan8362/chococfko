@@ -8,6 +8,7 @@ import Underline from '@tiptap/extension-underline'
 import { useCallback, useRef, useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
+import { compressImage } from '@/lib/imageCompress'
 import EmojiPicker from './EmojiPicker'
 import GifPicker from './GifPicker'
 
@@ -276,9 +277,10 @@ export default function ConfessionEditor({ name, placeholder, minHeight = '200px
       return
     }
     setUploading(true)
-    const ext = file.name.split('.').pop() ?? 'jpg'
+    const compressed = await compressImage(file)
+    const ext = compressed.name.split('.').pop() ?? 'jpg'
     const path = `confessions/${Date.now()}-${Math.random().toString(36).slice(2, 6)}.${ext}`
-    const { data, error } = await supabase.storage.from('post-images').upload(path, file)
+    const { data, error } = await supabase.storage.from('post-images').upload(path, compressed, { cacheControl: '31536000', contentType: compressed.type })
     setUploading(false)
     if (error || !data) {
       setUploadError(te('uploadError'))

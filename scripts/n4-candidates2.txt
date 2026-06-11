@@ -1,0 +1,302 @@
+Fetched: 5100, Candidates: 4899
+
+求め	もとめ	1229340	request | appeal | claim | demand | purchase
+求める	もとめる	1229350	to want | to wish for | to request | to demand | to require | to ask for | to seek | to search for |
+求愛	きゅうあい	1229360	courting | wooing | making advances
+求愛誇示	きゅうあいこじ	1229370	courtship display
+求縁	きゅうえん	1229380	courtship
+求刑	きゅうけい	1229390	recommended sentence | prosecution's demand for punishment
+求婚	きゅうこん	1229400	marriage proposal | courtship
+求婚者	きゅうこんしゃ	1229420	suitor (e.g. for a woman) | wooer
+求妻広告	きゅうさいこうこく	1229430	advertisement for a wife
+求償	きゅうしょう	1229440	claim for damages
+求職	きゅうしょく	1229450	job hunting | seeking employment
+求職係	きゅうしょくがかり	1229460	applicant interviewer
+求職広告	きゅうしょくこうこく	1229470	situation-wanted advertisement
+求職者	きゅうしょくしゃ	1229480	job applicant
+求心力	きゅうしんりょく	1229490	centripetal force | unifying force | cohesive power
+求人	きゅうじん	1229500	recruiting | job offer | job vacancy
+求人口	きゅうじんぐち	1229510	job vacancy
+求人広告	きゅうじんこうこく	1229520	help-wanted advertisement | job advertisement | want ad
+求人誌	きゅうじんし	1229530	job advertisement
+求人者	きゅうじんしゃ	1229540	employer | someone hunting for workers
+泣き	なき	1229650	weeping | lamenting
+求積	きゅうせき	1229550	finding area or volume | mensuration
+求道	きゅうどう	1229560	seeking after truth
+求道者	きゅうどうしゃ	1229570	seeker after truth | one who seeks the way
+求法者	ぐほうしゃ	1229580	inquirer
+汲み取る	くみとる	1229590	to draw (water) | to scoop up | to dip up | to pump out | to understand (someone's feelings, etc.) |
+汲み上げる	くみあげる	1229600	to draw (water, etc.) | to scoop up | to pump up | to dip up | to draw on (ideas) (from subordinates
+汲む	くむ	1229610	to draw (water) | to ladle | to dip up | to scoop up | to pump | to pour (into a cup) | to drink (to
+汲み取り	くみとり	1229620	dipping up (night soil) | scooping up | understanding | grasping | surmising
+汲み取り口	くみとりぐち	1229630	hole for pumping out a cesspool
+泣かせる	なかせる	1229640	to make someone cry | to move someone to tears | to let cry | to grieve
+泣かす	なかす	1229645	to make someone cry | to move someone to tears | to grieve
+泣きじゃくる	なきじゃくる	1229660	to sob | to never stop crying | to cry on and on
+泣き喚く	なきわめく	1229670	to wail | to bawl | to cry loudly | to shout (while crying)
+泣き叫ぶ	なきさけぶ	1229680	to cry and shout | to scream
+泣きはらす	なきはらす	1229690	to cry one's eyes out | to make one's eyes swollen from crying
+泣き所	なきどころ	1229700	weak point | vulnerable point | Achilles' heel
+泣き笑い	なきわらい	1229710	laughing while crying | smiling through one's tears | (alternately) laughing and crying | tears and 
+泣き上戸	なきじょうご	1229720	maudlin drinker | person who is prone to crying when drunk
+泣き声	なきごえ	1229730	cry (e.g. of a baby) | sob | whine | tearful voice | weepy voice
+泣き虫	なきむし	1229740	crybaby | blubberer
+泣き潰す	なきつぶす	1229750	to cry one's eyes out | to weep oneself blind
+泣き付く	なきつく	1229760	to cling to ... in tears | to beg ... in tears | to appeal | to throw oneself on someone's mercy
+泣き伏す	なきふす	1229770	to break down crying
+球技	きゅうぎ	1229910	ball game (e.g. baseball, tennis, soccer) | billiards
+泣き別れ	なきわかれ	1229780	parting in tears | tearful parting | coming to grief | having to take a different tack | going separ
+泣き暮らす	なきくらす	1229790	to spend one's days in tears | to weep day and night | to live in sorrow
+泣き崩れる	なきくずれる	1229800	to break down crying
+泣き明かす	なきあかす	1229810	to weep the night away | to cry all night long
+泣き面に蜂	なきつらにはち	1229820	making matters worse | adding insult to injury | bees to a tearful face
+泣き落とす	なきおとす	1229830	to persuade by tears | to use tears to get one's way
+泣ける	なける	1229850	to shed tears | to be moved to tears
+泣き沈む	なきしずむ	1229860	to abandon oneself to grief
+泣き寝入り	なきねいり	1229870	crying oneself to sleep | giving up in frustration | accepting meekly | being compelled to accept a 
+球	きゅう	1229880	sphere | globe | ball | bulb | ball | sphere | counter for pitches
+球菌	きゅうきん	1229920	coccus
+球形	きゅうけい	1229930	globular shape | spherical shape
+球茎	きゅうけい	1229940	corm
+球根	きゅうこん	1229950	(plant) bulb
+球拾い	たまひろい	1229960	retrieving balls (during a practice session; in tennis, baseball, etc.) | acting as ball boy | ball 
+球場	きゅうじょう	1229970	baseball stadium | ballpark
+球状	きゅうじょう	1229980	spherical | globular | globe-shaped
+球審	きゅうしん	1229990	umpire-in-chief | plate umpire
+球体	きゅうたい	1230000	sphere | globe | orb | ball
+球団	きゅうだん	1230010	baseball team
+球面三角法	きゅうめんさんかくほう	1230020	spherical trigonometry
+究極	きゅうきょく	1230040	ultimate | final | last | eventual
+究明	きゅうめい	1230050	investigation (esp. in academic and scientific contexts) | finding out the facts | bringing (a matte
+窮境	きゅうきょう	1230060	predicament
+窮屈	きゅうくつ	1230080	narrow | tight | cramped | formal | stiff | strict | ceremonious | rigid | constrained | uncomfortab
+窮状	きゅうじょう	1230090	distress | wretched condition
+窮地	きゅうち	1230100	dilemma | predicament
+窮迫	きゅうはく	1230110	financial difficulty | distress
+窮乏	きゅうぼう	1230120	poverty | destitution | privation | indigence | penury
+窮民	きゅうみん	1230130	poor people | the poor
+級数	きゅうすう	1230140	series
+級長	きゅうちょう	1230150	class representative | head of class
+級友	きゅうゆう	1230160	classmate | friend in the same class
+糾合	きゅうごう	1230170	rally | muster
+糾弾	きゅうだん	1230180	censure | denunciation | (verbal) attack | blaming
+糾明	きゅうめい	1230190	searching examination | establishing the facts through thorough examination
+糾問	きゅうもん	1230200	inquiry | enquiry
+給	きゅう	1230210	wage | recompense
+給う	たまう	1230220	to give | to do ...
+給血	きゅうけつ	1230230	donation of blood
+給仕	きゅうじ	1230240	waiting on a table | serving (at dinner) | waiter | waitress | waitperson | server | cabin boy | bel
+給食	きゅうしょく	1230250	provision of lunch (e.g. at office, school, etc.) | providing a meal | lunch service
+給水制限	きゅうすいせいげん	1230270	water supply restrictions
+給水栓	きゅうすいせん	1230280	hydrant | tap | faucet
+給電線	きゅうでんせん	1230290	feeder
+給湯	きゅうとう	1230300	hot-water supply
+給湯器	きゅうとうき	1230310	water heater | (domestic) boiler
+給付金	きゅうふきん	1230330	(state) benefit | allowance | (social security) payment | entitlement
+給料日	きゅうりょうび	1230370	payday | pay day
+旧	きゅう	1230380	old | former | ex- | the old | old things | old customs | old times | bygone days | Japan's old (lun
+旧悪	きゅうあく	1230400	past misdeeds | old crimes
+旧衣	きゅうい	1230410	worn-out clothes
+旧詠	きゅうえい	1230420	ancient poems | ancient songs
+旧怨	きゅうえん	1230430	old grudge
+旧縁	きゅうえん	1230440	old relationship | old acquaintance
+旧恩	きゅうおん	1230450	old favors | old favours
+旧仮名遣い	きゅうかなづかい	1230460	old kana orthography (used before 1946 reform) | historical kana orthography
+旧家	きゅうか	1230470	old family | old-established family | one's old home | one's childhood home
+旧懐	きゅうかい	1230480	love of antiquity
+旧株	きゅうかぶ	1230490	old shares | old stock | previously issued shares
+旧刊	きゅうかん	1230500	back number | old edition
+旧勘定	きゅうかんじょう	1230510	old account
+旧官	きゅうかん	1230520	former government official
+旧慣	きゅうかん	1230530	old customs
+旧歓	きゅうかん	1230540	old joy
+旧観	きゅうかん	1230550	former state | former appearance
+旧規	きゅうき	1230560	old regulations
+旧記	きゅうき	1230570	old chronicle | old record
+旧儀	きゅうぎ	1230580	traditional ceremony
+旧誼	きゅうぎ	1230590	old friendship
+旧居	きゅうきょ	1230600	former residence
+旧教	きゅうきょう	1230610	(Roman) Catholicism
+旧教徒	きゅうきょうと	1230620	(Roman) Catholic
+旧形式	きゅうけいしき	1230630	old-structure form
+旧式	きゅうしき	1230790	old type | old style
+旧劇	きゅうげき	1230640	traditional Japanese theater (kabuki, noh, etc.) | classical drama | play of the old school | period
+旧故	きゅうこ	1230650	antiquity | old acquaintance
+旧稿	きゅうこう	1230660	old manuscript
+旧号	きゅうごう	1230670	old name | back number
+旧国	きゅうこく	1230680	ancient nation | homeland | one's native land | birthplace
+旧恨	きゅうこん	1230690	old grudge
+旧債	きゅうさい	1230700	old debt
+旧妻	きゅうさい	1230710	former wife
+旧作	きゅうさく	1230720	old work | existing work
+旧市街	きゅうしがい	1230730	old town | old part of a city
+旧師	きゅうし	1230740	one's former teacher | one's old teacher
+旧思想	きゅうしそう	1230750	old-fashioned idea
+旧字	きゅうじ	1230760	old character form | traditional form of kanji used in Japan before 1946
+旧字体	きゅうじたい	1230770	old character form | kyūjitai | traditional form of kanji used in Japan before 1946
+旧時	きゅうじ	1230780	ancient times
+旧識	きゅうしき	1230800	old friend
+旧主	きゅうしゅ	1230810	former lord
+旧主人	きゅうしゅじん	1230820	former lord
+旧習	きゅうしゅう	1230830	old custom
+旧称	きゅうしょう	1230840	old name | former title
+旧章	きゅうしょう	1230850	ancient laws
+旧新約聖書	きゅうしんやくせいしょ	1230860	Old and New Testaments
+旧新約全書	きゅうしんやくぜんしょ	1230870	Old and New Testaments
+旧臣	きゅうしん	1230880	old retainer
+旧人	ふるびと	1230890	the deceased | old friend
+旧世界	きゅうせかい	1230900	Old World (i.e. Asia, Africa, Europe)
+旧制	きゅうせい	1230910	old system | old order | pre-World War II education system | prewar education system
+旧制度	きゅうせいど	1230920	old system | old order
+旧姓	きゅうせい	1230930	one's original family name | maiden name
+旧正月	きゅうしょうがつ	1230940	lunar New Year (esp. the Chinese New Year)
+旧製	きゅうせい	1230950	former manufacture | former make
+旧石器時代	きゅうせっきじだい	1230960	Paleolithic | Palaeolithic | Old Stone Age
+旧説	きゅうせつ	1230970	old theory | ancient ideas
+旧蔵	きゅうぞう	1230980	having owned (something) for a long time | being in one's possession for a long time | former owners
+旧俗	きゅうぞく	1230990	old customs
+旧村	きゅうそん	1231000	old village
+教鞭	きょうべん	1237330	teacher's cane | teacher's pointer
+教本	きょうほん	1237340	textbook | manual
+教務	きょうむ	1237350	school affairs | religious affairs
+教諭	きょうゆ	1237360	(licensed) teacher
+教養	きょうよう	1237370	(understanding or appreciation of) culture | (one's) education | cultivation | sophistication | refi
+教養番組	きょうようばんぐみ	1237380	educational program (TV, radio)
+教理	きょうり	1237390	doctrine
+教練	きょうれん	1237400	drill
+旧態	きゅうたい	1231020	old state of affairs
+旧態依然	きゅうたいいぜん	1231030	remaining unchanged (from the old state of things) | none the better for the change (if at all)
+旧大陸	きゅうたいりく	1231040	Old World (i.e. Asia, Africa, Europe)
+旧宅	きゅうたく	1231050	former residence
+旧知	きゅうち	1231060	old friend | old acquaintance
+旧地	きゅうち	1231070	former property | former territory
+旧敵	きゅうてき	1231080	old enemy
+旧典	きゅうてん	1231090	tradition | classic
+旧都	きゅうと	1231100	old capital | former capital
+旧土	きゅうど	1231110	former property or territory
+旧冬	きゅうとう	1231120	former winters | the last winter
+旧套	きゅうとう	1231130	conventionalism | old style
+旧道	きゅうどう	1231140	old road
+旧年末	きゅうねんまつ	1231150	end of last year
+旧波	きゅうは	1231160	old school | old style | conservative people
+旧藩	きゅうはん	1231170	former (feudal) domain | former fief
+旧藩主	きゅうはんしゅ	1231180	former feudal lord
+旧盤	きゅうばん	1231190	old bowl (platter) | old (musical) recording
+旧夫	きゅうふ	1231200	former husband
+旧婦	きゅうふ	1231210	former wife
+旧封	きゅうほう	1231220	former fief
+旧風	きゅうふう	1231230	old customs
+旧物	きゅうぶつ	1231240	old things | ancient things
+旧聞	きゅうぶん	1231250	old news
+旧弊	きゅうへい	1231260	old evils | long-standing abuses | old-fashioned ways | outdated notions | old-fashioned | outdated 
+旧法	きゅうほう	1231270	old law | old method
+旧邦	きゅうほう	1231280	old country
+旧盆	きゅうぼん	1231290	Bon Festival of the lunar calendar
+旧幕	きゅうばく	1231300	the old feudal government | shogunate
+旧夢	きゅうむ	1231310	ancient dream | fleeting thing
+旧名	きゅうめい	1231320	former name | maiden name
+旧約	きゅうやく	1231330	old promise | old agreement | old covenant | Old Testament
+旧約聖書	きゅうやくせいしょ	1231340	Old Testament
+旧約全書	きゅうやくぜんしょ	1231350	Old Testament
+旧訳	きゅうやく	1231360	old translation | pre-Xuanzang Chinese translation (esp. 5th-mid 7th century)
+旧友	きゅうゆう	1231370	old friend | old pal
+旧来	きゅうらい	1231390	traditional | from ancient times | formerly
+旧流	きゅうりゅう	1231400	old current | old style
+旧領	きゅうりょう	1231410	old fief
+旧例	きゅうれい	1231420	old custom | tradition
+旧暦	きゅうれき	1231430	Japan's old (lunisolar) calendar
+旧址	きゅうし	1231440	historic ruins | remains | historic site
+旧墟	きゅうきょ	1231450	ruins | remains
+旧痾	きゅうあ	1231460	persistent disease
+旧臘	きゅうろう	1231470	last December | end of last year
+牛脂	ぎゅうし	1231500	beef tallow
+牛飼い	うしかい	1231510	cattleman | raising cattle
+牛耳る	ぎゅうじる	1231520	to control | to take the lead in | to have under one's thumb
+牛舎	ぎゅうしゃ	1231530	cow shed | cattle barn
+牛車	ぎゅうしゃ	1231540	ox carriage (for Heian-era nobles) | oxcart
+牛小屋	うしごや	1231560	cow shed | cattle barn
+牛痘	ぎゅうとう	1231570	cowpox | vaccinia
+牛肉	ぎゅうにく	1231580	beef
+牛乳屋	ぎゅうにゅうや	1231600	dairy | milkman
+牛馬	ぎゅうば	1231610	horses and cattle
+牛革	ぎゅうかわ	1231620	cowhide | oxhide
+牛歩戦術	ぎゅうほせんじゅつ	1231630	snail's pace tactics | walking extremely slowly when voting in the Diet to delay proceedings | ox wa
+居留	きょりゅう	1231900	residence | reside
+牛蒡	ごぼう	1231640	great burdock (Arctium lappa) | gobo
+去る	さる	1231650	to leave | to go away | to pass | to elapse | to be distant | to send away | to drive off | to divor
+去月	きょげつ	1231660	last month
+去就	きょしゅう	1231670	leaving or staying | (one's) course of action | (one's) position | (one's) attitude
+去勢	きょせい	1231680	castration | neutering | gelding | sterilization | enervation | emasculation | taming
+去来	きょらい	1231700	coming and going | recurring (esp. thoughts)
+去痰	きょたん	1231710	expectoration
+居間兼寝室	いまけんしんしつ	1231730	living room and bedroom | bed-sitter
+居候	いそうろう	1231740	lodger who pays nothing for room and board | freeloader | sponger
+居合わせる	いあわせる	1231750	to happen to be present
+居座り	いすわり	1231760	remaining
+居座る	いすわる	1231770	to remain | to stay (somewhere)
+居残り	いのこり	1231780	working overtime | detention | being kept in (e.g. after school)
+居残る	いのこる	1231790	to stay behind | to remain | to work overtime
+居酒屋	いざかや	1231800	izakaya | tavern, bar, etc. that also serves various dishes and snacks
+居住	きょじゅう	1231810	residence | living (at, in) | abode
+居住地	きょじゅうち	1231820	place of residence | dwelling place
+居所	いどころ	1231830	whereabouts | address | place of temporary residence
+居心地の良い	いごこちのいい	1231840	comfortable (to live in) | snug | cozy | cosy
+居着く	いつく	1231850	to settle down | to stay (for good) | to stay long | to stay on
+居直る	いなおる	1231860	to sit upright | to sit up straight | to take a defiant attitude | to become aggressive | to take th
+居敷	いしき	1231870	kimono seat lining
+居並ぶ	いならぶ	1231880	to sit in a row | to be arrayed
+居眠り	いねむり	1231890	nodding off (while sitting) | dozing
+居留守	いるす	1231910	pretending to be out
+居留地	きょりゅうち	1231920	foreign settlement | concession | reservation (e.g. American Indian)
+大いなる	おおいなる	1231930	big | large | great
+巨魁	きょかい	1231940	ringleader | chief
+巨額	きょがく	1231950	huge sum (esp. of money) | enormous sum | massive amount
+巨漢	きょかん	1231960	giant
+巨艦	きょかん	1231970	large warship
+巨岩	きょがん	1231980	huge rock | crag
+巨躯	きょく	1231990	big frame | large figure | huge body
+巨口	きょこう	1232000	big mouth
+巨材	きょざい	1232010	big piece of timber | very talented person | person of outstanding ability
+巨財	きょざい	1232020	huge fortune
+巨視的	きょしてき	1232030	macroscopic | comprehensive | all-including | broad
+巨資	きょし	1232040	large capital | enormous fund
+巨獣	きょじゅう	1232050	large animal
+巨匠	きょしょう	1232060	master | masterhand | maestro
+巨商	きょしょう	1232070	wealthy merchant
+巨鐘	きょしょう	1232080	large hanging bell
+巨人	きょじん	1232090	giant | great man | Tokyo Giants (baseball team)
+巨人国	きょじんこく	1232100	land of giants
+巨星	きょせい	1232110	giant star | great person | giant | superstar | big-shot
+巨石	きょせき	1232120	gigantic stone | megalith | massive boulder
+巨石記念物	きょせききねんぶつ	1232130	megalith
+巨船	きょせん	1232140	ocean liner
+巨像	きょぞう	1232150	gigantic statue | colossus | huge image
+巨賊	きょぞく	1232160	big-time bandit | big-time pirate
+巨体	きょたい	1232170	huge body | large build
+巨大	きょだい	1232180	huge | gigantic | enormous
+巨大症	きょだいしょう	1232190	gigantism
+巨大分子	きょだいぶんし	1232200	macromolecule
+巨弾	きょだん	1232210	huge projectile
+巨盗	きょとう	1232220	big-time robber
+巨頭	きょとう	1232230	leader | magnate | big head
+巨乳	きょにゅう	1232240	huge breasts | huge boobs
+巨波	きょは	1232250	billow | large wave
+巨舶	きょはく	1232260	ocean liner
+巨費	きょひ	1232270	enormous expenditure | huge expense | huge outlay | great cost
+巨富	きょふ	1232280	great riches
+巨歩	きょほ	1232290	long strides
+巨峰	きょほう	1232300	lofty peak | kyoho (large purple-black grape variety)
+巨砲	きょほう	1232310	huge gun
+巨万	きょまん	1232320	huge (fortune) | immense (wealth)
+巨利	きょり	1232330	huge profit
+巨刹	きょさつ	1232340	large temple
+巨擘	きょはく	1232350	authority | big-shot | star
+挙止	きょし	1232550	bearing | deportment
+拒む	こばむ	1232360	to refuse | to reject | to decline | to prevent (from doing) | to deny (e.g. access) | to block
+拒食	きょしょく	1232370	refusing food
+拒食症	きょしょくしょう	1232380	anorexia
+拒絶	きょぜつ	1232390	refusal | rejection
+拒絶反応	きょぜつはんのう	1232400	(transplant) rejection | strong reaction (against)
+拒否	きょひ	1232410	refusal | rejection | denial | veto
+拒否権	きょひけん	1232420	right of veto
+拠点	きょてん	1232440	base (of operations) | site | location | center | foothold | stronghold | (strategic) position

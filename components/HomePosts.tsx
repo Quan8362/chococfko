@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { getTranslations } from 'next-intl/server'
 import { getPostsFromDb, posts as staticPosts } from '@/lib/posts'
 import type { Post } from '@/lib/posts'
@@ -71,12 +72,12 @@ export default async function HomePosts() {
                 <span className="absolute top-3 left-3 z-[2] inline-flex items-center gap-1 bg-paper/95 text-ink text-[10.5px] font-semibold px-2.5 py-[4px] rounded-full shadow-sm">
                   {CAT_EMOJI[post.category]} {post.categoryLabel}
                 </span>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <Image
                   src={post.img}
                   alt={post.title}
-                  className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-500"
-                  loading="lazy"
+                  fill
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  className="object-cover group-hover:scale-[1.04] transition-transform duration-500"
                 />
               </div>
 

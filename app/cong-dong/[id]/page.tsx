@@ -69,6 +69,7 @@ export default async function PostDetail({ params }: { params: { id: string } })
           fallback={post.imgFallback.replace('/1000/750', '/1500/900')}
           alt={post.title}
           className="w-full h-full object-cover"
+          sizes="100vw"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[rgba(36,26,23,0.8)] via-[rgba(36,26,23,0.2)] to-transparent" />
         <div className="absolute inset-x-0 bottom-0">

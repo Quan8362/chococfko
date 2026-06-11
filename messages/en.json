@@ -2017,6 +2017,25 @@
     "pos_interjection": "Interjection",
     "pos_pronoun": "Pronoun",
     "image_alt_for_word": "Illustration for the word {word}",
-    "illustration_label": "Illustration"
+    "illustration_label": "Illustration",
+    "pos_adj_i": "I-adjective (い)",
+    "pos_adj_na": "Na-adjective (な)",
+    "pos_adj_no": "Noun-modifying (の)",
+    "pos_adj_pn": "Pre-noun adjectival",
+    "pos_adv": "Adverb",
+    "pos_n": "Noun",
+    "pos_v": "Verb",
+    "pos_v1": "Ichidan verb (Group 2)",
+    "pos_v5": "Godan verb (Group 1)",
+    "pos_vs": "Suru verb",
+    "pos_vt": "Transitive verb",
+    "pos_vi": "Intransitive verb",
+    "pos_exp": "Expression / Idiom",
+    "pos_prt": "Particle",
+    "pos_suf": "Suffix",
+    "pos_pref": "Prefix",
+    "pos_unknown": "Other part of speech",
+    "kanji_practice_title": "Kanji writing practice",
+    "kanji_practice_no_stroke": "Stroke order data is not available for this Kanji yet."
   }
 }

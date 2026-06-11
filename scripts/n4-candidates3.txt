@@ -1,0 +1,402 @@
+Fetched: 6300, Candidates: 4599
+
+公開かぎ	こうかいかぎ	2355250	public key
+公開キー	こうかいキー	2355270	public key
+公開鍵	こうかいかぎ	2355280	public key
+公開鍵暗号	こうかいかぎあんごう	2355290	public key encryption
+公開鍵基盤	こうかいかぎきばん	2355310	Public Key Infrastructure
+公開識別子	こうかいしきべつし	2355320	public identifier
+公開文	こうかいぶん	2355330	public text
+公開文記述	こうかいぶんきじゅつ	2355340	public text description
+公開文言語	こうかいぶんげんご	2355350	public text language
+公開文種別	こうかいぶんしゅべつ	2355370	public text class
+公開文表示版	こうかいぶんひょうじばん	2355380	public text display version
+公衆サービス	こうしゅうサービス	2355390	public services
+公衆回線	こうしゅうかいせん	2355420	public line (as opposed to a private or leased line)
+公衆回線網	こうしゅうかいせんもう	2355430	public network
+公衆電線網	こうしゅうでんせんもう	2355440	public wireline network
+公衆電話網	こうしゅうでんわもう	2355450	public telephone network
+孔パターン	こうパターン	2355490	hole pattern
+広域ＬＡＮ	こういきラン	2355500	wide area LAN
+主記憶装置	しゅきおくそうち	2362250	main memory | primary storage
+構成要素型	こうせいようそがた	2355690	component type
+構造化言語	こうぞうかげんご	2355720	structured language
+構造化分析	こうぞうかぶんせき	2355740	Structured Analysis | SA
+構造型	こうぞうがた	2355750	derived type | structured type
+構造型符号化	こうぞうがたふごうか	2355760	constructed encoding
+構造構文	こうぞうこうぶん	2355770	construct
+構造体参照	こうぞうたいさんしょう	2355790	structure reference
+構造体識別子	こうぞうたいしきべつし	2355800	structure identifier
+構造体取出し	こうぞうたいとりだし	2355810	structure retrieval
+構文素	こうぶんそ	2356000	lexical token
+構造体成分	こうぞうたいせいぶん	2355830	structure component
+構造体変数	こうぞうたいへんすう	2355850	structured variable
+構造体編集	こうぞうたいへんしゅう	2355860	structure editing
+構造体保管	こうぞうたいほかん	2355870	structure archiving
+構造体要素	こうぞうたいようそ	2355880	structure element
+構造要素	こうぞうようそ	2355900	structural element
+構内交換機	こうないこうかんき	2355910	private branch exchange | PBX
+構内通信網	こうないつうしんもう	2355920	local area network | LAN
+構文エラー	こうぶんエラー	2355940	syntactic error
+構文チェッカ	こうぶんチェッカ	2355950	syntax checker
+構文解析	こうぶんかいせき	2355960	parsing | syntactic analysis
+構文規則	こうぶんきそく	2355980	syntax
+行の高さ	ぎょうのたかさ	2356030	line height
+行の進む方向	ぎょうのすすむほうこう	2356040	line progression
+行の長さ	ぎょうのながさ	2356050	line length
+行ピッチ	ぎょうピッチ	2356060	line pitch
+行位置	ぎょういち	2356070	line number
+行印字装置	ぎょういんじそうち	2356080	line printer
+行間隔	ぎょうかんかく	2356090	line spacing
+行起点	ぎょうきてん	2356100	line home position
+行始端	ぎょうしたん	2356110	home position of line
+行進行方向	ぎょうしんこうほうこう	2356120	line progression
+行数カウンタ	ぎょうすうカウンタ	2356130	linage-counter
+行送り幅	ぎょうおくりはば	2356150	line spacing
+行送り	ぎょうおくり	2356160	linefeed
+行揃え	ぎょうぞろえ	2356170	alignment | justification
+行端揃え	ぎょうたんぞろえ	2356180	full justification
+行番号	ぎょうばんごう	2356200	line number
+行方向	ぎょうほうこう	2356210	line writing direction
+行列演算	ぎょうれつえんざん	2356230	matrix operation
+行列記法	ぎょうれつきほう	2356240	matrix notation
+行列代数	ぎょうれつだいすう	2356250	linear algebra | matrix algebra
+行列表現	ぎょうれつひょうげん	2356260	matrix representation
+行列要素	ぎょうれつようそ	2356270	matrix element
+行枠	ぎょうわく	2356280	line box
+降順キー	こうじゅんキー	2356290	descending key
+項目識別子	こうもくしきべつし	2356300	item identifier
+項目選択	こうもくせんたく	2356310	item selection
+項目名	こうもくめい	2356320	item name
+高位レベル	こういレベル	2356350	higher level
+高画質	こうがしつ	2356370	high image quality
+高解像度	こうかいぞうど	2356380	high resolution
+高級言語	こうきゅうげんご	2356390	high-level language
+高水準言語	こうすいじゅんげんご	2356400	high-level language
+高速アクセス	こうそくアクセス	2356430	high speed access
+高速セレクト	こうそくセレクト	2356470	fast select
+高速パケット	こうそくパケット	2356500	fast packet
+高速モデム	こうそくモデム	2356550	high speed modem
+高速化	こうそくか	2356560	increase in speed | acceleration
+高速回線	こうそくかいせん	2356570	high speed line
+高速処理	こうそくしょり	2356580	high speed processing
+高速接続	こうそくせつぞく	2356590	high speed connection
+高速通信	こうそくつうしん	2356620	high speed communication
+高速通信網	こうそくつうしんもう	2356630	high speed network
+高速伝送	こうそくでんそう	2356640	high speed transmission
+高度化	こうどか	2356670	increase in sophistication | enhancement of functionality | increase in speed | upgrading
+高度技術	こうどぎじゅつ	2356680	high-tech | high-technology
+合計カウンタ	ごうけいカウンタ	2356740	sum counter
+合計機能	ごうけいきのう	2356750	total function
+合計検査	ごうけいけんさ	2356760	summation check | sum check
+合計穿孔機	ごうけいせんこうき	2356770	summary punch
+合計容量	ごうけいようりょう	2356780	total capacity
+合理性検査	ごうりせいけんさ	2356810	reasonableness check
+刻み幅	きざみはば	2356830	stride
+刻時トラック	こくじトラック	2356840	clock track
+刻時パルス	こくじパルス	2356850	clock signal | clock pulse
+刻時機構	こくじきこう	2356860	clock
+刻時信号	こくじしんごう	2356870	clock signal | clock pulse
+国コード	くにコード	2356880	country code
+国際書誌	こくさいしょし	2356890	international bibliography
+国際単位系	こくさいたんいけい	2356910	International System of Units | SI
+国際通話	こくさいつうわ	2356930	international call
+国際標準化	こくさいひょうじゅんか	2356960	international standardization
+国番号	くにばんごう	2357010	country code
+国別コード	こくべつコード	2357020	country code
+国名コード	こくめいコード	2357030	country code
+混合指定表	こんごうしていひょう	2357090	mixed entry table
+左シフト	ひだりシフト	2357100	left shift (bitwise, arithmetic)
+左右突出部	さゆうとっしゅつぶ	2357120	kern
+左下隅	ひだりしたすみ	2357130	bottom left corner
+左手座標系	ひだりてざひょうけい	2357140	left-handed coordinate system
+左上隅	ひだりうえすみ	2357150	top left corner
+左揃え	ひだりぞろえ	2357160	left alignment | left justification
+再組立	さいくみたて	2357510	reassembly
+左辺値	さへんち	2357170	left side value (of an equation)
+左方端	さほうたん	2357180	left hand edge
+差し込み印刷	さしこみいんさつ	2357190	merge print
+差し替え表示	さしかえひょうじ	2357200	obsoleting indication
+差動増幅器	さどうぞうふくき	2357210	differential amplifier
+差分ファイル	さぶんファイル	2357220	difference file
+差分法	さぶんほう	2357230	difference method
+座標格子	ざひょうこうし	2357250	coordinate grid
+座標図形処理	ざひょうずけいしょり	2357260	coordinate graphics | line graphics
+座標点	ざひょうてん	2357270	coordinate point
+再コンパイル	さいコンパイル	2357290	recompile
+再ルーチング	さいルーチング	2357300	rerouting
+再ロード	さいロード	2357310	reload
+再割当	さいわりあて	2357330	reassignment
+再帰関数	さいきかんすう	2357340	recursive function
+再帰呼び出し	さいきよびだし	2357350	recursive call
+再帰的	さいきてき	2357370	recursive | reflexive
+再帰的に呼ぶ	さいきてきによぶ	2357380	to call recursively
+再帰的定義	さいきてきていぎ	2357410	recursive definitions
+再計算	さいけいさん	2357420	recalculation | recalculate
+再使用	さいしよう	2357430	reuse
+再始動	さいしどう	2357440	restarting (a machine, engine, project, etc.) | resuming
+再実行	さいじっこう	2357450	re-execute
+再実行時間	さいじっこうじかん	2357460	rerun time
+再生保証領域	さいせいほしょうりょういき	2357470	assured reproduction area
+再接続	さいせつぞく	2357480	reconnect
+再設定	さいせってい	2357490	reestablish | reset (a password)
+再宣言	さいせんげん	2357500	redeclaration
+再送信	さいそうしん	2357520	retransmission
+再度組み立て	さいどくみたて	2357530	reassemble
+再読み込み	さいよみこみ	2357540	reloading (a file, web page, etc.)
+再入可能	さいにゅうかのう	2357550	re-entrant
+再配置可能	さいはいちかのう	2357600	relocatable
+再表示制御	さいひょうじせいぎょ	2357640	display recall control
+再描画	さいびょうが	2357650	redraw
+再利用率	さいりようりつ	2357660	reuse factor
+最悪の場合	さいあくのばあい	2357670	worst case
+最右端	さいうたん	2357680	low order end
+最下位ビット	さいかいビット	2357690	least significant bit | LSB
+最近稼働	さいきんかどう	2357700	recent activity
+最左端	さいさたん	2357710	high order end
+最終値	さいしゅうち	2357730	final value
+最終認可	さいしゅうにんか	2357740	final approval
+最終版	さいしゅうばん	2357750	final version | final edition
+初期化コード	しょきかコード	2364470	initialization code
+初期化子	しょきかし	2364490	initializer
+初期化部	しょきかぶ	2364500	initialization section
+初期画面	しょきがめん	2364510	opening screen
+最大ビット長	さいだいビットちょう	2357910	maximum bit length
+最大化ボタン	さいだいかボタン	2357930	maximize button
+最大数	さいだいすう	2357980	maximum number | maximum | limit
+最大正規電圧	さいだいせいきでんあつ	2357990	maximum normal mode voltage
+最大同相電圧	さいだいどうそうでんあつ	2358000	maximum common mode voltage
+最大有効数字	さいだいゆうこうすうじ	2358030	most significant digit | MSD
+最長経路	さいちょうけいろ	2358040	critical path
+最適ルート	さいてきルート	2358050	optimal route
+最繁正時	さいぱんせいじ	2358080	busy hour | busy period
+最頻値	さいひんち	2358090	mode
+細分化	さいぶんか	2358110	subdivision | segmentation | fractionalization | fragmentation
+細胞状	さいぼうじょう	2358120	cellular
+作業域	さぎょういき	2358140	work(ing) space | work(ing) area
+作業場所節	さぎょうばしょせつ	2358150	working-storage section (COBOL)
+作業負荷	さぎょうふか	2358160	workload
+作図装置	さくずそうち	2358170	plotter
+作成システム	さくせいシステム	2358190	originating system
+作成者語	さくせいしゃご	2358200	implementor-name
+作成中	さくせいちゅう	2358210	under construction | in preparation
+作成日時	さくせいにちじ	2358220	creation-time
+作用対象	さようたいしょう	2358240	operand
+索引トラック	さくいんトラック	2358280	index track
+索引ファイル	さくいんファイル	2358290	indexed file
+索引言語	さくいんげんご	2358300	indexing language
+索引語	さくいんご	2358310	indexing term
+索引作業	さくいんさぎょう	2358320	indexing
+索引精度	さくいんせいど	2358380	depth of indexing
+索引編成	さくいんへんせい	2358390	indexed organization
+雑音除去	ざつおんじょきょ	2358420	normal mode rejection
+雑時間	ざつじかん	2358430	miscellaneous time | incidental time
+三角形集合	さんかくけいしゅうごう	2358440	triangle set
+三次の多項式	さんじのたこうしき	2358450	third order polynomial
+三者通話機能	さんしゃつうわきのう	2358460	three way calling
+参照アクセス	さんしょうアクセス	2358480	access | reference | fetch
+参照キー	さんしょうキー	2358490	key of reference
+参照モデル	さんしょうモデル	2358500	reference model
+参照許可	さんしょうきょか	2358510	access permission
+参照形式	さんしょうけいしき	2358520	reference format
+参照経路	さんしょうけいろ	2358530	reference path
+参照結合	さんしょうけつごう	2358540	use association
+参照検索	さんしょうけんさく	2358550	reference retrieval
+参照権	さんしょうけん	2358560	access right
+参照呼び出し	さんしょうよびだし	2358570	reference (function) call
+参照事項検索	さんしょうじこうけんさく	2358580	reference retrieval
+参照先	さんしょうさき	2358590	referent
+参照線	さんしょうせん	2358600	reference line
+参照選択型	さんしょうせんたくがた	2358610	selection type
+散布度	さんぷど	2358620	irrelevance | prevarication | spread
+散布量	さんぷりょう	2358630	irrelevance | prevarication | spread
+算術けた送り	さんじゅつけたおくり	2358650	arithmetic shift
+算術レジスタ	さんじゅつレジスタ	2358660	arithmetic register
+算術演算	さんじゅつえんざん	2358670	arithmetic operation
+算術演算機構	さんじゅつえんざんきこう	2358680	arithmetic unit | ALU
+算術演算子	さんじゅつえんざんし	2358690	arithmetic operator
+算術演算装置	さんじゅつえんざんそうち	2358700	arithmetic unit | arithmetic logic unit | ALU
+算術演算命令	さんじゅつえんざんめいれい	2358710	arithmetic instruction
+算術加算	さんじゅつかさん	2358720	arithmetic addition
+算術作用素	さんじゅつさようそ	2358730	arithmetic operator
+算術式	さんじゅつしき	2358740	arithmetic expression
+算術乗算	さんじゅつじょうざん	2358750	arithmetic multiplication
+Ｇｅｍｉｎｉ	ジェミニ	2447560	Gemini (constellation) | Gemini (large language model developed by Google DeepMind)
+炊飯	すいはん	2447800	rice cooking | boiling rice
+下臼	したうす	2447810	lower millstone | nether millstone
+芽茶	めちゃ	2447820	coarse broken tea leaves and buds generated during the sifting process
+真祖	しんそ	2447830	(in fiction) person changed into a vampire by magic
+牛の毛草	うしのけぐさ	2447840	sheep's fescue (Festuca ovina)
+黒藻	くろも	2447850	hydrilla (species of aquatic plant, Hydrilla verticillata) | Papenfussiella kuromo (species of brown
+泥炭土	でいたんど	2447860	peat soil
+草炭	そうたん	2447870	herbaceous peat
+黒慈姑	くろぐわい	2447900	Eleocharis kuroguwai (species of spikerush) | Chinese water chestnut (Eleocharis dulcis var. tuberos
+大黒慈姑	おおくろぐわい	2447910	Chinese water chestnut (Eleocharis dulcis var. tuberosa)
+沼沢植物	しょうたくしょくぶつ	2447920	helophyte | marsh plant
+山椒藻	さんしょうも	2447930	floating watermoss (Salvinia natans)
+抽水植物	ちゅうすいしょくぶつ	2447940	emergent plant
+榛	はり	2447960	Japanese alder (Alnus japonica)
+雄蛭木	おひるぎ	2447970	black mangrove (Bruguiera gymnorrhiza)
+雌蛭木	めひるぎ	2447980	Kandelia obovata (species of mangrove)
+蛭木	ひるぎ	2447990	mangrove (of family Rhizophoraceae)
+八重山蛭木	やえやまひるぎ	2448000	Rhizophora mucronata (species of mangrove)
+紅樹林	こうじゅりん	2448010	mangrove forest
+紅樹	こうじゅ	2448020	mangrove (esp. the black mangrove, Bruguiera gymnorrhiza) | tree with red leaves or flowers
+蛭木騙	ひるぎだまし	2448030	grey mangrove (Avicennia marina) | white mangrove
+使君子	しくんし	2448040	Rangoon creeper (Quisqualis indica)
+四君子	しくんし	2448050	the four gentlemen (plum, chrysanthemum, orchid, and bamboo)
+蘭	あららぎ	2448060	Japanese yew (Taxus cuspidata) | wild rocambole (Allium grayi)
+引き紐	ひきひも	2448620	drawstring | release cord | lead (e.g. for a dog)
+何倍も	なんばいも	2448640	manyfold
+同意味	どういみ	2448660	same meaning
+表記ゆれ	ひょうきゆれ	2448670	variation in spelling (esp. within the same text) | inconsistency in spelling | orthographic variati
+意味情報	いみじょうほう	2448680	semantic information | meaningful information
+フランドル派	フランドルは	2448700	Flemish school (of art)
+同語	どうご	2448740	same word
+同案	どうあん	2448750	same plan | same idea | that plan | that idea
+刈りそろえる	かりそろえる	2448770	to crop | to shear | to cut or trim something evenly | to make all the same length
+そり上げる	そりあげる	2448780	to shave off
+吐きかける	はきかける	2448790	to spit
+抱き下ろす	だきおろす	2448800	to lift down | to carry down in one's arms
+迸しり出る	ほとばしりでる	2448810	to gush out | to gush forth | to effuse
+脱ぎ揃える	ぬぎそろえる	2448820	to take off something (e.g. a pair of shoes) and leave them neatly aligned side by side
+打ち延ばす	うちのばす	2448830	to hammer out thinly (e.g. goldleaf)
+書き伸ばす	かきのばす	2448840	to make text longer by additional writing
+じっと見返す	じっとみかえす	2448850	to gaze back at
+日焼けサロン	ひやけサロン	2448860	tanning salon | tanning parlor | tanning parlour
+仏詣	ぶっけい	2448870	act of visiting a Shinto shrine or Buddhist temple
+藩祖	はんそ	2448890	ancestor of a feudal lord | founder of a feudal domain
+矢筈模様	やはずもよう	2448900	herring-bone pattern | herringbone pattern
+奴原	やつばら	2448910	they | those guys
+混獲	こんかく	2448920	by-catch | bycatch
+内道	ないどう	2448930	Buddhist teachings | Buddhist
+漉油の木	こしあぶらのき	2448960	Acanthopanax sciadophylloides (species of flowering plant related to the aralias)
+金漆	きんしつ	2448970	lacquer made from the sap of Acanthopanax sciadophylloides
+予参	よさん	2448980	act of joining a crowd or assembly of people | attendance
+真先	まさき	2448990	the head | the foremost | beginning | the very front
+金葎	カナムグラ	2449030	Japanese hop (Humulus japonicus)
+八重葎	やえむぐら	2449040	thick patch of mixed weeds | false cleavers (species of bedstraw, Galium spurium var. echinospermon)
+川原松葉	かわらまつば	2449050	our lady's bedstraw (Galium verum) | yellow bedstraw
+松葉蘭	まつばらん	2449060	whisk fern (Psilotum nudum)
+甘菜	あまな	2449070	Amana edulis (species of flowering bulb)
+松葉菊	まつばぎく	2449080	trailing ice plant (Lampranthus spectabilis)
+ハッテン場	はってんば	2449110	(gay) cruising spot | (gay) pick-up joint (e.g. bar)
+紫弁慶草	むらさきべんけいそう	2449120	orpine (Hylotelephium telephium)
+見せばや	みせばや	2449130	Siebold's stonecrop (Hylotelephium sieboldii)
+岩蓮華	いわれんげ	2449140	Chinese dunce cap (species of succulent plant, Orostachys iwarenge)
+蛸の足	たこのあし	2449150	Penthorum chinense (species of saxifrage)
+子持万年草	こもちまんねんぐさ	2449170	Sedum bulbiferum (species of stonecrop)
+雄之万年草	おのまんねんぐさ	2449180	needle stonecrop (Sedum lineare)
+雌の万年草	めのまんねんぐさ	2449190	Sedum rupifragum (species of stonecrop)
+万年草	マンネングサ	2449200	stonecrop (Sedum spp.)
+万代草	ばんだいそう	2449210	houseleek (any plant species of genus Sempervivum)
+高野の万年草	こうやのまんねんぐさ	2449220	Climacium japonicum (species of moss)
+高野の万年蘚	こうやのまんねんごけ	2449230	Climacium japonicum (species of moss)
+収縮胞	しゅうしゅくほう	2449240	contractile vacuole
+食胞	しょくほう	2449250	phagosome
+毛胞	もうほう	2449260	trichocyst
+分泌腺	ぶんぴつせん	2449280	secretory gland
+炭素循環	たんそじゅんかん	2449290	carbon cycle
+鋳鉄管	ちゅうてつかん	2449300	cast-iron pipe
+白炭	しろずみ	2449330	white charcoal | charcoal used for tea ceremony
+黒炭	くろずみ	2449340	black charcoal
+備長	びんちょう	2449350	binchō charcoal | high-grade charcoal produced from ubame oak
+調節卵	ちょうせつらん	2449360	regulation egg
+祈願所	きがんじょ	2449390	temple | shrine (esp. one at which worshippers pray for favors) | prayer hall
+泥む	なずむ	2449410	to cling to (e.g. old customs) | to adhere to | to stick to | to be wedded to | to get used to | to 
+食べ合わせ	たべあわせ	2449420	combination (e.g. of foodstuffs)
+食べ掛ける	たべかける	2449430	to start eating
+日サロ	ひサロ	2449440	tanning salon
+産官学	さんかんがく	2449450	industry, government and academia
+ちょう	ちょう	2449460	just a minute | short time | just a little
+神位	しんい	2449470	divinity
+神階	しんかい	2449480	relative rank accorded the gods of Shintoism
+杏酒	あんずしゅ	2449500	sake made from apricot
+話し始める	はなしはじめる	2449520	to begin to speak
+泣き始める	なきはじめる	2449530	to begin to cry
+歩き始める	あるきはじめる	2449540	to begin to walk | to set out
+飲み始める	のみはじめる	2449550	to begin to drink
+通い始める	かよいはじめる	2449560	to begin to attend (e.g. school)
+暮らし始める	くらしはじめる	2449570	to begin some form of lifestyle
+咲き始める	さきはじめる	2449580	to begin blooming
+散り始める	ちりはじめる	2449590	to begin falling (e.g. leaves, petals, etc.)
+突撃砲	とつげきほう	2449610	assault gun
+鎮護国家	ちんごこっか	2449620	spiritual protection of the state
+等値線	とうちせん	2449630	isopleth | isogram | isoline | contour line | isarithm
+顔認証	かおにんしょう	2449640	authentication by facial recognition
+豪ドル	ごうドル	2449650	Australian dollar
+査定者	さていしゃ	2449660	underwriter (insurance) | appraiser | assessor | auditor
+でも医者	でもいしゃ	2449690	quack (doctor)
+八分儀	はちぶんぎ	2449700	octant (instrument)
+はちぶんぎ座	はちぶんぎざ	2449710	Octans (constellation) | the Octant
+象限儀	しょうげんぎ	2449720	quadrant (instrument)
+四分儀	しぶんぎ	2449730	quadrant (instrument)
+相補分布	そうほぶんぷ	2449740	complementary distribution
+哲学史	てつがくし	2449750	history of philosophy
+哲学的人間学	てつがくてきにんげんがく	2449760	philosophical anthropology
+インド哲学	インドてつがく	2449770	Indian philosophy
+価値哲学	かちてつがく	2449780	philosophy of value
+教育哲学	きょういくてつがく	2449790	philosophy of education
+教父学	きょうふがく	2449800	patristics | patrology
+教父哲学	きょうふてつがく	2449810	patristic philosophy
+公共哲学	こうきょうてつがく	2449820	public philosophy
+心の哲学	こころのてつがく	2449830	philosophy of mind
+理論哲学	りろんてつがく	2449840	theoretical philosophy
+実践哲学	じっせんてつがく	2449850	practical philosophy
+実存哲学	じつぞんてつがく	2449860	existential philosophy
+常識哲学	じょうしきてつがく	2449870	philosophy of common sense
+ストア哲学	ストアてつがく	2449880	Stoic philosophy
+生の哲学	せいのてつがく	2449890	philosophy of life
+先験哲学	せんけんてつがく	2449900	transcendental philosophy
+第一哲学	だいいちてつがく	2449910	first philosophy
+中国哲学	ちゅうごくてつがく	2449920	Chinese philosophy
+同一哲学	どういつてつがく	2449930	identity philosophy
+道徳哲学	どうとくてつがく	2449940	moral philosophy
+内在哲学	ないざいてつがく	2449950	immanence philosophy
+西田哲学	にしだてつがく	2449960	Nishida's philosophy (foundation for the Kyoto school of philosophy)
+煩瑣哲学	はんさてつがく	2449970	scholastic philosophy
+批判哲学	ひはんてつがく	2449980	critical philosophy
+文化哲学	ぶんかてつがく	2449990	philosophy of culture
+六派哲学	ろっぱてつがく	2450000	six schools of classical Indian philosophy
+メタ倫理学	メタりんりがく	2450010	meta-ethics
+討議倫理学	とうぎりんりがく	2450020	discourse ethics
+規範倫理学	きはんりんりがく	2450030	normative ethics
+環境倫理学	かんきょうりんりがく	2450040	environmental ethics
+価値倫理学	かちりんりがく	2450050	axiological ethics
+応用倫理学	おうようりんりがく	2450060	applied ethics
+臨床倫理	りんしょうりんり	2450070	clinical ethics
+土地倫理	とちりんり	2450080	land ethics
+世代間倫理	せだいかんりんり	2450090	intergenerational ethics
+心情倫理	しんじょうりんり	2450100	ethics of conviction
+情報倫理	じょうほうりんり	2450110	information ethics
+状況倫理	じょうきょうりんり	2450120	situation ethics | situational ethics
+社会倫理	しゃかいりんり	2450130	social ethics
+個人倫理	こじんりんり	2450140	individual ethics
+経営倫理	けいえいりんり	2450150	management ethics
+企業倫理	きぎょうりんり	2450160	corporate ethics
+技術者倫理	ぎじゅつしゃりんり	2450170	engineering ethics
+科学技術倫理	かがくぎじゅつりんり	2450180	ethics of science and technology
+倫理委員会	りんりいいんかい	2450190	ethics committee
+倫理神学	りんりしんがく	2450200	moral theology
+倫理的宗教	りんりてきしゅうきょう	2450210	ethical religion
+談義所	だんぎしょ	2450230	Buddhist seminary
+ＰＶＣ	ピー・ブイ・シー	2450240	polyvinyl chloride | PVC
+面壁九年	めんぺきくねん	2450250	facing a wall for nine years in meditation (by Bodhidharma at Shaolin Temple)
+負の感情	ふのかんじょう	2450260	negative emotions | negative feelings
+自慢たらしい	じまんたらしい	2450270	boastful
+たらしい	たらしい	2450280	seeming very
+嫌みたらしい	いやみたらしい	2450290	disagreeable | unpleasant | nasty | detestable | sarcastic | snide
+金胎	こんたい	2450300	Diamond Realm and Womb Realm
+金胎両部	こんたいりょうぶ	2450310	Diamond Realm and Womb Realm
+両部	りょうぶ	2450320	two parts | both parts | both realms (i.e. the Diamond Realm and the Womb Realm) | Shinto-Buddhist a
+金胎	きんたい	2450330	unglazed metallic lacquerware
+記述言語学	きじゅつげんごがく	2450340	descriptive linguistics
+共時言語学	きょうじげんごがく	2450350	synchronic linguistics
+対照言語学	たいしょうげんごがく	2450360	contrastive linguistics
+通時言語学	つうじげんごがく	2450370	diachronic linguistics
+認知言語学	にんちげんごがく	2450380	cognitive linguistics
+歴史言語学	れきしげんごがく	2450390	historical linguistics
+歴史人口学	れきしじんこうがく	2450400	historical demography
+精神身体医学	せいしんしんたいいがく	2450410	psychosomatic medicine
+論理主義	ろんりしゅぎ	2450420	logicism
+夢判じ	ゆめはんじ	2450440	dream interpretation

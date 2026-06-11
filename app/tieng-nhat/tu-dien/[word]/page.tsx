@@ -8,6 +8,8 @@ import JlptBadge from '@/components/japanese/JlptBadge'
 import BookmarkButton from '@/components/japanese/BookmarkButton'
 import CopyButton from '@/components/japanese/CopyButton'
 import WordImage from '@/components/japanese/WordImage'
+import PosBadges from '@/components/japanese/PosBadges'
+import KanjiPracticeSection from '@/components/japanese/KanjiPracticeSection'
 import WordCard, { type JapaneseWord } from '@/components/japanese/WordCard'
 import { cleanMeaningText } from '@/lib/sanitize'
 
@@ -132,15 +134,7 @@ export default async function WordDetailPage({ params }: { params: { word: strin
         </div>
 
         {/* POS badges */}
-        {word.pos && word.pos.length > 0 && (
-          <div className="flex items-center gap-2 mb-6 flex-wrap">
-            {word.pos.map(p => (
-              <span key={p} className="text-[11px] font-semibold bg-rose/8 text-rose border border-rose/20 px-2.5 py-0.5 rounded-full">
-                {t.has(`pos_${p}`) ? t(`pos_${p}`) : p}
-              </span>
-            ))}
-          </div>
-        )}
+        <PosBadges value={word.pos} variant="detail" className="mb-6" />
 
         {/* Meanings */}
         {word.meanings && word.meanings.length > 0 && (
@@ -230,6 +224,9 @@ export default async function WordDetailPage({ params }: { params: { word: strin
           </Link>
         </div>
       </div>
+
+      {/* Kanji writing practice */}
+      <KanjiPracticeSection word={word.word} className="mb-10" />
 
       {/* Related words */}
       {relatedWords.length > 0 && (

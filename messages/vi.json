@@ -2017,6 +2017,25 @@
     "pos_interjection": "Thán từ",
     "pos_pronoun": "Đại từ",
     "image_alt_for_word": "Ảnh minh họa cho từ {word}",
-    "illustration_label": "Ảnh minh họa"
+    "illustration_label": "Ảnh minh họa",
+    "pos_adj_i": "Tính từ đuôi い",
+    "pos_adj_na": "Tính từ đuôi な",
+    "pos_adj_no": "Tính từ đuôi の",
+    "pos_adj_pn": "Tính từ hạn định",
+    "pos_adv": "Trạng từ",
+    "pos_n": "Danh từ",
+    "pos_v": "Động từ",
+    "pos_v1": "Động từ nhóm 2 (Ichidan)",
+    "pos_v5": "Động từ nhóm 1 (Godan)",
+    "pos_vs": "Động từ する",
+    "pos_vt": "Tha động từ",
+    "pos_vi": "Tự động từ",
+    "pos_exp": "Cụm từ / Thành ngữ",
+    "pos_prt": "Trợ từ",
+    "pos_suf": "Hậu tố",
+    "pos_pref": "Tiền tố",
+    "pos_unknown": "Loại từ khác",
+    "kanji_practice_title": "Luyện viết Kanji",
+    "kanji_practice_no_stroke": "Chưa có dữ liệu thứ tự nét cho chữ Kanji này."
   }
 }

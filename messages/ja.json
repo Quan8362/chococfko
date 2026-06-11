@@ -2017,6 +2017,25 @@
     "pos_interjection": "感動詞",
     "pos_pronoun": "代名詞",
     "image_alt_for_word": "「{word}」の挿絵",
-    "illustration_label": "挿絵"
+    "illustration_label": "挿絵",
+    "pos_adj_i": "い形容詞",
+    "pos_adj_na": "な形容詞",
+    "pos_adj_no": "の形容詞（連体修飾）",
+    "pos_adj_pn": "連体詞",
+    "pos_adv": "副詞",
+    "pos_n": "名詞",
+    "pos_v": "動詞",
+    "pos_v1": "一段動詞（グループ2）",
+    "pos_v5": "五段動詞（グループ1）",
+    "pos_vs": "する動詞",
+    "pos_vt": "他動詞",
+    "pos_vi": "自動詞",
+    "pos_exp": "表現・慣用句",
+    "pos_prt": "助詞",
+    "pos_suf": "接尾辞",
+    "pos_pref": "接頭辞",
+    "pos_unknown": "その他の品詞",
+    "kanji_practice_title": "漢字書き取り練習",
+    "kanji_practice_no_stroke": "この漢字の筆順データはまだありません。"
   }
 }

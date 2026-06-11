@@ -1,0 +1,102 @@
+Total: 885
+
+蛍光塗料	けいこうとりょう	1252010	fluorescent paint
+蛍光物質	けいこうぶっしつ	1252020	fluorescent substance | phosphor
+蛍狩り	ほたるがり	1252030	firefly watching | firefly catching
+蛍雪の功	けいせつのこう	1252040	the fruit of diligent study
+計	けい	1252050	plan | meter | measuring device | (in) total | total (of)
+計らい	はからい	1252060	arrangement | good offices | discretion | judgment | disposition
+計らう	はからう	1252070	to manage | to arrange | to see to (a matter) | to dispose of | to consult (with) | to talk (to)
+実行に移す	じっこうにうつす	1252100	to put into effect | to put into practice
+計画案	けいかくあん	1252110	blueprint
+計画段階	けいかくだんかい	1252120	planning stage | planning stages
+計器	けいき	1252130	meter | gauge
+計算機間	けいさんきま	1252150	inside the computer
+計算者	けいさんしゃ	1252160	non-electronic computer (i.e. person carrying out computation)
+計算尺	けいさんじゃく	1252170	slide rule
+計算書	けいさんしょ	1252180	statement of account
+計算木	けいさんぎ	1252190	computer-tree
+計上	けいじょう	1252200	including (a cost) in a total calculation | appropriating (a sum of money) | recording | allocating 
+計数	けいすう	1252210	calculation | counting | (dealing with) figures | cardinality
+計装	けいそう	1252220	instrumentation
+計理士	けいりし	1252240	public accountant
+計略	けいりゃく	1252250	plan | scheme | stratagem | trick | trap | plot
+計量	けいりょう	1252260	measuring | weighing | metric | distance function
+計量経済学	けいりょうけいざいがく	1252280	econometrics
+計量言語学	けいりょうげんごがく	1252290	quantitative linguistics
+警衛	けいえい	1252300	guard | patrol | escort
+警戒	けいかい	1252310	vigilance | caution | alertness | precaution | being on guard
+警戒心	けいかいしん	1252320	wariness
+警官	けいかん	1252330	police officer | policeman | constable
+警句	けいく	1252340	aphorism | epigram | witticism | bon mots
+警護	けいご	1252350	bodyguard | escort
+警告	けいこく	1252360	warning | caution | admonition | keikoku (penalty in judo)
+警告音	けいこくおん	1252380	warning sound
+警察	けいさつ	1252390	police | police officer | police station | self-appointed enforcer (of a rule, standard, etc.) | bus
+警察署	けいさつしょ	1252410	police station
+警察庁	けいさつちょう	1252420	National Police Agency | NPA
+警察当局	けいさつとうきょく	1252430	(the relevant) police authorities
+警視	けいし	1252440	police superintendent
+警視庁	けいしちょう	1252450	Metropolitan Police Department (Tokyo)
+警手	けいしゅ	1252460	guard | signalman | attendant
+警鐘	けいしょう	1252470	alarm bell | fire bell | warning | wake-up call
+警笛	けいてき	1252480	horn | alarm | whistle | foghorn
+警備	けいび	1252490	defense | defence | guard | policing | security
+警備強化	けいびきょうか	1252500	increased or beefed up security
+警部	けいぶ	1252510	police inspector
+警報	けいほう	1252520	warning | alarm | alert
+警報音	けいほうおん	1252530	warning sound
+警棒	けいぼう	1252540	(police officer's) baton | truncheon | billy club
+警務	けいむ	1252550	police affairs | military police
+軽んじる	かろんじる	1252570	to look down on | to make light of
+軽音楽	けいおんがく	1252580	light music | popular music
+軽歌劇	けいかげき	1252590	light opera
+軽快	けいかい	1252600	light (of movements) | nimble | sprightly | springy | light-hearted | cheerful | buoyant | jaunty | 
+軽機	けいき	1252610	light machine gun
+軽機関銃	けいきかんじゅう	1252620	light machine gun
+軽気球	けいききゅう	1252630	dirigible balloon
+軽騎兵	けいきへい	1252640	light cavalry
+軽挙妄動	けいきょもうどう	1252650	rash and blind act
+軽業	かるわざ	1252660	acrobatics | risky undertaking
+軽金属	けいきんぞく	1252670	light metal
+軽減	けいげん	1252680	abatement | reduction
+軽口	かるくち	1252690	talkative | loose-lipped | persiflage | frivolous talk | witty remark | light joke | amusing talk
+軽工業	けいこうぎょう	1252700	light industry
+軽視	けいし	1252710	making light of | thinking little of | slighting | belittling | dismissing | contempt | disdain
+軽傷	けいしょう	1252720	minor injury
+軽少	けいしょう	1252730	trifling | slight
+軽焼き	かるやき	1252740	wafer
+軽症	けいしょう	1252750	minor illness
+軽震	けいしん	1252770	weak earthquake
+軽水炉	けいすいろ	1252780	light-water reactor
+軽石	かるいし	1252790	pumice stone
+軽装	けいそう	1252800	light clothing | dressing light | light equipment | light armaments
+軽度	けいど	1252810	slight | light | mild (disability, symptoms, etc.)
+軽輩	けいはい	1252820	underling
+軽薄	けいはく	1252830	frivolous | flippant | superficial | shallow | trifling | insincere
+軽犯罪	けいはんざい	1252840	minor offence | minor offense | misdemeanor | misdemeanour
+軽侮	けいぶ	1252850	contempt | scorn
+軽蔑	けいべつ	1252860	contempt | scorn | disdain | despising | looking down on | slighting
+軽便	けいべん	1252870	handy | convenient | simple | portable | narrow-gauge railway | light railway
+軽妙	けいみょう	1252880	light and easy | lambent | clever | witty | smart
+軽油	けいゆ	1252890	diesel oil | diesel fuel | gas oil | light oil
+軽率	けいそつ	1252910	rash | thoughtless | careless | hasty | imprudent
+軽量	けいりょう	1252920	light weight
+軽労働	けいろうどう	1252930	light labor | light labour
+軽佻浮薄	けいちょうふはく	1252940	frivolity | levity | shallowness | superficiality
+頚静脈	けいじょうみゃく	1252960	jugular vein
+頸動脈	けいどうみゃく	1252970	carotid artery
+頸肉	けいにく	1252980	neck flesh
+鶏	にわとり	1252990	chicken (Gallus gallus domesticus) | domestic chicken | chicken meat
+鶏舎	けいしゃ	1253000	poultry house
+鶏頭	けいとう	1253010	silver cock's comb (Celosia argentea, esp. crested cock's comb, Celosia argentea var. cristata)
+鶏肉	とりにく	1253020	chicken meat | fowl | poultry | bird meat
+鶏鳴	けいめい	1253030	crowing of a cock | crowing of a rooster | cockcrow | dawn | daybreak | hour of the Ox (around 2am)
+鶏卵	けいらん	1253040	hen's egg
+芸者	げいしゃ	1253050	geisha | professional female entertainer, usu. at traditional banquets
+芸術家	げいじゅつか	1253070	artist
+芸術作品	げいじゅつさくひん	1253080	work of art | artwork | objet d'art
+芸術的	げいじゅつてき	1253090	artistic
+芸人	げいにん	1253100	(TV) comedian | performer (esp. of a traditional art) | entertainer | talented person | accomplished
+芸大	げいだい	1253110	university of arts | arts college
+芸当	げいとう	1253120	performance | trick | feat | stunt | extraordinary deed | daring act | bold move

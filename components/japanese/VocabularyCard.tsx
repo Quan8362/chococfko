@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import JlptBadge from './JlptBadge'
+import PosBadges from './PosBadges'
 import type { JapaneseWord } from './WordCard'
 import { cleanMeaningText } from '@/lib/sanitize'
 
@@ -14,13 +15,6 @@ interface VocabularyCardProps {
   isLoggedIn: boolean
   onAction: (wordId: string, action: 'correct' | 'review' | 'wrong') => Promise<void>
   loginMessage: string
-}
-
-const POS_LABEL: Record<string, string> = {
-  verb: 'V.',
-  noun: 'N.',
-  adjective: 'Adj.',
-  adverb: 'Adv.',
 }
 
 const STATUS_STYLE: Record<ProgressStatus, string> = {
@@ -44,7 +38,6 @@ export default function VocabularyCard({
 
   const firstMeaning = word.meanings?.[0]
   const firstExample = word.examples?.[0]
-  const posLabel = word.pos?.map(p => POS_LABEL[p] ?? p).join(' ') ?? ''
 
   const handleAction = async (action: 'correct' | 'review' | 'wrong') => {
     if (!isLoggedIn) {
@@ -91,11 +84,7 @@ export default function VocabularyCard({
             {word.romaji && (
               <span className="text-[12px] text-muted">{word.romaji}</span>
             )}
-            {posLabel && (
-              <span className="text-[10px] font-semibold text-muted/80 bg-cream border border-line px-1.5 py-0.5 rounded-full">
-                {posLabel}
-              </span>
-            )}
+            <PosBadges value={word.pos} variant="compact" max={2} />
             {word.jlpt_level && <JlptBadge level={word.jlpt_level} />}
           </div>
         </div>

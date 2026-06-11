@@ -3,6 +3,7 @@
 import { useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
+import { compressImage } from '@/lib/imageCompress'
 
 interface Props {
   name: string
@@ -35,12 +36,13 @@ export default function ImageUpload({
     setError('')
     setUploading(true)
 
-    const ext = file.name.split('.').pop() ?? 'jpg'
+    const compressed = await compressImage(file)
+    const ext = compressed.name.split('.').pop() ?? 'jpg'
     const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`
 
     const { data, error: uploadError } = await supabase.storage
       .from('post-images')
-      .upload(path, file, { cacheControl: '3600', upsert: false })
+      .upload(path, compressed, { cacheControl: '31536000', upsert: false, contentType: compressed.type })
 
     setUploading(false)
 

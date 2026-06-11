@@ -1,0 +1,502 @@
+Total candidates: 2353
+
+快活	かいかつ	1200000	cheerful | lively | lighthearted
+快感	かいかん	1200010	pleasant feeling | pleasant sensation | pleasure
+快挙	かいきょ	1200020	brilliant achievement | spectacular feat | splendid accomplishment | remarkable deed
+快哉	かいさい	1200030	joy | exultation
+快作	かいさく	1200040	splendid work | masterpiece
+快事	かいじ	1200050	pleasure | delight
+快走	かいそう	1200070	fast moving | fast running | fast sailing
+快速	かいそく	1200080	high speed | rapidity | rapid-service train (not as fast as express) | rapid train
+快速電車	かいそくでんしゃ	1200090	rapid-service train | rapid train
+快諾	かいだく	1200100	ready consent
+快調	かいちょう	1200110	good (condition) | going well | fine | smooth
+快適	かいてき	1200120	pleasant | agreeable | comfortable
+快適さ	かいてきさ	1200130	comfort | ease | amenity
+快刀	かいとう	1200140	sharp sword
+快刀乱麻	かいとうらんま	1200150	solving a problem swiftly and skillfully
+快方	かいほう	1200160	convalescence
+快眠	かいみん	1200170	pleasant sleep | good sleep | sleeping well
+怪しからん	けしからん	1200180	outrageous | scandalous | inexcusable | disgraceful | shameful | rude | unreasonable
+怪しげ	あやしげ	1200190	questionable | doubtful | suspicious
+怪しむ	あやしむ	1200200	to suspect
+怪異	かいい	1200210	mystery | curiosity | strangeness | monstrosity | ghost | monster | apparition | phantom | spectre |
+けが人	けがにん	1200230	wounded person | injured person
+怪奇	かいき	1200240	bizarre | strange | weird | mysterious | grotesque
+怪傑	かいけつ	1200250	person of extraordinary talent | wonder | marvel
+怪死	かいし	1200260	mysterious death
+怪事件	かいじけん	1200270	mystery case
+怪獣	かいじゅう	1200280	monster
+怪人	かいじん	1200290	mysterious person
+怪人物	かいじんぶつ	1200300	mysterious person
+怪談	かいだん	1200310	ghost story | tale of the supernatural
+怪盗	かいとう	1200320	mysterious thief | phantom thief
+怪物	かいぶつ	1200330	monster
+怪文書	かいぶんしょ	1200340	dubious document | anonymous document containing defamatory statements
+怪聞	かいぶん	1200350	strange rumor | strange rumour | scandal
+怪力	かいりき	1200360	superhuman strength
+怪力乱神	かいりょくらんしん	1200370	supernatural things | unnatural phenomena | spirits and demons
+怪訝	けげん	1200380	puzzled | perplexed | quizzical | dubious | suspicious
+悔い	くい	1200390	regret | repentance
+悔いる	くいる	1200400	to regret
+悔い改める	くいあらためる	1200410	to repent | to be penitent
+悔しさ	くやしさ	1200420	chagrin | bitterness | frustration | vexation | mortification | regret
+悔し泣き	くやしなき	1200430	crying from vexation | tears of regret
+悔やみ状	くやみじょう	1200440	letter of condolence | condolence message
+悔やむ	くやむ	1200450	to mourn | to lament | to be sorry | to regret | to repent
+悔悟	かいご	1200460	remorse | repentance
+悔恨	かいこん	1200470	regret | remorse | repentance | contrition
+懐	ふところ	1200480	inside the breast of one's clothing (esp. kimono) | bosom | (breast) pocket | space between one's ch
+懐く	なつく	1200510	to become attached (to) | to take (to) | to become affectionate (with) | to be tamed | to get close 
+懐ける	なつける	1200520	to win over | to win another's heart
+懐疑	かいぎ	1200530	doubt | skepticism | scepticism | disbelief
+懐旧	かいきゅう	1200540	reminiscence | nostalgia | thinking fondly of the past | recalling the old days
+懐古	かいこ	1200550	reminiscence | nostalgia | thinking fondly of the past | recalling the old days
+懐柔	かいじゅう	1200560	winning over | placation | gentle persuasion
+懐石料理	かいせきりょうり	1200570	traditional Japanese meal brought in courses | tea-ceremony dishes
+懐胎	かいたい	1200580	conception | becoming pregnant | pregnancy
+懐中	かいちゅう	1200590	one's pocket
+懐中電灯	かいちゅうでんとう	1200600	(electric) torch | flashlight
+懐中物	かいちゅうもの	1200610	purse | handbag | pocketbook
+懐刀	ふところがたな	1200620	dagger | stiletto | confidant | right-hand man
+懐妊	かいにん	1200630	pregnancy | conception
+懐炉	かいろ	1200640	pocket heater | hand warmer | heater pack
+戒める	いましめる	1200650	to warn against | to caution against | to admonish | to scold | to rebuke | to prohibit | to forbid 
+戒厳令	かいげんれい	1200660	martial law
+戒護	かいご	1200670	safe custody
+戒告	かいこく	1200680	admonition | warning | caution
+戒名	かいみょう	1200690	posthumous Buddhist name
+戒律	かいりつ	1200700	(religious) precept | discipline | commandment | mitzvah
+拐帯	かいたい	1200710	absconding with money
+改まる	あらたまる	1200730	to be renewed | to change | to be improved | to be reformed | to be revised | to be corrected | to s
+改める	あらためる	1200750	to change | to alter | to revise | to replace | to reform | to correct | to mend | to improve | to e
+改悪	かいあく	1200760	changing (something) for the worse | disimprovement | deterioration
+改印	かいいん	1200770	changing one's registered seal
+改革	かいかく	1200780	reform | reformation | reorganization
+改革案	かいかくあん	1200790	reform proposal
+改革過程	かいかくかてい	1200800	reform process
+改憲	かいけん	1200810	constitutional change | revising the constitution
+改行	かいぎょう	1200820	new line | new paragraph | newline | line break | line feed
+改作	かいさく	1200830	adaptation (of story)
+改札口	かいさつぐち	1200850	ticket barrier | ticket gate | wicket
+改札鋏	かいさつはさみ	1200860	ticket punch
+改宗	かいしゅう	1200870	religious conversion
+改称	かいしょう	1200890	renaming | retitling
+改心	かいしん	1200900	reforming (oneself) | mending one's ways | turning over a new leaf
+改新	かいしん	1200910	reformation
+改姓	かいせい	1200920	change of one's family name | changed family name
+改正	かいせい	1200930	revision | amendment | alteration
+改正案	かいせいあん	1200940	reform bill | reform proposal | amendment
+改選	かいせん	1200950	election (for a seat or position at the end of a term)
+改善	かいぜん	1200960	betterment | improvement | kaizen (Japanese business philosophy of continuous improvement)
+改組	かいそ	1200970	reorganization | reorganisation | reshuffle
+改葬	かいそう	1200980	reburial
+改装	かいそう	1200990	remodelling | remodeling | reorganization | reorganisation
+改造	かいぞう	1201000	remodeling | remodelling | reconstruction | conversion | alteration | renovation | modification | re
+改題	かいだい	1201010	change of title | retitling | changed title
+改築	かいちく	1201020	structural alteration (of a building) | reconstruction | rebuilding | remodelling | remodeling
+改鋳	かいちゅう	1201030	reminting | recasting
+改定	かいてい	1201040	revision (of a rule, price, etc.) | alteration | change
+改訂	かいてい	1201060	revision (of text) | alteration | change
+改訂版	かいていばん	1201070	revised edition
+改廃	かいはい	1201080	reform and (or) abolition | alteration or repeal | revision | reorganization | reorganisation
+改版	かいはん	1201090	revised edition (of a publication) | revision
+改変	かいへん	1201100	change | alteration | modification
+改編	かいへん	1201110	reorganization | reorganisation
+改名	かいめい	1201120	name change
+改訳	かいやく	1201130	retranslation | new translation | revised translation
+改良	かいりょう	1201140	improvement | reform
+改良点	かいりょうてん	1201150	point(s) for improvement
+改暦	かいれき	1201160	calendar reform | adoption of a new calendar system | new calendar (for a new year) | new year
+改ざん	かいざん	1201170	alteration | falsification | faking
+魁偉	かいい	1201180	brawny | muscular | impressive | gigantic
+海の幸	うみのさち	1201200	seafood | products of the sea | marine products | fruits of the sea
+海域	かいいき	1201210	area of sea | waters
+海員	かいいん	1201220	sailor | seaman
+海運	かいうん	1201230	maritime transport | shipping
+海沿い	うみぞい	1201240	seaside | seashore | coast | coastland
+海王星	かいおうせい	1201250	Neptune (planet)
+海外投資	かいがいとうし	1201270	overseas investment
+海岸線	かいがんせん	1201290	coastline | shoreline | coastal railway
+海岸通り	かいがんどおり	1201300	sea-front street
+海がめ	うみがめ	1201310	sea turtle
+海峡	かいきょう	1201320	channel (e.g. between two land masses) | strait
+海軍	かいぐん	1201330	navy | naval force
+海原	うなばら	1201340	ocean | sea | the deep
+海港	かいこう	1201350	port | seaport
+海溝	かいこう	1201360	oceanic trench | deep-sea trench | deep
+海国	かいこく	1201370	maritime nation
+海参	いりこ	1201380	dried sea slug
+海産業	かいさんぎょう	1201390	marine industries | maritime industry
+海産物	かいさんぶつ	1201400	marine products
+海事	かいじ	1201410	maritime affairs
+海女	あま	1201420	ama | female diver who collects shells, seaweed, etc.
+海商法	かいしょうほう	1201430	maritime law
+海将	かいしょう	1201440	Vice-Admiral (Maritime Self-Defence Force of Japan) (defense)
+海象	せいうち	1201450	walrus (Odobenus rosmarus) | elephant seal (Mirounga spp.)
+海上	かいじょう	1201460	(on the) sea | surface of the sea
+海食	かいしょく	1201470	marine erosion
+海深	かいしん	1201480	depth of the sea
+海水	かいすい	1201490	seawater | saltwater
+海水パンツ	かいすいパンツ	1201500	swim trunks
+海水着	かいすいぎ	1201510	bathing suit | swimsuit
+海水浴	かいすいよく	1201520	swimming in the ocean | sea bathing | seawater bath | going for a dip in the ocean
+海水浴場	かいすいよくじょう	1201530	swimming area (in the ocean) | swimming beach | seawater baths
+海生動物	かいせいどうぶつ	1201550	sea animal | marine animal
+海千山千	うみせんやません	1201560	cunning and experienced in the ways of the world | crafty and worldly-wise | sly old (fox)
+海鼠	なまこ	1201570	sea cucumber (Holothuroidea spp.)
+海草	かいそう	1201580	marine plant | seagrass | seaweed
+海藻	かいそう	1201590	seaweed
+海賊	かいぞく	1201600	pirate
+海苔	のり	1201620	nori | laver | edible seaweed, usu. Porphyra yezoensis or P. tenera, usu. dried and pressed into she
+海狸	かいり	1201630	beaver
+海中	かいちゅう	1201640	in the sea
+海豚	いるか	1201670	dolphin (or other small toothed whales, incl. porpoises, belugas, etc.)
+海難	かいなん	1201680	accident at sea | sea disaster | shipwreck
+海馬	とど	1201690	Steller sea lion (Eumetopias jubatus) | northern sea lion
+海抜	かいばつ	1201700	height above sea level
+海豹	アザラシ	1201710	earless seal (Phocidae) | true seal | seal
+海浜	かいひん	1201720	seashore | seaside | beach
+海兵	かいへい	1201730	sailor | marine
+海兵隊	かいへいたい	1201740	Marine Corps | Royal Marines
+海辺	うみべ	1201750	beach | seashore | seaside | coast
+海鳴り	うみなり	1201760	oceanic noise | rumbling of the sea | mistpouffer
+海綿	かいめん	1201770	sponge
+海面	かいめん	1201780	sea level | (surface of) sea
+海洋	かいよう	1201790	ocean | sea
+海洋科学	かいようかがく	1201800	marine science
+海陸	かいりく	1201810	land and sea
+海流	かいりゅう	1201820	ocean current
+海路	かいろ	1201830	sea route
+海驢	あしか	1201840	eared seal (esp. the California sea lion, Zalophus californianus) | sea lion
+灰	はい	1201860	ash | ashes
+灰になる	はいになる	1201870	to be reduced to ashes | to be cremated
+灰の水曜日	はいのすいようび	1201880	Ash Wednesday
+灰押さえ	はいおさえ	1201890	ash leveler (use in a brazier)
+灰押し	はいおし	1201900	ash leveler (use in a brazier)
+灰殻	はいがら	1201910	ashes
+灰均し	はいならし	1201920	ash leveler
+灰皿	はいざら	1201940	ashtray
+灰受け	はいうけ	1201950	ash pan | ash tray
+灰汁	あく	1201960	lye | harsh taste | bitter taste | alkaline taste | astringency | scum (on a soup, broth etc.) | (ex
+灰神楽	はいかぐら	1201980	cloud of ashes (caused by pouring water on a fire)
+灰塵	かいじん	1201990	ashes and dust
+灰吹き	はいふき	1202000	bamboo (tobacco) ash receptacle
+灰青色	かいせいしょく	1202010	grayish blue | greyish blue
+灰汁洗い	あくあらい	1202020	scouring | washing vegetables in lye
+灰まみれ	はいまみれ	1202030	covered with ashes | ash-covered
+灰土	かいど	1202040	ashes and earth | poor volcanic soil
+灰白	かいはく	1202050	gray | grey | griseous
+灰白質	かいはくしつ	1202060	gray matter | grey matter
+灰白色	かいはくしょく	1202070	grayish white | greyish white
+灰分	かいぶん	1202080	ash | (nutritional) mineral content
+灰落とし	はいおとし	1202090	ash tray | ash pit
+灰緑色	かいりょくしょく	1202100	greenish gray | greenish grey
+灰燼	かいじん	1202110	ash | embers | complete destruction
+灰ふるい	はいふるい	1202120	ash strainer | ash sieve
+界隈	かいわい	1202130	neighborhood | neighbourhood | vicinity | community (of people with a shared trait, members, fans, e
+界面	かいめん	1202140	interface
+皆既	かいき	1202180	total eclipse | totality
+皆既食	かいきしょく	1202190	total eclipse (solar or lunar) | totality
+皆既日食	かいきにっしょく	1202200	total solar eclipse
+皆勤	かいきん	1202210	perfect attendance
+皆済	かいさい	1202220	settlement
+皆殺し	みなごろし	1202230	massacre | annihilation | wholesale slaughter
+皆無	かいむ	1202240	nonexistent | nil | none | nothing (at all) | bugger-all
+皆目	かいもく	1202250	entirely | (not) at all
+皆様	みなさま	1202260	everyone
+絵	え	1202270	picture | drawing | painting | sketch | image (TV, film, etc.) | picture | footage
+絵の具	えのぐ	1202290	paint | coloring materials | colors | colours
+絵巻	えまき	1202310	picture scroll
+絵巻物	えまきもの	1202320	picture scroll
+絵図	えず	1202330	illustration | drawing
+絵日記	えにっき	1202340	illustrated diary | picture diary
+絵かき	えかき	1202350	painter | artist | drawing pictures | doodling | painting
+絵文字	えもじ	1202360	emoji | pictorial symbol | pictograph | pictogram | ASCII art
+絵柄	えがら	1202370	pattern | design
+絵本	えほん	1202380	picture book
+辛子	からし	1202390	mustard
+蟹	かに	1202410	crab
+かに座	かにざ	1202420	Cancer (constellation) | the Crab
+開き直る	ひらきなおる	1202430	to become defiant | to fight back | to turn upon | to take the offensive
+開けたて	あけたて	1202470	opening and shutting | opening and closing
+開け放す	あけはなす	1202480	to open wide (doors or windows) | to throw open | to fling open | to leave open | to keep open
+開け放つ	あけはなつ	1202490	to open wide (doors or windows) | to throw open | to fling open | to leave open | to keep open
+開院	かいいん	1202500	opening a new hospital, institution, temple, etc. | opening a hospital, institution, temple, etc. (f
+開運	かいうん	1202510	better fortune
+開園	かいえん	1202520	opening of a park (theme park, botanical garden etc.)
+開演	かいえん	1202530	curtain raising | starting (e.g. play, concert)
+開化	かいか	1202540	civilization | civilisation | enlightenment
+開花	かいか	1202550	flowering | blooming | blossoming | coming into bloom | flowering (of a civilization, talent, etc.) 
+開会	かいかい	1202560	opening of a meeting
+開回路	かいかいろ	1202570	open circuit
+開館	かいかん	1202580	opening (for that day's business; of a library, museum, cinema, etc.) | opening (of a new library, m
+開眼	かいがん	1202590	enlightenment | spiritual awakening | opening one's eyes to the truth | reaching one's peak (as a pe
+開業	かいぎょう	1202600	opening a business | opening a practice
+開業医	かいぎょうい	1202610	private clinician | physician in private practice
+開局	かいきょく	1202620	opening (of a broadcasting station, post office, bureau, etc.) | establishment
+開襟シャツ	かいきんシャツ	1202630	open-necked shirt
+開口	かいこう	1202640	opening | aperture (e.g. camera) | opening one's mouth | beginning to speak | open | broad
+開口一番	かいこういちばん	1202650	at the very beginning of one's speech | immediately upon opening one's mouth (to speak) | before any
+開口部	かいこうぶ	1202660	aperture
+開校	かいこう	1202670	opening a school
+開港	かいこう	1202680	opening a port (seaport, airport, etc.) | starting operations at a port | opening a port to foreign 
+開墾	かいこん	1202690	cultivating new land | clearing | reclamation
+開墾地	かいこんち	1202700	cultivated land
+開催	かいさい	1202710	holding (a conference, exhibition, etc.) | opening | hosting (e.g. the Olympics)
+開催式	かいさいしき	1202720	opening ceremony (of an event, show, etc.)
+開催中	かいさいちゅう	1202730	in session | in progress | under way | open
+開削	かいさく	1202740	excavation | cutting | digging
+開山	かいさん	1202750	founding a temple (on a hill-top)
+開示	かいじ	1202770	release (of information, documents, etc.) | disclosure | display | discovery
+開城	かいじょう	1202780	surrender of a castle | surrender of a fortress | capitulation of a stronghold
+開場	かいじょう	1202790	opening (the doors of a venue) | inauguration (of a new building, facility, etc.)
+開設	かいせつ	1202800	establishment | opening | setting up | inauguration
+開戦	かいせん	1202810	outbreak of war | starting a war
+開祖	かいそ	1202820	(sect) founder | apostle | originator | inventor
+開拓	かいたく	1202830	reclamation (e.g. of wasteland) | cultivation | development | pioneering | opening up (e.g. of a new
+開拓者	かいたくしゃ	1202840	pioneer | settler | colonist
+開通	かいつう	1202850	opening (of a new road, railway, etc.) | going into operation (e.g. telephone communication) | begin
+開廷	かいてい	1202860	court session | trial
+開店	かいてん	1202870	opening a new shop | opening a shop (for the day)
+開発	かいはつ	1202880	development | cultivation | application | exploitation (of resources)
+開発途上国	かいはつとじょうこく	1202890	developing country
+開扉	かいひ	1202900	opening a door
+開票	かいひょう	1202910	counting ballots | tally (of votes)
+開封	かいふう	1202920	opening (a letter, parcel, etc.) | breaking the seal | unboxing (a product) | unsealed mail
+開平	かいへい	1202930	extraction of square root
+開閉	かいへい	1202940	opening and shutting | opening and closing
+開放	かいほう	1202950	opening (a door, window, etc.) | leaving open | opening up (e.g. to the public) | allowing (public) 
+開幕	かいまく	1202960	raising the curtain | opening (of an event) | start | beginning
+開明	かいめい	1202970	civilization | civilisation | enlightenment
+開門	かいもん	1202980	opening gate
+開立	かいりゅう	1202990	extraction of cubic root
+開闢	かいびゃく	1203010	beginning of the world | creation
+階	かい	1203020	storey | story | floor | stairs | stage (in chronostratigraphy) | counter for storeys and floors of 
+階下	かいか	1203030	lower floor | downstairs | bottom of the stairs | foot of the stairs
+階級	かいきゅう	1203040	(social) class | rank | grade
+階級章	かいきゅうしょう	1203050	badge of rank | rank insignia
+階級闘争	かいきゅうとうそう	1203060	class struggle | class warfare | class conflict
+階数	かいすう	1203070	number of stairs or stories (storeys) | rank | order
+階層	かいそう	1203080	class | level | stratum | layer | hierarchy
+貝	かい	1203100	shellfish | seashell | shell
+貝ボタン	かいボタン	1203110	mother-of-pearl button
+貝貨	ばいか	1203120	shell money
+貝殻	かいがら	1203130	seashell | shell
+貝柱	かいばしら	1203140	adductor muscle | adductor muscle of a bivalve (e.g. scallop, etc.)
+貝毒	かいどく	1203160	shellfish poison
+貝類	かいるい	1203170	shellfish
+凱歌	がいか	1203190	victory song | victory
+凱旋	がいせん	1203200	triumphant return | returning in triumph
+凱旋軍	がいせんぐん	1203210	returning victorious army
+凱旋門	がいせんもん	1203220	arch of triumph | triumphal arch
+劾奏	がいそう	1203240	report of an official's offence to the emperor (offense)
+他	ほか	1203260	another place | some other place | somewhere else | outside | another (person or thing) | other | di
+他に	ほかに	1203280	else | in addition | besides
+外れ	はずれ	1203300	end | verge | extremity | tip | outskirts | miss | failure | blank (e.g. lottery ticket)
+外れる	はずれる	1203310	to be disconnected | to get out of place | to be off | to be out (e.g. of gear) | to miss the mark |
+外圧	がいあつ	1203320	external pressure | outside pressure | foreign pressure
+外為	がいため	1203330	foreign exchange
+外為法	がいためほう	1203340	Foreign Exchange and Foreign Trade Act
+兄妹喧嘩	きょうだいげんか	1250000	quarrel between siblings
+啓く	ひらく	1250010	to enlighten | to edify
+啓示	けいじ	1250030	(divine) revelation
+啓発	けいはつ	1250040	enlightenment | development | edification | public awareness | illumination | education | inspiratio
+啓蒙	けいもう	1250050	enlightenment | illumination
+啓蟄	けいちつ	1250060	"awakening of insects" solar term (approx. March 6, the day on which hibernating insects are said to
+珪藻	けいそう	1250070	diatom
+珪藻土	けいそうど	1250080	diatomaceous earth | diatomite | siliceous marl | kieselguhr
+型	かた	1250090	type | style | model | pattern | mold | mould | model | pattern | template | impression | kata (set 
+型紙	かたがみ	1250100	pattern paper (for dressmaking) | stencil
+型染め	かたぞめ	1250110	stencil dyeing
+型破り	かたやぶり	1250120	unusual | unconventional | mold-breaking | outside the box
+型番	かたばん	1250130	model number
+型変換	かたへんかん	1250140	type conversion
+契り	ちぎり	1250150	pledge | vow | promise | having sexual relations | having sexual intercourse | destiny | fate | karm
+契る	ちぎる	1250160	to pledge | to vow | to promise | to swear | to have sexual intercourse (esp. between husband and wi
+契印	けいいん	1250170	impression of a seal over the joint of two papers | tally
+契機	けいき	1250180	opportunity | chance | trigger | cause
+契約期間	けいやくきかん	1250200	contract period
+契約書	けいやくしょ	1250210	(written) contract | agreement
+形意拳	けいいけん	1250230	shape-of-the-mind fist | Hsing I Chuan
+形影	けいえい	1250240	the form and its shadow | things inseparable
+形骸	けいがい	1250250	(soulless) body | framework (of a building, etc.) | skeleton | remains | ruin | wreck | mere shell |
+形見	かたみ	1250260	memento (esp. of a deceased person) | keepsake | heirloom | remembrance | souvenir
+形作る	かたちづくる	1250270	to form | to shape | to make | to mold | to mould | to build up
+形而下	けいじか	1250280	physical | material
+形而上	けいじじょう	1250290	metaphysical
+形式	けいしき	1250310	form (as opposed to substance) | format | form | style | manner | formality | form | mode | form | f
+形式的	けいしきてき	1250320	formal
+形象	けいしょう	1250330	shape | figure | image
+形勢	けいせい	1250350	condition | situation | prospects
+形成	けいせい	1250360	formation | molding | making (up) | taking form | giving form to | repair (e.g. with plastic surgery
+形跡	けいせき	1250370	traces | evidence
+形相	ぎょうそう	1250380	look (esp. an angry or upset look) | expression
+形態	けいたい	1250390	form | shape | figure | morph
+形態素	けいたいそ	1250400	morpheme
+形無し	かたなし	1250410	being ruined | being spoiled | coming to nothing | complete loss of face
+形容	けいよう	1250420	description | expression (in words) | qualification (e.g. of a noun with an adjective) | modificatio
+形容詞	けいようし	1250430	adjective | i-adjective (in Japanese)
+形容詞幹	けいようしかん	1250440	stem (word)
+形容動詞	けいようどうし	1250450	adjectival noun (in Japanese) | quasi-adjective | nominal adjective | na-, taru-, nari- or tari-adje
+恵み	めぐみ	1250470	blessing | grace
+恵む	めぐむ	1250480	to bless | to show mercy to | to give (money, etc.)
+恵沢	けいたく	1250490	blessing | pity | favor | favour | benefit
+恵比寿	えびす	1250500	Ebisu | god of fishing and commerce
+慶賀	けいが	1250510	celebration | congratulation
+慶事	けいじ	1250520	happy event | auspicious event | matter for congratulation
+慶祝	けいしゅく	1250530	congratulation | celebration
+慶弔	けいちょう	1250550	congratulations and condolences
+慧眼	けいがん	1250570	keen eye | quick eye | sharp eye | keen insight | keen perception
+憩い	いこい	1250580	rest | relaxation
+憩う	いこう	1250590	to rest | to relax | to repose
+掲げる	かかげる	1250600	to put up (a notice, sign, etc.) | to hang out (e.g. a banner) | to fly (e.g. a flag) | to hoist | t
+掲載	けいさい	1250610	publication (e.g. of an article in a newspaper) | carrying (e.g. a story) | running (e.g. a serial) 
+掲示	けいじ	1250620	notice | bulletin | post | posting | placard
+掲示板	けいじばん	1250630	bulletin board | display board | notice board | electronic bulletin board | BBS
+掲揚	けいよう	1250640	hoisting (e.g. a flag) | raising | flying | putting up
+携える	たずさえる	1250650	to carry in one's hand | to carry with one | to have on one's person | to bear | to take along (some
+携わる	たずさわる	1250660	to engage in | to participate in | to take part in | to be involved in
+携行	けいこう	1250670	carrying (on one's person) | taking with one
+携帯	けいたい	1250680	carrying (on one's person or in the hand) | mobile phone | cell phone
+携帯電話	けいたいでんわ	1250690	mobile phone | cell phone
+敬う	うやまう	1250700	to show respect for | to revere | to honour | to honor | to worship | to hold in esteem
+敬愛	けいあい	1250710	respect and affection | love and respect
+敬遠	けいえん	1250730	pretending to respect (someone) while in fact staying distant | keeping at arm's length | giving a w
+敬具	けいぐ	1250740	yours sincerely | sincerely yours | yours truly
+敬称	けいしょう	1250760	honorific title | honorific term of address
+敬体	けいたい	1250770	distal style
+敬慕	けいぼ	1250780	love and respect
+敬礼	けいれい	1250790	salute | bow
+敬老	けいろう	1250800	respect for the aged
+敬老の日	けいろうのひ	1250810	Respect for the Aged Day (national holiday; third Monday in September)
+景観	けいかん	1250820	scenery
+景況	けいきょう	1250840	situation | business climate | outlook
+景勝	けいしょう	1250850	picturesque scenery | place of scenic beauty | advantageous position | strategic location
+景勝地	けいしょうち	1250860	place of scenic beauty | picturesque place | beauty spot
+景色	けしき	1250870	scenery | scene | landscape
+景品	けいひん	1250880	gift | premium | freebie | giveaway | something additional | an extra | prize (lottery drawing, pach
+桂	かつら	1250890	katsura (Cercidiphyllum japonicum) | Japanese Judas tree
+桂庵	けいあん	1250900	agency for employing servants and arranging marriages (Edo period) | mediator | go-between | flatter
+桂冠	けいかん	1250910	crown of laurel
+桂冠詩人	けいかんしじん	1250920	poet laureate
+桂皮	けいひ	1250930	cinnamon | cassia (bark)
+渓間	けいかん	1250940	ravine
+渓流	けいりゅう	1250960	mountain stream | mountain torrent
+渓流釣り	けいりゅうづり	1250970	mountain stream fishing
+畦	あぜ	1250980	ridge of earth between rice fields | ridge between grooves in threshold or lintel | footpath between
+稽古	けいこ	1250990	practice | practising | training | study
+系	けい	1251000	system | lineage | group | corollary | system (range of strata that correspond to a particular time 
+系図	けいず	1251010	family tree | pedigree | genealogy
+系図学	けいずがく	1251020	(study of) genealogy
+系統	けいとう	1251030	system | lineage | ancestry | family line | group (e.g. of colors) (colours) | family (e.g. of langu
+系統樹	けいとうじゅ	1251040	phylogenetic tree | genealogical tree | family tree | evolutionary tree | dendrogram
+系統神学	けいとうしんがく	1251050	systematic theology
+系統的	けいとうてき	1251060	systematic
+系譜	けいふ	1251070	genealogy | lineage | family tree | pedigree
+系列	けいれつ	1251080	series | sequence | system | succession | keiretsu (group) | conglomeration of businesses linked by 
+系列化	けいれつか	1251090	putting in order | systemize | systemise
+経つ	たつ	1251100	to pass (of time) | to elapse
+経る	へる	1251110	to pass | to elapse | to go by | to pass through | to go through | to experience | to go through | t
+経緯	けいい	1251120	details | particulars | sequence of events | circumstances | situation | how things got this way | l
+経営	けいえい	1251130	management | administration | operation | running (a business) | conducting
+経営学	けいえいがく	1251150	management studies | business administration (study of)
+経営学修士	けいえいがくしゅうし	1251160	Master of Business Administration | MBA
+経営基盤	けいえいきばん	1251170	management base | business foundation
+経営再建	けいえいさいけん	1251180	management reorganization | management reorganisation
+経営資源	けいえいしげん	1251190	management resource | management resources
+経営者	けいえいしゃ	1251200	manager | proprietor
+経営陣	けいえいじん	1251210	the management ranks
+経営戦略	けいえいせんりゃく	1251220	management strategy
+経営転換	けいえいてんかん	1251230	management reorganization | management reorganisation
+経営破綻	けいえいはたん	1251240	business failure
+経過	けいか	1251250	passage (of time) | elapsing | lapse | progress | development | course (of events) | transit
+経企庁	けいきちょう	1251260	Economic Planning Agency (1955-2001)
+経験が浅い	けいけんがあさい	1251280	having little experience
+経験済み	けいけんずみ	1251290	experienced | already had an experience (with something)
+経験者	けいけんしゃ	1251300	experienced person | person who has had a particular experience
+経口	けいこう	1251310	taken by mouth | passed into the body via the mouth | oral
+経済援助	けいざいえんじょ	1251330	economic assistance
+経済回復	けいざいかいふく	1251340	economic recovery
+経済改革	けいざいかいかく	1251350	economic reform
+経済界	けいざいかい	1251360	economic world | financial circles | business community
+経済格差	けいざいかくさ	1251370	economic disparity
+経済活動	けいざいかつどう	1251390	economic activity
+経済企画庁	けいざいきかくちょう	1251400	Economic Planning Agency (1955-2001)
+経済協力	けいざいきょうりょく	1251420	economic cooperation
+経済効果	けいざいこうか	1251440	(positive) economic effect
+経済社会	けいざいしゃかい	1251450	economy and society | economic aspects of society
+経済状況	けいざいじょうきょう	1251470	economic conditions
+経済状態	けいざいじょうたい	1251480	economic conditions | economic situation | financial situation | financial circumstances
+経済制裁	けいざいせいさい	1251490	economic sanctions
+経済性	けいざいせい	1251500	economy (saving money)
+経済性向上	けいざいせいこうじょう	1251510	more economical
+経済成長	けいざいせいちょう	1251520	economic growth
+経済発展	けいざいはってん	1251540	economic development
+経済復興	けいざいふっこう	1251550	economic revitalization | economic revitalisation | rebuilding of an economy
+経済力	けいざいりょく	1251560	economic strength | economic power | economic might
+経常収支	けいじょうしゅうし	1251570	current account balance
+経常費	けいじょうひ	1251580	current expenses | operating costs
+経世	けいせい	1251590	administration | government | conduct of state affairs
+経線	けいせん	1251600	meridian | longitude
+経典	きょうてん	1251620	sacred books | sutras | scriptures (Bible, Koran, etc.)
+経度	けいど	1251630	longitude
+経費	けいひ	1251640	expenses | expenditure | outgoings | outlays | costs
+経費削減	けいひさくげん	1251650	reduction of expenditure | reduction of expenses | cost reduction | cost-cutting
+経文	きょうもん	1251660	scriptural text | scriptures | sutras
+経理	けいり	1251680	accounting | administration (of money)
+経歴	けいれき	1251690	personal history | background | career
+経路	けいろ	1251700	course | route | path | channel | process | stages
+経路積分	けいろせきぶん	1251710	path integral
+継ぎ接ぎ	つぎはぎ	1251730	patching (clothing) | darning | cobbling together (other people's writings, thoughts, etc.) | gather
+継ぎ足す	つぎたす	1251740	to extend (e.g. a house) | to add to (e.g. coals to a fire)
+継ぐ	つぐ	1251750	to succeed (a person, to a position, etc.) | to inherit | to take over | to follow | to patch (cloth
+継嗣	けいし	1251760	successor | heir | heiress
+継子	ままこ	1251770	stepchild
+継承	けいしょう	1251780	inheritance | succession | accession | share-alike | inheritance
+継承者	けいしょうしゃ	1251790	successor
+継走	けいそう	1251800	relay race
+継続	けいぞく	1251810	continuation | continuance | maintenance | persistence | going on
+継電器	けいでんき	1251820	(electric) relay
+継投	けいとう	1251830	relieving the (starting) pitcher
+継父	けいふ	1251840	stepfather
+継母	ままはは	1251850	stepmother
+継ぎ目	つぎめ	1251860	joint | seam | joining point
+繋がり	つながり	1251870	connection | link | relationship
+繋がる	つながる	1251880	to be tied together | to be connected to | to be linked to | to lead to | to be related to | to be r
+繋ぎ	つなぎ	1251890	link | connection | tie | bond | contact | filler | stopgap (job, budget, etc.) | thickener (e.g. in
+繋ぐ	つなぐ	1251900	to connect | to link together | to tie | to fasten | to restrain | to maintain | to preserve | to ke
+繋げる	つなげる	1251910	to connect | to tie | to fasten | to transfer (phone call)
+罫線	けいせん	1251920	ruled line | rule | chart | crease | score | border
+罫線を引く	けいせんをひく	1251930	to rule a line | to draw a line
+罫線表	けいせんひょう	1251940	chart (showing price movements)
+茎	くき	1251950	stalk | stem
+荊冠	けいかん	1251980	crown of thorns
+荊妻	けいさい	1251990	one's own wife
+蛍光塗料	けいこうとりょう	1252010	fluorescent paint
+蛍光物質	けいこうぶっしつ	1252020	fluorescent substance | phosphor
+蛍狩り	ほたるがり	1252030	firefly watching | firefly catching
+蛍雪の功	けいせつのこう	1252040	the fruit of diligent study
+計	けい	1252050	plan | meter | measuring device | (in) total | total (of)
+計らい	はからい	1252060	arrangement | good offices | discretion | judgment | disposition
+計らう	はからう	1252070	to manage | to arrange | to see to (a matter) | to dispose of | to consult (with) | to talk (to)
+実行に移す	じっこうにうつす	1252100	to put into effect | to put into practice
+計画案	けいかくあん	1252110	blueprint
+計画段階	けいかくだんかい	1252120	planning stage | planning stages
+計器	けいき	1252130	meter | gauge
+計算	けいさん	1252140	calculation | computation | reckoning | counting | adding up | working out | figures | consideration
+計算機間	けいさんきま	1252150	inside the computer
+計算者	けいさんしゃ	1252160	non-electronic computer (i.e. person carrying out computation)
+計算尺	けいさんじゃく	1252170	slide rule
+計算書	けいさんしょ	1252180	statement of account
+計算木	けいさんぎ	1252190	computer-tree
+計上	けいじょう	1252200	including (a cost) in a total calculation | appropriating (a sum of money) | recording | allocating 
+計数	けいすう	1252210	calculation | counting | (dealing with) figures | cardinality
+計装	けいそう	1252220	instrumentation
+計測	けいそく	1252230	measuring | measurement
+計理士	けいりし	1252240	public accountant
+計略	けいりゃく	1252250	plan | scheme | stratagem | trick | trap | plot
+計量	けいりょう	1252260	measuring | weighing | metric | distance function
+計量経済学	けいりょうけいざいがく	1252280	econometrics
+計量言語学	けいりょうげんごがく	1252290	quantitative linguistics
+警衛	けいえい	1252300	guard | patrol | escort

@@ -7,6 +7,7 @@ import { useTranslations, useLocale } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { trackEvent } from '@/lib/analytics'
 import { avatarSrc } from '@/lib/avatar'
+import { compressImage } from '@/lib/imageCompress'
 
 const EmojiPicker = dynamic(() => import('@emoji-mart/react'), { ssr: false })
 import {
@@ -1456,7 +1457,7 @@ export default function ChatClient({
     const safeExt = ext.replace(/[^a-z0-9]/g, '').slice(0, 10) || 'bin'
     const storagePath = `${userId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${safeExt}`
     const { error: uploadError } = await supabase.storage
-      .from(STORAGE_BUCKET_FILES).upload(storagePath, capturedFile, { contentType: capturedFile.type })
+      .from(STORAGE_BUCKET_FILES).upload(storagePath, capturedFile, { contentType: capturedFile.type, cacheControl: '31536000' })
     if (uploadError) {
       setMessages(prev => prev.filter(m => m.id !== tempId))
       setError(t('error_file_upload')); setSending(false); setUploading(false); return
@@ -1535,10 +1536,11 @@ export default function ChatClient({
 
     setSending(true); setUploading(true)
     const supabase = createClient()
-    const ext = capturedFile.type === 'image/png' ? 'png' : capturedFile.type === 'image/webp' ? 'webp' : 'jpg'
+    const uploadFile = await compressImage(capturedFile)
+    const ext = uploadFile.type === 'image/png' ? 'png' : uploadFile.type === 'image/webp' ? 'webp' : 'jpg'
     const storagePath = `${userId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`
     const { error: uploadError } = await supabase.storage
-      .from(STORAGE_BUCKET).upload(storagePath, capturedFile, { contentType: capturedFile.type })
+      .from(STORAGE_BUCKET).upload(storagePath, uploadFile, { contentType: uploadFile.type, cacheControl: '31536000' })
     if (uploadError) {
       setMessages(prev => prev.filter(m => m.id !== tempId))
       setSignedUrls(prev => { const n = { ...prev }; delete n[tempPath]; return n })
@@ -2040,7 +2042,7 @@ export default function ChatClient({
     const path = `${managingRoomId}/${userId}-${Date.now()}.${ext}`
     const { error: uploadError } = await supabase.storage
       .from(STORAGE_BUCKET_ROOM_AVATARS)
-      .upload(path, file, { contentType: file.type, upsert: true })
+      .upload(path, file, { contentType: file.type, upsert: true, cacheControl: '31536000' })
     if (uploadError) {
       setRoomAvatarUploading(false)
       setRoomAvatarError(t('error_avatar_upload'))

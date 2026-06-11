@@ -2017,6 +2017,25 @@
     "pos_interjection": "감탄사",
     "pos_pronoun": "대명사",
     "image_alt_for_word": "「{word}」 단어 삽화",
-    "illustration_label": "삽화"
+    "illustration_label": "삽화",
+    "pos_adj_i": "い형용사",
+    "pos_adj_na": "な형용사",
+    "pos_adj_no": "の형용사 (명사 수식)",
+    "pos_adj_pn": "연체사",
+    "pos_adv": "부사",
+    "pos_n": "명사",
+    "pos_v": "동사",
+    "pos_v1": "1단동사 (2그룹)",
+    "pos_v5": "5단동사 (1그룹)",
+    "pos_vs": "する동사",
+    "pos_vt": "타동사",
+    "pos_vi": "자동사",
+    "pos_exp": "표현 / 관용구",
+    "pos_prt": "조사",
+    "pos_suf": "접미사",
+    "pos_pref": "접두사",
+    "pos_unknown": "기타 품사",
+    "kanji_practice_title": "한자 쓰기 연습",
+    "kanji_practice_no_stroke": "아직 이 한자의 획순 데이터가 없습니다."
   }
 }

@@ -1,0 +1,302 @@
+Total fetched: 3000, N4 candidates: 692
+
+英蘭	イングランド	1022250	England
+吋	インチ	1023330	inch
+インディア紙	インディアかみ	1023680	India paper
+印度	インド	1023840	India
+印度支那	インドシナ	1023880	Indochina
+印度尼西亜	インドネシア	1023890	Indonesia
+インフラ開発	インフラかいはつ	1024390	infrastructure development
+イ短調	イたんちょう	1024900	A minor
+イ長調	イちょうちょう	1024910	A major
+ウーロン茶	ウーロンちゃ	1025020	oolong tea
+ウィジャ盤	ウィジャばん	1025130	ouija board | spirit board | talking board
+埃及	エジプト	1028500	Egypt
+Ｓ	エス	1028510	S | s | south | sulfur | nth year in the Shōwa era (1926.12.25-1989.1.7) | small | second | subject 
+ＳＦ	エス・エフ	1028520	science fiction | sci-fi | SF
+ＳＭ	エス・エム	1028530	SM | S&amp;M | sado-masochism | shopping mall
+ＳＯＳ	エス・オー・エス	1028540	SOS (distress signal)
+Ｓサイズ	エスサイズ	1028670	S size | small size
+ＳＴＯＬ	ストール	1028760	short take-off and landing | STOL
+Ｘ線	エックスせん	1029030	X-ray
+Ｈ	エッチ	1029150	H | h | indecent | lewd | sexy | dirty | obscene | (having) sex | pervert | nth year in the Heisei e
+ｅｔｃ．	エトセトラ	1029300	et cetera | and so forth
+ＮＧ	エヌ・ジー	1029390	no good | not allowed | not acceptable | outtake | blooper | retake
+ＦＭ	エフ・エム	1029720	FM | frequency modulation
+ＦＢＩ	エフ・ビー・アイ	1029740	Federal Bureau of Investigation | FBI
+Ｍサイズ	エムサイズ	1029950	M size | medium size
+エライザ法	エライザほう	1030070	enzyme-linked immunosorbent assay (virus detection method) | ELISA
+ＬＳＤ	エル・エス・ディー	1030190	lysergic acid diethylamide | LSD
+Ｌサイズ	エルサイズ	1030210	L size | large size
+ＬＰレコード	エルピーレコード	1030270	long-playing record | long-play record | LP record
+エルピー盤	エルピーばん	1030280	LP | long-playing record
+越歴	エレキ	1030360	electricity | electric guitar
+エンジン故障	エンジンこしょう	1030980	engine failure
+ＯＬ	オー・エル	1031500	female office worker | office lady | OL | overlap | orienteering
+ＯＫ	オッケー	1031600	OK | okay | fine (without) | not needed | unnecessary | all right
+濠太剌利	オーストラリア	1031680	Australia
+墺太利	オーストリア	1031700	Austria
+カード会員	カードかいいん	1036430	(credit) cardholder | cardmember
+加加阿	カカオ	1037050	cacao tree (Theobroma cacao) | cocoa tree
+家宝	かほう	1192470	heirloom
+カスタム化	カスタムか	1037360	customization | customisation
+加答児	カタル	1037540	catarrh
+型録	カタログ	1037560	catalog | catalogue
+カツ丼	カツどん	1037740	katsudon | pork cutlet served on top of a bowl of rice
+加特力	カトリック	1037840	Catholic | Catholicism | Catholic Church
+加奈陀	カナダ	1037870	Canada
+火花	ひばな	1193760	spark
+金糸雀	カナリア	1037910	canary (esp. the island canary, Serinus canaria)
+カバー曲	カバーきょく	1038000	cover song (remake of another artist's song)
+カポジ肉腫	カポジにくしゅ	1038270	Kaposi's sarcoma
+空オケ	カラオケ	1038660	karaoke
+クローン動物	クローンどうぶつ	1045600	cloned animal
+カルメ焼き	カルメやき	1039120	honeycomb toffee | sponge toffee | foam candy from heated brown sugar mixed with baking soda
+咖哩	カレー	1039140	curry (esp. Japanese curry) | rice and curry
+カレー饂飩	カレーうどん	1039160	curry udon | udon with curry sauce
+西	にし	1380840	west
+寒武利亜	カンブリア	1039600	Cambria (old name for Wales)
+柬埔寨	カンボジア	1039610	Cambodia
+か行	かぎょう	1039630	the "ka" column of the Japanese syllabary table (ka, ki, ku, ke, ko)
+察	さつ	1056780	cops | police
+コスト効率	コストこうりつ	1050170	cost effectiveness
+洋杯	コップ	1050390	glass (drinking vessel) | tumbler | cups (suit)
+ＣＯＢＯＬ	コボル	1050680	COBOL (programming language)
+コマ割り	コマわり	1050830	panel layout
+ＣＯＭ	コム	1051160	computer output microfilm system | COM
+哥倫比亜	コロンビア	1051780	Colombia
+混凝土	コンクリート	1051860	concrete
+浮標	ふひょう	1497560	buoy
+寿府	ジュネーブ	1066140	Geneva
+ジュラ紀	ジュラき	1066180	Jurassic (period)
+成吉思汗	ジンギスかん	1066590	jingisukan | grilled mutton and vegetable dish | slotted dome cast iron grill (used for jingisukan)
+瑞西	スイス	1067190	Switzerland
+瑞典	スウェーデン	1067410	Sweden
+スキーの板	スキーのいた	1067780	ski | skis
+スキー場	スキーじょう	1067860	ski resort | ski area
+スキー用品	スキーようひん	1067870	skiing equipment | ski gear
+土耳古	トルコ	1086880	Turkey | Türkiye | turquoise
+トルコ風呂	トルコぶろ	1086890	Turkish bath | soapland | brothel where one can bathe with prostitutes
+トロイの木馬	トロイのもくば	1087390	Trojan horse
+ト音記号	トおんきごう	1087650	G clef | treble clef
+ＴＲＯＮ	トロン	1087520	TRON | The Realtime Operating System Nucleus
+ト短調	トたんちょう	1087660	G minor
+ト長調	トちょうちょう	1087670	G major
+ファジー理論	ファジーりろん	1108140	fuzzy theory
+ＦＡＸ	ファックス	1108180	fax | facsimile | fax machine
+ファン倶楽部	ファンクラブ	1108610	fan club
+呎	フィート	1108820	feet | foot
+ＦＩＸ	フィックス	1109100	fixing | securing in place | getting agreement (time, place, etc.) | repairing | fixing | fixed wind
+比律賓	フィリピン	1109290	Philippines
+芬蘭	フィンランド	1109460	Finland
+プロセス制御	プロセスせいぎょ	1117340	process control
+墨西哥	メキシコ	1133090	Mexico
+メスを入れる	メスをいれる	1133190	to put the scalpel to | to perform an operation on | to take drastic measures to get to the bottom o
+メディア王	メディアおう	1133660	media mogul
+メリケン粉	メリケンこ	1134020	wheat flour | flour made using wheat imported from America
+モーメント項	モーメントこう	1134750	momentum
+莫斯科	モスクワ	1134920	Moscow (Russia)
+モデムの設定	モデムのせってい	1135210	modem setup
+フッ化物	フッかぶつ	1135595	fluoride
+摩洛哥	モロッコ	1135990	Morocco
+碼	ヤード	1136260	yard (unit of distance)
+一気呵成	いっきかせい	1161750	finishing in one go | completing in one sitting | (doing something) in a single breath
+一騎	いっき	1161760	one horseman
+一騎当千	いっきとうせん	1161770	being a match for a thousand | being a mighty warrior (combatant, player)
+一儀	いちぎ	1161780	one matter | one case | physical intimacy | sexual intercourse
+一義	いちぎ	1161790	one meaning | primary importance | primary significance | primary consideration | a reason | a truth
+一義的	いちぎてき	1161800	having a single meaning | allowing only one interpretation | unequivocal | unambiguous | principal |
+一議	いちぎ	1161810	one discussion | one meeting | one conference | objection
+一菊	いっきく	1161820	one scoop (of water)
+一休み	ひとやすみ	1161830	(short) rest | breather | break
+一級	いっきゅう	1161840	one grade | first-class | primary
+一挙	いっきょ	1161850	one effort | one action
+一挙一動	いっきょいちどう	1161860	one's every action | every single move
+一挙手一投足	いっきょしゅいっとうそく	1161870	one's every action | every single move | slight effort | least trouble | small amount of work
+一挙両得	いっきょりょうとく	1161880	killing two birds with one stone | serving two ends
+一興	いっきょう	1161890	amusement | fun | brief entertainment
+一驚	いっきょう	1161900	surprise | amazement
+一局	いっきょく	1161910	one game (of go, shogi, etc.) | one board (go, shogi, etc.) | one office (of a broadcasting station,
+一局部	いちきょくぶ	1161920	one part
+一斤	いっきん	1161940	1 kin (approx. 0.6 kg) | 1 loaf of bread
+一筋道	ひとすじみち	1161950	straight road
+一筋縄	ひとすじなわ	1161960	(piece of) rope | ordinary method
+一句	いっく	1161970	phrase (verse, line) | one haiku-poem
+一句詠む	いっくよむ	1161980	to compose a poem (esp. haiku)
+一区	いっく	1161990	district | ward | lot
+１コマ	ひとコマ	1162000	one scene | one frame | one shot | one exposure | one cell | one panel (comic)
+一具	いちぐ	1162010	one set
+一遇	いちぐう	1162020	one meeting
+一群	いちぐん	1162030	group | flock | crowd | herd | wide expanse (of flowers)
+一群れ	ひとむれ	1162040	group | flock | crowd | herd | wide expanse (of flowers)
+一軍	いちぐん	1162050	an army | the whole army | the entire force | first team | first-string players | the cool kids | th
+一系	いっけい	1162060	single-family lineage
+一計	いっけい	1162070	plan
+印書	いんしょ	1168370	typewriting
+印章	いんしょう	1168380	stamp | seal
+一件	いっけん	1162140	(one) matter | (one) item | (one) case
+一犬	いっけん	1162150	one dog
+一献	いっこん	1162160	one cup (of sake) | (going out for, treating someone to) a drink | small drinking party
+一見	いっけん	1162170	look | glimpse | glance | apparently | seemingly | at first glance | on the face of it | first meeti
+一見識	いちけんしき	1162180	well-informed opinion
+一軒	いっけん	1162190	one house
+一軒一軒	いっけんいっけん	1162200	each house | every house | house to house | door to door
+一元	いちげん	1162210	single element | unitary | one era | one unknown
+一元化	いちげんか	1162220	unification | centralization | centralisation
+一元的	いちげんてき	1162230	monistic | unitary | unified | centralized | centralised
+一元論	いちげんろん	1162240	monism
+一弦琴	いちげんきん	1162250	single-stringed Japanese zither
+一言一行	いちげんいっこう	1162260	every word and act | just a word or an act
+一刻者	いっこくもの	1162560	stubborn person | obstinate person
+一言居士	いちげんこじ	1162270	person who is ready to comment on every subject | ready critic
+一言二言	ひとことふたこと	1162280	a word or two
+一己	いっこ	1162300	personal | private | oneself
+一戸	いっこ	1162310	one house | household
+一顧	いっこ	1162330	slightest notice | slightest consideration | slightest attention | a little thought | glance
+一鼓	いっこ	1162340	the first beat of the war drum
+一語	いちご	1162350	one word
+一語一語	いちごいちご	1162360	word for word | one word
+一口	ひとくち	1162370	mouthful | morsel | bite | gulp | sip | draft | draught | one word | in short | one share | one stoc
+一口商い	ひとくちあきない	1162380	immediate deal | deal sealed by one word
+一口同音	いっくどうおん	1162390	reading in unison | saying the same thing
+ひとくち話	ひとくちばなし	1162400	joke | anecdote
+一向	いっこう	1162410	completely | absolutely | totally | (not) at all | (not) a bit | (not) in the least | earnestly | in
+一更	いっこう	1162440	first watch | 8-10pm
+一考	いっこう	1162450	consideration | thought
+一荒れ	ひとあれ	1162460	brief storm | spell of bad weather | (a bout of) bad mood | trouble (e.g. at a meeting) | storminess
+一項	いっこう	1162470	an item
+一号	いちごう	1162480	number one | item 1
+一合目	いちごうめ	1162490	the start of a climb up a hill
+一刻	いっこく	1162500	a moment | a minute | an instant | stubborn | obstinate
+一刻も早く	いっこくもはやく	1162510	immediately | as soon as possible | as quickly as possible
+一刻千金	いっこくせんきん	1162520	every moment is precious | time is money | precious time
+一国	いっこく	1162530	one country | the whole nation | the whole country | stubborn | obstinate
+一国一党主義	いっこくいっとうしゅぎ	1162540	one-party system
+一国一票	いっこくいっぴょう	1162550	one vote per nation
+一頃	ひところ	1162570	once | some time ago
+一佐	いっさ	1162580	colonel (JASDF, JGSDF) | captain (JMSDF)
+一座	いちざ	1162600	the whole company | the party | all those present | everyone in attendance | attendance (at a gather
+一再	いっさい	1162610	once or twice | repeatedly
+一妻多夫	いっさいたふ	1162620	polyandry
+一際	ひときわ	1162630	conspicuously | noticeably | remarkably | strikingly | outstandingly | especially | particularly
+一昨	いっさく	1162640	one previous
+一昨晩	いっさくばん	1162650	night before last
+一昨夜	いっさくや	1162660	night before last
+一策	いっさく	1162670	idea | plan
+一撮み	ひとつまみ	1162690	pinch (of something) | one piece | easy victory
+一札	いっさつ	1162700	document | bond
+一皿	ひとさら	1162710	one plate (of food) | one dish | one helping
+一散に	いっさんに	1162720	at top speed
+一酸化	いっさんか	1162730	monoxide
+一酸化炭素	いっさんかたんそ	1162740	carbon monoxide
+一仕事	ひとしごと	1162750	task | (doing a) bit of work | difficult task | hard work
+一士	いっし	1162760	private first class (JGSDF)
+一子相伝	いっしそうでん	1162770	transmission of the secrets of an art, craft, trade or learning from father to only one child
+一思いに	ひとおもいに	1162780	instantly | resolutely
+一指	いっし	1162790	one finger
+一指当たり	いちゆびあたり	1162800	span
+一死	いっし	1162810	dying | laying down one's life | one out
+一死後	いっしご	1162820	after one out
+一死報国	いっしほうこく	1162830	dying for one's country
+一糸	いっし	1162840	thread | strand | string
+一糸まとわぬ	いっしまとわぬ	1162850	stark naked
+一糸一毫	いっしいちごう	1162860	tiny amount
+一紙半銭	いっしはんせん	1162870	small sum | things of little value
+一視同仁	いっしどうじん	1162880	loving every human being with impartiality | universal brotherhood | universal benevolence
+一事	いちじ	1162890	one thing
+一字	いちじ	1162900	(one) letter | (one) character
+一字千金	いちじせんきん	1162910	word of great value
+ひと時	ひととき	1162920	a (short) time | a while | moment | one time (in the past) | a period | former times | two-hour peri
+一時に	いちどきに	1162930	at the same time | at a time | at one time | simultaneously
+一時間	いちじかん	1162940	one hour
+一時金	いちじきん	1162960	single amount (of money) | one-off payment | lump sum | bonus
+一時賜金	いちじしきん	1162970	lump-sum grant
+一時的	いちじてき	1162980	temporary | transitory | short-lived
+一時払い	いちじばらい	1162990	lump-sum payment | paying in a lump sum
+一時預かり	いちじあずかり	1163000	(baggage) checking | temporary custody
+一時預け	いちじあずけ	1163010	(baggage) checking | temporary depositing
+一時しのぎ	いちじしのぎ	1163020	makeshift | stopgap | temporary expedient | temporary solution | band-aid
+一次	いちじ	1163030	first | preliminary | primary (sources, industry, etc.) | original | linear (function, equation) | f
+一次記憶	いちじきおく	1163040	first memory
+一次元	いちじげん	1163050	one dimension
+一次線輪	いちじせんりん	1163060	primary coil
+一次電流	いちじでんりゅう	1163070	primary current
+一式	いっしき	1163080	(complete) set | outfit | kit | suite | all | everything
+一失	いっしつ	1163100	a loss | a failure | a mistake | an error
+一室	いっしつ	1163110	one room
+一尺	いっしゃく	1163120	approx. 30 cm
+一手	いって	1163130	one move (in go, shogi, etc.) | only way | only means | doing alone | doing single-handed | monopoly
+一手に	いってに	1163150	single-handedly | alone | single-handed
+一手販売	いってはんばい	1163160	sole agency
+一種	いっしゅ	1163170	a kind | a sort | a variety | a species | of sorts | something of a | a sort of | sort of | somewhat
+一首	いっしゅ	1163190	one tanka | one poem
+一周忌	いっしゅうき	1163200	first anniversary of a person's death
+一周期	いっしゅうき	1163210	period
+一周年	いっしゅうねん	1163220	one full year | first anniversary
+一宗	いっしゅう	1163230	sect | denomination
+一蹴	いっしゅう	1163240	flatly rejecting | curtly refusing | brushing aside | beating easily | defeating handily | one kick
+一蹴り	ひとけり	1163250	one kick
+一週	いっしゅう	1163260	one week
+一汁一菜	いちじゅういっさい	1163280	one-plate meal | simple meal | austerity diet
+一重ね	ひとかさね	1163290	suit | set of boxes
+一重継ぎ	ひとえつぎ	1163300	sheet bend (knot)
+一重桜	ひとえざくら	1163310	cherry tree bearing single blossoms | single cherry blossoms
+一宿	いっしゅく	1163320	staying one night
+一宿一飯	いっしゅくいっぱん	1163330	(being beholden to someone for a favor of) a night's lodging and a meal
+一瞬	いっしゅん	1163340	instant | moment | for an instant
+一瞬間	いっしゅんかん	1163350	moment | instant
+一旬	いちじゅん	1163360	ten days
+一巡	いちじゅん	1163370	one round | one tour | one circuit | one patrol
+一所懸命	いっしょけんめい	1163380	very hard | with utmost effort | as hard as one can | with all one's might | for dear life | eagerly
+一緒くた	いっしょくた	1163410	jumble | hodgepodge | potpourri | heterogenous mixture
+一緒にする	いっしょにする	1163430	to do together | to put together | to lump together | to mix | to join | to regard in the same light
+一書	いっしょ	1163440	one letter | one book
+一助	いちじょ	1163450	(some small) help | an aid | some assistance
+一升	いっしょう	1163460	one shō (approx. 1.8 litres)
+一升瓶	いっしょうびん	1163470	one-shō bottle (approx. 1.8 litres)
+一将	いっしょう	1163480	general
+一笑	いっしょう	1163490	laugh | smile
+一笑に付す	いっしょうにふす	1163500	to laugh (something) off | to dismiss with a laugh | to pooh-pooh
+一場	いちじょう	1163510	one time (place)
+一条	いちじょう	1163520	one line | one streak | one stripe | one ray (of light) | one wisp (of smoke) | one item (in an item
+一畳	いちじょう	1163530	one mat
+一錠	いちじょう	1163540	one tablet | one pill | tray | salver
+一触即発	いっしょくそくはつ	1163550	critical (touch and go) situation | explosive situation
+一寝入り	ひとねいり	1163560	nap
+一審	いっしん	1163570	first instance | first trial
+一心	いっしん	1163580	one mind | wholeheartedness | one's whole heart
+一心に	いっしんに	1163590	wholeheartedly | single-mindedly | fervently | intently
+一心同体	いっしんどうたい	1163600	being one in body and soul | of one flesh | two hearts beating as one
+一心不乱	いっしんふらん	1163610	wholeheartedly | with heart and soul | intently | with undivided attention | with intense concentrat
+一新	いっしん	1163620	complete change | reform | restoration | remodeling | remodelling | renewal
+一新紀元	いっしんきげん	1163630	new era | new age
+一神教	いっしんきょう	1163640	monotheism
+一神論	いっしんろん	1163650	monotheism
+一身	いっしん	1163670	oneself | one's body
+一身上	いっしんじょう	1163680	personal (affairs, reasons, etc.)
+一進一退	いっしんいったい	1163690	now advancing and now retreating | ebb and flow | seesawing | taking alternately favorable and unfav
+一人残らず	ひとりのこらず	1163710	every one (of them) | (one and) all | without exception | to a man | to the last person
+一人芝居	ひとりしばい	1163720	one-person show | one-woman show | one-man show | performing solo | monodrama
+一人称	いちにんしょう	1163740	first person | self-reference term | term used to refer to oneself in the first person
+一人乗り	いちにんのり	1163750	single seater (e.g. boat, aeroplane, airplane)
+一人寝	ひとりね	1163760	sleeping alone
+一人前	いちにんまえ	1163770	one portion | one serving | one person | adult | grown-up | person who has come of age | fully fledg
+一人前になる	いちにんまえになる	1163780	to come of age | to become an adult | to become fully qualified | to stand on one's own
+一人息子	ひとりむすこ	1163790	only son
+１人あたり	ひとりあたり	1163800	per person | per capita | per head
+一人当て	ひとりあて	1163810	per person
+一人舞台	ひとりぶたい	1163820	performing solo | having the stage to oneself | being in sole command | eclipsing (outshining) the o
+一人腹	ひとりばら	1163830	taking for granted | rash conclusion
+一人物	いちじんぶつ	1163840	person to be reckoned with | person of importance | one person | one character | someone
+一人歩き	ひとりあるき	1163850	taking on a life of its own (of a rumour, etc.) | walking by oneself | taking a walk by oneself | wa
+一人娘	ひとりむすめ	1163870	only daughter
+一人用	ひとりよう	1163880	for one person's use
+一吹き	ひとふき	1163900	blast | puff | whiff | gust
+一水	いっすい	1163910	current (of water) | drop
+一炊の夢	いっすいのゆめ	1163920	empty dream
+一寸	いっすん	1163930	one sun (approx. 3 cm) | little bit (of time, distance, etc.)
+一寸	ちょっと	1163940	a little | a bit | slightly | just a minute | for a moment | briefly | somewhat | rather | fairly | 
+一寸先	いっすんさき	1163950	an inch ahead | the immediate future
+一寸逃れ	いっすんのがれ	1163960	quibbling | prevarication
+一隻眼	いっせきがん	1164110	discerning eye | critical eye | one eye
+一寸法師	いっすんぼうし	1163970	dwarf | midget | elf | Tom Thumb | Jack Sprat | Issun-bōshi (Japanese fairytale)

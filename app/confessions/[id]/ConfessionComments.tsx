@@ -10,7 +10,7 @@ import { submitConfessionComment, deleteConfessionComment, type CommentResult } 
 import { type ConfessionComment } from '@/lib/confessions'
 import AnonAvatar from '@/components/AnonAvatar'
 import { generateAnonId } from '@/lib/anon'
-import { avatarSrc } from '@/lib/avatar'
+import { avatarSrc, proxyHtml } from '@/lib/avatar'
 
 const CommentRichEditor = dynamic(() => import('@/components/CommentRichEditor'), { ssr: false })
 
@@ -215,7 +215,7 @@ export default function ConfessionComments({
                   {isHtml ? (
                     <div
                       className="rich-content comment-content text-[14.5px] text-[#3a2d22] leading-[1.7]"
-                      dangerouslySetInnerHTML={{ __html: c.content }}
+                      dangerouslySetInnerHTML={{ __html: proxyHtml(c.content) }}
                     />
                   ) : (
                     <p className="text-[14.5px] text-[#3a2d22] leading-[1.7] whitespace-pre-wrap break-words">

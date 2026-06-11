@@ -8,6 +8,7 @@ import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import EmojiPicker from './EmojiPicker'
 import GifPicker from './GifPicker'
+import { avatarSrc } from '@/lib/avatar'
 
 interface Props {
   name: string
@@ -118,7 +119,7 @@ export default function CommentRichEditor({ name, placeholder, resetKey = 0 }: P
             </Btn>
             {showGif && (
               <GifPicker
-                onSelect={(url) => editor?.chain().focus().setImage({ src: url, alt: 'gif' }).run()}
+                onSelect={(url) => editor?.chain().focus().setImage({ src: avatarSrc(url), alt: 'gif' }).run()}
                 onClose={() => setShowGif(false)}
               />
             )}

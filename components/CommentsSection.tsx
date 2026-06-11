@@ -7,7 +7,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useTranslations, useLocale } from 'next-intl'
 import { submitComment, deleteComment, type CommentResult } from '@/app/cong-dong/actions'
-import { avatarSrc } from '@/lib/avatar'
+import { avatarSrc, proxyHtml } from '@/lib/avatar'
 
 const CommentRichEditor = dynamic(() => import('@/components/CommentRichEditor'), { ssr: false })
 
@@ -178,7 +178,7 @@ export default function CommentsSection({ postId, comments, currentUser, isAdmin
                   {c.content.trimStart().startsWith('<') ? (
                     <div
                       className="rich-content comment-content text-[14px] text-[#3a2d22] leading-[1.65]"
-                      dangerouslySetInnerHTML={{ __html: c.content }}
+                      dangerouslySetInnerHTML={{ __html: proxyHtml(c.content) }}
                     />
                   ) : (
                     <p className="text-[14px] text-[#3a2d22] leading-[1.65] whitespace-pre-wrap break-words">

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
+import { avatarSrc } from '@/lib/avatar'
 
 interface GifItem {
   id: string
@@ -55,9 +56,7 @@ export default function GifPicker({ onSelect, onClose }: Props) {
   useEffect(() => {
     if (!API_KEY) return
     setLoading(true)
-    fetch(
-      `https://api.giphy.com/v1/gifs/trending?api_key=${API_KEY}&limit=18&rating=pg`
-    )
+    fetch(`/api/giphy`)
       .then((r) => r.json())
       .then((d) => setGifs(mapGiphy(d.data)))
       .catch(() => {})
@@ -85,9 +84,7 @@ export default function GifPicker({ onSelect, onClose }: Props) {
       if (!API_KEY) return
       setLoading(true)
       try {
-        const r = await fetch(
-          `https://api.giphy.com/v1/gifs/search?api_key=${API_KEY}&q=${encodeURIComponent(query)}&limit=18&rating=pg`
-        )
+        const r = await fetch(`/api/giphy?q=${encodeURIComponent(query)}`)
         const d = await r.json()
         setGifs(mapGiphy(d.data))
       } catch {
@@ -167,7 +164,7 @@ export default function GifPicker({ onSelect, onClose }: Props) {
               className="rounded-lg overflow-hidden hover:ring-2 hover:ring-rose/50 transition-all bg-line/20 aspect-video"
             >
               <img
-                src={gif.previewUrl}
+                src={avatarSrc(gif.previewUrl)}
                 alt={gif.title}
                 className="w-full h-full object-cover"
                 loading="lazy"

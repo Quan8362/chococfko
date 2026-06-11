@@ -10,6 +10,7 @@ const ALLOWED_SUFFIXES = [
   'fbsbx.com',
   'facebook.com',
   'xx.fbcdn.net',
+  'giphy.com',
 ]
 
 function isAllowedHost(hostname: string): boolean {

@@ -11,6 +11,7 @@ const FEATURES = [
   { key: 'vocabulary', emoji: '📝', href: '/tieng-nhat/tu-vung', active: true },
   { key: 'grammar',    emoji: '✏️', href: '/tieng-nhat/ngu-phap', active: true },
   { key: 'kanji',      emoji: '漢', href: '/tieng-nhat/kanji', active: true },
+  { key: 'writing',    emoji: '✍️', href: '/tieng-nhat/tap-viet', active: true },
   { key: 'flashcard',  emoji: '🃏', href: '/tieng-nhat/flashcard', active: true },
   { key: 'practice',   emoji: '🎯', href: '/tieng-nhat/luyen-tap', active: true },
   { key: 'jlpt_test',  emoji: '📋', href: '/tieng-nhat/thi-thu', active: true },

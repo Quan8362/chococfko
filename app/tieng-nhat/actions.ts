@@ -82,3 +82,32 @@ export async function fetchUserProgress(wordIds: string[]): Promise<ProgressMap>
 
   return map
 }
+
+/**
+ * Fetch the current user's entire flashcard-progress map in one pass.
+ * Cheaper than {@link fetchUserProgress} when the caller holds every word of a
+ * level (one query per 1000 progress rows instead of one per 100 word ids).
+ */
+export async function fetchAllUserProgress(): Promise<ProgressMap> {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return {}
+
+  const BATCH = 1000
+  const map: ProgressMap = {}
+
+  for (let from = 0; ; from += BATCH) {
+    const { data } = await supabase
+      .from('jp_flashcard_progress')
+      .select('word_id, status')
+      .eq('user_id', user.id)
+      .range(from, from + BATCH - 1)
+    if (!data || data.length === 0) break
+    for (const row of data) {
+      map[row.word_id] = row.status as ProgressStatus
+    }
+    if (data.length < BATCH) break
+  }
+
+  return map
+}

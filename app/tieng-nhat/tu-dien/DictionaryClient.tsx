@@ -10,9 +10,11 @@ import WordCard, { type JapaneseWord } from '@/components/japanese/WordCard'
 import BookmarkButton from '@/components/japanese/BookmarkButton'
 import CopyButton from '@/components/japanese/CopyButton'
 import SearchSuggestions, { type SuggestionWord } from '@/components/japanese/SearchSuggestions'
+import Pagination from '@/components/japanese/Pagination'
 
 const HISTORY_KEY = 'jp_search_history'
 const MAX_HISTORY = 10
+const PAGE_SIZE = 12
 
 function readHistory(): string[] {
   try { return JSON.parse(localStorage.getItem(HISTORY_KEY) ?? '[]') } catch { return [] }
@@ -38,6 +40,8 @@ export default function DictionaryClient({ initialWords, initialQuery, isLoggedI
   const SUGGESTIONS_ID = 'jp-search-suggestions'
   const [history, setHistory] = useState<string[]>([])
   const [historyReady, setHistoryReady] = useState(false)
+  const [resultsPage, setResultsPage] = useState(1)
+  const [popularPage, setPopularPage] = useState(1)
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const suggDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -174,6 +178,27 @@ export default function DictionaryClient({ initialWords, initialQuery, isLoggedI
 
   const isSearching = query.trim().length > 0
 
+  // Reset to first page whenever the underlying list changes.
+  useEffect(() => { setResultsPage(1) }, [results])
+  useEffect(() => { setPopularPage(1) }, [initialWords])
+
+  const resultsTotalPages = Math.max(1, Math.ceil(results.length / PAGE_SIZE))
+  const pagedResults = useMemo(
+    () => results.slice((resultsPage - 1) * PAGE_SIZE, resultsPage * PAGE_SIZE),
+    [results, resultsPage],
+  )
+
+  const popularTotalPages = Math.max(1, Math.ceil(initialWords.length / PAGE_SIZE))
+  const pagedPopular = useMemo(
+    () => initialWords.slice((popularPage - 1) * PAGE_SIZE, popularPage * PAGE_SIZE),
+    [initialWords, popularPage],
+  )
+
+  function goToPage(setter: (p: number) => void, p: number) {
+    setter(p)
+    if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
   function cardFooter(w: JapaneseWord) {
     return (
       <div className="flex items-center justify-between mt-3 pt-3 border-t border-line/40">
@@ -270,17 +295,24 @@ export default function DictionaryClient({ initialWords, initialQuery, isLoggedI
           <div>
             <p className="text-[11px] font-bold text-muted uppercase tracking-wide mb-4">{t('popular_words')}</p>
             {initialWords.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {initialWords.map(w => (
-                  <WordCard
-                    key={w.id}
-                    word={w}
-                    locale={locale}
-                    actionSlot={bookmarkSlot(w)}
-                    footerSlot={cardFooter(w)}
-                  />
-                ))}
-              </div>
+              <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {pagedPopular.map(w => (
+                    <WordCard
+                      key={w.id}
+                      word={w}
+                      locale={locale}
+                      actionSlot={bookmarkSlot(w)}
+                      footerSlot={cardFooter(w)}
+                    />
+                  ))}
+                </div>
+                <Pagination
+                  currentPage={popularPage}
+                  totalPages={popularTotalPages}
+                  onPageChange={p => goToPage(setPopularPage, p)}
+                />
+              </>
             ) : null}
           </div>
         </div>
@@ -315,17 +347,24 @@ export default function DictionaryClient({ initialWords, initialQuery, isLoggedI
 
           {/* Results grid */}
           {!loading && results.length > 0 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {results.map(w => (
-                <WordCard
-                  key={w.id}
-                  word={w}
-                  locale={locale}
-                  actionSlot={bookmarkSlot(w)}
-                  footerSlot={cardFooter(w)}
-                />
-              ))}
-            </div>
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {pagedResults.map(w => (
+                  <WordCard
+                    key={w.id}
+                    word={w}
+                    locale={locale}
+                    actionSlot={bookmarkSlot(w)}
+                    footerSlot={cardFooter(w)}
+                  />
+                ))}
+              </div>
+              <Pagination
+                currentPage={resultsPage}
+                totalPages={resultsTotalPages}
+                onPageChange={p => goToPage(setResultsPage, p)}
+              />
+            </>
           )}
 
           {/* Empty state */}

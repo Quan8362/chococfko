@@ -1,15 +1,18 @@
 'use client'
 
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import VocabularyCard, { type ProgressStatus } from '@/components/japanese/VocabularyCard'
 import ProgressBar from '@/components/japanese/ProgressBar'
 import DictionarySearchBox from '@/components/japanese/DictionarySearchBox'
+import Pagination from '@/components/japanese/Pagination'
 import type { JapaneseWord } from '@/components/japanese/WordCard'
 import { saveWordProgress, type ProgressAction, type ProgressMap } from '@/app/tieng-nhat/actions'
 
 type FilterTab = 'all' | 'learning' | 'review' | 'mastered'
+
+const PAGE_SIZE = 24
 
 interface VocabularyClientProps {
   words: JapaneseWord[]
@@ -28,6 +31,7 @@ export default function VocabularyClient({
   const [progressMap, setProgressMap] = useState<ProgressMap>(initialProgress)
   const [query, setQuery]   = useState('')
   const [filter, setFilter] = useState<FilterTab>('all')
+  const [page, setPage]     = useState(1)
   const [saveMsg, setSaveMsg] = useState<{ text: string; ok: boolean } | null>(null)
 
   const showMsg = (text: string, ok: boolean) => {
@@ -69,6 +73,22 @@ export default function VocabularyClient({
 
     return list
   }, [words, query, filter, progressMap])
+
+  const totalPages = Math.max(1, Math.ceil(displayedWords.length / PAGE_SIZE))
+
+  useEffect(() => {
+    setPage(1)
+  }, [query, filter])
+
+  const pagedWords = useMemo(
+    () => displayedWords.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
+    [displayedWords, page],
+  )
+
+  const goToPage = (p: number) => {
+    setPage(p)
+    if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
   const masterCount   = words.filter(w => progressMap[w.id] === 'mastered').length
   const reviewCount   = words.filter(w => progressMap[w.id] === 'review').length
@@ -154,18 +174,21 @@ export default function VocabularyClient({
           <p className="text-[15px] text-muted">{t('no_vocabulary')}</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {displayedWords.map(word => (
-            <VocabularyCard
-              key={word.id}
-              word={word}
-              progress={progressMap[word.id]}
-              isLoggedIn={isLoggedIn}
-              onAction={handleAction}
-              loginMessage={t('login_to_save')}
-            />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {pagedWords.map(word => (
+              <VocabularyCard
+                key={word.id}
+                word={word}
+                progress={progressMap[word.id]}
+                isLoggedIn={isLoggedIn}
+                onAction={handleAction}
+                loginMessage={t('login_to_save')}
+              />
+            ))}
+          </div>
+          <Pagination currentPage={page} totalPages={totalPages} onPageChange={goToPage} />
+        </>
       )}
     </div>
   )

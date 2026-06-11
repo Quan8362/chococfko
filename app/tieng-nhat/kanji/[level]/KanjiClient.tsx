@@ -1,11 +1,14 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import KanjiCard, { type JapaneseKanji } from '@/components/japanese/KanjiCard'
 import DictionarySearchBox from '@/components/japanese/DictionarySearchBox'
 import EmptyState from '@/components/japanese/EmptyState'
 import BookmarkButton from '@/components/japanese/BookmarkButton'
+import Pagination from '@/components/japanese/Pagination'
+
+const PAGE_SIZE = 24
 
 interface KanjiClientProps {
   kanji: JapaneseKanji[]
@@ -17,6 +20,7 @@ export default function KanjiClient({ kanji, isLoggedIn, initialBookmarkedKanjiI
   const t = useTranslations('japanese')
   const locale = useLocale()
   const [query, setQuery] = useState('')
+  const [page, setPage] = useState(1)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const bookmarkedSet = useMemo(() => new Set(initialBookmarkedKanjiIds), [])
 
@@ -35,6 +39,22 @@ export default function KanjiClient({ kanji, isLoggedIn, initialBookmarkedKanjiI
       )
     )
   }, [kanji, query])
+
+  const totalPages = Math.max(1, Math.ceil(displayed.length / PAGE_SIZE))
+
+  useEffect(() => {
+    setPage(1)
+  }, [query])
+
+  const pagedKanji = useMemo(
+    () => displayed.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
+    [displayed, page],
+  )
+
+  const goToPage = (p: number) => {
+    setPage(p)
+    if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
   const labels = {
     onyomi:       t('onyomi'),
@@ -57,24 +77,27 @@ export default function KanjiClient({ kanji, isLoggedIn, initialBookmarkedKanjiI
       {displayed.length === 0 ? (
         <EmptyState text={t('no_kanji')} />
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {displayed.map(k => (
-            <KanjiCard
-              key={k.id}
-              kanji={k}
-              locale={locale}
-              labels={labels}
-              actionSlot={
-                <BookmarkButton
-                  itemId={k.id}
-                  itemType="kanji"
-                  initialBookmarked={bookmarkedSet.has(k.id)}
-                  loginMessage={isLoggedIn ? undefined : t('login_to_save')}
-                />
-              }
-            />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {pagedKanji.map(k => (
+              <KanjiCard
+                key={k.id}
+                kanji={k}
+                locale={locale}
+                labels={labels}
+                actionSlot={
+                  <BookmarkButton
+                    itemId={k.id}
+                    itemType="kanji"
+                    initialBookmarked={bookmarkedSet.has(k.id)}
+                    loginMessage={isLoggedIn ? undefined : t('login_to_save')}
+                  />
+                }
+              />
+            ))}
+          </div>
+          <Pagination currentPage={page} totalPages={totalPages} onPageChange={goToPage} />
+        </>
       )}
     </div>
   )

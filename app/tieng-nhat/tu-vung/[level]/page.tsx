@@ -5,8 +5,8 @@ import { createClient } from '@/lib/supabase/server'
 import { dbLevel, urlLevel } from '@/components/japanese/LevelPicker'
 import JlptBadge from '@/components/japanese/JlptBadge'
 import VocabularyClient from './VocabularyClient'
-import { fetchUserProgress } from '@/app/tieng-nhat/actions'
-import type { JapaneseWord } from '@/components/japanese/WordCard'
+import { fetchAllUserProgress } from '@/app/tieng-nhat/actions'
+import { getAllWordsForLevel } from '@/lib/japanese/words'
 
 export const dynamic = 'force-dynamic'
 
@@ -15,20 +15,6 @@ export async function generateMetadata({ params }: { params: { level: string } }
   if (!level) return {}
   const t = await getTranslations('japanese')
   return { title: `${level} ${t('vocab_heading')} · ${t('page_heading')} · Chợ Cóc FKO` }
-}
-
-const WORDS_PER_LEVEL_LIMIT = 200
-
-async function getWordsForLevel(level: string): Promise<JapaneseWord[]> {
-  const supabase = createClient()
-  const { data } = await supabase
-    .from('japanese_words')
-    .select('id,word,reading,romaji,jlpt_level,pos,meanings,examples,tags,frequency')
-    .eq('jlpt_level', level)
-    .eq('is_published', true)
-    .order('frequency', { ascending: false })
-    .limit(WORDS_PER_LEVEL_LIMIT)
-  return (data as JapaneseWord[]) ?? []
 }
 
 interface Props {
@@ -45,9 +31,8 @@ export default async function VocabularyLevelPage({ params }: Props) {
   ])
 
   const { data: { user } } = await supabase.auth.getUser()
-  const words = await getWordsForLevel(level)
-  const wordIds = words.map(w => w.id)
-  const initialProgress = await fetchUserProgress(wordIds)
+  const words = await getAllWordsForLevel(level)
+  const initialProgress = user ? await fetchAllUserProgress() : {}
 
   const levelDescs: Record<string, string> = {
     N5: t('n5_desc'),

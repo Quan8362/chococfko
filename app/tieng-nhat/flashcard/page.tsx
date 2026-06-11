@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { dbLevel } from '@/components/japanese/LevelPicker'
 import { JLPT_LEVELS } from '@/components/japanese/LevelPicker'
 import { fetchUserProgress, type ProgressMap } from '@/app/tieng-nhat/actions'
+import { getWordsForDeck, FLASHCARD_DECK_SIZE } from '@/lib/japanese/words'
 import type { JapaneseWord } from '@/components/japanese/WordCard'
 import FlashcardClient from './FlashcardClient'
 
@@ -12,20 +13,6 @@ export const dynamic = 'force-dynamic'
 export async function generateMetadata() {
   const t = await getTranslations('japanese')
   return { title: `${t('flashcard_heading')} · ${t('page_heading')} · Chợ Cóc FKO` }
-}
-
-const WORDS_PER_LEVEL_LIMIT = 200
-
-async function getWordsForLevel(level: string): Promise<JapaneseWord[]> {
-  const supabase = createClient()
-  const { data } = await supabase
-    .from('japanese_words')
-    .select('id,word,reading,romaji,jlpt_level,pos,meanings,examples,tags,frequency')
-    .eq('jlpt_level', level)
-    .eq('is_published', true)
-    .order('frequency', { ascending: false })
-    .limit(WORDS_PER_LEVEL_LIMIT)
-  return (data as JapaneseWord[]) ?? []
 }
 
 async function getLevelCounts(): Promise<Record<string, number>> {
@@ -45,7 +32,7 @@ async function getLevelCounts(): Promise<Record<string, number>> {
 }
 
 interface Props {
-  searchParams: { level?: string }
+  searchParams: { level?: string; set?: string }
 }
 
 export default async function FlashcardPage({ searchParams }: Props) {
@@ -60,8 +47,18 @@ export default async function FlashcardPage({ searchParams }: Props) {
   let initialProgress: ProgressMap = {}
   const levelCounts = await getLevelCounts()
 
-  if (validLevel) {
-    words = await getWordsForLevel(validLevel)
+  // A deck (set) is only loaded once the user has picked both a level and a set.
+  const totalDecks = validLevel
+    ? Math.max(1, Math.ceil((levelCounts[validLevel] ?? 0) / FLASHCARD_DECK_SIZE))
+    : 0
+  const rawSet = Number(searchParams.set)
+  const selectedDeck =
+    validLevel && Number.isInteger(rawSet) && rawSet >= 1 && rawSet <= totalDecks
+      ? rawSet
+      : null
+
+  if (validLevel && selectedDeck) {
+    words = await getWordsForDeck(validLevel, selectedDeck)
     initialProgress = await fetchUserProgress(words.map(w => w.id))
   }
 
@@ -92,8 +89,11 @@ export default async function FlashcardPage({ searchParams }: Props) {
         words={words}
         initialProgress={initialProgress}
         isLoggedIn={!!user}
-        selectedLevel={rawLevel || null}
+        selectedLevel={validLevel ? rawLevel : null}
         levelCounts={levelCounts}
+        deckSize={FLASHCARD_DECK_SIZE}
+        totalDecks={totalDecks}
+        selectedDeck={selectedDeck}
       />
     </div>
   )

@@ -8,13 +8,15 @@ const JP_DATA_CDN = 'https://cdn.jsdelivr.net/npm/hanzi-writer-data-jp@0'
 
 interface KanjiStrokeWriterProps {
   char: string
+  /** Square pixel size of the writing canvas. */
+  size?: number
   /** Rendered when this Kanji has no stroke data in KanjiVG. */
   noDataFallback: React.ReactNode
 }
 
 type Status = 'loading' | 'ready' | 'error'
 
-export default function KanjiStrokeWriter({ char, noDataFallback }: KanjiStrokeWriterProps) {
+export default function KanjiStrokeWriter({ char, size = 150, noDataFallback }: KanjiStrokeWriterProps) {
   const t = useTranslations('japanese')
   const containerRef = useRef<HTMLDivElement>(null)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -36,9 +38,9 @@ export default function KanjiStrokeWriter({ char, noDataFallback }: KanjiStrokeW
       containerRef.current.innerHTML = ''
 
       writer = HanziWriter.create(containerRef.current, char, {
-        width: 150,
-        height: 150,
-        padding: 6,
+        width: size,
+        height: size,
+        padding: 5,
         showOutline: true,
         showCharacter: true,
         strokeAnimationSpeed: 1,
@@ -73,7 +75,7 @@ export default function KanjiStrokeWriter({ char, noDataFallback }: KanjiStrokeW
       if (containerRef.current) containerRef.current.innerHTML = ''
       writerRef.current = null
     }
-  }, [char])
+  }, [char, size])
 
   const handleReplay = () => {
     const w = writerRef.current
@@ -101,28 +103,28 @@ export default function KanjiStrokeWriter({ char, noDataFallback }: KanjiStrokeW
   }
 
   return (
-    <div className="flex flex-col items-center gap-3">
-      <div className="relative">
+    <div className="flex flex-col items-center gap-2" style={{ width: size }}>
+      <div className="relative" style={{ width: size, height: size }}>
         <div
           ref={containerRef}
-          className="rounded-2xl border border-line bg-cream/40"
-          style={{ width: 150, height: 150 }}
+          className="rounded-xl border border-line bg-cream/40"
+          style={{ width: size, height: size }}
         />
         {status === 'loading' && (
-          <div className="absolute inset-0 flex items-center justify-center text-[12px] text-muted">
+          <div className="absolute inset-0 flex items-center justify-center text-[11px] text-muted">
             {t('kanji_stroke_loading')}
           </div>
         )}
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap justify-center gap-1.5 w-full">
         <button
           type="button"
           onClick={handleReplay}
           disabled={status !== 'ready'}
-          className="inline-flex items-center gap-1 text-[12px] font-semibold text-ink bg-cream border border-line px-3 py-1.5 rounded-lg hover:border-rose/30 hover:text-rose transition-colors disabled:opacity-40"
+          className="inline-flex flex-1 min-w-[68px] items-center justify-center gap-1 text-[11px] font-semibold text-ink bg-cream border border-line px-2 py-1 rounded-lg hover:border-rose/30 hover:text-rose transition-colors disabled:opacity-40"
         >
-          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
           {t('kanji_stroke_replay')}
@@ -131,9 +133,9 @@ export default function KanjiStrokeWriter({ char, noDataFallback }: KanjiStrokeW
           type="button"
           onClick={handlePractice}
           disabled={status !== 'ready' || quizzing}
-          className="inline-flex items-center gap-1 text-[12px] font-semibold text-white bg-rose px-3 py-1.5 rounded-lg hover:bg-rose-deep transition-colors disabled:opacity-40"
+          className="inline-flex flex-1 min-w-[68px] items-center justify-center gap-1 text-[11px] font-semibold text-white bg-rose px-2 py-1 rounded-lg hover:bg-rose-deep transition-colors disabled:opacity-40"
         >
-          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
           </svg>
           {quizzing ? t('kanji_stroke_practicing') : t('kanji_stroke_practice')}

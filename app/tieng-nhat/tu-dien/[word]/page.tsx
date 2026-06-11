@@ -94,10 +94,10 @@ export default async function WordDetailPage({ params }: { params: { word: strin
   const tViewDetail = t('view_detail')
 
   return (
-    <div className="max-w-[1200px] mx-auto px-5 sm:px-6 py-10 pb-20">
+    <div className="max-w-[1180px] mx-auto px-5 sm:px-6 py-10 pb-20">
 
       {/* Breadcrumb */}
-      <nav className="flex items-center gap-1.5 text-[12.5px] text-muted mb-8 flex-wrap">
+      <nav className="flex items-center gap-1.5 text-[12.5px] text-muted mb-6 flex-wrap">
         <Link href="/tieng-nhat" className="hover:text-rose transition-colors">{t('page_heading')}</Link>
         <span>/</span>
         <Link href="/tieng-nhat/tu-dien" className="hover:text-rose transition-colors">{t('dictionary')}</Link>
@@ -105,14 +105,13 @@ export default async function WordDetailPage({ params }: { params: { word: strin
         <span className="text-ink font-medium" lang="ja">{word.word}</span>
       </nav>
 
-      {/* 2-column layout on desktop, stacked on mobile */}
-      <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-6 lg:items-start">
+      {/* 2-column layout on desktop, stacked on mobile.
+          Explicit placement keeps the Kanji panel top-aligned with the main card
+          (col2, spanning both rows) while related words fill the left column (row2). */}
+      <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-6 lg:items-start">
 
-      {/* LEFT COLUMN — main vocabulary content */}
-      <div className="min-w-0">
-
-      {/* Main card */}
-      <div className="bg-paper border border-line rounded-3xl p-6 sm:p-8 shadow-sm">
+      {/* Main card — left column, row 1 */}
+      <div className="bg-paper border border-line rounded-3xl p-6 sm:p-7 shadow-sm min-w-0 lg:col-start-1 lg:row-start-1">
 
         {/* Word + bookmark */}
         <div className="flex items-start justify-between gap-4 mb-5">
@@ -231,51 +230,17 @@ export default async function WordDetailPage({ params }: { params: { word: strin
           </Link>
         </div>
       </div>
-      </div>
 
-      {/* RIGHT SIDEBAR — Kanji practice + related preview (sticky on desktop) */}
-      <aside className="mt-6 lg:mt-0 lg:sticky lg:top-[90px] space-y-6">
+      {/* Kanji practice panel — right column, top-aligned & sticky on desktop */}
+      <aside className="mt-6 lg:mt-0 lg:col-start-2 lg:row-start-1 lg:row-span-2 lg:sticky lg:top-[90px]">
         <KanjiPracticeSection word={word.word} />
-
-        {/* Related words preview — desktop only */}
-        {relatedWords.length > 0 && (
-          <div className="hidden lg:block bg-paper border border-line rounded-2xl p-4 shadow-sm">
-            <h2 className="font-serif font-bold text-[15px] text-ink mb-2">{t('related_words')}</h2>
-            <ul className="divide-y divide-line/50">
-              {relatedWords.slice(0, 4).map(w => {
-                const m = w.meanings?.[0]
-                const snippet = locale === 'en' ? (m?.en || m?.vi) : (m?.vi || m?.en)
-                return (
-                  <li key={w.id}>
-                    <Link
-                      href={`/tieng-nhat/tu-dien/${encodeURIComponent(w.word)}`}
-                      className="group flex items-baseline gap-2 py-2"
-                    >
-                      <span lang="ja" className="text-[15px] font-bold text-ink group-hover:text-rose transition-colors shrink-0">
-                        {w.word}
-                      </span>
-                      {w.reading && w.reading !== w.word && (
-                        <span lang="ja" className="text-[11px] text-muted shrink-0">{w.reading}</span>
-                      )}
-                      {snippet && (
-                        <span className="text-[12px] text-muted truncate">{cleanMeaningText(snippet)}</span>
-                      )}
-                    </Link>
-                  </li>
-                )
-              })}
-            </ul>
-          </div>
-        )}
       </aside>
 
-      </div>
-
-      {/* Full related words — below the 2-column layout, inside the same container */}
+      {/* Related words — left column, row 2 (sits directly under the main card) */}
       {relatedWords.length > 0 && (
-        <section className="mt-10">
+        <section className="mt-8 lg:mt-0 min-w-0 lg:col-start-1 lg:row-start-2">
           <h2 className="font-serif font-bold text-[17px] text-ink mb-4">{t('related_words')}</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {relatedWords.slice(0, 6).map(w => (
               <WordCard
                 key={w.id}
@@ -321,6 +286,8 @@ export default async function WordDetailPage({ params }: { params: { word: strin
           )}
         </section>
       )}
+
+      </div>
     </div>
   )
 }

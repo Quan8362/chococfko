@@ -57,20 +57,25 @@ export default async function KanjiPracticeSection({ word, className = '' }: Kan
 
   return (
     <section className={className}>
-      <h2 className="font-serif font-bold text-[17px] text-ink mb-4">
-        {t('kanji_practice_title')}
-      </h2>
-      <div className="grid grid-cols-1 gap-4">
-        {chars.map(ch => (
-          <KanjiPracticeCard
-            key={ch}
-            char={ch}
-            kanji={byChar.get(ch) ?? null}
-            locale={locale}
-            labels={labels}
-            noStrokeText={noStrokeText}
-          />
-        ))}
+      <div className="bg-paper border border-line rounded-2xl p-4 sm:p-5 shadow-sm">
+        <h2 className="font-serif font-bold text-[15px] text-ink mb-1 flex items-center gap-1.5">
+          <svg className="w-4 h-4 text-rose" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+          </svg>
+          {t('kanji_practice_title')}
+        </h2>
+        <div className="divide-y divide-line/60">
+          {chars.map(ch => (
+            <KanjiPracticeCard
+              key={ch}
+              char={ch}
+              kanji={byChar.get(ch) ?? null}
+              locale={locale}
+              labels={labels}
+              noStrokeText={noStrokeText}
+            />
+          ))}
+        </div>
       </div>
     </section>
   )

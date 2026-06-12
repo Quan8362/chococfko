@@ -27,7 +27,7 @@ export default async function ListingCard({ listing }: { listing: Listing }) {
           <div className="w-full h-full grid place-items-center text-4xl opacity-30">🛒</div>
         )}
 
-        {/* Type / status badges */}
+        {/* Type badges — top-left */}
         <div className="absolute top-2.5 left-2.5 flex flex-col gap-1.5 items-start">
           {isFree && (
             <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-teal text-white shadow-sm">🎁 {t('type_free')}</span>
@@ -35,6 +35,10 @@ export default async function ListingCard({ listing }: { listing: Listing }) {
           {isAuction && (
             <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-rose text-white shadow-sm">🔨 {t('type_auction')}</span>
           )}
+        </div>
+
+        {/* Status badges — top-right */}
+        <div className="absolute top-2.5 right-2.5 flex flex-col gap-1.5 items-end">
           {listing.sale_status === 'reserved' && (
             <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-full bg-amber-500 text-white shadow-sm">{t('status_reserved')}</span>
           )}

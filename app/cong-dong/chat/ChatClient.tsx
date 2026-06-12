@@ -12,13 +12,15 @@ import { compressImage } from '@/lib/imageCompress'
 const EmojiPicker = dynamic(() => import('@emoji-mart/react'), { ssr: false })
 import {
   sendMessage, deleteMessage, reportMessage,
-  toggleReaction, pinMessage, unpinMessage, saveImageMessage, saveFileMessage, editMessage,
+  toggleReaction, pinMessage, unpinMessage, saveImageMessage, saveFileMessage, saveAudioMessage, editMessage,
   createPoll, votePoll,
 } from './actions'
 import {
   getOrCreateDmConversation, getDmConversations, getDmMessages, sendDmMessage, searchUsersForDm,
+  sendDmImage, sendDmFile, sendDmAudio,
 } from './dm-actions'
 import type { DmConversation, DmMessage } from './dm-actions'
+import VoiceRecorder from '@/components/chat/VoiceRecorder'
 import {
   createRoom, getRoomMembers, searchUsersForRoom,
   addMembersToRoom, removeMemberFromRoom, updateMemberRole, deleteRoom, updateRoomAvatar,
@@ -49,7 +51,10 @@ const ALLOWED_FILE_TYPES = [
   'text/csv',
   'application/zip',
 ]
-const MAX_IMAGE_SIZE = 3 * 1024 * 1024
+// Pre-compression cap: big phone photos are compressed before upload, so only
+// reject absurdly large originals here. The server still enforces the post-
+// compression 3MB limit.
+const MAX_IMAGE_SIZE = 40 * 1024 * 1024
 const MAX_FILE_SIZE = 10 * 1024 * 1024
 const MAX_AVATAR_SIZE = 2 * 1024 * 1024
 
@@ -1199,23 +1204,38 @@ export default function ChatClient({
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'community_dm_messages' },
         (payload) => {
           if (!mounted) return
-          const msg = payload.new as DmMessage
-          if (msg.conversation_id === activeDmConvIdRef.current) {
-            setDmMessages(prev => {
-              if (prev.some(m => m.id === msg.id)) return prev
-              return [...prev, msg]
-            })
-            setTimeout(() => scrollDmToBottom(true), 0)
-          }
-          setDmConversations(prev => prev.map(c =>
-            c.id !== msg.conversation_id ? c : {
-              ...c,
-              last_message_at: msg.created_at,
-              last_message_preview: msg.message.slice(0, 80),
+          const raw = payload.new as Record<string, unknown>
+          const kind = (raw.kind as DmMessage['kind']) ?? 'text'
+          const previewFor = (m: DmMessage) => m.message
+            || (m.kind === 'image' ? '📷 Ảnh' : m.kind === 'audio' ? '🎤 Tin nhắn thoại' : m.kind === 'file' ? `📎 ${m.attachment_name ?? 'File'}` : '')
+          const add = (m: DmMessage) => {
+            if (m.conversation_id === activeDmConvIdRef.current) {
+              setDmMessages(prev => prev.some(x => x.id === m.id) ? prev : [...prev, m])
+              setTimeout(() => scrollDmToBottom(true), 0)
             }
-          ))
-          if (msg.conversation_id !== activeDmConvIdRef.current && msg.sender_id !== userId) {
-            setUnreadDmIds(prev => { const next = new Set(prev); next.add(msg.conversation_id); return next })
+            setDmConversations(prev => prev.map(c =>
+              c.id !== m.conversation_id ? c : { ...c, last_message_at: m.created_at, last_message_preview: previewFor(m).slice(0, 80) }))
+            if (m.conversation_id !== activeDmConvIdRef.current && m.sender_id !== userId) {
+              setUnreadDmIds(prev => { const next = new Set(prev); next.add(m.conversation_id); return next })
+            }
+          }
+          const base: DmMessage = {
+            id: raw.id as string, conversation_id: raw.conversation_id as string, sender_id: raw.sender_id as string,
+            display_name: raw.display_name as string, avatar_url: (raw.avatar_url as string | null) ?? null,
+            message: (raw.message as string) ?? '', is_deleted: raw.is_deleted as boolean, created_at: raw.created_at as string,
+            edited_at: (raw.edited_at as string | null) ?? null, kind,
+            attachment_url: null, attachment_name: (raw.attachment_name as string | null) ?? null,
+            attachment_mime: (raw.attachment_mime as string | null) ?? null, attachment_size: (raw.attachment_size as number | null) ?? null,
+            audio_duration: (raw.audio_duration as number | null) ?? null,
+          }
+          const bucket = raw.attachment_bucket as string | null
+          const path = raw.attachment_path as string | null
+          if (bucket && path) {
+            supabase.storage.from(bucket).createSignedUrl(path, 86400).then(({ data }) => {
+              if (mounted) add({ ...base, attachment_url: data?.signedUrl ?? null })
+            })
+          } else {
+            add(base)
           }
         })
       .subscribe((status) => {
@@ -1341,6 +1361,12 @@ export default function ChatClient({
       is_deleted: false,
       created_at: new Date().toISOString(),
       edited_at: null,
+      kind: 'text',
+      attachment_url: null,
+      attachment_name: null,
+      attachment_mime: null,
+      attachment_size: null,
+      audio_duration: null,
     }
     setDmMessages(prev => [...prev, tempMsg])
     setInput('')
@@ -1360,6 +1386,95 @@ export default function ChatClient({
       ))
     } else {
       setDmMessages(prev => prev.filter(m => m.id !== tempId))
+    }
+  }
+
+  // ── DM attachments (image / file / voice) ─────────────────────────────────
+  const dmAttachInputRef = useRef<HTMLInputElement>(null)
+  const dmImageInputRef = useRef<HTMLInputElement>(null)
+
+  function baseDmTemp(convId: string, over: Partial<DmMessage>): DmMessage {
+    return {
+      id: `temp_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+      conversation_id: convId, sender_id: userId, display_name: displayName, avatar_url: avatarUrl,
+      message: '', is_deleted: false, created_at: new Date().toISOString(), edited_at: null,
+      kind: 'text', attachment_url: null, attachment_name: null, attachment_mime: null, attachment_size: null, audio_duration: null,
+      ...over,
+    }
+  }
+
+  function reconcileDm(tempId: string, res: { ok?: boolean; msgId?: string; createdAt?: string }) {
+    if (res.ok && res.msgId) {
+      setDmMessages(prev => prev.some(m => m.id === res.msgId)
+        ? prev.filter(m => m.id !== tempId)
+        : prev.map(m => m.id === tempId ? { ...m, id: res.msgId!, created_at: res.createdAt ?? m.created_at } : m))
+    } else {
+      setDmMessages(prev => prev.filter(m => m.id !== tempId))
+      setError(t('error_send')); setTimeout(() => setError(null), 3000)
+    }
+  }
+
+  async function uploadToBucket(bucket: string, file: Blob, ext: string, contentType: string): Promise<string | null> {
+    const supabase = createClient()
+    const path = `${userId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`
+    const { error } = await supabase.storage.from(bucket).upload(path, file, { contentType, cacheControl: '31536000' })
+    return error ? null : path
+  }
+
+  const handleDmImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]; e.target.value = ''
+    const convId = activeDmConvIdRef.current
+    if (!file || !convId || dmSending) return
+    if (!file.type.startsWith('image/')) { setError(t('error_invalid_file_type')); setTimeout(() => setError(null), 3000); return }
+    if (file.size > 40 * 1024 * 1024) { setError(t('error_file_too_large')); setTimeout(() => setError(null), 3000); return }
+    setDmSending(true)
+    const compressed = await compressImage(file)
+    const objectUrl = URL.createObjectURL(compressed)
+    const temp = baseDmTemp(convId, { kind: 'image', attachment_url: objectUrl, attachment_mime: compressed.type, attachment_size: compressed.size })
+    setDmMessages(prev => [...prev, temp]); setTimeout(() => scrollDmToBottom(true), 0)
+    const ext = compressed.type === 'image/png' ? 'png' : compressed.type === 'image/webp' ? 'webp' : 'jpg'
+    const path = await uploadToBucket(STORAGE_BUCKET, compressed, ext, compressed.type)
+    if (!path) { setDmMessages(prev => prev.filter(m => m.id !== temp.id)); URL.revokeObjectURL(objectUrl); setDmSending(false); setError(t('error_upload')); setTimeout(() => setError(null), 3000); return }
+    const res = await sendDmImage(convId, path, compressed.type, compressed.size)
+    setDmSending(false)
+    reconcileDm(temp.id, res)
+  }
+
+  const handleDmFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]; e.target.value = ''
+    const convId = activeDmConvIdRef.current
+    if (!file || !convId || dmSending) return
+    if (file.size > MAX_FILE_SIZE) { setError(t('error_file_too_large')); setTimeout(() => setError(null), 3000); return }
+    setDmSending(true)
+    const temp = baseDmTemp(convId, { kind: 'file', attachment_name: file.name, attachment_mime: file.type, attachment_size: file.size })
+    setDmMessages(prev => [...prev, temp]); setTimeout(() => scrollDmToBottom(true), 0)
+    const ext = (file.name.split('.').pop()?.toLowerCase().replace(/[^a-z0-9]/g, '') || 'bin').slice(0, 10)
+    const path = await uploadToBucket(STORAGE_BUCKET_FILES, file, ext, file.type || 'application/octet-stream')
+    if (!path) { setDmMessages(prev => prev.filter(m => m.id !== temp.id)); setDmSending(false); setError(t('error_upload')); setTimeout(() => setError(null), 3000); return }
+    const res = await sendDmFile(convId, path, file.type || 'application/octet-stream', file.size, file.name)
+    setDmSending(false)
+    reconcileDm(temp.id, res)
+  }
+
+  const handleSendVoice = async (blob: Blob, mime: string, durationSec: number) => {
+    const ext = mime.includes('mp4') ? 'm4a' : mime.includes('ogg') ? 'ogg' : 'webm'
+    if (chatMode === 'dm') {
+      const convId = activeDmConvIdRef.current
+      if (!convId) return
+      const objectUrl = URL.createObjectURL(blob)
+      const temp = baseDmTemp(convId, { kind: 'audio', attachment_url: objectUrl, attachment_mime: mime, attachment_size: blob.size, audio_duration: durationSec })
+      setDmMessages(prev => [...prev, temp]); setTimeout(() => scrollDmToBottom(true), 0)
+      const path = await uploadToBucket('community-chat-audio', blob, ext, mime)
+      if (!path) { setDmMessages(prev => prev.filter(m => m.id !== temp.id)); URL.revokeObjectURL(objectUrl); throw new Error('upload') }
+      const res = await sendDmAudio(convId, path, mime, blob.size, durationSec)
+      reconcileDm(temp.id, res)
+    } else {
+      const roomId = currentRoomIdRef.current
+      if (!roomId) return
+      const path = await uploadToBucket('community-chat-audio', blob, ext, mime)
+      if (!path) throw new Error('upload')
+      const res = await saveAudioMessage(path, mime, blob.size, durationSec, roomId)
+      if (res.error) throw new Error(res.error)
     }
   }
 
@@ -2583,16 +2698,36 @@ export default function ChatClient({
                         )}
                         <div className={`max-w-[70%] flex flex-col gap-0.5 ${isMe ? 'items-end' : 'items-start'}`}>
                           {!isMe && <span className="text-[10.5px] font-medium text-muted/60 ml-1">{msg.display_name}</span>}
-                          <div className={`px-3 py-2 rounded-2xl text-[13.5px] leading-relaxed break-words whitespace-pre-wrap ${
-                            msg.id.startsWith('temp_')
-                              ? 'opacity-60'
-                              : ''
-                          } ${isMe
-                            ? 'bg-rose text-white rounded-br-md'
-                            : 'bg-white border border-line/60 text-ink rounded-bl-md'
-                          }`}>
-                            {msg.message}
-                          </div>
+                          {msg.kind === 'image' && msg.attachment_url ? (
+                            <div className={msg.id.startsWith('temp_') ? 'opacity-60' : ''}>
+                              <a href={msg.attachment_url} target="_blank" rel="noopener noreferrer" className="block rounded-2xl overflow-hidden border border-line/40">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img src={msg.attachment_url} alt="" className="max-w-[230px] max-h-[280px] object-cover block" />
+                              </a>
+                              {msg.message && (
+                                <div className={`mt-1 px-3 py-1.5 rounded-xl text-[13px] break-words whitespace-pre-wrap ${isMe ? 'bg-rose text-white' : 'bg-white border border-line/60 text-ink'}`}>{msg.message}</div>
+                              )}
+                            </div>
+                          ) : msg.kind === 'audio' && msg.attachment_url ? (
+                            <div className={`px-3 py-2 rounded-2xl ${isMe ? 'bg-rose/10' : 'bg-white border border-line/60'} ${msg.id.startsWith('temp_') ? 'opacity-60' : ''}`}>
+                              <audio controls src={msg.attachment_url} className="h-9 max-w-[230px]" />
+                            </div>
+                          ) : msg.kind === 'file' && msg.attachment_url ? (
+                            <a href={msg.attachment_url} target="_blank" rel="noopener noreferrer" download={msg.attachment_name ?? undefined}
+                              className={`flex items-center gap-2.5 px-3 py-2.5 rounded-2xl ${msg.id.startsWith('temp_') ? 'opacity-60' : ''} ${isMe ? 'bg-rose text-white' : 'bg-white border border-line/60 text-ink'}`}>
+                              <svg className="w-5 h-5 flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                              <span className="flex flex-col min-w-0">
+                                <span className="text-[12.5px] font-medium truncate max-w-[160px]">{msg.attachment_name ?? 'File'}</span>
+                                {msg.attachment_size != null && <span className={`text-[10.5px] ${isMe ? 'text-white/70' : 'text-muted'}`}>{(msg.attachment_size / 1024 / 1024).toFixed(2)} MB</span>}
+                              </span>
+                            </a>
+                          ) : (
+                            <div className={`px-3 py-2 rounded-2xl text-[13.5px] leading-relaxed break-words whitespace-pre-wrap ${
+                              msg.id.startsWith('temp_') ? 'opacity-60' : ''
+                            } ${isMe ? 'bg-rose text-white rounded-br-md' : 'bg-white border border-line/60 text-ink rounded-bl-md'}`}>
+                              {msg.message}
+                            </div>
+                          )}
                           <span className={`text-[9.5px] text-muted/35 ${isMe ? 'mr-1' : 'ml-1'}`}>
                             {formatTokyo(msg.created_at)}
                           </span>
@@ -2825,11 +2960,16 @@ export default function ChatClient({
                           {msg.has_attachment && (() => {
                             const att = msg.attachments?.[0]
                             const url = att ? signedUrls[att.storage_path] : null
-                            const isFileAtt = att && !att.mime_type.startsWith('image/')
+                            const isAudioAtt = att && att.mime_type.startsWith('audio/')
+                            const isFileAtt = att && !att.mime_type.startsWith('image/') && !att.mime_type.startsWith('audio/')
                             return (
                               <div className="mt-0.5 -mx-0.5">
                                 {!att ? (
                                   <div className="w-40 h-12 rounded-lg bg-muted/10 animate-pulse" />
+                                ) : isAudioAtt ? (
+                                  <div className={`rounded-xl border px-2.5 py-2 ${isMe ? 'bg-white/70 border-rose/15' : 'bg-cream/60 border-line/60'}`}>
+                                    {url ? <audio controls src={url} className="h-9 max-w-[230px]" /> : <div className="w-44 h-9 rounded bg-muted/10 animate-pulse" />}
+                                  </div>
                                 ) : isFileAtt ? (
                                   // File card
                                   <div className={`rounded-xl border px-3 py-2.5 flex items-center gap-2.5 min-w-[200px] max-w-[260px] ${
@@ -3312,6 +3452,33 @@ export default function ChatClient({
               className="hidden"
             />
             <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" onChange={handleImageSelect} className="hidden" />
+            <input ref={dmImageInputRef} type="file" accept="image/*" onChange={handleDmImageSelect} className="hidden" />
+            <input ref={dmAttachInputRef} type="file" onChange={handleDmFileSelect} className="hidden" />
+
+            {/* DM attach menu (image / file) */}
+            {showAttachMenu && chatMode === 'dm' && (
+              <>
+                <div className="fixed inset-0 z-10" onClick={() => setShowAttachMenu(false)} />
+                <div className="absolute bottom-full left-3 mb-2 z-20 bg-white rounded-2xl shadow-lg border border-line/30 p-2 min-w-[180px]">
+                  <div className="grid grid-cols-2 gap-1">
+                    <button type="button" onClick={() => { dmImageInputRef.current?.click(); setShowAttachMenu(false) }} disabled={dmSending}
+                      className="flex flex-col items-center gap-1.5 px-3 py-3 rounded-xl text-[12px] font-medium text-ink hover:bg-rose/8 transition-colors disabled:opacity-40">
+                      <span className="w-9 h-9 rounded-full bg-rose/10 flex items-center justify-center">
+                        <svg className="w-[18px] h-[18px] text-rose" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" strokeWidth="2" /><circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" stroke="none" /><polyline points="21 15 16 10 5 21" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                      </span>
+                      {t('send_image')}
+                    </button>
+                    <button type="button" onClick={() => { dmAttachInputRef.current?.click(); setShowAttachMenu(false) }} disabled={dmSending}
+                      className="flex flex-col items-center gap-1.5 px-3 py-3 rounded-xl text-[12px] font-medium text-ink hover:bg-rose/8 transition-colors disabled:opacity-40">
+                      <span className="w-9 h-9 rounded-full bg-rose/10 flex items-center justify-center">
+                        <svg className="w-[18px] h-[18px] text-rose" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg>
+                      </span>
+                      {t('send_file')}
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
 
             {/* Attach menu popup — hiện phía trên nút + */}
             {showAttachMenu && chatMode !== 'dm' && (
@@ -3381,17 +3548,15 @@ export default function ChatClient({
               </>
             )}
 
-            {/* Nút + cho group mode */}
-            {chatMode !== 'dm' && (
-              <button
-                type="button"
-                onClick={() => setShowAttachMenu(v => !v)}
-                className={`flex-none w-9 h-9 rounded-full flex items-center justify-center transition-all font-semibold text-[20px] leading-none shrink-0 ${
-                  showAttachMenu ? 'bg-rose text-white shadow-sm' : 'bg-rose/10 text-rose hover:bg-rose/20'
-                }`}
-                title={t('attach_options')}
-              >+</button>
-            )}
+            {/* Nút + (đính kèm) cho cả group lẫn DM */}
+            <button
+              type="button"
+              onClick={() => setShowAttachMenu(v => !v)}
+              className={`flex-none w-9 h-9 rounded-full flex items-center justify-center transition-all font-semibold text-[20px] leading-none shrink-0 ${
+                showAttachMenu ? 'bg-rose text-white shadow-sm' : 'bg-rose/10 text-rose hover:bg-rose/20'
+              }`}
+              title={t('attach_options')}
+            >+</button>
 
             {/* Textarea */}
             <textarea
@@ -3416,6 +3581,11 @@ export default function ChatClient({
               }`}
               title={t('pick_emoji')}
             >😊</button>
+
+            {/* Ghi âm tin nhắn thoại */}
+            {!input.trim() && !imageFile && !attachFile && (
+              <VoiceRecorder onSend={handleSendVoice} disabled={loadingRoom || uploading || dmSending} />
+            )}
 
             {/* Nút gửi */}
             <button

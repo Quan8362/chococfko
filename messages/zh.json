@@ -1694,6 +1694,9 @@
     "comment_notif_someone": "有人"
   },
   "community_chat": {
+    "voice_record": "录音",
+    "voice_permission_denied": "无法访问麦克风，请授予权限。",
+    "voice_error": "语音消息发送失败。",
     "title": "社区聊天",
     "subtitle": "与Chợ Cóc FKO聊天",
     "placeholder": "输入消息...",

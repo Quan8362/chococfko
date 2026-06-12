@@ -617,6 +617,75 @@ export async function saveFileMessage(
   return { ok: true, msgId: (newMsg as { id: string }).id }
 }
 
+const AUDIO_STORAGE_BUCKET = 'community-chat-audio'
+const MAX_AUDIO_SIZE = 10 * 1024 * 1024
+
+export async function saveAudioMessage(
+  storagePath: string,
+  mimeType: string,
+  fileSize: number,
+  durationSec: number,
+  roomId: string,
+): Promise<{ ok?: boolean; error?: string; msgId?: string }> {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'unauthenticated' }
+
+  if (!mimeType.startsWith('audio/')) return { error: 'invalid_mime' }
+  if (fileSize <= 0 || fileSize > MAX_AUDIO_SIZE) return { error: 'invalid_size' }
+  if (!storagePath.startsWith(`${user.id}/`)) return { error: 'invalid_path' }
+  if (!roomId) return { error: 'no_room' }
+
+  const since = new Date(Date.now() - RATE_LIMIT_SECONDS * 1000).toISOString()
+  const { count } = await supabase
+    .from('community_chat_messages')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', user.id)
+    .gte('created_at', since)
+  if ((count ?? 0) >= RATE_LIMIT_COUNT) return { error: 'rate_limit' }
+
+  const { data: profile } = await supabase
+    .from('profiles').select('display_name, avatar_url').eq('id', user.id).single()
+  const displayName =
+    profile?.display_name || (user.user_metadata?.display_name as string | undefined) || user.email?.split('@')[0] || 'Thành viên'
+
+  const { data: newMsg, error: msgError } = await supabase
+    .from('community_chat_messages')
+    .insert({
+      user_id: user.id,
+      room_id: roomId,
+      display_name: displayName,
+      avatar_url: profile?.avatar_url ?? null,
+      message: '[audio]',
+      has_attachment: true,
+    })
+    .select('id')
+    .single()
+
+  if (msgError || !newMsg) return { error: 'db_error' }
+
+  const { error: attError } = await supabase
+    .from('community_chat_attachments')
+    .insert({
+      message_id: newMsg.id,
+      user_id: user.id,
+      room_id: roomId,
+      storage_bucket: AUDIO_STORAGE_BUCKET,
+      storage_path: storagePath,
+      file_name: null,
+      mime_type: mimeType,
+      file_size: fileSize,
+      duration_seconds: Math.max(0, Math.round(durationSec)),
+    })
+
+  if (attError) {
+    await supabase.from('community_chat_messages').delete().eq('id', newMsg.id)
+    return { error: 'db_error' }
+  }
+
+  return { ok: true, msgId: (newMsg as { id: string }).id }
+}
+
 // ── Poll actions ──────────────────────────────────────────────────────────────
 
 export async function createPoll(

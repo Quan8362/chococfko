@@ -1694,6 +1694,9 @@
     "comment_notif_someone": "Ai đó"
   },
   "community_chat": {
+    "voice_record": "Ghi âm",
+    "voice_permission_denied": "Không thể truy cập micro. Hãy cấp quyền.",
+    "voice_error": "Gửi tin nhắn thoại thất bại.",
     "title": "Chat cộng đồng",
     "subtitle": "Chat cùng Chợ Cóc FKO",
     "placeholder": "Nhập tin nhắn...",

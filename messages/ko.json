@@ -1694,6 +1694,9 @@
     "comment_notif_someone": "누군가"
   },
   "community_chat": {
+    "voice_record": "음성 녹음",
+    "voice_permission_denied": "마이크에 접근할 수 없습니다. 권한을 허용하세요.",
+    "voice_error": "음성 메시지 전송에 실패했습니다.",
     "title": "커뮤니티 채팅",
     "subtitle": "Chợ Cóc FKO와 채팅하세요",
     "placeholder": "메시지를 입력하세요...",

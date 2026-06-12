@@ -1694,6 +1694,9 @@
     "comment_notif_someone": "Someone"
   },
   "community_chat": {
+    "voice_record": "Record voice",
+    "voice_permission_denied": "Can't access microphone. Please grant permission.",
+    "voice_error": "Failed to send voice message.",
     "title": "Community Chat",
     "subtitle": "Chat with Chợ Cóc FKO",
     "placeholder": "Type a message...",

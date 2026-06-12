@@ -1694,6 +1694,9 @@
     "comment_notif_someone": "誰か"
   },
   "community_chat": {
+    "voice_record": "音声を録音",
+    "voice_permission_denied": "マイクにアクセスできません。許可してください。",
+    "voice_error": "音声メッセージの送信に失敗しました。",
     "title": "コミュニティチャット",
     "subtitle": "Chợ Cóc FKOとチャットしよう",
     "placeholder": "メッセージを入力...",

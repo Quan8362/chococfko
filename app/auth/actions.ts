@@ -121,6 +121,49 @@ export async function signOut() {
   redirect('/')
 }
 
+// ── Password reset ─────────────────────────────────────────
+// Step 1: user requests a reset link by email.
+export async function requestPasswordReset(formData: FormData): Promise<void> {
+  const supabase = createClient()
+  const email = (formData.get('email') as string ?? '').trim()
+  if (!email) redirect('/quen-mat-khau')
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://chococfko.com'
+  // The recovery email lands the user on /dat-lai-mat-khau with a session
+  // (via /auth/callback code-exchange, or /auth/confirm if the template uses
+  // token_hash&type=recovery — see /auth/confirm).
+  await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${siteUrl}/auth/callback?next=${encodeURIComponent('/dat-lai-mat-khau')}`,
+  })
+  // Always report success — never reveal whether the email exists.
+  redirect('/quen-mat-khau?sent=1')
+}
+
+// Step 2: user (now in a recovery session) sets a new password.
+export async function updatePassword(formData: FormData): Promise<void> {
+  const supabase = createClient()
+  const t = await getTranslations('auth')
+  const password = (formData.get('password') as string) ?? ''
+  const confirm = (formData.get('confirm_password') as string) ?? ''
+
+  if (password.length < 6)
+    redirect(`/dat-lai-mat-khau?error=${encodeURIComponent(t('reset_password_short'))}`)
+  if (password !== confirm)
+    redirect(`/dat-lai-mat-khau?error=${encodeURIComponent(t('reset_password_mismatch'))}`)
+
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user)
+    redirect(`/dang-nhap?error=${encodeURIComponent(t('reset_no_session'))}`)
+
+  const { error } = await supabase.auth.updateUser({ password })
+  if (error)
+    redirect(`/dat-lai-mat-khau?error=${encodeURIComponent(t('reset_update_failed'))}`)
+
+  // Sign out so the user logs in fresh with the new password.
+  await supabase.auth.signOut()
+  revalidatePath('/', 'layout')
+  redirect('/dang-nhap?reset=1')
+}
+
 // ── Slug helper ────────────────────────────────────────────
 function generateSlug(name: string): string {
   const base = name

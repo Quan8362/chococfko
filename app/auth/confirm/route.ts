@@ -33,5 +33,10 @@ export async function GET(request: Request) {
     )
   }
 
+  // Password-reset links land here with a recovery session → go set a new password.
+  if (type === 'recovery') {
+    return NextResponse.redirect(`${origin}/dat-lai-mat-khau`)
+  }
+
   return NextResponse.redirect(`${origin}/dang-nhap?confirmed=1`)
 }

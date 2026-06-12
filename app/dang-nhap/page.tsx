@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
 import { signIn, resendConfirmation } from '@/app/auth/actions'
 import SocialLoginButtons from '@/components/SocialLoginButtons'
+import PasswordInput from '@/components/PasswordInput'
 
 export async function generateMetadata() {
   const t = await getTranslations('auth')
@@ -11,7 +12,7 @@ export async function generateMetadata() {
 export default async function DangNhap({
   searchParams,
 }: {
-  searchParams: { error?: string; confirmed?: string; unconfirmed?: string; email?: string; resent?: string }
+  searchParams: { error?: string; confirmed?: string; unconfirmed?: string; email?: string; resent?: string; reset?: string }
 }) {
   const t = await getTranslations('auth')
   const email = searchParams.email ? decodeURIComponent(searchParams.email) : ''
@@ -33,6 +34,13 @@ export default async function DangNhap({
               ✅ {t('email_confirmed_heading')}
             </p>
             <p className="text-[13px] text-emerald-600">{t('email_confirmed_sub')}</p>
+          </div>
+        )}
+
+        {/* Password reset success */}
+        {searchParams.reset && (
+          <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3.5 mb-5 text-center">
+            <p className="text-[13.5px] text-emerald-700 font-medium">✅ {t('reset_success')}</p>
           </div>
         )}
 
@@ -85,15 +93,19 @@ export default async function DangNhap({
             />
           </div>
           <div>
-            <label className="block text-[13px] font-semibold mb-1.5 text-[#5c4d44]">
-              {t('password')}
-            </label>
-            <input
-              type="password"
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-[13px] font-semibold text-[#5c4d44]">
+                {t('password')}
+              </label>
+              <Link href="/quen-mat-khau" className="text-[12.5px] font-medium text-rose hover:underline">
+                {t('forgot_password')}
+              </Link>
+            </div>
+            <PasswordInput
               name="password"
               required
+              autoComplete="current-password"
               placeholder={t('password_placeholder')}
-              className="w-full text-[14.5px] px-3.5 py-3 border-[1.5px] border-line rounded-xl bg-white focus:outline-none focus:border-rose"
             />
           </div>
           <button

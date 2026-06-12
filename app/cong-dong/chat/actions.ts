@@ -2,7 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient, checkIsAdmin } from '@/lib/supabase/admin'
-import { sendPushToUsers } from '@/lib/push/send'
+import { notifyUsers } from '@/lib/notifications/user'
 
 const RATE_LIMIT_COUNT = 5
 const RATE_LIMIT_SECONDS = 60
@@ -20,7 +20,9 @@ export type UserSuggestion = {
 async function sendMentionPush(
   supabase: ReturnType<typeof createClient>,
   userIds: string[],
+  actorId: string,
   senderName: string,
+  actorAvatar: string | null,
   text: string,
   roomId: string,
   msgId: string,
@@ -29,11 +31,15 @@ async function sendMentionPush(
     .from('community_chat_rooms').select('key').eq('id', roomId).maybeSingle()
   const roomParam = (roomRow?.key as string | undefined) ?? roomId
   const preview = text.replace(/\s+/g, ' ').trim().slice(0, 80) || '💬'
-  await sendPushToUsers(userIds, {
-    title: `${senderName} đã nhắc đến bạn`,
-    body: preview,
-    url: `/cong-dong/chat?room=${roomParam}&msg=${msgId}`,
-    tag: `mention-${msgId}`,
+  // Bell row + OS push in one (notifyUsers handles both).
+  await notifyUsers({
+    recipientIds: userIds,
+    type: 'mention',
+    targetUrl: `/cong-dong/chat?room=${roomParam}&msg=${msgId}`,
+    actorId,
+    actorName: senderName,
+    actorAvatar,
+    push: { title: `${senderName} đã nhắc đến bạn`, body: preview, tag: `mention-${msgId}` },
   })
 }
 
@@ -168,7 +174,7 @@ export async function sendMessage(
     const { error: mentionErr } = await admin.from('community_chat_mentions').insert(mentionRows)
     if (mentionErr) console.error('[sendMessage] mention insert failed:', mentionErr.message)
 
-    await sendMentionPush(supabase, safeIds, displayName, trimmed, roomId, msgId)
+    await sendMentionPush(supabase, safeIds, user.id, displayName, profile?.avatar_url ?? null, trimmed, roomId, msgId)
   }
 
   return { ok: true, msgId, createdAt }
@@ -480,7 +486,7 @@ export async function saveImageMessage(
     const { error: mentionErr } = await admin.from('community_chat_mentions').insert(mentionRows)
     if (mentionErr) console.error('[saveImageMessage] mention insert failed:', mentionErr.message)
 
-    await sendMentionPush(supabase, safeIds, displayName, trimmedCaption || '📷 Ảnh', roomId, (newMsg as { id: string }).id)
+    await sendMentionPush(supabase, safeIds, user.id, displayName, profile?.avatar_url ?? null, trimmedCaption || '📷 Ảnh', roomId, (newMsg as { id: string }).id)
   }
 
   return { ok: true, msgId: (newMsg as { id: string }).id }
@@ -605,7 +611,7 @@ export async function saveFileMessage(
     const { error: mentionErr } = await admin.from('community_chat_mentions').insert(mentionRows)
     if (mentionErr) console.error('[saveFileMessage] mention insert failed:', mentionErr.message)
 
-    await sendMentionPush(supabase, safeIds, displayName, trimmedCaption || '📎 File', roomId, (newMsg as { id: string }).id)
+    await sendMentionPush(supabase, safeIds, user.id, displayName, profile?.avatar_url ?? null, trimmedCaption || '📎 File', roomId, (newMsg as { id: string }).id)
   }
 
   return { ok: true, msgId: (newMsg as { id: string }).id }

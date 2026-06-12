@@ -10,7 +10,7 @@ import { checkIsAdmin } from '@/lib/supabase/admin'
 import MentionNotificationProvider from '@/components/MentionNotificationProvider'
 import AdminNotificationPopup from '@/components/AdminNotificationPopup'
 import NotificationPermissionBanner from '@/components/NotificationPermissionBanner'
-import CommentNotificationProvider from '@/components/CommentNotificationProvider'
+import CommunityNotificationProvider from '@/components/CommunityNotificationProvider'
 
 const SITE_NAME = 'Chợ Cóc FKO'
 const SITE_URL  = 'https://chococfko.com'
@@ -90,7 +90,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <ScrollToTopButton />
             <AnalyticsTracker isAdmin={isAdmin} />
             <MentionNotificationProvider />
-            <CommentNotificationProvider />
+            <CommunityNotificationProvider />
             <AdminNotificationPopup />
             <NotificationPermissionBanner />
           </div>

@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { notifyUsers } from '@/lib/notifications/user'
 
 const DM_MSG_PAGE = 50
 
@@ -142,7 +143,7 @@ export async function sendDmMessage(
 
   const { data: conv } = await supabase
     .from('community_dm_conversations')
-    .select('id')
+    .select('id, user1_id, user2_id')
     .eq('id', conversationId)
     .or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`)
     .maybeSingle()
@@ -180,6 +181,19 @@ export async function sendDmMessage(
     .from('community_dm_conversations')
     .update({ last_message_at: createdAt, last_message_preview: trimmed.slice(0, 80) })
     .eq('id', conversationId)
+
+  // Notify the recipient (bell + OS push)
+  const c = conv as { user1_id: string; user2_id: string }
+  const recipientId = c.user1_id === user.id ? c.user2_id : c.user1_id
+  await notifyUsers({
+    recipientIds: [recipientId],
+    type: 'dm',
+    targetUrl: `/cong-dong/chat?dm=${conversationId}`,
+    actorId: user.id,
+    actorName: displayName,
+    actorAvatar: (profile as { avatar_url: string | null } | null)?.avatar_url ?? null,
+    push: { title: `${displayName} đã nhắn tin cho bạn`, body: trimmed.slice(0, 80), tag: `dm-${conversationId}` },
+  })
 
   return { ok: true, msgId, createdAt }
 }

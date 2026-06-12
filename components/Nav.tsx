@@ -6,6 +6,7 @@ import LanguageSwitcher from './LanguageSwitcher'
 import UserMenu from './UserMenu'
 import MobileMenu from './MobileMenu'
 import AdminNotificationBell from './AdminNotificationBell'
+import UserNotificationBell from './UserNotificationBell'
 import NavDropdown from './NavDropdown'
 
 async function getAuthState() {
@@ -80,6 +81,7 @@ export default async function Nav() {
         <div className="flex items-center gap-2.5 ml-auto shrink-0">
           <LanguageSwitcher />
 
+          {user && <UserNotificationBell />}
           {isAdmin && <AdminNotificationBell />}
 
           {user ? (

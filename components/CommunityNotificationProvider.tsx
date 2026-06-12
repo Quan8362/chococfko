@@ -5,9 +5,10 @@ import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { avatarSrc } from '@/lib/avatar'
 
-type CommentNotif = {
+type Popup = {
   id: string
-  title: string
+  type: string
+  actorName: string | null
   avatar: string | null
   url: string | null
   entering: boolean
@@ -16,11 +17,34 @@ type CommentNotif = {
 const AUTO_MS = 7000
 const MAX_NOTIFS = 3
 
-export default function CommentNotificationProvider() {
+const TYPE_ICON: Record<string, string> = {
+  dm: '✉️', mention: '@', new_listing: '🛒', new_comment: '💬',
+}
+
+export default function CommunityNotificationProvider() {
   const t = useTranslations('notifications')
   const [userId, setUserId] = useState<string | null>(null)
-  const [notifs, setNotifs] = useState<CommentNotif[]>([])
+  const [notifs, setNotifs] = useState<Popup[]>([])
   const timers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map())
+
+  function badge(type: string): string {
+    switch (type) {
+      case 'dm':          return t('community_notif_badge_dm')
+      case 'mention':     return t('community_notif_badge_mention')
+      case 'new_listing': return t('community_notif_badge_new_listing')
+      case 'new_comment': return t('community_notif_badge_new_comment')
+      default:            return t('dropdown_title')
+    }
+  }
+  function body(type: string): string {
+    switch (type) {
+      case 'dm':          return t('community_notif_title_dm')
+      case 'mention':     return t('community_notif_title_mention')
+      case 'new_listing': return t('community_notif_title_new_listing')
+      case 'new_comment': return t('community_notif_title_new_comment')
+      default:            return ''
+    }
+  }
 
   function dismiss(id: string) {
     clearTimeout(timers.current.get(id))
@@ -29,7 +53,6 @@ export default function CommentNotificationProvider() {
     setTimeout(() => setNotifs(prev => prev.filter(n => n.id !== id)), 320)
   }
 
-  // Auth state
   useEffect(() => {
     const supabase = createClient()
     supabase.auth.getUser().then(({ data: { user } }) => setUserId(user?.id ?? null))
@@ -39,36 +62,29 @@ export default function CommentNotificationProvider() {
     return () => subscription.unsubscribe()
   }, [])
 
-  // Realtime: new community notifications for this user
   useEffect(() => {
     if (!userId) return
     const supabase = createClient()
     const channel = supabase
-      .channel(`comment-notif-${userId}`)
+      .channel(`community-notif-${userId}`)
       .on(
         'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'community_notifications',
-          filter: `recipient_id=eq.${userId}`,
-        },
+        { event: 'INSERT', schema: 'public', table: 'community_notifications', filter: `recipient_id=eq.${userId}` },
         (payload) => {
           const n = payload.new as {
-            id: string; target_url: string | null; actor_name: string | null; actor_avatar: string | null
+            id: string; type: string; target_url: string | null; actor_name: string | null; actor_avatar: string | null
           }
-          // Tab not focused → Web Push shows the OS notification. Leave it.
+          // Mentions get their in-app popup from MentionNotificationProvider (which
+          // reads community_chat_mentions) — skip here to avoid a duplicate toast.
+          if (n.type === 'mention') return
+          // Tab not focused → public/sw.js Web Push shows the OS notification instead.
           if (document.hidden || !document.hasFocus()) return
-          // Already reading this exact post → no toast needed.
+          // Already on the target page (e.g. reading that chat / post) → skip toast.
           const targetPath = n.target_url ? n.target_url.split('?')[0] : null
           if (targetPath && window.location.pathname === targetPath) return
 
-          const popup: CommentNotif = {
-            id: n.id,
-            title: n.actor_name ?? t('comment_notif_someone'),
-            avatar: n.actor_avatar,
-            url: n.target_url,
-            entering: false,
+          const popup: Popup = {
+            id: n.id, type: n.type, actorName: n.actor_name, avatar: n.actor_avatar, url: n.target_url, entering: false,
           }
           setNotifs(prev => [popup, ...prev].slice(0, MAX_NOTIFS))
           requestAnimationFrame(() =>
@@ -76,8 +92,7 @@ export default function CommentNotificationProvider() {
               setNotifs(prev => prev.map(p => (p.id === n.id ? { ...p, entering: true } : p)))
             )
           )
-          const tm = setTimeout(() => dismiss(n.id), AUTO_MS)
-          timers.current.set(n.id, tm)
+          timers.current.set(n.id, setTimeout(() => dismiss(n.id), AUTO_MS))
         }
       )
       .subscribe()
@@ -96,29 +111,22 @@ export default function CommentNotificationProvider() {
           }`}
         >
           {notif.entering && (
-            <div className="h-[3px] bg-rose/15">
-              <div className="h-full bg-rose animate-mention-shrink" />
-            </div>
+            <div className="h-[3px] bg-rose/15"><div className="h-full bg-rose animate-mention-shrink" /></div>
           )}
           <div className="p-3.5">
             <div className="flex items-start gap-2.5">
               {notif.avatar ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={avatarSrc(notif.avatar)}
-                  alt={notif.title}
-                  referrerPolicy="no-referrer"
-                  className="w-8 h-8 rounded-full object-cover ring-2 ring-white flex-none"
-                />
+                <img src={avatarSrc(notif.avatar)} alt="" referrerPolicy="no-referrer" className="w-8 h-8 rounded-full object-cover ring-2 ring-white flex-none" />
               ) : (
-                <div className="w-8 h-8 rounded-full flex-none grid place-items-center text-[14px] ring-2 ring-white bg-rose/10">💬</div>
+                <div className="w-8 h-8 rounded-full flex-none grid place-items-center text-[14px] ring-2 ring-white bg-rose/10">{TYPE_ICON[notif.type] ?? '🔔'}</div>
               )}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5 mb-0.5">
-                  <span className="text-[10.5px] font-bold text-rose">{t('comment_notif_badge')}</span>
+                  <span className="text-[10.5px] font-bold text-rose">{badge(notif.type)}</span>
                 </div>
-                <p className="text-[13px] font-semibold text-ink leading-tight truncate">{notif.title}</p>
-                <p className="text-[12px] text-muted mt-0.5 leading-snug line-clamp-2">{t('comment_notif_body')}</p>
+                <p className="text-[13px] font-semibold text-ink leading-tight truncate">{notif.actorName ?? t('community_notif_someone')}</p>
+                <p className="text-[12px] text-muted mt-0.5 leading-snug line-clamp-2">{body(notif.type)}</p>
               </div>
               <button
                 onClick={() => dismiss(notif.id)}

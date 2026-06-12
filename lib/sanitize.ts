@@ -71,7 +71,15 @@ export function sanitizeUserText(input: string | null | undefined, maxLen = 500)
     .replace(/&gt;/gi, '>')
     .replace(/&#0*60;/g, '<')
     .replace(/&#0*62;/g, '>')
-  s = s.replace(/<[^>]*>/g, '') // strip <…> tags (incl. <script>, <img …>)
+  // Remove script/style/etc. blocks WITH their contents first — otherwise just
+  // stripping the tags leaves the JS/CSS body as visible text.
+  s = s
+    .replace(/<script[\s\S]*?<\/script\s*>/gi, '')
+    .replace(/<style[\s\S]*?<\/style\s*>/gi, '')
+    .replace(/<(?:iframe|object|noscript|template)[\s\S]*?<\/(?:iframe|object|noscript|template)\s*>/gi, '')
+    // A lone opening <script ...> with no close → drop the rest of the string.
+    .replace(/<(?:script|style)\b[\s\S]*$/gi, '')
+  s = s.replace(/<[^>]*>/g, '') // strip remaining <…> tags (incl. <img …>)
   s = s.replace(/[<>]/g, '')    // drop any leftover angle brackets
   return s.trim().slice(0, maxLen)
 }

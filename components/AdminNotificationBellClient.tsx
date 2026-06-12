@@ -114,18 +114,19 @@ export default function AdminNotificationBellClient({
   return (
     <div ref={dropdownRef} className="relative">
 
-      {/* Bell button */}
+      {/* Admin moderation bell — distinct shield/amber look vs the user bell */}
       <button
         onClick={() => setOpen(v => !v)}
         aria-label={t('bell_label')}
-        className="relative w-9 h-9 flex items-center justify-center rounded-xl border border-line bg-paper hover:bg-amber-50 hover:border-amber-300 transition-all"
+        title={t('dropdown_title')}
+        className="relative w-9 h-9 flex items-center justify-center rounded-xl border border-amber-200 bg-amber-50/60 text-amber-600 hover:bg-amber-100 hover:border-amber-300 transition-all"
       >
         <svg
-          className="w-[18px] h-[18px] text-muted/70"
+          className="w-[18px] h-[18px]"
           fill="none" stroke="currentColor" viewBox="0 0 24 24"
         >
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75}
-            d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+            d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
         </svg>
         {unread > 0 && (
           <span className="absolute -top-1 -right-1 min-w-[16px] h-[16px] px-[3px] rounded-full bg-rose text-white text-[10px] font-black flex items-center justify-center leading-none">

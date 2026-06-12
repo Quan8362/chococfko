@@ -51,12 +51,15 @@ export default async function ListingCard({ listing }: { listing: Listing }) {
 
       {/* Body */}
       <div className="p-3.5">
-        <div className={`font-bold text-[16px] mb-1 ${isFree ? 'text-teal' : 'text-rose'} ${sold ? 'line-through opacity-60' : ''}`}>
-          {isFree ? t('free_price')
-            : isAuction ? formatPriceJPY(listing.current_bid ?? listing.start_price)
-            : formatPriceJPY(listing.price)}
+        <div className={`font-bold text-[16px] mb-1 ${isFree ? 'text-teal' : 'text-rose'} ${sold ? 'opacity-60' : ''}`}>
+          {/* Strike only the price value (not the label) so the line stays level */}
+          <span className={sold ? 'line-through' : ''}>
+            {isFree ? t('free_price')
+              : isAuction ? formatPriceJPY(listing.current_bid ?? listing.start_price)
+              : formatPriceJPY(listing.price)}
+          </span>
           {isAuction && (
-            <span className="ml-1.5 text-[11px] font-medium text-muted">· {listing.current_bid == null ? t('starting_label') : t('current_bid_label')}</span>
+            <span className="ml-1.5 text-[11px] font-medium text-muted">· {sold ? t('status_sold') : listing.current_bid == null ? t('starting_label') : t('current_bid_label')}</span>
           )}
           {!isFree && !isAuction && listing.is_negotiable && (
             <span className="ml-1.5 text-[11px] font-medium text-muted">· {t('negotiable_short')}</span>

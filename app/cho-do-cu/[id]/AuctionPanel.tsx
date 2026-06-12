@@ -85,12 +85,17 @@ export default function AuctionPanel(props: Props) {
   async function doBid() {
     const amt = parseInt(amount.replace(/[^\d]/g, '') || '0', 10)
     if (amt < nextMin) { setError(t('bid_too_low', { min: formatPriceJPY(nextMin) })); return }
+    // Bids can't reach the buy-now price — guide the user to "Mua ngay".
+    if (props.buyNowPrice != null && amt >= props.buyNowPrice) {
+      setError(t('bid_use_buy_now', { price: formatPriceJPY(props.buyNowPrice) })); return
+    }
     setBusy(true); setError(null)
     const res = await placeBid(props.listingId, amt)
     setBusy(false)
     if (res.error) {
       setError(
         res.error === 'too_low' ? t('bid_too_low', { min: formatPriceJPY(nextMin) })
+        : res.error === 'use_buy_now' ? t('bid_use_buy_now', { price: formatPriceJPY(props.buyNowPrice ?? 0) })
         : res.error === 'ended' ? t('bid_ended')
         : res.error === 'self' ? t('bid_self')
         : res.error === 'login_required' ? t('comment_login')
@@ -107,7 +112,10 @@ export default function AuctionPanel(props: Props) {
     setBusy(true); setError(null)
     const res = await buyNowAuction(props.listingId)
     setBusy(false)
-    if (res.error) { setError(t('bid_error')); return }
+    if (res.error) {
+      setError(res.error === 'unavailable' ? t('buy_now_unavailable') : t('bid_error'))
+      return
+    }
     refetchBids()
     router.refresh()
   }
@@ -115,6 +123,11 @@ export default function AuctionPanel(props: Props) {
   const rem = fmtRemaining(endMs - now)
   const iAmLeading = !!viewerLeading(props.viewerId, currentBidderId)
   const iWon = ended && props.viewerId != null && props.viewerId === currentBidderId
+  // Buy-now is the ceiling. It's available only while the current bid is still
+  // below it; and normal bidding is only possible while the next required bid is
+  // still below it (otherwise the only move left is to buy now).
+  const buyNowAvailable = props.buyNowPrice != null && (currentBid == null || currentBid < props.buyNowPrice)
+  const canBid = props.buyNowPrice == null || nextMin < props.buyNowPrice
 
   return (
     <div className="bg-paper border border-rose/25 rounded-2xl p-5">
@@ -149,26 +162,33 @@ export default function AuctionPanel(props: Props) {
       {!ended && !props.isOwner && props.viewerId && (
         <div className="mt-4 space-y-2">
           {iAmLeading && <p className="text-[12px] font-medium text-emerald-600">✓ {t('auction_leading')}</p>}
-          <div className="flex gap-2">
-            <div className="relative flex-1">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted font-semibold text-[14px]">¥</span>
-              <input
-                inputMode="numeric"
-                value={amount}
-                onChange={(e) => { amountTouched.current = true; setAmount(e.target.value) }}
-                className="w-full pl-8 pr-3 py-2.5 rounded-xl border border-line bg-cream text-[15px] focus:outline-none focus:border-rose/50"
-              />
-            </div>
-            <button onClick={doBid} disabled={busy}
-              className="flex-none font-semibold text-[14px] px-5 py-2.5 rounded-xl bg-rose text-white hover:bg-rose-deep disabled:opacity-60 transition-all">
-              {busy ? '…' : t('bid_button')}
-            </button>
-          </div>
-          <p className="text-[11.5px] text-muted">{t('bid_min_hint', { min: formatPriceJPY(nextMin) })}</p>
-          {props.buyNowPrice != null && (
+          {canBid ? (
+            <>
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted font-semibold text-[14px]">¥</span>
+                  <input
+                    inputMode="numeric"
+                    value={amount}
+                    onChange={(e) => { amountTouched.current = true; setAmount(e.target.value) }}
+                    className="w-full pl-8 pr-3 py-2.5 rounded-xl border border-line bg-cream text-[15px] focus:outline-none focus:border-rose/50"
+                  />
+                </div>
+                <button onClick={doBid} disabled={busy}
+                  className="flex-none font-semibold text-[14px] px-5 py-2.5 rounded-xl bg-rose text-white hover:bg-rose-deep disabled:opacity-60 transition-all">
+                  {busy ? '…' : t('bid_button')}
+                </button>
+              </div>
+              <p className="text-[11.5px] text-muted">{t('bid_min_hint', { min: formatPriceJPY(nextMin) })}</p>
+            </>
+          ) : buyNowAvailable && (
+            // Bidding has reached the buy-now ceiling — only "Mua ngay" remains.
+            <p className="text-[11.5px] text-muted">{t('bid_capped_note')}</p>
+          )}
+          {buyNowAvailable && (
             <button onClick={doBuyNow} disabled={busy}
               className="w-full font-semibold text-[13.5px] px-5 py-2.5 rounded-xl bg-cream border border-rose/30 text-rose hover:bg-rose/5 disabled:opacity-60 transition-all">
-              {t('buy_now')} · {formatPriceJPY(props.buyNowPrice)}
+              {t('buy_now')} · {formatPriceJPY(props.buyNowPrice!)}
             </button>
           )}
           {error && <p className="text-[12px] text-red-600">{error}</p>}

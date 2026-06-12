@@ -296,6 +296,11 @@ export async function placeBid(listingId: string, amount: number): Promise<BidRe
 
   const minBid = nextMinBid(l)
   if (amount < minBid) return { error: 'too_low' }
+  // Buy-now is the ceiling: a bid may never reach/exceed it. Anyone willing to
+  // pay that much uses "Mua ngay" and wins immediately. This guarantees
+  // current_bid stays below buy_now_price while the auction is live, so buy-now
+  // can never be cheaper than the current bid.
+  if (l.buy_now_price != null && amount >= l.buy_now_price) return { error: 'use_buy_now' }
 
   const prevBidderId = l.current_bidder_id
 
@@ -351,6 +356,9 @@ export async function buyNowAuction(listingId: string): Promise<BidResult> {
   if (!l || l.status !== 'approved' || l.listing_type !== 'auction' || l.buy_now_price == null) return { error: 'invalid' }
   if (l.user_id === user.id) return { error: 'self' }
   if (l.auction_ends_at && new Date(l.auction_ends_at).getTime() <= Date.now()) return { error: 'ended' }
+  // Never sell below the current price: if bidding already reached/passed the
+  // buy-now price, buy-now is no longer available.
+  if (l.current_bid != null && l.current_bid >= l.buy_now_price) return { error: 'unavailable' }
 
   await supabase.from('marketplace_bids').insert({ listing_id: listingId, bidder_id: user.id, amount: l.buy_now_price })
   // Owner-only UPDATE RLS → settle the sale via service-role.

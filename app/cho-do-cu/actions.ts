@@ -429,24 +429,32 @@ export async function incrementListingView(id: string): Promise<void> {
 // ── Bid history (privacy-masked names) ──────────────────────────────────────
 export type BidHistoryItem = { id: string; name: string; amount: number; createdAt: string }
 
-// hayha123 → hay***123 ; short names get lighter masking; null → generic label.
+// Strong privacy mask: keep only first + last char (hayha123 → h***3).
 function maskBidderName(raw: string | null | undefined): string {
   const n = sanitizeUserName(raw ?? '', 40)
   if (!n) return 'Người đấu giá'
   if (n.length <= 2) return n[0] + '***'
-  if (n.length <= 6) return n.slice(0, 2) + '***'
-  return n.slice(0, 3) + '***' + n.slice(-3)
+  return n[0] + '***' + n.slice(-1)
 }
 
 export async function getListingBids(listingId: string, limit = 25): Promise<BidHistoryItem[]> {
   if (!isUuid(listingId)) return []
   try {
     const admin = createAdminClient()
+    // The current price = highest VALID bid. A valid bid can never exceed it, so
+    // cap the history at current_bid to drop orphan bids (e.g. ones inserted
+    // before the bidding RLS fix that never became the price). Keeps the list
+    // consistent with "Giá hiện tại" and the bid count.
+    const { data: l } = await admin
+      .from('marketplace_listings').select('current_bid').eq('id', listingId).maybeSingle()
+    const cap = (l as { current_bid: number | null } | null)?.current_bid ?? null
+    if (cap == null) return []
+
     const { data } = await admin
       .from('marketplace_bids')
       .select('id, bidder_id, amount, created_at')
       .eq('listing_id', listingId)
-      .order('amount', { ascending: false })
+      .lte('amount', cap)
       .order('created_at', { ascending: false })
       .limit(limit)
     const rows = (data ?? []) as { id: string; bidder_id: string; amount: number; created_at: string }[]

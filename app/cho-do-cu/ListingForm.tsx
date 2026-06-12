@@ -246,15 +246,20 @@ export default function ListingForm({ userId, listing }: { userId: string; listi
       <div className="grid sm:grid-cols-2 gap-4">
         <div>
           <label className="block text-[14px] font-semibold text-ink mb-2">{t('field_category')}</label>
-          <select
-            name="category"
-            defaultValue={listing?.category ?? 'other'}
-            className="w-full px-4 py-3 rounded-xl border border-line bg-paper text-[15px] focus:outline-none focus:border-rose/50"
-          >
-            {CATEGORIES.map(c => (
-              <option key={c} value={c}>{t(`cat_${c}` as Parameters<typeof t>[0])}</option>
-            ))}
-          </select>
+          <div className="relative">
+            <select
+              name="category"
+              defaultValue={listing?.category ?? 'other'}
+              className="w-full appearance-none pl-4 pr-10 py-3 rounded-xl border border-line bg-paper text-[15px] focus:outline-none focus:border-rose/50 cursor-pointer"
+            >
+              {CATEGORIES.map(c => (
+                <option key={c} value={c}>{t(`cat_${c}` as Parameters<typeof t>[0])}</option>
+              ))}
+            </select>
+            <svg className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
         </div>
         <div>
           <label className="block text-[14px] font-semibold text-ink mb-2">{t('field_area')}</label>

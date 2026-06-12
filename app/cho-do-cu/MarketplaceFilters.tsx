@@ -53,13 +53,18 @@ export default function MarketplaceFilters(current: Props) {
             className="w-full pl-10 pr-4 py-2.5 rounded-full border border-line bg-paper text-[14px] focus:outline-none focus:border-rose/50 focus:ring-2 focus:ring-rose/10"
           />
         </form>
-        <select
-          value={current.sort || 'newest'}
-          onChange={(e) => apply({ sort: e.target.value })}
-          className="px-4 py-2.5 rounded-full border border-line bg-paper text-[13.5px] font-medium text-ink focus:outline-none focus:border-rose/50"
-        >
-          {SORTS.map(s => <option key={s} value={s}>{t(`sort_${s}` as Parameters<typeof t>[0])}</option>)}
-        </select>
+        <div className="relative">
+          <select
+            value={current.sort || 'newest'}
+            onChange={(e) => apply({ sort: e.target.value })}
+            className="appearance-none pl-4 pr-9 py-2.5 rounded-full border border-line bg-paper text-[13.5px] font-medium text-ink focus:outline-none focus:border-rose/50 cursor-pointer"
+          >
+            {SORTS.map(s => <option key={s} value={s}>{t(`sort_${s}` as Parameters<typeof t>[0])}</option>)}
+          </select>
+          <svg className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
       </div>
 
       {/* Type + condition */}

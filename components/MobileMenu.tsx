@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import ChatUnreadBadge from './ChatUnreadBadge'
+import NavIcon from './NavIcon'
 
 interface MobileMenuProps {
   isAdmin?: boolean
@@ -47,76 +48,75 @@ export default function MobileMenu({ isLoggedIn }: MobileMenuProps) {
             onClick={close}
           />
           <div className="animate-slidedown fixed inset-x-0 top-[68px] z-[96] bg-paper border-b border-line shadow-dropdown md:hidden">
-            <nav className="px-5 py-3 flex flex-col gap-0.5">
-              <Link href="/" onClick={close} className="flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
-                <span>🗺️</span> {t('explore')}
+            <nav className="px-4 py-3 flex flex-col gap-0.5 max-h-[calc(100dvh-68px)] overflow-y-auto">
+              <Link href="/" onClick={close} className="group/m flex items-center gap-3 px-2.5 py-2.5 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
+                <span className="flex-none grid place-items-center w-9 h-9 rounded-lg bg-cream text-muted group-hover/m:bg-rose/10 group-hover/m:text-rose transition-colors"><NavIcon name="explore" /></span>
+                {t('explore')}
               </Link>
 
-              <p className="px-3 pt-3 pb-1 text-[11px] font-bold uppercase tracking-wider text-muted/70">{t('community')}</p>
-              <Link href="/cong-dong" onClick={close} className="flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
-                <span>📝</span> {t('community_posts')}
+              <p className="px-3 pt-3 pb-1.5 text-[11px] font-bold uppercase tracking-wider text-muted/70">{t('community')}</p>
+              <Link href="/cong-dong" onClick={close} className="group/m flex items-center gap-3 px-2.5 py-2.5 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
+                <span className="flex-none grid place-items-center w-9 h-9 rounded-lg bg-cream text-muted group-hover/m:bg-rose/10 group-hover/m:text-rose transition-colors"><NavIcon name="posts" /></span>
+                {t('community_posts')}
               </Link>
-              <Link href="/confessions" onClick={close} className="flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
-                <span>🤫</span> {tConf('nav')}
+              <Link href="/confessions" onClick={close} className="group/m flex items-center gap-3 px-2.5 py-2.5 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
+                <span className="flex-none grid place-items-center w-9 h-9 rounded-lg bg-cream text-muted group-hover/m:bg-rose/10 group-hover/m:text-rose transition-colors"><NavIcon name="confession" /></span>
+                {tConf('nav')}
               </Link>
-              <Link href="/cong-dong/chat" onClick={close} className="flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
-                <span>💬</span>
+              <Link href="/cong-dong/chat" onClick={close} className="group/m flex items-center gap-3 px-2.5 py-2.5 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
+                <span className="flex-none grid place-items-center w-9 h-9 rounded-lg bg-cream text-muted group-hover/m:bg-rose/10 group-hover/m:text-rose transition-colors"><NavIcon name="chat" /></span>
                 <span className="flex-1">{t('chat')}</span>
                 <ChatUnreadBadge />
               </Link>
 
-              <p className="px-3 pt-3 pb-1 text-[11px] font-bold uppercase tracking-wider text-muted/70">{t('marketplace')}</p>
-              <Link href="/cho-do-cu" onClick={close} className="flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
-                <span>🛒</span> {t('marketplace_browse')}
+              <p className="px-3 pt-3 pb-1.5 text-[11px] font-bold uppercase tracking-wider text-muted/70">{t('marketplace')}</p>
+              <Link href="/cho-do-cu" onClick={close} className="group/m flex items-center gap-3 px-2.5 py-2.5 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
+                <span className="flex-none grid place-items-center w-9 h-9 rounded-lg bg-cream text-muted group-hover/m:bg-rose/10 group-hover/m:text-rose transition-colors"><NavIcon name="bag" /></span>
+                {t('marketplace_browse')}
               </Link>
-              <Link href="/cho-do-cu/dang" onClick={close} className="flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
-                <span>＋</span> {t('marketplace_post')}
+              <Link href="/cho-do-cu/dang" onClick={close} className="group/m flex items-center gap-3 px-2.5 py-2.5 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
+                <span className="flex-none grid place-items-center w-9 h-9 rounded-lg bg-cream text-muted group-hover/m:bg-rose/10 group-hover/m:text-rose transition-colors"><NavIcon name="plus" /></span>
+                {t('marketplace_post')}
               </Link>
 
-              <p className="px-3 pt-3 pb-1 text-[11px] font-bold uppercase tracking-wider text-muted/70">{t('more')}</p>
-              <Link href="/tieng-nhat" onClick={close} className="flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
-                <span>🇯🇵</span> {tJp('nav')}
+              <p className="px-3 pt-3 pb-1.5 text-[11px] font-bold uppercase tracking-wider text-muted/70">{t('more')}</p>
+              <Link href="/tieng-nhat" onClick={close} className="group/m flex items-center gap-3 px-2.5 py-2.5 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
+                <span className="flex-none grid place-items-center w-9 h-9 rounded-lg bg-cream text-muted group-hover/m:bg-rose/10 group-hover/m:text-rose transition-colors"><NavIcon name="language" /></span>
+                {tJp('nav')}
               </Link>
-              <Link href="/games" onClick={close} className="flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
-                <span>🎮</span> {t('mini_game')}
+              <Link href="/games" onClick={close} className="group/m flex items-center gap-3 px-2.5 py-2.5 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
+                <span className="flex-none grid place-items-center w-9 h-9 rounded-lg bg-cream text-muted group-hover/m:bg-rose/10 group-hover/m:text-rose transition-colors"><NavIcon name="puzzle" /></span>
+                {t('mini_game')}
               </Link>
-              <Link href="/cong-dong/viet-bai" onClick={close} className="flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] font-semibold text-rose hover:bg-rose-soft transition-colors">
+
+              <div className="my-1.5 border-t border-line" />
+              <Link href="/cong-dong/viet-bai" onClick={close} className="group/m flex items-center gap-3 px-2.5 py-2.5 rounded-xl text-[15px] font-semibold text-rose hover:bg-rose-soft transition-colors">
+                <span className="flex-none grid place-items-center w-9 h-9 rounded-lg bg-rose/10 text-rose"><NavIcon name="pencil" /></span>
                 {t('write_post')}
               </Link>
               {isLoggedIn ? (
                 <>
-                  <Link href="/ho-so" onClick={close} className="flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
+                  <Link href="/ho-so" onClick={close} className="group/m flex items-center gap-3 px-2.5 py-2.5 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
+                    <span className="flex-none grid place-items-center w-9 h-9 rounded-lg bg-cream text-muted group-hover/m:bg-rose/10 group-hover/m:text-rose transition-colors"><NavIcon name="user" /></span>
                     {t('profile')}
                   </Link>
-                  <Link href="/bai-viet-cua-toi" onClick={close} className="flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
+                  <Link href="/bai-viet-cua-toi" onClick={close} className="group/m flex items-center gap-3 px-2.5 py-2.5 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
+                    <span className="flex-none grid place-items-center w-9 h-9 rounded-lg bg-cream text-muted group-hover/m:bg-rose/10 group-hover/m:text-rose transition-colors"><NavIcon name="document" /></span>
                     {t('my_posts')}
                   </Link>
-                  <Link href="/dia-diem-da-luu" onClick={close} className="flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                    </svg>
+                  <Link href="/dia-diem-da-luu" onClick={close} className="group/m flex items-center gap-3 px-2.5 py-2.5 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
+                    <span className="flex-none grid place-items-center w-9 h-9 rounded-lg bg-cream text-muted group-hover/m:bg-rose/10 group-hover/m:text-rose transition-colors"><NavIcon name="heart" /></span>
                     {t('saved_places')}
                   </Link>
                 </>
               ) : (
                 <>
-                  <div className="my-1 border-t border-line" />
-                  <Link href="/dang-nhap" onClick={close} className="flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] font-semibold text-rose hover:bg-rose-soft transition-colors">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-                    </svg>
+                  <Link href="/dang-nhap" onClick={close} className="group/m flex items-center gap-3 px-2.5 py-2.5 rounded-xl text-[15px] font-semibold text-rose hover:bg-rose-soft transition-colors">
+                    <span className="flex-none grid place-items-center w-9 h-9 rounded-lg bg-rose/10 text-rose"><NavIcon name="user" /></span>
                     {t('login')}
                   </Link>
-                  <Link href="/dang-ky" onClick={close} className="flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                    </svg>
+                  <Link href="/dang-ky" onClick={close} className="group/m flex items-center gap-3 px-2.5 py-2.5 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
+                    <span className="flex-none grid place-items-center w-9 h-9 rounded-lg bg-cream text-muted group-hover/m:bg-rose/10 group-hover/m:text-rose transition-colors"><NavIcon name="plus" /></span>
                     {t('register')}
                   </Link>
                 </>

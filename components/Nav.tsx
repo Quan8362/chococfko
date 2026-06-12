@@ -57,9 +57,9 @@ export default async function Nav() {
             label={t('community')}
             showChatBadgeOnParent
             items={[
-              { href: '/cong-dong', label: t('community_posts'), icon: '📝' },
-              { href: '/confessions', label: tConf('nav'), icon: '🤫' },
-              { href: '/cong-dong/chat', label: t('chat'), icon: '💬', badge: 'chat' },
+              { href: '/cong-dong', label: t('community_posts'), icon: 'posts' },
+              { href: '/confessions', label: tConf('nav'), icon: 'confession' },
+              { href: '/cong-dong/chat', label: t('chat'), icon: 'chat', badge: 'chat' },
             ]}
           />
           <Link href="/cho-do-cu" className="px-3 py-1.5 rounded-lg hover:bg-line hover:text-rose transition-colors whitespace-nowrap">
@@ -71,7 +71,7 @@ export default async function Nav() {
           <NavDropdown
             label={t('entertainment')}
             items={[
-              { href: '/games', label: t('mini_game'), icon: '🎮' },
+              { href: '/games', label: t('mini_game'), icon: 'puzzle' },
             ]}
           />
         </nav>

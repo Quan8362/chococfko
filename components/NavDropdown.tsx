@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import ChatUnreadBadge from './ChatUnreadBadge'
+import NavIcon from './NavIcon'
 
 export type NavDropdownItem = {
   href: string
@@ -56,12 +57,12 @@ export default function NavDropdown({
         onClick={() => setOpen(v => !v)}
         aria-haspopup="menu"
         aria-expanded={open}
-        className={`px-3 py-1.5 rounded-lg hover:bg-line hover:text-rose transition-colors whitespace-nowrap inline-flex items-center gap-1 ${active ? 'text-rose' : ''}`}
+        className={`pl-3 pr-2.5 py-1.5 rounded-lg hover:bg-line hover:text-rose transition-colors whitespace-nowrap inline-flex items-center gap-1.5 ${active ? 'text-rose' : ''}`}
       >
         {label}
         {showChatBadgeOnParent && <ChatUnreadBadge />}
-        <svg className={`w-3 h-3 transition-transform ${open ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+        <svg className={`w-3.5 h-3.5 mt-px text-current/70 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
       </button>
 
@@ -70,16 +71,20 @@ export default function NavDropdown({
           role="menu"
           className="animate-slidedown absolute left-1/2 -translate-x-1/2 top-full pt-2 z-[110]"
         >
-          <div className="min-w-[210px] bg-paper border border-line rounded-2xl shadow-dropdown p-1.5">
+          <div className="min-w-[224px] bg-paper border border-line rounded-2xl shadow-dropdown p-2">
             {items.map((it) => (
               <Link
                 key={it.href}
                 href={it.href}
                 role="menuitem"
                 onClick={() => setOpen(false)}
-                className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[13.5px] font-medium text-ink hover:bg-cream hover:text-rose transition-colors"
+                className="group/item flex items-center gap-3 pl-2.5 pr-3 py-2.5 rounded-xl text-[13.5px] font-medium text-ink hover:bg-cream hover:text-rose transition-colors"
               >
-                {it.icon && <span className="text-[15px] w-5 text-center">{it.icon}</span>}
+                {it.icon && (
+                  <span className="flex-none grid place-items-center w-8 h-8 rounded-lg bg-cream text-muted group-hover/item:bg-rose/10 group-hover/item:text-rose transition-colors">
+                    <NavIcon name={it.icon} />
+                  </span>
+                )}
                 <span className="flex-1">{it.label}</span>
                 {it.badge === 'chat' && <ChatUnreadBadge />}
               </Link>

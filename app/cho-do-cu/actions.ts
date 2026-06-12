@@ -310,7 +310,11 @@ export async function placeBid(listingId: string, amount: number): Promise<BidRe
     endsAt = new Date(Date.now() + ANTI_SNIPE_MS).toISOString()
   }
 
-  await supabase
+  // The listing's UPDATE RLS is owner-only (ml_update_own), and a bidder is not
+  // the owner — so this must run via service-role. Validation above already
+  // enforces auction/approved/not-owner/not-ended/amount.
+  const admin = createAdminClient()
+  const { error: updErr } = await admin
     .from('marketplace_listings')
     .update({
       current_bid: amount,
@@ -319,6 +323,7 @@ export async function placeBid(listingId: string, amount: number): Promise<BidRe
       auction_ends_at: endsAt,
     })
     .eq('id', listingId)
+  if (updErr) return { error: updErr.message }
 
   // Notify the previous highest bidder that they've been outbid.
   if (prevBidderId && prevBidderId !== user.id) {
@@ -348,7 +353,9 @@ export async function buyNowAuction(listingId: string): Promise<BidResult> {
   if (l.auction_ends_at && new Date(l.auction_ends_at).getTime() <= Date.now()) return { error: 'ended' }
 
   await supabase.from('marketplace_bids').insert({ listing_id: listingId, bidder_id: user.id, amount: l.buy_now_price })
-  await supabase
+  // Owner-only UPDATE RLS → settle the sale via service-role.
+  const admin = createAdminClient()
+  const { error: updErr } = await admin
     .from('marketplace_listings')
     .update({
       current_bid: l.buy_now_price,
@@ -360,6 +367,7 @@ export async function buyNowAuction(listingId: string): Promise<BidResult> {
       auction_ends_at: new Date().toISOString(),
     })
     .eq('id', listingId)
+  if (updErr) return { error: updErr.message }
 
   // Notify the seller of the immediate sale.
   await notifyUsers({

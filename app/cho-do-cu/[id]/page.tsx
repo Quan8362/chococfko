@@ -8,7 +8,7 @@ import AuthorLink from '@/components/AuthorLink'
 import ListingCard from '@/components/marketplace/ListingCard'
 import { isUuid, formatPriceJPY, relativeListingDate, CONDITION_PRESETS } from '@/lib/marketplace'
 import { getListingById, getListingComments, getRelatedListings, getListingRating } from '@/lib/marketplace-data'
-import { setSaleStatus, deleteListing, incrementListingView, resolveEndedAuction } from '../actions'
+import { setSaleStatus, deleteListing, incrementListingView, resolveEndedAuction, getListingBids } from '../actions'
 import ListingGallery from './ListingGallery'
 import MarketplaceComments from './MarketplaceComments'
 import ReportButton from './ReportButton'
@@ -45,11 +45,12 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
   const auctionResolve = listing.listing_type === 'auction'
     ? resolveEndedAuction(listing) : Promise.resolve()
 
-  const [seller, comments, related, rating] = await Promise.all([
+  const [seller, comments, related, rating, initialBids] = await Promise.all([
     getUserIdentity(listing.user_id),
     getListingComments(listing.id),
     getRelatedListings(listing.category, listing.id),
     getListingRating(listing.id, viewer?.id ?? null),
+    listing.listing_type === 'auction' ? getListingBids(listing.id) : Promise.resolve([]),
   ])
   // Ensure the writes finish before the serverless function returns (they were
   // already running in parallel with the reads above, so this rarely waits).
@@ -150,6 +151,7 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
                 initialCurrentBidderId={listing.current_bidder_id}
                 viewerId={viewer?.id ?? null}
                 isOwner={isOwner}
+                initialBids={initialBids}
               />
             )}
 

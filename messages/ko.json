@@ -2268,6 +2268,7 @@
     "starting_label": "시작가",
     "current_bid_label": "현재가",
     "bid_count": "입찰 {count}건",
+    "bid_history": "입찰 내역",
     "auction_ends_in": "남은 시간",
     "time_d": "일",
     "auction_you_won": "낙찰되었습니다!",

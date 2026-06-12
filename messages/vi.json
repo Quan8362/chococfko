@@ -2268,6 +2268,7 @@
     "starting_label": "Giá khởi điểm",
     "current_bid_label": "Giá hiện tại",
     "bid_count": "{count} lượt",
+    "bid_history": "Lịch sử đặt giá",
     "auction_ends_in": "Kết thúc sau",
     "time_d": "ngày",
     "auction_you_won": "Bạn đã thắng!",

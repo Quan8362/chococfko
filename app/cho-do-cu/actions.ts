@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createAdminNotification } from '@/lib/admin/notifications'
 import { notifyUsers } from '@/lib/notifications/user'
-import { sanitizeHtml, stripHtml } from '@/lib/sanitize'
+import { sanitizeHtml, stripHtml, sanitizeUserName } from '@/lib/sanitize'
 import { CATEGORIES, CONDITION_PRESETS, isUuid, nextMinBid, type Listing } from '@/lib/marketplace'
 
 export type ListingResult = { ok?: true; id?: string; error?: string } | null
@@ -424,4 +424,47 @@ export async function incrementListingView(id: string): Promise<void> {
     const current = (data as { view_count: number } | null)?.view_count ?? 0
     await admin.from('marketplace_listings').update({ view_count: current + 1 }).eq('id', id)
   } catch { /* non-critical */ }
+}
+
+// ── Bid history (privacy-masked names) ──────────────────────────────────────
+export type BidHistoryItem = { id: string; name: string; amount: number; createdAt: string }
+
+// hayha123 → hay***123 ; short names get lighter masking; null → generic label.
+function maskBidderName(raw: string | null | undefined): string {
+  const n = sanitizeUserName(raw ?? '', 40)
+  if (!n) return 'Người đấu giá'
+  if (n.length <= 2) return n[0] + '***'
+  if (n.length <= 6) return n.slice(0, 2) + '***'
+  return n.slice(0, 3) + '***' + n.slice(-3)
+}
+
+export async function getListingBids(listingId: string, limit = 25): Promise<BidHistoryItem[]> {
+  if (!isUuid(listingId)) return []
+  try {
+    const admin = createAdminClient()
+    const { data } = await admin
+      .from('marketplace_bids')
+      .select('id, bidder_id, amount, created_at')
+      .eq('listing_id', listingId)
+      .order('amount', { ascending: false })
+      .order('created_at', { ascending: false })
+      .limit(limit)
+    const rows = (data ?? []) as { id: string; bidder_id: string; amount: number; created_at: string }[]
+    if (rows.length === 0) return []
+
+    const ids = Array.from(new Set(rows.map(r => r.bidder_id)))
+    const { data: profs } = await admin.from('profiles').select('id, display_name').in('id', ids)
+    const nameMap: Record<string, string> = {}
+    for (const p of (profs ?? []) as { id: string; display_name: string | null }[]) {
+      if (p.display_name) nameMap[p.id] = p.display_name
+    }
+    return rows.map(r => ({
+      id: r.id,
+      name: maskBidderName(nameMap[r.bidder_id]),
+      amount: r.amount,
+      createdAt: r.created_at,
+    }))
+  } catch {
+    return []
+  }
 }

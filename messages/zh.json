@@ -2268,6 +2268,7 @@
     "starting_label": "起拍价",
     "current_bid_label": "当前价",
     "bid_count": "{count} 次出价",
+    "bid_history": "出价记录",
     "auction_ends_in": "剩余",
     "time_d": "天",
     "auction_you_won": "你赢得了拍卖！",

@@ -2268,6 +2268,7 @@
     "starting_label": "Starting price",
     "current_bid_label": "Current bid",
     "bid_count": "{count} bids",
+    "bid_history": "Bid history",
     "auction_ends_in": "Ends in",
     "time_d": "d",
     "auction_you_won": "You won!",

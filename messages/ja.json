@@ -2268,6 +2268,7 @@
     "starting_label": "開始価格",
     "current_bid_label": "現在の価格",
     "bid_count": "{count}件の入札",
+    "bid_history": "入札履歴",
     "auction_ends_in": "残り",
     "time_d": "日",
     "auction_you_won": "落札しました！",

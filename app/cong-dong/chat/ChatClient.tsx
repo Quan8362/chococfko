@@ -8,6 +8,7 @@ import { createClient } from '@/lib/supabase/client'
 import { trackEvent } from '@/lib/analytics'
 import { avatarSrc } from '@/lib/avatar'
 import { compressImage } from '@/lib/imageCompress'
+import { setActiveDmPartnerId } from '@/lib/chat/activeDm'
 
 const EmojiPicker = dynamic(() => import('@emoji-mart/react'), { ssr: false })
 import {
@@ -1340,6 +1341,13 @@ export default function ChatClient({
     }, ...prev])
     setTimeout(() => scrollDmToBottom(false), 80)
   }, [initialDm]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Publish which DM the user is actively viewing so CommunityNotificationProvider
+  // can suppress the toast for THIS conversation only (not the whole chat page).
+  useEffect(() => {
+    setActiveDmPartnerId(chatMode === 'dm' && dmPartner ? dmPartner.id : null)
+    return () => setActiveDmPartnerId(null)
+  }, [chatMode, dmPartner])
 
   const handleMentionClick = useCallback((mentionedUserId: string, mentionedName: string) => {
     if (mentionedUserId === userId) return

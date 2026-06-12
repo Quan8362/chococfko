@@ -233,10 +233,12 @@ async function sendDmAttachment(opts: {
 
   const c = conv as { user1_id: string; user2_id: string }
   const recipientId = c.user1_id === user.id ? c.user2_id : c.user1_id
+  // `?dm=` is a USER id everywhere (profile/listing "message" buttons + chat page
+  // deep-link), so point the recipient at the sender, not the conversation id.
   await notifyUsers({
     recipientIds: [recipientId],
     type: 'dm',
-    targetUrl: `/cong-dong/chat?dm=${opts.conversationId}`,
+    targetUrl: `/cong-dong/chat?dm=${user.id}`,
     actorId: user.id,
     actorName: displayName,
     actorAvatar: (profile as { avatar_url: string | null } | null)?.avatar_url ?? null,
@@ -312,13 +314,15 @@ export async function sendDmMessage(
     .update({ last_message_at: createdAt, last_message_preview: trimmed.slice(0, 80) })
     .eq('id', conversationId)
 
-  // Notify the recipient (bell + OS push)
+  // Notify the recipient (bell + OS push). `?dm=` is a USER id everywhere
+  // (profile/listing "message" buttons + chat page deep-link), so point the
+  // recipient at the sender, not the conversation id.
   const c = conv as { user1_id: string; user2_id: string }
   const recipientId = c.user1_id === user.id ? c.user2_id : c.user1_id
   await notifyUsers({
     recipientIds: [recipientId],
     type: 'dm',
-    targetUrl: `/cong-dong/chat?dm=${conversationId}`,
+    targetUrl: `/cong-dong/chat?dm=${user.id}`,
     actorId: user.id,
     actorName: displayName,
     actorAvatar: (profile as { avatar_url: string | null } | null)?.avatar_url ?? null,

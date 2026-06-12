@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { avatarSrc } from '@/lib/avatar'
+import { getActiveDmPartnerId } from '@/lib/chat/activeDm'
 
 type Popup = {
   id: string
@@ -83,9 +84,19 @@ export default function CommunityNotificationProvider() {
           if (n.type === 'mention') return
           // Tab not focused → public/sw.js Web Push shows the OS notification instead.
           if (document.hidden || !document.hasFocus()) return
-          // Already on the target page (e.g. reading that chat / post) → skip toast.
-          const targetPath = n.target_url ? n.target_url.split('?')[0] : null
-          if (targetPath && window.location.pathname === targetPath) return
+          if (n.type === 'dm') {
+            // `?dm=<senderId>` — suppress ONLY if the user is actively viewing that
+            // exact conversation. Being elsewhere on the chat page (general room or a
+            // different DM) must still pop the toast.
+            const dmPartnerId = n.target_url
+              ? new URLSearchParams(n.target_url.split('?')[1] ?? '').get('dm')
+              : null
+            if (dmPartnerId && getActiveDmPartnerId() === dmPartnerId) return
+          } else {
+            // Already on the target page (e.g. reading that post) → skip toast.
+            const targetPath = n.target_url ? n.target_url.split('?')[0] : null
+            if (targetPath && window.location.pathname === targetPath) return
+          }
 
           const popup: Popup = {
             id: n.id, type: n.type, actorName: n.actor_name, avatar: n.actor_avatar, url: n.target_url, entering: false,

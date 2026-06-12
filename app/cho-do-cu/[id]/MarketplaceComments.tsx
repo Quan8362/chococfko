@@ -1,14 +1,17 @@
 'use client'
 
+import dynamic from 'next/dynamic'
 import { useEffect, useRef, useState } from 'react'
 import { useFormState, useFormStatus } from 'react-dom'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useTranslations, useLocale } from 'next-intl'
 import AuthorLink from '@/components/AuthorLink'
-import { avatarSrc } from '@/lib/avatar'
+import { avatarSrc, proxyHtml } from '@/lib/avatar'
 import { type ListingComment } from '@/lib/marketplace'
 import { submitListingComment, deleteListingComment, type CommentResult } from '../actions'
+
+const CommentRichEditor = dynamic(() => import('@/components/CommentRichEditor'), { ssr: false })
 
 type CurrentUser = { id: string } | null
 const INIT: CommentResult = null
@@ -46,9 +49,10 @@ export default function MarketplaceComments({
   const router = useRouter()
   const formRef = useRef<HTMLFormElement>(null)
   const [state, formAction] = useFormState(submitListingComment, INIT)
+  const [editorResetKey, setEditorResetKey] = useState(0)
 
   useEffect(() => {
-    if (state?.ok) { formRef.current?.reset(); router.refresh() }
+    if (state?.ok) { formRef.current?.reset(); setEditorResetKey(k => k + 1); router.refresh() }
   }, [state, router])
 
   const errorMsg =
@@ -98,7 +102,14 @@ export default function MarketplaceComments({
                       </form>
                     )}
                   </div>
-                  <p className="text-[14.5px] text-[#3a2d22] leading-[1.7] whitespace-pre-wrap break-words">{c.content}</p>
+                  {c.content.trimStart().startsWith('<') ? (
+                    <div
+                      className="rich-content comment-content text-[14.5px] text-[#3a2d22] leading-[1.7]"
+                      dangerouslySetInnerHTML={{ __html: proxyHtml(c.content) }}
+                    />
+                  ) : (
+                    <p className="text-[14.5px] text-[#3a2d22] leading-[1.7] whitespace-pre-wrap break-words">{c.content}</p>
+                  )}
                 </div>
               </div>
             )
@@ -109,13 +120,7 @@ export default function MarketplaceComments({
       {currentUser ? (
         <form ref={formRef} action={formAction} className="bg-paper border border-line rounded-2xl p-4 flex flex-col gap-3">
           <input type="hidden" name="listing_id" value={listingId} />
-          <textarea
-            name="content"
-            rows={3}
-            maxLength={1000}
-            placeholder={t('comment_placeholder')}
-            className="w-full px-4 py-3 rounded-xl border border-line bg-cream text-[14.5px] leading-relaxed resize-y focus:outline-none focus:border-rose/50 focus:ring-2 focus:ring-rose/10"
-          />
+          <CommentRichEditor name="content" placeholder={t('comment_placeholder')} resetKey={editorResetKey} />
           {errorMsg && <p className="text-[12.5px] text-red-600">{errorMsg}</p>}
           <div className="flex justify-end"><SubmitBtn label={t('comment_submit')} sending={t('comment_sending')} /></div>
         </form>

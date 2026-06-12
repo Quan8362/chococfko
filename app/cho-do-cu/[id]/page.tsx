@@ -7,11 +7,13 @@ import { avatarSrc } from '@/lib/avatar'
 import AuthorLink from '@/components/AuthorLink'
 import ListingCard from '@/components/marketplace/ListingCard'
 import { isUuid, formatPriceJPY, relativeListingDate, CONDITION_PRESETS } from '@/lib/marketplace'
-import { getListingById, getListingComments, getRelatedListings } from '@/lib/marketplace-data'
-import { setSaleStatus, deleteListing, incrementListingView } from '../actions'
+import { getListingById, getListingComments, getRelatedListings, getListingRating } from '@/lib/marketplace-data'
+import { setSaleStatus, deleteListing, incrementListingView, resolveEndedAuction } from '../actions'
 import ListingGallery from './ListingGallery'
 import MarketplaceComments from './MarketplaceComments'
 import ReportButton from './ReportButton'
+import ListingRating from './ListingRating'
+import AuctionPanel from './AuctionPanel'
 
 export const dynamic = 'force-dynamic'
 
@@ -36,14 +38,17 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
   const isOwner = viewer?.id === listing.user_id
   if (listing.status !== 'approved' && !isOwner) notFound()
 
-  const [seller, comments, related] = await Promise.all([
+  const [seller, comments, related, rating] = await Promise.all([
     getUserIdentity(listing.user_id),
     getListingComments(listing.id),
     getRelatedListings(listing.category, listing.id),
+    getListingRating(listing.id, viewer?.id ?? null),
   ])
   if (listing.status === 'approved' && !isOwner) await incrementListingView(listing.id)
+  if (listing.listing_type === 'auction') await resolveEndedAuction(listing)
 
   const isFree = listing.listing_type === 'free'
+  const isAuction = listing.listing_type === 'auction'
   const sold = listing.sale_status === 'sold'
   const sellerName = seller.name || t('member_fallback')
   const presetLabel = CONDITION_PRESETS.find(p => p.percent === listing.condition_percent)?.key
@@ -85,10 +90,17 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
                 {sold && <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-ink/80 text-white">{t('status_sold')}</span>}
               </div>
 
-              <div className={`font-serif font-bold text-[30px] leading-tight ${isFree ? 'text-teal' : 'text-rose'} ${sold ? 'line-through opacity-60' : ''}`}>
-                {isFree ? t('free_price') : formatPriceJPY(listing.price)}
-              </div>
-              {!isFree && listing.is_negotiable && <p className="text-[12.5px] text-muted mt-0.5">{t('negotiable')}</p>}
+              {!isAuction && (
+                <>
+                  <div className={`font-serif font-bold text-[30px] leading-tight ${isFree ? 'text-teal' : 'text-rose'} ${sold ? 'line-through opacity-60' : ''}`}>
+                    {isFree ? t('free_price') : formatPriceJPY(listing.price)}
+                  </div>
+                  {!isFree && listing.is_negotiable && <p className="text-[12.5px] text-muted mt-0.5">{t('negotiable')}</p>}
+                </>
+              )}
+              {isAuction && (
+                <div className="font-serif font-bold text-[22px] leading-tight text-rose">🔨 {t('type_auction')}</div>
+              )}
 
               <h1 className="font-semibold text-[18px] text-ink leading-snug mt-3">{listing.title}</h1>
 
@@ -116,6 +128,22 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
 
               <p className="text-[11.5px] text-muted mt-3">{relativeListingDate(listing.created_at, locale)}</p>
             </div>
+
+            {/* Auction panel */}
+            {isAuction && (
+              <AuctionPanel
+                listingId={listing.id}
+                startPrice={listing.start_price ?? 0}
+                minIncrement={listing.min_increment}
+                buyNowPrice={listing.buy_now_price}
+                initialCurrentBid={listing.current_bid}
+                initialBidCount={listing.bid_count}
+                initialEndsAt={listing.auction_ends_at}
+                initialCurrentBidderId={listing.current_bidder_id}
+                viewerId={viewer?.id ?? null}
+                isOwner={isOwner}
+              />
+            )}
 
             {/* Seller / action card */}
             <div className="bg-paper border border-line rounded-2xl p-5">
@@ -170,6 +198,18 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
                 <div className="mt-3 text-center"><ReportButton listingId={listing.id} /></div>
               )}
             </div>
+
+            {/* Seller rating */}
+            {(rating.count > 0 || (!!viewer && !isOwner)) && (
+              <ListingRating
+                listingId={listing.id}
+                average={rating.average}
+                count={rating.count}
+                myStars={rating.myStars}
+                myReview={rating.myReview}
+                canRate={!!viewer && !isOwner}
+              />
+            )}
 
             {/* Safety tips */}
             <div className="bg-cream border border-line rounded-2xl p-4 text-[12px] text-muted leading-relaxed">

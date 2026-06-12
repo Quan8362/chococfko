@@ -10,13 +10,23 @@ export type UserIdentity = { name: string | null; avatarUrl: string | null }
 export async function getUserIdentity(id: string): Promise<UserIdentity> {
   try {
     const admin = createAdminClient()
-    const [profileRes, authRes] = await Promise.all([
-      admin.from('profiles').select('display_name, avatar_url').eq('id', id).maybeSingle(),
-      admin.auth.admin.getUserById(id),
-    ])
 
-    const profile = profileRes.data as { display_name: string | null; avatar_url: string | null } | null
-    const authUser = authRes.data?.user
+    // Fast path: the profiles row usually has both fields (after the OAuth
+    // backfill). Avoid the slow Auth Admin API call unless something is missing.
+    const { data: profileRow } = await admin
+      .from('profiles')
+      .select('display_name, avatar_url')
+      .eq('id', id)
+      .maybeSingle()
+    const profile = profileRow as { display_name: string | null; avatar_url: string | null } | null
+
+    if (profile?.display_name && profile?.avatar_url) {
+      return { name: profile.display_name, avatarUrl: profile.avatar_url }
+    }
+
+    // Fallback: pull name/avatar from auth metadata only when needed.
+    const { data: authData } = await admin.auth.admin.getUserById(id)
+    const authUser = authData?.user
     const meta = (authUser?.user_metadata ?? {}) as Record<string, unknown>
 
     const name =

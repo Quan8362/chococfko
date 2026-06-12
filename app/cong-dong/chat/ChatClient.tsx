@@ -307,7 +307,7 @@ export default function ChatClient({
   initialPollsMap,
   myMembershipMap,
   initialHighlightMsgId,
-  initialDmUser,
+  initialDm,
 }: {
   userId: string
   displayName: string
@@ -322,7 +322,7 @@ export default function ChatClient({
   initialPollsMap: PollsMap
   myMembershipMap: Record<string, { role: 'owner' | 'admin' | 'member' }>
   initialHighlightMsgId?: string
-  initialDmUser?: { id: string; display_name: string; avatar_url: string | null }
+  initialDm?: { conversationId: string; partner: { id: string; name: string; avatar: string | null }; messages: DmMessage[] }
 }) {
   const t = useTranslations('community_chat')
   const locale = useLocale()
@@ -394,6 +394,8 @@ export default function ChatClient({
   const [memberSearchResults, setMemberSearchResults] = useState<UserSearchResult[]>([])
   const [memberSearchLoading, setMemberSearchLoading] = useState(false)
   const [selectedNewMembers, setSelectedNewMembers] = useState<UserSearchResult[]>([])
+  const [memberSearchIndex, setMemberSearchIndex] = useState(0)
+  const memberInputRef = useRef<HTMLInputElement>(null)
   const [addingMembers, setAddingMembers] = useState(false)
   const [removingMemberId, setRemovingMemberId] = useState<string | null>(null)
   const [roomActionLoading, setRoomActionLoading] = useState(false)
@@ -666,9 +668,22 @@ export default function ChatClient({
       if (!mountedRef.current) return
       setMemberSearchLoading(false)
       setMemberSearchResults(result.users ?? [])
+      setMemberSearchIndex(0)
     }, 200)
     return () => clearTimeout(timer)
   }, [memberSearch, showManageRoom, managingRoomId])
+
+  // Toggle a search result into the pending-members list, then clear the query and
+  // refocus so the next name can be typed immediately (no need to re-click).
+  const toggleMemberSelect = (user: UserSearchResult) => {
+    setSelectedNewMembers(prev =>
+      prev.some(m => m.id === user.id) ? prev.filter(m => m.id !== user.id) : [...prev, user],
+    )
+    setMemberSearch('')
+    setMemberSearchResults([])
+    setMemberSearchIndex(0)
+    setTimeout(() => memberInputRef.current?.focus(), 0)
+  }
 
   // ── Message search (debounced ilike) ─────────────────────────────────────
   useEffect(() => {
@@ -1280,13 +1295,31 @@ export default function ChatClient({
     setDmPartner(null)
   }, [])
 
-  // Deep-link: ?dm=<userId> on the chat page opens that conversation once on mount
+  // Deep-link: ?dm=<userId> — open the prefetched conversation instantly on mount
+  // (server already fetched the conversation + messages, so no round-trips here).
   const initialDmOpenedRef = useRef(false)
   useEffect(() => {
-    if (initialDmOpenedRef.current || !initialDmUser) return
+    if (initialDmOpenedRef.current || !initialDm) return
     initialDmOpenedRef.current = true
-    openDm(initialDmUser)
-  }, [initialDmUser, openDm])
+    const { conversationId, partner, messages } = initialDm
+    setDmMessages(messages)
+    setActiveDmConvId(conversationId)
+    activeDmConvIdRef.current = conversationId
+    setDmPartner(partner)
+    setChatMode('dm')
+    setSidebarTab('dms')
+    setMobileView('chat')
+    setUnreadDmIds(prev => { const next = new Set(prev); next.delete(conversationId); return next })
+    setDmConversations(prev => prev.some(c => c.id === conversationId) ? prev : [{
+      id: conversationId,
+      other_user_id: partner.id,
+      other_display_name: partner.name,
+      other_avatar_url: partner.avatar,
+      last_message_at: null,
+      last_message_preview: null,
+    }, ...prev])
+    setTimeout(() => scrollDmToBottom(false), 80)
+  }, [initialDm]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleMentionClick = useCallback((mentionedUserId: string, mentionedName: string) => {
     if (mentionedUserId === userId) return
@@ -3862,10 +3895,37 @@ export default function ChatClient({
                   {t('add_members')}
                 </p>
                 <input
+                  ref={memberInputRef}
                   type="text"
                   value={memberSearch}
                   onChange={(e) => setMemberSearch(e.target.value)}
+                  onKeyDown={(e) => {
+                    const n = memberSearchResults.length
+                    if (e.key === 'ArrowDown' && n > 0) {
+                      e.preventDefault()
+                      const ni = (memberSearchIndex + 1) % n
+                      setMemberSearchIndex(ni)
+                      requestAnimationFrame(() => document.getElementById(`memres-${ni}`)?.scrollIntoView({ block: 'nearest' }))
+                    } else if (e.key === 'ArrowUp' && n > 0) {
+                      e.preventDefault()
+                      const ni = (memberSearchIndex - 1 + n) % n
+                      setMemberSearchIndex(ni)
+                      requestAnimationFrame(() => document.getElementById(`memres-${ni}`)?.scrollIntoView({ block: 'nearest' }))
+                    } else if (e.key === 'Enter' && n > 0) {
+                      e.preventDefault()
+                      const u = memberSearchResults[memberSearchIndex]
+                      if (u) toggleMemberSelect(u)
+                    } else if (e.key === 'Escape') {
+                      setMemberSearch(''); setMemberSearchResults([])
+                    } else if (e.key === 'Backspace' && memberSearch === '' && selectedNewMembers.length > 0) {
+                      setSelectedNewMembers(prev => prev.slice(0, -1))
+                    }
+                  }}
                   placeholder={t('search_members_placeholder')}
+                  role="combobox"
+                  aria-expanded={memberSearchResults.length > 0}
+                  aria-controls="member-search-results"
+                  aria-activedescendant={memberSearchResults.length > 0 ? `memres-${memberSearchIndex}` : undefined}
                   className="w-full px-3 py-1.5 text-[16px] sm:text-[12px] border border-line rounded-lg focus:outline-none focus:border-rose/50 bg-white"
                 />
 
@@ -3874,19 +3934,21 @@ export default function ChatClient({
                 )}
 
                 {!memberSearchLoading && memberSearchResults.length > 0 && (
-                  <div className="mt-1.5 space-y-0.5 max-h-28 overflow-y-auto">
-                    {memberSearchResults.map(user => {
+                  <div id="member-search-results" role="listbox" className="mt-1.5 space-y-0.5 max-h-28 overflow-y-auto">
+                    {memberSearchResults.map((user, i) => {
                       const isSelected = selectedNewMembers.some(m => m.id === user.id)
+                      const isActive = i === memberSearchIndex
                       return (
                         <button
                           key={user.id}
-                          onClick={() => {
-                            if (isSelected) setSelectedNewMembers(prev => prev.filter(m => m.id !== user.id))
-                            else setSelectedNewMembers(prev => [...prev, user])
-                          }}
+                          id={`memres-${i}`}
+                          role="option"
+                          aria-selected={isActive}
+                          onMouseEnter={() => setMemberSearchIndex(i)}
+                          onClick={() => toggleMemberSelect(user)}
                           className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-left transition-colors ${
-                            isSelected ? 'bg-rose/10 text-rose' : 'hover:bg-cream text-ink'
-                          }`}
+                            isActive ? 'bg-rose/10 ring-1 ring-rose/30' : 'hover:bg-cream'
+                          } ${isSelected ? 'text-rose' : 'text-ink'}`}
                         >
                           <div className="flex-none w-6 h-6 rounded-full overflow-hidden bg-rose/10 flex items-center justify-center text-[11px] font-bold text-rose shrink-0">
                             {user.avatar_url ? (

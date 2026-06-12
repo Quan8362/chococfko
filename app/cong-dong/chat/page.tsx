@@ -3,6 +3,7 @@ import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import { checkIsAdmin } from '@/lib/supabase/admin'
 import { getUserIdentity } from '@/lib/userIdentity'
+import { getOrCreateDmConversation, getDmMessages, type DmMessage } from './dm-actions'
 import ChatClient from './ChatClient'
 
 export async function generateMetadata() {
@@ -250,16 +251,24 @@ export default async function CongDongChatPage({
     user.email?.split('@')[0] ||
     t('member_fallback')
 
-  // Deep-link from a member's public profile: ?dm=<userId> opens that DM
-  let initialDmUser: { id: string; display_name: string; avatar_url: string | null } | undefined
+  // Deep-link from a member's public profile: ?dm=<userId>. Prefetch the
+  // conversation + its messages on the server so the DM opens instantly on mount
+  // (no client round-trips).
+  let initialDm:
+    | { conversationId: string; partner: { id: string; name: string; avatar: string | null }; messages: DmMessage[] }
+    | undefined
   const dmTargetId = searchParams.dm
   if (dmTargetId && UUID_RE.test(dmTargetId) && dmTargetId !== user.id) {
-    const identity = await getUserIdentity(dmTargetId)
-    if (identity.name || identity.avatarUrl) {
-      initialDmUser = {
-        id: dmTargetId,
-        display_name: identity.name || t('member_fallback'),
-        avatar_url: identity.avatarUrl,
+    const [identity, conv] = await Promise.all([
+      getUserIdentity(dmTargetId),
+      getOrCreateDmConversation(dmTargetId),
+    ])
+    if (conv.conversationId && (identity.name || identity.avatarUrl)) {
+      const { messages } = await getDmMessages(conv.conversationId)
+      initialDm = {
+        conversationId: conv.conversationId,
+        partner: { id: dmTargetId, name: identity.name || t('member_fallback'), avatar: identity.avatarUrl },
+        messages: messages ?? [],
       }
     }
   }
@@ -279,7 +288,7 @@ export default async function CongDongChatPage({
       initialPollsMap={initialPollsMap}
       myMembershipMap={myMembershipMap}
       initialHighlightMsgId={typeof searchParams.msg === 'string' ? searchParams.msg : undefined}
-      initialDmUser={initialDmUser}
+      initialDm={initialDm}
     />
   )
 }

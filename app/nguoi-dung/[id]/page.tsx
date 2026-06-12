@@ -5,6 +5,8 @@ import { createClient } from '@/lib/supabase/server'
 import { isUuid } from '@/lib/posts'
 import { avatarSrc } from '@/lib/avatar'
 import { getUserIdentity } from '@/lib/userIdentity'
+import { getSellerRatingSummary } from '@/lib/marketplace-data'
+import StarsDisplay from '@/components/marketplace/StarsDisplay'
 
 export const dynamic = 'force-dynamic'
 
@@ -69,6 +71,7 @@ export default async function PublicProfilePage({ params }: { params: { id: stri
     .limit(20)
 
   const posts = (postsData ?? []) as PostCard[]
+  const sellerRating = await getSellerRatingSummary(profileId)
   const name = identity.name || profile?.display_name || t('member_fallback')
   const avatarUrl = identity.avatarUrl || profile?.avatar_url || null
   const joined = profile?.created_at
@@ -114,6 +117,12 @@ export default async function PublicProfilePage({ params }: { params: { id: stri
                 {name}
               </h1>
               <div className="flex items-center gap-3 flex-wrap mt-1.5 text-[13px] text-muted">
+                {sellerRating.count > 0 && (
+                  <span className="inline-flex items-center gap-1 text-amber-500">
+                    <StarsDisplay value={sellerRating.average} />
+                    <span className="text-ink/70">{sellerRating.average.toFixed(1)} ({sellerRating.count})</span>
+                  </span>
+                )}
                 {profile?.area && <span>📍 {profile.area}</span>}
                 {joined && <span>{t('member_since', { date: joined })}</span>}
               </div>

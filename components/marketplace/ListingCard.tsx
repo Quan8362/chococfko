@@ -5,6 +5,7 @@ import { type Listing, formatPriceJPY, relativeListingDate } from '@/lib/marketp
 export default async function ListingCard({ listing }: { listing: Listing }) {
   const [t, locale] = await Promise.all([getTranslations('marketplace'), getLocale()])
   const isFree = listing.listing_type === 'free'
+  const isAuction = listing.listing_type === 'auction'
   const sold = listing.sale_status === 'sold'
 
   return (
@@ -28,9 +29,12 @@ export default async function ListingCard({ listing }: { listing: Listing }) {
 
         {/* Type / status badges */}
         <div className="absolute top-2.5 left-2.5 flex flex-col gap-1.5 items-start">
-          {isFree ? (
+          {isFree && (
             <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-teal text-white shadow-sm">🎁 {t('type_free')}</span>
-          ) : null}
+          )}
+          {isAuction && (
+            <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-rose text-white shadow-sm">🔨 {t('type_auction')}</span>
+          )}
           {listing.sale_status === 'reserved' && (
             <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-full bg-amber-500 text-white shadow-sm">{t('status_reserved')}</span>
           )}
@@ -48,8 +52,13 @@ export default async function ListingCard({ listing }: { listing: Listing }) {
       {/* Body */}
       <div className="p-3.5">
         <div className={`font-bold text-[16px] mb-1 ${isFree ? 'text-teal' : 'text-rose'} ${sold ? 'line-through opacity-60' : ''}`}>
-          {isFree ? t('free_price') : formatPriceJPY(listing.price)}
-          {!isFree && listing.is_negotiable && (
+          {isFree ? t('free_price')
+            : isAuction ? formatPriceJPY(listing.current_bid ?? listing.start_price)
+            : formatPriceJPY(listing.price)}
+          {isAuction && (
+            <span className="ml-1.5 text-[11px] font-medium text-muted">· {listing.current_bid == null ? t('starting_label') : t('current_bid_label')}</span>
+          )}
+          {!isFree && !isAuction && listing.is_negotiable && (
             <span className="ml-1.5 text-[11px] font-medium text-muted">· {t('negotiable_short')}</span>
           )}
         </div>

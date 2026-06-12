@@ -44,12 +44,22 @@ export default function ListingForm({ userId, listing }: { userId: string; listi
   const fileRef = useRef<HTMLInputElement>(null)
   const supabase = createClient()
 
-  const [listingType, setListingType] = useState<'sell' | 'free'>(listing?.listing_type ?? 'sell')
+  const [listingType, setListingType] = useState<'sell' | 'free' | 'auction'>(listing?.listing_type ?? 'sell')
   const [condition, setCondition] = useState<'new' | 'used'>(listing?.condition ?? 'used')
   const [percent, setPercent] = useState<number>(
     listing?.condition === 'used' && listing?.condition_percent ? listing.condition_percent : 80,
   )
   const [negotiable, setNegotiable] = useState<boolean>(listing?.is_negotiable ?? false)
+
+  // Auction fields
+  const [startPrice, setStartPrice] = useState(listing?.start_price != null ? String(listing.start_price) : '')
+  const [minIncrement, setMinIncrement] = useState(listing?.min_increment != null ? String(listing.min_increment) : '1000')
+  const [buyNow, setBuyNow] = useState(listing?.buy_now_price != null ? String(listing.buy_now_price) : '')
+  const [endsAt, setEndsAt] = useState(() => {
+    if (!listing?.auction_ends_at) return ''
+    const d = new Date(listing.auction_ends_at)
+    return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16)
+  })
 
   // ── Live validation (mirrors the server rules) ─────────────────────────────
   const [title, setTitle] = useState(listing?.title ?? '')
@@ -73,7 +83,14 @@ export default function ListingForm({ userId, listing }: { userId: string; listi
 
   const imagesErr: string | null = images.length === 0 ? t('err_image_required') : null
 
-  const formValid = !titleErr && !priceErr && !imagesErr
+  const startNum = parseInt(startPrice.replace(/[^\d]/g, '') || '0', 10)
+  const auctionErr: string | null =
+    listingType !== 'auction' ? null
+    : startNum <= 0 ? t('err_start_price_required')
+    : (!endsAt || new Date(endsAt).getTime() <= Date.now() + 60_000) ? t('err_auction_end')
+    : null
+
+  const formValid = !titleErr && !priceErr && !imagesErr && !auctionErr
 
   useEffect(() => {
     if (state?.ok) router.push('/cho-do-cu/cua-toi?success=1')
@@ -128,6 +145,10 @@ export default function ListingForm({ userId, listing }: { userId: string; listi
     : state?.error === 'image_required'  ? t('err_image_required')
     : state?.error === 'price_required'  ? t('err_price_required')
     : state?.error === 'price_too_high'  ? t('err_price_high')
+    : state?.error === 'start_price_required' ? t('err_start_price_required')
+    : state?.error === 'auction_end_invalid'  ? t('err_auction_end')
+    : state?.error === 'buynow_invalid'  ? t('err_buynow')
+    : state?.error === 'increment_required' ? t('err_increment')
     : state?.error === 'condition_invalid' ? t('err_condition')
     : state?.error === 'login_required'  ? t('err_login')
     : state?.error                       ? t('err_generic')
@@ -206,20 +227,61 @@ export default function ListingForm({ userId, listing }: { userId: string; listi
       <div>
         <label className="block text-[14px] font-semibold text-ink mb-2">{t('field_type')}</label>
         <div className="flex gap-2.5">
-          {(['sell', 'free'] as const).map(tp => (
+          {([['sell', `💰 ${t('type_sell')}`], ['free', `🎁 ${t('type_free')}`], ['auction', `🔨 ${t('type_auction')}`]] as const).map(([tp, label]) => (
             <button
               key={tp}
               type="button"
               onClick={() => setListingType(tp)}
-              className={`flex-1 px-4 py-3 rounded-xl border text-[14px] font-semibold transition-all ${
+              className={`flex-1 px-3 py-3 rounded-xl border text-[13.5px] font-semibold transition-all ${
                 listingType === tp ? 'border-rose bg-rose/5 text-rose' : 'border-line bg-paper text-muted hover:border-rose/30'
               }`}
             >
-              {tp === 'sell' ? `💰 ${t('type_sell')}` : `🎁 ${t('type_free')}`}
+              {label}
             </button>
           ))}
         </div>
       </div>
+
+      {/* Auction settings */}
+      {listingType === 'auction' && (
+        <div className="space-y-4 p-4 rounded-xl border border-rose/20 bg-rose/[0.03]">
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-[14px] font-semibold text-ink mb-2">{t('field_start_price')} <span className="text-rose">*</span></label>
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted font-semibold">¥</span>
+                <input name="start_price" inputMode="numeric" value={startPrice} onChange={(e) => setStartPrice(e.target.value)} placeholder="0"
+                  className="w-full pl-9 pr-4 py-3 rounded-xl border border-line bg-paper text-[15px] focus:outline-none focus:border-rose/50 focus:ring-2 focus:ring-rose/10" />
+              </div>
+            </div>
+            <div>
+              <label className="block text-[14px] font-semibold text-ink mb-2">{t('field_min_increment')}</label>
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted font-semibold">¥</span>
+                <input name="min_increment" inputMode="numeric" value={minIncrement} onChange={(e) => setMinIncrement(e.target.value)} placeholder="1000"
+                  className="w-full pl-9 pr-4 py-3 rounded-xl border border-line bg-paper text-[15px] focus:outline-none focus:border-rose/50 focus:ring-2 focus:ring-rose/10" />
+              </div>
+            </div>
+          </div>
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-[14px] font-semibold text-ink mb-2">{t('field_buy_now')} <span className="text-muted font-normal">({t('optional')})</span></label>
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted font-semibold">¥</span>
+                <input name="buy_now_price" inputMode="numeric" value={buyNow} onChange={(e) => setBuyNow(e.target.value)} placeholder="—"
+                  className="w-full pl-9 pr-4 py-3 rounded-xl border border-line bg-paper text-[15px] focus:outline-none focus:border-rose/50 focus:ring-2 focus:ring-rose/10" />
+              </div>
+            </div>
+            <div>
+              <label className="block text-[14px] font-semibold text-ink mb-2">{t('field_auction_end')} <span className="text-rose">*</span></label>
+              <input type="datetime-local" value={endsAt} onChange={(e) => setEndsAt(e.target.value)}
+                className="w-full px-3 py-3 rounded-xl border border-line bg-paper text-[14px] focus:outline-none focus:border-rose/50 focus:ring-2 focus:ring-rose/10" />
+              <input type="hidden" name="auction_ends_at" value={endsAt ? new Date(endsAt).toISOString() : ''} />
+            </div>
+          </div>
+          {auctionErr && <p className="text-[12.5px] text-red-600">{auctionErr}</p>}
+        </div>
+      )}
 
       {/* Price (sell only) */}
       {listingType === 'sell' && (

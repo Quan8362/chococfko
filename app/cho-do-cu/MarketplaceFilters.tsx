@@ -72,6 +72,7 @@ export default function MarketplaceFilters(current: Props) {
         <button onClick={() => apply({ type: '' })} className={chip(!current.type)}>{t('filter_all')}</button>
         <button onClick={() => apply({ type: 'sell' })} className={chip(current.type === 'sell')}>💰 {t('type_sell')}</button>
         <button onClick={() => apply({ type: 'free' })} className={chip(current.type === 'free')}>🎁 {t('type_free')}</button>
+        <button onClick={() => apply({ type: 'auction' })} className={chip(current.type === 'auction')}>🔨 {t('type_auction')}</button>
         <span className="w-px h-5 bg-line mx-1" />
         <button onClick={() => apply({ condition: '' })} className={chip(!current.condition)}>{t('cond_any')}</button>
         <button onClick={() => apply({ condition: 'new' })} className={chip(current.condition === 'new')}>{t('cond_new')}</button>

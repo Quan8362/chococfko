@@ -2,7 +2,7 @@
 // NO server-only imports here so this module is safe to import from client
 // components. Data-fetching helpers live in `@/lib/marketplace-data`.
 
-export type ListingType = 'sell' | 'free'
+export type ListingType = 'sell' | 'free' | 'auction'
 export type ListingCondition = 'new' | 'used'
 export type ListingStatus = 'pending' | 'approved' | 'rejected'
 export type SaleStatus = 'available' | 'reserved' | 'sold'
@@ -27,6 +27,29 @@ export interface Listing {
   created_at: string
   updated_at: string | null
   sold_at: string | null
+  // Auction fields (null for sell/free)
+  start_price: number | null
+  min_increment: number
+  buy_now_price: number | null
+  auction_ends_at: string | null
+  current_bid: number | null
+  current_bidder_id: string | null
+  bid_count: number
+  winner_id: string | null
+}
+
+export type Bid = {
+  id: string
+  listing_id: string
+  bidder_id: string
+  amount: number
+  created_at: string
+}
+
+// Minimum allowed next bid for an auction listing.
+export function nextMinBid(l: Pick<Listing, 'current_bid' | 'start_price' | 'min_increment'>): number {
+  if (l.current_bid == null) return l.start_price ?? 0
+  return l.current_bid + (l.min_increment || 1)
 }
 
 export interface ListingComment {

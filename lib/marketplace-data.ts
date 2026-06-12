@@ -89,6 +89,42 @@ export async function getListingComments(listingId: string): Promise<ListingComm
   }
 }
 
+export type ListingRating = { average: number; count: number; myStars: number | null; myReview: string | null }
+
+export async function getListingRating(listingId: string, viewerId?: string | null): Promise<ListingRating> {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !isUuid(listingId)) return { average: 0, count: 0, myStars: null, myReview: null }
+  try {
+    const { createAdminClient } = await import('@/lib/supabase/admin')
+    const admin = createAdminClient()
+    const { data } = await admin
+      .from('marketplace_ratings')
+      .select('stars, review, rater_id')
+      .eq('listing_id', listingId)
+    const rows = (data ?? []) as { stars: number; review: string | null; rater_id: string }[]
+    const count = rows.length
+    const average = count ? rows.reduce((s, r) => s + r.stars, 0) / count : 0
+    const mine = viewerId ? rows.find(r => r.rater_id === viewerId) : undefined
+    return { average, count, myStars: mine?.stars ?? null, myReview: mine?.review ?? null }
+  } catch {
+    return { average: 0, count: 0, myStars: null, myReview: null }
+  }
+}
+
+export async function getSellerRatingSummary(sellerId: string): Promise<{ average: number; count: number }> {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !isUuid(sellerId)) return { average: 0, count: 0 }
+  try {
+    const { createAdminClient } = await import('@/lib/supabase/admin')
+    const admin = createAdminClient()
+    const { data } = await admin.from('marketplace_ratings').select('stars').eq('seller_id', sellerId)
+    const rows = (data ?? []) as { stars: number }[]
+    const count = rows.length
+    const average = count ? rows.reduce((s, r) => s + r.stars, 0) / count : 0
+    return { average, count }
+  } catch {
+    return { average: 0, count: 0 }
+  }
+}
+
 export async function getRelatedListings(category: string, excludeId: string): Promise<Listing[]> {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return []
   try {

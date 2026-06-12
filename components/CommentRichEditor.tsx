@@ -4,6 +4,8 @@ import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import TiptapLink from '@tiptap/extension-link'
 import TiptapImage from '@tiptap/extension-image'
+import TiptapUnderline from '@tiptap/extension-underline'
+import TiptapTextAlign from '@tiptap/extension-text-align'
 import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import EmojiPicker from './EmojiPicker'
@@ -50,6 +52,8 @@ export default function CommentRichEditor({ name, placeholder, resetKey = 0 }: P
         HTMLAttributes: { rel: 'noopener noreferrer', target: '_blank' },
       }),
       TiptapImage.configure({ inline: false, allowBase64: false }),
+      TiptapUnderline,
+      TiptapTextAlign.configure({ types: ['paragraph'] }),
     ],
     content: '<p></p>',
     immediatelyRender: false,
@@ -95,6 +99,33 @@ export default function CommentRichEditor({ name, placeholder, resetKey = 0 }: P
           >
             <i className="italic text-[13.5px] font-serif">I</i>
           </Btn>
+          <Btn
+            onClick={() => editor?.chain().focus().toggleUnderline().run()}
+            active={editor?.isActive('underline')}
+            title={te('underline')}
+          >
+            <span className="underline text-[12.5px]">U</span>
+          </Btn>
+
+          <span className="w-px h-4 bg-line mx-0.5 flex-none" />
+
+          {(['left', 'center', 'right'] as const).map(al => (
+            <Btn
+              key={al}
+              onClick={() => editor?.chain().focus().setTextAlign(al).run()}
+              active={editor?.isActive({ textAlign: al })}
+              title={te(`align_${al}`)}
+            >
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                {al === 'left' && <path strokeLinecap="round" d="M4 6h16M4 12h10M4 18h13" />}
+                {al === 'center' && <path strokeLinecap="round" d="M4 6h16M7 12h10M5 18h14" />}
+                {al === 'right' && <path strokeLinecap="round" d="M4 6h16M10 12h10M7 18h13" />}
+              </svg>
+            </Btn>
+          ))}
+
+          <span className="w-px h-4 bg-line mx-0.5 flex-none" />
+
           <Btn
             onClick={() => {
               const url = prompt(te('insertLink'))

@@ -18,7 +18,7 @@ const AUTO_MS = 7000
 const MAX_NOTIFS = 3
 
 const TYPE_ICON: Record<string, string> = {
-  dm: '✉️', mention: '@', new_listing: '🛒', new_comment: '💬',
+  dm: '✉️', mention: '@', new_listing: '🛒', new_comment: '💬', auction_outbid: '🔨', auction_won: '🏆',
 }
 
 export default function CommunityNotificationProvider() {
@@ -33,6 +33,8 @@ export default function CommunityNotificationProvider() {
       case 'mention':     return t('community_notif_badge_mention')
       case 'new_listing': return t('community_notif_badge_new_listing')
       case 'new_comment': return t('community_notif_badge_new_comment')
+      case 'auction_outbid': return t('community_notif_badge_auction_outbid')
+      case 'auction_won':    return t('community_notif_badge_auction_won')
       default:            return t('dropdown_title')
     }
   }
@@ -42,6 +44,8 @@ export default function CommunityNotificationProvider() {
       case 'mention':     return t('community_notif_title_mention')
       case 'new_listing': return t('community_notif_title_new_listing')
       case 'new_comment': return t('community_notif_title_new_comment')
+      case 'auction_outbid': return t('community_notif_title_auction_outbid')
+      case 'auction_won':    return t('community_notif_title_auction_won')
       default:            return ''
     }
   }

@@ -19,7 +19,7 @@ export default async function MarketplacePage({
 }) {
   const t = await getTranslations('marketplace')
 
-  const type = (searchParams.type === 'sell' || searchParams.type === 'free') ? searchParams.type as ListingType : undefined
+  const type = (['sell', 'free', 'auction'].includes(searchParams.type ?? '')) ? searchParams.type as ListingType : undefined
   const condition = (searchParams.condition === 'new' || searchParams.condition === 'used') ? searchParams.condition as ListingCondition : undefined
   const sort = (['price_asc', 'price_desc'].includes(searchParams.sort ?? '')) ? searchParams.sort as SortKey : 'newest'
 

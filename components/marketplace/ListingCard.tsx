@@ -58,8 +58,8 @@ export default async function ListingCard({ listing }: { listing: Listing }) {
               : isAuction ? formatPriceJPY(listing.current_bid ?? listing.start_price)
               : formatPriceJPY(listing.price)}
           </span>
-          {isAuction && (
-            <span className="ml-1.5 text-[11px] font-medium text-muted">· {sold ? t('status_sold') : listing.current_bid == null ? t('starting_label') : t('current_bid_label')}</span>
+          {isAuction && !sold && (
+            <span className="ml-1.5 text-[11px] font-medium text-muted">· {listing.current_bid == null ? t('starting_label') : t('current_bid_label')}</span>
           )}
           {!isFree && !isAuction && listing.is_negotiable && (
             <span className="ml-1.5 text-[11px] font-medium text-muted">· {t('negotiable_short')}</span>

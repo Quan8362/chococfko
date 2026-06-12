@@ -7,6 +7,7 @@ import { avatarSrc } from '@/lib/avatar'
 import { getUserIdentity } from '@/lib/userIdentity'
 import { getSellerRatingSummary } from '@/lib/marketplace-data'
 import StarsDisplay from '@/components/marketplace/StarsDisplay'
+import { sanitizeUserName, sanitizeUserText, sanitizeUrl } from '@/lib/sanitize'
 
 export const dynamic = 'force-dynamic'
 
@@ -72,7 +73,13 @@ export default async function PublicProfilePage({ params }: { params: { id: stri
 
   const posts = (postsData ?? []) as PostCard[]
   const sellerRating = await getSellerRatingSummary(profileId)
-  const name = identity.name || profile?.display_name || t('member_fallback')
+  // Sanitize stored free-text/URL fields at display too — cleans data saved
+  // before sanitization existed and is defence-in-depth for href= fields.
+  const name = sanitizeUserName(identity.name || profile?.display_name) || t('member_fallback')
+  const bio = sanitizeUserText(profile?.bio)
+  const area = sanitizeUserName(profile?.area)
+  const facebookUrl = sanitizeUrl(profile?.facebook_url)
+  const instagramUrl = sanitizeUrl(profile?.instagram_url)
   const avatarUrl = identity.avatarUrl || profile?.avatar_url || null
   const joined = profile?.created_at
     ? new Date(profile.created_at).toLocaleDateString(locale, { month: 'long', year: 'numeric' })
@@ -123,13 +130,13 @@ export default async function PublicProfilePage({ params }: { params: { id: stri
                     <span className="text-ink/70">{sellerRating.average.toFixed(1)} ({sellerRating.count})</span>
                   </span>
                 )}
-                {profile?.area && <span>📍 {profile.area}</span>}
+                {area && <span>📍 {area}</span>}
                 {joined && <span>{t('member_since', { date: joined })}</span>}
               </div>
 
-              {profile?.bio && (
+              {bio && (
                 <p className="text-[14.5px] text-[#3a2d22] leading-relaxed mt-3 whitespace-pre-wrap break-words max-w-[520px]">
-                  {profile.bio}
+                  {bio}
                 </p>
               )}
 
@@ -161,9 +168,9 @@ export default async function PublicProfilePage({ params }: { params: { id: stri
                   </Link>
                 )}
 
-                {profile?.facebook_url && (
+                {facebookUrl && (
                   <a
-                    href={profile.facebook_url}
+                    href={facebookUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-cream border border-line text-muted hover:text-rose hover:border-rose/30 transition-all"
@@ -172,9 +179,9 @@ export default async function PublicProfilePage({ params }: { params: { id: stri
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987H7.898v-2.89h2.54V9.797c0-2.507 1.492-3.892 3.777-3.892 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"/></svg>
                   </a>
                 )}
-                {profile?.instagram_url && (
+                {instagramUrl && (
                   <a
-                    href={profile.instagram_url}
+                    href={instagramUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-cream border border-line text-muted hover:text-rose hover:border-rose/30 transition-all"

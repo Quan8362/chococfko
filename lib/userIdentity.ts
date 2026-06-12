@@ -1,6 +1,15 @@
 import { createAdminClient } from '@/lib/supabase/admin'
+import { sanitizeUserName } from '@/lib/sanitize'
 
 export type UserIdentity = { name: string | null; avatarUrl: string | null }
+
+// Strip any HTML/markup from a stored name so it never renders as raw "code"
+// wherever an identity is shown (profile, auction card, chat, DM, …).
+function cleanName(name: string | null | undefined): string | null {
+  if (!name) return null
+  const cleaned = sanitizeUserName(name, 60)
+  return cleaned || null
+}
 
 // Resolves a member's display name + avatar. Many users sign in via OAuth, so
 // their `profiles` row often has null display_name/avatar_url while the real
@@ -21,7 +30,7 @@ export async function getUserIdentity(id: string): Promise<UserIdentity> {
     const profile = profileRow as { display_name: string | null; avatar_url: string | null } | null
 
     if (profile?.display_name && profile?.avatar_url) {
-      return { name: profile.display_name, avatarUrl: profile.avatar_url }
+      return { name: cleanName(profile.display_name), avatarUrl: profile.avatar_url }
     }
 
     // Fallback: pull name/avatar from auth metadata only when needed.
@@ -29,13 +38,14 @@ export async function getUserIdentity(id: string): Promise<UserIdentity> {
     const authUser = authData?.user
     const meta = (authUser?.user_metadata ?? {}) as Record<string, unknown>
 
-    const name =
+    const name = cleanName(
       profile?.display_name ||
       (meta.display_name as string | undefined) ||
       (meta.name as string | undefined) ||
       (meta.full_name as string | undefined) ||
       authUser?.email?.split('@')[0] ||
       null
+    )
 
     const avatarUrl =
       profile?.avatar_url ||

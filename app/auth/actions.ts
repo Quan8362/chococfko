@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminNotification } from '@/lib/admin/notifications'
+import { sanitizeUserName } from '@/lib/sanitize'
 
 const CATEGORY_LABEL: Record<string, string> = {
   food: 'Ăn uống',
@@ -48,7 +49,7 @@ function mapAuthError(msg: string, lang: 'login' | 'register', t: (key: string) 
 export async function signUp(formData: FormData) {
   const supabase = createClient()
   const t = await getTranslations('auth')
-  const displayName = (formData.get('display_name') as string ?? '').trim()
+  const displayName = sanitizeUserName((formData.get('display_name') as string) ?? '', 50)
   const email = (formData.get('email') as string ?? '').trim()
   const password = formData.get('password') as string ?? ''
 

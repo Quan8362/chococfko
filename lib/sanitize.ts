@@ -56,3 +56,36 @@ export function stripHtml(html: string): string {
     .replace(/\s+/g, ' ')
     .trim()
 }
+
+/**
+ * Plain-text sanitizer for user profile fields (name, area, bio).
+ * Decodes basic entities FIRST so that entity-encoded markup
+ * (e.g. "&lt;img src=x onerror=alert(1)&gt;") is also removed, then strips all
+ * tags and stray angle brackets. Nothing executes (these render as React text),
+ * but this keeps raw markup/code from showing in the UI.
+ */
+export function sanitizeUserText(input: string | null | undefined, maxLen = 500): string {
+  if (!input) return ''
+  let s = String(input)
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&#0*60;/g, '<')
+    .replace(/&#0*62;/g, '>')
+  s = s.replace(/<[^>]*>/g, '') // strip <…> tags (incl. <script>, <img …>)
+  s = s.replace(/[<>]/g, '')    // drop any leftover angle brackets
+  return s.trim().slice(0, maxLen)
+}
+
+/** Single-line variant (collapses whitespace) — for display name / area. */
+export function sanitizeUserName(input: string | null | undefined, maxLen = 60): string {
+  return sanitizeUserText(input, maxLen).replace(/\s+/g, ' ').trim().slice(0, maxLen)
+}
+
+/** Only allow http(s) links; reject javascript:/data:/etc. Returns '' if unsafe. */
+export function sanitizeUrl(input: string | null | undefined, maxLen = 500): string {
+  if (!input) return ''
+  const s = String(input).trim()
+  if (!/^https?:\/\//i.test(s)) return ''
+  if (/[<>"'\s]/.test(s)) return ''
+  return s.slice(0, maxLen)
+}

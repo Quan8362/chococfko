@@ -3,18 +3,21 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { sanitizeUserName, sanitizeUserText, sanitizeUrl } from '@/lib/sanitize'
 
 export async function updateProfile(formData: FormData) {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/dang-nhap')
 
-  const display_name = (formData.get('display_name') as string || '').trim()
-  const bio          = (formData.get('bio')          as string || '').trim()
-  const area         = (formData.get('area')         as string || '').trim()
-  const facebook_url  = (formData.get('facebook_url')  as string || '').trim()
-  const instagram_url = (formData.get('instagram_url') as string || '').trim()
-  const avatar_url    = (formData.get('avatar_url')    as string || '').trim()
+  // Strip any HTML/markup from free-text fields and reject non-http(s) URLs so
+  // nothing renders as raw "code" and href= can't carry a javascript: payload.
+  const display_name = sanitizeUserName((formData.get('display_name') as string) || '', 60)
+  const bio          = sanitizeUserText((formData.get('bio')          as string) || '', 500)
+  const area         = sanitizeUserName((formData.get('area')         as string) || '', 80)
+  const facebook_url  = sanitizeUrl((formData.get('facebook_url')  as string) || '')
+  const instagram_url = sanitizeUrl((formData.get('instagram_url') as string) || '')
+  const avatar_url    = ((formData.get('avatar_url') as string) || '').trim()
 
   const { error } = await supabase
     .from('profiles')

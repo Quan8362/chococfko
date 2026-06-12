@@ -22,7 +22,7 @@ function parseListingForm(formData: FormData) {
   const condition_percent = condition === 'new' ? 100 : (Number.isFinite(percentRaw) ? percentRaw : null)
   const categoryRaw = (formData.get('category') as string ?? 'other')
   const category = (CATEGORIES as readonly string[]).includes(categoryRaw) ? categoryRaw : 'other'
-  const area = (formData.get('area') as string ?? '').trim() || null
+  const area = ((formData.get('area') as string ?? '').trim().slice(0, 60)) || null
 
   let images: string[] = []
   try {

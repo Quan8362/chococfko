@@ -5,18 +5,19 @@ import { useFormState, useFormStatus } from 'react-dom'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
+import { compressImage } from '@/lib/compressImage'
 import { CATEGORIES, CONDITION_PRESETS, type Listing } from '@/lib/marketplace'
 import { submitListing, updateListing, type ListingResult } from './actions'
 
 const MAX_IMAGES = 6
 const INIT: ListingResult = null
 
-function SubmitBtn({ label, sending }: { label: string; sending: string }) {
+function SubmitBtn({ label, sending, disabled = false }: { label: string; sending: string; disabled?: boolean }) {
   const { pending } = useFormStatus()
   return (
     <button
       type="submit"
-      disabled={pending}
+      disabled={pending || disabled}
       className="inline-flex items-center justify-center gap-2 font-semibold text-[14.5px] px-7 py-3 rounded-full bg-rose text-white hover:bg-rose-deep transition-all disabled:opacity-60 disabled:cursor-not-allowed shadow-[0_4px_16px_-4px_rgba(194,24,91,0.5)]"
     >
       {pending && (
@@ -50,23 +51,55 @@ export default function ListingForm({ userId, listing }: { userId: string; listi
   )
   const [negotiable, setNegotiable] = useState<boolean>(listing?.is_negotiable ?? false)
 
+  // ── Live validation (mirrors the server rules) ─────────────────────────────
+  const [title, setTitle] = useState(listing?.title ?? '')
+  const [price, setPrice] = useState(listing?.price != null ? String(listing.price) : '')
+  const [touched, setTouched] = useState<{ title?: boolean; price?: boolean; images?: boolean }>({})
+  const markTouched = (f: 'title' | 'price' | 'images') => setTouched(prev => ({ ...prev, [f]: true }))
+
+  const titleTrim = title.trim()
+  const titleErr: string | null =
+    titleTrim.length === 0 ? t('err_title_required')
+    : titleTrim.length < 4  ? t('err_title_short')
+    : titleTrim.length > 120 ? t('err_title_long')
+    : null
+
+  const priceNum = parseInt(price.replace(/[^\d]/g, '') || '0', 10)
+  const priceErr: string | null =
+    listingType !== 'sell' ? null
+    : priceNum <= 0           ? t('err_price_required')
+    : priceNum > 100_000_000  ? t('err_price_high')
+    : null
+
+  const imagesErr: string | null = images.length === 0 ? t('err_image_required') : null
+
+  const formValid = !titleErr && !priceErr && !imagesErr
+
   useEffect(() => {
     if (state?.ok) router.push('/cho-do-cu/cua-toi?success=1')
   }, [state, router])
 
   async function handleFiles(files: FileList | null) {
     if (!files || files.length === 0) return
+    markTouched('images')
     setUploadError(null)
     const remaining = MAX_IMAGES - images.length
     const list = Array.from(files).slice(0, remaining)
     setUploading(true)
     const uploaded: string[] = []
-    for (const file of list) {
-      if (!file.type.startsWith('image/') || file.size > 3 * 1024 * 1024) {
-        setUploadError(t('image_invalid'))
-        continue
-      }
-      const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg'
+    for (const original of list) {
+      if (!original.type.startsWith('image/')) { setUploadError(t('image_invalid')); continue }
+      // Guard against absurdly large originals before we even decode them.
+      if (original.size > 40 * 1024 * 1024) { setUploadError(t('image_too_large')); continue }
+
+      // Auto-compress big phone photos so the user doesn't have to.
+      let file = original
+      try {
+        file = await compressImage(original, { maxEdge: 1920, maxBytes: 2.4 * 1024 * 1024 })
+      } catch { /* keep original on failure */ }
+      if (file.size > 3 * 1024 * 1024) { setUploadError(t('image_too_large')); continue }
+
+      const ext = (file.type.split('/')[1] || 'jpg').replace('jpeg', 'jpg')
       const path = `${userId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`
       const { data, error } = await supabase.storage
         .from('marketplace')
@@ -81,6 +114,7 @@ export default function ListingForm({ userId, listing }: { userId: string; listi
   }
 
   function removeImage(url: string) {
+    markTouched('images')
     setImages(prev => prev.filter(u => u !== url))
   }
   function makeCover(url: string) {
@@ -110,7 +144,7 @@ export default function ListingForm({ userId, listing }: { userId: string; listi
 
       {/* Images */}
       <div>
-        <label className="block text-[14px] font-semibold text-ink mb-2">{t('field_images')} <span className="text-muted font-normal">({images.length}/{MAX_IMAGES})</span></label>
+        <label className="block text-[14px] font-semibold text-ink mb-2">{t('field_images')} <span className="text-rose">*</span> <span className="text-muted font-normal">({images.length}/{MAX_IMAGES})</span></label>
         <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
           {images.map((url, i) => (
             <div key={url} className="relative aspect-square rounded-xl overflow-hidden border border-line group">
@@ -147,19 +181,25 @@ export default function ListingForm({ userId, listing }: { userId: string; listi
         </div>
         <input ref={fileRef} type="file" accept="image/*" multiple hidden onChange={(e) => handleFiles(e.target.files)} />
         {uploadError && <p className="text-[12.5px] text-red-600 mt-2">{uploadError}</p>}
+        {touched.images && imagesErr && <p className="text-[12.5px] text-red-600 mt-2">{imagesErr}</p>}
         <p className="text-[11.5px] text-muted mt-2">{t('image_hint')}</p>
       </div>
 
       {/* Title */}
       <div>
-        <label className="block text-[14px] font-semibold text-ink mb-2">{t('field_title')}</label>
+        <label className="block text-[14px] font-semibold text-ink mb-2">{t('field_title')} <span className="text-rose">*</span></label>
         <input
           name="title"
-          defaultValue={listing?.title}
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          onBlur={() => markTouched('title')}
           maxLength={120}
           placeholder={t('title_placeholder')}
-          className="w-full px-4 py-3 rounded-xl border border-line bg-paper text-[15px] focus:outline-none focus:border-rose/50 focus:ring-2 focus:ring-rose/10"
+          className={`w-full px-4 py-3 rounded-xl border bg-paper text-[15px] focus:outline-none focus:ring-2 ${
+            touched.title && titleErr ? 'border-red-300 focus:border-red-400 focus:ring-red-100' : 'border-line focus:border-rose/50 focus:ring-rose/10'
+          }`}
         />
+        {touched.title && titleErr && <p className="text-[12.5px] text-red-600 mt-1.5">{titleErr}</p>}
       </div>
 
       {/* Listing type */}
@@ -184,17 +224,22 @@ export default function ListingForm({ userId, listing }: { userId: string; listi
       {/* Price (sell only) */}
       {listingType === 'sell' && (
         <div>
-          <label className="block text-[14px] font-semibold text-ink mb-2">{t('field_price')}</label>
+          <label className="block text-[14px] font-semibold text-ink mb-2">{t('field_price')} <span className="text-rose">*</span></label>
           <div className="relative">
             <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted font-semibold">¥</span>
             <input
               name="price"
               inputMode="numeric"
-              defaultValue={listing?.price ?? ''}
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              onBlur={() => markTouched('price')}
               placeholder="0"
-              className="w-full pl-9 pr-4 py-3 rounded-xl border border-line bg-paper text-[15px] focus:outline-none focus:border-rose/50 focus:ring-2 focus:ring-rose/10"
+              className={`w-full pl-9 pr-4 py-3 rounded-xl border bg-paper text-[15px] focus:outline-none focus:ring-2 ${
+                touched.price && priceErr ? 'border-red-300 focus:border-red-400 focus:ring-red-100' : 'border-line focus:border-rose/50 focus:ring-rose/10'
+              }`}
             />
           </div>
+          {touched.price && priceErr && <p className="text-[12.5px] text-red-600 mt-1.5">{priceErr}</p>}
           <label className="inline-flex items-center gap-2 mt-3 text-[13.5px] text-muted cursor-pointer">
             <input type="checkbox" checked={negotiable} onChange={e => setNegotiable(e.target.checked)} className="accent-rose w-4 h-4" />
             {t('negotiable')}
@@ -293,9 +338,12 @@ export default function ListingForm({ userId, listing }: { userId: string; listi
         </p>
       )}
 
-      <div className="flex items-center gap-3 pt-1">
-        <SubmitBtn label={isEdit ? t('save_changes') : t('publish')} sending={t('publishing')} />
-        <span className="text-[12.5px] text-muted">{t('pending_note')}</span>
+      <div className="flex flex-col gap-2 pt-1">
+        <div className="flex items-center gap-3">
+          <SubmitBtn label={isEdit ? t('save_changes') : t('publish')} sending={t('publishing')} disabled={!formValid} />
+          <span className="text-[12.5px] text-muted">{t('pending_note')}</span>
+        </div>
+        {!formValid && <p className="text-[12px] text-amber-600">{t('form_incomplete')}</p>}
       </div>
     </form>
   )

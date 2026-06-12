@@ -2298,6 +2298,25 @@
     "empty": "Không có tin nào.",
     "approve": "Duyệt",
     "reject": "Từ chối",
-    "delete": "Xóa"
+    "delete": "Xóa",
+    "tab_auction": "Đấu giá",
+    "view_bids": "Lượt đấu giá",
+    "back_listings": "Về danh sách",
+    "status_ended": "Đã kết thúc",
+    "status_live": "Đang diễn ra",
+    "start_price_label": "Giá khởi điểm",
+    "final_price_label": "Giá chốt",
+    "bidders_label": "Người đấu giá",
+    "bids_unit": "lượt",
+    "winner_title": "Người thắng",
+    "leading_title": "Đang dẫn đầu",
+    "no_winner": "Chưa có người thắng",
+    "view_profile": "Hồ sơ",
+    "contact": "Nhắn tin",
+    "bids_title": "Danh sách đấu giá",
+    "no_bids": "Chưa có lượt đấu giá nào",
+    "col_bidder": "Người đấu giá",
+    "col_amount": "Số tiền",
+    "col_time": "Thời gian"
   }
 }

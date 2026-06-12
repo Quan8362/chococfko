@@ -2298,6 +2298,25 @@
     "empty": "没有帖子。",
     "approve": "通过",
     "reject": "拒绝",
-    "delete": "删除"
+    "delete": "删除",
+    "tab_auction": "拍卖",
+    "view_bids": "查看出价",
+    "back_listings": "返回列表",
+    "status_ended": "已结束",
+    "status_live": "进行中",
+    "start_price_label": "起拍价",
+    "final_price_label": "成交价",
+    "bidders_label": "出价者",
+    "bids_unit": "次",
+    "winner_title": "中标者",
+    "leading_title": "最高出价者",
+    "no_winner": "暂无中标者",
+    "view_profile": "主页",
+    "contact": "私信",
+    "bids_title": "出价列表",
+    "no_bids": "暂无出价",
+    "col_bidder": "出价者",
+    "col_amount": "金额",
+    "col_time": "时间"
   }
 }

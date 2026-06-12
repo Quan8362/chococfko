@@ -2298,6 +2298,25 @@
     "empty": "거래 글이 없습니다.",
     "approve": "승인",
     "reject": "거부",
-    "delete": "삭제"
+    "delete": "삭제",
+    "tab_auction": "경매",
+    "view_bids": "입찰 보기",
+    "back_listings": "목록으로",
+    "status_ended": "종료됨",
+    "status_live": "진행 중",
+    "start_price_label": "시작가",
+    "final_price_label": "낙찰가",
+    "bidders_label": "입찰자",
+    "bids_unit": "건",
+    "winner_title": "낙찰자",
+    "leading_title": "최고 입찰자",
+    "no_winner": "낙찰자 없음",
+    "view_profile": "프로필",
+    "contact": "메시지",
+    "bids_title": "입찰 목록",
+    "no_bids": "아직 입찰이 없습니다",
+    "col_bidder": "입찰자",
+    "col_amount": "금액",
+    "col_time": "시간"
   }
 }

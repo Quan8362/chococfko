@@ -2298,6 +2298,25 @@
     "empty": "出品はありません。",
     "approve": "承認",
     "reject": "却下",
-    "delete": "削除"
+    "delete": "削除",
+    "tab_auction": "オークション",
+    "view_bids": "入札一覧",
+    "back_listings": "一覧へ戻る",
+    "status_ended": "終了",
+    "status_live": "開催中",
+    "start_price_label": "開始価格",
+    "final_price_label": "落札価格",
+    "bidders_label": "入札者",
+    "bids_unit": "件",
+    "winner_title": "落札者",
+    "leading_title": "最高入札者",
+    "no_winner": "落札者なし",
+    "view_profile": "プロフィール",
+    "contact": "メッセージ",
+    "bids_title": "入札一覧",
+    "no_bids": "入札はまだありません",
+    "col_bidder": "入札者",
+    "col_amount": "金額",
+    "col_time": "時間"
   }
 }

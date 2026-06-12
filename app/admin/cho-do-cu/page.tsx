@@ -13,7 +13,7 @@ const STATUS_STYLE: Record<string, string> = {
   rejected: 'bg-red-100 text-red-600',
 }
 
-type Tab = 'pending' | 'approved' | 'rejected' | 'reported'
+type Tab = 'pending' | 'approved' | 'rejected' | 'reported' | 'auction'
 
 export default async function AdminMarketplacePage({ searchParams }: { searchParams: { tab?: string } }) {
   if (!(await checkIsAdmin())) redirect('/')
@@ -24,7 +24,7 @@ export default async function AdminMarketplacePage({ searchParams }: { searchPar
     getLocale(),
   ])
   const admin = createAdminClient()
-  const tab = (['pending', 'approved', 'rejected', 'reported'].includes(searchParams.tab ?? '') ? searchParams.tab : 'pending') as Tab
+  const tab = (['pending', 'approved', 'rejected', 'reported', 'auction'].includes(searchParams.tab ?? '') ? searchParams.tab : 'pending') as Tab
 
   // Reported listing ids
   const { data: reportRows } = await admin.from('marketplace_reports').select('listing_id, reason, created_at')
@@ -38,6 +38,8 @@ export default async function AdminMarketplacePage({ searchParams }: { searchPar
   if (tab === 'reported') {
     const ids = Array.from(reportCountMap.keys())
     query = ids.length ? query.in('id', ids) : query.eq('id', '00000000-0000-0000-0000-000000000000')
+  } else if (tab === 'auction') {
+    query = query.eq('listing_type', 'auction')
   } else {
     query = query.eq('status', tab)
   }
@@ -52,6 +54,7 @@ export default async function AdminMarketplacePage({ searchParams }: { searchPar
     { key: 'approved', label: t('tab_approved') },
     { key: 'rejected', label: t('tab_rejected') },
     { key: 'reported', label: t('tab_reported'), badge: reportCountMap.size },
+    { key: 'auction',  label: t('tab_auction') },
   ]
 
   return (
@@ -94,8 +97,18 @@ export default async function AdminMarketplacePage({ searchParams }: { searchPar
                     <span className="text-[11.5px] text-muted">{relativeListingDate(l.created_at, locale)}</span>
                   </div>
                   <Link href={`/cho-do-cu/${l.id}`} target="_blank" className="font-semibold text-[15px] text-ink leading-snug line-clamp-1 hover:text-rose transition-colors">{l.title}</Link>
-                  <p className="text-[12.5px] mt-0.5"><span className={`font-bold ${l.listing_type === 'free' ? 'text-teal' : 'text-rose'}`}>{l.listing_type === 'free' ? tm('free_price') : formatPriceJPY(l.price)}</span></p>
+                  <p className="text-[12.5px] mt-0.5">
+                    <span className={`font-bold ${l.listing_type === 'free' ? 'text-teal' : 'text-rose'}`}>
+                      {l.listing_type === 'free' ? tm('free_price')
+                        : l.listing_type === 'auction' ? formatPriceJPY(l.current_bid ?? l.start_price)
+                        : formatPriceJPY(l.price)}
+                    </span>
+                    {l.listing_type === 'auction' && <span className="text-muted text-[11px] ml-1.5">🔨 {tm('bid_count', { count: l.bid_count ?? 0 })}</span>}
+                  </p>
                   <div className="flex gap-2 mt-2.5 flex-wrap">
+                    {l.listing_type === 'auction' && (
+                      <Link href={`/admin/cho-do-cu/${l.id}`} className="text-[12.5px] font-semibold px-3.5 py-1.5 rounded-full bg-rose/10 text-rose hover:bg-rose/20 transition-all">{t('view_bids')} →</Link>
+                    )}
                     {l.status !== 'approved' && (
                       <form action={approveListing}><input type="hidden" name="id" value={l.id} /><button className="text-[12.5px] font-semibold px-3.5 py-1.5 rounded-full bg-emerald-500 text-white hover:bg-emerald-600 transition-all">{t('approve')}</button></form>
                     )}

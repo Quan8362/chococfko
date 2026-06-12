@@ -2298,6 +2298,25 @@
     "empty": "No listings.",
     "approve": "Approve",
     "reject": "Reject",
-    "delete": "Delete"
+    "delete": "Delete",
+    "tab_auction": "Auctions",
+    "view_bids": "View bids",
+    "back_listings": "Back to list",
+    "status_ended": "Ended",
+    "status_live": "Live",
+    "start_price_label": "Start price",
+    "final_price_label": "Final price",
+    "bidders_label": "Bidders",
+    "bids_unit": "bids",
+    "winner_title": "Winner",
+    "leading_title": "Leading",
+    "no_winner": "No winner yet",
+    "view_profile": "Profile",
+    "contact": "Message",
+    "bids_title": "Bid list",
+    "no_bids": "No bids yet",
+    "col_bidder": "Bidder",
+    "col_amount": "Amount",
+    "col_time": "Time"
   }
 }

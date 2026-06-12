@@ -12,6 +12,11 @@ import AdminNotificationPopup from '@/components/AdminNotificationPopup'
 import NotificationPermissionBanner from '@/components/NotificationPermissionBanner'
 import CommunityNotificationProvider from '@/components/CommunityNotificationProvider'
 
+// Run server functions in Tokyo (hnd1) — same region as the Supabase DB and
+// closest to our Fukuoka users. Default was iad1 (US East), which forced every
+// DB round-trip across the Pacific and dominated server render time.
+export const preferredRegion = 'hnd1'
+
 const SITE_NAME = 'Chợ Cóc FKO'
 const SITE_URL  = 'https://chococfko.com'
 

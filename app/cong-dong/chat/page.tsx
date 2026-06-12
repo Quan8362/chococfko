@@ -118,7 +118,7 @@ export default async function CongDongChatPage({
 
   if (!user) redirect('/dang-nhap')
 
-  const [isAdmin, profileResult, roomsResult] = await Promise.all([
+  const [isAdmin, profileResult, roomsResult, membershipsResult] = await Promise.all([
     checkIsAdmin(),
     supabase.from('profiles').select('display_name, avatar_url').eq('id', user.id).single(),
     supabase
@@ -126,15 +126,13 @@ export default async function CongDongChatPage({
       .select('id, key, name, sort_order, is_private, created_by, avatar_url')
       .eq('is_active', true)
       .order('sort_order', { ascending: true }),
+    // Membership only needs user.id (known) → fetch it in the same wave instead
+    // of a second sequential round-trip.
+    supabase.from('community_chat_room_members').select('room_id, role').eq('user_id', user.id),
   ])
 
   const rooms = (roomsResult.data ?? []) as Room[]
-
-  // Fetch user's membership in private rooms
-  const { data: membershipsData } = await supabase
-    .from('community_chat_room_members')
-    .select('room_id, role')
-    .eq('user_id', user.id)
+  const membershipsData = membershipsResult.data
 
   const myMembershipMap: Record<string, { role: 'owner' | 'admin' | 'member' }> = {}
   for (const m of membershipsData ?? []) {

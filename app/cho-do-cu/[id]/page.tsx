@@ -38,14 +38,22 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
   const isOwner = viewer?.id === listing.user_id
   if (listing.status !== 'approved' && !isOwner) notFound()
 
+  // Kick off the side-effect writes concurrently (not on the critical path) so
+  // they don't each add a cross-region round-trip wave before the page renders.
+  const viewWrite = listing.status === 'approved' && !isOwner
+    ? incrementListingView(listing.id) : Promise.resolve()
+  const auctionResolve = listing.listing_type === 'auction'
+    ? resolveEndedAuction(listing) : Promise.resolve()
+
   const [seller, comments, related, rating] = await Promise.all([
     getUserIdentity(listing.user_id),
     getListingComments(listing.id),
     getRelatedListings(listing.category, listing.id),
     getListingRating(listing.id, viewer?.id ?? null),
   ])
-  if (listing.status === 'approved' && !isOwner) await incrementListingView(listing.id)
-  if (listing.listing_type === 'auction') await resolveEndedAuction(listing)
+  // Ensure the writes finish before the serverless function returns (they were
+  // already running in parallel with the reads above, so this rarely waits).
+  await Promise.all([viewWrite, auctionResolve])
 
   const isFree = listing.listing_type === 'free'
   const isAuction = listing.listing_type === 'auction'

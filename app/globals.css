@@ -2,6 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Hide the browser's built-in password reveal/clear icons (Edge ::-ms-reveal,
+   WebKit) so only our custom eye toggle shows — otherwise Edge renders two eyes. */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none;
+}
+input[type="password"]::-webkit-credentials-auto-fill-button,
+input[type="password"]::-webkit-strong-password-auto-fill-button {
+  display: none !important;
+  visibility: hidden;
+  pointer-events: none;
+}
+
 :root {
   --ink: #241a17;
   --cream: #faf4ea;

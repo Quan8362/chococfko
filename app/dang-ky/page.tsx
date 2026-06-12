@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
 import { signUp, resendConfirmation } from '@/app/auth/actions'
 import SocialLoginButtons from '@/components/SocialLoginButtons'
+import PasswordInput from '@/components/PasswordInput'
 
 export async function generateMetadata() {
   const t = await getTranslations('auth')
@@ -95,13 +96,12 @@ export default async function DangKy({
             <label className="block text-[13px] font-semibold mb-1.5 text-[#5c4d44]">
               {t('password')}
             </label>
-            <input
-              type="password"
+            <PasswordInput
               name="password"
               required
               minLength={6}
+              autoComplete="new-password"
               placeholder={t('password_hint')}
-              className="w-full text-[14.5px] px-3.5 py-3 border-[1.5px] border-line rounded-xl bg-white focus:outline-none focus:border-rose"
             />
           </div>
           <button

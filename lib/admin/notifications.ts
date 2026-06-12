@@ -7,6 +7,7 @@ export type NotificationType =
   | 'new_pending_post'
   | 'new_pending_place'
   | 'new_pending_confession'
+  | 'new_pending_listing'
 
 export type AdminNotification = {
   id: string

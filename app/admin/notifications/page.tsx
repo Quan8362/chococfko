@@ -16,6 +16,7 @@ const TYPE_EMOJI: Record<string, string> = {
   new_pending_post:       '📝',
   new_pending_place:      '📍',
   new_pending_confession: '🤫',
+  new_pending_listing:    '🛒',
 }
 
 function relTime(iso: string, t: (key: string, values?: Record<string, string | number>) => string): string {
@@ -47,6 +48,7 @@ export default async function AdminNotificationsPage({
       case 'new_pending_post':       return t('admin_notif_title_new_pending_post')
       case 'new_pending_place':      return t('admin_notif_title_new_pending_place')
       case 'new_pending_confession': return t('admin_notif_title_new_pending_confession')
+      case 'new_pending_listing':    return t('admin_notif_title_new_pending_listing')
       default:                       return fallback ?? t('page_title')
     }
   }

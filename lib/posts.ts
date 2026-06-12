@@ -6,6 +6,7 @@ export interface Post {
   area: string;
   rating: number; // 1..5
   author: string;
+  authorId?: string;
   authorInitial: string;
   authorColor: string;
   authorAvatar?: string;
@@ -208,6 +209,7 @@ function mapDbPost(row: DbPost, index: number, locale = 'vi'): Post {
     area: row.area,
     rating: row.rating,
     author: name,
+    authorId: row.user_id,
     authorInitial: name[0].toUpperCase(),
     authorColor: AUTHOR_COLORS[colorIdx],
     authorAvatar: row.author_avatar || undefined,

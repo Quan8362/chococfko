@@ -6,7 +6,7 @@ import LanguageSwitcher from './LanguageSwitcher'
 import UserMenu from './UserMenu'
 import MobileMenu from './MobileMenu'
 import AdminNotificationBell from './AdminNotificationBell'
-import ChatUnreadBadge from './ChatUnreadBadge'
+import NavDropdown from './NavDropdown'
 
 async function getAuthState() {
   try {
@@ -53,21 +53,27 @@ export default async function Nav() {
           <Link href="/" className="px-3 py-1.5 rounded-lg hover:bg-line hover:text-rose transition-colors whitespace-nowrap">
             {t('explore')}
           </Link>
-          <Link href="/cong-dong" className="px-3 py-1.5 rounded-lg hover:bg-line hover:text-rose transition-colors whitespace-nowrap">
-            {t('community')}
+          <NavDropdown
+            label={t('community')}
+            showChatBadgeOnParent
+            items={[
+              { href: '/cong-dong', label: t('community_posts'), icon: '📝' },
+              { href: '/confessions', label: tConf('nav'), icon: '🤫' },
+              { href: '/cong-dong/chat', label: t('chat'), icon: '💬', badge: 'chat' },
+            ]}
+          />
+          <Link href="/cho-do-cu" className="px-3 py-1.5 rounded-lg hover:bg-line hover:text-rose transition-colors whitespace-nowrap">
+            {t('marketplace')}
           </Link>
           <Link href="/tieng-nhat" className="px-3 py-1.5 rounded-lg hover:bg-line hover:text-rose transition-colors whitespace-nowrap">
             {tJp('nav')}
           </Link>
-          <Link href="/confessions" className="px-3 py-1.5 rounded-lg hover:bg-line hover:text-rose transition-colors whitespace-nowrap">
-            {tConf('nav')}
-          </Link>
-          <Link href="/cong-dong/chat" className="px-3 py-1.5 rounded-lg hover:bg-line hover:text-rose transition-colors whitespace-nowrap inline-flex items-center">
-            {t('chat')}<ChatUnreadBadge />
-          </Link>
-          <Link href="/games" className="px-3 py-1.5 rounded-lg hover:bg-line hover:text-rose transition-colors whitespace-nowrap">
-            {t('mini_game')}
-          </Link>
+          <NavDropdown
+            label={t('entertainment')}
+            items={[
+              { href: '/games', label: t('mini_game'), icon: '🎮' },
+            ]}
+          />
         </nav>
 
         {/* Right actions — bên phải */}

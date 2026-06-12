@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import { checkIsAdmin } from '@/lib/supabase/admin'
+import { getUserIdentity } from '@/lib/userIdentity'
 import ChatClient from './ChatClient'
 
 export async function generateMetadata() {
@@ -103,10 +104,12 @@ function buildReactionsMap(
   return map
 }
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
 export default async function CongDongChatPage({
   searchParams,
 }: {
-  searchParams: { room?: string; msg?: string }
+  searchParams: { room?: string; msg?: string; dm?: string }
 }) {
   const supabase = createClient()
   const t = await getTranslations('community_chat')
@@ -247,6 +250,20 @@ export default async function CongDongChatPage({
     user.email?.split('@')[0] ||
     t('member_fallback')
 
+  // Deep-link from a member's public profile: ?dm=<userId> opens that DM
+  let initialDmUser: { id: string; display_name: string; avatar_url: string | null } | undefined
+  const dmTargetId = searchParams.dm
+  if (dmTargetId && UUID_RE.test(dmTargetId) && dmTargetId !== user.id) {
+    const identity = await getUserIdentity(dmTargetId)
+    if (identity.name || identity.avatarUrl) {
+      initialDmUser = {
+        id: dmTargetId,
+        display_name: identity.name || t('member_fallback'),
+        avatar_url: identity.avatarUrl,
+      }
+    }
+  }
+
   return (
     <ChatClient
       userId={user.id}
@@ -262,6 +279,7 @@ export default async function CongDongChatPage({
       initialPollsMap={initialPollsMap}
       myMembershipMap={myMembershipMap}
       initialHighlightMsgId={typeof searchParams.msg === 'string' ? searchParams.msg : undefined}
+      initialDmUser={initialDmUser}
     />
   )
 }

@@ -307,6 +307,7 @@ export default function ChatClient({
   initialPollsMap,
   myMembershipMap,
   initialHighlightMsgId,
+  initialDmUser,
 }: {
   userId: string
   displayName: string
@@ -321,6 +322,7 @@ export default function ChatClient({
   initialPollsMap: PollsMap
   myMembershipMap: Record<string, { role: 'owner' | 'admin' | 'member' }>
   initialHighlightMsgId?: string
+  initialDmUser?: { id: string; display_name: string; avatar_url: string | null }
 }) {
   const t = useTranslations('community_chat')
   const locale = useLocale()
@@ -1277,6 +1279,14 @@ export default function ChatClient({
     setDmMessages([])
     setDmPartner(null)
   }, [])
+
+  // Deep-link: ?dm=<userId> on the chat page opens that conversation once on mount
+  const initialDmOpenedRef = useRef(false)
+  useEffect(() => {
+    if (initialDmOpenedRef.current || !initialDmUser) return
+    initialDmOpenedRef.current = true
+    openDm(initialDmUser)
+  }, [initialDmUser, openDm])
 
   const handleMentionClick = useCallback((mentionedUserId: string, mentionedName: string) => {
     if (mentionedUserId === userId) return

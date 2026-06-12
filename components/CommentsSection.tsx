@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useTranslations, useLocale } from 'next-intl'
 import { submitComment, deleteComment, type CommentResult } from '@/app/cong-dong/actions'
+import AuthorLink from '@/components/AuthorLink'
 import { avatarSrc, proxyHtml } from '@/lib/avatar'
 
 const CommentRichEditor = dynamic(() => import('@/components/CommentRichEditor'), { ssr: false })
@@ -146,9 +147,11 @@ export default function CommentsSection({ postId, comments, currentUser, isAdmin
                 <div className="flex-1 bg-cream border border-line rounded-2xl rounded-tl-sm px-4 py-3">
                   <div className="flex items-center justify-between gap-2 mb-1.5">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-semibold text-[13.5px] text-ink">
-                        {c.author_name ?? t('anonymous')}
-                      </span>
+                      <AuthorLink
+                        userId={c.user_id}
+                        name={c.author_name ?? t('anonymous')}
+                        className="font-semibold text-[13.5px] text-ink"
+                      />
                       {isOwn && (
                         <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-rose/10 text-rose">
                           {t('you')}

@@ -51,27 +51,34 @@ export default function MobileMenu({ isLoggedIn }: MobileMenuProps) {
               <Link href="/" onClick={close} className="flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
                 <span>🗺️</span> {t('explore')}
               </Link>
+
+              <p className="px-3 pt-3 pb-1 text-[11px] font-bold uppercase tracking-wider text-muted/70">{t('community')}</p>
               <Link href="/cong-dong" onClick={close} className="flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
-                <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                {t('community')}
-              </Link>
-              <Link href="/tieng-nhat" onClick={close} className="flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
-                <span>🇯🇵</span> {tJp('nav')}
+                <span>📝</span> {t('community_posts')}
               </Link>
               <Link href="/confessions" onClick={close} className="flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
                 <span>🤫</span> {tConf('nav')}
               </Link>
               <Link href="/cong-dong/chat" onClick={close} className="flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
-                <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                </svg>
+                <span>💬</span>
                 <span className="flex-1">{t('chat')}</span>
                 <ChatUnreadBadge />
               </Link>
+
+              <p className="px-3 pt-3 pb-1 text-[11px] font-bold uppercase tracking-wider text-muted/70">{t('marketplace')}</p>
+              <Link href="/cho-do-cu" onClick={close} className="flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
+                <span>🛒</span> {t('marketplace_browse')}
+              </Link>
+              <Link href="/cho-do-cu/dang" onClick={close} className="flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
+                <span>＋</span> {t('marketplace_post')}
+              </Link>
+
+              <p className="px-3 pt-3 pb-1 text-[11px] font-bold uppercase tracking-wider text-muted/70">{t('more')}</p>
+              <Link href="/tieng-nhat" onClick={close} className="flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
+                <span>🇯🇵</span> {tJp('nav')}
+              </Link>
               <Link href="/games" onClick={close} className="flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
-                {t('mini_game')}
+                <span>🎮</span> {t('mini_game')}
               </Link>
               <Link href="/cong-dong/viet-bai" onClick={close} className="flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] font-semibold text-rose hover:bg-rose-soft transition-colors">
                 {t('write_post')}

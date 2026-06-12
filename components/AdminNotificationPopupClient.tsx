@@ -21,6 +21,7 @@ const TYPE_EMOJI: Record<string, string> = {
   new_pending_post:       '📝',
   new_pending_place:      '📍',
   new_pending_confession: '🤫',
+  new_pending_listing:    '🛒',
 }
 
 export default function AdminNotificationPopupClient({ userId }: { userId: string }) {
@@ -34,6 +35,7 @@ export default function AdminNotificationPopupClient({ userId }: { userId: strin
       case 'new_pending_post':       return t('admin_notif_title_new_pending_post')
       case 'new_pending_place':      return t('admin_notif_title_new_pending_place')
       case 'new_pending_confession': return t('admin_notif_title_new_pending_confession')
+      case 'new_pending_listing':    return t('admin_notif_title_new_pending_listing')
       default:                       return fallback ?? t('admin_review_badge')
     }
   }

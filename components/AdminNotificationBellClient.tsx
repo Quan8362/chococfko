@@ -42,6 +42,7 @@ export default function AdminNotificationBellClient({
       case 'new_pending_post':       return t('admin_notif_title_new_pending_post')
       case 'new_pending_place':      return t('admin_notif_title_new_pending_place')
       case 'new_pending_confession': return t('admin_notif_title_new_pending_confession')
+      case 'new_pending_listing':    return t('admin_notif_title_new_pending_listing')
       default:                       return fallback ?? t('dropdown_title')
     }
   }

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { syncProfileFromAuth } from '@/lib/syncProfile'
 
 function mapCallbackError(err: string | null, desc: string | null): string {
   const msg = (desc || err || '').toLowerCase()
@@ -29,6 +30,8 @@ export async function GET(request: Request) {
       const msg = mapCallbackError(error.message, null)
       return NextResponse.redirect(`${origin}/dang-nhap?error=${encodeURIComponent(msg)}`)
     }
+    // Sync provider name/avatar into profiles so it shows correctly everywhere
+    await syncProfileFromAuth(supabase)
   }
 
   const redirectTo = next.startsWith('/') ? `${origin}${next}` : origin

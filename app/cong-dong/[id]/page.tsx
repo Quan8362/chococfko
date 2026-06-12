@@ -5,6 +5,7 @@ import { getPost, getPostFromDb, isUuid } from '@/lib/posts'
 import { checkIsAdmin, createAdminClient } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
 import SmartImg from '@/components/SmartImg'
+import AuthorLink from '@/components/AuthorLink'
 import CommentsSection, { type Comment } from '@/components/CommentsSection'
 
 export async function generateMetadata({ params }: { params: { id: string } }) {
@@ -112,7 +113,11 @@ export default async function PostDetail({ params }: { params: { id: string } })
               {post.authorInitial}
             </span>
             <div>
-              <div className="font-semibold text-[15px]">{post.author}</div>
+              <AuthorLink
+                userId={post.authorId}
+                name={post.author}
+                className="font-semibold text-[15px] block"
+              />
               <div className="text-[13px] text-muted">{post.date}</div>
             </div>
           </div>

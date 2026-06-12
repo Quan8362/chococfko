@@ -9,6 +9,7 @@ import { useTranslations, useLocale } from 'next-intl'
 import { submitConfessionComment, deleteConfessionComment, type CommentResult } from '../actions'
 import { type ConfessionComment } from '@/lib/confessions'
 import AnonAvatar from '@/components/AnonAvatar'
+import AuthorLink from '@/components/AuthorLink'
 import { generateAnonId } from '@/lib/anon'
 import { avatarSrc, proxyHtml } from '@/lib/avatar'
 
@@ -182,7 +183,11 @@ export default function ConfessionComments({
                 <div className="flex-1 bg-cream border border-line rounded-2xl rounded-tl-sm px-4 py-3 hover:border-rose/20 transition-colors">
                   <div className="flex items-start justify-between gap-2 mb-1.5">
                     <div className="flex items-center gap-2 flex-wrap min-w-0">
-                      <span className="font-semibold text-[13.5px] text-ink truncate">{displayName}</span>
+                      <AuthorLink
+                        userId={c.is_anonymous ? null : c.user_id}
+                        name={displayName}
+                        className="font-semibold text-[13.5px] text-ink truncate"
+                      />
                       {isOwn && (
                         <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-rose/10 text-rose flex-none">
                           {t('you')}

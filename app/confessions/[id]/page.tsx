@@ -5,6 +5,7 @@ import { getConfessionById, getConfessionComments, relativeConfessionDate, isUui
 import { checkIsAdmin } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
 import AnonAvatar from '@/components/AnonAvatar'
+import AuthorLink from '@/components/AuthorLink'
 import { generateAnonId } from '@/lib/anon'
 import ConfessionComments from './ConfessionComments'
 
@@ -94,7 +95,11 @@ export default async function ConfessionDetailPage({ params }: { params: { id: s
             )}
 
             <div className="flex flex-col leading-tight">
-              <span className="text-[13.5px] font-semibold text-ink">{displayName}</span>
+              <AuthorLink
+                userId={confession.is_anonymous ? null : confession.visible_author_id}
+                name={displayName}
+                className="text-[13.5px] font-semibold text-ink"
+              />
               <span className="text-[11.5px] text-muted">{relativeConfessionDate(confession.created_at)}</span>
             </div>
 
@@ -117,9 +122,9 @@ export default async function ConfessionDetailPage({ params }: { params: { id: s
       <div className="max-w-[900px] mx-auto px-5 sm:px-6 mt-8">
 
         {/* Confession body card */}
-        <div className="bg-paper rounded-2xl shadow-[0_4px_28px_-8px_rgba(36,26,23,0.12)] border border-line mb-8">
+        <div className="bg-paper rounded-2xl shadow-[0_4px_28px_-8px_rgba(36,26,23,0.12)] border-x border-b border-line mb-8 overflow-hidden">
           {/* Top accent bar */}
-          <div className="h-[3px] rounded-t-2xl bg-gradient-to-r from-rose/30 via-rose to-rose/30" />
+          <div className="h-[3px] bg-gradient-to-r from-rose/30 via-rose to-rose/30" />
 
           <div className="px-7 sm:px-11 pt-8 pb-9">
             {/* Opening quote mark */}

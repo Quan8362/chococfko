@@ -19,6 +19,20 @@ async function getPendingConfessionsCount(): Promise<number> {
   }
 }
 
+async function getPendingListingsCount(): Promise<number> {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return 0
+  try {
+    const admin = createAdminClient()
+    const { count } = await admin
+      .from('marketplace_listings')
+      .select('id', { count: 'exact', head: true })
+      .eq('status', 'pending')
+    return count ?? 0
+  } catch {
+    return 0
+  }
+}
+
 export const metadata = { title: 'Admin · Chợ Cóc FKO' }
 export const dynamic = 'force-dynamic'
 
@@ -72,7 +86,10 @@ export default async function AdminPage({
   ])
 
   const admin = createAdminClient()
-  const pendingConfessionsCount = await getPendingConfessionsCount()
+  const [pendingConfessionsCount, pendingListingsCount] = await Promise.all([
+    getPendingConfessionsCount(),
+    getPendingListingsCount(),
+  ])
 
   // Fetch community posts
   const { data: postsData, error: postsError } = await admin
@@ -131,7 +148,7 @@ export default async function AdminPage({
     all:      { title: admin_t('empty_all_title'),      sub: admin_t('empty_all_sub') },
   }
 
-  const totalPending = byStatus.pending.length + pendingPlaces.length + pendingConfessionsCount
+  const totalPending = byStatus.pending.length + pendingPlaces.length + pendingConfessionsCount + pendingListingsCount
 
   return (
     <div className="max-w-[1100px] mx-auto px-6 py-10">
@@ -209,6 +226,34 @@ export default async function AdminPage({
               FKO Confessions
             </h2>
             <p className="text-[13px] text-muted mb-3.5 leading-relaxed">{admin_t('confessions_desc')}</p>
+            <span className="inline-flex items-center gap-1 text-[12px] font-semibold text-rose bg-rose-soft px-2.5 py-1 rounded-full">
+              {admin_t('manage')}
+              <svg className="w-3 h-3 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+              </svg>
+            </span>
+          </div>
+        </Link>
+
+        {/* Marketplace */}
+        <Link
+          href="/admin/cho-do-cu"
+          className="relative bg-paper border border-line rounded-2xl p-5 overflow-hidden hover:border-rose/35 hover:bg-rose-soft/30 hover:-translate-y-0.5 hover:shadow-card transition-all group"
+        >
+          {pendingListingsCount > 0 && (
+            <span className="absolute top-3 right-3 text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-400 text-white">
+              ⏳ {pendingListingsCount}
+            </span>
+          )}
+          <div className="absolute -top-8 -right-8 w-28 h-28 bg-rose/5 rounded-full pointer-events-none" />
+          <div className="relative">
+            <div className="w-10 h-10 rounded-xl bg-rose-soft grid place-items-center text-[20px] mb-3.5 flex-none">
+              🛒
+            </div>
+            <h2 className="font-serif font-bold text-[16.5px] text-ink mb-1 group-hover:text-rose transition-colors">
+              {admin_t('marketplace_title')}
+            </h2>
+            <p className="text-[13px] text-muted mb-3.5 leading-relaxed">{admin_t('marketplace_desc')}</p>
             <span className="inline-flex items-center gap-1 text-[12px] font-semibold text-rose bg-rose-soft px-2.5 py-1 rounded-full">
               {admin_t('manage')}
               <svg className="w-3 h-3 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

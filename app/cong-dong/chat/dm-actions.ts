@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { notifyUsers } from '@/lib/notifications/user'
 
 const DM_MSG_PAGE = 50
@@ -32,7 +33,16 @@ export type DmMessage = {
   attachment_mime: string | null
   attachment_size: number | null
   audio_duration: number | null
+  reply_to_id: string | null
+  reply_to_message: string | null
+  reply_to_display_name: string | null
 }
+
+export type DmReactionItem = { emoji: string; count: number; hasMyReaction: boolean; users: string[] }
+export type DmReactionsMap = Record<string, DmReactionItem[]>
+
+// Reactions allowed in DMs — same set as group chat.
+const DM_ALLOWED_EMOJIS = ['👍', '❤️', '😂', '😮', '🎉'] as const
 
 const DM_BUCKETS = ['community-chat-images', 'community-chat-files', 'community-chat-audio'] as const
 type DmBucket = (typeof DM_BUCKETS)[number]
@@ -123,14 +133,14 @@ export async function getDmConversations(): Promise<{
 
 export async function getDmMessages(
   conversationId: string,
-): Promise<{ messages?: DmMessage[]; error?: string }> {
+): Promise<{ messages?: DmMessage[]; reactions?: DmReactionsMap; error?: string }> {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'unauthenticated' }
 
   const { data, error } = await supabase
     .from('community_dm_messages')
-    .select('id, conversation_id, sender_id, display_name, avatar_url, message, is_deleted, created_at, edited_at, kind, attachment_bucket, attachment_path, attachment_mime, attachment_name, attachment_size, audio_duration')
+    .select('id, conversation_id, sender_id, display_name, avatar_url, message, is_deleted, created_at, edited_at, kind, attachment_bucket, attachment_path, attachment_mime, attachment_name, attachment_size, audio_duration, reply_to_id, reply_to_message, reply_to_display_name')
     .eq('conversation_id', conversationId)
     .eq('is_deleted', false)
     .order('created_at', { ascending: true })
@@ -163,10 +173,53 @@ export async function getDmMessages(
       attachment_mime: (r.attachment_mime as string | null) ?? null,
       attachment_size: (r.attachment_size as number | null) ?? null,
       audio_duration: (r.audio_duration as number | null) ?? null,
+      reply_to_id: (r.reply_to_id as string | null) ?? null,
+      reply_to_message: (r.reply_to_message as string | null) ?? null,
+      reply_to_display_name: (r.reply_to_display_name as string | null) ?? null,
     }
   }))
 
-  return { messages }
+  const reactions = await loadDmReactions(supabase, conversationId, user.id)
+  return { messages, reactions }
+}
+
+// Build the reactions map for a conversation (emoji → {count, mine, who}).
+async function loadDmReactions(
+  supabase: ReturnType<typeof createClient>,
+  conversationId: string,
+  selfId: string,
+): Promise<DmReactionsMap> {
+  const { data } = await supabase
+    .from('community_dm_reactions')
+    .select('message_id, user_id, emoji')
+    .eq('conversation_id', conversationId)
+  const rows = (data ?? []) as { message_id: string; user_id: string; emoji: string }[]
+  if (rows.length === 0) return {}
+
+  const actorIds = Array.from(new Set(rows.map(r => r.user_id)))
+  const nameMap: Record<string, string> = {}
+  if (actorIds.length > 0) {
+    const { data: profs } = await supabase.from('profiles').select('id, display_name').in('id', actorIds)
+    for (const p of (profs ?? []) as { id: string; display_name: string | null }[]) {
+      if (p.display_name) nameMap[p.id] = p.display_name
+    }
+  }
+
+  const map: DmReactionsMap = {}
+  for (const row of rows) {
+    if (!map[row.message_id]) map[row.message_id] = []
+    const list = map[row.message_id]
+    const existing = list.find(x => x.emoji === row.emoji)
+    const name = nameMap[row.user_id] ?? null
+    if (existing) {
+      existing.count++
+      if (row.user_id === selfId) existing.hasMyReaction = true
+      if (name && !existing.users.includes(name)) existing.users.push(name)
+    } else {
+      list.push({ emoji: row.emoji, count: 1, hasMyReaction: row.user_id === selfId, users: name ? [name] : [] })
+    }
+  }
+  return map
 }
 
 // Shared sender for image/file/audio DM messages.
@@ -264,6 +317,7 @@ export async function sendDmAudio(conversationId: string, path: string, mime: st
 export async function sendDmMessage(
   conversationId: string,
   message: string,
+  replyToId?: string,
 ): Promise<{ ok?: boolean; error?: string; msgId?: string; createdAt?: string }> {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -293,6 +347,27 @@ export async function sendDmMessage(
     user.email?.split('@')[0] ||
     'Thành viên'
 
+  // Snapshot reply context (same conversation, not deleted).
+  let replyToMessage: string | null = null
+  let replyToDisplayName: string | null = null
+  if (replyToId) {
+    const { data: r } = await supabase
+      .from('community_dm_messages')
+      .select('message, display_name, is_deleted, conversation_id, kind')
+      .eq('id', replyToId)
+      .eq('conversation_id', conversationId)
+      .maybeSingle()
+    const rm = r as { message: string; display_name: string; is_deleted: boolean; kind: DmKind } | null
+    if (rm && !rm.is_deleted) {
+      replyToMessage =
+        rm.kind === 'image' ? '📷 Ảnh'
+        : rm.kind === 'audio' ? '🎤 Tin nhắn thoại'
+        : rm.kind === 'file' ? '📎 File'
+        : rm.message
+      replyToDisplayName = rm.display_name
+    }
+  }
+
   const { data: newMsg, error } = await supabase
     .from('community_dm_messages')
     .insert({
@@ -301,6 +376,9 @@ export async function sendDmMessage(
       display_name: displayName,
       avatar_url: (profile as { avatar_url: string | null } | null)?.avatar_url ?? null,
       message: trimmed,
+      reply_to_id: replyToId ?? null,
+      reply_to_message: replyToMessage,
+      reply_to_display_name: replyToDisplayName,
     })
     .select('id, created_at')
     .single()
@@ -330,6 +408,112 @@ export async function sendDmMessage(
   })
 
   return { ok: true, msgId, createdAt }
+}
+
+// ── Delete (soft) one of your own DM messages ────────────────────────────────
+export async function deleteDmMessage(
+  messageId: string,
+): Promise<{ ok?: boolean; error?: string }> {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'unauthenticated' }
+
+  const { data: msg } = await supabase
+    .from('community_dm_messages')
+    .select('sender_id')
+    .eq('id', messageId)
+    .maybeSingle()
+  if (!msg) return { error: 'not_found' }
+  if ((msg as { sender_id: string }).sender_id !== user.id) return { error: 'unauthorized' }
+
+  // Service-role update so the soft-delete also reaches the other client via
+  // realtime UPDATE (no per-row UPDATE policy needed).
+  const admin = createAdminClient()
+  const { error } = await admin
+    .from('community_dm_messages')
+    .update({ is_deleted: true })
+    .eq('id', messageId)
+  if (error) return { error: 'db_error' }
+  return { ok: true }
+}
+
+// ── Edit one of your own DM text messages ────────────────────────────────────
+export async function editDmMessage(
+  messageId: string,
+  newText: string,
+): Promise<{ ok?: boolean; error?: string; editedAt?: string }> {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'unauthenticated' }
+
+  const trimmed = newText.trim()
+  if (!trimmed) return { error: 'empty' }
+  if (trimmed.length > 500) return { error: 'too_long' }
+
+  const { data: original } = await supabase
+    .from('community_dm_messages')
+    .select('sender_id, created_at, kind, is_deleted')
+    .eq('id', messageId)
+    .maybeSingle()
+  const o = original as { sender_id: string; created_at: string; kind: DmKind; is_deleted: boolean } | null
+  if (!o) return { error: 'not_found' }
+  if (o.sender_id !== user.id) return { error: 'unauthorized' }
+  if (o.is_deleted) return { error: 'deleted' }
+  if (o.kind !== 'text') return { error: 'cannot_edit' }
+  if (Date.now() - new Date(o.created_at).getTime() > 10 * 60 * 1000) return { error: 'too_late' }
+
+  const editedAt = new Date().toISOString()
+  const admin = createAdminClient()
+  const { error } = await admin
+    .from('community_dm_messages')
+    .update({ message: trimmed, edited_at: editedAt })
+    .eq('id', messageId)
+  if (error) return { error: 'db_error' }
+  return { ok: true, editedAt }
+}
+
+// ── Toggle a reaction on a DM message ────────────────────────────────────────
+export async function toggleDmReaction(
+  messageId: string,
+  emoji: string,
+): Promise<{ ok?: boolean; removed?: boolean; error?: string }> {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'unauthenticated' }
+
+  if (!(DM_ALLOWED_EMOJIS as readonly string[]).includes(emoji)) return { error: 'invalid_emoji' }
+
+  // Resolve the conversation + membership from the message.
+  const { data: msg } = await supabase
+    .from('community_dm_messages')
+    .select('conversation_id')
+    .eq('id', messageId)
+    .maybeSingle()
+  if (!msg) return { error: 'not_found' }
+  const conversationId = (msg as { conversation_id: string }).conversation_id
+
+  const { data: existing } = await supabase
+    .from('community_dm_reactions')
+    .select('id')
+    .eq('message_id', messageId)
+    .eq('user_id', user.id)
+    .eq('emoji', emoji)
+    .maybeSingle()
+
+  if (existing) {
+    const { error } = await supabase
+      .from('community_dm_reactions')
+      .delete()
+      .eq('id', (existing as { id: string }).id)
+    if (error) return { error: 'db_error' }
+    return { ok: true, removed: true }
+  }
+
+  const { error } = await supabase
+    .from('community_dm_reactions')
+    .insert({ message_id: messageId, conversation_id: conversationId, user_id: user.id, emoji })
+  if (error) return { error: 'db_error' }
+  return { ok: true }
 }
 
 export async function searchUsersForDm(

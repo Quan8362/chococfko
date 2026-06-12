@@ -1704,6 +1704,8 @@
     "sending": "发送中...",
     "empty": "暂无消息。开始对话吧！",
     "error_send": "消息发送失败，请重试。",
+    "error_delete": "无法删除消息，请重试。",
+    "error_edit": "无法编辑消息，请重试。",
     "error_too_long": "消息太长（最多500个字符）。",
     "error_empty": "请输入消息内容。",
     "error_rate_limit": "发送太快，请稍后再试。",

@@ -1704,6 +1704,8 @@
     "sending": "Đang gửi...",
     "empty": "Chưa có tin nhắn nào. Hãy bắt đầu trò chuyện!",
     "error_send": "Không thể gửi tin nhắn. Vui lòng thử lại.",
+    "error_delete": "Không thể xóa tin nhắn. Vui lòng thử lại.",
+    "error_edit": "Không thể sửa tin nhắn. Vui lòng thử lại.",
     "error_too_long": "Tin nhắn quá dài (tối đa 500 ký tự).",
     "error_empty": "Vui lòng nhập nội dung.",
     "error_rate_limit": "Bạn gửi tin nhắn quá nhanh. Vui lòng thử lại sau.",

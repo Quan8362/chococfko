@@ -1704,6 +1704,8 @@
     "sending": "Sending...",
     "empty": "No messages yet. Start the conversation!",
     "error_send": "Failed to send message. Please try again.",
+    "error_delete": "Couldn't delete the message. Please try again.",
+    "error_edit": "Couldn't edit the message. Please try again.",
     "error_too_long": "Message is too long (max 500 characters).",
     "error_empty": "Please enter a message.",
     "error_rate_limit": "You're sending too fast. Please wait a moment.",

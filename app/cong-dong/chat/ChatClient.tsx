@@ -19,8 +19,9 @@ import {
 import {
   getOrCreateDmConversation, getDmConversations, getDmMessages, sendDmMessage, searchUsersForDm,
   sendDmImage, sendDmFile, sendDmAudio,
+  deleteDmMessage, editDmMessage, toggleDmReaction,
 } from './dm-actions'
-import type { DmConversation, DmMessage } from './dm-actions'
+import type { DmConversation, DmMessage, DmReactionsMap } from './dm-actions'
 import VoiceRecorder from '@/components/chat/VoiceRecorder'
 import {
   createRoom, getRoomMembers, searchUsersForRoom,
@@ -328,7 +329,7 @@ export default function ChatClient({
   initialPollsMap: PollsMap
   myMembershipMap: Record<string, { role: 'owner' | 'admin' | 'member' }>
   initialHighlightMsgId?: string
-  initialDm?: { conversationId: string; partner: { id: string; name: string; avatar: string | null }; messages: DmMessage[] }
+  initialDm?: { conversationId: string; partner: { id: string; name: string; avatar: string | null }; messages: DmMessage[]; reactions?: DmReactionsMap }
 }) {
   const t = useTranslations('community_chat')
   const locale = useLocale()
@@ -437,6 +438,16 @@ export default function ChatClient({
   const [userSearchResults, setUserSearchResults] = useState<{ id: string; display_name: string; avatar_url: string | null }[]>([])
   const [userSearchLoading, setUserSearchLoading] = useState(false)
   const [dmOpeningUserId, setDmOpeningUserId] = useState<string | null>(null)
+  // DM message actions (parity with group: react / reply / edit / delete)
+  const [dmReactions, setDmReactions] = useState<DmReactionsMap>({})
+  const [dmReplyingTo, setDmReplyingTo] = useState<{ id: string; message: string; display_name: string } | null>(null)
+  const [dmEditingMsgId, setDmEditingMsgId] = useState<string | null>(null)
+  const [dmEditInput, setDmEditInput] = useState('')
+  const [dmEditSaving, setDmEditSaving] = useState(false)
+  const [openDmMenuMsgId, setOpenDmMenuMsgId] = useState<string | null>(null)
+  const [dmMenuPos, setDmMenuPos] = useState<{ top: number; left: number } | null>(null)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const dmReactionChannelRef = useRef<any>(null)
 
   // ── Phase 9: Presence ────────────────────────────────────────────────────────
   const [onlineUserIds, setOnlineUserIds] = useState<Set<string>>(new Set())
@@ -633,6 +644,22 @@ export default function ChatClient({
       document.removeEventListener('keydown', closeKey)
     }
   }, [openMenuMsgId])
+
+  // Same click-outside / ESC behaviour for the DM message action menu.
+  useEffect(() => {
+    if (!openDmMenuMsgId) return
+    const closeClick = () => { setOpenDmMenuMsgId(null); setDmMenuPos(null) }
+    const closeKey = (e: KeyboardEvent) => { if (e.key === 'Escape') { setOpenDmMenuMsgId(null); setDmMenuPos(null) } }
+    const timer = setTimeout(() => {
+      document.addEventListener('click', closeClick)
+      document.addEventListener('keydown', closeKey)
+    }, 0)
+    return () => {
+      clearTimeout(timer)
+      document.removeEventListener('click', closeClick)
+      document.removeEventListener('keydown', closeKey)
+    }
+  }, [openDmMenuMsgId])
 
   // ── Mention autocomplete search ───────────────────────────────────────────
   useEffect(() => {
@@ -1206,12 +1233,28 @@ export default function ChatClient({
         (payload) => {
           if (!mounted) return
           const raw = payload.new as Record<string, unknown>
+          if (raw.is_deleted) return
           const kind = (raw.kind as DmMessage['kind']) ?? 'text'
           const previewFor = (m: DmMessage) => m.message
             || (m.kind === 'image' ? '📷 Ảnh' : m.kind === 'audio' ? '🎤 Tin nhắn thoại' : m.kind === 'file' ? `📎 ${m.attachment_name ?? 'File'}` : '')
           const add = (m: DmMessage) => {
             if (m.conversation_id === activeDmConvIdRef.current) {
-              setDmMessages(prev => prev.some(x => x.id === m.id) ? prev : [...prev, m])
+              setDmMessages(prev => {
+                if (prev.some(x => x.id === m.id)) return prev
+                // Own message: realtime may arrive before the send action's reconcile.
+                // Swap the matching optimistic temp in place instead of appending a
+                // duplicate (dedup-by-id alone can't catch it — temp id ≠ real id).
+                if (m.sender_id === userId) {
+                  const ti = prev.findIndex(x =>
+                    x.id.startsWith('temp_') && x.kind === m.kind && x.message === m.message)
+                  if (ti !== -1) {
+                    const next = prev.slice()
+                    next[ti] = m
+                    return next
+                  }
+                }
+                return [...prev, m]
+              })
               setTimeout(() => scrollDmToBottom(true), 0)
             }
             setDmConversations(prev => prev.map(c =>
@@ -1228,6 +1271,9 @@ export default function ChatClient({
             attachment_url: null, attachment_name: (raw.attachment_name as string | null) ?? null,
             attachment_mime: (raw.attachment_mime as string | null) ?? null, attachment_size: (raw.attachment_size as number | null) ?? null,
             audio_duration: (raw.audio_duration as number | null) ?? null,
+            reply_to_id: (raw.reply_to_id as string | null) ?? null,
+            reply_to_message: (raw.reply_to_message as string | null) ?? null,
+            reply_to_display_name: (raw.reply_to_display_name as string | null) ?? null,
           }
           const bucket = raw.attachment_bucket as string | null
           const path = raw.attachment_path as string | null
@@ -1239,6 +1285,22 @@ export default function ChatClient({
             add(base)
           }
         })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'community_dm_messages' },
+        (payload) => {
+          if (!mounted) return
+          const raw = payload.new as Record<string, unknown>
+          const id = raw.id as string
+          // Soft delete → drop the message; otherwise patch text/edited_at in place.
+          if (raw.is_deleted) {
+            setDmMessages(prev => prev.filter(m => m.id !== id))
+            return
+          }
+          setDmMessages(prev => prev.map(m => m.id !== id ? m : {
+            ...m,
+            message: (raw.message as string) ?? m.message,
+            edited_at: (raw.edited_at as string | null) ?? m.edited_at,
+          }))
+        })
       .subscribe((status) => {
         // If DM tables not yet migrated, remove channel to avoid disrupting other subscriptions
         if ((status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') && mounted) {
@@ -1247,6 +1309,49 @@ export default function ChatClient({
       })
     return () => { mounted = false; supabase.removeChannel(channel) }
   }, [userId])
+
+  // ── DM: reactions realtime (Broadcast, like group chat) ───────────────────
+  useEffect(() => {
+    if (!activeDmConvId) { dmReactionChannelRef.current = null; return }
+    const supabase = createClient()
+    let mounted = true
+    const channel = supabase.channel(`community-dm-reactions-${activeDmConvId}`, {
+      config: { broadcast: { self: false } },
+    })
+    dmReactionChannelRef.current = channel
+    channel
+      .on('broadcast', { event: 'reaction' }, ({ payload }) => {
+        if (!mounted) return
+        const p = payload as { messageId: string; emoji: string; action: 'add' | 'remove'; userId: string; displayName: string | null }
+        if (!p?.messageId || !p?.emoji) return
+        if (p.userId === userId) return
+        const actorName = p.displayName ?? null
+        setDmReactions(prev => {
+          const list = [...(prev[p.messageId] ?? [])]
+          const idx = list.findIndex(x => x.emoji === p.emoji)
+          if (p.action === 'add') {
+            if (idx >= 0) {
+              const u = { ...list[idx], count: list[idx].count + 1 }
+              if (actorName && !u.users.includes(actorName)) u.users = [...u.users, actorName]
+              list[idx] = u
+            } else {
+              list.push({ emoji: p.emoji, count: 1, hasMyReaction: false, users: actorName ? [actorName] : [] })
+            }
+          } else if (idx >= 0) {
+            const newCount = list[idx].count - 1
+            if (newCount <= 0) list.splice(idx, 1)
+            else {
+              const u = { ...list[idx], count: newCount }
+              if (actorName) u.users = u.users.filter(x => x !== actorName)
+              list[idx] = u
+            }
+          }
+          return { ...prev, [p.messageId]: list }
+        })
+      })
+      .subscribe()
+    return () => { mounted = false; dmReactionChannelRef.current = null; supabase.removeChannel(channel) }
+  }, [activeDmConvId, userId])
 
   // ── DM: user search debounce ──────────────────────────────────────────────
   useEffect(() => {
@@ -1282,10 +1387,12 @@ export default function ChatClient({
     setUserSearchQuery('')
     setUserSearchResults([])
 
-    const { messages: msgs } = await getDmMessages(conversationId)
+    const { messages: msgs, reactions: rx } = await getDmMessages(conversationId)
     if (!mountedRef.current) return
 
     setDmMessages(msgs ?? [])
+    setDmReactions(rx ?? {})
+    setDmReplyingTo(null)
     setActiveDmConvId(conversationId)
     activeDmConvIdRef.current = conversationId
     setDmPartner({ id: otherUser.id, name: otherUser.display_name, avatar: otherUser.avatar_url })
@@ -1313,6 +1420,8 @@ export default function ChatClient({
     setActiveDmConvId(null)
     activeDmConvIdRef.current = null
     setDmMessages([])
+    setDmReactions({})
+    setDmReplyingTo(null)
     setDmPartner(null)
   }, [])
 
@@ -1322,8 +1431,9 @@ export default function ChatClient({
   useEffect(() => {
     if (initialDmOpenedRef.current || !initialDm) return
     initialDmOpenedRef.current = true
-    const { conversationId, partner, messages } = initialDm
+    const { conversationId, partner, messages, reactions } = initialDm
     setDmMessages(messages)
+    setDmReactions(reactions ?? {})
     setActiveDmConvId(conversationId)
     activeDmConvIdRef.current = conversationId
     setDmPartner(partner)
@@ -1358,6 +1468,7 @@ export default function ChatClient({
     const convId = activeDmConvIdRef.current
     const msg = input.trim()
     if (!convId || !msg || dmSending) return
+    const replySnapshot = dmReplyingTo
     const tempId = `temp_${Date.now()}`
     const tempMsg: DmMessage = {
       id: tempId,
@@ -1375,13 +1486,17 @@ export default function ChatClient({
       attachment_mime: null,
       attachment_size: null,
       audio_duration: null,
+      reply_to_id: replySnapshot?.id ?? null,
+      reply_to_message: replySnapshot?.message ?? null,
+      reply_to_display_name: replySnapshot?.display_name ?? null,
     }
     setDmMessages(prev => [...prev, tempMsg])
     setInput('')
+    setDmReplyingTo(null)
     setTimeout(() => scrollDmToBottom(true), 0)
     inputRef.current?.focus()
     setDmSending(true)
-    const result = await sendDmMessage(convId, msg)
+    const result = await sendDmMessage(convId, msg, replySnapshot?.id)
     setDmSending(false)
     if (result.ok && result.msgId && result.createdAt) {
       setDmMessages(prev => {
@@ -1407,6 +1522,7 @@ export default function ChatClient({
       conversation_id: convId, sender_id: userId, display_name: displayName, avatar_url: avatarUrl,
       message: '', is_deleted: false, created_at: new Date().toISOString(), edited_at: null,
       kind: 'text', attachment_url: null, attachment_name: null, attachment_mime: null, attachment_size: null, audio_duration: null,
+      reply_to_id: null, reply_to_message: null, reply_to_display_name: null,
       ...over,
     }
   }
@@ -1427,6 +1543,64 @@ export default function ChatClient({
     const path = `${userId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`
     const { error } = await supabase.storage.from(bucket).upload(path, file, { contentType, cacheControl: '31536000' })
     return error ? null : path
+  }
+
+  // ── DM message actions: react / delete / edit ─────────────────────────────
+  const handleDmReact = async (messageId: string, emoji: string) => {
+    setOpenDmMenuMsgId(null)
+    if (messageId.startsWith('temp_')) return
+    const snapshot = dmReactions
+    setDmReactions(prev => {
+      const list = [...(prev[messageId] ?? [])]
+      const idx = list.findIndex(r => r.emoji === emoji)
+      if (idx >= 0) {
+        const r = list[idx]
+        if (r.hasMyReaction) {
+          const newCount = r.count - 1
+          if (newCount <= 0) list.splice(idx, 1)
+          else list[idx] = { ...r, count: newCount, hasMyReaction: false, users: r.users.filter(u => u !== displayName) }
+        } else {
+          list[idx] = { ...r, count: r.count + 1, hasMyReaction: true, users: r.users.includes(displayName) ? r.users : [...r.users, displayName] }
+        }
+      } else {
+        list.push({ emoji, count: 1, hasMyReaction: true, users: [displayName] })
+      }
+      return { ...prev, [messageId]: list }
+    })
+    const result = await toggleDmReaction(messageId, emoji)
+    if (result.error) { setDmReactions(snapshot); return }
+    const ch = dmReactionChannelRef.current
+    if (ch) {
+      ch.send({
+        type: 'broadcast',
+        event: 'reaction',
+        payload: { messageId, emoji, action: result.removed ? 'remove' : 'add', userId, displayName },
+      })
+    }
+  }
+
+  const handleDeleteDm = async (messageId: string) => {
+    setOpenDmMenuMsgId(null)
+    if (messageId.startsWith('temp_')) return
+    const snapshot = dmMessages
+    setDmMessages(prev => prev.filter(m => m.id !== messageId))
+    const result = await deleteDmMessage(messageId)
+    if (result.error) { setDmMessages(snapshot); setError(t('error_delete')); setTimeout(() => setError(null), 3000) }
+  }
+
+  const handleSaveDmEdit = async (messageId: string) => {
+    const text = dmEditInput.trim()
+    if (!text) return
+    setDmEditSaving(true)
+    const result = await editDmMessage(messageId, text)
+    setDmEditSaving(false)
+    if (result.ok) {
+      setDmMessages(prev => prev.map(m => m.id === messageId ? { ...m, message: text, edited_at: result.editedAt ?? new Date().toISOString() } : m))
+      setDmEditingMsgId(null)
+      setDmEditInput('')
+    } else {
+      setError(t('error_edit')); setTimeout(() => setError(null), 3000)
+    }
   }
 
   const handleDmImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -2694,8 +2868,11 @@ export default function ChatClient({
                 <div className="px-4 py-3 space-y-3">
                   {dmMessages.map(msg => {
                     const isMe = msg.sender_id === userId
+                    const isTemp = msg.id.startsWith('temp_')
+                    const msgRx = dmReactions[msg.id] ?? []
+                    const canEdit = isMe && msg.kind === 'text'
                     return (
-                      <div key={msg.id} className={`flex gap-2 items-end ${isMe ? 'flex-row-reverse' : 'flex-row'}`}>
+                      <div key={msg.id} className={`group flex gap-2 items-end ${isMe ? 'flex-row-reverse' : 'flex-row'}`}>
                         {!isMe && (
                           <div className="flex-none shrink-0" style={{ width: '32px', height: '32px' }}>
                             {msg.avatar_url
@@ -2706,8 +2883,41 @@ export default function ChatClient({
                         )}
                         <div className={`max-w-[70%] flex flex-col gap-0.5 ${isMe ? 'items-end' : 'items-start'}`}>
                           {!isMe && <span className="text-[10.5px] font-medium text-muted/60 ml-1">{msg.display_name}</span>}
-                          {msg.kind === 'image' && msg.attachment_url ? (
-                            <div className={msg.id.startsWith('temp_') ? 'opacity-60' : ''}>
+
+                          {/* Reply quote */}
+                          {msg.reply_to_id && (
+                            <div className={`text-[11px] border-rose/30 text-muted/70 rounded-sm max-w-[230px] mb-0.5 ${isMe ? 'border-r-2 pr-2 text-right' : 'border-l-2 pl-2'}`}>
+                              <p className="font-semibold text-[10px] mb-0.5">{msg.reply_to_display_name}</p>
+                              <p className="leading-snug line-clamp-2">
+                                {msg.reply_to_message
+                                  ? (msg.reply_to_message.length > 80 ? msg.reply_to_message.slice(0, 80) + '…' : msg.reply_to_message)
+                                  : t('deleted_msg')}
+                              </p>
+                            </div>
+                          )}
+
+                          {dmEditingMsgId === msg.id ? (
+                            <div className="space-y-1.5 min-w-[200px]">
+                              <textarea
+                                value={dmEditInput}
+                                onChange={(e) => setDmEditInput(e.target.value)}
+                                maxLength={500}
+                                autoFocus
+                                rows={2}
+                                className="w-full text-[16px] sm:text-[13px] px-2 py-1.5 rounded-lg border border-rose/30 bg-white text-ink resize-none focus:outline-none focus:border-rose/50"
+                                style={{ maxHeight: '80px', overflowY: 'auto' }}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSaveDmEdit(msg.id) }
+                                  if (e.key === 'Escape') { setDmEditingMsgId(null); setDmEditInput('') }
+                                }}
+                              />
+                              <div className="flex gap-1.5 justify-end">
+                                <button onClick={() => { setDmEditingMsgId(null); setDmEditInput('') }} className="text-[11px] px-2 py-0.5 rounded-lg text-muted hover:bg-cream transition-colors">{t('cancel')}</button>
+                                <button onClick={() => handleSaveDmEdit(msg.id)} disabled={!dmEditInput.trim() || dmEditSaving} className="text-[11px] px-2 py-0.5 rounded-lg font-medium bg-rose text-white hover:bg-rose-deep disabled:opacity-40 transition-colors">{dmEditSaving ? '…' : t('save_edit')}</button>
+                              </div>
+                            </div>
+                          ) : msg.kind === 'image' && msg.attachment_url ? (
+                            <div className={isTemp ? 'opacity-60' : ''}>
                               <a href={msg.attachment_url} target="_blank" rel="noopener noreferrer" className="block rounded-2xl overflow-hidden border border-line/40">
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img src={msg.attachment_url} alt="" className="max-w-[230px] max-h-[280px] object-cover block" />
@@ -2717,12 +2927,12 @@ export default function ChatClient({
                               )}
                             </div>
                           ) : msg.kind === 'audio' && msg.attachment_url ? (
-                            <div className={`px-3 py-2 rounded-2xl ${isMe ? 'bg-rose/10' : 'bg-white border border-line/60'} ${msg.id.startsWith('temp_') ? 'opacity-60' : ''}`}>
+                            <div className={`px-3 py-2 rounded-2xl ${isMe ? 'bg-rose/10' : 'bg-white border border-line/60'} ${isTemp ? 'opacity-60' : ''}`}>
                               <audio controls src={msg.attachment_url} className="h-9 max-w-[230px]" />
                             </div>
                           ) : msg.kind === 'file' && msg.attachment_url ? (
                             <a href={msg.attachment_url} target="_blank" rel="noopener noreferrer" download={msg.attachment_name ?? undefined}
-                              className={`flex items-center gap-2.5 px-3 py-2.5 rounded-2xl ${msg.id.startsWith('temp_') ? 'opacity-60' : ''} ${isMe ? 'bg-rose text-white' : 'bg-white border border-line/60 text-ink'}`}>
+                              className={`flex items-center gap-2.5 px-3 py-2.5 rounded-2xl ${isTemp ? 'opacity-60' : ''} ${isMe ? 'bg-rose text-white' : 'bg-white border border-line/60 text-ink'}`}>
                               <svg className="w-5 h-5 flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                               <span className="flex flex-col min-w-0">
                                 <span className="text-[12.5px] font-medium truncate max-w-[160px]">{msg.attachment_name ?? 'File'}</span>
@@ -2731,15 +2941,104 @@ export default function ChatClient({
                             </a>
                           ) : (
                             <div className={`px-3 py-2 rounded-2xl text-[13.5px] leading-relaxed break-words whitespace-pre-wrap ${
-                              msg.id.startsWith('temp_') ? 'opacity-60' : ''
+                              isTemp ? 'opacity-60' : ''
                             } ${isMe ? 'bg-rose text-white rounded-br-md' : 'bg-white border border-line/60 text-ink rounded-bl-md'}`}>
                               {msg.message}
                             </div>
                           )}
+
+                          {/* Reactions */}
+                          {msgRx.length > 0 && (
+                            <div className={`flex flex-wrap gap-1 ${isMe ? 'justify-end' : 'justify-start'}`}>
+                              {msgRx.map(r => (
+                                <button
+                                  key={r.emoji}
+                                  onClick={() => handleDmReact(msg.id, r.emoji)}
+                                  title={r.users.join(', ')}
+                                  className={`flex items-center gap-0.5 text-[12.5px] px-1.5 py-0.5 rounded-full border transition-all ${
+                                    r.hasMyReaction ? 'bg-rose/10 border-rose/30 text-rose font-semibold' : 'bg-cream border-line text-ink hover:border-rose/20'
+                                  }`}
+                                >
+                                  <span>{r.emoji}</span>
+                                  <span className="text-[10.5px] tabular-nums">{r.count}</span>
+                                </button>
+                              ))}
+                            </div>
+                          )}
+
                           <span className={`text-[9.5px] text-muted/35 ${isMe ? 'mr-1' : 'ml-1'}`}>
-                            {formatTokyo(msg.created_at)}
+                            {formatTokyo(msg.created_at)}{msg.edited_at ? ` · ${t('edited_label')}` : ''}
                           </span>
                         </div>
+
+                        {/* Action menu (skip optimistic temps) */}
+                        {!isTemp && dmEditingMsgId !== msg.id && (
+                          <div className="relative flex-none self-center">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                if (openDmMenuMsgId === msg.id) { setOpenDmMenuMsgId(null); setDmMenuPos(null); return }
+                                const rect = e.currentTarget.getBoundingClientRect()
+                                const menuWidth = 180, menuHeight = 240
+                                const spaceBelow = window.innerHeight - rect.bottom - 8
+                                const top = spaceBelow > menuHeight ? rect.bottom + 6 : Math.max(8, rect.top - menuHeight - 6)
+                                let left = isMe ? Math.max(8, rect.right - menuWidth) : rect.left
+                                if (left + menuWidth > window.innerWidth - 8) left = window.innerWidth - menuWidth - 8
+                                if (left < 8) left = 8
+                                setDmMenuPos({ top, left })
+                                setOpenDmMenuMsgId(msg.id)
+                              }}
+                              className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all ${
+                                openDmMenuMsgId === msg.id ? 'text-ink bg-cream opacity-100' : 'text-muted/50 hover:text-ink hover:bg-cream/80 opacity-60 sm:opacity-0 sm:group-hover:opacity-100'
+                              }`}
+                              aria-label={t('msg_options')}
+                            >
+                              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><circle cx="4" cy="10" r="1.5"/><circle cx="10" cy="10" r="1.5"/><circle cx="16" cy="10" r="1.5"/></svg>
+                            </button>
+                            {openDmMenuMsgId === msg.id && dmMenuPos && (
+                              <div className="fixed z-[9999] bg-paper border border-line rounded-xl shadow-lg overflow-hidden min-w-[170px]" style={{ top: dmMenuPos.top, left: dmMenuPos.left }} onClick={(e) => e.stopPropagation()}>
+                                <div className="flex items-center gap-0.5 px-2.5 py-2 border-b border-line/40">
+                                  {ALLOWED_REACTION_EMOJIS.map(emoji => (
+                                    <button key={emoji} onClick={(e) => { e.stopPropagation(); handleDmReact(msg.id, emoji) }} className="w-8 h-8 text-[19px] hover:bg-cream rounded-lg transition-colors flex items-center justify-center">{emoji}</button>
+                                  ))}
+                                </div>
+                                <button
+                                  onClick={() => {
+                                    const preview = msg.kind === 'image' ? `📷 ${t('image_label')}` : msg.kind === 'audio' ? '🎤' : msg.kind === 'file' ? `📎 ${msg.attachment_name ?? t('file_label')}` : msg.message
+                                    setDmReplyingTo({ id: msg.id, message: preview, display_name: msg.display_name })
+                                    inputRef.current?.focus()
+                                    setOpenDmMenuMsgId(null)
+                                  }}
+                                  className="w-full flex items-center gap-3 px-3.5 py-2.5 text-[13px] text-ink hover:bg-cream transition-colors text-left"
+                                >
+                                  <svg className="w-4 h-4 text-muted/60 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" /></svg>
+                                  <span>{t('reply_msg')}</span>
+                                </button>
+                                {msg.kind === 'text' && (
+                                  <button onClick={() => { handleCopy(msg.message, msg.id); setOpenDmMenuMsgId(null) }} className="w-full flex items-center gap-3 px-3.5 py-2.5 text-[13px] text-ink hover:bg-cream transition-colors text-left">
+                                    <svg className="w-4 h-4 text-muted/60 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                                    <span>{copiedMsgId === msg.id ? t('copy_msg_success') : t('copy_msg')}</span>
+                                  </button>
+                                )}
+                                {canEdit && (
+                                  <button onClick={() => { setDmEditingMsgId(msg.id); setDmEditInput(msg.message); setOpenDmMenuMsgId(null) }} className="w-full flex items-center gap-3 px-3.5 py-2.5 text-[13px] text-ink hover:bg-cream transition-colors text-left">
+                                    <svg className="w-4 h-4 text-muted/60 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                                    <span>{t('edit_msg')}</span>
+                                  </button>
+                                )}
+                                {isMe && (
+                                  <>
+                                    <div className="my-0.5 border-t border-line/50" />
+                                    <button onClick={() => handleDeleteDm(msg.id)} className="w-full flex items-center gap-3 px-3.5 py-2.5 text-[13px] text-red-600 hover:bg-red-50 transition-colors text-left">
+                                      <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                      <span>{t('delete_msg')}</span>
+                                    </button>
+                                  </>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     )
                   })}
@@ -3439,6 +3738,25 @@ export default function ChatClient({
               </div>
               <button
                 onClick={() => setReplyingTo(null)}
+                className="flex-none text-muted/40 hover:text-ink transition-colors leading-none mt-0.5 text-[12px] shrink-0"
+                title={t('cancel_reply')}
+              >✕</button>
+            </div>
+          )}
+
+          {/* Reply preview bar (DM mode) */}
+          {chatMode === 'dm' && dmReplyingTo && (
+            <div className="flex-none px-3 py-2 border-t border-rose/15 bg-rose-soft/40 flex items-start gap-2">
+              <div className="flex-1 min-w-0">
+                <p className="text-[10.5px] font-semibold text-rose mb-0.5">
+                  {t('reply_to_label')} {dmReplyingTo.display_name}
+                </p>
+                <p className="text-[12px] text-muted/80 leading-snug truncate">
+                  {dmReplyingTo.message.length > 80 ? dmReplyingTo.message.slice(0, 80) + '…' : dmReplyingTo.message}
+                </p>
+              </div>
+              <button
+                onClick={() => setDmReplyingTo(null)}
                 className="flex-none text-muted/40 hover:text-ink transition-colors leading-none mt-0.5 text-[12px] shrink-0"
                 title={t('cancel_reply')}
               >✕</button>

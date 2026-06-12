@@ -3,7 +3,7 @@ import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import { checkIsAdmin } from '@/lib/supabase/admin'
 import { getUserIdentity } from '@/lib/userIdentity'
-import { getOrCreateDmConversation, getDmMessages, type DmMessage } from './dm-actions'
+import { getOrCreateDmConversation, getDmMessages, type DmMessage, type DmReactionsMap } from './dm-actions'
 import ChatClient from './ChatClient'
 
 export async function generateMetadata() {
@@ -255,7 +255,7 @@ export default async function CongDongChatPage({
   // conversation + its messages on the server so the DM opens instantly on mount
   // (no client round-trips).
   let initialDm:
-    | { conversationId: string; partner: { id: string; name: string; avatar: string | null }; messages: DmMessage[] }
+    | { conversationId: string; partner: { id: string; name: string; avatar: string | null }; messages: DmMessage[]; reactions: DmReactionsMap }
     | undefined
   const dmTargetId = searchParams.dm
   if (dmTargetId && UUID_RE.test(dmTargetId) && dmTargetId !== user.id) {
@@ -264,11 +264,12 @@ export default async function CongDongChatPage({
       getOrCreateDmConversation(dmTargetId),
     ])
     if (conv.conversationId && (identity.name || identity.avatarUrl)) {
-      const { messages } = await getDmMessages(conv.conversationId)
+      const { messages, reactions } = await getDmMessages(conv.conversationId)
       initialDm = {
         conversationId: conv.conversationId,
         partner: { id: dmTargetId, name: identity.name || t('member_fallback'), avatar: identity.avatarUrl },
         messages: messages ?? [],
+        reactions: reactions ?? {},
       }
     }
   }

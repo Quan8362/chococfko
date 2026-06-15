@@ -1,42 +1,52 @@
 import 'server-only'
+import Jimp from 'jimp'
 
 // Bakes a tiled, semi-transparent "chococfko.com" watermark INTO the image bytes.
-// Because it runs inside the /api/img proxy, even a download via DevTools/Network
-// yields a watermarked file — this is the only measure that actually survives
-// copying (right-click blocking and URL hiding are just deterrents).
+// Runs inside the /api/img proxy, so even a download via DevTools/Network yields a
+// watermarked file — the only measure that survives copying (right-click blocking
+// and URL hiding are just deterrents).
 //
-// sharp is imported dynamically inside try/catch: if the native binary can't load
-// on the host, we serve the ORIGINAL bytes (no watermark) rather than 500-ing the
-// image. So a sharp problem degrades gracefully and never breaks display.
+// Uses jimp (pure JS, no native binary) so it works reliably on serverless without
+// the libvips/sharp cross-platform install problems. On any failure it returns the
+// ORIGINAL bytes, so a watermark bug can never break image display.
 export async function watermarkImage(input: Buffer, contentType: string): Promise<{ buffer: Buffer; contentType: string }> {
-  // Skip formats sharp shouldn't re-encode (animated GIF, SVG).
+  // Skip formats jimp shouldn't re-encode (animated GIF, SVG).
   if (contentType.includes('gif') || contentType.includes('svg')) {
     return { buffer: input, contentType }
   }
   try {
-    const sharp = (await import('sharp')).default
-    const image = sharp(input, { failOn: 'none' })
-    const meta = await image.metadata()
-    const w = meta.width ?? 1000
-    const h = meta.height ?? 750
-    const fontSize = Math.max(13, Math.round(Math.min(w, h) / 24))
-    const tileW = Math.round(fontSize * 12)
-    const tileH = Math.round(fontSize * 7)
+    const image = await Jimp.read(input)
+    const { width, height } = image.bitmap
+    const minDim = Math.min(width, height)
 
-    const svg = `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <pattern id="wm" width="${tileW}" height="${tileH}" patternUnits="userSpaceOnUse" patternTransform="rotate(-28)">
-      <text x="0" y="${Math.round(tileH * 0.6)}" font-family="Arial, Helvetica, sans-serif" font-size="${fontSize}" font-weight="700"
-            fill="#ffffff" fill-opacity="0.30" stroke="#000000" stroke-opacity="0.10" stroke-width="0.7">chococfko.com</text>
-    </pattern>
-  </defs>
-  <rect width="${w}" height="${h}" fill="url(#wm)"/>
-</svg>`
+    // Pick a built-in font roughly proportional to the image size.
+    const fontName =
+      minDim < 240 ? Jimp.FONT_SANS_16_WHITE
+      : minDim < 700 ? Jimp.FONT_SANS_32_WHITE
+      : Jimp.FONT_SANS_64_WHITE
+    const font = await Jimp.loadFont(fontName)
 
-    const out = await image
-      .composite([{ input: Buffer.from(svg), top: 0, left: 0 }])
-      .toBuffer()
-    return { buffer: out, contentType }
+    const text = 'chococfko.com'
+    const stepX = Math.max(180, Math.round(minDim * 0.7))
+    const stepY = Math.max(90, Math.round(minDim * 0.38))
+
+    // Draw the repeated text onto a transparent layer, then composite it over the
+    // image at low opacity so it reads as a faint watermark.
+    const layer = new Jimp(width, height, 0x00000000)
+    for (let y = 0; y < height; y += stepY) {
+      for (let x = -Math.round(stepX / 2); x < width; x += stepX) {
+        layer.print(font, x, y, text)
+      }
+    }
+
+    image.composite(layer, 0, 0, {
+      mode: Jimp.BLEND_SOURCE_OVER,
+      opacitySource: 0.22,
+      opacityDest: 1,
+    })
+
+    const out = await image.quality(82).getBufferAsync(Jimp.MIME_JPEG)
+    return { buffer: out, contentType: 'image/jpeg' }
   } catch {
     return { buffer: input, contentType }
   }

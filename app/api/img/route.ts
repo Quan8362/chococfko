@@ -17,6 +17,16 @@ export async function GET(req: NextRequest) {
   // pages while bouncing anyone who opens the raw link to the homepage.
   // NOTE: this cannot stop right-click→Save (those bytes are already in the page) or
   // screenshots — no website can. It only closes the "copy link → open → save" path.
+  // TEMP diagnostic: surface why sharp fails to load on the host.
+  if (req.nextUrl.searchParams.get('diag') === '1') {
+    try {
+      const s = (await import('sharp')).default
+      return Response.json({ ok: true, sharp: s.versions })
+    } catch (e) {
+      return Response.json({ ok: false, error: e instanceof Error ? (e.stack ?? e.message) : String(e) })
+    }
+  }
+
   if (req.headers.get('sec-fetch-mode') === 'navigate') {
     const res = NextResponse.redirect(new URL('/', req.nextUrl.origin), 302)
     res.headers.set('Cache-Control', 'no-store')

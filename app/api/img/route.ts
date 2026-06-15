@@ -20,9 +20,9 @@ export async function GET(req: NextRequest) {
   if (req.nextUrl.searchParams.get('diag') === '1') {
     try {
       const J = (await import('jimp')).default
-      const font = await J.loadFont(J.FONT_SANS_32_WHITE)
-      const t = new J(10, 10, 0x00000000)
-      return Response.json({ ok: true, font: !!font, blank: !!t })
+      const test = await new J(120, 120, 0xff0000ff).getBufferAsync(J.MIME_JPEG)
+      const { buffer } = await watermarkImage(test, 'image/jpeg')
+      return Response.json({ ok: true, inBytes: test.length, outBytes: buffer.length, changed: buffer.length !== test.length })
     } catch (e) {
       return Response.json({ ok: false, error: e instanceof Error ? (e.stack ?? e.message) : String(e) })
     }

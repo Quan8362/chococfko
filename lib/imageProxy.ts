@@ -20,13 +20,20 @@ function getKey(): Buffer {
   return crypto.createHash('sha256').update(secret).digest()
 }
 
-// Only these buckets may be served through the proxy (defence-in-depth; tokens are
-// already unforgeable without the key).
-const ALLOWED_BUCKETS = new Set([
-  'post-images', 'avatars', 'place-images', 'places', 'community-chat-images',
-])
-
 const PUBLIC_PREFIX = '/storage/v1/object/public/'
+
+// Validate a decoded object path. We don't whitelist bucket names (they change as
+// features are added, and an over-tight list silently 403s real images). Instead we
+// require a plain `bucket/file` shape with only safe characters and no traversal.
+// publicUrlForPath only ever appends this to OUR Supabase public prefix, so the
+// worst an attacker can do with a forged base64 path is request one of our own
+// already-public objects (private buckets aren't reachable via /object/public/).
+function isValidObjectPath(path: string): boolean {
+  if (!path) return false
+  if (path.startsWith('/') || path.includes('..') || path.includes('//')) return false
+  if (/[\\:?#]|\s/.test(path)) return false      // no scheme/host tricks, no whitespace
+  return /^[^/]+\/.+/.test(path)                  // must be bucket/file
+}
 
 // Deterministic IV from the path → same image always yields the same token, so the
 // browser/CDN can cache it. The "plaintext" (a non-secret object path) being
@@ -55,9 +62,7 @@ export function decodeStoragePath(token: string): string | null {
     const decipher = crypto.createDecipheriv('aes-256-gcm', key, iv)
     decipher.setAuthTag(tag)
     const path = Buffer.concat([decipher.update(data), decipher.final()]).toString('utf8')
-    if (path.includes('..')) return null
-    const bucket = path.split('/')[0]
-    if (!ALLOWED_BUCKETS.has(bucket)) return null
+    if (!isValidObjectPath(path)) return null
     return path
   } catch {
     return null
@@ -66,13 +71,11 @@ export function decodeStoragePath(token: string): string | null {
 
 // Decode a base64url object path (produced by lib/avatar.ts `imgProxy`). This form
 // is used for client-rendered images, where AES (which needs the server key) can't
-// be produced. It only obfuscates the path; the bucket whitelist + `..` check still
-// gate which objects can be served.
+// be produced. It only obfuscates the path; the path-shape check gates input.
 export function decodeBase64Path(p: string): string | null {
   try {
     const path = Buffer.from(p, 'base64url').toString('utf8')
-    if (!path || path.includes('..')) return null
-    if (!ALLOWED_BUCKETS.has(path.split('/')[0])) return null
+    if (!isValidObjectPath(path)) return null
     return path
   } catch {
     return null

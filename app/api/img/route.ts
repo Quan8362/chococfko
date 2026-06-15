@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 import { decodeStoragePath, decodeBase64Path, publicUrlForPath, shouldWatermark } from '@/lib/imageProxy'
 import { watermarkImage } from '@/lib/watermark'
 
-// Watermarking uses sharp (native) — keep this on the Node.js runtime, not Edge.
+// Watermarking uses jimp (pure JS) — keep this on the Node.js runtime, not Edge.
 export const runtime = 'nodejs'
 
 // Serves Supabase storage images through our own domain so the raw storage URL is
@@ -10,18 +10,16 @@ export const runtime = 'nodejs'
 // proxyStorageImages() — it cannot be forged without the server key, and only
 // whitelisted buckets decode successfully.
 export async function GET(req: NextRequest) {
-  // Block direct navigation to the image URL (typing it in the address bar or
-  // "open in new tab"). Browsers send `Sec-Fetch-Mode: navigate` only for top-level
-  // navigations — an <img> load is `no-cors`, and Next's image optimizer fetches
-  // this server-side with no Sec-Fetch headers. So this lets the image render inside
-  // pages while bouncing anyone who opens the raw link to the homepage.
-  // NOTE: this cannot stop right-click→Save (those bytes are already in the page) or
-  // screenshots — no website can. It only closes the "copy link → open → save" path.
-  if (req.headers.get('sec-fetch-mode') === 'navigate') {
-    const res = NextResponse.redirect(new URL('/', req.nextUrl.origin), 302)
-    res.headers.set('Cache-Control', 'no-store')
-    return res
-  }
+  // Watermark policy: keep the on-page display CLEAN, but stamp the copy that gets
+  // handed out when someone OPENS the image link directly (open in new tab / paste
+  // address / download the URL) — those arrive as a top-level navigation
+  // (`Sec-Fetch-Mode: navigate`). In-page <img> loads are `no-cors`, and Next's
+  // image optimizer fetches server-side with no Sec-Fetch header → both stay clean.
+  //
+  // Limitation (unavoidable on any site): right-click "Save image" and saving the
+  // response from the F12 Network tab reuse the already-loaded clean bytes, so those
+  // copies are NOT watermarked. Screenshots are clean too.
+  const isDirectOpen = req.headers.get('sec-fetch-mode') === 'navigate'
 
   // `t` = AES token (server-rendered rich-text bodies); `p` = base64url path
   // (client-rendered images). Both resolve to a whitelisted storage object path.
@@ -48,14 +46,14 @@ export async function GET(req: NextRequest) {
     const cacheHeaders = {
       // Object paths are unique (timestamped) → cache hard at CDN + browser.
       'Cache-Control': 'public, max-age=86400, s-maxage=604800, immutable',
-      // Cache the image and the navigate-redirect under separate keys so the CDN
-      // never serves one in place of the other.
+      // Cache the clean (display) and watermarked (direct-open) variants under
+      // separate keys so the CDN never serves one in place of the other.
       'Vary': 'Sec-Fetch-Mode',
     }
 
-    // Content images (listings, post/place bodies) get a baked-in watermark so a
-    // copied file still carries our mark. Avatars/icons stream through untouched.
-    if (shouldWatermark(path)) {
+    // Only the directly-opened copy of a content image gets the baked-in watermark.
+    // The on-page display (and avatars/icons) stay clean.
+    if (shouldWatermark(path) && isDirectOpen) {
       const input = Buffer.from(await upstream.arrayBuffer())
       const { buffer, contentType } = await watermarkImage(input, upstreamType)
       return new Response(new Uint8Array(buffer), {

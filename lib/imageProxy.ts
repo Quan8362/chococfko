@@ -107,6 +107,6 @@ export function proxyStorageImages(html: string | null | undefined): string {
   return html.replace(re, (_m, pre: string, quote: string, path: string) => {
     // Strip any query string (e.g. cache-buster) before encoding the object path.
     const clean = path.split('?')[0].split('#')[0]
-    return `${pre}${quote}/api/img?t=${encodeStoragePath(clean)}&v=1${quote}`
+    return `${pre}${quote}/api/img?t=${encodeStoragePath(clean)}&v=2${quote}`
   })
 }

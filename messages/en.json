@@ -47,6 +47,11 @@
     "heading_accent": "in one page",
     "description": "Built from real community experiences,\nhelping you choose where to go, eat, and explore.",
     "cta_explore": "Start exploring",
+    "search_placeholder": "Search places, areas, topics…",
+    "search_clear": "Clear",
+    "search_prefecture": "Select prefecture",
+    "search_results_count": "{count} results",
+    "search_empty": "No matching places found.",
     "cta_community": "Read community stories",
     "stat_places": "places",
     "stat_categories": "categories",
@@ -371,7 +376,8 @@
     "chinese": "Chinese",
     "korean": "Korean",
     "cafe_milk_tea": "Cafes & milk tea",
-    "kids_playground": "Kids playgrounds"
+    "kids_playground": "Kids playgrounds",
+    "onsen": "Onsen"
   },
   "categories": {
     "landmark": "Tourism",
@@ -403,7 +409,9 @@
     "cafe_milk_tea": "Cafes & milk tea",
     "cafe_milk_tea_full": "Cafes & milk tea",
     "kids_playground": "Kids playgrounds",
-    "kids_playground_full": "Kids playgrounds"
+    "kids_playground_full": "Kids playgrounds",
+    "onsen": "Onsen",
+    "onsen_full": "Onsen (hot spring)"
   },
   "profile": {
     "title": "Profile",

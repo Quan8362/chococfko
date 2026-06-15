@@ -19,6 +19,7 @@ const CAT_EMOJI: Record<string, string> = {
   korean: "🥩",
   cafe_milk_tea: "☕",
   kids_playground: "🎠",
+  onsen: "♨️",
 };
 
 export default async function PlacePostCard({ post }: { post: Post }) {

@@ -4,6 +4,9 @@ export interface Place {
   category: string; categoryLabel: string; fee: Fee;
   mapUrl: string; photoUrl: string; img: string; imgFallback: string;
   body?: string | null; // rich text HTML mô tả chi tiết (từ DB)
+  // Phân cấp địa lý (mở rộng toàn Nhật) — backfill mặc định Fukuoka/Kyushu
+  region?: string | null; prefecture?: string | null; city?: string | null;
+  lat?: number | null; lng?: number | null;
 }
 export interface Category { code: string; short: string; full: string; }
 
@@ -23,6 +26,7 @@ export const categories: Category[] = [
   { "code": "korean",   "short": "Quán Hàn",   "full": "Quán Hàn" },
   { "code": "cafe_milk_tea",    "short": "Cà phê & trà sữa",       "full": "Cà phê & trà sữa" },
   { "code": "kids_playground", "short": "Khu vui chơi trẻ em",   "full": "Khu vui chơi dành cho bé" },
+  { "code": "onsen",            "short": "Onsen",                  "full": "Onsen (suối nước nóng)" },
 ];
 
 export const places: Place[] = [
@@ -1069,6 +1073,8 @@ interface DbPlace {
   fee: string | null; map_url: string | null; photo_url: string | null;
   img: string | null; img_fallback: string | null; sort_order: number;
   status?: string | null; user_id?: string | null;
+  region?: string | null; prefecture?: string | null; city?: string | null;
+  lat?: number | null; lng?: number | null;
 }
 
 function mapDbPlace(row: DbPlace): Place {
@@ -1085,6 +1091,11 @@ function mapDbPlace(row: DbPlace): Place {
     photoUrl: row.photo_url ?? `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(row.name)}`,
     img: row.img ?? `https://loremflickr.com/680/460/${row.category},japan?lock=${row.slug.charCodeAt(0) * 99}`,
     imgFallback: row.img_fallback ?? `https://picsum.photos/seed/${row.slug.slice(0, 8)}/680/460`,
+    region: row.region ?? 'kyushu',
+    prefecture: row.prefecture ?? 'fukuoka',
+    city: row.city ?? null,
+    lat: row.lat ?? null,
+    lng: row.lng ?? null,
   };
 }
 

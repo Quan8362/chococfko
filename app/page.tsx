@@ -3,7 +3,9 @@ import { getTranslations, getLocale } from "next-intl/server";
 import { categories, places as staticPlaces, getAllPlacesFromDb } from "@/lib/places";
 import type { Place } from "@/lib/places";
 import PlaceCard from "@/components/PlaceCard";
+import ExploreSearch from "@/components/ExploreSearch";
 import HomePosts from "@/components/HomePosts";
+import { prefectureName } from "@/lib/japan";
 
 export const dynamic = "force-dynamic";
 
@@ -23,6 +25,7 @@ const CAT_EMOJI: Record<string, string> = {
   korean: "🥩",
   cafe_milk_tea: "☕",
   kids_playground: "🎠",
+  onsen: "♨️",
 };
 
 export default async function Home() {
@@ -41,6 +44,16 @@ export default async function Home() {
   const visibleCategories = categories
     .map((c) => ({ ...c, items: allPlaces.filter((p) => p.category === c.code) }))
     .filter(({ items }) => items.length > 0);
+
+  // Prefectures that actually have places (only these appear in the selector)
+  const prefCounts = new Map<string, number>();
+  for (const p of allPlaces) {
+    const code = p.prefecture ?? "fukuoka";
+    prefCounts.set(code, (prefCounts.get(code) ?? 0) + 1);
+  }
+  const prefectures = Array.from(prefCounts.entries())
+    .map(([code, count]) => ({ code, name: prefectureName(code), count }))
+    .sort((a, b) => b.count - a.count);
 
   return (
     <>
@@ -107,47 +120,22 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* ── CATEGORY NAV ─────────────────────────────────────── */}
-      <div id="categories" className="sticky top-[68px] z-[90] bg-[rgba(250,244,234,0.94)] backdrop-blur-md border-b border-line">
-        <div className="max-w-[1240px] mx-auto px-6">
-          <div className="flex flex-wrap gap-1.5 py-3">
-            {visibleCategories.map((c) => (
-              <a
-                key={c.code}
-                href={`#sec-${c.code}`}
-                className="inline-flex items-center gap-1.5 whitespace-nowrap text-[12.5px] font-medium text-muted border border-line bg-paper px-3.5 py-[6px] rounded-full hover:bg-rose-soft hover:border-rose/40 hover:text-rose transition-all"
-              >
-                <span className="text-[13px] leading-none">{CAT_EMOJI[c.code]}</span>
-                {tc(`${c.code}_full` as Parameters<typeof tc>[0])}
-              </a>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* ── CATEGORY SECTIONS ────────────────────────────────── */}
-      {visibleCategories.map((c, idx) => (
-        <section key={c.code} id={`sec-${c.code}`} className="pt-14 pb-2 scroll-mt-[140px]">
-          <div className="max-w-[1240px] mx-auto px-6">
-            {/* Section header — no per-category button */}
-            <div className="flex items-center gap-3.5 mb-7">
-              <div className="w-10 h-10 flex-none rounded-xl bg-rose/10 text-rose font-bold text-[15px] grid place-items-center border border-rose/15">
-                {idx + 1}
-              </div>
-              <h2 className="font-serif text-[clamp(22px,2.8vw,32px)] font-bold tracking-[-0.3px] leading-tight text-ink flex-1">
-                {tc(`${c.code}_full` as Parameters<typeof tc>[0])}
-              </h2>
-            </div>
-
-            {/* All places (static + approved user submissions) use the same PlaceCard */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {c.items.map((p) => (
-                <PlaceCard key={p.slug} place={p} />
-              ))}
-            </div>
-          </div>
-        </section>
-      ))}
+      {/* ── SEARCH + CATEGORY FILTER + RESULTS ───────────────── */}
+      {/* Cards are pre-rendered server-side (PlaceCard is async); ExploreSearch
+          decides which to show (filtered flat grid when searching, sectioned
+          browse when idle). filterPlaces is the seam that moves server-side later. */}
+      <ExploreSearch
+        places={allPlaces}
+        prefectures={prefectures}
+        categories={visibleCategories.map((c) => ({
+          code: c.code,
+          label: tc(`${c.code}_full` as Parameters<typeof tc>[0]),
+          emoji: CAT_EMOJI[c.code],
+        }))}
+        cards={Object.fromEntries(
+          allPlaces.map((p) => [p.slug, <PlaceCard key={p.slug} place={p} />]),
+        )}
+      />
 
       {/* ── LATEST COMMUNITY POSTS ───────────────────────────── */}
       <HomePosts />

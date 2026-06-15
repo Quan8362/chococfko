@@ -23,6 +23,7 @@ const CATEGORY_LABEL: Record<string, string> = {
   korean: 'Quán Hàn',
   cafe_milk_tea: 'Cà phê & trà sữa',
   kids_playground: 'Khu vui chơi dành cho bé',
+  onsen: 'Onsen',
 }
 
 function mapAuthError(msg: string, lang: 'login' | 'register', t: (key: string) => string): string {

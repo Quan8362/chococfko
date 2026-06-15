@@ -47,6 +47,11 @@
     "heading_accent": "1ページに",
     "description": "コミュニティのリアルな体験をもとに、\n行きたい場所・食べたい場所を見つけやすくします。",
     "cta_explore": "探索する",
+    "search_placeholder": "スポット・エリア・テーマを検索…",
+    "search_clear": "クリア",
+    "search_prefecture": "都道府県を選択",
+    "search_results_count": "{count}件の結果",
+    "search_empty": "該当するスポットが見つかりません。",
     "cta_community": "みんなの投稿を読む",
     "stat_places": "スポット",
     "stat_categories": "カテゴリ",
@@ -371,7 +376,8 @@
     "chinese": "中華料理",
     "korean": "韓国料理",
     "cafe_milk_tea": "カフェ・ミルクティー",
-    "kids_playground": "子どもの遊び場"
+    "kids_playground": "子どもの遊び場",
+    "onsen": "温泉"
   },
   "categories": {
     "landmark": "観光",
@@ -403,7 +409,9 @@
     "cafe_milk_tea": "カフェ・ミルクティー",
     "cafe_milk_tea_full": "カフェ・ミルクティー",
     "kids_playground": "子どもの遊び場",
-    "kids_playground_full": "子どもの遊び場"
+    "kids_playground_full": "子どもの遊び場",
+    "onsen": "温泉",
+    "onsen_full": "温泉"
   },
   "profile": {
     "title": "プロフィール",

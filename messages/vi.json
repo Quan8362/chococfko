@@ -47,6 +47,11 @@
     "heading_accent": "trong một trang",
     "description": "Dựa trên trải nghiệm thật của cộng đồng,\ngiúp bạn dễ chọn nơi muốn đi, muốn ăn và muốn khám phá.",
     "cta_explore": "Bắt đầu khám phá",
+    "search_placeholder": "Tìm địa điểm, khu vực, chủ đề…",
+    "search_clear": "Xóa lọc",
+    "search_prefecture": "Chọn tỉnh",
+    "search_results_count": "{count} kết quả",
+    "search_empty": "Không tìm thấy địa điểm phù hợp.",
     "cta_community": "Đọc chia sẻ của thành viên",
     "stat_places": "địa điểm",
     "stat_categories": "chủ đề",
@@ -371,7 +376,8 @@
     "chinese": "Quán Trung",
     "korean": "Quán Hàn",
     "cafe_milk_tea": "Cà phê & trà sữa",
-    "kids_playground": "Khu vui chơi dành cho bé"
+    "kids_playground": "Khu vui chơi dành cho bé",
+    "onsen": "Onsen"
   },
   "categories": {
     "landmark": "Du lịch",
@@ -403,7 +409,9 @@
     "cafe_milk_tea": "Cà phê & trà sữa",
     "cafe_milk_tea_full": "Cà phê & trà sữa",
     "kids_playground": "Khu vui chơi trẻ em",
-    "kids_playground_full": "Khu vui chơi dành cho bé"
+    "kids_playground_full": "Khu vui chơi dành cho bé",
+    "onsen": "Onsen",
+    "onsen_full": "Onsen (suối nước nóng)"
   },
   "profile": {
     "title": "Hồ sơ cá nhân",

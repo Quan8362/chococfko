@@ -8,7 +8,7 @@ import { imgProxy } from '@/lib/avatar'
 const CAT_EMOJI: Record<string, string> = {
   landmark: '🏯', food: '🍜', sea: '🏖️', camp: '⛺', mountain: '⛰️',
   park: '🌳', viet: '🥢', grocery: '🛒', izakaya: '🍺', japanese: '🍣',
-  thai: '🌶️', chinese: '🥡', korean: '🥩', cafe_milk_tea: '☕', kids_playground: '🎠',
+  thai: '🌶️', chinese: '🥡', korean: '🥩', cafe_milk_tea: '☕', kids_playground: '🎠', onsen: '♨️',
 }
 
 function StarRating({ rating }: { rating: number }) {

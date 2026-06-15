@@ -15,6 +15,7 @@ const CAT_EMOJI: Record<string, string> = {
   japanese: "🍣", thai: "🌶️", chinese: "🥡", korean: "🥩",
   cafe_milk_tea: "☕",
   kids_playground: "🎠",
+  onsen: "♨️",
 };
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {

@@ -47,6 +47,11 @@
     "heading_accent": "尽在一页",
     "description": "基于社区的真实体验，\n帮助您轻松找到想去的地方、想吃的美食。",
     "cta_explore": "开始探索",
+    "search_placeholder": "搜索地点、地区、主题…",
+    "search_clear": "清除",
+    "search_prefecture": "选择都道府县",
+    "search_results_count": "{count} 个结果",
+    "search_empty": "未找到匹配的地点。",
     "cta_community": "阅读社区故事",
     "stat_places": "个地点",
     "stat_categories": "个分类",
@@ -371,7 +376,8 @@
     "chinese": "中国料理",
     "korean": "韩国料理",
     "cafe_milk_tea": "咖啡 & 奶茶",
-    "kids_playground": "儿童游乐场"
+    "kids_playground": "儿童游乐场",
+    "onsen": "温泉"
   },
   "categories": {
     "landmark": "旅游",
@@ -403,7 +409,9 @@
     "cafe_milk_tea": "咖啡 & 奶茶",
     "cafe_milk_tea_full": "咖啡 & 奶茶",
     "kids_playground": "儿童游乐场",
-    "kids_playground_full": "儿童游乐场"
+    "kids_playground_full": "儿童游乐场",
+    "onsen": "温泉",
+    "onsen_full": "温泉"
   },
   "profile": {
     "title": "个人主页",

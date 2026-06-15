@@ -47,6 +47,11 @@
     "heading_accent": "한 페이지에",
     "description": "커뮤니티의 실제 경험을 바탕으로,\n가고 싶은 곳, 먹고 싶은 곳을 쉽게 찾아보세요.",
     "cta_explore": "탐색 시작하기",
+    "search_placeholder": "장소, 지역, 주제 검색…",
+    "search_clear": "지우기",
+    "search_prefecture": "현 선택",
+    "search_results_count": "결과 {count}개",
+    "search_empty": "일치하는 장소가 없습니다.",
     "cta_community": "커뮤니티 이야기 읽기",
     "stat_places": "장소",
     "stat_categories": "카테고리",
@@ -371,7 +376,8 @@
     "chinese": "중국 식당",
     "korean": "한국 식당",
     "cafe_milk_tea": "카페 & 밀크티",
-    "kids_playground": "어린이 놀이터"
+    "kids_playground": "어린이 놀이터",
+    "onsen": "온천"
   },
   "categories": {
     "landmark": "관광",
@@ -403,7 +409,9 @@
     "cafe_milk_tea": "카페 & 밀크티",
     "cafe_milk_tea_full": "카페 & 밀크티",
     "kids_playground": "어린이 놀이터",
-    "kids_playground_full": "어린이 놀이터"
+    "kids_playground_full": "어린이 놀이터",
+    "onsen": "온천",
+    "onsen_full": "온천"
   },
   "profile": {
     "title": "프로필",

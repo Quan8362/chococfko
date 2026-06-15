@@ -45,6 +45,7 @@ const CATEGORY_EMOJI: Record<string, string> = {
   korean: '🍖',
   cafe_milk_tea: '☕',
   kids_playground: '🎠',
+  onsen: '♨️',
 }
 
 type SpinState = 'idle' | 'spinning' | 'done'

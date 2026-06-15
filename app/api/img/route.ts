@@ -1,4 +1,4 @@
-import { NextRequest } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { decodeStoragePath, decodeBase64Path, publicUrlForPath } from '@/lib/imageProxy'
 
 // Serves Supabase storage images through our own domain so the raw storage URL is
@@ -6,6 +6,19 @@ import { decodeStoragePath, decodeBase64Path, publicUrlForPath } from '@/lib/ima
 // proxyStorageImages() — it cannot be forged without the server key, and only
 // whitelisted buckets decode successfully.
 export async function GET(req: NextRequest) {
+  // Block direct navigation to the image URL (typing it in the address bar or
+  // "open in new tab"). Browsers send `Sec-Fetch-Mode: navigate` only for top-level
+  // navigations — an <img> load is `no-cors`, and Next's image optimizer fetches
+  // this server-side with no Sec-Fetch headers. So this lets the image render inside
+  // pages while bouncing anyone who opens the raw link to the homepage.
+  // NOTE: this cannot stop right-click→Save (those bytes are already in the page) or
+  // screenshots — no website can. It only closes the "copy link → open → save" path.
+  if (req.headers.get('sec-fetch-mode') === 'navigate') {
+    const res = NextResponse.redirect(new URL('/', req.nextUrl.origin), 302)
+    res.headers.set('Cache-Control', 'no-store')
+    return res
+  }
+
   // `t` = AES token (server-rendered rich-text bodies); `p` = base64url path
   // (client-rendered images). Both resolve to a whitelisted storage object path.
   const token = req.nextUrl.searchParams.get('t')
@@ -33,6 +46,9 @@ export async function GET(req: NextRequest) {
         'Content-Type': contentType,
         // Object paths are unique (timestamped) → cache hard at CDN + browser.
         'Cache-Control': 'public, max-age=86400, s-maxage=604800, immutable',
+        // Cache the image and the navigate-redirect under separate keys so the CDN
+        // never serves one in place of the other.
+        'Vary': 'Sec-Fetch-Mode',
       },
     })
   } catch {

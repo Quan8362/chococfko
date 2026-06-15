@@ -1,19 +1,20 @@
 import 'server-only'
-import sharp from 'sharp'
 
 // Bakes a tiled, semi-transparent "chococfko.com" watermark INTO the image bytes.
 // Because it runs inside the /api/img proxy, even a download via DevTools/Network
 // yields a watermarked file — this is the only measure that actually survives
 // copying (right-click blocking and URL hiding are just deterrents).
 //
-// Returns the original buffer unchanged if processing fails, so a watermark bug can
-// never break image display.
+// sharp is imported dynamically inside try/catch: if the native binary can't load
+// on the host, we serve the ORIGINAL bytes (no watermark) rather than 500-ing the
+// image. So a sharp problem degrades gracefully and never breaks display.
 export async function watermarkImage(input: Buffer, contentType: string): Promise<{ buffer: Buffer; contentType: string }> {
   // Skip formats sharp shouldn't re-encode (animated GIF, SVG).
   if (contentType.includes('gif') || contentType.includes('svg')) {
     return { buffer: input, contentType }
   }
   try {
+    const sharp = (await import('sharp')).default
     const image = sharp(input, { failOn: 'none' })
     const meta = await image.metadata()
     const w = meta.width ?? 1000

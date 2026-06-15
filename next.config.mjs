@@ -18,6 +18,12 @@ const SECURITY_HEADERS = [
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // sharp ships native binaries — keep it external so Next bundles it as a real
+  // node_module (with its .node files) in the serverless function instead of trying
+  // to webpack it (which drops the binary → runtime crash in /api/img).
+  experimental: {
+    serverComponentsExternalPackages: ['sharp'],
+  },
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'loremflickr.com' },

@@ -87,6 +87,14 @@ export function publicUrlForPath(path: string): string {
   return `${SUPABASE_URL}${PUBLIC_PREFIX}${path}`
 }
 
+// Watermark content images (listings, post/place bodies) but NOT avatars or small
+// chat icons, where a stamp would look broken. Keyed by the bucket (first segment).
+const WATERMARK_BUCKETS = new Set(['post-images', 'marketplace', 'place-images', 'places'])
+
+export function shouldWatermark(path: string): boolean {
+  return WATERMARK_BUCKETS.has(path.split('/')[0])
+}
+
 // Rewrite every <img> whose src points at this project's Supabase public storage so
 // the storage URL is replaced by the opaque proxy URL. Other hosts are left as-is.
 export function proxyStorageImages(html: string | null | undefined): string {

@@ -172,3 +172,13 @@ body::before {
     max-width: 100% !important;
   }
 }
+
+/* Deter casual image saving: no drag-to-desktop, no iOS long-press menu.
+   (Does not affect F12/DevTools — see ImageProtection.tsx + /api/img watermark.) */
+img {
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  user-drag: none;
+  -webkit-touch-callout: none;
+}

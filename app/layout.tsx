@@ -11,6 +11,7 @@ import MentionNotificationProvider from '@/components/MentionNotificationProvide
 import AdminNotificationPopup from '@/components/AdminNotificationPopup'
 import NotificationPermissionBanner from '@/components/NotificationPermissionBanner'
 import CommunityNotificationProvider from '@/components/CommunityNotificationProvider'
+import ImageProtection from '@/components/ImageProtection'
 
 // Run server functions in Tokyo (hnd1) — same region as the Supabase DB and
 // closest to our Fukuoka users. Default was iad1 (US East), which forced every
@@ -93,6 +94,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <main className="flex-1">{children}</main>
             <Footer />
             <ScrollToTopButton />
+            <ImageProtection />
             <AnalyticsTracker isAdmin={isAdmin} />
             <MentionNotificationProvider />
             <CommunityNotificationProvider />

@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { decodeStoragePath, decodeBase64Path, publicUrlForPath } from '@/lib/imageProxy'
+import { decodeStoragePath, decodeBase64Path, publicUrlForPath, shouldWatermark } from '@/lib/imageProxy'
+import { watermarkImage } from '@/lib/watermark'
+
+// Watermarking uses sharp (native) — keep this on the Node.js runtime, not Edge.
+export const runtime = 'nodejs'
 
 // Serves Supabase storage images through our own domain so the raw storage URL is
 // never exposed. The `t` token is an AES-encrypted object path produced by
@@ -36,20 +40,33 @@ export async function GET(req: NextRequest) {
     if (!upstream.ok || !upstream.body) {
       return new Response('upstream error', { status: 502 })
     }
-    const contentType = upstream.headers.get('content-type') ?? 'image/jpeg'
-    if (!contentType.startsWith('image/')) {
+    const upstreamType = upstream.headers.get('content-type') ?? 'image/jpeg'
+    if (!upstreamType.startsWith('image/')) {
       return new Response('not an image', { status: 415 })
     }
+
+    const cacheHeaders = {
+      // Object paths are unique (timestamped) → cache hard at CDN + browser.
+      'Cache-Control': 'public, max-age=86400, s-maxage=604800, immutable',
+      // Cache the image and the navigate-redirect under separate keys so the CDN
+      // never serves one in place of the other.
+      'Vary': 'Sec-Fetch-Mode',
+    }
+
+    // Content images (listings, post/place bodies) get a baked-in watermark so a
+    // copied file still carries our mark. Avatars/icons stream through untouched.
+    if (shouldWatermark(path)) {
+      const input = Buffer.from(await upstream.arrayBuffer())
+      const { buffer, contentType } = await watermarkImage(input, upstreamType)
+      return new Response(new Uint8Array(buffer), {
+        status: 200,
+        headers: { 'Content-Type': contentType, ...cacheHeaders },
+      })
+    }
+
     return new Response(upstream.body, {
       status: 200,
-      headers: {
-        'Content-Type': contentType,
-        // Object paths are unique (timestamped) → cache hard at CDN + browser.
-        'Cache-Control': 'public, max-age=86400, s-maxage=604800, immutable',
-        // Cache the image and the navigate-redirect under separate keys so the CDN
-        // never serves one in place of the other.
-        'Vary': 'Sec-Fetch-Mode',
-      },
+      headers: { 'Content-Type': upstreamType, ...cacheHeaders },
     })
   } catch {
     return new Response('fetch failed', { status: 502 })

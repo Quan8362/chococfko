@@ -17,17 +17,6 @@ export async function GET(req: NextRequest) {
   // pages while bouncing anyone who opens the raw link to the homepage.
   // NOTE: this cannot stop right-click→Save (those bytes are already in the page) or
   // screenshots — no website can. It only closes the "copy link → open → save" path.
-  if (req.nextUrl.searchParams.get('diag') === '1') {
-    try {
-      const J = (await import('jimp')).default
-      const test = await new J(120, 120, 0xff0000ff).getBufferAsync(J.MIME_JPEG)
-      const { buffer } = await watermarkImage(test, 'image/jpeg')
-      return Response.json({ ok: true, inBytes: test.length, outBytes: buffer.length, changed: buffer.length !== test.length })
-    } catch (e) {
-      return Response.json({ ok: false, error: e instanceof Error ? (e.stack ?? e.message) : String(e) })
-    }
-  }
-
   if (req.headers.get('sec-fetch-mode') === 'navigate') {
     const res = NextResponse.redirect(new URL('/', req.nextUrl.origin), 302)
     res.headers.set('Cache-Control', 'no-store')

@@ -24,7 +24,8 @@ export function imgProxy(url: string | null | undefined): string {
   if (!SUPABASE_PUBLIC || !url.startsWith(SUPABASE_PUBLIC)) return url
   const path = url.slice(SUPABASE_PUBLIC.length).split('?')[0].split('#')[0]
   if (!path) return url
-  return `/api/img?p=${b64url(path)}`
+  // `v` bumps the CDN cache key when image handling changes (e.g. watermark rollout).
+  return `/api/img?p=${b64url(path)}&v=1`
 }
 
 export function avatarSrc(url: string | null | undefined): string {

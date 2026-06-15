@@ -3,6 +3,7 @@
 import { useState, useRef, useCallback } from 'react'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
+import { imgProxy } from '@/lib/avatar'
 
 // Defined inline to avoid importing from lib/places (which pulls next/headers into the client bundle)
 interface Place {
@@ -331,7 +332,7 @@ function ResultCard({
       <div className="relative w-full aspect-[16/7] overflow-hidden bg-cream">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={imgSrc}
+          src={imgProxy(imgSrc)}
           alt={place.name}
           onError={onImgError}
           className="w-full h-full object-cover"

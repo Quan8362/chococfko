@@ -2,6 +2,7 @@
 
 import Image from 'next/image'
 import { useState } from 'react'
+import { imgProxy } from '@/lib/avatar'
 
 interface WordImageProps {
   src: string
@@ -24,7 +25,7 @@ export default function WordImage({ src, alt, creditUrl, source, label }: WordIm
       )}
       <div className="relative rounded-2xl overflow-hidden bg-cream/40 border border-line/60 h-[200px] sm:h-[240px]">
         <Image
-          src={src}
+          src={imgProxy(src)}
           alt={alt}
           fill
           className="object-cover"

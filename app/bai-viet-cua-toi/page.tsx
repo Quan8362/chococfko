@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
+import { imgProxy } from '@/lib/avatar'
 
 export const dynamic = 'force-dynamic'
 
@@ -106,7 +107,7 @@ export default async function BaiVietCuaToi() {
                     <div className="flex-none w-20 h-20 rounded-xl overflow-hidden bg-gradient-to-br from-[#f3e1d2] to-[#e9cdb6] hidden sm:block">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
-                        src={post.img}
+                        src={imgProxy(post.img)}
                         alt=""
                         className="w-full h-full object-cover"
                         loading="lazy"

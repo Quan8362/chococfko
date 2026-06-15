@@ -4,6 +4,7 @@ import { getTranslations, getLocale } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import { formatPriceJPY, relativeListingDate } from '@/lib/marketplace'
 import { getMyListings } from '@/lib/marketplace-data'
+import { imgProxy } from '@/lib/avatar'
 
 export const dynamic = 'force-dynamic'
 
@@ -57,7 +58,7 @@ export default async function MyListingsPage({ searchParams }: { searchParams: {
               <Link href={`/cho-do-cu/${l.id}`} className="flex-none w-20 h-20 rounded-xl overflow-hidden bg-cream">
                 {l.cover_image ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={l.cover_image} alt={l.title} className="w-full h-full object-cover" />
+                  <img src={imgProxy(l.cover_image)} alt={l.title} className="w-full h-full object-cover" />
                 ) : <div className="w-full h-full grid place-items-center text-2xl opacity-30">🛒</div>}
               </Link>
               <div className="flex-1 min-w-0">

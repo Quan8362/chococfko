@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations, getLocale } from "next-intl/server";
+import { proxyStorageImages } from "@/lib/imageProxy";
 import { getPlace, places, getAllPlacesFromDb, getPlaceFromDb } from "@/lib/places";
 import { checkIsAdmin } from "@/lib/supabase/admin";
 import SmartImg from "@/components/SmartImg";
@@ -115,7 +116,7 @@ export default async function PlaceDetail({ params }: { params: { slug: string }
           {place.body ? (
             <div
               className="rich-content text-[#3a2d22] mb-8"
-              dangerouslySetInnerHTML={{ __html: place.body }}
+              dangerouslySetInnerHTML={{ __html: proxyStorageImages(place.body) }}
             />
           ) : isAdmin ? (
             <p className="text-[14px] text-muted mb-8 flex items-center gap-2">

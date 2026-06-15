@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import SmartImg from "./SmartImg";
+import { avatarSrc } from "@/lib/avatar";
 import { useTranslations } from "next-intl";
 import type { Post } from "@/lib/posts";
 
@@ -181,7 +182,7 @@ export default function PostFeed({ posts, isAdmin = false }: Props) {
                     {p.authorAvatar ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
-                        src={p.authorAvatar}
+                        src={avatarSrc(p.authorAvatar)}
                         alt={p.author}
                         className="w-6 h-6 rounded-full object-cover flex-none"
                       />

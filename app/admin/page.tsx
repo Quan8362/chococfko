@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { checkIsAdmin, createAdminClient } from '@/lib/supabase/admin'
 import { approvePost, rejectPost, deletePost } from './actions'
+import { imgProxy } from '@/lib/avatar'
 import { approvePlace, rejectPlace } from './dia-diem/actions'
 
 async function getPendingConfessionsCount(): Promise<number> {
@@ -406,7 +407,7 @@ export default async function AdminPage({
                 <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[#f3e1d2] to-[#e9cdb6] flex-none overflow-hidden shadow-sm">
                   {place.img && (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={place.img} alt="" className="w-full h-full object-cover" />
+                    <img src={imgProxy(place.img)} alt="" className="w-full h-full object-cover" />
                   )}
                 </div>
 

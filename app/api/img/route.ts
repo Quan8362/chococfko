@@ -1,0 +1,41 @@
+import { NextRequest } from 'next/server'
+import { decodeStoragePath, decodeBase64Path, publicUrlForPath } from '@/lib/imageProxy'
+
+// Serves Supabase storage images through our own domain so the raw storage URL is
+// never exposed. The `t` token is an AES-encrypted object path produced by
+// proxyStorageImages() — it cannot be forged without the server key, and only
+// whitelisted buckets decode successfully.
+export async function GET(req: NextRequest) {
+  // `t` = AES token (server-rendered rich-text bodies); `p` = base64url path
+  // (client-rendered images). Both resolve to a whitelisted storage object path.
+  const token = req.nextUrl.searchParams.get('t')
+  const p = req.nextUrl.searchParams.get('p')
+  if (!token && !p) return new Response('missing token', { status: 400 })
+
+  const path = token ? decodeStoragePath(token) : decodeBase64Path(p!)
+  if (!path) return new Response('invalid token', { status: 403 })
+
+  try {
+    const upstream = await fetch(publicUrlForPath(path), {
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; chococfko-img-proxy)' },
+      cache: 'no-store',
+    })
+    if (!upstream.ok || !upstream.body) {
+      return new Response('upstream error', { status: 502 })
+    }
+    const contentType = upstream.headers.get('content-type') ?? 'image/jpeg'
+    if (!contentType.startsWith('image/')) {
+      return new Response('not an image', { status: 415 })
+    }
+    return new Response(upstream.body, {
+      status: 200,
+      headers: {
+        'Content-Type': contentType,
+        // Object paths are unique (timestamped) → cache hard at CDN + browser.
+        'Cache-Control': 'public, max-age=86400, s-maxage=604800, immutable',
+      },
+    })
+  } catch {
+    return new Response('fetch failed', { status: 502 })
+  }
+}

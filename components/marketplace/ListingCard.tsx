@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { getTranslations, getLocale } from 'next-intl/server'
 import { type Listing, formatPriceJPY, relativeListingDate } from '@/lib/marketplace'
+import { imgProxy } from '@/lib/avatar'
 
 export default async function ListingCard({ listing }: { listing: Listing }) {
   const [t, locale] = await Promise.all([getTranslations('marketplace'), getLocale()])
@@ -18,7 +19,7 @@ export default async function ListingCard({ listing }: { listing: Listing }) {
         {listing.cover_image ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={listing.cover_image}
+            src={imgProxy(listing.cover_image)}
             alt={listing.title}
             loading="lazy"
             className={`w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-500 ${sold ? 'grayscale opacity-70' : ''}`}

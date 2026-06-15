@@ -3,7 +3,8 @@
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { isUuid } from '@/lib/posts'
-import { sanitizeHtml, stripHtml } from '@/lib/sanitize'
+import { stripHtml } from '@/lib/sanitize'
+import { sanitizeHtml } from '@/lib/sanitizeHtml'
 import { notifyNewComment } from '@/lib/notifications/comments'
 
 export type CommentResult = { ok?: true; error?: string } | null

@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Image from "next/image";
+import { imgProxy } from "@/lib/avatar";
 
 export default function SmartImg({
   src,
@@ -19,7 +20,7 @@ export default function SmartImg({
   const [cur, setCur] = useState(src);
   return (
     <Image
-      src={cur}
+      src={imgProxy(cur)}
       alt={alt}
       fill
       sizes={sizes}

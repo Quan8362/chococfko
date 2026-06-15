@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
+import { proxyStorageImages } from '@/lib/imageProxy'
 import { getPost, getPostFromDb, isUuid } from '@/lib/posts'
 import { checkIsAdmin, createAdminClient } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
@@ -127,7 +128,7 @@ export default async function PostDetail({ params }: { params: { id: string } })
         {post.body.length > 0 && post.body[0].trimStart().startsWith('<') ? (
           <div
             className="rich-content text-[#3a2d22]"
-            dangerouslySetInnerHTML={{ __html: post.body[0] }}
+            dangerouslySetInnerHTML={{ __html: proxyStorageImages(post.body[0]) }}
           />
         ) : (
           post.body.map((para, i) => (

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { imgProxy } from '@/lib/avatar'
 
 const STORAGE_KEY = 'chococfko_saved_places'
 const META_KEY = 'chococfko_saved_places_meta'
@@ -106,7 +107,7 @@ export default function SavedPlacesClient({ emptyTitle, emptySub, exploreCta, de
             {entry?.img ? (
               <div className="relative h-36 overflow-hidden bg-gradient-to-br from-[#f3e1d2] to-[#e9cdb6]">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={entry.img} alt={entry?.name ?? slug} className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-500" loading="lazy" />
+                <img src={imgProxy(entry.img)} alt={entry?.name ?? slug} className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-500" loading="lazy" />
               </div>
             ) : (
               <div className="h-36 bg-gradient-to-br from-rose-soft to-[#f3e1d2] flex items-center justify-center">

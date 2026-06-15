@@ -3,6 +3,7 @@ import Image from 'next/image'
 import { getTranslations } from 'next-intl/server'
 import { getPostsFromDb, posts as staticPosts } from '@/lib/posts'
 import type { Post } from '@/lib/posts'
+import { imgProxy } from '@/lib/avatar'
 
 const CAT_EMOJI: Record<string, string> = {
   landmark: '🏯', food: '🍜', sea: '🏖️', camp: '⛺', mountain: '⛰️',
@@ -73,7 +74,7 @@ export default async function HomePosts() {
                   {CAT_EMOJI[post.category]} {post.categoryLabel}
                 </span>
                 <Image
-                  src={post.img}
+                  src={imgProxy(post.img)}
                   alt={post.title}
                   fill
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"

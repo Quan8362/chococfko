@@ -3,7 +3,7 @@ import { redirect, notFound } from 'next/navigation'
 import { getTranslations, getLocale } from 'next-intl/server'
 import { checkIsAdmin, createAdminClient } from '@/lib/supabase/admin'
 import { type Listing, formatPriceJPY, relativeListingDate, isUuid } from '@/lib/marketplace'
-import { avatarSrc } from '@/lib/avatar'
+import { avatarSrc, imgProxy } from '@/lib/avatar'
 
 export const dynamic = 'force-dynamic'
 
@@ -60,7 +60,7 @@ export default async function AdminAuctionDetailPage({ params }: { params: { id:
           <Link href={`/cho-do-cu/${listing.id}`} target="_blank" className="flex-none w-20 h-20 rounded-xl overflow-hidden bg-cream">
             {listing.cover_image ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={listing.cover_image} alt={listing.title} className="w-full h-full object-cover" />
+              <img src={imgProxy(listing.cover_image)} alt={listing.title} className="w-full h-full object-cover" />
             ) : <div className="w-full h-full grid place-items-center text-2xl opacity-30">🔨</div>}
           </Link>
           <div className="flex-1 min-w-0">

@@ -1,11 +1,12 @@
 'use client'
 
 import { useState } from 'react'
+import { imgProxy } from '@/lib/avatar'
 
 export default function ListingGallery({ images, title }: { images: string[]; title: string }) {
   const [active, setActive] = useState(0)
   const [lightbox, setLightbox] = useState(false)
-  const list = images.length ? images : []
+  const list = (images.length ? images : []).map(imgProxy)
 
   if (list.length === 0) {
     return <div className="aspect-[4/3] rounded-2xl bg-cream border border-line grid place-items-center text-5xl opacity-30">🛒</div>

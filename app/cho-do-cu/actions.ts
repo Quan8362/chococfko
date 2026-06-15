@@ -5,7 +5,8 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createAdminNotification } from '@/lib/admin/notifications'
 import { notifyUsers } from '@/lib/notifications/user'
-import { sanitizeHtml, stripHtml, sanitizeUserName } from '@/lib/sanitize'
+import { stripHtml, sanitizeUserName } from '@/lib/sanitize'
+import { sanitizeHtml } from '@/lib/sanitizeHtml'
 import { CATEGORIES, CONDITION_PRESETS, isUuid, nextMinBid, type Listing } from '@/lib/marketplace'
 
 export type ListingResult = { ok?: true; id?: string; error?: string } | null
@@ -423,14 +424,10 @@ export async function resolveEndedAuction(l: Listing): Promise<void> {
 export async function incrementListingView(id: string): Promise<void> {
   if (!isUuid(id)) return
   try {
+    // Atomic increment in the DB (see migration_marketplace_view_count.sql) to
+    // avoid the read-modify-write lost-update race under concurrent views.
     const admin = createAdminClient()
-    const { data } = await admin
-      .from('marketplace_listings')
-      .select('view_count')
-      .eq('id', id)
-      .single()
-    const current = (data as { view_count: number } | null)?.view_count ?? 0
-    await admin.from('marketplace_listings').update({ view_count: current + 1 }).eq('id', id)
+    await admin.rpc('increment_listing_view', { p_listing_id: id })
   } catch { /* non-critical */ }
 }
 

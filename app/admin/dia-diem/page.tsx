@@ -5,6 +5,7 @@ import { checkIsAdmin, createAdminClient } from '@/lib/supabase/admin'
 import { categories } from '@/lib/places'
 import { seedPlaces } from './actions'
 import DeletePlaceButton from './DeletePlaceButton'
+import { imgProxy } from '@/lib/avatar'
 
 export async function generateMetadata() {
   const t = await getTranslations('meta')
@@ -186,7 +187,7 @@ export default async function AdminDiaDiem({
                 <div className="w-11 h-11 rounded-lg bg-gradient-to-br from-[#f3e1d2] to-[#e9cdb6] flex-none overflow-hidden shadow-sm">
                   {p.img && (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={p.img} alt="" className="w-full h-full object-cover" />
+                    <img src={imgProxy(p.img)} alt="" className="w-full h-full object-cover" />
                   )}
                 </div>
 

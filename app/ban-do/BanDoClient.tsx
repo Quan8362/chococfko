@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import SavePlaceButton from '@/components/SavePlaceButton'
+import { imgProxy } from '@/lib/avatar'
 
 const CAT_EMOJI: Record<string, string> = {
   landmark: '🏯', food: '🍜', sea: '🏖️', camp: '⛺', mountain: '⛰️',
@@ -143,7 +144,7 @@ export default function BanDoClient({ places, areas, cats, filterAll, filterTopi
               </span>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={p.img}
+                src={imgProxy(p.img)}
                 alt={p.name}
                 className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-500"
                 loading="lazy"

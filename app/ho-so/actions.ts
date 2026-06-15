@@ -17,7 +17,9 @@ export async function updateProfile(formData: FormData) {
   const area         = sanitizeUserName((formData.get('area')         as string) || '', 80)
   const facebook_url  = sanitizeUrl((formData.get('facebook_url')  as string) || '')
   const instagram_url = sanitizeUrl((formData.get('instagram_url') as string) || '')
-  const avatar_url    = ((formData.get('avatar_url') as string) || '').trim()
+  // Only accept http(s) avatar URLs (Supabase storage / OAuth provider). Rejects
+  // javascript:/data:/etc. — consistent with the social link fields above.
+  const avatar_url    = sanitizeUrl((formData.get('avatar_url') as string) || '')
 
   const { error } = await supabase
     .from('profiles')

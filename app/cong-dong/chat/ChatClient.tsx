@@ -123,7 +123,7 @@ function RoomAvatarIcon({ room, size }: { room: Room; size: keyof typeof AVATAR_
     return (
       <div className={`flex-none ${sz.container} overflow-hidden shrink-0`}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={room.avatar_url} alt={room.name} className="w-full h-full object-cover" />
+        <img src={avatarSrc(room.avatar_url)} alt={room.name} className="w-full h-full object-cover" />
       </div>
     )
   }

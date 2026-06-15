@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import type { Post } from "@/lib/posts";
+import { imgProxy } from "@/lib/avatar";
 
 const CAT_EMOJI: Record<string, string> = {
   landmark: "🏯",
@@ -56,7 +57,7 @@ export default async function PlacePostCard({ post }: { post: Post }) {
 
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={post.img}
+          src={imgProxy(post.img)}
           alt={post.title}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
           loading="lazy"

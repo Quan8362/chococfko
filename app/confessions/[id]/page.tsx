@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
+import { proxyStorageImages } from '@/lib/imageProxy'
 import { getConfessionById, getConfessionComments, relativeConfessionDate, isUuid } from '@/lib/confessions'
 import { checkIsAdmin } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
@@ -139,7 +140,7 @@ export default async function ConfessionDetailPage({ params }: { params: { id: s
             {confession.content.trimStart().startsWith('<') ? (
               <div
                 className="rich-content text-[#3a2d22] text-[17px] leading-[1.9]"
-                dangerouslySetInnerHTML={{ __html: confession.content }}
+                dangerouslySetInnerHTML={{ __html: proxyStorageImages(confession.content) }}
               />
             ) : (
               <div className="space-y-4">

@@ -1,0 +1,76 @@
+# -*- coding: utf-8 -*-
+"""Build N1 ready wave 021 — literary/formal Sino-Japanese nouns (set 21)."""
+import os
+OUT = os.path.join(os.path.dirname(__file__), "..", "data", "japanese", "jmdict-n1-vi-ready-021.csv")
+HEADER = "word,reading,romaji,jlpt_level,pos,meaning_vi,meaning_en,tags,frequency,source,source_id,license,attribution,example_jp,example_reading,example_vi,example_en,review_status,meaning_source"
+LIC = "CC BY-SA 3.0 — verify at edrdg.org before production use"
+def q(v): return '"' + str(v).replace('"','""') + '"'
+def row(w,r,p,vi,en,s):
+    return ",".join([q(w),q(r),q(""),q("N1"),q(p),q(vi),q(en),q(""),q("0"),q("jmdict"),q(s),q(LIC),q("JMdict/EDRDG"),q(""),q(""),q(""),q(""),q("ai_draft"),q("jmdict_ai")])
+DATA = [
+    ("膏血","こうけつ","n","mồ hôi xương máu | công sức cực nhọc | máu và mồ hôi","sweat and blood (hard-earned)","1819410"),
+    ("業火","ごうか","n","lửa địa ngục | lửa nghiệp | ngọn lửa thiêu kẻ ác | hỏa hoạn lớn","hellfire | flames of hell | raging fire","1239370"),
+    ("恒久","こうきゅう","n|adj-no","vĩnh viễn | lâu dài | trường tồn | bền vững","permanence | perpetuity","1278740"),
+    ("広漠","こうばく","adj-t|adv-to","mênh mông | bao la | bát ngát | rộng vô bờ","vast | wide | boundless","1278640"),
+    ("亢進","こうしん","n|vs|vi","tăng cao | trầm trọng thêm | tiến triển (bệnh) | dồn dập","rising | aggravated | accelerated","1614890"),
+    ("合点","がてん","n|vs|vi","hiểu ra | gật đầu đồng ý | thông suốt | lĩnh hội","consent | understanding | comprehension","1578950"),
+    ("咬合","こうごう","n","khớp cắn | sự cắn khớp (răng)","occlusion","2831524"),
+    ("劫罰","ごうばつ","n","hình phạt vĩnh viễn | trừng phạt đời đời","eternal punishment","1284210"),
+    ("鴻業","こうぎょう","n","đại nghiệp | sự nghiệp vẻ vang | công lao to lớn","glorious achievement","2577010"),
+    ("昂然","こうぜん","adj-t|adv-to","hiên ngang | hân hoan | đắc thắng | ngẩng cao đầu","elated | triumphant | proud","1608580"),
+    ("高揚","こうよう","n|vs|vt|vi","dâng cao | nâng cao (tinh thần) | hưng phấn | cổ vũ","elevation (of spirits) | uplift | upsurge","1284010"),
+    ("此岸","しがん","n","cõi đời này | bờ bên này | nhân gian | trần thế","this world | this life","1880080"),
+    ("黒白","くろしろ","n","đen trắng | phải trái | đúng sai | thị phi","black and white | right and wrong","1579030"),
+    ("孤高","ここう","adj-no|n|adj-na","cô độc kiêu hãnh | đơn độc | siêu nhiên tách biệt | một mình một cõi","aloof | proudly independent | solitary","1843300"),
+    ("糊塗","こと","n|vs|vt","che đậy | vá víu | lấp liếm | tô vẽ giấu giếm","patching up | covering up | glossing over","1718120"),
+    ("誤謬","ごびゅう","n","sai lầm | lỗi | ngụy biện | nhầm lẫn","mistake | error | fallacy","1271440"),
+    ("混沌","こんとん","n|adj-no|adj-t|adv-to","hỗn độn | hỗn mang | rối loạn | mơ hồ bất định","chaos | confusion | disorder","1290490"),
+    ("渾身","こんしん","n|adj-no","toàn thân | dốc hết sức | gồng hết mình | bằng cả sức lực","using one's whole body | with all one's efforts","1640140"),
+    ("懇篤","こんとく","adj-na|n","ân cần | chu đáo | nồng hậu | tử tế chân thành","cordial | kind | warm | genial","1289920"),
+    ("細謹","さいきん","n","sơ suất nhỏ | tì vết nhỏ | khuyết điểm vặt","slight flaw","1768530"),
+    ("歳月","さいげつ","n|adv","năm tháng | thời gian | tháng ngày | quang âm","time | years","1294950"),
+    ("最右翼","さいうよく","n","ứng viên sáng giá nhất | người nổi trội nhất | cực hữu","strongest contender | preeminent person | far right wing","1721250"),
+    ("些少","さしょう","adj-na|adj-no|n","ít ỏi | nhỏ nhặt | chút ít | không đáng kể","trifling | little | slight","1290690"),
+    ("詐取","さしゅ","n|vs|vt","lừa đảo | lừa gạt chiếm đoạt | gian lận lấy của","defrauding | swindle","1291710"),
+    ("左袒","さたん","n|vs|vi","ủng hộ | đứng về phía | hậu thuẫn | hùa theo","friendship | allegiance | support","2141390"),
+    ("雑魚","ざこ","n","cá tép riu | kẻ vô danh tiểu tốt | tép riu | đồ bỏ đi","small fish | small fry | a nobody","1299360"),
+    ("殺生","せっしょう","n|vs|vt|vi|adj-na","sát sinh | giết hại sinh linh | tàn nhẫn | nhẫn tâm","killing | destruction of life | cruel | heartless","1299160"),
+    ("颯爽","さっそう","adj-t|adv-to","oai phong | bảnh bao | hào hoa | phong độ nhanh nhẹn","gallant | dashing | jaunty","1574400"),
+    ("讒言","ざんげん","n|vs|vt|vi","gièm pha | vu khống | dèm pha | nói xấu hãm hại","false charge | slander | defamation","1572980"),
+    ("私利","しり","n","tư lợi | lợi ích riêng | mưu lợi cá nhân","self-interest | personal profit","1767950"),
+    ("紙背","しはい","n","mặt sau tờ giấy | đọc giữa các dòng | hàm ý ẩn sau chữ","reverse side of a paper | reading between the lines","1763020"),
+    ("時化","しけ","n","biển động | thời tiết xấu (trên biển) | đánh bắt thất bát | ế ẩm","stormy weather at sea | poor catch | recession","1816340"),
+    ("至高","しこう","adj-no|adj-na|n","tối cao | tột đỉnh | cao siêu | tối thượng","supreme | sublime | highest","1311940"),
+    ("四肢","しし","n","tứ chi | chân tay | tay chân","the four limbs | arms and legs","1307210"),
+    ("試金石","しきんせき","n","đá thử vàng | phép thử | thước đo | bước thử thách","touchstone | test | litmus test","1312330"),
+    ("死守","ししゅ","n|vs|vt","tử thủ | quyết giữ đến cùng | bảo vệ đến hơi thở cuối","defending to the last | desperate defence","1619100"),
+    ("獅子","しし","n","sư tử | sư tử đá (canh đền) | con lân","lion | guardian lion-dog","1311070"),
+    ("市井","しせい","n","phố phường | nơi đô hội | chốn thị thành | dân gian","the street | the town","1308100"),
+    ("使嗾","しそう","n|vs","xúi giục | xúi bẩy | kích động | giật dây","instigation","1306350"),
+    ("卓抜","たくばつ","adj-na|n|vs|vi","xuất chúng | vượt trội | siêu việt | nổi bật","excellence | superiority | preeminence","1415690"),
+    ("私腹","しふく","n","túi riêng | lợi riêng | vơ vét cho mình (私腹を肥やす)","one's own profits | one's own pockets","1768120"),
+    ("惹起","じゃっき","n|vs|vt","gây ra | dẫn đến | làm nảy sinh | khơi mào","bringing about | cause | provocation","1617260"),
+    ("遮二無二","しゃにむに","adv","liều mạng | bất chấp | cắm đầu cắm cổ | nhắm mắt làm liều","desperately | recklessly | headlong","1323330"),
+    ("酌量","しゃくりょう","n|vs|vt","châm chước | cân nhắc | xét hoàn cảnh | lượng tình","taking into consideration | making allowances","1324220"),
+    ("若干","じゃっかん","adj-no|adv","một số | đôi chút | một ít | phần nào | chút ít","some | a few | a little | somewhat","1324330"),
+    ("惹句","じゃっく","n","khẩu hiệu quảng cáo | câu khẩu hiệu bắt tai","catchphrase (in advertising)","1324930"),
+    ("洒脱","しゃだつ","adj-na|n","phóng khoáng | tao nhã | hóm hỉnh | thanh thoát không gò bó","sophisticated | refined | witty | unconstrained","1568620"),
+    ("衆寡","しゅうか","n","đông và ít | số đông và số ít (衆寡敵せず)","the many and the few","1699820"),
+    ("醜聞","しゅうぶん","n","tai tiếng | bê bối | điều tiếng | xì căng đan","scandal","1333850"),
+    ("就役","しゅうえき","n|vs|vi","đưa vào hoạt động | nhậm chức | (tàu) vào biên chế","being placed on duty | going into commission","1331820"),
+    ("蹂躙","じゅうりん","n|vs|vt","chà đạp | giày xéo | xâm phạm | vùi dập","trampling down | infringement | violation","1573300"),
+    ("首魁","しゅかい","n","kẻ cầm đầu | thủ lĩnh (mưu đồ) | chủ mưu | người tiên phong","ringleader | mastermind | forerunner","1696830"),
+    ("熟睡","じゅくすい","n|vs|vi","ngủ say | ngủ sâu giấc | ngủ ngon | ngủ li bì","deep sleep | sound sleep","1337860"),
+    ("出奔","しゅっぽん","n|vs|vi","bỏ trốn | đào tẩu | trốn biệt | bỏ nhà ra đi","flight | running away | absconding","1340340"),
+    ("逡巡","しゅんじゅん","n|vs|vi","do dự | chần chừ | ngần ngại | lưỡng lự","hesitation | indecision","2014800"),
+    ("峻厳","しゅんげん","adj-na|n","nghiêm khắc | khắc nghiệt | nghiêm ngặt | gắt gao","strict | stern | rigorous | severe","1616220"),
+    ("遵法","じゅんぽう","n|adj-na|adj-no","tuân thủ pháp luật | chấp hành luật | thượng tôn pháp luật","law observance | obeying the law","1342200"),
+    ("昇叙","しょうじょ","n|vs|vt|vi","thăng chức | thăng cấp | đề bạt | tiến cử","promotion | advancement","1853720"),
+    ("詳察","しょうさつ","n|vs","quan sát kỹ | xem xét tỉ mỉ | suy xét cặn kẽ","careful observation","1882490"),
+    ("憔悴","しょうすい","n|vs|vi","tiều tụy | hốc hác | gầy mòn | bơ phờ kiệt sức","haggardness | emaciation | exhaustion","1566930"),
+    ("招請","しょうせい","n|vs|vt","mời | thỉnh mời | mời tham dự | mời gọi","invitation","1594970"),
+    ("情状","じょうじょう","n","tình tiết | hoàn cảnh | tình huống (情状酌量)","circumstances","1750410"),
+]
+rows=[row(*d) for d in DATA]
+open(OUT,"w",encoding="utf-8",newline="\n").write(HEADER+"\n"+"\n".join(rows)+"\n")
+print(f"Written {len(rows)} rows")

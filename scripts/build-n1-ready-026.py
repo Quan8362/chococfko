@@ -1,0 +1,75 @@
+# -*- coding: utf-8 -*-
+"""Build N1 ready wave 026 — literary/formal Sino-Japanese nouns (set 26)."""
+import os
+OUT = os.path.join(os.path.dirname(__file__), "..", "data", "japanese", "jmdict-n1-vi-ready-026.csv")
+HEADER = "word,reading,romaji,jlpt_level,pos,meaning_vi,meaning_en,tags,frequency,source,source_id,license,attribution,example_jp,example_reading,example_vi,example_en,review_status,meaning_source"
+LIC = "CC BY-SA 3.0 — verify at edrdg.org before production use"
+def q(v): return '"' + str(v).replace('"','""') + '"'
+def row(w,r,p,vi,en,s):
+    return ",".join([q(w),q(r),q(""),q("N1"),q(p),q(vi),q(en),q(""),q("0"),q("jmdict"),q(s),q(LIC),q("JMdict/EDRDG"),q(""),q(""),q(""),q(""),q("ai_draft"),q("jmdict_ai")])
+DATA = [
+    ("仮借","かしゃく","n|vs","tha thứ | khoan dung | vay mượn | giả tá (cách dùng chữ Hán)","pardon | extenuation | borrowing | phonetic loan","1187500"),
+    ("河川","かせん","n","sông ngòi | sông suối | các con sông","rivers","1193520"),
+    ("苛斂","かれん","n","vơ vét hà khắc | bóc lột thuế nặng | sưu cao thuế nặng","oppressive exaction (of taxes)","1195230"),
+    ("苛烈","かれつ","adj-na|n","khốc liệt | gay gắt | dữ dội | nghiệt ngã","severe | fierce | stern","1195220"),
+    ("我意","がい","n","ý riêng | tự ý | bướng bỉnh | cố chấp","self-will | obstinacy","1196790"),
+    ("雅趣","がしゅ","n","nhã thú | vẻ tao nhã | nét thanh lịch | thi vị","elegance | refined taste","1197920"),
+    ("餓死","がし","n|vs|vi","chết đói | bỏ mạng vì đói | đói lả mà chết","starvation | starving to death","1587980"),
+    ("過褒","かほう","n","khen quá lời | tán dương thái quá | quá khen","excessive praise | overpraise","1196450"),
+    ("雅量","がりょう","n","độ lượng | bao dung | khoan dung | lượng cả","magnanimity | generosity | tolerance","1197970"),
+    ("苛政","かせい","n","chính sự hà khắc | bạo chính | cai trị tàn bạo","tyranny | despotism","1195180"),
+    ("寡欲","かよく","adj-na|n","ít ham muốn | thanh đạm | vô tư | không vụ lợi","unselfishness | wanting little","1192670"),
+    ("川下","かわしも","n|adj-no","hạ lưu | phía dưới dòng sông | xuôi dòng","downstream","1390050"),
+    ("甘受","かんじゅ","n|vs|vt","cam chịu | nhẫn nhịn chấp nhận | nhận lấy không than","submitting to | putting up with | resigning oneself to","1213530"),
+    ("干天","かんてん","n","trời hạn | nắng hạn | khô hạn (干天の慈雨: mưa rào giữa hạn)","drought | dry weather","1212080"),
+    ("官能","かんのう","n","giác quan | nhục cảm | khoái cảm | tính dục","the senses | sensuality | carnality","1211760"),
+    ("陥落","かんらく","n|vs|vi","sụp đổ | thất thủ | rơi xuống | xiêu lòng | tụt hạng","subsidence | fall (of a city) | giving in","1216150"),
+    ("願主","がんしゅ","n","người cầu nguyện | thí chủ cầu khấn | người đến lễ","temple petitioner","1218030"),
+    ("旗艦","きかん","n","kỳ hạm | tàu chỉ huy | soái hạm","flagship","1220250"),
+    ("気障","きざ","adj-na|n","kiểu cách | làm bộ làm tịch | màu mè | điệu đà khó ưa","affected | smug | pompous | pretentious","1222310"),
+    ("旗手","きしゅ","n","người cầm cờ | kỳ thủ | người tiên phong (giương cờ)","standard-bearer | flag-bearer","1220260"),
+    ("擬する","ぎする","vs-s|vt","bắt chước | mô phỏng | đề cử | kề (vũ khí) | ví với","to imitate | to nominate | to press (weapon) | to liken","2093530"),
+    ("忌諱","きき","n|vs|vt|vi","kiêng kỵ | tránh né | bất mãn | làm phật ý","displeasure | offence | disliking","1220140"),
+    ("詭道","きどう","n","quỷ đạo | thủ đoạn lừa dối | mánh khóe gian trá","deceptive methods | questionable means","1572640"),
+    ("驥尾","きび","n","đuôi tuấn mã | bám theo bậc tài giỏi (驥尾に付す)","tail of a swift horse | behind a great person","1574660"),
+    ("欺瞞","ぎまん","n|vs|vt","lừa dối | dối trá | gian dối | bịp bợm","deception | deceit","1225430"),
+    ("詰屈","きっくつ","adj-na|vs|vi","gập ghềnh | trúc trắc | khó hiểu | gò bó cứng nhắc","bending | twisting | hard to understand | stilted","2869524"),
+    ("気宇壮大","きうそうだい","n|adj-na","chí lớn | hoài bão lớn lao | khí phách hào hùng | tầm vóc rộng lớn","magnanimous in attitude | grand in mind-set","2030440"),
+    ("逆鱗","げきりん","n","cơn thịnh nộ (bề trên) | sự nổi giận của vua (逆鱗に触れる)","superior's anger | imperial wrath","1227280"),
+    ("脚光","きゃっこう","n","ánh đèn sân khấu | sự chú ý | tâm điểm (脚光を浴びる)","footlight | limelight","1614700"),
+    ("窮鼠","きゅうそ","n","chuột cùng đường | kẻ bị dồn vào thế bí (窮鼠猫を噛む)","cornered rat","1742050"),
+    ("仇敵","きゅうてき","n","kẻ thù không đội trời chung | cừu địch | tử thù","bitter enemy","1227430"),
+    ("驚愕","きょうがく","n|adj-no|vs|vi","kinh ngạc | sửng sốt | choáng váng | hoảng hốt","astonishment | amazement | shock","1238740"),
+    ("矜持","きょうじ","n","lòng tự tôn | niềm kiêu hãnh | tự trọng | phẩm giá","pride | dignity | self-respect","1640670"),
+    ("僅差","きんさ","n","sít sao | cách biệt mong manh | hơn kém chút ít","narrow margin | slim margin","1240760"),
+    ("緊要","きんよう","adj-na|n","cấp thiết | trọng yếu | thiết yếu | hệ trọng","momentous | urgent | important | vital","1241920"),
+    ("苦役","くえき","n","khổ sai | lao dịch | tù khổ sai | công việc cực nhọc","toil | drudgery | penal servitude","1244650"),
+    ("苦汁","にがり","n","nước ót | nước muối đắng (làm đậu phụ) | nigari","bittern | concentrated salt solution","1608670"),
+    ("寓意","ぐうい","n","ngụ ý | hàm ý | ẩn dụ | bài học ẩn (truyện ngụ ngôn)","hidden meaning | allegory | moral","1246400"),
+    ("寓居","ぐうきょ","n|vs","chỗ ở tạm | nơi trú tạm | tạm trú","temporary abode | staying temporarily","1712730"),
+    ("口伝","くでん","n|vs|vt","khẩu truyền | truyền miệng | truyền khẩu | dạy bằng lời","oral instruction | oral tradition","1276640"),
+    ("傀儡","かいらい","n","con rối | bù nhìn | tay sai | kẻ giật dây","puppet | marionette | dummy","1585480"),
+    ("群雄","ぐんゆう","n","quần hùng | các thủ lĩnh tranh hùng | các hào kiệt","rival chiefs","1247630"),
+    ("薫風","くんぷう","n","gió thơm | gió hè dịu mát | làn gió đầu hạ","balmy breeze | summer breeze","1247370"),
+    ("傾国","けいこく","n","khuynh quốc | mỹ nhân nghiêng nước | kỹ nữ tuyệt sắc","great beauty | siren | courtesan","1249480"),
+    ("鶏口","けいこう","n","miệng gà | đầu của nhóm nhỏ (鶏口となるも牛後となるなかれ)","mouth of a chicken | leader of a small group","1769430"),
+    ("警句","けいく","n","cách ngôn | châm ngôn | lời sắc sảo | câu nói dí dỏm","aphorism | epigram | witticism","1252340"),
+    ("鯨飲","げいいん","n|vs|vt","uống như hũ chìm | nốc rượu | uống như cá","drinking hard | drinking like a fish","1253280"),
+    ("形而上学","けいじじょうがく","n","siêu hình học | hình nhi thượng học","metaphysics","1250300"),
+    ("傾城","けいせい","n","khuynh thành | tuyệt thế giai nhân | kỹ nữ tuyệt đẹp","great beauty | siren | courtesan","1249540"),
+    ("迎賓","げいひん","n","đón tiếp quý khách | nghênh đón khách quý (迎賓館)","welcoming honored guests","1874280"),
+    ("下世話","げせわ","n|adj-na","lời dân dã | chuyện thường ngày | thông tục | tầm thường","common saying | everyday talk | vulgar","1185560"),
+    ("気色ばむ","けしきばむ","v5m|vi","nổi cáu | lộ vẻ tức giận | biến sắc | sa sầm mặt","to grow angry | to display one's anger","1850200"),
+    ("傑物","けつぶつ","n","nhân vật kiệt xuất | người phi thường | bậc hào kiệt | nhân tài lỗi lạc","great person | outstanding figure | giant","1253880"),
+    ("牽強","けんきょう","n|vs|vt","gò ép sự thật | xuyên tạc | bóp méo sự thật","distortion of facts","1258270"),
+    ("眷顧","けんこ","n|vs|vt","sủng ái | chiếu cố | đặc biệt quan tâm | nâng đỡ","favor | patronage | special attention","2626470"),
+    ("言辞","げんじ","n","lời lẽ | ngôn từ | cách ăn nói | lời nói","language | speech","1756500"),
+    ("原初","げんしょ","n|adj-no","khởi nguyên | nguồn cội | thuở ban đầu | nguyên thủy","origin | source | beginning","1666180"),
+    ("権謀","けんぼう","n","mưu kế | quyền mưu | mưu lược | thủ đoạn","scheme | stratagem | ploy","1258180"),
+    ("故旧","こきゅう","n","cố nhân | bạn cũ | người quen lâu năm","old acquaintance","1267150"),
+    ("語呂","ごろ","n","âm điệu câu | sự êm tai | chơi chữ | vần điệu (語呂合わせ)","sound of a sentence | euphony | wordplay","1271230"),
+    ("鼓吹","こすい","n|vs|vt","cổ vũ | khích lệ | tuyên truyền | thổi bùng (tinh thần)","rousing (morale) | advocacy | promotion","1267950"),
+]
+rows=[row(*d) for d in DATA]
+open(OUT,"w",encoding="utf-8",newline="\n").write(HEADER+"\n"+"\n".join(rows)+"\n")
+print(f"Written {len(rows)} rows")

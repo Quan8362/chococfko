@@ -1,0 +1,78 @@
+# -*- coding: utf-8 -*-
+"""Build N1 ready wave 020 — literary/formal Sino-Japanese nouns (set 20)."""
+import os
+OUT = os.path.join(os.path.dirname(__file__), "..", "data", "japanese", "jmdict-n1-vi-ready-020.csv")
+HEADER = "word,reading,romaji,jlpt_level,pos,meaning_vi,meaning_en,tags,frequency,source,source_id,license,attribution,example_jp,example_reading,example_vi,example_en,review_status,meaning_source"
+LIC = "CC BY-SA 3.0 — verify at edrdg.org before production use"
+def q(v): return '"' + str(v).replace('"','""') + '"'
+def row(w,r,p,vi,en,s):
+    return ",".join([q(w),q(r),q(""),q("N1"),q(p),q(vi),q(en),q(""),q("0"),q("jmdict"),q(s),q(LIC),q("JMdict/EDRDG"),q(""),q(""),q(""),q(""),q("ai_draft"),q("jmdict_ai")])
+DATA = [
+    ("幽玄","ゆうげん","n|adj-na","u huyền | thâm trầm sâu lắng | vẻ đẹp tịch mịch | yugen","mysterious profundity | quiet beauty | the subtle and profound","1540380"),
+    ("雄渾","ゆうこん","adj-na|n","hùng hồn | hùng tráng | mạnh mẽ phóng khoáng | bay bổng","magnificent | sublime | vigorous | bold","1616410"),
+    ("勇躍","ゆうやく","n|vs|vi","hăng hái | phấn chấn | nức lòng | hồ hởi xông lên","taking heart | being in high spirits","1539940"),
+    ("庸劣","ようれつ","adj-na|n","tầm thường | kém cỏi | ngu dốt | xoàng xĩnh","mediocre | inferior | foolish","2846415"),
+    ("要衝","ようしょう","n","yếu địa | vị trí trọng yếu | điểm chiến lược | yết hầu","important point | strategic position | key point","1662320"),
+    ("余念","よねん","n","tạp niệm | ý nghĩ khác (余念がない: chuyên tâm)","another idea | distraction","1544450"),
+    ("余得","よとく","n","lợi lộc thêm | bổng lộc | phụ thu | mối lợi phụ","emoluments | additional profits","1544410"),
+    ("落魄","らくはく","n|vs|vi","sa cơ | lụn bại | sa sút | xuống dốc nghèo túng","being reduced to poverty | coming down in the world","1618550"),
+    ("濫造","らんぞう","n|vs|vt","sản xuất tràn lan | làm ẩu | sản xuất bừa bãi","overproduction | careless manufacture","1643970"),
+    ("吏員","りいん","n","công chức | viên chức | quan lại","official","1549700"),
+    ("理非","りひ","n","phải trái | đúng sai | chính tà","right and wrong","1550100"),
+    ("立錐","りっすい","n|vs","cắm dùi (chỗ cắm dùi - 立錐の余地もない: chật ních)","setting a drill bit (no room to even stand a drill)","1648810"),
+    ("流麗","りゅうれい","adj-na|n","trôi chảy | mượt mà | uyển chuyển | thanh thoát","fluent | flowing | elegant","1616050"),
+    ("凌駕","りょうが","n|vs|vt","vượt trội | hơn hẳn | áp đảo | qua mặt","excelling | surpassing | outdoing","1606270"),
+    ("寥々","りょうりょう","adj-t|adv-to","quạnh hiu | thưa thớt | vắng vẻ | hiếm hoi","lonely | desolate | scarce | sparse","1834830"),
+    ("廉潔","れんけつ","adj-na|n","liêm khiết | trong sạch | thanh liêm | chính trực","honest | incorruptible | integrity","1616010"),
+    ("老獪","ろうかい","adj-na|n","lọc lõi | lão luyện gian xảo | cáo già | xảo quyệt","cunning | astute | crafty | wily","1840790"),
+    ("矮躯","わいく","n","vóc người nhỏ bé | thấp bé | dáng lùn","small stature","1569970"),
+    ("猥褻","わいせつ","adj-na|n","tục tĩu | dâm ô | khiếm nhã | đồi bại","obscene | indecent | improper","1569360"),
+    ("脇目","わきめ","n","nhìn sang chỗ khác | lơ là | con mắt người ngoài | nhìn lén","looking aside | onlooker's view","1823610"),
+    ("歪み","ひずみ","n","sự biến dạng | méo mó | lệch lạc | hệ lụy xấu","strain | deformation | distortion | harmful effects","1562430"),
+    ("忌憚","きたん","n|vs|vt","sự dè dặt | giữ ý | ngại ngần | e dè (忌憚なく: thẳng thắn)","reserve | hesitation | restraint","1220130"),
+    ("詰責","きっせき","n|vs","khiển trách | quở trách | trách cứ","reproach | reprove | reprimand","1618050"),
+    ("喫水","きっすい","n","mớn nước | độ chìm của tàu | vạch mớn","draft (of a ship) | draught","1869220"),
+    ("急務","きゅうむ","n","việc cấp bách | nhiệm vụ khẩn cấp | việc cần kíp","urgent business | pressing need","1228980"),
+    ("糾明","きゅうめい","n|vs|vt","truy xét | điều tra làm rõ | thẩm tra kỹ lưỡng","searching examination | establishing the facts","1230190"),
+    ("驚倒","きょうとう","n|vs|vi","kinh hãi | sửng sốt | choáng váng | bàng hoàng","being very surprised | being utterly astonished","1831070"),
+    ("僥倖","ぎょうこう","n","vận may bất ngờ | may mắn trời cho | của trời cho","stroke of luck | unexpected good fortune | windfall","1564010"),
+    ("許諾","きょだく","n|vs|vt","sự cho phép | đồng ý | chấp thuận | ưng thuận","consent | assent | approval | permission","1232900"),
+    ("虚脱","きょだつ","n|vs|vi","kiệt sức | bơ phờ | thẫn thờ | suy sụp (thể chất, tinh thần)","lethargy | despondency | (physical) collapse","1232790"),
+    ("挙措","きょそ","n","cử chỉ | hành vi | tác phong | điệu bộ","behavior | manner | conduct","1232590"),
+    ("毀損","きそん","n|vs|vt","hư hại | tổn hại | làm hỏng | bôi nhọ (danh dự)","damage | injury | defamation | harm","1565770"),
+    ("気色","けしき","n","dấu hiệu | biểu hiện | vẻ | tín hiệu","sign | indication","1222345"),
+    ("忌中","きちゅう","n","thời kỳ để tang | trong tang | thời gian chịu tang","mourning period | (in) mourning","1220100"),
+    ("忌引","きびき","n|vs|vi","nghỉ tang | nghỉ phép để tang | cư tang","absence due to mourning","1795150"),
+    ("窮迫","きゅうはく","n|vs|vi","túng quẫn | bế tắc tài chính | khốn quẫn | quẫn bách","financial difficulty | distress","1230110"),
+    ("糾合","きゅうごう","n|vs|vt","tập hợp | quy tụ | tụ họp (lực lượng) | chiêu tập","rally | muster","1230170"),
+    ("享年","きょうねん","n|n-pref","hưởng thọ | tuổi thọ (lúc mất) | thọ","age at death","1233300"),
+    ("驕児","きょうじ","n","đứa trẻ hư | con cưng được nuông chiều | kẻ kiêu ngạo","spoiled child | pampered one","1574590"),
+    ("仰天","ぎょうてん","n|vs|vi","kinh ngạc | sửng sốt | giật mình | hết hồn","being amazed | being taken aback","1238940"),
+    ("業腹","ごうはら","adj-na|n","tức tối | bực bội | uất ức | cay cú","infuriating | galling | vexing","1239510"),
+    ("極刑","きょっけい","n","cực hình | tử hình | án nặng nhất | hình phạt cao nhất","capital punishment | death penalty | maximum penalty","1240290"),
+    ("謹啓","きんけい","int|n","kính thưa | kính gửi (mở đầu thư trang trọng)","Dear Sir or Madam (formal letter opening)","1242070"),
+    ("琴瑟","きんしつ","n","cầm sắt (hai loại đàn) | vợ chồng hòa thuận | hòa hợp","qin and se | happy marriage","2436560"),
+    ("緊縛","きんばく","n|vs|vt","trói chặt | buộc chặt | trói (kiểu bondage)","binding tightly | (sexual) bondage","1241900"),
+    ("区々","くく","adj-t|adv-to","muôn hình muôn vẻ | mỗi nơi mỗi khác | vụn vặt | lặt vặt","various | divergent | petty | trivial","1592150"),
+    ("苦汁","くじゅう","n","nước đắng | trải nghiệm cay đắng | bài học đắng cay","bitter liquid | bitter experience","1684990"),
+    ("苦衷","くちゅう","n","nỗi khổ tâm | tâm sự đau đáu | nỗi niềm khó nói","distress | anguish | mental suffering","1244550"),
+    ("屈託","くったく","n|vs|vi","bận lòng | lo nghĩ | ưu tư | buồn chán (屈託ない: vô tư)","worry | care | concern | ennui","1246630"),
+    ("苦悶","くもん","n|vs|vi|adj-no","quằn quại | đau đớn vật vã | thống khổ | dằn vặt","anguish","1244640"),
+    ("供物","くもつ","n","đồ cúng | lễ vật | vật phẩm dâng cúng","offering (to the gods) | votive offering","1233840"),
+    ("庫裏","くり","n","nhà bếp chùa | hậu liêu | nơi ở của trụ trì","temple kitchen | quarters of a head priest","1266900"),
+    ("群青","ぐんじょう","n","màu xanh biển thẫm | màu xanh lam đậm | xanh ultramarine","ultramarine","1667870"),
+    ("薫陶","くんとう","n|vs|vt","hun đúc | giáo huấn | đào tạo | rèn giũa nhân cách","education | training | discipline","1247360"),
+    ("傾注","けいちゅう","n|vs|vt","dốc sức | tập trung toàn lực | dồn tâm huyết","devoting oneself to | concentrating efforts on","1249550"),
+    ("化身","けしん","n|vs|adj-no|vi","hóa thân | hiện thân | nhập thế | avatar","incarnation | personification | avatar","1187150"),
+    ("潔斎","けっさい","n|vs|vi","trai giới | tẩy uế thanh tịnh | thanh khiết trước nghi lễ","religious abstinence | purification","1639350"),
+    ("権柄","けんぺい","n","quyền uy | quyền lực | quyền bính | uy quyền","power | authority","1258160"),
+    ("眷属","けんぞく","n","gia quyến | người nhà | thuộc hạ | tùy tùng","one's family | dependents | follower | retainer","1569830"),
+    ("言質","げんち","n","lời cam kết | lời hứa | lời đảm bảo (言質を取る: nắm lời hứa)","commitment | pledge | promise","1264490"),
+    ("拳骨","げんこつ","n","nắm đấm | quả đấm | cú thụi","clenched fist | knuckles","1257750"),
+    ("減殺","げんさい","n|vs|vt","làm giảm | suy giảm | giảm thiểu | bớt đi","lessening | diminishing | reducing","1616900"),
+    ("顕示","けんじ","n|vs|vt","phô bày | biểu thị | trưng ra | khoe khoang (自己顕示)","manifestation | public show | showing conspicuously","1617860"),
+    ("眩惑","げんわく","n|vs|vt|vi","làm hoa mắt | mê hoặc | làm choáng váng | mê muội","dazzlement | bewilderment | daze","1569800"),
+]
+rows=[row(*d) for d in DATA]
+open(OUT,"w",encoding="utf-8",newline="\n").write(HEADER+"\n"+"\n".join(rows)+"\n")
+print(f"Written {len(rows)} rows")

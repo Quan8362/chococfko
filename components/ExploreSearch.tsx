@@ -32,9 +32,9 @@ export default function ExploreSearch({
 }) {
   const t = useTranslations("home");
   const [q, setQ] = useState("");
-  const [selected, setSelected] = useState<string[]>([]);
   const [prefecture, setPrefecture] = useState<string | null>(prefectures[0]?.code ?? null);
   const [prefOpen, setPrefOpen] = useState(false);
+  const [pendingScroll, setPendingScroll] = useState<string | null>(null);
   const prefRef = useRef<HTMLDivElement>(null);
 
   // Close prefecture dropdown on outside click / Escape
@@ -60,20 +60,41 @@ export default function ExploreSearch({
     [places, prefecture],
   );
 
-  const active = q.trim() !== "" || selected.length > 0;
+  const active = q.trim() !== "";
 
   const results = useMemo(
-    () => (active ? filterPlaces(places, { q, categories: selected, prefecture }) : []),
-    [active, q, selected, prefecture, places],
+    () => (active ? filterPlaces(places, { q, prefecture }) : []),
+    [active, q, prefecture, places],
   );
 
-  const toggleCat = (code: string) =>
-    setSelected((s) => (s.includes(code) ? s.filter((c) => c !== code) : [...s, code]));
-
-  const reset = () => {
-    setQ("");
-    setSelected([]);
+  const scrollToSection = (code: string) => {
+    const el = document.getElementById(`sec-${code}`);
+    if (!el) return;
+    // Sticky bar = top nav (68px) + this search bar; offset so the section
+    // title clears it (chips may wrap to 2+ rows, so measure live height).
+    const bar = document.getElementById("categories");
+    const offset = 68 + (bar?.offsetHeight ?? 120) + 16;
+    const top = el.getBoundingClientRect().top + window.scrollY - offset;
+    window.scrollTo({ top, behavior: "smooth" });
   };
+
+  // Click a chip → jump to that category section. If a search is active, exit
+  // search first (so the sectioned layout renders) then scroll once it mounts.
+  const goToSection = (code: string) => {
+    if (active) {
+      setQ("");
+      setPendingScroll(code);
+    } else {
+      scrollToSection(code);
+    }
+  };
+
+  useEffect(() => {
+    if (pendingScroll && !active) {
+      scrollToSection(pendingScroll);
+      setPendingScroll(null);
+    }
+  }, [pendingScroll, active]);
 
   return (
     <>
@@ -178,39 +199,19 @@ export default function ExploreSearch({
             </div>
           </div>
 
-          {/* Category chips */}
+          {/* Category chips — click to jump to that category section */}
           <div className="flex flex-wrap gap-1.5">
-            {categories.map((c) => {
-              const on = selected.includes(c.code);
-              return (
-                <button
-                  key={c.code}
-                  type="button"
-                  onClick={() => toggleCat(c.code)}
-                  aria-pressed={on}
-                  className={
-                    on
-                      ? "inline-flex items-center gap-1.5 whitespace-nowrap text-[12.5px] font-semibold text-white bg-rose border border-rose px-3.5 py-[6px] rounded-full shadow-[0_4px_12px_-4px_rgba(194,24,91,0.6)] transition-all"
-                      : "inline-flex items-center gap-1.5 whitespace-nowrap text-[12.5px] font-medium text-muted border border-line bg-paper px-3.5 py-[6px] rounded-full hover:bg-rose-soft hover:border-rose/40 hover:text-rose transition-all"
-                  }
-                >
-                  <span className="text-[13px] leading-none">{c.emoji}</span>
-                  {c.label}
-                </button>
-              );
-            })}
-            {active && (
+            {categories.map((c) => (
               <button
+                key={c.code}
                 type="button"
-                onClick={reset}
-                className="inline-flex items-center gap-1.5 whitespace-nowrap text-[12.5px] font-semibold text-rose bg-rose-soft border border-rose/30 px-3.5 py-[6px] rounded-full hover:bg-rose hover:text-white hover:border-rose transition-all"
+                onClick={() => goToSection(c.code)}
+                className="inline-flex items-center gap-1.5 whitespace-nowrap text-[12.5px] font-medium text-muted border border-line bg-paper px-3.5 py-[6px] rounded-full hover:bg-rose-soft hover:border-rose/40 hover:text-rose transition-all"
               >
-                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-                {t("search_clear")}
+                <span className="text-[13px] leading-none">{c.emoji}</span>
+                {c.label}
               </button>
-            )}
+            ))}
           </div>
         </div>
       </div>

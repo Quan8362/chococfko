@@ -1,0 +1,77 @@
+# -*- coding: utf-8 -*-
+"""Build N2 ready wave 045 — color/light, sound/acoustics, smell, taste/texture adjectives, sensations."""
+import os
+OUT = os.path.join(os.path.dirname(__file__), "..", "data", "japanese", "jmdict-n2-vi-ready-045.csv")
+HEADER = "word,reading,romaji,jlpt_level,pos,meaning_vi,meaning_en,tags,frequency,source,source_id,license,attribution,example_jp,example_reading,example_vi,example_en,review_status,meaning_source"
+LIC = "CC BY-SA 3.0 — verify at edrdg.org before production use"
+def q(v): return '"' + str(v).replace('"','""') + '"'
+def row(w,r,p,vi,en,s):
+    return ",".join([q(w),q(r),q(""),q("N2"),q(p),q(vi),q(en),q(""),q("0"),q("jmdict"),q(s),q(LIC),q("JMdict/EDRDG"),q(""),q(""),q(""),q(""),q("ai_draft"),q("jmdict_ai")])
+DATA = [
+    ("色相","しきそう","n","sắc độ | tông màu | pha màu","hue | color phase","1646660"),
+    ("原色","げんしょく","n","màu gốc | màu nguyên bản | màu nguyên thủy","primary colour | original color","1261870"),
+    ("中間色","ちゅうかんしょく","n","màu trung gian | màu trung tính","intermediate color | neutral color","1695870"),
+    ("補色","ほしょく","n","màu bổ sung | màu bù","complementary color","1690190"),
+    ("寒色","かんしょく","n","gam màu lạnh","cold color","1714650"),
+    ("暖色","だんしょく","n","gam màu ấm","warm colour","1419840"),
+    ("彩り","いろどり","n","sự phối màu | màu sắc | điểm tô | sự trang trí | điểm nhấn","coloring | color scheme | embellishment","1294390"),
+    ("輝き","かがやき","n","sự rực rỡ | ánh sáng chói | sự lấp lánh","brightness | brilliance | radiance","1224010"),
+    ("煌めき","きらめき","n","sự lấp lánh | lung linh | nhấp nháy","glitter | glimmer | sparkle","1569030"),
+    ("明るさ","あかるさ","n","độ sáng | sự tươi sáng | sự vui vẻ","brightness | luminance | cheerfulness","1532370"),
+    ("暗さ","くらさ","n","độ tối | bóng tối | sự u ám","darkness | gloom","2131850"),
+    ("影","かげ","n","bóng | bóng dáng | hình ảnh | dấu hiệu | tàn tích","shadow | silhouette | reflection | trace","1590145"),
+    ("反射光","はんしゃこう","n","ánh sáng phản xạ","reflected light","1945480"),
+    ("逆光","ぎゃっこう","n","ngược sáng | ánh sáng từ phía sau (chụp ảnh)","backlight (in photography)","1693400"),
+    ("色褪せる","いろあせる","v1|vi","phai màu | bạc màu | nhạt nhòa | phai mờ (ký ức)","to fade (of a colour) | to lose vividness","1627970"),
+    ("褪せる","あせる","v1|vi","phai | bạc màu | nhạt dần | mờ đi (ký ức)","to fade | to discolor | to diminish","1572410"),
+    ("くすむ","くすむ","v5m|vi","xỉn màu | tối màu | nhạt nhòa | không nổi bật","to be dull | to be inconspicuous","1957380"),
+    ("煌めく","きらめく","v5k|vi","lấp lánh | lung linh | lóe sáng | long lanh","to glitter | to sparkle | to gleam","1591740"),
+    ("ちらつく","ちらつく","v5k|vi","nhấp nháy | lập lòe | thấp thoáng | (mưa, tuyết) lất phất","to flicker | to glimmer | to fall lightly","1632110"),
+    ("眩む","くらむ","v5m|vi","chói mắt | hoa mắt | mờ mắt | bị (lòng tham) che mắt","to be dazzled | to be lost in (greed) | to become dark","1980700"),
+    ("音響","おんきょう","n","âm thanh | tiếng động | âm học | sự vang vọng","sound | acoustics | reverberation","1183780"),
+    ("残響","ざんきょう","n","tiếng vọng | dư âm | tiếng vang còn lại","reverberation | echo","1304550"),
+    ("轟音","ごうおん","n","tiếng gầm | tiếng ầm ầm | tiếng rền vang","thunderous roar | roaring sound","1845910"),
+    ("爆音","ばくおん","n","tiếng nổ | tiếng máy gầm rú","sound of an explosion | roar (of a machine)","1797260"),
+    ("重低音","じゅうていおん","n","âm trầm | tiếng bass nặng | âm tần số thấp","heavy bass sound | low-register sound","2819180"),
+    ("高音","こうおん","n","âm cao | giọng cao | soprano","high-pitched tone | soprano","1283290"),
+    ("低音","ていおん","n","âm trầm | giọng trầm | bè trầm","low tone | bass | low voice","1607200"),
+    ("甲高い","かんだかい","adj-i","the thé | chói tai | cao vút","high-pitched | shrill","1280140"),
+    ("耳障り","みみざわり","adj-na|n","chói tai | khó nghe | nhức tai | inh tai","hard (on the ears) | grating | jarring","1317250"),
+    ("耳鳴り","みみなり","n","ù tai | tiếng vo ve trong tai","tinnitus | ringing in the ears","1641660"),
+    ("静寂","せいじゃく","n|adj-na","tĩnh lặng | yên tĩnh | tịch mịch","silence | stillness | quietness","1381910"),
+    ("無音","むおん","n|adj-no","không tiếng động | im lặng | tĩnh mịch","silence","1529690"),
+    ("消音","しょうおん","n|vs|vt|vi","giảm âm | tắt tiếng | làm tắt tiếng","silencing | muffling | muting","1853810"),
+    ("吸音","きゅうおん","n|vs|vi|adj-no","hút âm | hấp thụ âm thanh","sound absorption","1683370"),
+    ("遮音","しゃおん","n|adj-no|vs|vt|vi","cách âm | chống ồn | ngăn âm","soundproofing | sound insulation","2549860"),
+    ("音量","おんりょう","n","âm lượng | mức âm thanh","volume (sound)","1184120"),
+    ("音圧","おんあつ","n","áp suất âm | cường độ âm","sound pressure | acoustic pressure","2424370"),
+    ("共鳴音","きょうめいおん","n","âm cộng hưởng | âm vang","sympathetic sound | resonance","2863178"),
+    ("香気","こうき","n","hương thơm | mùi thơm","fragrance","1283020"),
+    ("芳香","ほうこう","n|adj-no","hương thơm | mùi thơm ngát | hương dịu","perfume | fragrance | aroma","1517760"),
+    ("異臭","いしゅう","n","mùi lạ | mùi khó chịu | mùi hôi thối","offensive smell | foul smell | stench","1157730"),
+    ("腐臭","ふしゅう","n","mùi thối | mùi ôi thiu","smell of something rotten","1954550"),
+    ("臭気","しゅうき","n","mùi hôi | mùi khó ngửi","bad smell | stink","1333170"),
+    ("体臭","たいしゅう","n","mùi cơ thể | mùi người | nét đặc trưng (của ai)","body odor | characteristic (of someone)","1409530"),
+    ("口臭","こうしゅう","n","hôi miệng | hơi thở có mùi","bad breath | halitosis","1276270"),
+    ("無臭","むしゅう","n|adj-no","không mùi | vô hương","odorless | unscented","1672640"),
+    ("刺激臭","しげきしゅう","n","mùi hắc | mùi kích thích | mùi nồng cay","irritant odor | irritating smell","1880210"),
+    ("焦げ臭い","こげくさい","adj-i","có mùi khét | mùi cháy","smelling burnt | having a burnt smell","1350740"),
+    ("生臭い","なまぐさい","adj-i","tanh | mùi tanh | mùi máu | (sư) sa đọa | trần tục | đáng ngờ","fishy | smelling of blood | worldly | suspicious","1379110"),
+    ("泥臭い","どろくさい","adj-i","mùi bùn đất | quê mùa | thô kệch | thiếu tinh tế","smelling of mud | unrefined | uncouth","1729640"),
+    ("青臭い","あおくさい","adj-i","non nớt | ngây thơ | thiếu kinh nghiệm | mùi cỏ tươi","inexperienced | naive | grassy-smelling","1381540"),
+    ("香しい","かぐわしい","adj-i","thơm ngát | thơm phức | thơm tho","sweet-smelling | fragrant","2073750"),
+    ("芳しい","かんばしい","adj-i","thơm ngát | thơm | tốt đẹp (danh tiếng, kết quả)","fragrant | aromatic | good (reputation, results)","1578885"),
+    ("甘ったるい","あまったるい","adj-i","ngọt lịm | ngọt gắt | ướt át | ủy mị","sickly-sweet | sugary | mushy | sentimental","1213460"),
+    ("ほろ苦い","ほろにがい","adj-i","đăng đắng | hơi đắng | đắng ngọt (kỷ niệm)","slightly bitter | bittersweet (memory)","2080800"),
+    ("肌触り","はだざわり","n","cảm giác chạm da | độ mịn | sự êm tay | cách cư xử","feel | touch | texture","1600800"),
+    ("質感","しつかん","n","cảm giác chất liệu | kết cấu bề mặt","feel (of a material) | texture","1658700"),
+    ("触感","しょっかん","n","cảm giác xúc giác | cảm giác khi chạm","(tactile) feel | sense of touch","1358040"),
+    ("熱さ","あつさ","n","độ nóng | sự nóng (của vật)","heat (of a thing)","2606930"),
+    ("湿り気","しめりけ","n","độ ẩm | sự ẩm ướt","moisture","1769230"),
+    ("潤い","うるおい","n","độ ẩm | sự ẩm ướt | nét duyên | sự ấm áp | lợi ích | ơn huệ","moisture | richness | warmth | gains | grace","1341780"),
+    ("乾き","かわき","n","sự khô | độ khô | sự hong khô","drying | dryness","1209640"),
+    ("渇き","かわき","n","cơn khát | sự khát khao | nỗi thèm khát","thirst | craving | hunger (for love, knowledge)","1208510"),
+]
+rows=[row(*d) for d in DATA]
+open(OUT,"w",encoding="utf-8",newline="\n").write(HEADER+"\n"+"\n".join(rows)+"\n")
+print(f"Written {len(rows)} rows")

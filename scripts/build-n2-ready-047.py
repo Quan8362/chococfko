@@ -1,0 +1,77 @@
+# -*- coding: utf-8 -*-
+"""Build N2 ready wave 047 — 〜み quality nouns, 〜性 properties, 〜点 points, superlative/quality adjectives."""
+import os
+OUT = os.path.join(os.path.dirname(__file__), "..", "data", "japanese", "jmdict-n2-vi-ready-047.csv")
+HEADER = "word,reading,romaji,jlpt_level,pos,meaning_vi,meaning_en,tags,frequency,source,source_id,license,attribution,example_jp,example_reading,example_vi,example_en,review_status,meaning_source"
+LIC = "CC BY-SA 3.0 — verify at edrdg.org before production use"
+def q(v): return '"' + str(v).replace('"','""') + '"'
+def row(w,r,p,vi,en,s):
+    return ",".join([q(w),q(r),q(""),q("N2"),q(p),q(vi),q(en),q(""),q("0"),q("jmdict"),q(s),q(LIC),q("JMdict/EDRDG"),q(""),q(""),q(""),q(""),q("ai_draft"),q("jmdict_ai")])
+DATA = [
+    ("深み","ふかみ","n","chỗ sâu | chiều sâu | độ sâu sắc | sự thâm thúy","deep place | depth | profundity","1362670"),
+    ("高み","たかみ","n","đỉnh cao | chỗ cao | nơi cao ráo","height | elevated place","1283230"),
+    ("弱み","よわみ","n","điểm yếu | nhược điểm | chỗ yếu | tử huyệt","weakness | shortcoming | sore point","1606160"),
+    ("強み","つよみ","n","điểm mạnh | thế mạnh | ưu thế","forte | strong point","1236140"),
+    ("新鮮味","しんせんみ","n","sự mới mẻ | nét tươi mới | tính mới lạ","freshness | novelty","2848255"),
+    ("真実味","しんじつみ","n","tính chân thực | sự đáng tin | sự thành thật","truthfulness | credibility | sincerity","1939200"),
+    ("人間味","にんげんみ","n","tình người | nét nhân văn | sự gần gũi của con người","human kindness | human touch","1366980"),
+    ("現実味","げんじつみ","n","tính thực tế | cảm giác chân thực | tính khả thi","(sense of) reality | realism | viability","2115010"),
+    ("面白み","おもしろみ","n","sự thú vị | điểm hấp dẫn | nét lôi cuốn","interest | appeal | fun","1589370"),
+    ("有り難み","ありがたみ","n","giá trị | sự quý giá | điều đáng trân trọng | ơn phước","value | worth | virtue | blessing","1745930"),
+    ("馴染み","なじみ","n|adj-no","sự quen thuộc | sự thân quen | người quen","familiarity | intimacy | acquaintance","1459810"),
+    ("丸み","まるみ","n","độ tròn | sự tròn trịa | sự mềm mại | độ chín chắn","roundness | mellowness | maturity","1216290"),
+    ("凄み","すごみ","n","sự rùng rợn | vẻ đáng sợ | sự uy hiếp | sự dọa dẫm","ghastliness | grimness | menace | threat","1374600"),
+    ("有用性","ゆうようせい","n","tính hữu dụng | sự hữu ích","usefulness","1541660"),
+    ("信憑性","しんぴょうせい","n","tính xác thực | độ tin cậy | độ đáng tin","authenticity | credibility","1359790"),
+    ("公平性","こうへいせい","n","tính công bằng | sự công minh","fairness","2853786"),
+    ("継続性","けいぞくせい","n","tính liên tục | sự liên tục | tính kế thừa","continuity | continuance","2199910"),
+    ("耐久性","たいきゅうせい","n","độ bền | tính bền bỉ","durability","1817160"),
+    ("発展性","はってんせい","n","tiềm năng phát triển | khả năng mở rộng","possibility | potential | expandability","1679450"),
+    ("多義性","たぎせい","n","tính đa nghĩa | sự đa nghĩa (của từ)","ambiguity (of a word) | polysemy","1941600"),
+    ("不確実性","ふかくじつせい","n","tính bất định | sự không chắc chắn | sự bấp bênh","uncertainty | indeterminacy | unreliability","2519120"),
+    ("偶発性","ぐうはつせい","n","tính ngẫu nhiên | tính bất ngờ | sự tình cờ","contingency | eventuality","2832445"),
+    ("法則性","ほうそくせい","n|adj-no","tính quy luật | sự đều đặn theo quy luật","law-like nature | regularity","2755800"),
+    ("関連性","かんれんせい","n","tính liên quan | mối liên hệ | sự liên kết | tính tương quan","relatedness | relation | relevance","1216100"),
+    ("妥協点","だきょうてん","n","điểm thỏa hiệp | điểm chung dung hòa","common (meeting) ground","1941680"),
+    ("共通点","きょうつうてん","n","điểm chung | điểm tương đồng","point in common | common feature","1234730"),
+    ("相違点","そういてん","n","điểm khác biệt | sự khác nhau","(points of) difference","1400830"),
+    ("着眼点","ちゃくがんてん","n","điểm tập trung chú ý | góc nhìn | điều cần để ý","focus of attention | point of view","1701190"),
+    ("弱点","じゃくてん","n","điểm yếu | nhược điểm | khuyết điểm | tử huyệt","weak point | weakness | flaw","1324870"),
+    ("基点","きてん","n|adj-no","điểm gốc | điểm mốc | điểm tham chiếu","datum point | reference point | origin","1219150"),
+    ("分岐点","ぶんきてん","n","ngã rẽ | điểm phân nhánh | bước ngoặt | ngã ba đường","fork | junction | turning point | crossroads","1503370"),
+    ("転換点","てんかんてん","n","điểm chuyển biến | bước ngoặt | điểm tới hạn","turning point | tipping point","2595870"),
+    ("分水嶺","ぶんすいれい","n","đường phân thủy | bước ngoặt | thời khắc quyết định","watershed | divide | turning point","1503850"),
+    ("極点","きょくてん","n","cực điểm | đỉnh điểm | cực (Bắc/Nam)","pole | climax | extreme (point)","1240430"),
+    ("力点","りきてん","n","trọng tâm chú ý | sự nhấn mạnh | điểm đặt lực (đòn bẩy)","emphasis | main point | point where force is applied","1555140"),
+    ("交点","こうてん","n","giao điểm | điểm giao nhau","point of intersection","1272460"),
+    ("頂","いただき","n","đỉnh | chóp | đỉnh đầu | thứ được nhận","crown (of head) | summit | something received","1430200"),
+    ("極み","きわみ","n","tột cùng | cực điểm | đỉnh điểm | giới hạn cuối","height | acme | extremity | limit","1240190"),
+    ("最たる","さいたる","adj-pn","tiêu biểu nhất | điển hình nhất | nổi bật nhất","prime | conspicuous","2015580"),
+    ("随一","ずいいち","n","số một | đệ nhất | hàng đầu | giỏi nhất","best | greatest | first","1372730"),
+    ("屈指","くっし","adj-no|n","hàng đầu | xuất sắc | đếm trên đầu ngón tay | cự phách","leading | foremost | one of the best","1246580"),
+    ("有数","ゆうすう","adj-na|adj-no|n-suf|n","nổi bật | hàng đầu | có tiếng | xuất chúng","prominent | eminent | leading | distinguished","1541430"),
+    ("無類","むるい","adj-na|adj-no|n","vô song | không gì sánh được | có một không hai","matchless | unequalled","1673740"),
+    ("無比","むひ","adj-na|adj-no|n","vô song | không gì sánh kịp | tuyệt đỉnh","peerless | unparalleled","1530820"),
+    ("比類","ひるい","n","sự ngang bằng | vật sánh ngang | đối thủ","parallel | equal | match","1626940"),
+    ("随分","ずいぶん","adv|adv-to|adj-na","khá | rất | đáng kể | quá đáng | tệ hại","very | considerably | terrible | reprehensible","1372800"),
+    ("格別","かくべつ","adj-no|adj-na|n|adv","đặc biệt | ngoại lệ | hết sức | khác hẳn","particular | special | exceptional | especially","1205490"),
+    ("別格","べっかく","adj-no|n","đặc cách | ngoại lệ | hạng riêng | khác biệt","special | exceptional","1509580"),
+    ("破格","はかく","adj-no|adj-na|n","phá cách | ngoại lệ | chưa từng có | bất thường","extraordinary | exceptional | unprecedented","1471290"),
+    ("規格外","きかくがい","adj-no|adj-na","ngoài chuẩn | phi tiêu chuẩn | khác thường | đột phá","nonstandard | out of spec | extraordinary","2850440"),
+    ("桁外れ","けたはずれ","adj-na|n","vượt bậc | khác thường | phi thường | ngoại hạng","incredible | extraordinary | phenomenal","1686130"),
+    ("群を抜く","ぐんをぬく","exp|v5k","vượt trội | nổi bật giữa đám đông | hơn hẳn","to surpass the rest | to stand out | to be the best by far","2401510"),
+    ("抜群","ばつぐん","adj-no|adj-na|n","xuất sắc | nổi bật | vượt trội | tuyệt vời","outstanding | excellent | exceptional","1478250"),
+    ("傑出","けっしゅつ","n|vs|vi","xuất chúng | nổi bật | trội hẳn","being outstanding | excelling","1253860"),
+    ("秀逸","しゅういつ","adj-na|n","xuất sắc | tuyệt hảo | hạng nhất","excellent | superb | first-rate","1332620"),
+    ("優秀","ゆうしゅう","adj-na|n","ưu tú | xuất sắc | giỏi giang","superior | excellent | outstanding","1539230"),
+    ("優良","ゆうりょう","adj-na|adj-no|n","ưu việt | xuất sắc | tốt","superior | excellent | fine","1539570"),
+    ("最良","さいりょう","adj-no|adj-na|n","tốt nhất | lý tưởng nhất","the best | ideal","1294300"),
+    ("最善","さいぜん","n|adj-no","tốt nhất | hết sức | nỗ lực tối đa","the very best | utmost","1294160"),
+    ("最悪","さいあく","adj-na|adj-no|n|int|adv","tồi tệ nhất | tệ hại | trong trường hợp xấu nhất","worst | terrible | in the worst case","1293720"),
+    ("極上","ごくじょう","adj-no|n|adj-na","thượng hạng | hảo hạng | tuyệt hảo | tốt nhất","first-rate | finest quality","1240340"),
+    ("下等","かとう","adj-na|adj-no|n","hạ đẳng | thấp kém | tầm thường | hạng thấp","inferior | base | low grade | lower class","1186030"),
+    ("劣等","れっとう","adj-na|adj-no|n","kém cỏi | thấp kém | hạng kém","inferiority | low grade","1558510"),
+]
+rows=[row(*d) for d in DATA]
+open(OUT,"w",encoding="utf-8",newline="\n").write(HEADER+"\n"+"\n".join(rows)+"\n")
+print(f"Written {len(rows)} rows")

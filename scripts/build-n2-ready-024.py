@@ -1,0 +1,78 @@
+# -*- coding: utf-8 -*-
+"""Build N2 ready wave 024 — society, reputation, family/relatives, marriage, life stages."""
+import os
+OUT = os.path.join(os.path.dirname(__file__), "..", "data", "japanese", "jmdict-n2-vi-ready-024.csv")
+HEADER = "word,reading,romaji,jlpt_level,pos,meaning_vi,meaning_en,tags,frequency,source,source_id,license,attribution,example_jp,example_reading,example_vi,example_en,review_status,meaning_source"
+LIC = "CC BY-SA 3.0 — verify at edrdg.org before production use"
+def q(v): return '"' + str(v).replace('"','""') + '"'
+def row(w,r,p,vi,en,s):
+    return ",".join([q(w),q(r),q(""),q("N2"),q(p),q(vi),q(en),q(""),q("0"),q("jmdict"),q(s),q(LIC),q("JMdict/EDRDG"),q(""),q(""),q(""),q(""),q("ai_draft"),q("jmdict_ai")])
+DATA = [
+    ("世間","せけん","n","thế gian | xã hội | người đời | dư luận","world | society | people | the public","1373970"),
+    ("世論","よろん","n","dư luận | công luận | tiếng nói quần chúng","public opinion | popular voice | consensus","1606150"),
+    ("富裕層","ふゆうそう","n","tầng lớp giàu có | người giàu","wealthy people | the rich","2408610"),
+    ("貧困層","ひんこんそう","n","tầng lớp nghèo | người nghèo","underclasses | the poor","2697330"),
+    ("中間層","ちゅうかんそう","n","tầng lớp trung lưu | giai cấp trung gian","the middle class","1423770"),
+    ("威信","いしん","n","uy tín | thể diện | uy danh","prestige | dignity","1156290"),
+    ("面目","めんぼく","n","thể diện | danh dự | uy tín | bộ mặt","face | honour | reputation | appearance","1533590"),
+    ("世評","せひょう","n","tiếng tăm | dư luận | đánh giá của dư luận","reputation | public opinion","1645290"),
+    ("風評","ふうひょう","n","tin đồn | lời đồn | điều tiếng","rumor | gossip | report","1624630"),
+    ("口コミ","くちコミ","n","truyền miệng | đánh giá trên mạng | review","word of mouth | online reviews","1275780"),
+    ("人望","じんぼう","n","uy tín | được lòng người | sự trọng vọng","popularity | favorable reputation | respect","1369240"),
+    ("人脈","じんみゃく","n","quan hệ | mối quan hệ | mạng lưới quan hệ","personal connections","1369270"),
+    ("縁故","えんこ","n","quan hệ thân quen | mối liên hệ | họ hàng quen biết","relation | connection | affinity","1177560"),
+    ("近親","きんしん","n|adj-no","người thân cận | họ hàng gần","near relative","1242360"),
+    ("遠縁","とおえん","n|adj-no","họ hàng xa | bà con xa","distant relative","1177880"),
+    ("里子","さとご","n","con nuôi | con gửi nuôi | vật nuôi nhận về","foster child | adopted animal","1550800"),
+    ("継母","ままはは","n","mẹ kế | dì ghẻ","stepmother","1251850"),
+    ("養父","ようふ","n","cha nuôi | dưỡng phụ","foster father | adoptive father","1547220"),
+    ("養母","ようぼ","n","mẹ nuôi | dưỡng mẫu","foster mother | adoptive mother","1547230"),
+    ("実母","じつぼ","n","mẹ ruột | mẹ đẻ","one's real mother | birth mother","1321450"),
+    ("実父","じっぷ","n","cha ruột | cha đẻ","one's real father | biological father","1321420"),
+    ("婿","むこ","n","con rể | chú rể | chàng rể","husband | groom | son-in-law","1531160"),
+    ("嫁","よめ","n","cô dâu | con dâu | vợ","bride | daughter-in-law | wife","1191680"),
+    ("配偶者","はいぐうしゃ","n","người phối ngẫu | vợ/chồng | bạn đời","spouse | partner","1473060"),
+    ("伴侶","はんりょ","n","bạn đời | người bạn đường | bạn đồng hành","companion | partner | spouse","1478430"),
+    ("再婚","さいこん","n|vs|vi","tái hôn | kết hôn lần nữa","second marriage | remarriage","1292750"),
+    ("結納","ゆいのう","n","lễ ăn hỏi | lễ đính hôn (trao sính lễ)","traditional Japanese engagement ceremony","1254970"),
+    ("披露宴","ひろうえん","n","tiệc (cưới) | tiệc chiêu đãi | tiệc ra mắt","reception (e.g. wedding) | banquet","1483500"),
+    ("新郎","しんろう","n","chú rể","bridegroom","1362470"),
+    ("新婦","しんぷ","n","cô dâu","bride","1362340"),
+    ("親権","しんけん","n","quyền nuôi con | quyền làm cha mẹ | quyền giám hộ","parental authority | custody","1646840"),
+    ("後見","こうけん","n|vs|vt","giám hộ | người giám hộ | người nhắc tuồng","guardianship | guardian | prompter","1269620"),
+    ("相続","そうぞく","n|vs|vt","thừa kế | kế thừa","succession | inheritance","1401090"),
+    ("遺産","いさん","n","di sản | của thừa kế | gia tài để lại","inheritance | legacy | heritage","1159260"),
+    ("遺言","ゆいごん","n|vs|vt|vi","di chúc | di ngôn | lời trăn trối","will | testament | one's dying wish","1159130"),
+    ("同世代","どうせだい","n","cùng thế hệ | thế hệ của mình","same generation","2399340"),
+    ("同郷","どうきょう","n","cùng quê | đồng hương","(being from the) same town","1452150"),
+    ("郷里","きょうり","n","quê hương | quê quán | nơi sinh","hometown | birthplace","1238540"),
+    ("出身","しゅっしん","n","xuất thân | quê quán | nơi tốt nghiệp","one's origin (city, school, etc.)","1339260"),
+    ("生まれ","うまれ","n|n-suf|adj-no","sự ra đời | nơi sinh | sinh vào (năm, tháng)","birth | birthplace | born in","1609350"),
+    ("育ち","そだち","n|n-suf","sự nuôi dạy | sự lớn lên | xuất thân nuôi dưỡng","growth | upbringing | breeding","1160520"),
+    ("帰省","きせい","n|vs|vi","về quê | hồi hương | về thăm nhà","homecoming | returning home","1221390"),
+    ("里帰り","さとがえり","n|vs|vi","về nhà bố mẹ đẻ | (dâu) về thăm nhà","returning home to one's parents","1550790"),
+    ("移住","いじゅう","n|vs|vi","di cư | nhập cư | di trú","migration | emigration | immigration","1158280"),
+    ("定住","ていじゅう","n|vs|vi","định cư | cư trú lâu dài","settlement | permanent residency","1435620"),
+    ("永住","えいじゅう","n|vs|vi","định cư vĩnh viễn | thường trú","permanent residence","1174160"),
+    ("亡命","ぼうめい","n|vs|vi","lưu vong | tị nạn chính trị | đào thoát khỏi nước","fleeing one's country | seeking asylum | exile","1518730"),
+    ("入植","にゅうしょく","n|vs|vi","định cư khai hoang | nhập cư khu định cư","settlement | immigration","1466440"),
+    ("開拓","かいたく","n|vs|vt","khai hoang | khai phá | mở mang | mở rộng (thị trường)","reclamation | pioneering | opening up","1202830"),
+    ("高齢者","こうれいしゃ","n","người cao tuổi | người già","old person | senior citizen","1657250"),
+    ("若年層","じゃくねんそう","n","tầng lớp trẻ | giới trẻ","the young","2128270"),
+    ("未成年","みせいねん","n|adj-no","vị thành niên | người chưa đủ tuổi","minor | underage person","1604490"),
+    ("青年","せいねん","n","thanh niên | người trẻ tuổi","youth | young man","1381750"),
+    ("壮年","そうねん","n","tuổi tráng niên | thời sung sức","prime of life","1399440"),
+    ("老人","ろうじん","n","người già | người cao tuổi","old person | senior citizen | the elderly","1561090"),
+    ("乳児","にゅうじ","n","trẻ sơ sinh (dưới 1 tuổi) | em bé bú sữa","infant (below 1 year old)","1465150"),
+    ("胎児","たいじ","n","thai nhi | bào thai","fetus | embryo | unborn baby","1410980"),
+    ("新生児","しんせいじ","n","trẻ sơ sinh","newborn baby","1720210"),
+    ("保育","ほいく","n|vs|vt","nuôi dạy | chăm sóc trẻ | giữ trẻ","nurturing | childcare | day care","1513290"),
+    ("託児","たくじ","n|vs","gửi trẻ | trông trẻ","childcare | day care","2747250"),
+    ("養育","よういく","n|vs|vt","nuôi dưỡng | nuôi nấng | dưỡng dục","bringing up | rearing | upbringing","1547100"),
+    ("反抗期","はんこうき","n","tuổi nổi loạn | giai đoạn chống đối","rebellious phase | rebellious age","1680250"),
+    ("思春期","ししゅんき","n","tuổi dậy thì | tuổi thanh xuân","puberty | adolescence","1309550"),
+    ("更年期","こうねんき","n","thời kỳ mãn kinh | tuổi tiền mãn kinh","menopause | climacteric","1279440"),
+]
+rows=[row(*d) for d in DATA]
+open(OUT,"w",encoding="utf-8",newline="\n").write(HEADER+"\n"+"\n".join(rows)+"\n")
+print(f"Written {len(rows)} rows")

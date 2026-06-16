@@ -1,0 +1,77 @@
+# -*- coding: utf-8 -*-
+"""Build N2 ready wave 038 — tools, materials, devices, machinery, repair, malfunction."""
+import os
+OUT = os.path.join(os.path.dirname(__file__), "..", "data", "japanese", "jmdict-n2-vi-ready-038.csv")
+HEADER = "word,reading,romaji,jlpt_level,pos,meaning_vi,meaning_en,tags,frequency,source,source_id,license,attribution,example_jp,example_reading,example_vi,example_en,review_status,meaning_source"
+LIC = "CC BY-SA 3.0 — verify at edrdg.org before production use"
+def q(v): return '"' + str(v).replace('"','""') + '"'
+def row(w,r,p,vi,en,s):
+    return ",".join([q(w),q(r),q(""),q("N2"),q(p),q(vi),q(en),q(""),q("0"),q("jmdict"),q(s),q(LIC),q("JMdict/EDRDG"),q(""),q(""),q(""),q(""),q("ai_draft"),q("jmdict_ai")])
+DATA = [
+    ("器材","きざい","n","dụng cụ và vật liệu | thiết bị vật tư","tools and materials | equipment","1218930"),
+    ("資材","しざい","n","vật tư | nguyên vật liệu","(raw) material","1312740"),
+    ("部材","ぶざい","n","cấu kiện | linh kiện | bộ phận | vật liệu","component | part | material","1499390"),
+    ("材料","ざいりょう","n","nguyên liệu | vật liệu | tư liệu | căn cứ | dữ liệu","materials | ingredients | grounds | data","1296670"),
+    ("塗料","とりょう","n","sơn | chất phủ | vecni","paint | coating | varnish","1444340"),
+    ("顔料","がんりょう","n","chất tạo màu | bột màu | sắc tố","pigment | paint | colour","1217890"),
+    ("染料","せんりょう","n","thuốc nhuộm | chất nhuộm màu","dye | dyestuff","1391230"),
+    ("香料","こうりょう","n","hương liệu | gia vị | nước hoa | hương | tiền phúng","flavoring | spices | fragrance | condolence gift","1283160"),
+    ("飼料","しりょう","n","thức ăn chăn nuôi | cám | thức ăn gia súc","fodder | feed","1312990"),
+    ("工具","こうぐ","n","công cụ | dụng cụ (gia công)","tool | implement","1278070"),
+    ("金具","かなぐ","n","phụ kiện kim loại | chi tiết kim loại | móc khóa","metal fittings | metal fixtures","1242790"),
+    ("留め具","とめぐ","n","khóa cài | móc gài | chốt | khóa chốt","latch | clasp | fastener","1840200"),
+    ("刃","は","n","lưỡi (dao, kiếm) | lưỡi dao | chân (phích cắm)","edge (of a knife) | blade","1369820"),
+    ("鋏","はさみ","n","kéo | kìm | bấm lỗ","scissors | shears | hole punch","1573820"),
+    ("錐","きり","n","cái khoan | mũi dùi | dùi","drill | gimlet | awl","1372690"),
+    ("鑿","のみ","n","cái đục","chisel","1573920"),
+    ("鉋","かんな","n","cái bào (gỗ)","plane (woodworking tool)","1573790"),
+    ("鋸","のこぎり","n","cái cưa","saw","1232930"),
+    ("鋲","びょう","n","đinh tán | đinh ghim | đinh mũ | đinh giày","rivet | tack | thumbtack","1956890"),
+    ("蝶番","ちょうつがい","n","bản lề | khớp nối","hinge | joint","1429030"),
+    ("滑車","かっしゃ","n","ròng rọc | puli","pulley | block | tackle","1208690"),
+    ("弁","べん","n|n-suf","lời nói | tài ăn nói | giọng vùng miền | van | cánh hoa | cơm hộp","speech | eloquence | dialect | valve | petal | bento","1512710"),
+    ("網","あみ","n","lưới | mạng lưới | tấm lưới","net | netting | web","1534380"),
+    ("革","かわ","n","da (thuộc) | da thú","leather","1483805"),
+    ("綿","わた","n","cây bông | bông gòn | bông nhồi","cotton plant | batting | padding","1533340"),
+    ("電線","でんせん","n","dây điện | cáp điện | dây điện thoại","electric line | power cable | telephone line","1443570"),
+    ("電球","でんきゅう","n","bóng đèn","light bulb","1443170"),
+    ("蛍光灯","けいこうとう","n","đèn huỳnh quang | đèn neon | người chậm hiểu","fluorescent lamp | someone slow on the uptake","1592540"),
+    ("照明器具","しょうめいきぐ","n","thiết bị chiếu sáng | đồ đèn","lighting equipment","1742230"),
+    ("電池","でんち","n","pin | cục pin","battery | cell","1443620"),
+    ("乾電池","かんでんち","n","pin khô","dry cell battery","1210100"),
+    ("変圧器","へんあつき","n","máy biến áp | biến thế","transformer","1510820"),
+    ("発電機","はつでんき","n","máy phát điện | đi-na-mô","dynamo | power generator","1477760"),
+    ("発動機","はつどうき","n","động cơ","engine","1679480"),
+    ("原動機","げんどうき","n","động cơ chính | mô-tơ","motor","1262200"),
+    ("電動","でんどう","adj-no|n","chạy điện | dùng điện","electrically powered | electric","1443670"),
+    ("半自動","はんじどう","adj-no|n","bán tự động","semi-automatic","2504510"),
+    ("微調整","びちょうせい","n|vs|vt","tinh chỉnh | điều chỉnh tinh vi | căn chỉnh nhỏ","minute adjustment | fine-tuning","1486120"),
+    ("計測器","けいそくき","n","thiết bị đo lường | dụng cụ đo","measuring instrument","2395650"),
+    ("測定器","そくていき","n","máy đo | dụng cụ đo lường","measuring instrument","1941490"),
+    ("温度計","おんどけい","n","nhiệt kế","thermometer","1183520"),
+    ("湿度計","しつどけい","n","ẩm kế | máy đo độ ẩm","hygrometer","1320500"),
+    ("気圧計","きあつけい","n","khí áp kế | máy đo áp suất khí","barometer","1221890"),
+    ("電卓","でんたく","n","máy tính (cầm tay)","calculator (electronic)","1443600"),
+    ("秤","はかり","n","cái cân","scales | weighing machine","1474220"),
+    ("天秤","てんびん","n","cân thăng bằng | cân đòn | đòn gánh","(balance) scales | carrying pole","1598500"),
+    ("分銅","ふんどう","n","quả cân | đối trọng","weight (for scales) | counterweight","1504050"),
+    ("目盛り","めもり","n","vạch chia | vạch số (thước, nhiệt kế) | thang đo","graduations (on a ruler) | scale","1605030"),
+    ("点灯","てんとう","n|vs|vt|vi","bật đèn | thắp sáng","lighting (a lamp) | turning on a light","1441740"),
+    ("消灯","しょうとう","n|vs|vi","tắt đèn","putting out the lights","1594990"),
+    ("修繕","しゅうぜん","n|vs|vt","sửa chữa | tu sửa | vá víu","repair | mending","1332170"),
+    ("補修","ほしゅう","n|vs|vt","sửa chữa | bảo dưỡng | vá lại","repair | mending","1514560"),
+    ("接合","せつごう","n|vs|vt|vi","ghép nối | nối liền | tiếp hợp","union | joining | conjugation","1385400"),
+    ("溶接","ようせつ","n|vs|vt","hàn | hàn nối","welding","1546150"),
+    ("緩み","ゆるみ","n","sự lỏng lẻo | độ chùng | khe hở","slack | looseness | play","1214420"),
+    ("摩耗","まもう","n|vs|vi","mài mòn | hao mòn | bào mòn","wear | abrasion","1604200"),
+    ("錆","さび","n","gỉ sét | rỉ","rust","1593820"),
+    ("故障","こしょう","n|vs|vi|vt","hỏng hóc | trục trặc | hư | chấn thương | trở ngại","fault | breakdown | failure | hitch","1267180"),
+    ("誤作動","ごさどう","n|vs|vi","hoạt động sai | trục trặc | chạy lỗi","malfunction | failure","1271330"),
+    ("暴走","ぼうそう","n|vs|vi","chạy ẩu | hoành hành | làm liều | (tiến trình) lỗi loạn","running wildly | behaving recklessly | runaway","1519480"),
+    ("過熱","かねつ","n|vs|vt|vi","quá nóng | quá nhiệt | tăng nhiệt quá mức | (kinh tế) nóng","overheating | superheating | overheating (economy)","1196350"),
+    ("漏れ","もれ","n|n-suf|pn","rò rỉ | thất thoát | bỏ sót | sơ suất","leak | leakage | omission | oversight","1560850"),
+    ("詰まり","つまり","adv|n","tức là | nói cách khác | tóm lại | sự tắc nghẽn | ngõ cụt","that is to say | in short | clogging | dead end","1610430"),
+]
+rows=[row(*d) for d in DATA]
+open(OUT,"w",encoding="utf-8",newline="\n").write(HEADER+"\n"+"\n".join(rows)+"\n")
+print(f"Written {len(rows)} rows")

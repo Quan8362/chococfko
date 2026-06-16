@@ -1,0 +1,78 @@
+# -*- coding: utf-8 -*-
+"""Build N2 ready wave 009 — science / medicine / biology / physics terms."""
+import os
+OUT = os.path.join(os.path.dirname(__file__), "..", "data", "japanese", "jmdict-n2-vi-ready-009.csv")
+HEADER = "word,reading,romaji,jlpt_level,pos,meaning_vi,meaning_en,tags,frequency,source,source_id,license,attribution,example_jp,example_reading,example_vi,example_en,review_status,meaning_source"
+LIC = "CC BY-SA 3.0 — verify at edrdg.org before production use"
+def q(v): return '"' + str(v).replace('"','""') + '"'
+def row(w,r,p,vi,en,s):
+    return ",".join([q(w),q(r),q(""),q("N2"),q(p),q(vi),q(en),q(""),q("0"),q("jmdict"),q(s),q(LIC),q("JMdict/EDRDG"),q(""),q(""),q(""),q(""),q("ai_draft"),q("jmdict_ai")])
+DATA = [
+    ("遺伝子","いでんし","n","gen | gen di truyền","gene","1159500"),
+    ("染色体","せんしょくたい","n","nhiễm sắc thể","chromosome","1843780"),
+    ("動脈","どうみゃく","n","động mạch","artery","1451580"),
+    ("静脈","じょうみゃく","n","tĩnh mạch","vein","1381980"),
+    ("細菌","さいきん","n","vi khuẩn | vi trùng","bacterium | germ","1295590"),
+    ("病原","びょうげん","n|adj-no","căn nguyên bệnh | nguồn gây bệnh","cause of a disease | pathogenesis","1490270"),
+    ("伝染","でんせん","n|vs|vi","lây nhiễm | truyền nhiễm | lây lan","contagion | infection","1442110"),
+    ("発症","はっしょう","n|vs|vt|vi","phát bệnh | khởi phát triệu chứng","onset of a condition | appearance of symptoms","2398850"),
+    ("接種","せっしゅ","n|vs|vt","tiêm chủng | chủng ngừa","inoculation | vaccination","1385420"),
+    ("完治","かんち","n|vs|vi","khỏi hẳn | bình phục hoàn toàn","complete recovery","1614110"),
+    ("再発","さいはつ","n|vs|vi","tái phát | tái diễn","return | relapse | recurrence","1293410"),
+    ("腫瘍","しゅよう","n","khối u | bướu","tumor | neoplasm","1328950"),
+    ("火傷","やけど","n|vs|vi","bỏng | phỏng | bị vạ lây (thua lỗ)","burn | scald | getting one's fingers burned","1577310"),
+    ("打撲","だぼく","n|vs|vt","va đập | bầm dập | chấn thương do đánh","blow | hit (on the body) | beating","1408960"),
+    ("重傷","じゅうしょう","n","thương tích nặng | bị thương nặng","serious wound | serious injury","1579960"),
+    ("重症","じゅうしょう","n|adj-no","bệnh nặng | bệnh trạng nguy kịch","serious illness","1336310"),
+    ("危篤","きとく","n|adj-no","nguy kịch | thập tử nhất sinh | hấp hối","critical condition | being on the verge of death","1218680"),
+    ("昏睡","こんすい","n|vs|vi","hôn mê | ngủ mê man","coma | deep sleep","1289950"),
+    ("痙攣","けいれん","n|vs|vi","co giật | chuột rút | co thắt | giật cơ","convulsion | cramp | spasm | twitch","1569590"),
+    ("嘔吐","おうと","n|vs|vt","nôn | ói mửa","vomiting | emesis","1565520"),
+    ("便秘","べんぴ","n|vs|vi","táo bón","constipation","1512580"),
+    ("不眠","ふみん","n|adj-no","mất ngủ | thức trắng | chứng mất ngủ","sleeplessness | insomnia","1495010"),
+    ("過労","かろう","n|adj-no","làm việc quá sức | kiệt sức","overwork | strain","1196490"),
+    ("代謝","たいしゃ","n|vs|vi","trao đổi chất | chuyển hóa | thay cũ đổi mới","metabolism | renewal | regeneration","1411920"),
+    ("排泄","はいせつ","n|vs|vt","bài tiết | thải ra","excretion","1472490"),
+    ("脈拍","みゃくはく","n","mạch đập | nhịp mạch","pulse | pulse rate","1604710"),
+    ("窒素","ちっそ","n","nitơ (N) | đạm","nitrogen (N)","1422530"),
+    ("原子","げんし","n","nguyên tử","atom","1261570"),
+    ("分子","ぶんし","n","phân tử | tử số | thành phần","molecule | numerator","1503630"),
+    ("電子","でんし","n|adj-f","điện tử | electron","electron | electronic","1443320"),
+    ("中性子","ちゅうせいし","n","neutron | hạt trung hòa","neutron","1424720"),
+    ("陽子","ようし","n","proton","proton","1547020"),
+    ("放射線","ほうしゃせん","n","tia phóng xạ | bức xạ","radiation","1516630"),
+    ("放射能","ほうしゃのう","n","tính phóng xạ | chất phóng xạ","radioactivity | radioactive material","1516690"),
+    ("波長","はちょう","n","bước sóng","wavelength","1471060"),
+    ("周波数","しゅうはすう","n","tần số (sóng)","frequency (of waveforms)","1331260"),
+    ("電磁波","でんじは","n","sóng điện từ","electromagnetic wave","1623840"),
+    ("摩擦","まさつ","n|vs|vt|vi","ma sát | cọ xát | xích mích | bất hòa","friction | rubbing | discord","1523830"),
+    ("浮力","ふりょく","n","lực đẩy | lực nổi","buoyancy | floating power","1497580"),
+    ("質量","しつりょう","n","khối lượng | chất và lượng","mass | quality and quantity","1320790"),
+    ("比重","ひじゅう","n","tỷ trọng | tỷ trọng riêng | mức độ quan trọng","specific gravity | relative importance","1483640"),
+    ("融点","ゆうてん","n","điểm nóng chảy","melting point","1655640"),
+    ("沸点","ふってん","n","điểm sôi","boiling point","1501710"),
+    ("凝固","ぎょうこ","n|vs|vi","đông đặc | đông tụ | đông cứng","coagulation | solidification","1239120"),
+    ("蒸発","じょうはつ","n|vs|vi","bốc hơi | bay hơi | biến mất (người)","evaporation | disappearance (of a person)","1356960"),
+    ("凝縮","ぎょうしゅく","n|vs|vt|vi","cô đọng | ngưng tụ | súc tích","condensation | concentration","1239190"),
+    ("溶解","ようかい","n|vs|vt|vi","hòa tan | tan chảy | dung giải","dissolution | melting | fusion","1546110"),
+    ("化合","かごう","n|vs|vi","hóa hợp | kết hợp hóa học","chemical combination","1186980"),
+    ("触媒","しょくばい","n","chất xúc tác","catalyst","1358060"),
+    ("燃焼","ねんしょう","n|vs|vi","đốt cháy | sự cháy | dốc hết sức","burning | combustion","1469640"),
+    ("腐食","ふしょく","n|vs|vt|vi","ăn mòn | gỉ sét | xói mòn","rot | erosion | corrosion","1497840"),
+    ("発酵","はっこう","n|vs|vi","lên men","fermentation","1477450"),
+    ("腐敗","ふはい","n|vs|vi","thối rữa | phân hủy | thối nát | sa đọa","decomposition | putrefaction | corruption","1497870"),
+    ("生態","せいたい","n","sinh thái | tập tính sống | lối sống","ecology | mode of life","1379280"),
+    ("適応","てきおう","n|vs|vi","thích nghi | thích ứng","adaptation | accommodation","1437350"),
+    ("共生","きょうせい","n|vs|vi","cộng sinh | chung sống","coexistence | symbiosis","1234650"),
+    ("寄生","きせい","n|vs|vi","ký sinh","parasitism","1219750"),
+    ("微生物","びせいぶつ","n","vi sinh vật","microbe | germ","1486090"),
+    ("哺乳類","ほにゅうるい","n","động vật có vú | thú","mammal","1565260"),
+    ("爬虫類","はちゅうるい","n","loài bò sát","reptiles","1569220"),
+    ("両生類","りょうせいるい","n","loài lưỡng cư","amphibia | amphibian","1644940"),
+    ("甲殻類","こうかくるい","n","loài giáp xác","crustacean","1280110"),
+    ("藻類","そうるい","n","tảo | rong tảo","seaweeds | algae","1402270"),
+    ("菌類","きんるい","n","nấm | loài nấm","fungus | fungi","1241980"),
+]
+rows=[row(*d) for d in DATA]
+open(OUT,"w",encoding="utf-8",newline="\n").write(HEADER+"\n"+"\n".join(rows)+"\n")
+print(f"Written {len(rows)} rows")

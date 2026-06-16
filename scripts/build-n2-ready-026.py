@@ -1,0 +1,78 @@
+# -*- coding: utf-8 -*-
+"""Build N2 ready wave 026 — adjectives: quality, manner, personality, legality."""
+import os
+OUT = os.path.join(os.path.dirname(__file__), "..", "data", "japanese", "jmdict-n2-vi-ready-026.csv")
+HEADER = "word,reading,romaji,jlpt_level,pos,meaning_vi,meaning_en,tags,frequency,source,source_id,license,attribution,example_jp,example_reading,example_vi,example_en,review_status,meaning_source"
+LIC = "CC BY-SA 3.0 — verify at edrdg.org before production use"
+def q(v): return '"' + str(v).replace('"','""') + '"'
+def row(w,r,p,vi,en,s):
+    return ",".join([q(w),q(r),q(""),q("N2"),q(p),q(vi),q(en),q(""),q("0"),q("jmdict"),q(s),q(LIC),q("JMdict/EDRDG"),q(""),q(""),q(""),q(""),q("ai_draft"),q("jmdict_ai")])
+DATA = [
+    ("絶妙","ぜつみょう","adj-na|adj-no|n","tuyệt diệu | tuyệt hảo | hoàn hảo","exquisite | superb | perfect","1386970"),
+    ("奇妙","きみょう","adj-na|n","kỳ lạ | kỳ quặc | lạ lùng","strange | odd | peculiar | curious","1219490"),
+    ("妙","みょう","adj-na|n","kỳ lạ | huyền diệu | tài tình | khéo léo","strange | wonder | excellence | knack","1528490"),
+    ("奇異","きい","adj-na|adj-no|n","kỳ dị | lạ lùng | quái lạ","odd | strange | peculiar","1219290"),
+    ("特異","とくい","adj-na|n","đặc biệt | dị biệt | khác thường","unique | peculiar | singular","1454690"),
+    ("異様","いよう","adj-na|n","kỳ dị | quái dị | lạ thường | khác lạ","strange | peculiar | bizarre","1158120"),
+    ("異質","いしつ","adj-na|adj-no","khác chất | dị chất | không đồng nhất","different (in nature) | heterogeneous","1157700"),
+    ("均質","きんしつ","adj-na|adj-no|n","đồng chất | đồng nhất","homogeneous | homogeneity","1241280"),
+    ("悪質","あくしつ","adj-na|n","ác tính | xấu xa | kém chất lượng | tồi","malicious | vicious | shoddy | inferior","1151820"),
+    ("硬質","こうしつ","n|adj-no","cứng | chất cứng | độ cứng","hardness | stiffness","1280590"),
+    ("軟質","なんしつ","n|adj-no","mềm | chất mềm","softness","1842110"),
+    ("等質","とうしつ","adj-no|adj-na|n","đồng chất | cùng tính chất","homogeneous","1733650"),
+    ("同質","どうしつ","n|adj-no|adj-na","cùng chất | đồng nhất | tương đồng","same quality | homogeneous","1452550"),
+    ("高尚","こうしょう","adj-na|n","cao thượng | tao nhã | thanh cao | cao cấp","high | noble | refined","1283610"),
+    ("低俗","ていぞく","adj-na|n","tầm thường | thô tục | rẻ tiền","vulgar | lowbrow | coarse","1434570"),
+    ("卑俗","ひぞく","adj-na|n","tục tằn | thô tục | thấp kém","vulgar | coarse | low","1482810"),
+    ("俗","ぞく","n|adj-na|adj-no","tục | thế tục | thông tục | tầm thường","layman | the world | common | vulgar","1405100"),
+    ("野暮","やぼ","adj-na|n","quê mùa | thô kệch | vô duyên | kém tinh tế","boorish | unrefined | tasteless | insensitive","1537620"),
+    ("粋","いき","adj-na|n","sành điệu | phong nhã | tinh tế | tao nhã","chic | stylish | tasteful | sophisticated","1372410"),
+    ("洒落","しゃれ","n|adj-na","câu đùa | chơi chữ | ăn mặc bảnh | thời trang","joke | pun | smartly dressed | stylish","1568640"),
+    ("華美","かび","n|adj-na","lộng lẫy | hoa lệ | xa hoa | phô trương","splendor | gorgeousness | extravagance","1195610"),
+    ("簡略","かんりゃく","adj-na|n","giản lược | đơn giản | vắn tắt","simple | brief","1214390"),
+    ("煩雑","はんざつ","adj-na|n","rắc rối | phức tạp | rườm rà | phiền phức","complex | complicated | troublesome","1481970"),
+    ("粗野","そや","adj-na|n","thô lỗ | quê kệch | thô tục | cộc cằn","rustic | rude | vulgar | rough","1397120"),
+    ("無作法","ぶさほう","adj-na|n","bất lịch sự | thiếu phép tắc | thô lỗ","ill-mannered | rude","1530000"),
+    ("無礼","ぶれい","n|adj-na","vô lễ | bất lịch sự | hỗn xược","rudeness | impoliteness | insolence","1531060"),
+    ("非礼","ひれい","adj-na|n","thất lễ | bất lịch sự","impoliteness","1485210"),
+    ("不遜","ふそん","adj-na|n","ngạo mạn | xấc xược | láo xược | tự phụ","haughty | arrogant | insolent","1493730"),
+    ("尊大","そんだい","adj-na|n","kiêu căng | ngạo nghễ | tự cao tự đại","haughty | arrogant | pompous","1406550"),
+    ("卑下","ひげ","n|vs|vt","tự hạ thấp | khiêm nhường | tự ti","self-abasement | humility","1482700"),
+    ("内向的","ないこうてき","adj-na","hướng nội | khép kín","introverted | withdrawn","1610930"),
+    ("外向的","がいこうてき","adj-na","hướng ngoại | cởi mở","extroverted | outgoing","2524120"),
+    ("社交的","しゃこうてき","adj-na","hòa đồng | dễ giao tiếp | xởi lởi","sociable","1322870"),
+    ("閉鎖的","へいさてき","adj-na","khép kín | bảo thủ | khó gần | biệt lập","insular | closed | exclusive","2118880"),
+    ("独占的","どくせんてき","adj-na","độc quyền | chiếm hữu riêng","monopolistic | exclusive","1691330"),
+    ("利他的","りたてき","adj-na","vị tha | sống vì người khác","altruistic","2871261"),
+    ("献身的","けんしんてき","adj-na","tận tụy | hết lòng | quên mình","devoted | self-sacrificing","1714900"),
+    ("情熱的","じょうねつてき","adj-na","nhiệt huyết | đầy đam mê | sôi nổi","passionate | ardent | enthusiastic","2851548"),
+    ("理性的","りせいてき","adj-na","lý trí | tỉnh táo | điềm tĩnh","rational","1795780"),
+    ("衝動的","しょうどうてき","adj-na","bốc đồng | theo cảm tính | nông nổi","impulsive","1686680"),
+    ("本能的","ほんのうてき","adj-na","theo bản năng | thuộc về bản năng","instinctive | instinctual","2514590"),
+    ("反射的","はんしゃてき","adj-na","theo phản xạ | tự nhiên | phản chiếu","reflexive | reflecting","1480470"),
+    ("意識的","いしきてき","adj-na","có ý thức | có chủ đích | cố ý","conscious | deliberate | intentional","1759970"),
+    ("無意識","むいしき","n|adj-na|adj-no","vô thức | không ý thức | tự nhiên | tiềm thức","unconsciousness | involuntary | the unconscious","1529600"),
+    ("無自覚","むじかく","adj-na|n","không tự giác | vô tâm | thờ ơ | không nhận thức","unaware | unmindful | apathetic","1672050"),
+    ("無頓着","むとんちゃく","adj-na|n","thờ ơ | không bận tâm | bất cần | cẩu thả","indifferent | unconcerned | careless","1530740"),
+    ("無関心","むかんしん","adj-na|n","thờ ơ | dửng dưng | thản nhiên","apathetic | indifferent | nonchalant","1529760"),
+    ("無神経","むしんけい","adj-na|n","vô cảm | vô tâm | thiếu tế nhị | trơ lì","insensitive | inconsiderate | thick-skinned","1611920"),
+    ("細か","こまか","adj-na","nhỏ | tỉ mỉ | chi tiết | keo kiệt","small | fine | detailed | stingy","1295520"),
+    ("軽はずみ","かるはずみ","adj-na|n","khinh suất | hấp tấp | bộp chộp | thiếu thận trọng","thoughtless | rash | hasty | imprudent","1609640"),
+    ("短絡的","たんらくてき","adj-na","suy nghĩ giản đơn | nông cạn | hấp tấp","simplistic (thinking) | hasty","1418850"),
+    ("非現実的","ひげんじつてき","adj-na","phi thực tế | viển vông | không khả thi","unrealistic | impractical | unreal","1484830"),
+    ("合法的","ごうほうてき","adj-na","hợp pháp | đúng luật | chính đáng","legal | lawful | legitimate","1285300"),
+    ("違法","いほう","adj-na|adj-no|n","phi pháp | bất hợp pháp | trái luật","illegal | illicit | unlawful","1158960"),
+    ("不法","ふほう","adj-na|n","bất hợp pháp | trái phép | vô lý | bất công","unlawful | illegal | unjust","1494880"),
+    ("適法","てきほう","adj-na|adj-no|n","hợp pháp | đúng luật | chính đáng","legal | lawful | legitimate","1437490"),
+    ("正統","せいとう","adj-na|adj-no|n","chính thống | chính tông | truyền thống","legitimate | orthodox | traditional","1377710"),
+    ("異端","いたん","n|adj-no","dị giáo | tà giáo | bất đồng chính thống","heresy | nonconformism | paganism","1157940"),
+    ("邪道","じゃどう","n","cách làm sai trái | tà đạo | đường tà | dị giáo","improper way | wrong way | evil path","1323490"),
+    ("正道","せいどう","n|adj-no","chính đạo | con đường đúng đắn | nẻo chính","path of righteousness | right track","1580890"),
+    ("本道","ほんどう","n","đường chính | đường lớn | con đường đúng | nội khoa","highway | main road | the right road","1523080"),
+    ("悪辣","あくらつ","adj-na","gian xảo | nham hiểm | vô lương | sắc sảo độc ác","crafty | vicious | unscrupulous","1152640"),
+    ("陰険","いんけん","adj-na","thâm hiểm | nham hiểm | xảo trá | ngấm ngầm","crafty | sly | treacherous | sinister","1170330"),
+    ("狡猾","こうかつ","adj-na|n","gian xảo | ranh ma | quỷ quyệt | xảo quyệt","sly | cunning | crafty","1569260"),
+]
+rows=[row(*d) for d in DATA]
+open(OUT,"w",encoding="utf-8",newline="\n").write(HEADER+"\n"+"\n".join(rows)+"\n")
+print(f"Written {len(rows)} rows")

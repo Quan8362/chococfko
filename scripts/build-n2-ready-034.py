@@ -1,0 +1,75 @@
+# -*- coding: utf-8 -*-
+"""Build N2 ready wave 034 — manners, speech acts, advice, assertion, reply, consent/refusal."""
+import os
+OUT = os.path.join(os.path.dirname(__file__), "..", "data", "japanese", "jmdict-n2-vi-ready-034.csv")
+HEADER = "word,reading,romaji,jlpt_level,pos,meaning_vi,meaning_en,tags,frequency,source,source_id,license,attribution,example_jp,example_reading,example_vi,example_en,review_status,meaning_source"
+LIC = "CC BY-SA 3.0 — verify at edrdg.org before production use"
+def q(v): return '"' + str(v).replace('"','""') + '"'
+def row(w,r,p,vi,en,s):
+    return ",".join([q(w),q(r),q(""),q("N2"),q(p),q(vi),q(en),q(""),q("0"),q("jmdict"),q(s),q(LIC),q("JMdict/EDRDG"),q(""),q(""),q(""),q(""),q("ai_draft"),q("jmdict_ai")])
+DATA = [
+    ("会釈","えしゃく","n|vs|vi","cúi chào nhẹ | gật đầu chào | sự ý tứ","slight bow | nod | consideration","1198600"),
+    ("作法","さほう","n","phép tắc | lễ nghi | cung cách | cách thức làm","manners | etiquette | way of making","1297980"),
+    ("手振り","てぶり","n","động tác tay | cử chỉ tay","(hand) gesture | movement of the hand","1327950"),
+    ("立ち居振る舞い","たちいふるまい","n","cử chỉ | tác phong | điệu bộ | cung cách | ứng xử","movements | bearing | behavior | manners","1838050"),
+    ("素振り","そぶり","n","thái độ | dáng vẻ | cử chỉ | điệu bộ","behavior | manner | attitude | bearing","1397260"),
+    ("気取り","きどり","n|n-suf","sự làm bộ | điệu bộ | ra vẻ | giả bộ làm","affectation | pretension | posing as","1221670"),
+    ("語気","ごき","n","giọng điệu | khẩu khí | cách nói","tone | manner of speaking","1271040"),
+    ("語調","ごちょう","n","ngữ điệu | giọng nói | cách nhấn nhá","tone (of voice) | intonation | accent","1271150"),
+    ("口ぶり","くちぶり","n","cách ăn nói | khẩu khí | ngụ ý qua lời nói","way of speaking | intimation","1276420"),
+    ("物言い","ものいい","n","cách ăn nói | sự phản đối | tranh cãi | lời đồn","manner of speaking | objection | rumor","1642060"),
+    ("言い回し","いいまわし","n","cách diễn đạt | lối nói | cách dùng từ","expression | phraseology","1263960"),
+    ("言い草","いいぐさ","n","lời lẽ | cách nói | cái cớ | chủ đề (chuyện)","remarks | way of talking | excuse | topic","1264120"),
+    ("口上","こうじょう","n","lời nhắn | bài phát biểu | lời mở màn (kabuki)","vocal message | speech | statement","1276370"),
+    ("口出し","くちだし","n|vs|vi","xen vào | chen lời | can thiệp | xía vào","meddling | butting in | interference","1276300"),
+    ("口添え","くちぞえ","n|vs|vi","nói giúp | tiến cử | đỡ lời","recommendation | putting in a good word","1678180"),
+    ("進言","しんげん","n|vs|vt","tiến ngôn | góp ý (cấp trên) | đề xuất | khuyến nghị","advice (to a superior) | proposal | recommendation","1646760"),
+    ("提言","ていげん","n|vs|vt","đề xuất | kiến nghị | đề nghị","proposal | motion | recommendation","1436390"),
+    ("建言","けんげん","n|vs|vt","kiến nghị | đề đạt ý kiến (lên cấp trên) | hiến kế","offering an opinion | proposal | advice","1592670"),
+    ("苦言","くげん","n","lời khuyên thẳng | lời góp ý chân thành | lời nói thẳng","candid advice | frank advice","1244450"),
+    ("小言","こごと","n","lời rầy la | lời mắng | lời cằn nhằn | than phiền","scolding | rebuke | complaint | grumbling","1348050"),
+    ("泣き言","なきごと","n","lời than vãn | lời kêu ca","complaint","1684740"),
+    ("暴言","ぼうげん","n","lời lẽ thô bạo | lời lăng mạ | lời nói hỗn","abusive language | violent language","1584700"),
+    ("失言","しつげん","n|vs|vi","lỡ lời | lời hớ hênh | nói hớ","verbal gaffe | slip of the tongue","1319950"),
+    ("放言","ほうげん","n|vs|vt|vi","lời nói bừa | phát ngôn thiếu suy nghĩ","careless remark","1516590"),
+    ("明言","めいげん","n|vs|vt","tuyên bố rõ | nói thẳng | khẳng định","declaration | statement","1532430"),
+    ("断言","だんげん","n|vs|vt","khẳng định | quả quyết | đoan chắc","assertion | declaration | affirmation","1419590"),
+    ("公言","こうげん","n|vs|vt","công khai tuyên bố | nói trước công chúng","declaration | profession","1273640"),
+    ("提唱","ていしょう","n|vs|vt","đề xướng | khởi xướng | chủ trương","advocacy | proposal","1436420"),
+    ("力説","りきせつ","n|vs|vt","nhấn mạnh | nhất mực lập luận | ra sức biện luận","emphasizing | stressing | arguing strongly","1555070"),
+    ("強調","きょうちょう","n|vs|vt","nhấn mạnh | làm nổi bật | tô đậm | (thị trường) tăng","emphasis | stress | highlighting","1236470"),
+    ("誇示","こじ","n|vs|vt","khoe khoang | phô trương | trưng ra (sức mạnh)","flaunting | showing off | display","1267770"),
+    ("吹聴","ふいちょう","n|vs|vt","rêu rao | đồn thổi | loan tin | khoe khoang","spreading around | making widely known","1616740"),
+    ("言いふらす","いいふらす","v5s|vt","đồn đại | rêu rao | loan truyền (tin)","to spread (a rumor) | to circulate","1264090"),
+    ("触れ回る","ふれまわる","v5r|vi","đi rêu rao | loan tin khắp nơi | rao khắp","to go around spreading (news) | to broadcast","1358000"),
+    ("持ちかける","もちかける","v1|vt","đề xuất | gợi ý | ngỏ ý | đặt vấn đề","to offer (a suggestion) | to approach with (a proposal)","1315530"),
+    ("告げる","つげる","v1|vt","báo | thông báo | cho hay | báo hiệu","to tell | to inform | to announce | to signal","1285990"),
+    ("名乗り出る","なのりでる","v1|vi","tự nhận | đứng ra nhận | ra mặt | xưng danh","to introduce oneself | to come forward","1531640"),
+    ("言い逃れ","いいのがれ","n","sự thoái thác | lời chống chế | viện cớ | lảng tránh","evasion | excuse | subterfuge","1756370"),
+    ("はぐらかす","はぐらかす","v5s|vt","lảng tránh | né (câu hỏi) | đánh trống lảng","to dodge (a question) | to evade | to sidestep","2009390"),
+    ("取り繕う","とりつくろう","v5u|vt","chữa cháy | giữ thể diện | che đậy | vá víu","to keep up appearances | to smooth over | to patch up","1326810"),
+    ("言い繕う","いいつくろう","v5u|vt","biện hộ vụng | nói lấp liếm | che đậy bằng lời","to explain away | to gloss over | to talk one's way out","1848540"),
+    ("詫び","わび","n","lời xin lỗi | sự tạ lỗi","apology","1562670"),
+    ("お詫び","おわび","n|vs|vi","lời xin lỗi | sự tạ lỗi","apology","2087420"),
+    ("謝意","しゃい","n","lòng biết ơn | lời cảm tạ | lời xin lỗi","gratitude | thanks | apology","1323020"),
+    ("礼状","れいじょう","n","thư cảm ơn | thư tạ ơn","acknowledgment | letter of thanks","1557530"),
+    ("返答","へんとう","n|vs|vt|vi","trả lời | hồi đáp | đáp lại","reply | answer","1512290"),
+    ("応答","おうとう","n|vs|vt|vi","đáp lại | phản hồi | trả lời","reply | answer | response","1180000"),
+    ("受け答え","うけこたえ","n|vs|vi","đối đáp | trả lời | ứng đáp","reply | response | answer","1653440"),
+    ("首肯","しゅこう","n|vs|vi","gật đầu đồng ý | tán thành | thuận","assent | consent","1329270"),
+    ("是認","ぜにん","n|vs|vt","công nhận | tán thành | chấp thuận","approval | approbation | endorsement","1374520"),
+    ("固辞","こじ","n|vs|vt","một mực từ chối | khăng khăng chối từ","firm refusal","1266610"),
+    ("謝絶","しゃぜつ","n|vs|vt","từ chối | khước từ","refusal | declining","1323050"),
+    ("黙殺","もくさつ","n|vs|vt","làm ngơ | phớt lờ | không thèm đáp lại","ignoring | disregarding | taking no notice of","1534970"),
+    ("無視","むし","n|vs|vt","phớt lờ | bỏ qua | coi như không có","disregarding | ignoring","1530020"),
+    ("看過","かんか","n|vs|vt","bỏ qua | làm ngơ | nhắm mắt cho qua","overlooking | turning a blind eye","1213780"),
+    ("諾否","だくひ","n","đồng ý hay không | nhận hay từ chối | quyết định nhận/từ","consent or refusal | yes or no","1416000"),
+    ("当否","とうひ","n","đúng hay sai | phải trái | sự thỏa đáng","propriety | right or wrong","1661620"),
+    ("良否","りょうひ","n","tốt hay xấu | tốt xấu","good or bad","1554620"),
+    ("真偽","しんぎ","n","thật giả | tính xác thực | chân ngụy","truth or falsehood | authenticity","1363520"),
+    ("正否","せいひ","n","đúng sai | phải trái","right and wrong","1377780"),
+    ("適否","てきひ","n","sự phù hợp hay không | tính thích hợp","propriety | fitness | aptitude","1437480"),
+]
+rows=[row(*d) for d in DATA]
+open(OUT,"w",encoding="utf-8",newline="\n").write(HEADER+"\n"+"\n".join(rows)+"\n")
+print(f"Written {len(rows)} rows")

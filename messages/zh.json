@@ -2147,7 +2147,8 @@
     "writing_joyo_secondary_full": "常用汉字 · 中学高中",
     "writing_joyo_grade_desc": "日本小学{grade}年级所学汉字",
     "writing_joyo_secondary_desc": "其余常用汉字，于中学高中学习",
-    "writing_joyo_badge_secondary": "中高"
+    "writing_joyo_badge_secondary": "中高",
+    "flashcard_tap_flip": "点击卡片翻面"
   },
   "public_profile": {
     "title": "成员资料",

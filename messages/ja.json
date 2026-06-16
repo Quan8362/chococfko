@@ -2147,7 +2147,8 @@
     "writing_joyo_secondary_full": "常用漢字・中学高校",
     "writing_joyo_grade_desc": "小学校{grade}年生で習う漢字",
     "writing_joyo_secondary_desc": "残りの常用漢字（中学・高校で学習）",
-    "writing_joyo_badge_secondary": "中高"
+    "writing_joyo_badge_secondary": "中高",
+    "flashcard_tap_flip": "カードをタップして裏返す"
   },
   "public_profile": {
     "title": "メンバープロフィール",

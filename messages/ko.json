@@ -2147,7 +2147,8 @@
     "writing_joyo_secondary_full": "조요 · 중고등학교",
     "writing_joyo_grade_desc": "초등학교 {grade}학년에서 배우는 한자",
     "writing_joyo_secondary_desc": "나머지 조요 한자, 중·고교에서 학습",
-    "writing_joyo_badge_secondary": "중고"
+    "writing_joyo_badge_secondary": "중고",
+    "flashcard_tap_flip": "카드를 탭하여 뒤집기"
   },
   "public_profile": {
     "title": "회원 프로필",

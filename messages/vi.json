@@ -2147,7 +2147,8 @@
     "writing_joyo_secondary_full": "Jōyō · THCS–THPT",
     "writing_joyo_grade_desc": "Kanji học ở lớp {grade} bậc tiểu học Nhật Bản",
     "writing_joyo_secondary_desc": "Kanji Jōyō còn lại, học ở bậc trung học",
-    "writing_joyo_badge_secondary": "THCS+"
+    "writing_joyo_badge_secondary": "THCS+",
+    "flashcard_tap_flip": "Nhấn vào thẻ để lật"
   },
   "public_profile": {
     "title": "Hồ sơ thành viên",

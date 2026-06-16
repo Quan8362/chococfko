@@ -149,9 +149,16 @@ export default function FlashcardViewer({ words, isLoggedIn, onSave, loginMessag
       </div>
 
       {/* 3-D flip card */}
-      <div style={{ perspective: '1200px' }} className="mb-6">
+      <div style={{ perspective: '1200px' }} className="mb-3">
         <div
-          className="relative transition-transform duration-500"
+          role="button"
+          tabIndex={0}
+          aria-label={t('flashcard_tap_flip')}
+          onClick={() => setFlipped(f => !f)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setFlipped(f => !f) }
+          }}
+          className="relative transition-transform duration-500 cursor-pointer outline-none"
           style={{
             transformStyle: 'preserve-3d',
             transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
@@ -236,6 +243,11 @@ export default function FlashcardViewer({ words, isLoggedIn, onSave, loginMessag
           </div>
         </div>
       </div>
+
+      {/* Tap-to-flip hint */}
+      <p className="text-center text-[12px] text-muted mb-5 select-none">
+        ↻ {t('flashcard_tap_flip')}
+      </p>
 
       {/* Login hint */}
       {loginHint && (

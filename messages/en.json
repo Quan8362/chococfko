@@ -2147,7 +2147,8 @@
     "writing_joyo_secondary_full": "Jōyō · Secondary school",
     "writing_joyo_grade_desc": "Kanji taught in elementary grade {grade} in Japan",
     "writing_joyo_secondary_desc": "Remaining Jōyō kanji, taught in secondary school",
-    "writing_joyo_badge_secondary": "Sec."
+    "writing_joyo_badge_secondary": "Sec.",
+    "flashcard_tap_flip": "Tap the card to flip"
   },
   "public_profile": {
     "title": "Member profile",

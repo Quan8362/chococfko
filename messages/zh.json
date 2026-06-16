@@ -90,7 +90,7 @@
     "show_password": "显示密码",
     "hide_password": "隐藏密码",
     "forgot_password": "忘记密码？",
-    "back_to_login": "返回登录",
+    "back_to_login": "返回登录页",
     "reset_success": "密码已修改！请使用新密码登录。",
     "forgot_heading": "忘记密码",
     "forgot_sub": "输入您的邮箱，我们将发送重置链接。",
@@ -122,7 +122,6 @@
     "or_register": "或使用以下方式注册",
     "check_email_heading": "请查收邮件！",
     "check_email_sub": "我们已发送确认链接。点击邮件中的链接完成注册。",
-    "back_to_login": "返回登录页",
     "provider_disabled": "{provider}未启用。请使用邮箱登录。",
     "auth_error": "错误: {message}",
     "email_placeholder": "you@example.com",
@@ -358,7 +357,8 @@
     "community_badge": "社区",
     "save_place": "保存 {name}",
     "unsave_place": "取消保存 {name}",
-    "you": "你"
+    "you": "你",
+    "rating_count": "{count} 条评价"
   },
   "filters": {
     "all": "全部",
@@ -724,11 +724,10 @@
     "editor": {
       "bold": "粗体 (Ctrl+B)",
       "italic": "斜体 (Ctrl+I)",
-      "underline": "下划线 (Ctrl+U)",
+      "underline": "下划线",
       "align_left": "左对齐",
       "align_center": "居中对齐",
       "align_right": "右对齐",
-      "underline": "下划线",
       "h2": "大标题",
       "h3": "小标题",
       "bulletList": "无序列表",
@@ -2348,5 +2347,38 @@
     "col_bidder": "出价者",
     "col_amount": "金额",
     "col_time": "时间"
+  },
+  "place_rating": {
+    "title": "为该地点评分",
+    "count": "{count} 条评价",
+    "prompt": "为这个地点评分",
+    "your": "我的评分",
+    "review_placeholder": "分享你的体验（可选）...",
+    "submit": "提交评分",
+    "update": "更新",
+    "saving": "保存中...",
+    "saved": "评分已保存！",
+    "none": "暂无评价",
+    "pick": "请选择星级",
+    "error": "无法保存，请重试",
+    "login_to_rate": "登录后评分"
+  },
+  "place_comments": {
+    "title": "经验与点评",
+    "subtitle": "分享你的真实体验，帮助大家",
+    "placeholder": "分享你对这个地点的体验...",
+    "submit": "发送",
+    "sending": "发送中...",
+    "success": "已发送。",
+    "error": "发送失败，请重试。",
+    "errorEmpty": "内容不能为空。",
+    "errorTooLong": "内容不能超过1000个字符。",
+    "loginRequired": "需要登录才能分享。",
+    "loginButton": "登录",
+    "empty": "还没有分享。来做第一个分享体验的人吧。",
+    "anonymous": "匿名",
+    "you": "我",
+    "delete": "删除",
+    "confirmDelete": "删除这条评论？"
   }
 }

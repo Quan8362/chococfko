@@ -90,7 +90,7 @@
     "show_password": "비밀번호 표시",
     "hide_password": "비밀번호 숨기기",
     "forgot_password": "비밀번호를 잊으셨나요?",
-    "back_to_login": "로그인으로 돌아가기",
+    "back_to_login": "로그인 페이지로 돌아가기",
     "reset_success": "비밀번호가 변경되었습니다! 새 비밀번호로 로그인하세요.",
     "forgot_heading": "비밀번호 찾기",
     "forgot_sub": "이메일을 입력하면 재설정 링크를 보내드립니다.",
@@ -122,7 +122,6 @@
     "or_register": "또는 다음으로 가입",
     "check_email_heading": "이메일을 확인하세요!",
     "check_email_sub": "확인 링크를 보냈습니다. 이메일의 링크를 클릭해 가입을 완료하세요.",
-    "back_to_login": "로그인 페이지로 돌아가기",
     "provider_disabled": "{provider}이 활성화되어 있지 않습니다. 이메일로 로그인해주세요.",
     "auth_error": "오류: {message}",
     "email_placeholder": "you@example.com",
@@ -358,7 +357,8 @@
     "community_badge": "커뮤니티",
     "save_place": "{name} 저장",
     "unsave_place": "{name} 저장 해제",
-    "you": "나"
+    "you": "나",
+    "rating_count": "평가 {count}개"
   },
   "filters": {
     "all": "전체",
@@ -724,11 +724,10 @@
     "editor": {
       "bold": "굵게 (Ctrl+B)",
       "italic": "기울임 (Ctrl+I)",
-      "underline": "밑줄 (Ctrl+U)",
+      "underline": "밑줄",
       "align_left": "왼쪽 정렬",
       "align_center": "가운데 정렬",
       "align_right": "오른쪽 정렬",
-      "underline": "밑줄",
       "h2": "큰 제목",
       "h3": "작은 제목",
       "bulletList": "글머리 기호",
@@ -2348,5 +2347,38 @@
     "col_bidder": "입찰자",
     "col_amount": "금액",
     "col_time": "시간"
+  },
+  "place_rating": {
+    "title": "장소 평가",
+    "count": "평가 {count}개",
+    "prompt": "이 장소를 평가하세요",
+    "your": "내 평가",
+    "review_placeholder": "경험을 공유해 주세요 (선택)...",
+    "submit": "평가 등록",
+    "update": "수정",
+    "saving": "저장 중...",
+    "saved": "평가가 저장되었습니다!",
+    "none": "아직 평가가 없습니다",
+    "pick": "별점을 선택하세요",
+    "error": "저장할 수 없습니다. 다시 시도하세요",
+    "login_to_rate": "로그인하고 평가하기"
+  },
+  "place_comments": {
+    "title": "경험 & 후기",
+    "subtitle": "실제 경험을 공유해 다른 사람을 도와주세요",
+    "placeholder": "이 장소에 대한 경험을 공유하세요...",
+    "submit": "등록",
+    "sending": "전송 중...",
+    "success": "등록되었습니다.",
+    "error": "등록할 수 없습니다. 다시 시도하세요.",
+    "errorEmpty": "내용을 입력하세요.",
+    "errorTooLong": "내용은 1000자를 초과할 수 없습니다.",
+    "loginRequired": "공유하려면 로그인이 필요합니다.",
+    "loginButton": "로그인",
+    "empty": "아직 게시물이 없습니다. 가장 먼저 경험을 공유해 보세요.",
+    "anonymous": "익명",
+    "you": "나",
+    "delete": "삭제",
+    "confirmDelete": "이 댓글을 삭제할까요?"
   }
 }

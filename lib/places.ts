@@ -1168,6 +1168,57 @@ export async function getPlaceFromDb(slug: string, locale?: string): Promise<Pla
   } catch { return null; }
 }
 
+// ── Bình luận & đánh giá địa điểm ─────────────────────────────
+export interface PlaceComment {
+  id: string;
+  place_slug: string;
+  user_id: string;
+  content: string;
+  created_at: string;
+  author_name: string | null;
+  author_avatar: string | null;
+}
+
+export async function getPlaceComments(slug: string): Promise<PlaceComment[]> {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !slug) return [];
+  try {
+    const { createAdminClient } = await import('@/lib/supabase/admin');
+    const admin = createAdminClient();
+    const { data, error } = await admin
+      .from('place_comments_with_author')
+      .select('id, place_slug, user_id, content, created_at, author_name, author_avatar')
+      .eq('place_slug', slug)
+      .eq('status', 'approved')
+      .order('created_at', { ascending: true });
+    if (error || !data) return [];
+    return data as PlaceComment[];
+  } catch {
+    return [];
+  }
+}
+
+export type PlaceRating = { average: number; count: number; myStars: number | null; myReview: string | null };
+
+export async function getPlaceRating(slug: string, viewerId?: string | null): Promise<PlaceRating> {
+  const empty: PlaceRating = { average: 0, count: 0, myStars: null, myReview: null };
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !slug) return empty;
+  try {
+    const { createAdminClient } = await import('@/lib/supabase/admin');
+    const admin = createAdminClient();
+    const { data } = await admin
+      .from('place_ratings')
+      .select('stars, review, user_id')
+      .eq('place_slug', slug);
+    const rows = (data ?? []) as { stars: number; review: string | null; user_id: string }[];
+    const count = rows.length;
+    const average = count ? rows.reduce((s, r) => s + r.stars, 0) / count : 0;
+    const mine = viewerId ? rows.find((r) => r.user_id === viewerId) : undefined;
+    return { average, count, myStars: mine?.stars ?? null, myReview: mine?.review ?? null };
+  } catch {
+    return empty;
+  }
+}
+
 // Get all translations for a place slug (for admin UI)
 export async function getPlaceAllTranslations(slug: string): Promise<PlaceTranslation[]> {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return []

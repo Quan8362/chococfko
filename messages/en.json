@@ -90,7 +90,7 @@
     "show_password": "Show password",
     "hide_password": "Hide password",
     "forgot_password": "Forgot password?",
-    "back_to_login": "Back to login",
+    "back_to_login": "Back to sign in",
     "reset_success": "Password changed! Please log in with your new password.",
     "forgot_heading": "Forgot password",
     "forgot_sub": "Enter your email and we'll send you a reset link.",
@@ -122,7 +122,6 @@
     "or_register": "Or sign up with",
     "check_email_heading": "Check your email!",
     "check_email_sub": "We sent a confirmation link. Click the link in your email to complete registration.",
-    "back_to_login": "Back to sign in",
     "provider_disabled": "{provider} is not enabled. Please use email to sign in.",
     "auth_error": "Error: {message}",
     "email_placeholder": "you@example.com",
@@ -358,7 +357,8 @@
     "community_badge": "Community",
     "save_place": "Save {name}",
     "unsave_place": "Unsave {name}",
-    "you": "You"
+    "you": "You",
+    "rating_count": "{count} reviews"
   },
   "filters": {
     "all": "All",
@@ -724,11 +724,10 @@
     "editor": {
       "bold": "Bold (Ctrl+B)",
       "italic": "Italic (Ctrl+I)",
-      "underline": "Underline (Ctrl+U)",
+      "underline": "Underline",
       "align_left": "Align left",
       "align_center": "Align center",
       "align_right": "Align right",
-      "underline": "Underline",
       "h2": "Heading",
       "h3": "Sub-heading",
       "bulletList": "Bullet list",
@@ -2348,5 +2347,38 @@
     "col_bidder": "Bidder",
     "col_amount": "Amount",
     "col_time": "Time"
+  },
+  "place_rating": {
+    "title": "Rate this place",
+    "count": "{count} reviews",
+    "prompt": "Rate this place",
+    "your": "Your rating",
+    "review_placeholder": "Share your experience (optional)...",
+    "submit": "Submit rating",
+    "update": "Update",
+    "saving": "Saving...",
+    "saved": "Rating saved!",
+    "none": "No ratings yet",
+    "pick": "Please pick a star rating",
+    "error": "Could not save, please try again",
+    "login_to_rate": "Log in to rate"
+  },
+  "place_comments": {
+    "title": "Tips & reviews",
+    "subtitle": "Share your real experience to help others",
+    "placeholder": "Share your experience about this place...",
+    "submit": "Post",
+    "sending": "Sending...",
+    "success": "Posted.",
+    "error": "Could not post. Please try again.",
+    "errorEmpty": "Content cannot be empty.",
+    "errorTooLong": "Content cannot exceed 1000 characters.",
+    "loginRequired": "You need to log in to share.",
+    "loginButton": "Log in",
+    "empty": "No tips yet. Be the first to share your experience.",
+    "anonymous": "Anonymous",
+    "you": "You",
+    "delete": "Delete",
+    "confirmDelete": "Delete this comment?"
   }
 }

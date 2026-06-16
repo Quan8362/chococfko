@@ -90,7 +90,7 @@
     "show_password": "Hiện mật khẩu",
     "hide_password": "Ẩn mật khẩu",
     "forgot_password": "Quên mật khẩu?",
-    "back_to_login": "Quay lại đăng nhập",
+    "back_to_login": "Về trang đăng nhập",
     "reset_success": "Đổi mật khẩu thành công! Hãy đăng nhập bằng mật khẩu mới.",
     "forgot_heading": "Quên mật khẩu",
     "forgot_sub": "Nhập email của bạn, chúng tôi sẽ gửi link đặt lại mật khẩu.",
@@ -122,7 +122,6 @@
     "or_register": "Hoặc đăng ký với",
     "check_email_heading": "Kiểm tra email của bạn!",
     "check_email_sub": "Chúng mình đã gửi link xác nhận. Bấm vào link trong email để hoàn tất đăng ký.",
-    "back_to_login": "Về trang đăng nhập",
     "provider_disabled": "{provider} chưa được kích hoạt. Vui lòng dùng đăng nhập bằng email.",
     "auth_error": "Lỗi: {message}",
     "email_placeholder": "ban@example.com",
@@ -358,7 +357,8 @@
     "community_badge": "Cộng đồng",
     "save_place": "Lưu {name}",
     "unsave_place": "Bỏ lưu {name}",
-    "you": "Bạn"
+    "you": "Bạn",
+    "rating_count": "{count} đánh giá"
   },
   "filters": {
     "all": "Tất cả",
@@ -724,11 +724,10 @@
     "editor": {
       "bold": "In đậm (Ctrl+B)",
       "italic": "In nghiêng (Ctrl+I)",
-      "underline": "Gạch chân (Ctrl+U)",
+      "underline": "Gạch chân",
       "align_left": "Căn trái",
       "align_center": "Căn giữa",
       "align_right": "Căn phải",
-      "underline": "Gạch chân",
       "h2": "Tiêu đề lớn",
       "h3": "Tiêu đề nhỏ",
       "bulletList": "Danh sách chấm",
@@ -2348,5 +2347,38 @@
     "col_bidder": "Người đấu giá",
     "col_amount": "Số tiền",
     "col_time": "Thời gian"
+  },
+  "place_rating": {
+    "title": "Đánh giá địa điểm",
+    "count": "{count} đánh giá",
+    "prompt": "Đánh giá địa điểm này",
+    "your": "Đánh giá của bạn",
+    "review_placeholder": "Chia sẻ trải nghiệm của bạn (không bắt buộc)...",
+    "submit": "Gửi đánh giá",
+    "update": "Cập nhật",
+    "saving": "Đang lưu...",
+    "saved": "Đã lưu đánh giá!",
+    "none": "Chưa có đánh giá",
+    "pick": "Hãy chọn số sao",
+    "error": "Không lưu được, vui lòng thử lại",
+    "login_to_rate": "Đăng nhập để đánh giá"
+  },
+  "place_comments": {
+    "title": "Kinh nghiệm & đánh giá",
+    "subtitle": "Chia sẻ trải nghiệm thực tế của bạn để giúp mọi người",
+    "placeholder": "Chia sẻ kinh nghiệm của bạn về địa điểm này...",
+    "submit": "Gửi",
+    "sending": "Đang gửi...",
+    "success": "Đã gửi.",
+    "error": "Không gửi được. Vui lòng thử lại.",
+    "errorEmpty": "Nội dung không được để trống.",
+    "errorTooLong": "Nội dung không được quá 1000 ký tự.",
+    "loginRequired": "Bạn cần đăng nhập để chia sẻ.",
+    "loginButton": "Đăng nhập",
+    "empty": "Chưa có chia sẻ nào. Hãy là người đầu tiên kể về trải nghiệm của bạn.",
+    "anonymous": "Ẩn danh",
+    "you": "Bạn",
+    "delete": "Xóa",
+    "confirmDelete": "Xóa bình luận này?"
   }
 }

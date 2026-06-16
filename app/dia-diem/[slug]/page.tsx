@@ -2,10 +2,27 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations, getLocale } from "next-intl/server";
 import { proxyStorageImages } from "@/lib/imageProxy";
-import { getPlace, places, getAllPlacesFromDb, getPlaceFromDb } from "@/lib/places";
+import { getPlace, places, getAllPlacesFromDb, getPlaceFromDb, getPlaceComments, getPlaceRating } from "@/lib/places";
 import { checkIsAdmin } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 import SmartImg from "@/components/SmartImg";
+import StarsDisplay from "@/components/marketplace/StarsDisplay";
 import PlaceCard from "@/components/PlaceCard";
+import PlaceRating from "./PlaceRating";
+import PlaceComments from "./PlaceComments";
+
+async function getCurrentUser() {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return null;
+  try {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return null;
+    const name = (user.user_metadata?.display_name as string) || user.email?.split("@")[0] || "?";
+    return { id: user.id, initial: name[0]?.toUpperCase() ?? "?" };
+  } catch {
+    return null;
+  }
+}
 
 export const dynamic = "force-dynamic";
 
@@ -26,10 +43,13 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 
 export default async function PlaceDetail({ params }: { params: { slug: string } }) {
   const locale = await getLocale()
-  const [dbPlace, isAdmin, dbAllPlaces] = await Promise.all([
+  const currentUser = await getCurrentUser();
+  const [dbPlace, isAdmin, dbAllPlaces, comments, rating] = await Promise.all([
     getPlaceFromDb(params.slug, locale),
     checkIsAdmin(),
     getAllPlacesFromDb(locale),
+    getPlaceComments(params.slug),
+    getPlaceRating(params.slug, currentUser?.id),
   ]);
 
   const place = dbPlace ?? getPlace(params.slug);
@@ -95,6 +115,12 @@ export default async function PlaceDetail({ params }: { params: { slug: string }
                 <span className="text-[11.5px] font-bold px-3 py-[5px] rounded-full bg-[#fbeee0] text-[#a8671d]">{t("fee_paid")}</span>
               )}
               <span className="text-white/85 text-[13px] font-semibold tracking-[0.4px]">📍 {displayArea}</span>
+              {rating.count > 0 && (
+                <span className="inline-flex items-center gap-1.5 bg-[rgba(255,253,248,0.94)] text-[#a8671d] text-[11.5px] font-bold px-3 py-[5px] rounded-full">
+                  <StarsDisplay value={rating.average} className="w-3 h-3" />
+                  {rating.average.toFixed(1)} · {t("rating_count", { count: rating.count })}
+                </span>
+              )}
             </div>
             <h1 className="font-serif font-black text-white text-[clamp(28px,5vw,52px)] leading-[1.06] tracking-[-1px] drop-shadow">
               {place.name}
@@ -189,7 +215,29 @@ export default async function PlaceDetail({ params }: { params: { slug: string }
             </ul>
           </div>
 
+          {/* Place rating */}
+          <PlaceRating
+            slug={place.slug}
+            average={rating.average}
+            count={rating.count}
+            myStars={rating.myStars}
+            myReview={rating.myReview}
+            isLoggedIn={!!currentUser}
+          />
+
         </aside>
+      </div>
+
+      {/* ── COMMENTS / KINH NGHIỆM ───────────────────────────── */}
+      <div className="max-w-[1100px] mx-auto px-6">
+        <div className="lg:max-w-[calc(100%-308px)]">
+          <PlaceComments
+            slug={place.slug}
+            comments={comments}
+            currentUser={currentUser}
+            isAdmin={isAdmin}
+          />
+        </div>
       </div>
 
       {/* ── RELATED ──────────────────────────────────────────── */}

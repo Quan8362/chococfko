@@ -63,6 +63,7 @@ const LEGACY_REDIRECTS = [
   { source: '/gioi-thieu/:path*',           destination: '/about/:path*' },
   { source: '/lien-he/:path*',              destination: '/contact/:path*' },
   { source: '/gop-y/:path*',                destination: '/feedback/:path*' },
+  { source: '/chinh-sach/:path*',           destination: '/privacy-policy/:path*' },
 
   // ── Account / auth ─────────────────────────────────────────────────
   { source: '/ho-so/:path*',                destination: '/profile/:path*' },

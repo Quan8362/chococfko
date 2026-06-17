@@ -10,6 +10,32 @@ export async function generateMetadata() {
 }
 export const dynamic = 'force-dynamic'
 
+// Community topics shown as a decorative cluster in the hero
+const HERO_TOPICS = [
+  { key: 'cat_life', emoji: '🏠' },
+  { key: 'cat_paperwork', emoji: '📋' },
+  { key: 'cat_transport', emoji: '🚃' },
+  { key: 'cat_study', emoji: '📚' },
+  { key: 'cat_work', emoji: '💼' },
+  { key: 'cat_story', emoji: '💬' },
+] as const
+
+function TopicCard({ emoji, label }: { emoji: string; label: string }) {
+  return (
+    <Link
+      href="#chu-de"
+      className="group block bg-paper/80 backdrop-blur-sm border border-line rounded-2xl p-4 shadow-card hover:-translate-y-0.5 hover:shadow-card-hover transition-all"
+    >
+      <span className="w-10 h-10 rounded-xl bg-rose-soft grid place-items-center text-[20px] mb-2.5">
+        {emoji}
+      </span>
+      <span className="block font-semibold text-[13.5px] text-ink leading-snug group-hover:text-rose transition-colors">
+        {label}
+      </span>
+    </Link>
+  )
+}
+
 export default async function CongDong() {
   const t = await getTranslations('community')
   const [dbPosts, isAdmin] = await Promise.all([getPostsFromDb(), checkIsAdmin()])
@@ -23,6 +49,7 @@ export default async function CongDong() {
         <div className="absolute -top-[140px] -right-[110px] w-[400px] h-[400px] rounded-full bg-[radial-gradient(circle_at_35%_35%,rgba(194,24,91,0.09),transparent_60%)] pointer-events-none" />
 
         <div className="max-w-[1240px] mx-auto px-6 relative z-[1]">
+          <div className="grid lg:grid-cols-[minmax(0,1fr)_420px] gap-12 items-center">
           <div className="max-w-[680px] animate-fadeup">
             {/* Label */}
             <span className="inline-flex items-center gap-2 text-[11.5px] font-semibold tracking-[2.5px] uppercase text-rose mb-5 before:content-[''] before:w-6 before:h-px before:bg-rose/60">
@@ -56,6 +83,21 @@ export default async function CongDong() {
                 {t('cta_explore')}
               </Link>
             </div>
+          </div>
+
+          {/* Right: floating topic cards */}
+          <div className="hidden lg:grid grid-cols-2 gap-4 animate-fadeup">
+            <div className="grid gap-4 content-start">
+              {HERO_TOPICS.filter((_, i) => i % 2 === 0).map((tp) => (
+                <TopicCard key={tp.key} emoji={tp.emoji} label={t(tp.key)} />
+              ))}
+            </div>
+            <div className="grid gap-4 content-start mt-9">
+              {HERO_TOPICS.filter((_, i) => i % 2 === 1).map((tp) => (
+                <TopicCard key={tp.key} emoji={tp.emoji} label={t(tp.key)} />
+              ))}
+            </div>
+          </div>
           </div>
         </div>
       </section>

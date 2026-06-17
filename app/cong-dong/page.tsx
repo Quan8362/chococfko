@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
 import { getPostsFromDb } from '@/lib/posts'
@@ -10,28 +11,28 @@ export async function generateMetadata() {
 }
 export const dynamic = 'force-dynamic'
 
-// Community topics shown as a decorative cluster in the hero
+// Community topics shown as "what you can share" suggestion cards in the hero.
+// These are NOT filters — the active filtering UI lives in PostFeed.
 const HERO_TOPICS = [
-  { key: 'cat_life', emoji: '🏠' },
-  { key: 'cat_paperwork', emoji: '📋' },
-  { key: 'cat_transport', emoji: '🚃' },
-  { key: 'cat_study', emoji: '📚' },
-  { key: 'cat_work', emoji: '💼' },
-  { key: 'cat_story', emoji: '💬' },
+  { topic: 'life',      key: 'cat_life',      desc: 'cat_life_desc',      emoji: '🏠' },
+  { topic: 'paperwork', key: 'cat_paperwork', desc: 'cat_paperwork_desc', emoji: '📋' },
+  { topic: 'transport', key: 'cat_transport', desc: 'cat_transport_desc', emoji: '🚃' },
+  { topic: 'study',     key: 'cat_study',     desc: 'cat_study_desc',     emoji: '📚' },
+  { topic: 'work',      key: 'cat_work',      desc: 'cat_work_desc',      emoji: '💼' },
+  { topic: 'story',     key: 'cat_story',     desc: 'cat_story_desc',     emoji: '💬' },
 ] as const
 
-function TopicCard({ emoji, label }: { emoji: string; label: string }) {
+function TopicCard({ emoji, title, desc, topic }: { emoji: string; title: string; desc: string; topic: string }) {
   return (
     <Link
-      href="#chu-de"
-      className="group block bg-paper/80 backdrop-blur-sm border border-line rounded-2xl p-4 shadow-card hover:-translate-y-0.5 hover:shadow-card-hover transition-all"
+      href={`/cong-dong?topic=${topic}#chu-de`}
+      className="group block bg-cream/70 border border-line/70 rounded-2xl p-4 shadow-[0_2px_12px_-8px_rgba(60,40,30,0.55)] hover:bg-paper hover:border-rose/30 hover:shadow-card-hover hover:-translate-y-0.5 transition-all"
     >
-      <span className="w-10 h-10 rounded-xl bg-rose-soft grid place-items-center text-[20px] mb-2.5">
-        {emoji}
+      <span className="block text-[22px] mb-2 leading-none">{emoji}</span>
+      <span className="block font-semibold text-[13px] text-ink leading-tight mb-1 group-hover:text-rose transition-colors">
+        {title}
       </span>
-      <span className="block font-semibold text-[13.5px] text-ink leading-snug group-hover:text-rose transition-colors">
-        {label}
-      </span>
+      <span className="block text-[11.5px] text-muted leading-snug">{desc}</span>
     </Link>
   )
 }
@@ -85,16 +86,20 @@ export default async function CongDong() {
             </div>
           </div>
 
-          {/* Right: floating topic cards */}
-          <div className="hidden lg:grid grid-cols-2 gap-4 animate-fadeup">
-            <div className="grid gap-4 content-start">
-              {HERO_TOPICS.filter((_, i) => i % 2 === 0).map((tp) => (
-                <TopicCard key={tp.key} emoji={tp.emoji} label={t(tp.key)} />
-              ))}
-            </div>
-            <div className="grid gap-4 content-start mt-9">
-              {HERO_TOPICS.filter((_, i) => i % 2 === 1).map((tp) => (
-                <TopicCard key={tp.key} emoji={tp.emoji} label={t(tp.key)} />
+          {/* Right: "what you can share" suggestion cards (not filters) */}
+          <div className="hidden lg:block animate-fadeup">
+            <p className="text-[11.5px] font-semibold uppercase tracking-[2px] text-rose/80 mb-4 pl-0.5">
+              {t('share_intro')}
+            </p>
+            <div className="grid grid-cols-2 gap-3.5">
+              {HERO_TOPICS.map((tp) => (
+                <TopicCard
+                  key={tp.topic}
+                  emoji={tp.emoji}
+                  title={t(tp.key)}
+                  desc={t(tp.desc)}
+                  topic={tp.topic}
+                />
               ))}
             </div>
           </div>
@@ -130,7 +135,9 @@ export default async function CongDong() {
             )}
           </div>
 
-          <PostFeed posts={displayPosts} isAdmin={isAdmin} />
+          <Suspense fallback={null}>
+            <PostFeed posts={displayPosts} isAdmin={isAdmin} />
+          </Suspense>
         </div>
       </section>
     </>

@@ -87,7 +87,14 @@
     "cat_transport": "移動・買い物",
     "cat_study": "勉強・日本語",
     "cat_work": "仕事・就活",
-    "cat_story": "個人的な話"
+    "cat_story": "個人的な話",
+    "share_intro": "共有できるテーマ",
+    "cat_life_desc": "暮らし、住まい、医療、銀行",
+    "cat_paperwork_desc": "ビザ、保険、税金、マイナンバー",
+    "cat_transport_desc": "電車、定期券、スーパー、中古品",
+    "cat_study_desc": "JLPT、学校、日本語の独学",
+    "cat_work_desc": "バイト、面接、履歴書、職場環境",
+    "cat_story_desc": "物語、体験、リアルな視点"
   },
   "post_rating": {
     "title": "この記事を評価",

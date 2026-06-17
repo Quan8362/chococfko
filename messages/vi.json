@@ -87,7 +87,14 @@
     "cat_transport": "Đi lại & mua sắm",
     "cat_study": "Học tập & tiếng Nhật",
     "cat_work": "Công việc & tìm việc",
-    "cat_story": "Chia sẻ cá nhân"
+    "cat_story": "Chia sẻ cá nhân",
+    "share_intro": "Bạn có thể chia sẻ về",
+    "cat_life_desc": "Sinh hoạt, thuê nhà, y tế, ngân hàng",
+    "cat_paperwork_desc": "Visa, bảo hiểm, thuế, My Number",
+    "cat_transport_desc": "Tàu xe, vé tháng, siêu thị, đồ cũ",
+    "cat_study_desc": "JLPT, trường học, tự học tiếng Nhật",
+    "cat_work_desc": "Baito, phỏng vấn, 履歴書, môi trường làm việc",
+    "cat_story_desc": "Câu chuyện, trải nghiệm, góc nhìn thật"
   },
   "post_rating": {
     "title": "Đánh giá bài viết",

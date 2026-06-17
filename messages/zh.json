@@ -87,7 +87,14 @@
     "cat_transport": "出行与购物",
     "cat_study": "学习与日语",
     "cat_work": "工作与求职",
-    "cat_story": "个人故事"
+    "cat_story": "个人故事",
+    "share_intro": "你可以分享的主题",
+    "cat_life_desc": "生活、租房、医疗、银行",
+    "cat_paperwork_desc": "签证、保险、税务、My Number",
+    "cat_transport_desc": "交通、月票、超市、二手",
+    "cat_study_desc": "JLPT、学校、自学日语",
+    "cat_work_desc": "兼职、面试、简历、职场环境",
+    "cat_story_desc": "故事、经历、真实视角"
   },
   "post_rating": {
     "title": "评价这篇文章",

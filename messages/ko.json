@@ -87,7 +87,14 @@
     "cat_transport": "이동 & 쇼핑",
     "cat_study": "학습 & 일본어",
     "cat_work": "취업 & 구직",
-    "cat_story": "개인 이야기"
+    "cat_story": "개인 이야기",
+    "share_intro": "공유할 수 있는 주제",
+    "cat_life_desc": "생활, 집 구하기, 의료, 은행",
+    "cat_paperwork_desc": "비자, 보험, 세금, 마이넘버",
+    "cat_transport_desc": "교통, 정기권, 마트, 중고거래",
+    "cat_study_desc": "JLPT, 학교, 일본어 독학",
+    "cat_work_desc": "아르바이트, 면접, 이력서, 직장 환경",
+    "cat_story_desc": "이야기, 경험, 솔직한 시선"
   },
   "post_rating": {
     "title": "이 글 평가하기",

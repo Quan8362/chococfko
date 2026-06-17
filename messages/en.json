@@ -87,7 +87,14 @@
     "cat_transport": "Transportation & Shopping",
     "cat_study": "Study & Japanese",
     "cat_work": "Work & Job Hunting",
-    "cat_story": "Personal Stories"
+    "cat_story": "Personal Stories",
+    "share_intro": "You can share about",
+    "cat_life_desc": "Daily life, housing, healthcare, banking",
+    "cat_paperwork_desc": "Visa, insurance, taxes, My Number",
+    "cat_transport_desc": "Trains, commuter pass, supermarkets, secondhand",
+    "cat_study_desc": "JLPT, schools, self-studying Japanese",
+    "cat_work_desc": "Part-time jobs, interviews, résumés, workplace",
+    "cat_story_desc": "Stories, experiences, honest perspectives"
   },
   "post_rating": {
     "title": "Rate this post",

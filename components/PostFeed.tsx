@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import SmartImg from "./SmartImg";
 import { avatarSrc } from "@/lib/avatar";
 import { useTranslations } from "next-intl";
@@ -21,6 +22,8 @@ const CAT_EMOJI: Record<string, string> = Object.fromEntries(
   COMMUNITY_CATS.map((c) => [c.f, c.emoji]),
 );
 
+const VALID_FILTERS = new Set<string>(["all", ...COMMUNITY_CATS.map((c) => c.f)]);
+
 interface Props {
   posts: Post[];
   isAdmin?: boolean;
@@ -28,7 +31,16 @@ interface Props {
 
 export default function PostFeed({ posts }: Props) {
   const t = useTranslations("community");
-  const [active, setActive] = useState("all");
+  const searchParams = useSearchParams();
+  const topicParam = searchParams.get("topic");
+  const initialActive = topicParam && VALID_FILTERS.has(topicParam) ? topicParam : "all";
+  const [active, setActive] = useState(initialActive);
+
+  // Hero suggestion cards link with ?topic=… — activate the matching tab
+  useEffect(() => {
+    const tp = searchParams.get("topic");
+    if (tp && VALID_FILTERS.has(tp)) setActive(tp);
+  }, [searchParams]);
 
   // Always show the full community topic taxonomy
   const FILTERS = [

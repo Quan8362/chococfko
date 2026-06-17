@@ -89,6 +89,21 @@
     "cat_work": "Công việc & tìm việc",
     "cat_story": "Chia sẻ cá nhân"
   },
+  "post_rating": {
+    "title": "Đánh giá bài viết",
+    "count": "{count} đánh giá",
+    "prompt": "Đánh giá bài viết này",
+    "your": "Đánh giá của bạn",
+    "review_placeholder": "Chia sẻ cảm nhận của bạn về bài viết (không bắt buộc)...",
+    "submit": "Gửi đánh giá",
+    "update": "Cập nhật",
+    "saving": "Đang lưu...",
+    "saved": "Đã lưu đánh giá!",
+    "none": "Chưa có đánh giá",
+    "pick": "Hãy chọn số sao",
+    "error": "Không lưu được, vui lòng thử lại",
+    "login_to_rate": "Đăng nhập để đánh giá"
+  },
   "auth": {
     "login_heading": "Đăng nhập",
     "login_sub": "Chào mừng trở lại cộng đồng Chợ Cóc FKO.",

@@ -55,6 +55,30 @@ export async function submitComment(
   return { ok: true }
 }
 
+export async function submitPostRating(
+  postId: string,
+  stars: number,
+  review: string,
+): Promise<{ ok?: boolean; error?: string }> {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'login_required' }
+  if (!isUuid(postId)) return { error: 'invalid' }
+  if (!Number.isInteger(stars) || stars < 1 || stars > 5) return { error: 'invalid' }
+
+  const trimmed = (review ?? '').trim().slice(0, 500)
+  const { error } = await supabase
+    .from('post_ratings')
+    .upsert(
+      { post_id: postId, user_id: user.id, stars, review: trimmed || null, updated_at: new Date().toISOString() },
+      { onConflict: 'post_id,user_id' },
+    )
+  if (error) return { error: error.message }
+
+  revalidatePath(`/cong-dong/${postId}`)
+  return { ok: true }
+}
+
 export async function deleteComment(formData: FormData) {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()

@@ -89,6 +89,21 @@
     "cat_work": "工作与求职",
     "cat_story": "个人故事"
   },
+  "post_rating": {
+    "title": "评价这篇文章",
+    "count": "{count} 条评价",
+    "prompt": "评价这篇文章",
+    "your": "你的评价",
+    "review_placeholder": "分享你对这篇文章的看法（可选）...",
+    "submit": "提交评价",
+    "update": "更新",
+    "saving": "保存中...",
+    "saved": "评价已保存！",
+    "none": "暂无评价",
+    "pick": "请选择星级",
+    "error": "保存失败，请重试",
+    "login_to_rate": "登录后评价"
+  },
   "auth": {
     "login_heading": "登录",
     "login_sub": "欢迎回到 Chợ Cóc FKO 社区。",

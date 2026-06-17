@@ -89,6 +89,21 @@
     "cat_work": "仕事・就活",
     "cat_story": "個人的な話"
   },
+  "post_rating": {
+    "title": "この記事を評価",
+    "count": "{count}件の評価",
+    "prompt": "この記事を評価する",
+    "your": "あなたの評価",
+    "review_placeholder": "この記事の感想をシェアしましょう（任意）...",
+    "submit": "評価を送信",
+    "update": "更新",
+    "saving": "保存中...",
+    "saved": "評価を保存しました！",
+    "none": "まだ評価がありません",
+    "pick": "星を選んでください",
+    "error": "保存できませんでした。もう一度お試しください",
+    "login_to_rate": "ログインして評価する"
+  },
   "auth": {
     "login_heading": "ログイン",
     "login_sub": "Chợ Cóc FKOへようこそ。",

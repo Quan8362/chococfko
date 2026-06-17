@@ -89,6 +89,21 @@
     "cat_work": "Work & Job Hunting",
     "cat_story": "Personal Stories"
   },
+  "post_rating": {
+    "title": "Rate this post",
+    "count": "{count} ratings",
+    "prompt": "Rate this post",
+    "your": "Your rating",
+    "review_placeholder": "Share what you think about this post (optional)...",
+    "submit": "Submit rating",
+    "update": "Update",
+    "saving": "Saving...",
+    "saved": "Rating saved!",
+    "none": "No ratings yet",
+    "pick": "Please pick a star rating",
+    "error": "Couldn't save, please try again",
+    "login_to_rate": "Log in to rate"
+  },
   "auth": {
     "login_heading": "Sign in",
     "login_sub": "Welcome back to Chợ Cóc FKO community.",

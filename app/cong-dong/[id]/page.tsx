@@ -2,12 +2,14 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { proxyStorageImages } from '@/lib/imageProxy'
-import { getPost, getPostFromDb, isUuid } from '@/lib/posts'
+import { getPost, getPostFromDb, getPostRating, isUuid } from '@/lib/posts'
 import { checkIsAdmin, createAdminClient } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
 import SmartImg from '@/components/SmartImg'
 import AuthorLink from '@/components/AuthorLink'
 import CommentsSection, { type Comment } from '@/components/CommentsSection'
+import StarsDisplay from '@/components/marketplace/StarsDisplay'
+import PostRating from './PostRating'
 
 export async function generateMetadata({ params }: { params: { id: string } }) {
   const p = isUuid(params.id)
@@ -59,6 +61,8 @@ export default async function PostDetail({ params }: { params: { id: string } })
   const post = postResult
   if (!post) notFound()
 
+  const rating = await getPostRating(post.id, currentUser?.id)
+
   const t = await getTranslations('common')
   const tCat = await getTranslations('categories')
   const tCom = await getTranslations('community')
@@ -92,13 +96,17 @@ export default async function PostDetail({ params }: { params: { id: string } })
               <span className="bg-[rgba(255,253,248,0.94)] text-rose-deep text-[12px] font-bold px-3 py-[5px] rounded-full uppercase tracking-[0.5px]">
                 {categoryLabel}
               </span>
-              <span className="text-gold text-[15px] tracking-[2px]">
-                {'★'.repeat(post.rating)}
-                <span className="text-white/40">{'★'.repeat(5 - post.rating)}</span>
-              </span>
-              <span className="text-white/90 text-[13px] font-semibold uppercase tracking-[0.6px]">
-                📍 {post.area}
-              </span>
+              {rating.count > 0 && (
+                <span className="inline-flex items-center gap-1.5 text-white/90 text-[13px] font-semibold">
+                  <StarsDisplay value={rating.average} className="w-4 h-4" />
+                  {rating.average.toFixed(1)} · {t('rating_count', { count: rating.count })}
+                </span>
+              )}
+              {post.area && (
+                <span className="text-white/90 text-[13px] font-semibold uppercase tracking-[0.6px]">
+                  📍 {post.area}
+                </span>
+              )}
             </div>
             <h1 className="font-serif font-black text-white text-[clamp(28px,4.6vw,48px)] leading-[1.06] tracking-[-1px] drop-shadow">
               {post.title}
@@ -147,6 +155,18 @@ export default async function PostDetail({ params }: { params: { id: string } })
               {para}
             </p>
           ))
+        )}
+
+        {/* ── RATING ──────────────────────────────────────────── */}
+        {isUuid(params.id) && (
+          <PostRating
+            postId={params.id}
+            average={rating.average}
+            count={rating.count}
+            myStars={rating.myStars}
+            myReview={rating.myReview}
+            isLoggedIn={!!currentUser}
+          />
         )}
 
         {/* ── COMMENTS ────────────────────────────────────────── */}

@@ -89,6 +89,21 @@
     "cat_work": "취업 & 구직",
     "cat_story": "개인 이야기"
   },
+  "post_rating": {
+    "title": "이 글 평가하기",
+    "count": "평가 {count}개",
+    "prompt": "이 글을 평가해 주세요",
+    "your": "내 평가",
+    "review_placeholder": "이 글에 대한 생각을 남겨 주세요 (선택)...",
+    "submit": "평가 등록",
+    "update": "수정",
+    "saving": "저장 중...",
+    "saved": "평가가 저장되었습니다!",
+    "none": "아직 평가가 없습니다",
+    "pick": "별점을 선택해 주세요",
+    "error": "저장하지 못했습니다. 다시 시도해 주세요",
+    "login_to_rate": "로그인하고 평가하기"
+  },
   "auth": {
     "login_heading": "로그인",
     "login_sub": "Chợ Cóc FKO 커뮤니티에 오신 것을 환영합니다.",

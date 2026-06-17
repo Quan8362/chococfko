@@ -277,6 +277,33 @@ export async function getPlacePostsFromDb(): Promise<Post[] | null> {
   }
 }
 
+export interface PostRating {
+  average: number;
+  count: number;
+  myStars: number | null;
+  myReview: string | null;
+}
+
+export async function getPostRating(postId: string, viewerId?: string | null): Promise<PostRating> {
+  const empty: PostRating = { average: 0, count: 0, myStars: null, myReview: null };
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !isUuid(postId)) return empty;
+  try {
+    const { createAdminClient } = await import('@/lib/supabase/admin');
+    const admin = createAdminClient();
+    const { data } = await admin
+      .from('post_ratings')
+      .select('stars, review, user_id')
+      .eq('post_id', postId);
+    const rows = (data ?? []) as { stars: number; review: string | null; user_id: string }[];
+    const count = rows.length;
+    const average = count ? rows.reduce((s, r) => s + r.stars, 0) / count : 0;
+    const mine = viewerId ? rows.find((r) => r.user_id === viewerId) : undefined;
+    return { average, count, myStars: mine?.stars ?? null, myReview: mine?.review ?? null };
+  } catch {
+    return empty;
+  }
+}
+
 export async function getPostFromDb(id: string): Promise<Post | null> {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !isUuid(id)) return null;
   try {

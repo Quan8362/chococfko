@@ -2,6 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Playfair Display's ampersand glyph is very ornate and reads as messy in
+   headings. Remap ONLY the "&" character (U+0026) to a clean serif ampersand
+   so every serif heading's "&" looks tidy, while all other characters keep
+   using Playfair. Placed first in --font-serif-display below. */
+@font-face {
+  font-family: "AmpFix";
+  src: local("Georgia"), local("Times New Roman"), local("Cambria");
+  unicode-range: U+0026;
+  font-display: swap;
+}
+
 /* Hide the browser's built-in password reveal/clear icons (Edge ::-ms-reveal,
    WebKit) so only our custom eye toggle shows — otherwise Edge renders two eyes. */
 input[type="password"]::-ms-reveal,
@@ -28,7 +39,7 @@ input[type="password"]::-webkit-strong-password-auto-fill-button {
   --gold-light: #f5e8cc;
   --muted: #8c7c70;
   --line: #e8ddcf;
-  --font-serif-display: "Playfair Display", Georgia, serif;
+  --font-serif-display: "AmpFix", "Playfair Display", Georgia, serif;
   --font-bvp: "Be Vietnam Pro", system-ui, sans-serif;
 }
 

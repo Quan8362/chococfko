@@ -242,8 +242,12 @@ export async function getPostsForPlace(placeSlug: string, locale = 'vi', limit =
   try {
     const { createClient } = await import('@/lib/supabase/server');
     const supabase = createClient();
+    // Query the base `posts` table (not the `posts_with_author` view): the view
+    // is defined as `select p.*`, whose column list is frozen at creation time,
+    // so it does NOT expose the later-added `place_slug` column. The base table
+    // has it. PlacePostCard doesn't render the author, so the join isn't needed.
     const { data, error } = await supabase
-      .from('posts_with_author')
+      .from('posts')
       .select('*')
       .eq('place_slug', placeSlug)
       .eq('status', 'approved')

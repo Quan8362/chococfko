@@ -25,7 +25,8 @@ async function getCurrentUser() {
     if (!user) return null
     const t = await getTranslations('common')
     const name = user.user_metadata?.display_name || user.email?.split('@')[0] || t('you')
-    return { id: user.id, name, initial: name[0].toUpperCase() }
+    const { data: profile } = await supabase.from('profiles').select('avatar_url').eq('id', user.id).single()
+    return { id: user.id, name, initial: name[0].toUpperCase(), avatar: profile?.avatar_url ?? null }
   } catch {
     return null
   }

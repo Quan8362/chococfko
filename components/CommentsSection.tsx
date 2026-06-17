@@ -24,7 +24,7 @@ export type Comment = {
 type Props = {
   postId: string
   comments: Comment[]
-  currentUser: { id: string; name: string; initial: string } | null
+  currentUser: { id: string; name: string; initial: string; avatar?: string | null } | null
   isAdmin?: boolean
 }
 
@@ -201,9 +201,14 @@ export default function CommentsSection({ postId, comments, currentUser, isAdmin
           <div className="flex gap-3">
             {/* User avatar */}
             <div className="flex-none mt-0.5">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-rose/40 to-teal/40 grid place-items-center text-[12px] font-bold text-ink">
-                {currentUser.initial}
-              </div>
+              {currentUser.avatar ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={avatarSrc(currentUser.avatar)} alt={currentUser.name} className="w-8 h-8 rounded-full object-cover" />
+              ) : (
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-rose/40 to-teal/40 grid place-items-center text-[12px] font-bold text-ink">
+                  {currentUser.initial}
+                </div>
+              )}
             </div>
 
             {/* Form */}

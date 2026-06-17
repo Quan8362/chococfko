@@ -23,7 +23,8 @@ async function getCurrentUser() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return null;
     const name = (user.user_metadata?.display_name as string) || user.email?.split("@")[0] || "?";
-    return { id: user.id, initial: name[0]?.toUpperCase() ?? "?" };
+    const { data: profile } = await supabase.from("profiles").select("avatar_url").eq("id", user.id).single();
+    return { id: user.id, initial: name[0]?.toUpperCase() ?? "?", name, avatar: profile?.avatar_url ?? null };
   } catch {
     return null;
   }

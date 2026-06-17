@@ -9,6 +9,7 @@ import { createClient } from '@/lib/supabase/server'
 import { stripHtml } from '@/lib/sanitize'
 import { SITE_URL, SITE_NAME, DEFAULT_OG_IMAGE, OG_LOCALE, PUBLISHER_JSONLD, breadcrumbJsonLd, jsonLdString } from '@/lib/seo'
 import SmartImg from '@/components/SmartImg'
+import { avatarSrc } from '@/lib/avatar'
 import AuthorLink from '@/components/AuthorLink'
 import CommentsSection, { type Comment } from '@/components/CommentsSection'
 import StarsDisplay from '@/components/marketplace/StarsDisplay'
@@ -81,7 +82,8 @@ async function getCurrentUser() {
     if (!user) return null
     const t = await getTranslations('common')
     const name = user.user_metadata?.display_name || user.email?.split('@')[0] || t('you')
-    return { id: user.id, name, initial: name[0].toUpperCase() }
+    const { data: profile } = await supabase.from('profiles').select('avatar_url').eq('id', user.id).single()
+    return { id: user.id, name, initial: name[0].toUpperCase(), avatar: profile?.avatar_url ?? null }
   } catch {
     return null
   }
@@ -184,12 +186,21 @@ export default async function PostDetail({ params }: { params: { id: string } })
         {/* Author row */}
         <div className="flex items-center justify-between pb-6 mb-7 border-b border-line">
           <div className="flex items-center gap-3">
-            <span
-              className="w-11 h-11 rounded-full grid place-items-center text-white font-bold text-[15px]"
-              style={{ background: `linear-gradient(135deg, ${post.authorColor})` }}
-            >
-              {post.authorInitial}
-            </span>
+            {post.authorAvatar ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={avatarSrc(post.authorAvatar)}
+                alt={post.author}
+                className="w-11 h-11 rounded-full object-cover"
+              />
+            ) : (
+              <span
+                className="w-11 h-11 rounded-full grid place-items-center text-white font-bold text-[15px]"
+                style={{ background: `linear-gradient(135deg, ${post.authorColor})` }}
+              >
+                {post.authorInitial}
+              </span>
+            )}
             <div>
               <AuthorLink
                 userId={post.authorId}

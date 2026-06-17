@@ -13,7 +13,7 @@ import { submitPlaceComment, deletePlaceComment, type CommentResult } from '../a
 
 const CommentRichEditor = dynamic(() => import('@/components/CommentRichEditor'), { ssr: false })
 
-type CurrentUser = { id: string; initial: string } | null
+type CurrentUser = { id: string; initial: string; name?: string; avatar?: string | null } | null
 const INIT: CommentResult = null
 
 function relativeDate(iso: string, locale: string): string {
@@ -140,7 +140,12 @@ export default function PlaceComments({
       {currentUser ? (
         <div className="bg-paper border border-line rounded-2xl p-4 flex gap-3">
           <div className="flex-none mt-0.5">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-rose/40 to-teal/40 grid place-items-center text-[12px] font-bold text-ink">{currentUser.initial}</div>
+            {currentUser.avatar ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={avatarSrc(currentUser.avatar)} alt={currentUser.name ?? ''} className="w-8 h-8 rounded-full object-cover" />
+            ) : (
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-rose/40 to-teal/40 grid place-items-center text-[12px] font-bold text-ink">{currentUser.initial}</div>
+            )}
           </div>
           <form ref={formRef} action={formAction} className="flex-1 flex flex-col gap-3">
             <input type="hidden" name="place_slug" value={slug} />

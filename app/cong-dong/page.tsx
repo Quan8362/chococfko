@@ -30,10 +30,9 @@ export default async function CongDong() {
             </span>
 
             {/* Heading */}
-            <h1 className="font-serif font-bold text-[clamp(30px,4.2vw,50px)] leading-[1.12] tracking-[-0.5px] mb-5 text-ink">
-              {t('heading')}
-              <br />
-              <em className="italic font-semibold text-rose not-italic">{t('heading_accent')}</em>{' '}
+            <h1 className="font-serif font-bold text-[clamp(28px,3.8vw,44px)] leading-[1.18] tracking-[-0.5px] mb-5 text-ink [text-wrap:balance]">
+              {t('heading')}{' '}
+              <em className="not-italic font-semibold text-rose">{t('heading_accent')}</em>{' '}
               {t('heading_suffix')}
             </h1>
 

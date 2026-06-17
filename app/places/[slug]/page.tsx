@@ -69,7 +69,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   const canonical = `${SITE_URL}/places/${p.slug}`;
   const description = placeDescription(p) || `${p.name} — ${p.area}`;
   const image = placeImage(p);
-  const keywords = [p.name, p.categoryLabel, p.area, p.city, p.prefecture, "Fukuoka", "Nhật Bản"]
+  const keywords = [p.name, p.categoryLabel, p.area, p.city, p.prefecture, "Nhật Bản"]
     .filter(Boolean) as string[];
 
   return {

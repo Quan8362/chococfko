@@ -12,7 +12,7 @@ export interface Category { code: string; short: string; full: string; }
 
 export const categories: Category[] = [
   { "code": "landmark", "short": "Du lịch",   "full": "Du lịch" },
-  { "code": "food",     "short": "Ăn đêm",    "full": "Ăn uống & đi đêm" },
+  { "code": "food",     "short": "Ăn đêm",    "full": "Ăn uống & vui chơi đêm" },
   { "code": "sea",      "short": "Biển",       "full": "Biển & BBQ" },
   { "code": "camp",     "short": "Camping",    "full": "Camping & picnic" },
   { "code": "mountain", "short": "Leo núi",    "full": "Leo núi" },

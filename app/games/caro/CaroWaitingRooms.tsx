@@ -128,7 +128,7 @@ export default function CaroWaitingRooms({ initialRooms, userId }: Props) {
                 </button>
               ) : (
                 <a
-                  href="/dang-nhap"
+                  href="/login"
                   className="flex-none text-[12.5px] font-semibold px-4 py-2.5 rounded-xl border border-rose/30 text-rose hover:bg-rose/5 transition-all whitespace-nowrap"
                 >
                   {t('lobby_login_to_join')}

@@ -92,7 +92,7 @@ export default function PlaceRating({
         </div>
       ) : (
         <div className="mt-3 pt-3 border-t border-line/60">
-          <Link href="/dang-nhap" className="text-[13px] font-semibold text-rose hover:underline">{t('login_to_rate')}</Link>
+          <Link href="/login" className="text-[13px] font-semibold text-rose hover:underline">{t('login_to_rate')}</Link>
         </div>
       )}
     </div>

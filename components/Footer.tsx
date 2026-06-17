@@ -45,12 +45,12 @@ export default async function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/ban-do" className={LINK_CLS}>
+                <Link href="/map" className={LINK_CLS}>
                   {t('map')}
                 </Link>
               </li>
               <li>
-                <Link href="/gioi-thieu" className={LINK_CLS}>
+                <Link href="/about" className={LINK_CLS}>
                   {t('about')}
                 </Link>
               </li>
@@ -74,7 +74,7 @@ export default async function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/huong-dan-viet-bai" className={LINK_CLS}>
+                <Link href="/posting-guide" className={LINK_CLS}>
                   {t('guide')}
                 </Link>
               </li>
@@ -93,12 +93,12 @@ export default async function Footer() {
             </h4>
             <ul className="space-y-3">
               <li>
-                <Link href="/gop-y" className={LINK_CLS}>
+                <Link href="/feedback" className={LINK_CLS}>
                   {t('feedback')}
                 </Link>
               </li>
               <li>
-                <Link href="/lien-he" className={LINK_CLS}>
+                <Link href="/contact" className={LINK_CLS}>
                   {t('contact')}
                 </Link>
               </li>

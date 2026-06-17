@@ -37,7 +37,7 @@ export default async function DangDiaDiem({
   ])
 
   if (!user) {
-    redirect('/dang-nhap?error=' + encodeURIComponent(t('loginRequired')))
+    redirect('/login?error=' + encodeURIComponent(t('loginRequired')))
   }
 
   /* ── Success state ──────────────────────────────────────── */

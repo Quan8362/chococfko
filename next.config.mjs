@@ -22,8 +22,7 @@ const SECURITY_HEADERS = [
 // more specific sub-routes are listed before their generic wildcard so they win.
 // `:path*` matches zero-or-more trailing segments, so each rule also covers the
 // bare base path (e.g. /tieng-nhat/tu-dien → /japanese/dictionary).
-// Note: /dia-diem/:path* will NOT match /dia-diem-da-luu (different segment),
-// so the saved-places route is left untouched.
+// Note: /dia-diem/:path* will NOT match /dia-diem-da-luu (different segment).
 const LEGACY_REDIRECTS = [
   // ── Japanese learning ──────────────────────────────────────────────
   { source: '/tieng-nhat/tu-dien/:path*',   destination: '/japanese/dictionary/:path*' },
@@ -45,6 +44,32 @@ const LEGACY_REDIRECTS = [
   { source: '/dia-diem/dang/:path*',        destination: '/places/new/:path*' },
   { source: '/dia-diem/:path*',             destination: '/places/:path*' },
   { source: '/kham-pha/:path*',             destination: '/places/:path*' },
+
+  // ── Marketplace (chợ đồ cũ) ────────────────────────────────────────
+  { source: '/cho-do-cu/cua-toi/:path*',    destination: '/marketplace/mine/:path*' },
+  { source: '/cho-do-cu/dang/:path*',       destination: '/marketplace/new/:path*' },
+  { source: '/cho-do-cu/sua/:path*',        destination: '/marketplace/edit/:path*' },
+  { source: '/cho-do-cu/:path*',            destination: '/marketplace/:path*' },
+
+  // ── Confessions write ──────────────────────────────────────────────
+  { source: '/confessions/viet-bai/:path*', destination: '/confessions/write/:path*' },
+
+  // ── Other public content ───────────────────────────────────────────
+  { source: '/dia-diem-da-luu/:path*',      destination: '/saved-places/:path*' },
+  { source: '/bai-viet-cua-toi/:path*',     destination: '/my-posts/:path*' },
+  { source: '/huong-dan-viet-bai/:path*',   destination: '/posting-guide/:path*' },
+  { source: '/nguoi-dung/:path*',           destination: '/users/:path*' },
+  { source: '/ban-do/:path*',               destination: '/map/:path*' },
+  { source: '/gioi-thieu/:path*',           destination: '/about/:path*' },
+  { source: '/lien-he/:path*',              destination: '/contact/:path*' },
+  { source: '/gop-y/:path*',                destination: '/feedback/:path*' },
+
+  // ── Account / auth ─────────────────────────────────────────────────
+  { source: '/ho-so/:path*',                destination: '/profile/:path*' },
+  { source: '/dang-nhap/:path*',            destination: '/login/:path*' },
+  { source: '/dang-ky/:path*',              destination: '/register/:path*' },
+  { source: '/quen-mat-khau/:path*',        destination: '/forgot-password/:path*' },
+  { source: '/dat-lai-mat-khau/:path*',     destination: '/reset-password/:path*' },
 ].map(r => ({ ...r, permanent: true }))
 
 /** @type {import('next').NextConfig} */

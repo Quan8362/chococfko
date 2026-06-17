@@ -10,7 +10,7 @@ export async function GET(request: Request) {
 
   if (oauthError || !code || !state) {
     return NextResponse.redirect(
-      `${origin}/dang-nhap?error=${encodeURIComponent('LINE đăng nhập bị huỷ')}`
+      `${origin}/login?error=${encodeURIComponent('LINE đăng nhập bị huỷ')}`
     )
   }
 
@@ -18,7 +18,7 @@ export async function GET(request: Request) {
   const savedState = cookieStore.get('line_oauth_state')?.value
   if (state !== savedState) {
     return NextResponse.redirect(
-      `${origin}/dang-nhap?error=${encodeURIComponent('Lỗi bảo mật, thử lại')}`
+      `${origin}/login?error=${encodeURIComponent('Lỗi bảo mật, thử lại')}`
     )
   }
 
@@ -76,7 +76,7 @@ export async function GET(request: Request) {
   } catch (err) {
     console.error('[LINE callback]', err)
     return NextResponse.redirect(
-      `${origin}/dang-nhap?error=${encodeURIComponent('LINE đăng nhập thất bại, thử lại sau')}`
+      `${origin}/login?error=${encodeURIComponent('LINE đăng nhập thất bại, thử lại sau')}`
     )
   }
 }

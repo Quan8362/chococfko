@@ -325,7 +325,7 @@ export default function JapaneseComments({
             <p className="text-[14px] font-medium text-ink mb-0.5">{t('login_to_comment')}</p>
             <p className="text-[12px] text-muted">{t('login_comment_hint')}</p>
           </div>
-          <Link href="/dang-nhap" className="flex-none font-semibold text-[13.5px] px-6 py-2.5 rounded-full bg-rose text-white hover:bg-rose-deep transition-all shadow-[0_2px_10px_-2px_rgba(194,24,91,0.35)] whitespace-nowrap">
+          <Link href="/login" className="flex-none font-semibold text-[13.5px] px-6 py-2.5 rounded-full bg-rose text-white hover:bg-rose-deep transition-all shadow-[0_2px_10px_-2px_rgba(194,24,91,0.35)] whitespace-nowrap">
             {t('login_button')}
           </Link>
         </div>

@@ -114,7 +114,7 @@ function InfoCards({ t }: { t: (key: string) => string }) {
           </div>
           <p className="text-[13px] text-muted leading-[1.75] mb-5 flex-1">{t('subtitle')}</p>
           <Link
-            href="/confessions/viet-bai"
+            href="/confessions/write"
             className="self-start inline-flex items-center gap-1.5 font-semibold text-[13px] px-5 py-2.5 rounded-full bg-rose text-white hover:bg-rose-deep transition-all shadow-[0_3px_14px_-3px_rgba(194,24,91,0.45)] hover:-translate-y-px"
           >
             ✍️ {t('writeButton')}
@@ -164,7 +164,7 @@ export default async function ConfessionsPage({
             </p>
             <div className="flex gap-3 flex-wrap">
               <Link
-                href="/confessions/viet-bai"
+                href="/confessions/write"
                 className="inline-flex items-center gap-2 font-semibold text-[14px] px-7 py-3 rounded-full bg-rose text-white shadow-[0_4px_18px_-4px_rgba(194,24,91,0.5)] hover:bg-rose-deep hover:-translate-y-px transition-all"
               >
                 ✍️ {t('writeButton')}
@@ -215,7 +215,7 @@ export default async function ConfessionsPage({
                 {t('emptySubtitle' as Parameters<typeof t>[0])}
               </p>
               <Link
-                href="/confessions/viet-bai"
+                href="/confessions/write"
                 className="inline-flex items-center gap-2 font-semibold text-[14px] px-7 py-3 rounded-full bg-rose text-white shadow-[0_4px_14px_-4px_rgba(194,24,91,0.45)] hover:bg-rose-deep hover:-translate-y-px transition-all"
               >
                 ✍️ {t('writeButton')}

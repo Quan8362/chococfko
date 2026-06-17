@@ -98,7 +98,7 @@ export default function UserMenu({ displayName, initial, isAdmin, avatarUrl }: U
 
           {/* Profile link */}
           <Link
-            href="/ho-so"
+            href="/profile"
             onClick={() => setOpen(false)}
             className="flex items-center gap-2.5 px-4 py-2.5 text-[13px] font-medium text-[#5c4d44] hover:bg-cream hover:text-rose transition-colors"
           >
@@ -108,7 +108,7 @@ export default function UserMenu({ displayName, initial, isAdmin, avatarUrl }: U
 
           {/* My posts link */}
           <Link
-            href="/bai-viet-cua-toi"
+            href="/my-posts"
             onClick={() => setOpen(false)}
             className="flex items-center gap-2.5 px-4 py-2.5 text-[13px] font-medium text-[#5c4d44] hover:bg-cream hover:text-rose transition-colors"
           >
@@ -118,7 +118,7 @@ export default function UserMenu({ displayName, initial, isAdmin, avatarUrl }: U
 
           {/* Saved places link */}
           <Link
-            href="/dia-diem-da-luu"
+            href="/saved-places"
             onClick={() => setOpen(false)}
             className="flex items-center gap-2.5 px-4 py-2.5 text-[13px] font-medium text-[#5c4d44] hover:bg-cream hover:text-rose transition-colors"
           >

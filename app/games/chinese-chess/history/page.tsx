@@ -42,7 +42,7 @@ export default async function ChineseChessHistoryPage({
 }) {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/dang-nhap')
+  if (!user) redirect('/login')
 
   const [t, admin] = await Promise.all([
     getTranslations('games.chinese_chess'),

@@ -192,7 +192,7 @@ export default async function ConfessionDetailPage({ params }: { params: { id: s
               </p>
             </div>
             <Link
-              href="/confessions/viet-bai"
+              href="/confessions/write"
               className="flex-none inline-flex items-center gap-2 font-semibold text-[14px] px-7 py-3 rounded-full bg-rose text-white hover:bg-rose-deep hover:-translate-y-px transition-all shadow-[0_4px_16px_-4px_rgba(194,24,91,0.5)] whitespace-nowrap"
             >
               ✍️ {t('writeButton')}

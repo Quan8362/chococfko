@@ -403,7 +403,7 @@ export default function TournamentDetail({
           </div>
           <div className="flex gap-2">
             {!userId && isOpen && (
-              <Link href="/dang-nhap" className="font-semibold text-[13.5px] px-6 py-2.5 rounded-full bg-rose text-white hover:bg-rose-deep transition-all shadow-[0_2px_10px_-2px_rgba(194,24,91,0.35)]">
+              <Link href="/login" className="font-semibold text-[13.5px] px-6 py-2.5 rounded-full bg-rose text-white hover:bg-rose-deep transition-all shadow-[0_2px_10px_-2px_rgba(194,24,91,0.35)]">
                 {t('login_btn')}
               </Link>
             )}

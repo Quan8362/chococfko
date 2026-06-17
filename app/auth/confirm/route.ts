@@ -20,7 +20,7 @@ export async function GET(request: Request) {
 
   if (!token_hash) {
     return NextResponse.redirect(
-      `${origin}/dang-nhap?error=${encodeURIComponent('Link xác nhận không hợp lệ. Vui lòng đăng ký lại.')}`
+      `${origin}/login?error=${encodeURIComponent('Link xác nhận không hợp lệ. Vui lòng đăng ký lại.')}`
     )
   }
 
@@ -29,14 +29,14 @@ export async function GET(request: Request) {
 
   if (error) {
     return NextResponse.redirect(
-      `${origin}/dang-nhap?error=${encodeURIComponent(mapConfirmError(error.message))}`
+      `${origin}/login?error=${encodeURIComponent(mapConfirmError(error.message))}`
     )
   }
 
   // Password-reset links land here with a recovery session → go set a new password.
   if (type === 'recovery') {
-    return NextResponse.redirect(`${origin}/dat-lai-mat-khau`)
+    return NextResponse.redirect(`${origin}/reset-password`)
   }
 
-  return NextResponse.redirect(`${origin}/dang-nhap?confirmed=1`)
+  return NextResponse.redirect(`${origin}/login?confirmed=1`)
 }

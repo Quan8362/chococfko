@@ -63,7 +63,7 @@ export default async function Nav() {
               { href: '/community/chat', label: t('chat'), icon: 'chat', badge: 'chat' },
             ]}
           />
-          <Link href="/cho-do-cu" className="px-3 py-1.5 rounded-lg hover:bg-line hover:text-rose transition-colors whitespace-nowrap">
+          <Link href="/marketplace" className="px-3 py-1.5 rounded-lg hover:bg-line hover:text-rose transition-colors whitespace-nowrap">
             {t('marketplace')}
           </Link>
           <Link href="/japanese" className="px-3 py-1.5 rounded-lg hover:bg-line hover:text-rose transition-colors whitespace-nowrap">
@@ -88,7 +88,7 @@ export default async function Nav() {
             <UserMenu displayName={displayName} initial={initial} isAdmin={isAdmin} avatarUrl={avatarUrl} />
           ) : (
             <Link
-              href="/dang-nhap"
+              href="/login"
               className="hidden sm:block text-[13px] font-medium px-3 py-2 rounded-lg text-[#5c4d44] hover:bg-line hover:text-rose transition-colors"
             >
               {t('login')}

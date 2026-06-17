@@ -108,7 +108,7 @@ export default async function PrivacyPolicyPage() {
             </a>
           </p>
           <Link
-            href="/lien-he"
+            href="/contact"
             className="flex-none font-semibold text-[13px] px-5 py-2.5 rounded-full bg-rose text-white hover:bg-rose-deep transition-colors"
           >
             {t('contact_link')}

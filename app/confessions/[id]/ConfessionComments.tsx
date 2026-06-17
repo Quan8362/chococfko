@@ -306,7 +306,7 @@ export default function ConfessionComments({
             <p className="text-[12px] text-muted">{t('loginAnonHint' as Parameters<typeof t>[0])}</p>
           </div>
           <Link
-            href="/dang-nhap"
+            href="/login"
             className="flex-none font-semibold text-[13.5px] px-6 py-2.5 rounded-full bg-rose text-white hover:bg-rose-deep transition-all shadow-[0_2px_10px_-2px_rgba(194,24,91,0.35)] whitespace-nowrap"
           >
             {t('loginButton')}

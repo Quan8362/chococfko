@@ -11,7 +11,7 @@ export default async function ListingCard({ listing }: { listing: Listing }) {
 
   return (
     <Link
-      href={`/cho-do-cu/${listing.id}`}
+      href={`/marketplace/${listing.id}`}
       className="group block bg-paper border border-line rounded-2xl overflow-hidden hover:border-rose/30 hover:shadow-[0_8px_28px_-12px_rgba(36,26,23,0.22)] transition-all"
     >
       {/* Cover */}

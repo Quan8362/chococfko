@@ -107,7 +107,7 @@ export async function createTournament(formData: FormData): Promise<never> {
   const { createClient } = await import('@/lib/supabase/server')
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/dang-nhap')
+  if (!user) redirect('/login')
 
   const title = (formData.get('title') as string)?.trim()
   if (!title) redirect('/admin/caro?error=no_title')

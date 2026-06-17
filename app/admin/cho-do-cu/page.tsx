@@ -85,7 +85,7 @@ export default async function AdminMarketplacePage({ searchParams }: { searchPar
             const reports = reportCountMap.get(l.id) ?? 0
             return (
               <div key={l.id} className="flex gap-4 bg-paper border border-line rounded-2xl p-4">
-                <Link href={`/cho-do-cu/${l.id}`} target="_blank" className="flex-none w-20 h-20 rounded-xl overflow-hidden bg-cream">
+                <Link href={`/marketplace/${l.id}`} target="_blank" className="flex-none w-20 h-20 rounded-xl overflow-hidden bg-cream">
                   {l.cover_image ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={imgProxy(l.cover_image)} alt={l.title} className="w-full h-full object-cover" />
@@ -97,7 +97,7 @@ export default async function AdminMarketplacePage({ searchParams }: { searchPar
                     {reports > 0 && <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-600">🚩 {reports}</span>}
                     <span className="text-[11.5px] text-muted">{relativeListingDate(l.created_at, locale)}</span>
                   </div>
-                  <Link href={`/cho-do-cu/${l.id}`} target="_blank" className="font-semibold text-[15px] text-ink leading-snug line-clamp-1 hover:text-rose transition-colors">{l.title}</Link>
+                  <Link href={`/marketplace/${l.id}`} target="_blank" className="font-semibold text-[15px] text-ink leading-snug line-clamp-1 hover:text-rose transition-colors">{l.title}</Link>
                   <p className="text-[12.5px] mt-0.5">
                     <span className={`font-bold ${l.listing_type === 'free' ? 'text-teal' : 'text-rose'}`}>
                       {l.listing_type === 'free' ? tm('free_price')

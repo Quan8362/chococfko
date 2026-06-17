@@ -230,7 +230,7 @@ export default function CommentsSection({ postId, comments, currentUser, isAdmin
         <div className="bg-cream border border-line rounded-2xl px-5 py-4 flex items-center justify-between gap-4 flex-wrap">
           <p className="text-[14px] text-muted">{t('loginRequired')}</p>
           <Link
-            href="/dang-nhap"
+            href="/login"
             className="font-semibold text-[13.5px] px-5 py-2 rounded-full bg-rose text-white hover:bg-rose-deep transition-all whitespace-nowrap"
           >
             {t('loginButton')}

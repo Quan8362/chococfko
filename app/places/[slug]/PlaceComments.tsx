@@ -153,7 +153,7 @@ export default function PlaceComments({
       ) : (
         <div className="bg-gradient-to-br from-[#fdeef5] to-cream border border-rose/15 rounded-2xl px-6 py-5 flex items-center justify-between gap-4 flex-wrap">
           <p className="text-[14px] text-ink font-medium">{t('loginRequired')}</p>
-          <Link href="/dang-nhap" className="font-semibold text-[13.5px] px-6 py-2.5 rounded-full bg-rose text-white hover:bg-rose-deep transition-all whitespace-nowrap">{t('loginButton')}</Link>
+          <Link href="/login" className="font-semibold text-[13.5px] px-6 py-2.5 rounded-full bg-rose text-white hover:bg-rose-deep transition-all whitespace-nowrap">{t('loginButton')}</Link>
         </div>
       )}
     </section>

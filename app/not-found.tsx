@@ -32,7 +32,7 @@ export default async function NotFound() {
             {t('back')}
           </Link>
           <Link
-            href="/ban-do"
+            href="/map"
             className="inline-flex items-center justify-center gap-2 font-semibold text-[14px] px-7 py-3 rounded-full bg-paper border border-line text-ink hover:border-rose/40 hover:text-rose transition-all"
           >
             🗺️ {t('map')}

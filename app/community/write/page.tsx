@@ -62,7 +62,7 @@ export default async function VietBai({
   }))
 
   if (!user) {
-    redirect('/dang-nhap?error=' + encodeURIComponent(t('login_required')))
+    redirect('/login?error=' + encodeURIComponent(t('login_required')))
   }
 
   /* ── Success state ──────────────────────────────────────── */

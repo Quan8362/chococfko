@@ -20,7 +20,7 @@ export async function GET(request: Request) {
 
   if (callbackError) {
     const msg = mapCallbackError(callbackError, callbackErrorDesc)
-    return NextResponse.redirect(`${origin}/dang-nhap?error=${encodeURIComponent(msg)}`)
+    return NextResponse.redirect(`${origin}/login?error=${encodeURIComponent(msg)}`)
   }
 
   if (code) {
@@ -28,7 +28,7 @@ export async function GET(request: Request) {
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     if (error) {
       const msg = mapCallbackError(error.message, null)
-      return NextResponse.redirect(`${origin}/dang-nhap?error=${encodeURIComponent(msg)}`)
+      return NextResponse.redirect(`${origin}/login?error=${encodeURIComponent(msg)}`)
     }
     // Sync provider name/avatar into profiles so it shows correctly everywhere
     await syncProfileFromAuth(supabase)

@@ -116,7 +116,7 @@ export default async function CongDongChatPage({
   const t = await getTranslations('community_chat')
   const { data: { user } } = await supabase.auth.getUser()
 
-  if (!user) redirect('/dang-nhap')
+  if (!user) redirect('/login')
 
   const [isAdmin, profileResult, roomsResult, membershipsResult] = await Promise.all([
     checkIsAdmin(),

@@ -157,7 +157,7 @@ export async function joinChessRoomFromLobby(roomCode: string): Promise<ActionRe
 export async function createRoom(): Promise<never> {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/dang-nhap')
+  if (!user) redirect('/login')
 
   const admin = createAdminClient()
   const board = createInitialChineseChessBoard()
@@ -192,7 +192,7 @@ export async function joinRoom(
 ): Promise<ActionResult> {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/dang-nhap')
+  if (!user) redirect('/login')
 
   const code = ((formData.get('room_code') as string) ?? '').trim().toUpperCase()
   if (!code) return { error: 'no_code' }

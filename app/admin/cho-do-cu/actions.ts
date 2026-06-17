@@ -23,13 +23,13 @@ async function setStatus(id: string, status: 'approved' | 'rejected') {
 
   await admin.from('marketplace_listings').update({ status }).eq('id', id)
   revalidatePath('/admin/cho-do-cu')
-  revalidatePath('/cho-do-cu')
-  revalidatePath(`/cho-do-cu/${id}`)
+  revalidatePath('/marketplace')
+  revalidatePath(`/marketplace/${id}`)
 
   if (status === 'approved' && prev && prev.status !== 'approved') {
     await broadcastToAllUsers({
       type: 'new_listing',
-      targetUrl: `/cho-do-cu/${id}`,
+      targetUrl: `/marketplace/${id}`,
       actorId: prev.user_id,
       excludeUserId: prev.user_id,
       push: { title: 'Tin mới trên Chợ đồ cũ', body: prev.title, tag: `listing-${id}` },
@@ -52,5 +52,5 @@ export async function adminDeleteListing(formData: FormData): Promise<void> {
   const admin = createAdminClient()
   await admin.from('marketplace_listings').delete().eq('id', id)
   revalidatePath('/admin/cho-do-cu')
-  revalidatePath('/cho-do-cu')
+  revalidatePath('/marketplace')
 }

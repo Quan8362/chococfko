@@ -15,7 +15,7 @@ export default function AuthorLink({
   if (!userId) return <span className={className}>{name}</span>
   return (
     <Link
-      href={`/nguoi-dung/${userId}`}
+      href={`/users/${userId}`}
       className={`${className} hover:text-rose transition-colors`}
     >
       {name}

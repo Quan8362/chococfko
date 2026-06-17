@@ -71,7 +71,7 @@ function checkWinner(
 export async function createRoom(): Promise<never> {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/dang-nhap')
+  if (!user) redirect('/login')
 
   const admin = createAdminClient()
   const board = Array(225).fill(null)
@@ -102,7 +102,7 @@ export async function joinRoom(
 ): Promise<ActionResult> {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/dang-nhap')
+  if (!user) redirect('/login')
 
   const code = ((formData.get('room_code') as string) ?? '').trim().toUpperCase()
   if (!code) return { error: 'no_code' }

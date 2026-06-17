@@ -57,7 +57,7 @@ export default async function AdminAuctionDetailPage({ params }: { params: { id:
       {/* Listing summary */}
       <div className="bg-paper border border-line rounded-2xl p-5 mb-5">
         <div className="flex gap-4">
-          <Link href={`/cho-do-cu/${listing.id}`} target="_blank" className="flex-none w-20 h-20 rounded-xl overflow-hidden bg-cream">
+          <Link href={`/marketplace/${listing.id}`} target="_blank" className="flex-none w-20 h-20 rounded-xl overflow-hidden bg-cream">
             {listing.cover_image ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={imgProxy(listing.cover_image)} alt={listing.title} className="w-full h-full object-cover" />
@@ -71,7 +71,7 @@ export default async function AdminAuctionDetailPage({ params }: { params: { id:
               </span>
               <span className="text-[11.5px] text-muted">{relativeListingDate(listing.created_at, locale)}</span>
             </div>
-            <Link href={`/cho-do-cu/${listing.id}`} target="_blank" className="font-semibold text-[16px] text-ink leading-snug hover:text-rose transition-colors">{listing.title}</Link>
+            <Link href={`/marketplace/${listing.id}`} target="_blank" className="font-semibold text-[16px] text-ink leading-snug hover:text-rose transition-colors">{listing.title}</Link>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3 text-[12.5px]">
               <div><p className="text-muted">{t('start_price_label')}</p><p className="font-semibold text-ink">{formatPriceJPY(listing.start_price)}</p></div>
               <div><p className="text-muted">{tm('buy_now')}</p><p className="font-semibold text-ink">{listing.buy_now_price != null ? formatPriceJPY(listing.buy_now_price) : '—'}</p></div>
@@ -98,7 +98,7 @@ export default async function AdminAuctionDetailPage({ params }: { params: { id:
               <p className="text-[13px] text-rose font-bold">{formatPriceJPY(listing.current_bid ?? listing.buy_now_price)}</p>
             </div>
             <div className="flex gap-2 ml-auto">
-              <Link href={`/nguoi-dung/${winnerId}`} target="_blank" className="text-[12.5px] font-semibold px-3.5 py-1.5 rounded-full bg-cream border border-line text-ink hover:border-rose/30 transition-all">{t('view_profile')}</Link>
+              <Link href={`/users/${winnerId}`} target="_blank" className="text-[12.5px] font-semibold px-3.5 py-1.5 rounded-full bg-cream border border-line text-ink hover:border-rose/30 transition-all">{t('view_profile')}</Link>
               <Link href={`/community/chat?dm=${winnerId}`} className="text-[12.5px] font-semibold px-3.5 py-1.5 rounded-full bg-rose text-white hover:bg-rose-deep transition-all">{t('contact')}</Link>
             </div>
           </div>
@@ -130,7 +130,7 @@ export default async function AdminAuctionDetailPage({ params }: { params: { id:
                     <tr key={b.id} className={`border-b border-line/50 ${isWinner ? 'bg-rose/5' : ''}`}>
                       <td className="py-2 pr-3 text-muted tabular-nums">{i + 1}</td>
                       <td className="py-2 pr-3">
-                        <Link href={`/nguoi-dung/${b.bidder_id}`} target="_blank" className="inline-flex items-center gap-1.5 font-medium text-ink hover:text-rose transition-colors">
+                        <Link href={`/users/${b.bidder_id}`} target="_blank" className="inline-flex items-center gap-1.5 font-medium text-ink hover:text-rose transition-colors">
                           {isWinner && <span title={t('winner_title')}>🏆</span>}
                           <span className="truncate max-w-[180px]">{nameOf(b.bidder_id)}</span>
                         </Link>

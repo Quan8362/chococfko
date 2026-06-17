@@ -62,13 +62,13 @@ export async function signUp(formData: FormData) {
   const password = formData.get('password') as string ?? ''
 
   if (!displayName || displayName.length < 2)
-    redirect(`/dang-ky?error=${encodeURIComponent(t('err_display_name_short'))}`)
+    redirect(`/register?error=${encodeURIComponent(t('err_display_name_short'))}`)
   if (displayName.length > 50)
-    redirect(`/dang-ky?error=${encodeURIComponent(t('err_display_name_long'))}`)
+    redirect(`/register?error=${encodeURIComponent(t('err_display_name_long'))}`)
   if (!email)
-    redirect(`/dang-ky?error=${encodeURIComponent(t('err_email_empty'))}`)
+    redirect(`/register?error=${encodeURIComponent(t('err_email_empty'))}`)
   if (password.length < 6)
-    redirect(`/dang-ky?error=${encodeURIComponent(t('err_password_min'))}`)
+    redirect(`/register?error=${encodeURIComponent(t('err_password_min'))}`)
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://chococfko.com'
   const { error } = await supabase.auth.signUp({
@@ -76,11 +76,11 @@ export async function signUp(formData: FormData) {
     password,
     options: {
       data: { display_name: displayName },
-      emailRedirectTo: `${siteUrl}/auth/callback?next=${encodeURIComponent('/dang-nhap?confirmed=1')}`,
+      emailRedirectTo: `${siteUrl}/auth/callback?next=${encodeURIComponent('/login?confirmed=1')}`,
     },
   })
-  if (error) redirect(`/dang-ky?error=${encodeURIComponent(mapAuthError(error.message, 'register', t))}`)
-  redirect(`/dang-ky?success=1&email=${encodeURIComponent(email)}`)
+  if (error) redirect(`/register?error=${encodeURIComponent(mapAuthError(error.message, 'register', t))}`)
+  redirect(`/register?success=1&email=${encodeURIComponent(email)}`)
 }
 
 export async function signIn(formData: FormData) {
@@ -90,17 +90,17 @@ export async function signIn(formData: FormData) {
   const password = formData.get('password') as string ?? ''
 
   if (!email)
-    redirect(`/dang-nhap?error=${encodeURIComponent(t('err_email_empty'))}`)
+    redirect(`/login?error=${encodeURIComponent(t('err_email_empty'))}`)
   if (!password)
-    redirect(`/dang-nhap?error=${encodeURIComponent(t('err_password_empty'))}`)
+    redirect(`/login?error=${encodeURIComponent(t('err_password_empty'))}`)
 
   const { error } = await supabase.auth.signInWithPassword({ email, password })
   if (error) {
     const msg = error.message.toLowerCase()
     if (msg.includes('email not confirmed') || msg.includes('email_not_confirmed')) {
-      redirect(`/dang-nhap?unconfirmed=1&email=${encodeURIComponent(email)}`)
+      redirect(`/login?unconfirmed=1&email=${encodeURIComponent(email)}`)
     }
-    redirect(`/dang-nhap?error=${encodeURIComponent(mapAuthError(error.message, 'login', t))}`)
+    redirect(`/login?error=${encodeURIComponent(mapAuthError(error.message, 'login', t))}`)
   }
   revalidatePath('/', 'layout')
   redirect('/')
@@ -109,17 +109,17 @@ export async function signIn(formData: FormData) {
 export async function resendConfirmation(formData: FormData): Promise<void> {
   const supabase = createClient()
   const email = (formData.get('email') as string ?? '').trim()
-  if (!email) redirect('/dang-ky')
+  if (!email) redirect('/register')
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://chococfko.com'
   await supabase.auth.resend({
     type: 'signup',
     email,
     options: {
-      emailRedirectTo: `${siteUrl}/auth/callback?next=${encodeURIComponent('/dang-nhap?confirmed=1')}`,
+      emailRedirectTo: `${siteUrl}/auth/callback?next=${encodeURIComponent('/login?confirmed=1')}`,
     },
   })
   // Always show success (security: don't reveal if email exists)
-  redirect(`/dang-nhap?resent=1&email=${encodeURIComponent(email)}`)
+  redirect(`/login?resent=1&email=${encodeURIComponent(email)}`)
 }
 
 export async function signOut() {
@@ -134,16 +134,16 @@ export async function signOut() {
 export async function requestPasswordReset(formData: FormData): Promise<void> {
   const supabase = createClient()
   const email = (formData.get('email') as string ?? '').trim()
-  if (!email) redirect('/quen-mat-khau')
+  if (!email) redirect('/forgot-password')
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://chococfko.com'
-  // The recovery email lands the user on /dat-lai-mat-khau with a session
+  // The recovery email lands the user on /reset-password with a session
   // (via /auth/callback code-exchange, or /auth/confirm if the template uses
   // token_hash&type=recovery — see /auth/confirm).
   await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${siteUrl}/auth/callback?next=${encodeURIComponent('/dat-lai-mat-khau')}`,
+    redirectTo: `${siteUrl}/auth/callback?next=${encodeURIComponent('/reset-password')}`,
   })
   // Always report success — never reveal whether the email exists.
-  redirect('/quen-mat-khau?sent=1')
+  redirect('/forgot-password?sent=1')
 }
 
 // Step 2: user (now in a recovery session) sets a new password.
@@ -154,22 +154,22 @@ export async function updatePassword(formData: FormData): Promise<void> {
   const confirm = (formData.get('confirm_password') as string) ?? ''
 
   if (password.length < 6)
-    redirect(`/dat-lai-mat-khau?error=${encodeURIComponent(t('reset_password_short'))}`)
+    redirect(`/reset-password?error=${encodeURIComponent(t('reset_password_short'))}`)
   if (password !== confirm)
-    redirect(`/dat-lai-mat-khau?error=${encodeURIComponent(t('reset_password_mismatch'))}`)
+    redirect(`/reset-password?error=${encodeURIComponent(t('reset_password_mismatch'))}`)
 
   const { data: { user } } = await supabase.auth.getUser()
   if (!user)
-    redirect(`/dang-nhap?error=${encodeURIComponent(t('reset_no_session'))}`)
+    redirect(`/login?error=${encodeURIComponent(t('reset_no_session'))}`)
 
   const { error } = await supabase.auth.updateUser({ password })
   if (error)
-    redirect(`/dat-lai-mat-khau?error=${encodeURIComponent(t('reset_update_failed'))}`)
+    redirect(`/reset-password?error=${encodeURIComponent(t('reset_update_failed'))}`)
 
   // Sign out so the user logs in fresh with the new password.
   await supabase.auth.signOut()
   revalidatePath('/', 'layout')
-  redirect('/dang-nhap?reset=1')
+  redirect('/login?reset=1')
 }
 
 // ── Slug helper ────────────────────────────────────────────
@@ -190,7 +190,7 @@ export async function submitPlace(formData: FormData) {
   const supabase = createClient()
   const t = await getTranslations('auth')
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/dang-nhap?error=' + encodeURIComponent(t('err_login_required_place')))
+  if (!user) redirect('/login?error=' + encodeURIComponent(t('err_login_required_place')))
 
   const name = (formData.get('name') as string).trim()
   const category = (formData.get('category') as string) || 'food'
@@ -235,7 +235,7 @@ export async function submitPost(formData: FormData) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (!user) redirect('/dang-nhap?error=' + encodeURIComponent(t('err_login_required_post')))
+  if (!user) redirect('/login?error=' + encodeURIComponent(t('err_login_required_post')))
 
   const category = (formData.get('category') as string) || 'food'
   const post_type = (formData.get('post_type') as string) || 'community'

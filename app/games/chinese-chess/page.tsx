@@ -120,7 +120,7 @@ export default async function ChineseChessPage() {
               <p className="font-serif font-bold text-[20px] text-ink mb-1">{t('login_heading')}</p>
               <p className="text-[13.5px] text-muted leading-relaxed mb-4">{t('login_desc')}</p>
               <Link
-                href="/dang-nhap"
+                href="/login"
                 className="inline-flex font-semibold text-[14px] px-7 py-3 rounded-2xl bg-rose text-white hover:bg-rose-deep transition-all shadow-[0_4px_18px_-4px_rgba(194,24,91,0.45)]"
               >
                 {t('login_btn')}

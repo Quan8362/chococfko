@@ -3,7 +3,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 // Called right after a session is established (OAuth / LINE / email confirm).
 // Copies the display name + avatar from the auth provider metadata into the
 // `profiles` row, but only fills columns that are still empty — so a name the
-// user set manually in /ho-so is never overwritten. Best-effort: never throws,
+// user set manually in /profile is never overwritten. Best-effort: never throws,
 // never blocks login.
 export async function syncProfileFromAuth(supabase: SupabaseClient): Promise<void> {
   try {

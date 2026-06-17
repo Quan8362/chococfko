@@ -243,11 +243,13 @@ export async function getPostsFromDb(): Promise<Post[] | null> {
     const locale = getAppLocale();
     const { createClient } = await import('@/lib/supabase/server');
     const supabase = createClient();
+    // Community feed = community articles only. Legacy/place posts
+    // (post_type null or 'place') must NOT appear here.
     const { data, error } = await supabase
       .from('posts_with_author')
       .select('*')
       .eq('status', 'approved')
-      .or('post_type.eq.community,post_type.is.null')
+      .eq('post_type', 'community')
       .order('created_at', { ascending: false })
       .limit(30);
     if (error || !data?.length) return null;

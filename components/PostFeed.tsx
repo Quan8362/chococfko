@@ -30,12 +30,14 @@ export default function PostFeed({ posts }: Props) {
   const t = useTranslations("community");
   const [active, setActive] = useState("all");
 
-  // Only show a chip for categories that actually have posts
+  // Always show the full community topic taxonomy
   const FILTERS = [
     { f: "all", emoji: null, label: t("cat_all") },
-    ...COMMUNITY_CATS.filter(({ f }) => posts.some((p) => p.category === f)).map(
-      ({ f, emoji, key }) => ({ f, emoji, label: t(key as Parameters<typeof t>[0]) }),
-    ),
+    ...COMMUNITY_CATS.map(({ f, emoji, key }) => ({
+      f,
+      emoji,
+      label: t(key as Parameters<typeof t>[0]),
+    })),
   ];
 
   const shown = posts.filter((p) => active === "all" || p.category === active);

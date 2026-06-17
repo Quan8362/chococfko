@@ -7,6 +7,7 @@ import JlptBadge from '@/components/japanese/JlptBadge'
 import type { JapaneseGrammar } from '@/components/japanese/GrammarCard'
 import GrammarClient from './GrammarClient'
 import { getBookmarkIds } from '../../bookmark-actions'
+import { getJapaneseCommentCounts } from '../../comment-actions'
 
 export const dynamic = 'force-dynamic'
 
@@ -42,10 +43,11 @@ export default async function GrammarLevelPage({ params }: Props) {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  const [t, grammar, initialBookmarkedGrammarIds] = await Promise.all([
+  const [t, grammar, initialBookmarkedGrammarIds, commentCounts] = await Promise.all([
     getTranslations('japanese'),
     getGrammarForLevel(level),
     user ? getBookmarkIds('grammar') : Promise.resolve([] as string[]),
+    getJapaneseCommentCounts('grammar'),
   ])
 
   const levelDescs: Record<string, string> = {
@@ -108,6 +110,7 @@ export default async function GrammarLevelPage({ params }: Props) {
         grammar={grammar}
         isLoggedIn={!!user}
         initialBookmarkedGrammarIds={initialBookmarkedGrammarIds}
+        commentCounts={commentCounts}
       />
     </div>
   )

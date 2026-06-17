@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import JlptBadge from './JlptBadge'
 
 export interface GrammarExample {
@@ -27,9 +28,12 @@ interface GrammarCardProps {
     notes: string
   }
   actionSlot?: React.ReactNode
+  detailHref?: string
+  detailLabel?: string
+  commentCount?: number
 }
 
-export default function GrammarCard({ grammar, locale, labels, actionSlot }: GrammarCardProps) {
+export default function GrammarCard({ grammar, locale, labels, actionSlot, detailHref, detailLabel, commentCount }: GrammarCardProps) {
   const meaning = locale === 'en' ? grammar.meaning_en : grammar.meaning_vi
   const example = grammar.examples?.[0]
 
@@ -93,6 +97,22 @@ export default function GrammarCard({ grammar, locale, labels, actionSlot }: Gra
             {locale === 'en' ? example.en : example.vi}
           </p>
         </div>
+      )}
+
+      {/* Detail + comments link */}
+      {detailHref && (
+        <Link
+          href={detailHref}
+          className="mt-1 inline-flex items-center gap-1.5 self-start text-[12px] font-semibold text-rose hover:text-rose-deep transition-colors"
+        >
+          💬 {detailLabel}
+          {commentCount ? (
+            <span className="text-[11px] font-bold bg-rose/10 text-rose px-1.5 py-0.5 rounded-full leading-none">{commentCount}</span>
+          ) : null}
+          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+          </svg>
+        </Link>
       )}
     </div>
   )

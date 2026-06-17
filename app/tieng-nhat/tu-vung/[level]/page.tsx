@@ -6,6 +6,7 @@ import { dbLevel, urlLevel } from '@/components/japanese/LevelPicker'
 import JlptBadge from '@/components/japanese/JlptBadge'
 import VocabularyClient from './VocabularyClient'
 import { fetchAllUserProgress } from '@/app/tieng-nhat/actions'
+import { getJapaneseCommentCounts } from '@/app/tieng-nhat/comment-actions'
 import { getAllWordsForLevel } from '@/lib/japanese/words'
 
 export const dynamic = 'force-dynamic'
@@ -31,7 +32,10 @@ export default async function VocabularyLevelPage({ params }: Props) {
   ])
 
   const { data: { user } } = await supabase.auth.getUser()
-  const words = await getAllWordsForLevel(level)
+  const [words, commentCounts] = await Promise.all([
+    getAllWordsForLevel(level),
+    getJapaneseCommentCounts('word'),
+  ])
   const initialProgress = user ? await fetchAllUserProgress() : {}
 
   const levelDescs: Record<string, string> = {
@@ -93,6 +97,7 @@ export default async function VocabularyLevelPage({ params }: Props) {
         initialProgress={initialProgress}
         isLoggedIn={!!user}
         level={urlLevel(level)}
+        commentCounts={commentCounts}
       />
     </div>
   )

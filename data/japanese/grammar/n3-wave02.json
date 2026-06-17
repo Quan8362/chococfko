@@ -1,0 +1,391 @@
+{
+  "level": "N3",
+  "wave": 2,
+  "entries": [
+    {
+      "pattern": "〜に違いない",
+      "meaning_vi": "Chắc chắn là …, nhất định là …",
+      "meaning_en": "Must be / surely …",
+      "structure": "Thể thường（danh từ・tính từ-na bỏ だ）＋ に違いない",
+      "notes": "Suy đoán chắc chắn dựa trên căn cứ. Mạnh hơn はず.",
+      "examples": [
+        {"ja": "この字は田中さんが書いたに違いない。", "reading": "このじはたなかさんがかいたにちがいない。", "vi": "Chữ này chắc chắn do anh Tanaka viết.", "en": "This handwriting must be Mr. Tanaka's."},
+        {"ja": "あの様子では、合格したに違いない。", "reading": "あのようすでは、ごうかくしたにちがいない。", "vi": "Nhìn bộ dạng đó thì chắc chắn đã đỗ rồi.", "en": "From the look of it, he must have passed."}
+      ]
+    },
+    {
+      "pattern": "〜に決まっている",
+      "meaning_vi": "Chắc chắn là …, đương nhiên là … (đầy tự tin)",
+      "meaning_en": "Surely / of course it's …",
+      "structure": "Thể thường（danh từ・tính từ-na bỏ だ）＋ に決まっている",
+      "notes": "Khẳng định chủ quan mạnh mẽ, đầy tự tin. Thân mật hơn に違いない.",
+      "examples": [
+        {"ja": "こんな簡単な問題、できるに決まっている。", "reading": "こんなかんたんなもんだい、できるにきまっている。", "vi": "Bài dễ thế này thì làm được là cái chắc.", "en": "Of course I can do such an easy problem."},
+        {"ja": "そんな話、嘘に決まっているよ。", "reading": "そんなはなし、うそにきまっているよ。", "vi": "Câu chuyện đó đúng là bịa rồi còn gì.", "en": "A story like that is obviously a lie."}
+      ]
+    },
+    {
+      "pattern": "〜わけだ",
+      "meaning_vi": "Hèn chi …, hóa ra là …, tức là …",
+      "meaning_en": "That's why … / no wonder / it means",
+      "structure": "Thể thường（danh từ の／tính từ-na な）＋ わけだ",
+      "notes": "Rút ra kết luận hợp lý từ thông tin. 道理で = hèn chi. つまり〜わけだ = tức là.",
+      "examples": [
+        {"ja": "道理で寒いわけだ、雪が降っている。", "reading": "どうりでさむいわけだ、ゆきがふっている。", "vi": "Hèn chi lạnh, hóa ra đang có tuyết.", "en": "No wonder it's cold — it's snowing."},
+        {"ja": "3年も住んでいたのか。日本語が上手なわけだ。", "reading": "さんねんもすんでいたのか。にほんごがじょうずなわけだ。", "vi": "Sống tận 3 năm cơ à. Thảo nào giỏi tiếng Nhật.", "en": "You lived there 3 years? No wonder your Japanese is good."}
+      ]
+    },
+    {
+      "pattern": "〜わけがない",
+      "meaning_vi": "Không thể nào …, làm gì có chuyện …",
+      "meaning_en": "There's no way that …",
+      "structure": "Thể thường（danh từ の／tính từ-na な）＋ わけがない",
+      "notes": "Phủ định mạnh dựa trên lý lẽ. Gần はずがない. Văn nói: 〜わけない.",
+      "examples": [
+        {"ja": "彼がそんなことをするわけがない。", "reading": "かれがそんなことをするわけがない。", "vi": "Anh ấy không thể nào làm chuyện đó.", "en": "There's no way he would do such a thing."},
+        {"ja": "練習しないで上手になるわけがない。", "reading": "れんしゅうしないでじょうずになるわけがない。", "vi": "Không luyện tập thì làm gì có chuyện giỏi lên.", "en": "There's no way you'll improve without practicing."}
+      ]
+    },
+    {
+      "pattern": "〜というわけだ",
+      "meaning_vi": "Tức là …, nghĩa là … (kết luận／diễn giải)",
+      "meaning_en": "This means that … / so that's why",
+      "structure": "Thể thường ＋ というわけだ",
+      "notes": "Tóm lại／diễn giải điều vừa nói thành kết luận. つまり〜というわけだ.",
+      "examples": [
+        {"ja": "つまり、もう間に合わないというわけだ。", "reading": "つまり、もうまにあわないというわけだ。", "vi": "Tức là không còn kịp nữa chứ gì.", "en": "In short, it means we won't make it."},
+        {"ja": "彼が来ない。今日は中止というわけだ。", "reading": "かれがこない。きょうはちゅうしというわけだ。", "vi": "Anh ấy không đến. Nghĩa là hôm nay hủy.", "en": "He's not coming, which means it's cancelled today."}
+      ]
+    },
+    {
+      "pattern": "〜ものだ（lẽ thường／nên）",
+      "meaning_vi": "Vốn dĩ …, thường thì …, nên … (chân lý, lẽ phải)",
+      "meaning_en": "It is (the way things are) / one should",
+      "structure": "Động từ／tính từ thể từ điển ＋ ものだ",
+      "notes": "Nêu chân lý chung, lẽ thường hoặc lời khuyên đạo lý. 年を取ると忘れっぽくなるものだ.",
+      "examples": [
+        {"ja": "年を取ると、忘れっぽくなるものだ。", "reading": "としをとると、わすれっぽくなるものだ。", "vi": "Có tuổi thì người ta thường hay quên.", "en": "People tend to get forgetful as they age."},
+        {"ja": "約束は守るものだ。", "reading": "やくそくはまもるものだ。", "vi": "Đã hứa thì nên giữ lời.", "en": "One should keep one's promises."}
+      ]
+    },
+    {
+      "pattern": "〜たものだ（hồi tưởng）",
+      "meaning_vi": "Ngày xưa hay …, từng … (hồi tưởng)",
+      "meaning_en": "Used to … (nostalgic recollection)",
+      "structure": "Động từ thể た ＋ ものだ",
+      "notes": "Nhớ lại thói quen／việc thường làm trong quá khứ với sắc thái hoài niệm.",
+      "examples": [
+        {"ja": "子供のころ、よくこの川で泳いだものだ。", "reading": "こどものころ、よくこのかわでおよいだものだ。", "vi": "Hồi nhỏ tôi hay bơi ở con sông này.", "en": "As a child, I used to swim in this river."},
+        {"ja": "学生時代はよく徹夜したものだ。", "reading": "がくせいじだいはよくてつやしたものだ。", "vi": "Thời sinh viên tôi hay thức trắng đêm.", "en": "In my student days, I often pulled all-nighters."}
+      ]
+    },
+    {
+      "pattern": "〜もの／もん（biện minh）",
+      "meaning_vi": "Tại vì … mà (biện bạch, nũng nịu)",
+      "meaning_en": "Because … (excuse, childish/casual)",
+      "structure": "Thể thường ＋ もの／もん",
+      "notes": "Nêu lý do để biện minh, sắc thái trẻ con／thân mật, hơi cãi lại. だって〜もん.",
+      "examples": [
+        {"ja": "だって、知らなかったんだもの。", "reading": "だって、しらなかったんだもの。", "vi": "Tại vì em đâu có biết mà.", "en": "But I didn't know, you see."},
+        {"ja": "行きたくない。疲れているんだもん。", "reading": "いきたくない。つかれているんだもん。", "vi": "Không muốn đi đâu. Tại mệt mà.", "en": "I don't want to go — I'm tired, okay?"}
+      ]
+    },
+    {
+      "pattern": "〜べきだ",
+      "meaning_vi": "Nên …, phải … (về lẽ phải, bổn phận)",
+      "meaning_en": "Should / ought to …",
+      "structure": "Động từ thể từ điển ＋ べきだ（する→するべき／すべき）",
+      "notes": "Lời khuyên／bổn phận dựa trên lẽ phải, mạnh hơn 〜方がいい. Không dùng cho luật bắt buộc.",
+      "examples": [
+        {"ja": "約束は守るべきだ。", "reading": "やくそくはまもるべきだ。", "vi": "Đã hứa thì nên giữ.", "en": "You should keep your promises."},
+        {"ja": "もっと早く相談すべきだった。", "reading": "もっとはやくそうだんすべきだった。", "vi": "Lẽ ra nên hỏi ý kiến sớm hơn.", "en": "I should have consulted sooner."}
+      ]
+    },
+    {
+      "pattern": "〜べきではない",
+      "meaning_vi": "Không nên …",
+      "meaning_en": "Should not …",
+      "structure": "Động từ thể từ điển ＋ べきではない",
+      "notes": "Khuyên không nên làm dựa trên lẽ phải. 人の悪口を言うべきではない.",
+      "examples": [
+        {"ja": "人の悪口を言うべきではない。", "reading": "ひとのわるぐちをいうべきではない。", "vi": "Không nên nói xấu người khác.", "en": "You shouldn't speak ill of others."},
+        {"ja": "感情だけで決めるべきではない。", "reading": "かんじょうだけできめるべきではない。", "vi": "Không nên quyết định chỉ bằng cảm xúc.", "en": "You shouldn't decide based on emotion alone."}
+      ]
+    },
+    {
+      "pattern": "〜ことだ（khuyên bảo）",
+      "meaning_vi": "Tốt nhất là nên …, điều quan trọng là …",
+      "meaning_en": "The best thing is to … / you should",
+      "structure": "Động từ thể từ điển／ない ＋ ことだ",
+      "notes": "Lời khuyên trực tiếp về điều nên làm trong tình huống cụ thể.",
+      "examples": [
+        {"ja": "上手になりたければ、毎日練習することだ。", "reading": "じょうずになりたければ、まいにちれんしゅうすることだ。", "vi": "Muốn giỏi thì tốt nhất nên luyện tập mỗi ngày.", "en": "If you want to get good, you should practice daily."},
+        {"ja": "風邪のときは、よく休むことだ。", "reading": "かぜのときは、よくやすむことだ。", "vi": "Khi bị cảm thì tốt nhất nên nghỉ ngơi cho khỏe.", "en": "When you have a cold, the best thing is to rest well."}
+      ]
+    },
+    {
+      "pattern": "〜ことか（cảm thán）",
+      "meaning_vi": "Biết bao nhiêu là …!, … biết chừng nào!",
+      "meaning_en": "How … ! (exclamation)",
+      "structure": "疑問詞（どんなに／どれほど）＋ … ＋ ことか",
+      "notes": "Cảm thán nhấn mức độ lớn. Hay đi với どんなに, どれほど, 何度.",
+      "examples": [
+        {"ja": "どんなに君に会いたかったことか。", "reading": "どんなにきみにあいたかったことか。", "vi": "Tôi đã muốn gặp cậu biết bao nhiêu!", "en": "How much I wanted to see you!"},
+        {"ja": "この日をどれほど待ったことか。", "reading": "このひをどれほどまったことか。", "vi": "Tôi đã chờ ngày này biết bao lâu!", "en": "How long I've waited for this day!"}
+      ]
+    },
+    {
+      "pattern": "〜ないことはない",
+      "meaning_vi": "Không phải là không …, cũng có thể …",
+      "meaning_en": "It's not that … can't / it's possible",
+      "structure": "Động từ thể ない ＋ ことはない（tính từ: 〜くないことはない）",
+      "notes": "Khẳng định dè dặt, gián tiếp (phủ định của phủ định). 食べられないことはない = cũng ăn được.",
+      "examples": [
+        {"ja": "辛いものも食べられないことはない。", "reading": "からいものもたべられないことはない。", "vi": "Đồ cay thì tôi cũng không phải không ăn được.", "en": "It's not that I can't eat spicy food."},
+        {"ja": "急げば間に合わないことはない。", "reading": "いそげばまにあわないことはない。", "vi": "Vội lên thì cũng không phải là không kịp.", "en": "If we hurry, it's not impossible to make it."}
+      ]
+    },
+    {
+      "pattern": "〜ずにはいられない",
+      "meaning_vi": "Không thể không …, không nhịn được mà …",
+      "meaning_en": "Can't help but …",
+      "structure": "Động từ thể ない bỏ ない ＋ ずにはいられない（する→せずに）",
+      "notes": "Cảm xúc／xung động không kiềm chế được. Văn nói: 〜ないではいられない.",
+      "examples": [
+        {"ja": "あの映画は泣かずにはいられない。", "reading": "あのえいがはなかずにはいられない。", "vi": "Bộ phim đó không thể không khóc.", "en": "That movie makes you can't help but cry."},
+        {"ja": "おかしくて、笑わずにはいられなかった。", "reading": "おかしくて、わらわずにはいられなかった。", "vi": "Buồn cười đến mức không nhịn được cười.", "en": "It was so funny I couldn't help laughing."}
+      ]
+    },
+    {
+      "pattern": "〜恐れがある",
+      "meaning_vi": "Có nguy cơ …, e rằng có thể …",
+      "meaning_en": "There is a risk/fear that …",
+      "structure": "Động từ thể từ điển／danh từ の ＋ 恐れがある",
+      "notes": "Cảnh báo khả năng xấu xảy ra, trang trọng (tin tức, thông báo).",
+      "examples": [
+        {"ja": "台風が上陸する恐れがあります。", "reading": "たいふうがじょうりくするおそれがあります。", "vi": "Có nguy cơ bão sẽ đổ bộ.", "en": "There is a risk the typhoon will make landfall."},
+        {"ja": "この薬は副作用の恐れがある。", "reading": "このくすりはふくさようのおそれがある。", "vi": "Thuốc này có nguy cơ gây tác dụng phụ.", "en": "This medicine carries a risk of side effects."}
+      ]
+    },
+    {
+      "pattern": "〜たとたん（に）",
+      "meaning_vi": "Ngay khi … thì (lập tức) …",
+      "meaning_en": "The moment / as soon as …",
+      "structure": "Động từ thể た ＋ とたん（に）",
+      "notes": "Ngay khoảnh khắc A xong thì B xảy ra bất ngờ. Vế sau thường ngoài ý muốn, ở quá khứ.",
+      "examples": [
+        {"ja": "立ち上がったとたん、めまいがした。", "reading": "たちあがったとたん、めまいがした。", "vi": "Vừa đứng dậy là tôi chóng mặt.", "en": "The moment I stood up, I felt dizzy."},
+        {"ja": "ドアを開けたとたん、猫が飛び出した。", "reading": "ドアをあけたとたん、ねこがとびだした。", "vi": "Vừa mở cửa là con mèo nhảy vọt ra.", "en": "The instant I opened the door, the cat dashed out."}
+      ]
+    },
+    {
+      "pattern": "〜たところ（kết quả）",
+      "meaning_vi": "Khi (thử) … thì (kết quả là) …",
+      "meaning_en": "Upon doing …, (it turned out that)",
+      "structure": "Động từ thể た ＋ ところ",
+      "notes": "Làm A xong thì thu được kết quả B (trang trọng, văn viết). 問い合わせたところ、品切れだった.",
+      "examples": [
+        {"ja": "問い合わせたところ、もう売り切れだった。", "reading": "といあわせたところ、もううりきれだった。", "vi": "Khi hỏi thử thì hóa ra đã hết hàng.", "en": "When I inquired, it was already sold out."},
+        {"ja": "使ってみたところ、とても便利だった。", "reading": "つかってみたところ、とてもべんりだった。", "vi": "Khi dùng thử thì thấy rất tiện.", "en": "Upon trying it, I found it very convenient."}
+      ]
+    },
+    {
+      "pattern": "〜きる（hoàn thành trọn vẹn）",
+      "meaning_vi": "Làm … hết, … hoàn toàn, … đến cùng",
+      "meaning_en": "Do … completely / finish entirely",
+      "structure": "Động từ thân ます ＋ きる",
+      "notes": "Hoàn thành trọn vẹn hoặc đạt tới cực điểm. 食べきる, 走りきる, 疲れきる.",
+      "examples": [
+        {"ja": "大盛りのご飯を全部食べきった。", "reading": "おおもりのごはんをぜんぶたべきった。", "vi": "Tôi đã ăn hết sạch phần cơm to.", "en": "I finished the whole large serving of rice."},
+        {"ja": "マラソンを最後まで走りきった。", "reading": "マラソンをさいごまではしりきった。", "vi": "Tôi đã chạy hết cự ly marathon.", "en": "I ran the entire marathon to the end."}
+      ]
+    },
+    {
+      "pattern": "〜きれない（không … hết）",
+      "meaning_vi": "Không thể … hết, … không xuể",
+      "meaning_en": "Cannot … completely / too much to …",
+      "structure": "Động từ thân ます ＋ きれない（khẳng định: 〜きれる）",
+      "notes": "Vượt quá khả năng làm trọn. 数えきれない (không đếm xuể), 食べきれない (ăn không hết).",
+      "examples": [
+        {"ja": "料理が多すぎて、食べきれない。", "reading": "りょうりがおおすぎて、たべきれない。", "vi": "Đồ ăn nhiều quá, ăn không hết.", "en": "There's too much food to finish."},
+        {"ja": "空には数えきれないほどの星がある。", "reading": "そらにはかぞえきれないほどのほしがある。", "vi": "Trên trời có vô số ngôi sao đếm không xuể.", "en": "There are countless stars in the sky."}
+      ]
+    },
+    {
+      "pattern": "〜かける／かけ（đang dở）",
+      "meaning_vi": "Đang … dở, mới … nửa chừng",
+      "meaning_en": "Half-done / in the middle of …",
+      "structure": "Động từ thân ます ＋ かける（danh từ: 〜かけ）",
+      "notes": "Hành động bắt đầu nhưng chưa xong. 食べかけのパン, 言いかけてやめた.",
+      "examples": [
+        {"ja": "食べかけのリンゴが置いてある。", "reading": "たべかけのリンゴがおいてある。", "vi": "Có quả táo ăn dở để đó.", "en": "There's a half-eaten apple lying there."},
+        {"ja": "何か言いかけて、やめた。", "reading": "なにかいいかけて、やめた。", "vi": "Anh ấy định nói gì đó rồi thôi.", "en": "He started to say something, then stopped."}
+      ]
+    },
+    {
+      "pattern": "〜こむ（vào trong／triệt để）",
+      "meaning_vi": "… vào trong; … kỹ／sâu; … miệt mài",
+      "meaning_en": "… into / deeply / thoroughly",
+      "structure": "Động từ thân ます ＋ 込む",
+      "notes": "Hướng vào trong (飛び込む) hoặc trạng thái sâu／đầy (考え込む, 黙り込む).",
+      "examples": [
+        {"ja": "子供がプールに飛び込んだ。", "reading": "こどもがプールにとびこんだ。", "vi": "Đứa trẻ nhảy ùm xuống bể bơi.", "en": "The child jumped into the pool."},
+        {"ja": "彼は一人で考え込んでいる。", "reading": "かれはひとりでかんがえこんでいる。", "vi": "Anh ấy đang một mình trầm tư suy nghĩ.", "en": "He is lost deep in thought alone."}
+      ]
+    },
+    {
+      "pattern": "〜がち",
+      "meaning_vi": "Hay …, có xu hướng … (thường tiêu cực)",
+      "meaning_en": "Tend to … / prone to …",
+      "structure": "Động từ thân ます／danh từ ＋ がち",
+      "notes": "Khuynh hướng dễ xảy ra, thường điều không tốt. 病気がち, 遅れがち, 忘れがち.",
+      "examples": [
+        {"ja": "彼は最近、学校を休みがちだ。", "reading": "かれはさいきん、がっこうをやすみがちだ。", "vi": "Dạo này cậu ấy hay nghỉ học.", "en": "He's been tending to skip school lately."},
+        {"ja": "曇りがちの天気が続いている。", "reading": "くもりがちのてんきがつづいている。", "vi": "Thời tiết cứ âm u suốt.", "en": "The weather has been tending toward cloudy."}
+      ]
+    },
+    {
+      "pattern": "〜気味",
+      "meaning_vi": "Hơi có vẻ …, hơi …",
+      "meaning_en": "A touch of … / slightly …",
+      "structure": "Động từ thân ます／danh từ ＋ 気味",
+      "notes": "Có chút khuynh hướng／dấu hiệu (thường không tốt). 風邪気味, 疲れ気味, 太り気味.",
+      "examples": [
+        {"ja": "ちょっと風邪気味です。", "reading": "ちょっとかぜぎみです。", "vi": "Tôi hơi chớm cảm.", "en": "I have a touch of a cold."},
+        {"ja": "最近、少し太り気味だ。", "reading": "さいきん、すこしふとりぎみだ。", "vi": "Dạo này tôi hơi mập lên.", "en": "Lately I've been gaining a bit of weight."}
+      ]
+    },
+    {
+      "pattern": "〜ような気がする",
+      "meaning_vi": "Có cảm giác như …, hình như …",
+      "meaning_en": "I have a feeling that …",
+      "structure": "Thể thường（danh từ の／tính từ-na な）＋ ような気がする",
+      "notes": "Cảm nhận mơ hồ, không chắc chắn. 会ったことがあるような気がする.",
+      "examples": [
+        {"ja": "どこかで会ったような気がする。", "reading": "どこかであったようなきがする。", "vi": "Tôi có cảm giác đã gặp ở đâu đó.", "en": "I have a feeling I've met you somewhere."},
+        {"ja": "何か忘れているような気がする。", "reading": "なにかわすれているようなきがする。", "vi": "Hình như tôi đang quên gì đó.", "en": "I feel like I'm forgetting something."}
+      ]
+    },
+    {
+      "pattern": "〜一方だ",
+      "meaning_vi": "Cứ ngày càng …, chỉ … thêm (một chiều)",
+      "meaning_en": "Keep …-ing more and more (one direction)",
+      "structure": "Động từ thể từ điển ＋ 一方だ",
+      "notes": "Một xu hướng tiếp diễn theo một chiều, thường tiêu cực. 増える一方だ, 悪くなる一方だ.",
+      "examples": [
+        {"ja": "物価は上がる一方だ。", "reading": "ぶっかはあがるいっぽうだ。", "vi": "Vật giá cứ tăng mãi.", "en": "Prices just keep rising."},
+        {"ja": "状況は悪くなる一方だ。", "reading": "じょうきょうはわるくなるいっぽうだ。", "vi": "Tình hình ngày càng xấu đi.", "en": "The situation keeps getting worse."}
+      ]
+    },
+    {
+      "pattern": "〜ところに／ところへ",
+      "meaning_vi": "Đúng lúc đang … thì (có việc xen vào)",
+      "meaning_en": "Just when … (something intervened)",
+      "structure": "Động từ thể từ điển／ている／た ＋ ところに／ところへ",
+      "notes": "Đúng thời điểm đó thì một sự việc khác xảy đến.",
+      "examples": [
+        {"ja": "出かけようとしたところに、電話がかかってきた。", "reading": "でかけようとしたところに、でんわがかかってきた。", "vi": "Đúng lúc định ra ngoài thì có điện thoại.", "en": "Just as I was about to leave, the phone rang."},
+        {"ja": "困っているところへ、友達が来てくれた。", "reading": "こまっているところへ、ともだちがきてくれた。", "vi": "Đang lúc bối rối thì bạn đến giúp.", "en": "Just when I was in trouble, a friend came."}
+      ]
+    },
+    {
+      "pattern": "〜ところを",
+      "meaning_vi": "Đúng lúc đang … thì bị …",
+      "meaning_en": "(Caught) in the act of … / at the moment of",
+      "structure": "Động từ thể từ điển／ている／た ＋ ところを",
+      "notes": "Bị ai đó bắt gặp／tác động đúng lúc đang làm. サボっているところを見つかった.",
+      "examples": [
+        {"ja": "サボっているところを先生に見つかった。", "reading": "サボっているところをせんせいにみつかった。", "vi": "Đang lúc trốn việc thì bị thầy bắt gặp.", "en": "I was caught slacking off by the teacher."},
+        {"ja": "寝ているところを起こされた。", "reading": "ねているところをおこされた。", "vi": "Đang ngủ thì bị đánh thức.", "en": "I was woken up while sleeping."}
+      ]
+    },
+    {
+      "pattern": "〜際（に）",
+      "meaning_vi": "Khi, vào dịp … (trang trọng)",
+      "meaning_en": "When / on the occasion of … (formal)",
+      "structure": "Động từ thể từ điển／た・danh từ の ＋ 際（に）",
+      "notes": "Như とき nhưng trang trọng, văn viết／thông báo.",
+      "examples": [
+        {"ja": "お降りの際は、足元にご注意ください。", "reading": "おおりのさいは、あしもとにごちゅういください。", "vi": "Khi xuống xe, xin chú ý dưới chân.", "en": "When getting off, please watch your step."},
+        {"ja": "入国の際にパスポートが必要です。", "reading": "にゅうこくのさいにパスポートがひつようです。", "vi": "Khi nhập cảnh cần có hộ chiếu.", "en": "A passport is required when entering the country."}
+      ]
+    },
+    {
+      "pattern": "〜最中に",
+      "meaning_vi": "Đang giữa lúc …, đúng đỉnh điểm …",
+      "meaning_en": "Right in the middle of …",
+      "structure": "Động từ ている／danh từ の ＋ 最中に",
+      "notes": "Ngay giữa lúc đang diễn ra việc gì thì bị xen ngang. 食事の最中に, 会議の最中に.",
+      "examples": [
+        {"ja": "食事の最中に、電話が鳴った。", "reading": "しょくじのさいちゅうに、でんわがなった。", "vi": "Đang giữa bữa ăn thì điện thoại reo.", "en": "The phone rang right in the middle of the meal."},
+        {"ja": "試験の最中に、急にお腹が痛くなった。", "reading": "しけんのさいちゅうに、きゅうにおなかがいたくなった。", "vi": "Đang giữa lúc thi thì tôi bỗng đau bụng.", "en": "Right in the middle of the exam, my stomach suddenly hurt."}
+      ]
+    },
+    {
+      "pattern": "〜だらけ",
+      "meaning_vi": "Đầy …, toàn là … (lộn xộn, tiêu cực)",
+      "meaning_en": "Covered in / full of … (negative)",
+      "structure": "Danh từ ＋ だらけ",
+      "notes": "Đầy rẫy thứ không mong muốn. 間違いだらけ, 泥だらけ, 血だらけ.",
+      "examples": [
+        {"ja": "子供は泥だらけになって遊んでいる。", "reading": "こどもはどろだらけになってあそんでいる。", "vi": "Bọn trẻ chơi đến lấm lem bùn đất.", "en": "The children are playing, covered in mud."},
+        {"ja": "この作文は間違いだらけだ。", "reading": "このさくぶんはまちがいだらけだ。", "vi": "Bài văn này đầy lỗi sai.", "en": "This essay is full of mistakes."}
+      ]
+    },
+    {
+      "pattern": "〜っぱなし",
+      "meaning_vi": "Cứ để nguyên …, … suốt (mà không xử lý)",
+      "meaning_en": "Leave … on/undone / keep …-ing",
+      "structure": "Động từ thân ます ＋ っぱなし",
+      "notes": "Để nguyên trạng thái đáng lẽ phải xử lý, hoặc lặp lại liên tục. つけっぱなし, 立ちっぱなし.",
+      "examples": [
+        {"ja": "エアコンをつけっぱなしで出かけた。", "reading": "エアコンをつけっぱなしででかけた。", "vi": "Tôi ra ngoài mà để máy lạnh bật suốt.", "en": "I went out leaving the AC on."},
+        {"ja": "一日中立ちっぱなしで足が痛い。", "reading": "いちにちじゅうたちっぱなしであしがいたい。", "vi": "Đứng suốt cả ngày nên chân tôi đau.", "en": "I was standing all day, so my legs hurt."}
+      ]
+    },
+    {
+      "pattern": "〜向け",
+      "meaning_vi": "Dành cho …, hướng tới đối tượng …",
+      "meaning_en": "Intended for / aimed at …",
+      "structure": "Danh từ ＋ 向け",
+      "notes": "Cố ý làm cho một đối tượng cụ thể. 子供向け, 初心者向け, 海外向け.",
+      "examples": [
+        {"ja": "これは子供向けの番組です。", "reading": "これはこどもむけのばんぐみです。", "vi": "Đây là chương trình dành cho trẻ em.", "en": "This is a program for children."},
+        {"ja": "初心者向けの教科書を買った。", "reading": "しょしんしゃむけのきょうかしょをかった。", "vi": "Tôi mua sách giáo khoa cho người mới bắt đầu.", "en": "I bought a textbook aimed at beginners."}
+      ]
+    },
+    {
+      "pattern": "〜向き",
+      "meaning_vi": "Hợp với …, thích hợp cho …; quay về hướng …",
+      "meaning_en": "Suitable for … / facing …",
+      "structure": "Danh từ ＋ 向き",
+      "notes": "Tình cờ phù hợp với đối tượng (khác 向け - cố ý). Cũng chỉ hướng: 南向き.",
+      "examples": [
+        {"ja": "この部屋は南向きで明るい。", "reading": "このへやはみなみむきであかるい。", "vi": "Phòng này quay hướng nam nên sáng.", "en": "This room faces south and is bright."},
+        {"ja": "この料理は子供向きだ。", "reading": "このりょうりはこどもむきだ。", "vi": "Món này hợp với trẻ con.", "en": "This dish is suitable for children."}
+      ]
+    },
+    {
+      "pattern": "〜ように見える／聞こえる",
+      "meaning_vi": "Trông như …; nghe như …",
+      "meaning_en": "Looks like … / sounds like …",
+      "structure": "Thể thường（danh từ の／tính từ-na な）＋ ように見える／聞こえる",
+      "notes": "Ấn tượng qua thị giác／thính giác. 元気そうに見える, 怒っているように聞こえる.",
+      "examples": [
+        {"ja": "彼女は疲れているように見える。", "reading": "かのじょはつかれているようにみえる。", "vi": "Cô ấy trông có vẻ mệt.", "en": "She looks tired."},
+        {"ja": "その言い方は皮肉のように聞こえる。", "reading": "そのいいかたはひにくのようにきこえる。", "vi": "Cách nói đó nghe như mỉa mai.", "en": "That way of saying it sounds sarcastic."}
+      ]
+    },
+    {
+      "pattern": "〜ふうに",
+      "meaning_vi": "Theo kiểu …, một cách như …",
+      "meaning_en": "In a … way / like this",
+      "structure": "こんな／そんな／どんな ＋ ふうに（danh từ の ＋ ふうに）",
+      "notes": "Chỉ cách thức／kiểu cách. こんなふうに = như thế này. どんなふうに = theo kiểu nào.",
+      "examples": [
+        {"ja": "こんなふうに書いてください。", "reading": "こんなふうにかいてください。", "vi": "Hãy viết theo kiểu như thế này.", "en": "Please write it like this."},
+        {"ja": "どんなふうに使うのですか。", "reading": "どんなふうにつかうのですか。", "vi": "Dùng theo kiểu như thế nào ạ?", "en": "In what way do you use it?"}
+      ]
+    }
+  ]
+}

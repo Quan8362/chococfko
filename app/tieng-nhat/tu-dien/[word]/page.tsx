@@ -2,8 +2,11 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { getTranslations, getLocale } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
+import { checkIsAdmin } from '@/lib/supabase/admin'
 import { getBookmarkIds } from '../../bookmark-actions'
 import { getOrFetchWordImage } from '../../image-actions'
+import { getJapaneseComments } from '../../comment-actions'
+import JapaneseComments from '../../JapaneseComments'
 import JlptBadge from '@/components/japanese/JlptBadge'
 import BookmarkButton from '@/components/japanese/BookmarkButton'
 import CopyButton from '@/components/japanese/CopyButton'
@@ -70,7 +73,7 @@ export default async function WordDetailPage({ params }: { params: { word: strin
 
   if (!word) notFound()
 
-  const [relatedData, bookmarkIds, imageData] = await Promise.all([
+  const [relatedData, bookmarkIds, imageData, comments, isAdmin] = await Promise.all([
     word.jlpt_level
       ? supabase
           .from('japanese_words')
@@ -83,9 +86,15 @@ export default async function WordDetailPage({ params }: { params: { word: strin
       : Promise.resolve({ data: [] }),
     user ? getBookmarkIds('word') : Promise.resolve([] as string[]),
     getOrFetchWordImage(word),
+    getJapaneseComments('word', word.id),
+    checkIsAdmin(),
   ])
 
   const relatedWords = (relatedData.data as JapaneseWord[]) ?? []
+  const currentUser = user
+    ? { id: user.id, name: (user.user_metadata?.display_name as string | undefined) || user.email?.split('@')[0] || 'User' }
+    : null
+  const commentsPagePath = `/tieng-nhat/tu-dien/${encodeURIComponent(word.word)}`
   const bookmarkedSet = new Set(bookmarkIds)
   const isBookmarked = bookmarkedSet.has(word.id)
 
@@ -287,6 +296,18 @@ export default async function WordDetailPage({ params }: { params: { word: strin
         </section>
       )}
 
+      </div>
+
+      {/* Comments */}
+      <div className="max-w-[760px]">
+        <JapaneseComments
+          itemType="word"
+          itemId={word.id}
+          comments={comments}
+          currentUser={currentUser}
+          isAdmin={isAdmin}
+          pagePath={commentsPagePath}
+        />
       </div>
     </div>
   )

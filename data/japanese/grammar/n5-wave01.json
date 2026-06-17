@@ -1,0 +1,358 @@
+{
+  "level": "N5",
+  "wave": 1,
+  "entries": [
+    {
+      "pattern": "〜は（chủ đề）",
+      "meaning_vi": "Trợ từ chủ đề: thì, là, về phần …",
+      "meaning_en": "Topic marker: as for …",
+      "structure": "Danh từ ＋ は ＋ …",
+      "notes": "Đọc là \"wa\" (không phải \"ha\"). Đánh dấu chủ đề câu — cái đang được nói tới, thường là thông tin đã biết. Khác が ở chỗ は nêu chủ đề, が giới thiệu thông tin mới.",
+      "examples": [
+        {"ja": "わたしは学生です。", "reading": "わたしはがくせいです。", "vi": "Tôi là học sinh.", "en": "I am a student."},
+        {"ja": "今日は寒いです。", "reading": "きょうはさむいです。", "vi": "Hôm nay trời lạnh.", "en": "Today is cold."}
+      ]
+    },
+    {
+      "pattern": "〜が（chủ ngữ）",
+      "meaning_vi": "Trợ từ chủ ngữ: đánh dấu chủ thể",
+      "meaning_en": "Subject marker",
+      "structure": "Danh từ ＋ が ＋ …",
+      "notes": "Đánh dấu chủ ngữ, thường giới thiệu thông tin mới hoặc nhấn \"chính là\". Bắt buộc dùng với 好き, ある, いる, わかる, できる, ほしい.",
+      "examples": [
+        {"ja": "雨が降っています。", "reading": "あめがふっています。", "vi": "Trời đang mưa.", "en": "It is raining."},
+        {"ja": "わたしは犬が好きです。", "reading": "わたしはいぬがすきです。", "vi": "Tôi thích chó.", "en": "I like dogs."}
+      ]
+    },
+    {
+      "pattern": "〜を",
+      "meaning_vi": "Trợ từ tân ngữ trực tiếp",
+      "meaning_en": "Direct object marker",
+      "structure": "Danh từ ＋ を ＋ động từ tha động",
+      "notes": "Đánh dấu tân ngữ trực tiếp của động từ tha động (食べる, 読む…). Đọc là \"o\". Cũng dùng cho nơi đi qua/rời khỏi với động từ di chuyển.",
+      "examples": [
+        {"ja": "パンを食べます。", "reading": "パンをたべます。", "vi": "Tôi ăn bánh mì.", "en": "I eat bread."},
+        {"ja": "毎朝、公園を散歩します。", "reading": "まいあさ、こうえんをさんぽします。", "vi": "Mỗi sáng tôi đi dạo qua công viên.", "en": "Every morning I take a walk through the park."}
+      ]
+    },
+    {
+      "pattern": "〜に（thời điểm）",
+      "meaning_vi": "Vào (lúc) … — chỉ mốc thời gian",
+      "meaning_en": "At/on … (point in time)",
+      "structure": "Thời gian cụ thể ＋ に",
+      "notes": "Gắn vào mốc thời gian cụ thể (giờ, ngày, thứ, tháng). KHÔNG dùng với từ thời gian tương đối như きょう, あした, まいにち.",
+      "examples": [
+        {"ja": "7時に起きます。", "reading": "しちじにおきます。", "vi": "Tôi thức dậy lúc 7 giờ.", "en": "I get up at seven."},
+        {"ja": "日曜日に休みます。", "reading": "にちようびにやすみます。", "vi": "Tôi nghỉ vào chủ nhật.", "en": "I rest on Sunday."}
+      ]
+    },
+    {
+      "pattern": "〜に（đích đến）",
+      "meaning_vi": "Đến, vào — chỉ điểm đến",
+      "meaning_en": "To/into … (destination)",
+      "structure": "Nơi chốn ＋ に ＋ 行く／来る／帰る／入る",
+      "notes": "Chỉ đích đến hoặc điểm tiếp xúc của động từ di chuyển. Có thể thay bằng へ khi muốn nhấn vào hướng.",
+      "examples": [
+        {"ja": "学校に行きます。", "reading": "がっこうにいきます。", "vi": "Tôi đi đến trường.", "en": "I go to school."},
+        {"ja": "部屋に入ります。", "reading": "へやにはいります。", "vi": "Tôi vào phòng.", "en": "I enter the room."}
+      ]
+    },
+    {
+      "pattern": "〜へ",
+      "meaning_vi": "Về phía, đến — chỉ hướng di chuyển",
+      "meaning_en": "Toward … (direction)",
+      "structure": "Nơi chốn ＋ へ ＋ động từ di chuyển",
+      "notes": "Đọc là \"e\". Chỉ phương hướng di chuyển; gần nghĩa với に nhưng nhấn vào hướng đi hơn là đích chính xác.",
+      "examples": [
+        {"ja": "日本へ行きます。", "reading": "にほんへいきます。", "vi": "Tôi đi Nhật.", "en": "I go to Japan."},
+        {"ja": "家へ帰ります。", "reading": "いえへかえります。", "vi": "Tôi về nhà.", "en": "I return home."}
+      ]
+    },
+    {
+      "pattern": "〜で（nơi diễn ra hành động）",
+      "meaning_vi": "Ở, tại — nơi hành động xảy ra",
+      "meaning_en": "At/in … (place of action)",
+      "structure": "Nơi chốn ＋ で ＋ động từ",
+      "notes": "Đánh dấu nơi hành động diễn ra. Khác với に (nơi tồn tại/đích đến).",
+      "examples": [
+        {"ja": "図書館で勉強します。", "reading": "としょかんでべんきょうします。", "vi": "Tôi học ở thư viện.", "en": "I study at the library."},
+        {"ja": "公園で遊びます。", "reading": "こうえんであそびます。", "vi": "Tôi chơi ở công viên.", "en": "I play in the park."}
+      ]
+    },
+    {
+      "pattern": "〜で（phương tiện／cách thức）",
+      "meaning_vi": "Bằng — chỉ phương tiện, công cụ, nguyên liệu",
+      "meaning_en": "By/with/in … (means)",
+      "structure": "Danh từ ＋ で",
+      "notes": "Chỉ phương tiện di chuyển, công cụ, nguyên liệu hoặc ngôn ngữ dùng để làm gì.",
+      "examples": [
+        {"ja": "バスで行きます。", "reading": "バスでいきます。", "vi": "Tôi đi bằng xe buýt.", "en": "I go by bus."},
+        {"ja": "日本語で話します。", "reading": "にほんごではなします。", "vi": "Tôi nói bằng tiếng Nhật.", "en": "I speak in Japanese."}
+      ]
+    },
+    {
+      "pattern": "〜と（cùng với）",
+      "meaning_vi": "Cùng với (ai đó)",
+      "meaning_en": "With (someone)",
+      "structure": "Người ＋ と ＋ động từ",
+      "notes": "Chỉ người/đối tượng cùng thực hiện hành động.",
+      "examples": [
+        {"ja": "友達と映画を見ます。", "reading": "ともだちとえいがをみます。", "vi": "Tôi xem phim cùng bạn.", "en": "I watch a movie with a friend."},
+        {"ja": "母と買い物します。", "reading": "ははとかいものします。", "vi": "Tôi đi mua sắm với mẹ.", "en": "I go shopping with my mother."}
+      ]
+    },
+    {
+      "pattern": "〜と〜（liệt kê）",
+      "meaning_vi": "Và — liệt kê đầy đủ danh từ",
+      "meaning_en": "And (exhaustive listing)",
+      "structure": "Danh từ ＋ と ＋ Danh từ",
+      "notes": "Nối danh từ theo kiểu liệt kê đầy đủ (nêu hết các mục). Khác や (liệt kê ví dụ, chưa hết).",
+      "examples": [
+        {"ja": "犬と猫がいます。", "reading": "いぬとねこがいます。", "vi": "Có chó và mèo.", "en": "There are a dog and a cat."},
+        {"ja": "パンと卵を買います。", "reading": "パンとたまごをかいます。", "vi": "Tôi mua bánh mì và trứng.", "en": "I buy bread and eggs."}
+      ]
+    },
+    {
+      "pattern": "〜や〜（など）",
+      "meaning_vi": "… và … (chẳng hạn) — liệt kê ví dụ",
+      "meaning_en": "… and … (among others)",
+      "structure": "Danh từ ＋ や ＋ Danh từ（＋ など）",
+      "notes": "Liệt kê vài ví dụ tiêu biểu, hàm ý \"còn nữa\". Thường kết hợp với など.",
+      "examples": [
+        {"ja": "机の上に本やペンがあります。", "reading": "つくえのうえにほんやペンがあります。", "vi": "Trên bàn có sách, bút, v.v.", "en": "There are books, pens, and so on, on the desk."},
+        {"ja": "週末は掃除や洗濯をします。", "reading": "しゅうまつはそうじやせんたくをします。", "vi": "Cuối tuần tôi làm những việc như dọn dẹp, giặt giũ.", "en": "On weekends I do things like cleaning and laundry."}
+      ]
+    },
+    {
+      "pattern": "〜の〜（sở hữu／bổ nghĩa）",
+      "meaning_vi": "Của, thuộc về — nối hai danh từ",
+      "meaning_en": "'s / of (noun linking)",
+      "structure": "Danh từ ＋ の ＋ Danh từ",
+      "notes": "Nối hai danh từ: sở hữu, thuộc tính hoặc bổ nghĩa. Cũng thay được danh từ: わたしの = cái của tôi.",
+      "examples": [
+        {"ja": "わたしの本です。", "reading": "わたしのほんです。", "vi": "Đây là sách của tôi.", "en": "This is my book."},
+        {"ja": "日本語の先生です。", "reading": "にほんごのせんせいです。", "vi": "Là giáo viên tiếng Nhật.", "en": "He is a Japanese teacher."}
+      ]
+    },
+    {
+      "pattern": "〜も（cũng）",
+      "meaning_vi": "Cũng, cũng vậy",
+      "meaning_en": "Also, too",
+      "structure": "Danh từ ＋ も",
+      "notes": "Thay cho は／が／を để nói \"cũng\". Với câu phủ định mang nghĩa \"cũng không\".",
+      "examples": [
+        {"ja": "わたしも行きます。", "reading": "わたしもいきます。", "vi": "Tôi cũng đi.", "en": "I will go too."},
+        {"ja": "これもください。", "reading": "これもください。", "vi": "Cho tôi cả cái này nữa.", "en": "This one too, please."}
+      ]
+    },
+    {
+      "pattern": "〜から（điểm bắt đầu）",
+      "meaning_vi": "Từ — điểm bắt đầu thời gian／nơi chốn",
+      "meaning_en": "From (starting point)",
+      "structure": "Thời gian／nơi chốn ＋ から",
+      "notes": "Chỉ điểm bắt đầu về thời gian hoặc nơi chốn. (から đặt sau mệnh đề thì nghĩa là \"vì\".)",
+      "examples": [
+        {"ja": "9時から始まります。", "reading": "くじからはじまります。", "vi": "Bắt đầu từ 9 giờ.", "en": "It starts from nine."},
+        {"ja": "駅から歩きます。", "reading": "えきからあるきます。", "vi": "Tôi đi bộ từ ga.", "en": "I walk from the station."}
+      ]
+    },
+    {
+      "pattern": "〜まで",
+      "meaning_vi": "Đến, cho đến — điểm kết thúc",
+      "meaning_en": "Until / up to (end point)",
+      "structure": "Thời gian／nơi chốn ＋ まで",
+      "notes": "Chỉ điểm kết thúc về thời gian hoặc nơi chốn. Thường đi cặp với から.",
+      "examples": [
+        {"ja": "5時まで働きます。", "reading": "ごじまではたらきます。", "vi": "Tôi làm việc đến 5 giờ.", "en": "I work until five."},
+        {"ja": "東京から大阪まで行きます。", "reading": "とうきょうからおおさかまでいきます。", "vi": "Tôi đi từ Tokyo đến Osaka.", "en": "I go from Tokyo to Osaka."}
+      ]
+    },
+    {
+      "pattern": "〜か（câu hỏi）",
+      "meaning_vi": "… phải không? (trợ từ nghi vấn)",
+      "meaning_en": "Question particle",
+      "structure": "Câu ＋ か",
+      "notes": "Đặt cuối câu tạo câu hỏi (thể lịch sự). Văn nói thân mật thường bỏ か và lên giọng cuối câu.",
+      "examples": [
+        {"ja": "学生ですか。", "reading": "がくせいですか。", "vi": "Bạn là học sinh phải không?", "en": "Are you a student?"},
+        {"ja": "明日も来ますか。", "reading": "あしたもきますか。", "vi": "Ngày mai bạn cũng đến chứ?", "en": "Will you come tomorrow too?"}
+      ]
+    },
+    {
+      "pattern": "〜か〜（lựa chọn）",
+      "meaning_vi": "… hay … — nối hai lựa chọn",
+      "meaning_en": "… or … (choice)",
+      "structure": "Danh từ ＋ か ＋ Danh từ",
+      "notes": "Nối hai lựa chọn \"A hay B\".",
+      "examples": [
+        {"ja": "お茶かコーヒーを飲みます。", "reading": "おちゃかコーヒーをのみます。", "vi": "Tôi uống trà hoặc cà phê.", "en": "I drink tea or coffee."},
+        {"ja": "ペンか鉛筆で書いてください。", "reading": "ペンかえんぴつでかいてください。", "vi": "Hãy viết bằng bút hoặc bút chì.", "en": "Please write with a pen or a pencil."}
+      ]
+    },
+    {
+      "pattern": "〜ね",
+      "meaning_vi": "… nhỉ, … nhé (tìm đồng tình)",
+      "meaning_en": "… right? / isn't it?",
+      "structure": "Câu ＋ ね",
+      "notes": "Trợ từ cuối câu tìm sự đồng tình hoặc xác nhận từ người nghe.",
+      "examples": [
+        {"ja": "いい天気ですね。", "reading": "いいてんきですね。", "vi": "Trời đẹp nhỉ.", "en": "Nice weather, isn't it?"},
+        {"ja": "この料理、おいしいですね。", "reading": "このりょうり、おいしいですね。", "vi": "Món này ngon nhỉ.", "en": "This dish is delicious, isn't it?"}
+      ]
+    },
+    {
+      "pattern": "〜よ",
+      "meaning_vi": "… đấy, … nhé (nhấn mạnh／thông báo)",
+      "meaning_en": "… you know (emphasis)",
+      "structure": "Câu ＋ よ",
+      "notes": "Trợ từ cuối câu nhấn mạnh, đưa thông tin mới mà người nghe chưa biết.",
+      "examples": [
+        {"ja": "この店は安いですよ。", "reading": "このみせはやすいですよ。", "vi": "Cửa hàng này rẻ đấy.", "en": "This shop is cheap, you know."},
+        {"ja": "もう時間ですよ。", "reading": "もうじかんですよ。", "vi": "Đến giờ rồi đấy.", "en": "It's time already, you know."}
+      ]
+    },
+    {
+      "pattern": "〜も〜も",
+      "meaning_vi": "Cả … lẫn …; (phủ định) không … cũng không …",
+      "meaning_en": "Both … and …; (neg.) neither … nor …",
+      "structure": "Danh từ ＋ も ＋ Danh từ ＋ も",
+      "notes": "Liệt kê hai thứ cùng đúng (cả A lẫn B). Với động từ phủ định: \"không A cũng không B\".",
+      "examples": [
+        {"ja": "犬も猫も好きです。", "reading": "いぬもねこもすきです。", "vi": "Tôi thích cả chó lẫn mèo.", "en": "I like both dogs and cats."},
+        {"ja": "お金も時間もありません。", "reading": "おかねもじかんもありません。", "vi": "Tôi không có cả tiền lẫn thời gian.", "en": "I have neither money nor time."}
+      ]
+    },
+    {
+      "pattern": "〜があります",
+      "meaning_vi": "Có … (vật vô tri／sự việc)",
+      "meaning_en": "There is … (inanimate)",
+      "structure": "Vật／sự việc ＋ が ＋ あります",
+      "notes": "Diễn tả sự tồn tại của vật vô tri hoặc sự việc, sự kiện. Phủ định: ありません.",
+      "examples": [
+        {"ja": "机の上に本があります。", "reading": "つくえのうえにほんがあります。", "vi": "Trên bàn có quyển sách.", "en": "There is a book on the desk."},
+        {"ja": "明日テストがあります。", "reading": "あしたテストがあります。", "vi": "Ngày mai có bài kiểm tra.", "en": "There is a test tomorrow."}
+      ]
+    },
+    {
+      "pattern": "〜がいます",
+      "meaning_vi": "Có … (người／động vật)",
+      "meaning_en": "There is … (animate)",
+      "structure": "Người／động vật ＋ が ＋ います",
+      "notes": "Diễn tả sự tồn tại của người hoặc động vật (vật sống). Phủ định: いません.",
+      "examples": [
+        {"ja": "教室に学生がいます。", "reading": "きょうしつにがくせいがいます。", "vi": "Trong lớp có học sinh.", "en": "There are students in the classroom."},
+        {"ja": "庭に猫がいます。", "reading": "にわにねこがいます。", "vi": "Trong vườn có con mèo.", "en": "There is a cat in the garden."}
+      ]
+    },
+    {
+      "pattern": "〜じゃ／ではありません",
+      "meaning_vi": "Không phải là … (phủ định lịch sự)",
+      "meaning_en": "Is not … (polite negative)",
+      "structure": "Danh từ／Tính từ-na ＋ じゃ（では）ありません",
+      "notes": "Thể phủ định lịch sự của です. では trang trọng hơn, じゃ thiên về văn nói.",
+      "examples": [
+        {"ja": "学生じゃありません。", "reading": "がくせいじゃありません。", "vi": "Tôi không phải học sinh.", "en": "I am not a student."},
+        {"ja": "ここは静かではありません。", "reading": "ここはしずかではありません。", "vi": "Ở đây không yên tĩnh.", "en": "It is not quiet here."}
+      ]
+    },
+    {
+      "pattern": "〜でした",
+      "meaning_vi": "Đã là … (quá khứ lịch sự)",
+      "meaning_en": "Was/were … (polite past)",
+      "structure": "Danh từ／Tính từ-na ＋ でした",
+      "notes": "Thể quá khứ lịch sự của です. Phủ định quá khứ: じゃ／ではありませんでした.",
+      "examples": [
+        {"ja": "昨日は休みでした。", "reading": "きのうはやすみでした。", "vi": "Hôm qua là ngày nghỉ.", "en": "Yesterday was a day off."},
+        {"ja": "試験は簡単でした。", "reading": "しけんはかんたんでした。", "vi": "Bài thi đã dễ.", "en": "The exam was easy."}
+      ]
+    },
+    {
+      "pattern": "疑問詞 ＋ か",
+      "meaning_vi": "Cái gì đó／ai đó／nơi nào đó (bất định)",
+      "meaning_en": "Something / someone / somewhere",
+      "structure": "何／誰／どこ ＋ か",
+      "notes": "Gắn か vào từ để hỏi tạo nghĩa bất định: 何か = cái gì đó, 誰か = ai đó, どこか = nơi nào đó.",
+      "examples": [
+        {"ja": "何か食べましたか。", "reading": "なにかたべましたか。", "vi": "Bạn đã ăn gì đó chưa?", "en": "Did you eat something?"},
+        {"ja": "誰か来ました。", "reading": "だれかきました。", "vi": "Có ai đó đã đến.", "en": "Someone came."}
+      ]
+    },
+    {
+      "pattern": "疑問詞 ＋ も 〜ない",
+      "meaning_vi": "Chẳng gì cả／chẳng ai cả／chẳng đâu cả",
+      "meaning_en": "Nothing / no one / nowhere",
+      "structure": "何／誰／どこ ＋ も ＋ động từ thể phủ định",
+      "notes": "Luôn đi với động từ phủ định: 何も〜ない = không gì cả, 誰も〜ない = không ai cả.",
+      "examples": [
+        {"ja": "何も食べませんでした。", "reading": "なにもたべませんでした。", "vi": "Tôi đã không ăn gì cả.", "en": "I didn't eat anything."},
+        {"ja": "今日は誰も来ません。", "reading": "きょうはだれもきません。", "vi": "Hôm nay không có ai đến cả.", "en": "No one is coming today."}
+      ]
+    },
+    {
+      "pattern": "〜ぐらい／くらい",
+      "meaning_vi": "Khoảng, độ chừng (số lượng／thời lượng)",
+      "meaning_en": "About / approximately",
+      "structure": "Số lượng ＋ ぐらい／くらい",
+      "notes": "Chỉ số lượng hoặc khoảng thời lượng ước chừng. (Khác ごろ — dùng cho thời điểm.)",
+      "examples": [
+        {"ja": "1時間ぐらい待ちました。", "reading": "いちじかんぐらいまちました。", "vi": "Tôi đã đợi khoảng 1 tiếng.", "en": "I waited about an hour."},
+        {"ja": "値段は千円ぐらいです。", "reading": "ねだんはせんえんぐらいです。", "vi": "Giá khoảng 1000 yên.", "en": "The price is about 1,000 yen."}
+      ]
+    },
+    {
+      "pattern": "〜ごろ",
+      "meaning_vi": "Khoảng, tầm (một thời điểm)",
+      "meaning_en": "Around (a point in time)",
+      "structure": "Thời điểm ＋ ごろ",
+      "notes": "Chỉ thời điểm ước chừng. Khác ぐらい (dùng cho khoảng thời lượng/số lượng).",
+      "examples": [
+        {"ja": "7時ごろ家を出ます。", "reading": "しちじごろいえをでます。", "vi": "Tôi rời nhà khoảng 7 giờ.", "en": "I leave home around seven."},
+        {"ja": "3月ごろ桜が咲きます。", "reading": "さんがつごろさくらがさきます。", "vi": "Hoa anh đào nở khoảng tháng 3.", "en": "Cherry blossoms bloom around March."}
+      ]
+    },
+    {
+      "pattern": "〜だけ",
+      "meaning_vi": "Chỉ, chỉ có (giới hạn)",
+      "meaning_en": "Only / just",
+      "structure": "Danh từ／số lượng ＋ だけ",
+      "notes": "Giới hạn phạm vi, sắc thái trung tính. Khác しか (luôn đi với phủ định, nhấn \"ít\").",
+      "examples": [
+        {"ja": "水だけ飲みます。", "reading": "みずだけのみます。", "vi": "Tôi chỉ uống nước.", "en": "I drink only water."},
+        {"ja": "一人だけ来ました。", "reading": "ひとりだけきました。", "vi": "Chỉ có một người đến.", "en": "Only one person came."}
+      ]
+    },
+    {
+      "pattern": "〜しか〜ない",
+      "meaning_vi": "Chỉ có … (mà thôi) — sắc thái ít",
+      "meaning_en": "Only … (nothing but)",
+      "structure": "Danh từ ＋ しか ＋ động từ thể phủ định",
+      "notes": "Luôn đi với động từ phủ định, nhấn sắc thái \"chỉ ngần này, không hơn\".",
+      "examples": [
+        {"ja": "百円しかありません。", "reading": "ひゃくえんしかありません。", "vi": "Tôi chỉ có 100 yên.", "en": "I have only 100 yen."},
+        {"ja": "日本語しか話せません。", "reading": "にほんごしかはなせません。", "vi": "Tôi chỉ nói được tiếng Nhật.", "en": "I can speak only Japanese."}
+      ]
+    },
+    {
+      "pattern": "〜ずつ",
+      "meaning_vi": "Mỗi … một phần (lượng đều nhau)",
+      "meaning_en": "Each / at a time (equal portions)",
+      "structure": "Số lượng ＋ ずつ",
+      "notes": "Diễn tả sự phân chia đều: mỗi đối tượng một lượng bằng nhau, hoặc lặp lại từng phần.",
+      "examples": [
+        {"ja": "一人に一つずつあげます。", "reading": "ひとりにひとつずつあげます。", "vi": "Mỗi người tôi cho một cái.", "en": "I give one to each person."},
+        {"ja": "少しずつ覚えます。", "reading": "すこしずつおぼえます。", "vi": "Tôi học thuộc dần từng chút.", "en": "I memorize little by little."}
+      ]
+    },
+    {
+      "pattern": "〜など",
+      "meaning_vi": "… vân vân, chẳng hạn như …",
+      "meaning_en": "… and so on / such as",
+      "structure": "Danh từ ＋ など",
+      "notes": "Nêu ví dụ không đầy đủ, hàm ý còn thứ khác. Thường đi sau や.",
+      "examples": [
+        {"ja": "果物、例えばりんごやバナナなどが好きです。", "reading": "くだもの、たとえばりんごやバナナなどがすきです。", "vi": "Tôi thích trái cây, chẳng hạn táo, chuối, v.v.", "en": "I like fruits, such as apples and bananas."},
+        {"ja": "ノートやペンなどを買いました。", "reading": "ノートやペンなどをかいました。", "vi": "Tôi đã mua vở, bút, v.v.", "en": "I bought notebooks, pens, and so on."}
+      ]
+    }
+  ]
+}

@@ -1,0 +1,314 @@
+{
+  "level": "N1",
+  "wave": 4,
+  "entries": [
+    {
+      "pattern": "いらっしゃる（尊敬）",
+      "meaning_vi": "(Kính ngữ của いる／行く／来る) ngài ở／đi／đến",
+      "meaning_en": "Honorific of be / go / come",
+      "structure": "Kính ngữ; ます形: いらっしゃいます",
+      "notes": "Tôn kính cho いる, 行く, 来る. Chia bất quy tắc: いらっしゃいます, いらっしゃって.",
+      "examples": [
+        {"ja": "先生は今、研究室にいらっしゃいます。", "reading": "せんせいはいま、けんきゅうしつにいらっしゃいます。", "vi": "Thầy bây giờ đang ở phòng nghiên cứu ạ.", "en": "The teacher is in the lab now."},
+        {"ja": "明日のパーティーにいらっしゃいますか。", "reading": "あしたのパーティーにいらっしゃいますか。", "vi": "Ngày mai ngài có đến dự tiệc không ạ?", "en": "Will you be coming to the party tomorrow?"}
+      ]
+    },
+    {
+      "pattern": "おいでになる（尊敬）",
+      "meaning_vi": "(Kính ngữ của いる／行く／来る) ngài ở／đi／đến",
+      "meaning_en": "Honorific of be / go / come (alt.)",
+      "structure": "Kính ngữ; お ＋ いで ＋ になる",
+      "notes": "Tôn kính cho いる, 行く, 来る; trang trọng. Gần いらっしゃる.",
+      "examples": [
+        {"ja": "会長は明日、こちらへおいでになります。", "reading": "かいちょうはあした、こちらへおいでになります。", "vi": "Ngày mai chủ tịch sẽ đến đây ạ.", "en": "The chairman will come here tomorrow."},
+        {"ja": "ご家族もご一緒においでになりますか。", "reading": "ごかぞくもごいっしょにおいでになりますか。", "vi": "Gia đình ngài có cùng đến không ạ?", "en": "Will your family be coming along as well?"}
+      ]
+    },
+    {
+      "pattern": "召し上がる（尊敬）",
+      "meaning_vi": "(Kính ngữ của 食べる／飲む) ngài dùng (ăn／uống)",
+      "meaning_en": "Honorific of eat / drink",
+      "structure": "Kính ngữ; 召し上がります",
+      "notes": "Tôn kính cho 食べる, 飲む. お召し上がりください rất lịch sự.",
+      "examples": [
+        {"ja": "どうぞ、温かいうちに召し上がってください。", "reading": "どうぞ、あたたかいうちにめしあがってください。", "vi": "Xin ngài dùng lúc còn nóng ạ.", "en": "Please eat it while it's warm."},
+        {"ja": "何を召し上がりますか。", "reading": "なにをめしあがりますか。", "vi": "Ngài dùng món gì ạ?", "en": "What would you like to have?"}
+      ]
+    },
+    {
+      "pattern": "ご覧になる（尊敬）",
+      "meaning_vi": "(Kính ngữ của 見る) ngài xem／nhìn",
+      "meaning_en": "Honorific of see / look",
+      "structure": "Kính ngữ; ご覧になります",
+      "notes": "Tôn kính cho 見る. ご覧ください = xin hãy xem.",
+      "examples": [
+        {"ja": "あちらの資料をご覧になりましたか。", "reading": "あちらのしりょうをごらんになりましたか。", "vi": "Ngài đã xem tài liệu bên kia chưa ạ?", "en": "Have you seen the materials over there?"},
+        {"ja": "こちらのモニターをご覧ください。", "reading": "こちらのモニターをごらんください。", "vi": "Xin ngài nhìn vào màn hình bên này ạ.", "en": "Please look at this monitor."}
+      ]
+    },
+    {
+      "pattern": "おっしゃる（尊敬）",
+      "meaning_vi": "(Kính ngữ của 言う) ngài nói／bảo",
+      "meaning_en": "Honorific of say",
+      "structure": "Kính ngữ; おっしゃいます",
+      "notes": "Tôn kính cho 言う. Chia bất quy tắc: おっしゃいます.",
+      "examples": [
+        {"ja": "先生がおっしゃったとおりにやってみます。", "reading": "せんせいがおっしゃったとおりにやってみます。", "vi": "Tôi sẽ làm đúng như thầy đã dạy.", "en": "I'll try it just as the teacher said."},
+        {"ja": "お名前は何とおっしゃいますか。", "reading": "おなまえはなんとおっしゃいますか。", "vi": "Ngài tên là gì ạ?", "en": "What is your name, may I ask?"}
+      ]
+    },
+    {
+      "pattern": "なさる（尊敬）",
+      "meaning_vi": "(Kính ngữ của する) ngài làm",
+      "meaning_en": "Honorific of do",
+      "structure": "Kính ngữ; なさいます",
+      "notes": "Tôn kính cho する. Chia bất quy tắc: なさいます. どうなさいましたか.",
+      "examples": [
+        {"ja": "社長は毎朝、運動をなさるそうだ。", "reading": "しゃちょうはまいあさ、うんどうをなさるそうだ。", "vi": "Nghe nói giám đốc mỗi sáng đều tập thể dục.", "en": "I hear the president exercises every morning."},
+        {"ja": "どうなさいましたか。", "reading": "どうなさいましたか。", "vi": "Ngài bị làm sao vậy ạ?", "en": "What seems to be the matter?"}
+      ]
+    },
+    {
+      "pattern": "くださる（尊敬）",
+      "meaning_vi": "(Kính ngữ của くれる) ngài cho／tặng (tôi)",
+      "meaning_en": "Honorific of give (to me)",
+      "structure": "Kính ngữ; くださいます",
+      "notes": "Tôn kính cho くれる. Chia: くださいます. 〜てくださる = làm … cho tôi.",
+      "examples": [
+        {"ja": "先生が推薦状を書いてくださった。", "reading": "せんせいがすいせんじょうをかいてくださった。", "vi": "Thầy đã viết thư giới thiệu cho tôi.", "en": "The teacher kindly wrote me a recommendation."},
+        {"ja": "部長がお土産をくださいました。", "reading": "ぶちょうがおみやげをくださいました。", "vi": "Trưởng phòng đã tặng tôi quà.", "en": "The manager gave me a souvenir."}
+      ]
+    },
+    {
+      "pattern": "ご存じだ（尊敬）",
+      "meaning_vi": "(Kính ngữ của 知っている) ngài biết",
+      "meaning_en": "Honorific of know",
+      "structure": "Kính ngữ; ご存じです",
+      "notes": "Tôn kính cho 知っている. ご存じですか = ngài có biết không ạ.",
+      "examples": [
+        {"ja": "この件について、何かご存じですか。", "reading": "このけんについて、なにかごぞんじですか。", "vi": "Về việc này, ngài có biết gì không ạ?", "en": "Do you know anything about this matter?"},
+        {"ja": "山田様ならよくご存じのはずです。", "reading": "やまださまならよくごぞんじのはずです。", "vi": "Nếu là ngài Yamada thì hẳn biết rõ ạ.", "en": "Mr. Yamada should know this well."}
+      ]
+    },
+    {
+      "pattern": "参る（謙譲）",
+      "meaning_vi": "(Khiêm nhường của 行く／来る) tôi đi／đến",
+      "meaning_en": "Humble of go / come",
+      "structure": "Khiêm nhường; 参ります",
+      "notes": "Hạ mình khi đi／đến chỗ người trên. ただ今参ります.",
+      "examples": [
+        {"ja": "明日、改めてそちらへ参ります。", "reading": "あした、あらためてそちらへまいります。", "vi": "Ngày mai tôi sẽ lại đến chỗ ngài ạ.", "en": "I will come to you again tomorrow."},
+        {"ja": "ただ今、参ります。", "reading": "ただいま、まいります。", "vi": "Tôi đến ngay đây ạ.", "en": "I'll be right there."}
+      ]
+    },
+    {
+      "pattern": "伺う（謙譲）",
+      "meaning_vi": "(Khiêm nhường của 行く／訪ねる／聞く) tôi đến thăm／hỏi",
+      "meaning_en": "Humble of visit / ask",
+      "structure": "Khiêm nhường; 伺います",
+      "notes": "Hạ mình khi đến thăm hoặc hỏi người trên. お話を伺う.",
+      "examples": [
+        {"ja": "来週、お宅へ伺ってもよろしいでしょうか。", "reading": "らいしゅう、おたくへうかがってもよろしいでしょうか。", "vi": "Tuần sau tôi đến nhà ngài có được không ạ?", "en": "May I visit your home next week?"},
+        {"ja": "一つお伺いしたいことがあります。", "reading": "ひとつおうかがいしたいことがあります。", "vi": "Tôi có một điều muốn hỏi ạ.", "en": "There's one thing I'd like to ask."}
+      ]
+    },
+    {
+      "pattern": "申す（謙譲）",
+      "meaning_vi": "(Khiêm nhường của 言う) tôi nói; tôi tên là",
+      "meaning_en": "Humble of say",
+      "structure": "Khiêm nhường; 申します",
+      "notes": "Hạ mình khi nói／giới thiệu tên. 田中と申します.",
+      "examples": [
+        {"ja": "田中と申します。よろしくお願いします。", "reading": "たなかともうします。よろしくおねがいします。", "vi": "Tôi tên là Tanaka. Rất mong được giúp đỡ.", "en": "My name is Tanaka. Pleased to meet you."},
+        {"ja": "私からも一言申します。", "reading": "わたしからもひとこともうします。", "vi": "Tôi cũng xin nói đôi lời ạ.", "en": "Allow me to say a word as well."}
+      ]
+    },
+    {
+      "pattern": "申し上げる（謙譲）",
+      "meaning_vi": "(Khiêm nhường của 言う, kính người nghe) tôi xin thưa",
+      "meaning_en": "Humble of say (raising the listener)",
+      "structure": "Khiêm nhường; 申し上げます",
+      "notes": "Khiêm nhường cao hơn 申す, thể hiện kính trọng đối tượng nghe. お礼を申し上げる.",
+      "examples": [
+        {"ja": "心よりお礼を申し上げます。", "reading": "こころよりおれいをもうしあげます。", "vi": "Tôi xin chân thành cảm ơn ạ.", "en": "I sincerely express my thanks."},
+        {"ja": "一言、ご挨拶を申し上げます。", "reading": "ひとこと、ごあいさつをもうしあげます。", "vi": "Tôi xin có đôi lời chào ạ.", "en": "Allow me to say a few words of greeting."}
+      ]
+    },
+    {
+      "pattern": "いたす（謙譲）",
+      "meaning_vi": "(Khiêm nhường của する) tôi làm",
+      "meaning_en": "Humble of do",
+      "structure": "Khiêm nhường; いたします",
+      "notes": "Hạ mình khi làm gì. お願いいたします. お〜いたす.",
+      "examples": [
+        {"ja": "私が責任を持って対応いたします。", "reading": "わたしがせきにんをもってたいおういたします。", "vi": "Tôi sẽ chịu trách nhiệm xử lý ạ.", "en": "I will handle it responsibly."},
+        {"ja": "よろしくお願いいたします。", "reading": "よろしくおねがいいたします。", "vi": "Rất mong được ngài giúp đỡ ạ.", "en": "Thank you in advance for your kind cooperation."}
+      ]
+    },
+    {
+      "pattern": "いただく（謙譲）",
+      "meaning_vi": "(Khiêm nhường của もらう／食べる／飲む) tôi nhận／dùng",
+      "meaning_en": "Humble of receive / eat / drink",
+      "structure": "Khiêm nhường; いただきます",
+      "notes": "Hạ mình khi nhận hoặc ăn／uống. 〜ていただく = được … cho.",
+      "examples": [
+        {"ja": "結構なお品をいただき、ありがとうございます。", "reading": "けっこうなおしなをいただき、ありがとうございます。", "vi": "Cảm ơn ngài đã cho món quà quý ạ.", "en": "Thank you for the lovely gift."},
+        {"ja": "お先にいただきます。", "reading": "おさきにいただきます。", "vi": "Tôi xin phép dùng trước ạ.", "en": "I'll start eating, if you'll excuse me."}
+      ]
+    },
+    {
+      "pattern": "拝見する（謙譲）",
+      "meaning_vi": "(Khiêm nhường của 見る) tôi xem",
+      "meaning_en": "Humble of see / look at",
+      "structure": "Khiêm nhường; 拝見します",
+      "notes": "Hạ mình khi xem đồ／thư của người trên. お手紙を拝見しました.",
+      "examples": [
+        {"ja": "お手紙、確かに拝見しました。", "reading": "おてがみ、たしかにはいけんしました。", "vi": "Tôi đã nhận và đọc thư của ngài ạ.", "en": "I have certainly read your letter."},
+        {"ja": "資料を拝見してもよろしいですか。", "reading": "しりょうをはいけんしてもよろしいですか。", "vi": "Tôi xem tài liệu có được không ạ?", "en": "May I take a look at the materials?"}
+      ]
+    },
+    {
+      "pattern": "拝借する（謙譲）",
+      "meaning_vi": "(Khiêm nhường của 借りる) tôi mượn",
+      "meaning_en": "Humble of borrow",
+      "structure": "Khiêm nhường; 拝借します",
+      "notes": "Hạ mình khi mượn đồ người trên. お電話を拝借します.",
+      "examples": [
+        {"ja": "ペンを拝借してもよろしいでしょうか。", "reading": "ペンをはいしゃくしてもよろしいでしょうか。", "vi": "Tôi mượn cây bút được không ạ?", "en": "Might I borrow your pen?"},
+        {"ja": "お知恵を拝借したいのですが。", "reading": "おちえをはいしゃくしたいのですが。", "vi": "Tôi muốn được ngài chỉ giáo ạ.", "en": "I'd like to borrow your wisdom, if I may."}
+      ]
+    },
+    {
+      "pattern": "存じる／存じ上げる（謙譲）",
+      "meaning_vi": "(Khiêm nhường của 知る／思う) tôi biết／nghĩ",
+      "meaning_en": "Humble of know / think",
+      "structure": "Khiêm nhường; 存じます／存じ上げます",
+      "notes": "存じる cho sự việc; 存じ上げる cho người (kính đối tượng). お名前は存じ上げております.",
+      "examples": [
+        {"ja": "その件については存じております。", "reading": "そのけんについてはぞんじております。", "vi": "Về việc đó tôi có biết ạ.", "en": "I am aware of that matter."},
+        {"ja": "お名前はかねてより存じ上げております。", "reading": "おなまえはかねてよりぞんじあげております。", "vi": "Tôi đã biết danh ngài từ lâu ạ.", "en": "I have known your name for some time."}
+      ]
+    },
+    {
+      "pattern": "お目にかかる（謙譲）",
+      "meaning_vi": "(Khiêm nhường của 会う) tôi được gặp",
+      "meaning_en": "Humble of meet",
+      "structure": "Khiêm nhường; お目にかかります",
+      "notes": "Hạ mình khi gặp người trên. 初めてお目にかかります.",
+      "examples": [
+        {"ja": "初めてお目にかかります。", "reading": "はじめておめにかかります。", "vi": "Rất hân hạnh được gặp ngài lần đầu ạ.", "en": "I'm pleased to meet you for the first time."},
+        {"ja": "またお目にかかれる日を楽しみにしております。", "reading": "またおめにかかれるひをたのしみにしております。", "vi": "Tôi mong chờ ngày được gặp lại ngài ạ.", "en": "I look forward to the day we meet again."}
+      ]
+    },
+    {
+      "pattern": "お／ご〜申し上げる",
+      "meaning_vi": "Kính cẩn … (khiêm nhường rất cao)",
+      "meaning_en": "Humbly do … (very polite)",
+      "structure": "お ＋ động từ thân ます ＋ 申し上げる（ご ＋ từ Hán ＋ 申し上げる）",
+      "notes": "Khiêm nhường cao, văn trang trọng. お願い申し上げます, ご案内申し上げます.",
+      "examples": [
+        {"ja": "今後ともよろしくお願い申し上げます。", "reading": "こんごともよろしくおねがいもうしあげます。", "vi": "Kính mong tiếp tục được ngài chiếu cố ạ.", "en": "I humbly ask for your continued support."},
+        {"ja": "心よりお詫び申し上げます。", "reading": "こころよりおわびもうしあげます。", "vi": "Tôi xin chân thành tạ lỗi ạ.", "en": "I sincerely offer my apologies."}
+      ]
+    },
+    {
+      "pattern": "お／ご〜いたす",
+      "meaning_vi": "Xin … (khiêm nhường) cho ngài",
+      "meaning_en": "Humbly do … (for you)",
+      "structure": "お ＋ động từ thân ます ＋ いたす（ご ＋ từ Hán ＋ いたす）",
+      "notes": "Khiêm nhường lịch sự. お持ちいたします, ご案内いたします.",
+      "examples": [
+        {"ja": "お荷物はこちらでお預かりいたします。", "reading": "おにもつはこちらでおあずかりいたします。", "vi": "Hành lý xin để chúng tôi giữ giúp ạ.", "en": "We'll keep your luggage here for you."},
+        {"ja": "会場までご案内いたします。", "reading": "かいじょうまでごあんないいたします。", "vi": "Tôi xin dẫn ngài đến hội trường ạ.", "en": "I'll show you to the venue."}
+      ]
+    },
+    {
+      "pattern": "〜ておる／ております（謙譲）",
+      "meaning_vi": "(Khiêm nhường của ている) đang …",
+      "meaning_en": "Humble form of ている",
+      "structure": "Thể て ＋ おる（おります）",
+      "notes": "Khiêm nhường／khiêm tốn của ている. 承知しております, 待っております.",
+      "examples": [
+        {"ja": "ご連絡をお待ちしております。", "reading": "ごれんらくをおまちしております。", "vi": "Tôi đang chờ ngài liên lạc ạ.", "en": "I am awaiting your reply."},
+        {"ja": "その件は既に承知しております。", "reading": "そのけんはすでにしょうちしております。", "vi": "Việc đó tôi đã nắm rõ rồi ạ.", "en": "I am already aware of that matter."}
+      ]
+    },
+    {
+      "pattern": "〜てまいる／てまいります（謙譲）",
+      "meaning_vi": "(Khiêm nhường của ていく／てくる) sẽ … (về sau／đến nay)",
+      "meaning_en": "Humble form of ていく / てくる",
+      "structure": "Thể て ＋ まいる（まいります）",
+      "notes": "Khiêm nhường của ていく, てくる. 努力してまいります, 続けてまいりました.",
+      "examples": [
+        {"ja": "これからも努力してまいります。", "reading": "これからもどりょくしてまいります。", "vi": "Từ nay tôi sẽ tiếp tục cố gắng ạ.", "en": "I will continue to strive from now on."},
+        {"ja": "長年、研究を続けてまいりました。", "reading": "ながねん、けんきゅうをつづけてまいりました。", "vi": "Bao năm qua tôi đã tiếp tục nghiên cứu ạ.", "en": "I have continued my research for many years."}
+      ]
+    },
+    {
+      "pattern": "〜でいらっしゃる（尊敬）",
+      "meaning_vi": "(Kính ngữ của だ／です) ngài là …",
+      "meaning_en": "Honorific copula (be)",
+      "structure": "Danh từ／tính từ-na ＋ でいらっしゃる",
+      "notes": "Tôn kính cho です khi nói về người trên. お元気でいらっしゃいますか.",
+      "examples": [
+        {"ja": "山田先生でいらっしゃいますか。", "reading": "やまだせんせいでいらっしゃいますか。", "vi": "Ngài có phải là thầy Yamada không ạ?", "en": "Are you Professor Yamada?"},
+        {"ja": "ご両親はお元気でいらっしゃいますか。", "reading": "ごりょうしんはおげんきでいらっしゃいますか。", "vi": "Cha mẹ ngài vẫn khỏe chứ ạ?", "en": "Are your parents well?"}
+      ]
+    },
+    {
+      "pattern": "〜ていらっしゃる（尊敬）",
+      "meaning_vi": "(Kính ngữ của ている) ngài đang …",
+      "meaning_en": "Honorific form of ている",
+      "structure": "Thể て ＋ いらっしゃる",
+      "notes": "Tôn kính cho ている. 何をなさっていらっしゃいますか.",
+      "examples": [
+        {"ja": "社長は今、電話をしていらっしゃいます。", "reading": "しゃちょうはいま、でんわをしていらっしゃいます。", "vi": "Giám đốc bây giờ đang gọi điện thoại ạ.", "en": "The president is on the phone now."},
+        {"ja": "いつも何時頃まで働いていらっしゃいますか。", "reading": "いつもなんじごろまではたらいていらっしゃいますか。", "vi": "Ngài thường làm việc đến khoảng mấy giờ ạ?", "en": "Until around what time do you usually work?"}
+      ]
+    },
+    {
+      "pattern": "かしこまりました（謙譲）",
+      "meaning_vi": "(Khiêm nhường) Vâng, tôi đã rõ／xin tuân lệnh",
+      "meaning_en": "Certainly / understood (humble)",
+      "structure": "Thành ngữ khiêm nhường (đáp lại yêu cầu)",
+      "notes": "Đáp lịch sự \"đã hiểu, sẽ làm\" với khách／người trên. Trang trọng hơn 分かりました.",
+      "examples": [
+        {"ja": "かしこまりました。すぐにお持ちします。", "reading": "かしこまりました。すぐにおもちします。", "vi": "Vâng ạ. Tôi sẽ mang ra ngay ạ.", "en": "Certainly. I'll bring it right away."},
+        {"ja": "かしこまりました。そのように手配いたします。", "reading": "かしこまりました。そのようにてはいいたします。", "vi": "Vâng ạ. Tôi sẽ sắp xếp như vậy ạ.", "en": "Understood. I'll arrange it accordingly."}
+      ]
+    },
+    {
+      "pattern": "承知いたしました（謙譲）",
+      "meaning_vi": "(Khiêm nhường) Tôi đã rõ／xin tiếp nhận",
+      "meaning_en": "Understood / noted (humble)",
+      "structure": "Thành ngữ khiêm nhường",
+      "notes": "Đáp \"đã hiểu／tiếp nhận\" trang trọng, dùng trong công việc. 承知しました cũng được.",
+      "examples": [
+        {"ja": "ご依頼の件、承知いたしました。", "reading": "ごいらいのけん、しょうちいたしました。", "vi": "Việc ngài yêu cầu, tôi đã rõ ạ.", "en": "Regarding your request, I understand."},
+        {"ja": "日程の変更、承知いたしました。", "reading": "にっていのへんこう、しょうちいたしました。", "vi": "Việc đổi lịch, tôi đã nắm ạ.", "en": "I've noted the change in schedule."}
+      ]
+    },
+    {
+      "pattern": "差し上げる（謙譲）",
+      "meaning_vi": "(Khiêm nhường của あげる) tôi xin biếu／tặng (ngài)",
+      "meaning_en": "Humble of give (to you)",
+      "structure": "Khiêm nhường; 差し上げます",
+      "notes": "Hạ mình khi cho người trên. 〜て差し上げる dùng cẩn thận (dễ thành bề trên).",
+      "examples": [
+        {"ja": "後ほど資料をお送り差し上げます。", "reading": "のちほどしりょうをおおくりさしあげます。", "vi": "Lát nữa tôi xin gửi tài liệu đến ngài ạ.", "en": "I'll send you the materials later."},
+        {"ja": "記念品を差し上げます。", "reading": "きねんひんをさしあげます。", "vi": "Tôi xin tặng ngài món quà lưu niệm ạ.", "en": "I'd like to present you with a memento."}
+      ]
+    },
+    {
+      "pattern": "承る（謙譲）",
+      "meaning_vi": "(Khiêm nhường của 聞く／受ける) tôi xin tiếp nhận／lắng nghe",
+      "meaning_en": "Humble of hear / receive / undertake",
+      "structure": "Khiêm nhường; 承ります",
+      "notes": "Hạ mình khi nghe／nhận yêu cầu, dịch vụ. ご注文を承ります.",
+      "examples": [
+        {"ja": "ご注文を承ります。", "reading": "ごちゅうもんをうけたまわります。", "vi": "Tôi xin tiếp nhận yêu cầu gọi món ạ.", "en": "May I take your order?"},
+        {"ja": "ご意見を承りました。", "reading": "ごいけんをうけたまわりました。", "vi": "Tôi đã tiếp nhận ý kiến của ngài ạ.", "en": "I have received your feedback."}
+      ]
+    }
+  ]
+}

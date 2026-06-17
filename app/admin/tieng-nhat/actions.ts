@@ -236,3 +236,34 @@ export async function toggleQuizPublished(id: string, published: boolean): Promi
   revalidatePath('/admin/tieng-nhat/quiz')
   return {}
 }
+
+// ─── Comments moderation ──────────────────────────────────────────────────────
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+// Ẩn (status=deleted) hoặc khôi phục (status=approved) một bình luận tiếng Nhật.
+// Khi ẩn một bình luận gốc, các trả lời con cũng được ẩn theo.
+export async function adminSetJpCommentStatus(formData: FormData) {
+  await guardAdmin()
+  const admin = createAdminClient()
+
+  const id = (formData.get('id') as string ?? '').trim()
+  const status = (formData.get('status') as string ?? '').trim()
+  if (!UUID_RE.test(id) || (status !== 'approved' && status !== 'deleted')) return
+
+  const deletedAt = status === 'deleted' ? new Date().toISOString() : null
+  await admin
+    .from('japanese_comments')
+    .update({ status, deleted_at: deletedAt })
+    .eq('id', id)
+
+  // Lan trạng thái xuống các reply con (chỉ với bình luận gốc).
+  await admin
+    .from('japanese_comments')
+    .update({ status, deleted_at: deletedAt })
+    .eq('parent_id', id)
+
+  revalidatePath('/admin/tieng-nhat/binh-luan')
+  revalidatePath('/tieng-nhat/tu-dien')
+  revalidatePath('/tieng-nhat/ngu-phap')
+}

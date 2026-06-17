@@ -1,0 +1,358 @@
+{
+  "level": "N3",
+  "wave": 5,
+  "entries": [
+    {
+      "pattern": "〜から〜にかけて",
+      "meaning_vi": "Từ … đến … (khoảng không gian／thời gian, mơ hồ)",
+      "meaning_en": "From … to … (range)",
+      "structure": "Danh từ ＋ から ＋ Danh từ ＋ にかけて",
+      "notes": "Phạm vi liên tục, ranh giới không rõ ràng (khác から〜まで chính xác). 夜から朝にかけて.",
+      "examples": [
+        {"ja": "今夜から明日にかけて、雪が降るでしょう。", "reading": "こんやからあすにかけて、ゆきがふるでしょう。", "vi": "Từ tối nay đến mai chắc sẽ có tuyết.", "en": "It will likely snow from tonight through tomorrow."},
+        {"ja": "関東から東北にかけて地震があった。", "reading": "かんとうからとうほくにかけてじしんがあった。", "vi": "Đã xảy ra động đất trải từ Kanto đến Tohoku.", "en": "There was an earthquake from Kanto through Tohoku."}
+      ]
+    },
+    {
+      "pattern": "〜からすると／から見ると",
+      "meaning_vi": "Xét từ …, theo … mà nói",
+      "meaning_en": "Judging from / from the standpoint of …",
+      "structure": "Danh từ ＋ からすると／から見ると／から言うと",
+      "notes": "Nêu lập trường／căn cứ để phán đoán. あの様子からすると = nhìn bộ dạng đó thì.",
+      "examples": [
+        {"ja": "あの口ぶりからすると、彼は知っているようだ。", "reading": "あのくちぶりからすると、かれはしっているようだ。", "vi": "Nghe giọng điệu đó thì có vẻ anh ấy biết.", "en": "Judging from his tone, he seems to know."},
+        {"ja": "親から見ると、子供はいつまでも子供だ。", "reading": "おやからみると、こどもはいつまでもこどもだ。", "vi": "Dưới mắt cha mẹ, con cái mãi vẫn là con.", "en": "From a parent's view, children are always children."}
+      ]
+    },
+    {
+      "pattern": "〜からして",
+      "meaning_vi": "Ngay từ … đã …; xét từ …",
+      "meaning_en": "Even just from … / judging from …",
+      "structure": "Danh từ ＋ からして",
+      "notes": "Lấy một ví dụ tiêu biểu để suy ra toàn thể, thường tiêu cực. 名前からして変だ.",
+      "examples": [
+        {"ja": "あの店は外観からして高そうだ。", "reading": "あのみせはがいかんからしてたかそうだ。", "vi": "Quán đó ngay từ vẻ ngoài đã trông đắt.", "en": "That shop looks expensive even just from the outside."},
+        {"ja": "考え方からして、私たちは違う。", "reading": "かんがえかたからして、わたしたちはちがう。", "vi": "Ngay từ cách suy nghĩ, chúng tôi đã khác nhau.", "en": "We differ right from our way of thinking."}
+      ]
+    },
+    {
+      "pattern": "〜てたまらない",
+      "meaning_vi": "… không chịu nổi, … vô cùng",
+      "meaning_en": "Unbearably … / can't stand how …",
+      "structure": "Tính từ／động từ thể て ＋ たまらない",
+      "notes": "Cảm xúc／cảm giác mạnh đến mức không chịu được. 暑くてたまらない, 会いたくてたまらない.",
+      "examples": [
+        {"ja": "のどが渇いてたまらない。", "reading": "のどがかわいてたまらない。", "vi": "Khát nước không chịu nổi.", "en": "I'm unbearably thirsty."},
+        {"ja": "故郷の母に会いたくてたまらない。", "reading": "ふるさとのははにあいたくてたまらない。", "vi": "Tôi nhớ mẹ ở quê vô cùng.", "en": "I miss my mother back home so much I can't stand it."}
+      ]
+    },
+    {
+      "pattern": "〜てならない",
+      "meaning_vi": "… không thôi, cứ … một cách tự nhiên",
+      "meaning_en": "Can't help feeling … / terribly …",
+      "structure": "Tính từ／động từ thể て ＋ ならない",
+      "notes": "Cảm xúc tự nhiên trào dâng, nhất là cảm giác (気がしてならない, 残念でならない). Trang trọng hơn たまらない.",
+      "examples": [
+        {"ja": "試験の結果が気になってならない。", "reading": "しけんのけっかがきになってならない。", "vi": "Tôi cứ lo lắng mãi về kết quả thi.", "en": "I can't help worrying about the exam result."},
+        {"ja": "彼の死が残念でならない。", "reading": "かれのしがざんねんでならない。", "vi": "Tôi tiếc thương cái chết của anh ấy khôn nguôi.", "en": "I can't help but feel deep regret over his death."}
+      ]
+    },
+    {
+      "pattern": "〜てしかたがない／てしょうがない",
+      "meaning_vi": "… hết sức, … chịu không nổi (văn nói)",
+      "meaning_en": "Extremely … / can't help …",
+      "structure": "Tính từ／động từ thể て ＋ しかたがない／しょうがない",
+      "notes": "Như たまらない, văn nói. しょうがない thân mật hơn. 眠くてしょうがない.",
+      "examples": [
+        {"ja": "授業中、眠くてしかたがない。", "reading": "じゅぎょうちゅう、ねむくてしかたがない。", "vi": "Trong giờ học tôi buồn ngủ kinh khủng.", "en": "During class I'm unbearably sleepy."},
+        {"ja": "結果が気になってしょうがない。", "reading": "けっかがきになってしょうがない。", "vi": "Tôi nóng lòng về kết quả không chịu được.", "en": "I can't stop wondering about the result."}
+      ]
+    },
+    {
+      "pattern": "〜というと／といえば",
+      "meaning_vi": "Nói đến … thì, nhắc đến … là",
+      "meaning_en": "Speaking of … / when it comes to …",
+      "structure": "Danh từ ＋ というと／といえば",
+      "notes": "Lấy chủ đề từ điều vừa nghe để liên tưởng／triển khai. 日本といえば富士山.",
+      "examples": [
+        {"ja": "日本の山といえば、富士山が有名だ。", "reading": "にほんのやまといえば、ふじさんがゆうめいだ。", "vi": "Nhắc đến núi Nhật Bản là nghĩ ngay Phú Sĩ.", "en": "Speaking of Japanese mountains, Mt. Fuji is famous."},
+        {"ja": "夏というと、海を思い出す。", "reading": "なつというと、うみをおもいだす。", "vi": "Nói đến mùa hè là tôi nhớ đến biển.", "en": "When it comes to summer, I think of the sea."}
+      ]
+    },
+    {
+      "pattern": "〜といったら",
+      "meaning_vi": "Nói đến … thì (thật là …, không gì bằng)",
+      "meaning_en": "When it comes to … (it's really …!)",
+      "structure": "Danh từ ＋ といったら",
+      "notes": "Nhấn cảm thán mạnh về đặc điểm nổi bật. その美しさといったら、言葉にできない.",
+      "examples": [
+        {"ja": "富士山の美しさといったら、言葉にできない。", "reading": "ふじさんのうつくしさといったら、ことばにできない。", "vi": "Nói đến vẻ đẹp của Phú Sĩ thì không lời nào tả xiết.", "en": "The beauty of Mt. Fuji is beyond words."},
+        {"ja": "あの時の緊張といったらなかった。", "reading": "あのときのきんちょうといったらなかった。", "vi": "Sự căng thẳng lúc đó thì không gì sánh bằng.", "en": "The tension at that time was beyond compare."}
+      ]
+    },
+    {
+      "pattern": "〜ないことには",
+      "meaning_vi": "Nếu không … thì (không thể …)",
+      "meaning_en": "Unless … (… won't happen)",
+      "structure": "Động từ thể ない ＋ ことには（vế sau phủ định）",
+      "notes": "Điều kiện thiết yếu; không có A thì B không thành. やってみないことには分からない.",
+      "examples": [
+        {"ja": "実際に見ないことには、判断できない。", "reading": "じっさいにみないことには、はんだんできない。", "vi": "Nếu không tận mắt thấy thì tôi không phán đoán được.", "en": "Unless I actually see it, I can't judge."},
+        {"ja": "健康でないことには、何もできない。", "reading": "けんこうでないことには、なにもできない。", "vi": "Không khỏe mạnh thì chẳng làm được gì.", "en": "Unless you're healthy, you can't do anything."}
+      ]
+    },
+    {
+      "pattern": "〜には（để …）",
+      "meaning_vi": "Để (làm) … thì (cần …)",
+      "meaning_en": "In order to … (you need to)",
+      "structure": "Động từ thể từ điển ＋ には",
+      "notes": "Nêu mục đích, vế sau là điều kiện／cách thức cần thiết. 上手になるには練習が必要だ.",
+      "examples": [
+        {"ja": "日本語が上手になるには、毎日話すことだ。", "reading": "にほんごがじょうずになるには、まいにちはなすことだ。", "vi": "Để giỏi tiếng Nhật thì phải nói mỗi ngày.", "en": "To get good at Japanese, you must speak every day."},
+        {"ja": "駅へ行くには、この道がいちばん近い。", "reading": "えきへいくには、このみちがいちばんちかい。", "vi": "Để ra ga thì con đường này gần nhất.", "en": "To get to the station, this road is the shortest."}
+      ]
+    },
+    {
+      "pattern": "〜によると／によれば",
+      "meaning_vi": "Theo (nguồn tin) …, dựa theo …",
+      "meaning_en": "According to …",
+      "structure": "Danh từ ＋ によると／によれば",
+      "notes": "Nêu nguồn của thông tin nghe được, hay đi với 〜そうだ／〜らしい cuối câu.",
+      "examples": [
+        {"ja": "天気予報によると、明日は晴れるそうだ。", "reading": "てんきよほうによると、あしたははれるそうだ。", "vi": "Theo dự báo, nghe nói mai trời đẹp.", "en": "According to the forecast, it'll be sunny tomorrow."},
+        {"ja": "ニュースによれば、事故があったらしい。", "reading": "ニュースによれば、じこがあったらしい。", "vi": "Theo bản tin thì hình như có tai nạn.", "en": "According to the news, there was apparently an accident."}
+      ]
+    },
+    {
+      "pattern": "〜のみ",
+      "meaning_vi": "Chỉ, duy nhất (trang trọng, văn viết)",
+      "meaning_en": "Only / merely (formal)",
+      "structure": "Danh từ／động từ thể từ điển ＋ のみ",
+      "notes": "Như だけ nhưng trang trọng, văn viết. 〜のみならず = không chỉ … (xem N1).",
+      "examples": [
+        {"ja": "当店は現金のみのお取り扱いです。", "reading": "とうてんはげんきんのみのおとりあつかいです。", "vi": "Cửa hàng chúng tôi chỉ nhận tiền mặt.", "en": "Our store accepts cash only."},
+        {"ja": "努力あるのみだ。", "reading": "どりょくあるのみだ。", "vi": "Chỉ còn cách nỗ lực mà thôi.", "en": "There is nothing to do but make an effort."}
+      ]
+    },
+    {
+      "pattern": "〜はもちろん",
+      "meaning_vi": "… thì khỏi phải nói, không chỉ … mà cả …",
+      "meaning_en": "Not to mention … / of course … and also",
+      "structure": "Danh từ ＋ はもちろん（〜も）",
+      "notes": "A là điều hiển nhiên, nhấn cả B cũng vậy. 子供はもちろん、大人も楽しめる.",
+      "examples": [
+        {"ja": "子供はもちろん、大人もこのゲームを楽しめる。", "reading": "こどもはもちろん、おとなもこのゲームをたのしめる。", "vi": "Trẻ con thì khỏi nói, người lớn cũng chơi game này được.", "en": "Not to mention children, adults can enjoy this game too."},
+        {"ja": "彼は英語はもちろん、中国語も話せる。", "reading": "かれはえいごはもちろん、ちゅうごくごもはなせる。", "vi": "Anh ấy tiếng Anh khỏi nói, cả tiếng Trung cũng nói được.", "en": "He speaks English, of course, and also Chinese."}
+      ]
+    },
+    {
+      "pattern": "〜にかわって",
+      "meaning_vi": "Thay mặt cho …, thay cho …",
+      "meaning_en": "On behalf of … / in place of …",
+      "structure": "Danh từ ＋ にかわって（に代わって）",
+      "notes": "Làm thay vai trò của ai／cái gì. 社長に代わって挨拶する.",
+      "examples": [
+        {"ja": "病気の父に代わって、私が出席した。", "reading": "びょうきのちちにかわって、わたしがしゅっせきした。", "vi": "Tôi đã dự thay cho bố đang ốm.", "en": "I attended on behalf of my sick father."},
+        {"ja": "人にかわって、ロボットが働く時代だ。", "reading": "ひとにかわって、ロボットがはたらくじだいだ。", "vi": "Thời đại robot làm việc thay con người.", "en": "It's an age where robots work in place of people."}
+      ]
+    },
+    {
+      "pattern": "〜のもとで",
+      "meaning_vi": "Dưới (sự chỉ đạo／điều kiện của) …",
+      "meaning_en": "Under (the guidance/conditions of) …",
+      "structure": "Danh từ ＋ のもとで（のもとに）",
+      "notes": "Dưới sự ảnh hưởng／quản lý／điều kiện nào đó. 先生の指導のもとで.",
+      "examples": [
+        {"ja": "有名な先生のもとで学んだ。", "reading": "ゆうめいなせんせいのもとでまなんだ。", "vi": "Tôi đã học dưới sự dìu dắt của một thầy nổi tiếng.", "en": "I studied under a famous teacher."},
+        {"ja": "厳しい規則のもとで生活している。", "reading": "きびしいきそくのもとでせいかつしている。", "vi": "Tôi sống dưới những quy định nghiêm ngặt.", "en": "I live under strict rules."}
+      ]
+    },
+    {
+      "pattern": "〜だの〜だの",
+      "meaning_vi": "Nào là … nào là … (liệt kê kèm phàn nàn)",
+      "meaning_en": "… and … and (this and that, complaining)",
+      "structure": "Danh từ／thể thường ＋ だの ＋ … ＋ だの",
+      "notes": "Liệt kê với sắc thái chê bai／phiền hà. 高いだの まずいだの文句が多い.",
+      "examples": [
+        {"ja": "暑いだの寒いだの、文句ばかり言う。", "reading": "あついだのさむいだの、もんくばかりいう。", "vi": "Nào nóng nào lạnh, toàn kêu ca.", "en": "He's always complaining — too hot, too cold, and so on."},
+        {"ja": "宿題だの掃除だの、やることが多い。", "reading": "しゅくだいだのそうじだの、やることがおおい。", "vi": "Nào bài tập nào dọn dẹp, lắm việc phải làm.", "en": "Homework, cleaning, and what not — there's so much to do."}
+      ]
+    },
+    {
+      "pattern": "〜といった",
+      "meaning_vi": "Như là …, chẳng hạn như … (nêu ví dụ cụ thể)",
+      "meaning_en": "Such as … (specific examples)",
+      "structure": "Danh từ ＋ や ＋ Danh từ ＋ といった ＋ Danh từ",
+      "notes": "Nêu vài ví dụ tiêu biểu rồi quy về loại chung. りんごやみかんといった果物.",
+      "examples": [
+        {"ja": "サッカーやテニスといったスポーツが好きだ。", "reading": "サッカーやテニスといったスポーツがすきだ。", "vi": "Tôi thích các môn thể thao như bóng đá, tennis.", "en": "I like sports such as soccer and tennis."},
+        {"ja": "京都や奈良といった古都を訪れた。", "reading": "きょうとやならといったことをおとずれた。", "vi": "Tôi đã thăm các cố đô như Kyoto, Nara.", "en": "I visited ancient capitals such as Kyoto and Nara."}
+      ]
+    },
+    {
+      "pattern": "〜といっても",
+      "meaning_vi": "Tuy nói là … nhưng thực ra …",
+      "meaning_en": "Although I say … / even though it's called …",
+      "structure": "Thể thường／danh từ ＋ といっても",
+      "notes": "Sửa lại ấn tượng có thể bị hiểu quá lên từ A. 料理ができるといっても、卵焼きだけだ.",
+      "examples": [
+        {"ja": "料理が得意といっても、簡単なものだけだ。", "reading": "りょうりがとくいといっても、かんたんなものだけだ。", "vi": "Tuy nói giỏi nấu ăn nhưng chỉ là món đơn giản thôi.", "en": "I say I'm good at cooking, but only simple dishes."},
+        {"ja": "近いといっても、歩いて30分かかる。", "reading": "ちかいといっても、あるいてさんじゅっぷんかかる。", "vi": "Tuy nói gần nhưng đi bộ mất 30 phút.", "en": "It's close, but it still takes 30 minutes on foot."}
+      ]
+    },
+    {
+      "pattern": "〜だけのことはある",
+      "meaning_vi": "Quả xứng với …, đúng là có … nên (mới vậy)",
+      "meaning_en": "Worthy of … / no wonder, as expected",
+      "structure": "Thể thường（danh từ）＋ だけのことはある",
+      "notes": "Khen: kết quả tốt xứng với công sức／lai lịch. 練習しただけのことはある.",
+      "examples": [
+        {"ja": "毎日練習しただけのことはあって、優勝した。", "reading": "まいにちれんしゅうしただけのことはあって、ゆうしょうした。", "vi": "Đúng là tập luyện mỗi ngày có khác, đã vô địch.", "en": "All that daily practice paid off — he won the championship."},
+        {"ja": "さすがプロだけのことはある。", "reading": "さすがプロだけのことはある。", "vi": "Quả xứng đáng là dân chuyên nghiệp.", "en": "As expected of a pro, indeed."}
+      ]
+    },
+    {
+      "pattern": "〜つもりで",
+      "meaning_vi": "Với ý định／tâm thế coi như …",
+      "meaning_en": "With the intention of / as if …",
+      "structure": "Động từ thể từ điển／た・danh từ の ＋ つもりで",
+      "notes": "Làm gì với một tâm thế／giả định. 旅行のつもりで, 死んだつもりで頑張る.",
+      "examples": [
+        {"ja": "プロになるつもりで毎日練習している。", "reading": "プロになるつもりでまいにちれんしゅうしている。", "vi": "Tôi luyện tập mỗi ngày với ý chí thành dân chuyên.", "en": "I practice daily with the intention of becoming a pro."},
+        {"ja": "新人のつもりで一から勉強します。", "reading": "しんじんのつもりでいちからべんきょうします。", "vi": "Tôi sẽ học lại từ đầu với tâm thế người mới.", "en": "I'll study from scratch as if I were a newcomer."}
+      ]
+    },
+    {
+      "pattern": "〜はずだった",
+      "meaning_vi": "Lẽ ra đã phải … (nhưng đã không)",
+      "meaning_en": "Was supposed to … (but didn't)",
+      "structure": "Động từ thể từ điển／た ＋ はずだった",
+      "notes": "Dự kiến không thành. 今日着くはずだったが、遅れている.",
+      "examples": [
+        {"ja": "飛行機は10時に着くはずだった。", "reading": "ひこうきはじゅうじにつくはずだった。", "vi": "Đáng lẽ máy bay phải đến lúc 10 giờ.", "en": "The plane was supposed to arrive at ten."},
+        {"ja": "ここに置いたはずだったのに、ない。", "reading": "ここにおいたはずだったのに、ない。", "vi": "Lẽ ra tôi để ở đây mà giờ không thấy.", "en": "I was sure I put it here, but it's gone."}
+      ]
+    },
+    {
+      "pattern": "〜ものではない",
+      "meaning_vi": "Không nên …, chớ … (răn dạy theo lẽ thường)",
+      "meaning_en": "One should not … (general principle)",
+      "structure": "Động từ thể từ điển ＋ ものではない",
+      "notes": "Phủ định của 〜ものだ, nêu lẽ phải／quy chuẩn xã hội để răn. 食べ物を粗末にするものではない.",
+      "examples": [
+        {"ja": "食べ物を粗末にするものではない。", "reading": "たべものをそまつにするものではない。", "vi": "Không nên phí phạm đồ ăn.", "en": "One should not waste food."},
+        {"ja": "人前で大声を出すものではない。", "reading": "ひとまえでおおごえをだすものではない。", "vi": "Chớ nên to tiếng nơi đông người.", "en": "One shouldn't raise one's voice in public."}
+      ]
+    },
+    {
+      "pattern": "次第に",
+      "meaning_vi": "Dần dần, từ từ",
+      "meaning_en": "Gradually / little by little",
+      "structure": "Trạng từ (次第に ＋ động từ thay đổi)",
+      "notes": "Diễn tả thay đổi từ từ. Gần だんだん nhưng trang trọng hơn. 次第に暗くなる.",
+      "examples": [
+        {"ja": "空が次第に暗くなってきた。", "reading": "そらがしだいにくらくなってきた。", "vi": "Bầu trời dần tối lại.", "en": "The sky gradually grew dark."},
+        {"ja": "痛みは次第に消えていった。", "reading": "いたみはしだいにきえていった。", "vi": "Cơn đau dần dần biến mất.", "en": "The pain gradually faded away."}
+      ]
+    },
+    {
+      "pattern": "いくら〜ても",
+      "meaning_vi": "Dù … bao nhiêu (đi nữa) cũng …",
+      "meaning_en": "No matter how much …",
+      "structure": "いくら ＋ động từ／tính từ thể て ＋ も",
+      "notes": "Nhấn mức độ cực đại mà vế sau vẫn không đổi. いくら考えても分からない.",
+      "examples": [
+        {"ja": "いくら呼んでも、返事がない。", "reading": "いくらよんでも、へんじがない。", "vi": "Dù có gọi bao nhiêu cũng không thấy trả lời.", "en": "No matter how much I call, there's no answer."},
+        {"ja": "いくら高くても、必要なら買う。", "reading": "いくらたかくても、ひつようならかう。", "vi": "Dù đắt bao nhiêu, nếu cần thì tôi vẫn mua.", "en": "No matter how expensive, I'll buy it if I need it."}
+      ]
+    },
+    {
+      "pattern": "どんなに〜ても",
+      "meaning_vi": "Dù … đến đâu (thế nào) cũng …",
+      "meaning_en": "No matter how …",
+      "structure": "どんなに ＋ động từ／tính từ thể て ＋ も",
+      "notes": "Như いくら〜ても, nhấn mức độ／cách thức. どんなに辛くても諦めない.",
+      "examples": [
+        {"ja": "どんなに辛くても、最後まで頑張る。", "reading": "どんなにつらくても、さいごまでがんばる。", "vi": "Dù khổ đến đâu tôi cũng cố đến cùng.", "en": "No matter how hard it is, I'll keep going to the end."},
+        {"ja": "どんなに急いでも間に合わなかった。", "reading": "どんなにいそいでもまにあわなかった。", "vi": "Dù có vội thế nào cũng không kịp.", "en": "No matter how much I hurried, I couldn't make it."}
+      ]
+    },
+    {
+      "pattern": "まさか〜とは",
+      "meaning_vi": "Không ngờ lại …, nào ngờ …",
+      "meaning_en": "Never thought that … / who would have thought",
+      "structure": "まさか ＋ … ＋ とは（思わなかった）",
+      "notes": "Bày tỏ ngạc nhiên về điều ngoài dự đoán. まさか彼が来るとは思わなかった.",
+      "examples": [
+        {"ja": "まさか彼が来るとは思わなかった。", "reading": "まさかかれがくるとはおもわなかった。", "vi": "Tôi không ngờ anh ấy lại đến.", "en": "I never thought he would come."},
+        {"ja": "まさか優勝するとは、夢にも思わなかった。", "reading": "まさかゆうしょうするとは、ゆめにもおもわなかった。", "vi": "Nào ngờ lại vô địch, nằm mơ cũng không dám nghĩ.", "en": "I never even dreamed I'd win."}
+      ]
+    },
+    {
+      "pattern": "万一〜たら",
+      "meaning_vi": "Lỡ may, nếu chẳng may …",
+      "meaning_en": "In the unlikely event that …",
+      "structure": "万一 ＋ động từ thể た ＋ ら",
+      "notes": "Giả định một khả năng xấu hiếm xảy ra. 万一遅れたら, 万一の場合.",
+      "examples": [
+        {"ja": "万一火事になったら、すぐ逃げてください。", "reading": "まんいちかじになったら、すぐにげてください。", "vi": "Nếu chẳng may xảy ra cháy, hãy chạy ngay.", "en": "In the unlikely event of a fire, please evacuate immediately."},
+        {"ja": "万一に備えて、保険に入った。", "reading": "まんいちにそなえて、ほけんにはいった。", "vi": "Đề phòng bất trắc, tôi đã mua bảo hiểm.", "en": "I got insurance to prepare for any emergency."}
+      ]
+    },
+    {
+      "pattern": "せっかく〜のに／だから",
+      "meaning_vi": "Đã cất công …, mất công … (mà／nên)",
+      "meaning_en": "Went to the trouble of … (so / but)",
+      "structure": "せっかく ＋ … ＋ のに／だから／の",
+      "notes": "Nhấn công sức／cơ hội quý. せっかく作ったのに. せっかくだから = đã vậy thì.",
+      "examples": [
+        {"ja": "せっかく来たのに、店が閉まっていた。", "reading": "せっかくきたのに、みせがしまっていた。", "vi": "Đã cất công đến mà quán lại đóng cửa.", "en": "I came all this way, but the shop was closed."},
+        {"ja": "せっかくだから、ゆっくりしていってください。", "reading": "せっかくだから、ゆっくりしていってください。", "vi": "Đã đến rồi thì cứ thong thả nhé.", "en": "Since you're here, please stay and relax."}
+      ]
+    },
+    {
+      "pattern": "さすが（に）",
+      "meaning_vi": "Quả là … (như danh tiếng); ngay cả … cũng",
+      "meaning_en": "As expected / truly …; even … (after all)",
+      "structure": "さすが（に）＋ …",
+      "notes": "Khen đúng như danh tiếng (さすがプロ) hoặc thừa nhận giới hạn (さすがに疲れた).",
+      "examples": [
+        {"ja": "さすがプロの料理は違う。", "reading": "さすがプロのりょうりはちがう。", "vi": "Quả nhiên món của dân chuyên có khác.", "en": "The cooking of a pro really is different, as expected."},
+        {"ja": "毎日残業で、さすがに疲れた。", "reading": "まいにちざんぎょうで、さすがにつかれた。", "vi": "Ngày nào cũng tăng ca, đúng là cũng mệt thật.", "en": "With overtime every day, even I got tired."}
+      ]
+    },
+    {
+      "pattern": "〜ようでは",
+      "meaning_vi": "Nếu (cứ) … thế này thì (không ổn)",
+      "meaning_en": "If … (then it's no good)",
+      "structure": "Động từ thể từ điển／ている ＋ ようでは",
+      "notes": "Nêu tình trạng A xấu dẫn đến kết luận tiêu cực B. こんなことで諦めるようではだめだ.",
+      "examples": [
+        {"ja": "そんなに早く諦めるようでは、成功しない。", "reading": "そんなにはやくあきらめるようでは、せいこうしない。", "vi": "Cứ bỏ cuộc sớm thế này thì không thành công được.", "en": "If you give up that easily, you won't succeed."},
+        {"ja": "毎日遅刻するようでは、信用を失う。", "reading": "まいにちちこくするようでは、しんようをうしなう。", "vi": "Ngày nào cũng đi muộn thế này thì mất uy tín.", "en": "If you're late every day, you'll lose trust."}
+      ]
+    },
+    {
+      "pattern": "〜に限る",
+      "meaning_vi": "Nhất là …, không gì bằng …; chỉ giới hạn ở …",
+      "meaning_en": "Nothing beats … / be limited to …",
+      "structure": "Danh từ／động từ thể từ điển・ない ＋ に限る",
+      "notes": "Nêu lựa chọn tốt nhất theo ý người nói. 疲れたときは寝るに限る.",
+      "examples": [
+        {"ja": "暑い日はビールに限る。", "reading": "あついひはビールにかぎる。", "vi": "Ngày nóng thì không gì bằng bia.", "en": "On a hot day, nothing beats a beer."},
+        {"ja": "風邪のときは早く寝るに限る。", "reading": "かぜのときははやくねるにかぎる。", "vi": "Khi bị cảm thì tốt nhất là ngủ sớm.", "en": "When you have a cold, nothing beats sleeping early."}
+      ]
+    },
+    {
+      "pattern": "どうも（〜ようだ／〜ない）",
+      "meaning_vi": "Hình như, có vẻ; (với phủ định) chẳng hiểu sao …",
+      "meaning_en": "Somehow / it seems …",
+      "structure": "どうも ＋ ようだ／らしい／(phủ định)",
+      "notes": "Diễn tả cảm giác mơ hồ \"không hiểu sao\". Cũng dùng chào／cảm ơn (どうも).",
+      "examples": [
+        {"ja": "どうも風邪をひいたようだ。", "reading": "どうもかぜをひいたようだ。", "vi": "Hình như tôi bị cảm rồi.", "en": "It seems I've caught a cold somehow."},
+        {"ja": "どうも彼の話は信じられない。", "reading": "どうもかれのはなしはしんじられない。", "vi": "Chẳng hiểu sao tôi không tin lời anh ta.", "en": "Somehow I just can't believe his story."}
+      ]
+    }
+  ]
+}

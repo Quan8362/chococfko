@@ -1,0 +1,413 @@
+{
+  "level": "N4",
+  "wave": 3,
+  "entries": [
+    {
+      "pattern": "お〜になる（tôn kính）",
+      "meaning_vi": "Kính ngữ — (người trên) làm …",
+      "meaning_en": "Respectful form (someone esteemed does …)",
+      "structure": "お ＋ động từ thân ます ＋ になる",
+      "notes": "Tôn kính hành động của người trên／khách. 読む→お読みになる. Với từ Hán + する dùng ご〜になる.",
+      "examples": [
+        {"ja": "先生はもうお帰りになりました。", "reading": "せんせいはもうおかえりになりました。", "vi": "Thầy đã ra về rồi ạ.", "en": "The teacher has already gone home."},
+        {"ja": "何時にお出かけになりますか。", "reading": "なんじにおでかけになりますか。", "vi": "Mấy giờ ngài ra ngoài ạ?", "en": "What time will you be going out?"}
+      ]
+    },
+    {
+      "pattern": "お〜する（khiêm nhường）",
+      "meaning_vi": "Khiêm nhường ngữ — tôi xin … (cho người trên)",
+      "meaning_en": "Humble form (I humbly do … for someone esteemed)",
+      "structure": "お ＋ động từ thân ます ＋ する",
+      "notes": "Hạ thấp hành động của mình khi làm cho người trên. 持つ→お持ちする. Từ Hán: ご案内する.",
+      "examples": [
+        {"ja": "お荷物をお持ちします。", "reading": "おにもつをおもちします。", "vi": "Để tôi xách hành lý cho ạ.", "en": "Let me carry your luggage."},
+        {"ja": "後でお電話します。", "reading": "あとでおでんわします。", "vi": "Lát nữa tôi sẽ gọi điện ạ.", "en": "I'll call you later."}
+      ]
+    },
+    {
+      "pattern": "〜（ら）れる（tôn kính）",
+      "meaning_vi": "Kính ngữ nhẹ (cùng dạng bị động)",
+      "meaning_en": "Respectful form (same shape as passive)",
+      "structure": "Động từ thể bị động (行かれる, 来られる, される)",
+      "notes": "Mức tôn kính nhẹ hơn お〜になる, tiện trong hội thoại. Cùng hình thức bị động — phân biệt qua ngữ cảnh.",
+      "examples": [
+        {"ja": "社長はもう帰られました。", "reading": "しゃちょうはもうかえられました。", "vi": "Giám đốc đã về rồi ạ.", "en": "The president has already left."},
+        {"ja": "先生はこの本を書かれました。", "reading": "せんせいはこのほんをかかれました。", "vi": "Thầy đã viết cuốn sách này.", "en": "The teacher wrote this book."}
+      ]
+    },
+    {
+      "pattern": "お〜ください",
+      "meaning_vi": "Xin mời ngài … (yêu cầu tôn kính)",
+      "meaning_en": "Please … (respectful request)",
+      "structure": "お ＋ động từ thân ます ＋ ください（ご ＋ từ Hán ＋ ください）",
+      "notes": "Lịch sự hơn 〜てください. お入りください, ご利用ください. Dùng khi mời khách／người trên.",
+      "examples": [
+        {"ja": "どうぞお座りください。", "reading": "どうぞおすわりください。", "vi": "Xin mời ngồi.", "en": "Please have a seat."},
+        {"ja": "こちらをご覧ください。", "reading": "こちらをごらんください。", "vi": "Xin hãy nhìn bên này.", "en": "Please look over here."}
+      ]
+    },
+    {
+      "pattern": "〜てくださる",
+      "meaning_vi": "(Người trên) làm … cho mình (kính ngữ)",
+      "meaning_en": "Someone esteemed does … for me",
+      "structure": "Thể て của động từ ＋ くださる",
+      "notes": "Dạng tôn kính của 〜てくれる. 〜てくださいます／〜てくださった. Hàm ý biết ơn người trên.",
+      "examples": [
+        {"ja": "先生が日本語を教えてくださいました。", "reading": "せんせいがにほんごをおしえてくださいました。", "vi": "Thầy đã dạy tiếng Nhật cho tôi.", "en": "The teacher kindly taught me Japanese."},
+        {"ja": "部長が手伝ってくださった。", "reading": "ぶちょうがてつだってくださった。", "vi": "Trưởng phòng đã giúp tôi.", "en": "The manager kindly helped me."}
+      ]
+    },
+    {
+      "pattern": "〜ていただく",
+      "meaning_vi": "Được (người trên) làm … cho (khiêm nhường)",
+      "meaning_en": "Humbly have someone do … for me",
+      "structure": "Thể て của động từ ＋ いただく",
+      "notes": "Dạng khiêm nhường của 〜てもらう. Người làm dùng に. 教えていただく.",
+      "examples": [
+        {"ja": "先生に推薦状を書いていただきました。", "reading": "せんせいにすいせんじょうをかいていただきました。", "vi": "Tôi được thầy viết thư giới thiệu cho.", "en": "I had the teacher write me a recommendation letter."},
+        {"ja": "道を教えていただけますか。", "reading": "みちをおしえていただけますか。", "vi": "Anh/chị chỉ đường giúp tôi được không ạ?", "en": "Could you kindly show me the way?"}
+      ]
+    },
+    {
+      "pattern": "〜させていただく",
+      "meaning_vi": "Xin phép cho tôi được … (khiêm nhường lịch sự)",
+      "meaning_en": "Allow me to … (very humble)",
+      "structure": "Động từ thể sai khiến ＋ ていただく",
+      "notes": "Rất lịch sự, xin phép làm gì. 休ませていただきます = xin phép cho tôi nghỉ. Tránh lạm dụng kẻo khách sáo.",
+      "examples": [
+        {"ja": "本日は休ませていただきます。", "reading": "ほんじつはやすませていただきます。", "vi": "Hôm nay xin phép cho tôi được nghỉ ạ.", "en": "Allow me to take the day off today."},
+        {"ja": "説明させていただきます。", "reading": "せつめいさせていただきます。", "vi": "Xin phép cho tôi được giải thích.", "en": "Allow me to explain."}
+      ]
+    },
+    {
+      "pattern": "特別な敬語動詞（いらっしゃる・召し上がる…）",
+      "meaning_vi": "Động từ kính ngữ đặc biệt (có dạng riêng)",
+      "meaning_en": "Special honorific / humble verbs",
+      "structure": "Tôn kính: いらっしゃる, 召し上がる, ご覧になる, なさる, おっしゃる; Khiêm nhường: 参る, いただく, 拝見する, 申す, いたす",
+      "notes": "Một số động từ có dạng kính ngữ riêng thay vì お〜になる／お〜する. 食べる→召し上がる（tôn kính）／いただく（khiêm nhường）.",
+      "examples": [
+        {"ja": "何を召し上がりますか。", "reading": "なにをめしあがりますか。", "vi": "Ngài dùng món gì ạ?", "en": "What would you like to eat?"},
+        {"ja": "明日、参ります。", "reading": "あした、まいります。", "vi": "Ngày mai tôi sẽ đến ạ.", "en": "I will come tomorrow."}
+      ]
+    },
+    {
+      "pattern": "〜でございます／ございます",
+      "meaning_vi": "Là …; có … (siêu lịch sự, ngành dịch vụ)",
+      "meaning_en": "Is … / there is … (very polite)",
+      "structure": "Danh từ ＋ でございます; ある→ございます",
+      "notes": "Dạng lịch sự nhất của です／あります. Dùng trong dịch vụ, thông báo trang trọng.",
+      "examples": [
+        {"ja": "こちらが会議室でございます。", "reading": "こちらがかいぎしつでございます。", "vi": "Đây là phòng họp ạ.", "en": "This is the meeting room."},
+        {"ja": "お手洗いは二階にございます。", "reading": "おてあらいはにかいにございます。", "vi": "Nhà vệ sinh ở tầng hai ạ.", "en": "The restroom is on the second floor."}
+      ]
+    },
+    {
+      "pattern": "〜までに",
+      "meaning_vi": "Trước (thời hạn) …, chậm nhất là …",
+      "meaning_en": "By (deadline) …",
+      "structure": "Thời điểm／động từ thể từ điển ＋ までに",
+      "notes": "Hạn chót cho một hành động đơn lẻ. Khác まで (kéo dài liên tục đến). 5時までに = chậm nhất 5 giờ.",
+      "examples": [
+        {"ja": "金曜日までにレポートを出してください。", "reading": "きんようびまでにレポートをだしてください。", "vi": "Hãy nộp báo cáo trước thứ Sáu.", "en": "Please submit the report by Friday."},
+        {"ja": "暗くなるまでに帰ります。", "reading": "くらくなるまでにかえります。", "vi": "Tôi sẽ về trước khi trời tối.", "en": "I'll get home before it gets dark."}
+      ]
+    },
+    {
+      "pattern": "〜間に",
+      "meaning_vi": "Trong lúc … (thì xảy ra việc gì đó)",
+      "meaning_en": "While … (something happens)",
+      "structure": "Động từ ている／danh từ の ＋ 間に",
+      "notes": "Một việc xảy ra tại một thời điểm trong khoảng đó. Khác 間 (suốt cả khoảng).",
+      "examples": [
+        {"ja": "留守の間に、誰か来ました。", "reading": "るすのあいだに、だれかきました。", "vi": "Trong lúc tôi vắng nhà, có ai đó đã đến.", "en": "While I was out, someone came."},
+        {"ja": "寝ている間に地震があった。", "reading": "ねているあいだにじしんがあった。", "vi": "Trong lúc đang ngủ thì có động đất.", "en": "There was an earthquake while I was sleeping."}
+      ]
+    },
+    {
+      "pattern": "〜間",
+      "meaning_vi": "Suốt trong khoảng … (hành động kéo dài)",
+      "meaning_en": "During / throughout …",
+      "structure": "Động từ ている／danh từ の ＋ 間",
+      "notes": "Hành động kéo dài suốt cả khoảng thời gian (không có に). 夏休みの間, ずっと.",
+      "examples": [
+        {"ja": "夏休みの間、ずっと働いていました。", "reading": "なつやすみのあいだ、ずっとはたらいていました。", "vi": "Suốt kỳ nghỉ hè tôi đã làm việc liên tục.", "en": "I worked the whole summer vacation."},
+        {"ja": "授業の間、静かにしてください。", "reading": "じゅぎょうのあいだ、しずかにしてください。", "vi": "Trong suốt giờ học hãy giữ yên lặng.", "en": "Please be quiet during class."}
+      ]
+    },
+    {
+      "pattern": "〜って（trích dẫn／chủ đề）",
+      "meaning_vi": "Rằng …; bảo là … (と／という thân mật)",
+      "meaning_en": "That … / says … (casual quote)",
+      "structure": "Mệnh đề／từ ＋ って",
+      "notes": "Văn nói thay cho と, という, とは. 行くって言ってた = bảo là sẽ đi.",
+      "examples": [
+        {"ja": "彼、明日来るって。", "reading": "かれ、あしたくるって。", "vi": "Anh ấy bảo mai sẽ đến đấy.", "en": "He says he'll come tomorrow."},
+        {"ja": "「無理」ってどういう意味ですか。", "reading": "「むり」ってどういういみですか。", "vi": "\"Muri\" nghĩa là gì vậy?", "en": "What does \"muri\" mean?"}
+      ]
+    },
+    {
+      "pattern": "〜と言っていた",
+      "meaning_vi": "(Ai đó) đã nói rằng … (thuật lại lời)",
+      "meaning_en": "(Someone) said that … (reported)",
+      "structure": "Mệnh đề（thể thường）＋ と言っていた",
+      "notes": "Thuật lại lời người khác. Lịch sự: 〜とおっしゃっていました. Văn nói: 〜と言ってた／〜って.",
+      "examples": [
+        {"ja": "田中さんは来られないと言っていました。", "reading": "たなかさんはこられないといっていました。", "vi": "Anh Tanaka nói là không đến được.", "en": "Mr. Tanaka said he can't come."},
+        {"ja": "母が早く帰ってと言っていた。", "reading": "ははがはやくかえってといっていた。", "vi": "Mẹ bảo là về sớm đấy.", "en": "My mother said to come home early."}
+      ]
+    },
+    {
+      "pattern": "〜なんて／なんか",
+      "meaning_vi": "Những thứ như … (coi nhẹ／bất ngờ／khiêm tốn)",
+      "meaning_en": "Things like … (belittling / surprise)",
+      "structure": "Danh từ／mệnh đề ＋ なんて（なんか）",
+      "notes": "Hạ thấp, xem nhẹ hoặc bày tỏ ngạc nhiên. なんか thân mật hơn. 私なんか = kẻ như tôi.",
+      "examples": [
+        {"ja": "試験に落ちるなんて、思わなかった。", "reading": "しけんにおちるなんて、おもわなかった。", "vi": "Tôi không ngờ lại trượt kỳ thi.", "en": "I never thought I'd fail the exam."},
+        {"ja": "スポーツなんか興味がない。", "reading": "スポーツなんかきょうみがない。", "vi": "Mấy thứ như thể thao tôi chẳng hứng thú.", "en": "I'm not interested in things like sports."}
+      ]
+    },
+    {
+      "pattern": "〜とか",
+      "meaning_vi": "Như là …, kiểu … (nêu ví dụ, thân mật)",
+      "meaning_en": "… and the like / such as (casual)",
+      "structure": "Danh từ／mệnh đề ＋ とか",
+      "notes": "Liệt kê ví dụ thân mật (như や／など nhưng đời thường hơn). 映画とか音楽とか.",
+      "examples": [
+        {"ja": "休みの日は映画とか見ます。", "reading": "やすみのひはえいがとかみます。", "vi": "Ngày nghỉ tôi xem phim các kiểu.", "en": "On days off I watch movies and stuff."},
+        {"ja": "果物、りんごとかバナナとか好きです。", "reading": "くだもの、りんごとかバナナとかすきです。", "vi": "Trái cây thì tôi thích táo, chuối các kiểu.", "en": "I like fruits like apples and bananas."}
+      ]
+    },
+    {
+      "pattern": "こんなに／そんなに／あんなに",
+      "meaning_vi": "(Đến mức) như thế này／thế đó／thế kia",
+      "meaning_en": "This/that much, so …",
+      "structure": "こんなに／そんなに／あんなに ＋ tính từ／động từ",
+      "notes": "Chỉ mức độ. そんなに〜ない = không … đến thế. あんなに nhấn cảm xúc về điều ở xa.",
+      "examples": [
+        {"ja": "こんなに美味しい料理は初めてです。", "reading": "こんなにおいしいりょうりははじめてです。", "vi": "Lần đầu tôi ăn món ngon đến thế này.", "en": "This is the first time I've had such delicious food."},
+        {"ja": "そんなに急がなくてもいいですよ。", "reading": "そんなにいそがなくてもいいですよ。", "vi": "Không cần vội đến thế đâu.", "en": "You don't need to hurry that much."}
+      ]
+    },
+    {
+      "pattern": "〜くらい／ほど（mức độ）",
+      "meaning_vi": "Đến mức …, khoảng chừng …",
+      "meaning_en": "To the extent that …, about",
+      "structure": "Động từ／tính từ／danh từ ＋ くらい／ほど",
+      "notes": "Diễn tả mức độ bằng cách ví von. 泣きたいくらい = đến mức muốn khóc. ほど trang trọng hơn.",
+      "examples": [
+        {"ja": "お腹が痛くて、歩けないくらいでした。", "reading": "おなかがいたくて、あるけないくらいでした。", "vi": "Đau bụng đến mức không đi nổi.", "en": "My stomach hurt so much I could barely walk."},
+        {"ja": "死ぬほど疲れた。", "reading": "しぬほどつかれた。", "vi": "Mệt muốn chết.", "en": "I'm dead tired."}
+      ]
+    },
+    {
+      "pattern": "できるだけ",
+      "meaning_vi": "Càng … càng tốt, hết sức có thể",
+      "meaning_en": "As … as possible",
+      "structure": "できるだけ ＋ động từ／tính từ",
+      "notes": "できる限り gần nghĩa (trang trọng hơn). できるだけ早く = càng sớm càng tốt.",
+      "examples": [
+        {"ja": "できるだけ早く返事をください。", "reading": "できるだけはやくへんじをください。", "vi": "Hãy trả lời tôi càng sớm càng tốt.", "en": "Please reply as soon as possible."},
+        {"ja": "できるだけ自分でやってみます。", "reading": "できるだけじぶんでやってみます。", "vi": "Tôi sẽ cố tự làm hết sức có thể.", "en": "I'll try to do it myself as much as possible."}
+      ]
+    },
+    {
+      "pattern": "〜場合は",
+      "meaning_vi": "Trong trường hợp …",
+      "meaning_en": "In the case of / if …",
+      "structure": "Động từ／tính từ thể thường・Danh từ の ＋ 場合は",
+      "notes": "Nêu tình huống giả định và cách xử lý. 火事の場合は, 遅れる場合は.",
+      "examples": [
+        {"ja": "地震の場合は、エレベーターを使わないでください。", "reading": "じしんのばあいは、エレベーターをつかわないでください。", "vi": "Trong trường hợp động đất, đừng dùng thang máy.", "en": "In case of an earthquake, do not use the elevator."},
+        {"ja": "来られない場合は、連絡してください。", "reading": "こられないばあいは、れんらくしてください。", "vi": "Trường hợp không đến được, hãy báo tôi.", "en": "If you can't come, please contact me."}
+      ]
+    },
+    {
+      "pattern": "〜について",
+      "meaning_vi": "Về, liên quan đến …",
+      "meaning_en": "About / concerning …",
+      "structure": "Danh từ ＋ について",
+      "notes": "Nêu chủ đề／đối tượng được bàn tới. Trang trọng: 〜に関して. Bổ nghĩa danh từ: 〜についての.",
+      "examples": [
+        {"ja": "日本の文化について研究しています。", "reading": "にほんのぶんかについてけんきゅうしています。", "vi": "Tôi đang nghiên cứu về văn hóa Nhật.", "en": "I'm doing research about Japanese culture."},
+        {"ja": "この問題について話し合いましょう。", "reading": "このもんだいについてはなしあいましょう。", "vi": "Hãy cùng bàn về vấn đề này.", "en": "Let's discuss this problem."}
+      ]
+    },
+    {
+      "pattern": "〜のような／のように",
+      "meaning_vi": "Giống như …, như là …",
+      "meaning_en": "Like / similar to …",
+      "structure": "Danh từ ＋ のような ＋ Danh từ ／ のように ＋ động từ・tính từ",
+      "notes": "のような bổ nghĩa danh từ; のように bổ nghĩa động từ／tính từ. 鳥のように飛ぶ = bay như chim.",
+      "examples": [
+        {"ja": "彼女は天使のような人です。", "reading": "かのじょはてんしのようなひとです。", "vi": "Cô ấy là người như thiên thần.", "en": "She is a person like an angel."},
+        {"ja": "鳥のように空を飛びたい。", "reading": "とりのようにそらをとびたい。", "vi": "Tôi muốn bay trên trời như chim.", "en": "I want to fly in the sky like a bird."}
+      ]
+    },
+    {
+      "pattern": "〜代わりに",
+      "meaning_vi": "Thay vì …; thay cho …; bù lại …",
+      "meaning_en": "Instead of … / in place of …",
+      "structure": "Động từ thể từ điển／Danh từ の ＋ 代わりに",
+      "notes": "Thay thế A bằng B, hoặc bù trừ. 砂糖の代わりに蜂蜜 = thay đường bằng mật ong.",
+      "examples": [
+        {"ja": "部長の代わりに私が会議に出ます。", "reading": "ぶちょうのかわりにわたしがかいぎにでます。", "vi": "Tôi dự họp thay trưởng phòng.", "en": "I'll attend the meeting instead of the manager."},
+        {"ja": "バターの代わりにオリーブオイルを使います。", "reading": "バターのかわりにオリーブオイルをつかいます。", "vi": "Tôi dùng dầu ô liu thay cho bơ.", "en": "I use olive oil instead of butter."}
+      ]
+    },
+    {
+      "pattern": "〜おかげで",
+      "meaning_vi": "Nhờ có … (mà có kết quả tốt)",
+      "meaning_en": "Thanks to …",
+      "structure": "Thể thường（danh từ の／tính từ-na な）＋ おかげで",
+      "notes": "Nguyên nhân dẫn đến kết quả tốt (hàm ý biết ơn). Trái nghĩa với せいで (kết quả xấu).",
+      "examples": [
+        {"ja": "先生のおかげで合格できました。", "reading": "せんせいのおかげでごうかくできました。", "vi": "Nhờ có thầy mà tôi đã đỗ.", "en": "Thanks to my teacher, I was able to pass."},
+        {"ja": "薬を飲んだおかげで、よくなりました。", "reading": "くすりをのんだおかげで、よくなりました。", "vi": "Nhờ uống thuốc mà tôi đã khỏe lên.", "en": "Thanks to taking medicine, I got better."}
+      ]
+    },
+    {
+      "pattern": "〜せいで",
+      "meaning_vi": "Tại vì …, do … (mà có kết quả xấu)",
+      "meaning_en": "Because of … (blame, bad result)",
+      "structure": "Thể thường（danh từ の／tính từ-na な）＋ せいで",
+      "notes": "Đổ lỗi cho nguyên nhân gây kết quả xấu. 〜せいだ = là tại … Trái với おかげで.",
+      "examples": [
+        {"ja": "雨のせいで試合が中止になった。", "reading": "あめのせいでしあいがちゅうしになった。", "vi": "Tại trời mưa mà trận đấu bị hủy.", "en": "Because of the rain, the match was cancelled."},
+        {"ja": "寝坊したせいで、遅刻しました。", "reading": "ねぼうしたせいで、ちこくしました。", "vi": "Tại ngủ quên mà tôi đến muộn.", "en": "Because I overslept, I was late."}
+      ]
+    },
+    {
+      "pattern": "〜とおりに／どおりに",
+      "meaning_vi": "Đúng như …, theo như …",
+      "meaning_en": "Just as … / according to …",
+      "structure": "Động từ thể từ điển／た ＋ とおりに ／ Danh từ ＋ どおりに",
+      "notes": "Làm y hệt theo mẫu／lời chỉ dẫn. 言ったとおりに, 予定どおりに (đúng kế hoạch).",
+      "examples": [
+        {"ja": "先生が言ったとおりに書きました。", "reading": "せんせいがいったとおりにかきました。", "vi": "Tôi viết đúng như thầy đã nói.", "en": "I wrote exactly as the teacher said."},
+        {"ja": "全部、計画どおりに進んでいます。", "reading": "ぜんぶ、けいかくどおりにすすんでいます。", "vi": "Mọi thứ đang tiến triển đúng kế hoạch.", "en": "Everything is going according to plan."}
+      ]
+    },
+    {
+      "pattern": "〜ついでに",
+      "meaning_vi": "Tiện thể …, nhân tiện …",
+      "meaning_en": "While I'm at it / on the same occasion",
+      "structure": "Động từ thể từ điển／た・Danh từ の ＋ ついでに",
+      "notes": "Nhân lúc làm việc chính thì làm thêm việc phụ. 買い物のついでに = nhân tiện đi mua sắm.",
+      "examples": [
+        {"ja": "散歩のついでに、パンを買ってきた。", "reading": "さんぽのついでに、パンをかってきた。", "vi": "Nhân tiện đi dạo, tôi mua bánh mì về.", "en": "On my walk, I also bought some bread."},
+        {"ja": "銀行へ行くついでに、手紙を出します。", "reading": "ぎんこうへいくついでに、てがみをだします。", "vi": "Tiện đi ngân hàng tôi gửi luôn thư.", "en": "While going to the bank, I'll mail the letter."}
+      ]
+    },
+    {
+      "pattern": "〜直す",
+      "meaning_vi": "Làm lại, … lại cho đúng",
+      "meaning_en": "Redo / do … again",
+      "structure": "Động từ thân ます ＋ 直す",
+      "notes": "Làm lại để sửa／cải thiện. 書き直す, やり直す, 考え直す.",
+      "examples": [
+        {"ja": "間違えたので、書き直しました。", "reading": "まちがえたので、かきなおしました。", "vi": "Vì viết sai nên tôi viết lại.", "en": "I made a mistake, so I rewrote it."},
+        {"ja": "もう一度よく考え直してください。", "reading": "もういちどよくかんがえなおしてください。", "vi": "Hãy suy nghĩ lại cho kỹ một lần nữa.", "en": "Please reconsider it carefully."}
+      ]
+    },
+    {
+      "pattern": "〜合う",
+      "meaning_vi": "… lẫn nhau, cùng nhau …",
+      "meaning_en": "Do … to each other / mutually",
+      "structure": "Động từ thân ます ＋ 合う",
+      "notes": "Hành động qua lại giữa hai bên. 助け合う = giúp đỡ nhau, 話し合う = bàn bạc.",
+      "examples": [
+        {"ja": "困ったときは助け合いましょう。", "reading": "こまったときはたすけあいましょう。", "vi": "Khi khó khăn hãy giúp đỡ lẫn nhau.", "en": "Let's help each other when in trouble."},
+        {"ja": "みんなで意見を出し合った。", "reading": "みんなでいけんをだしあった。", "vi": "Mọi người cùng đưa ra ý kiến.", "en": "Everyone shared their opinions with each other."}
+      ]
+    },
+    {
+      "pattern": "〜のに（mục đích／công dụng）",
+      "meaning_vi": "Để (làm) …; dùng vào việc …",
+      "meaning_en": "For (the purpose of) …-ing",
+      "structure": "Động từ thể từ điển ＋ のに ＋ 使う／必要／便利…",
+      "notes": "Nêu công dụng／mục đích trước 使う, 要る, いい, 便利. KHÁC のに (mặc dù).",
+      "examples": [
+        {"ja": "このはさみは紙を切るのに使います。", "reading": "このはさみはかみをきるのにつかいます。", "vi": "Cây kéo này dùng để cắt giấy.", "en": "These scissors are used for cutting paper."},
+        {"ja": "この道具は料理を作るのに便利です。", "reading": "このどうぐはりょうりをつくるのにべんりです。", "vi": "Dụng cụ này tiện để nấu ăn.", "en": "This tool is handy for cooking."}
+      ]
+    },
+    {
+      "pattern": "〜ことがある（hiện tại）",
+      "meaning_vi": "Đôi khi có …, thỉnh thoảng …",
+      "meaning_en": "Sometimes … (it happens that)",
+      "structure": "Động từ thể từ điển／ない ＋ ことがある",
+      "notes": "Diễn tả việc thỉnh thoảng xảy ra. KHÁC 〜たことがある (kinh nghiệm quá khứ).",
+      "examples": [
+        {"ja": "時々、学校に遅れることがあります。", "reading": "ときどき、がっこうにおくれることがあります。", "vi": "Thỉnh thoảng tôi có đi học muộn.", "en": "Sometimes I'm late for school."},
+        {"ja": "一人で旅行することがある。", "reading": "ひとりでりょこうすることがある。", "vi": "Đôi khi tôi đi du lịch một mình.", "en": "Sometimes I travel alone."}
+      ]
+    },
+    {
+      "pattern": "〜ことが多い／少ない",
+      "meaning_vi": "Thường hay …; ít khi …",
+      "meaning_en": "Often … / rarely …",
+      "structure": "Động từ／tính từ thể thường ＋ ことが多い／少ない",
+      "notes": "Nêu tần suất chung của một hành động. 外食することが多い = hay ăn ngoài.",
+      "examples": [
+        {"ja": "最近、残業することが多いです。", "reading": "さいきん、ざんぎょうすることがおおいです。", "vi": "Gần đây tôi hay tăng ca.", "en": "Lately I often work overtime."},
+        {"ja": "冬は雨が少ないことが多い。", "reading": "ふゆはあめがすくないことがおおい。", "vi": "Mùa đông thường ít mưa.", "en": "In winter it's often the case that there's little rain."}
+      ]
+    },
+    {
+      "pattern": "〜でしょうか",
+      "meaning_vi": "Liệu có … không ạ? (hỏi lịch sự, dè dặt)",
+      "meaning_en": "I wonder if … / could it be …?",
+      "structure": "Thể thường／danh từ ＋ でしょうか",
+      "notes": "Câu hỏi mềm, lịch sự, dè dặt hơn ですか. 〜ますか→〜ますでしょうか (rất lịch sự).",
+      "examples": [
+        {"ja": "この席は空いているでしょうか。", "reading": "このせきはあいているでしょうか。", "vi": "Chỗ này có trống không ạ?", "en": "I wonder if this seat is free?"},
+        {"ja": "何時頃お戻りでしょうか。", "reading": "なんじごろおもどりでしょうか。", "vi": "Khoảng mấy giờ ngài quay lại ạ?", "en": "Around what time will you be back?"}
+      ]
+    },
+    {
+      "pattern": "〜ほど〜ない",
+      "meaning_vi": "Không … bằng …",
+      "meaning_en": "Not as … as …",
+      "structure": "Danh từ ＋ ほど ＋ … ＋ ない",
+      "notes": "So sánh \"A không bằng B\". 今日は昨日ほど寒くない = hôm nay không lạnh bằng hôm qua.",
+      "examples": [
+        {"ja": "今年の夏は去年ほど暑くない。", "reading": "ことしのなつはきょねんほどあつくない。", "vi": "Mùa hè năm nay không nóng bằng năm ngoái.", "en": "This summer isn't as hot as last year."},
+        {"ja": "私は兄ほど背が高くない。", "reading": "わたしはあにほどせがたかくない。", "vi": "Tôi không cao bằng anh trai.", "en": "I'm not as tall as my older brother."}
+      ]
+    },
+    {
+      "pattern": "〜たら（phát hiện）",
+      "meaning_vi": "Khi … thì (phát hiện ra／xảy ra) …",
+      "meaning_en": "When … (I found that …)",
+      "structure": "Động từ thể た ＋ ら、＋ (kết quả bất ngờ)",
+      "notes": "Làm A xong thì phát hiện／xảy ra B ngoài dự kiến. Vế sau thường ở quá khứ.",
+      "examples": [
+        {"ja": "家に帰ったら、誰もいなかった。", "reading": "いえにかえったら、だれもいなかった。", "vi": "Khi về nhà thì chẳng có ai.", "en": "When I got home, no one was there."},
+        {"ja": "箱を開けたら、人形が入っていた。", "reading": "はこをあけたら、にんぎょうがはいっていた。", "vi": "Mở hộp ra thì thấy có con búp bê.", "en": "When I opened the box, there was a doll inside."}
+      ]
+    },
+    {
+      "pattern": "〜と思っている",
+      "meaning_vi": "Đang nghĩ／có ý định … (kéo dài, hoặc người thứ ba)",
+      "meaning_en": "Be thinking that … / intend to …",
+      "structure": "Mệnh đề（thể thường・ý chí）＋ と思っている",
+      "notes": "Khác 〜と思う (cảm nghĩ ngay lúc nói): 〜と思っている nhấn suy nghĩ／ý định duy trì, dùng được cho người thứ ba.",
+      "examples": [
+        {"ja": "彼は医者になりたいと思っている。", "reading": "かれはいしゃになりたいとおもっている。", "vi": "Anh ấy đang muốn trở thành bác sĩ.", "en": "He is thinking he wants to become a doctor."},
+        {"ja": "来年、車を買おうと思っています。", "reading": "らいねん、くるまをかおうとおもっています。", "vi": "Năm sau tôi đang định mua xe.", "en": "I'm thinking of buying a car next year."}
+      ]
+    },
+    {
+      "pattern": "〜さ（danh từ hóa tính từ）",
+      "meaning_vi": "Sự …, độ … (biến tính từ thành danh từ)",
+      "meaning_en": "-ness (noun from adjective)",
+      "structure": "Tính từ-i bỏ い ＋ さ ／ Tính từ-na ＋ さ",
+      "notes": "Tạo danh từ chỉ mức độ／tính chất. 高い→高さ (độ cao), 便利→便利さ (sự tiện lợi).",
+      "examples": [
+        {"ja": "富士山の高さは3776メートルです。", "reading": "ふじさんのたかさは3776メートルです。", "vi": "Độ cao của núi Phú Sĩ là 3776 mét.", "en": "The height of Mt. Fuji is 3,776 meters."},
+        {"ja": "この道具の便利さに驚いた。", "reading": "このどうぐのべんりさにおどろいた。", "vi": "Tôi ngạc nhiên trước sự tiện lợi của dụng cụ này.", "en": "I was surprised by how convenient this tool is."}
+      ]
+    }
+  ]
+}

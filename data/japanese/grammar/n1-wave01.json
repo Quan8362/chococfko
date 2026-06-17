@@ -1,0 +1,358 @@
+{
+  "level": "N1",
+  "wave": 1,
+  "entries": [
+    {
+      "pattern": "〜極まる／極まりない",
+      "meaning_vi": "Vô cùng …, … hết mức (trang trọng, cảm xúc)",
+      "meaning_en": "Extremely … (formal)",
+      "structure": "Tính từ-na ＋ 極まる／極まりない",
+      "notes": "Cảm xúc／đánh giá cực độ, văn viết. 失礼極まる, 危険極まりない. Hai dạng đồng nghĩa.",
+      "examples": [
+        {"ja": "そんな運転は危険極まりない。", "reading": "そんなうんてんはきけんきわまりない。", "vi": "Lái xe kiểu đó vô cùng nguy hiểm.", "en": "Driving like that is extremely dangerous."},
+        {"ja": "彼の態度は失礼極まるものだった。", "reading": "かれのたいどはしつれいきわまるものだった。", "vi": "Thái độ của anh ta vô lễ hết mức.", "en": "His attitude was the height of rudeness."}
+      ]
+    },
+    {
+      "pattern": "〜の至り",
+      "meaning_vi": "Thật là … vô cùng (đỉnh điểm cảm xúc, trang trọng)",
+      "meaning_en": "The height of … / utterly …",
+      "structure": "Danh từ ＋ の至り",
+      "notes": "Cảm xúc tột bậc, văn xã giao. 光栄の至り, 若気の至り.",
+      "examples": [
+        {"ja": "このような賞をいただき、光栄の至りです。", "reading": "このようなしょうをいただき、こうえいのいたりです。", "vi": "Được nhận giải thế này, tôi vô cùng vinh dự.", "en": "Receiving such an award, I am utterly honored."},
+        {"ja": "若気の至りで、無茶をした。", "reading": "わかげのいたりで、むちゃをした。", "vi": "Vì bồng bột tuổi trẻ mà tôi đã làm liều.", "en": "In the folly of youth, I did something reckless."}
+      ]
+    },
+    {
+      "pattern": "〜の極み",
+      "meaning_vi": "Tột cùng …, đỉnh điểm của …",
+      "meaning_en": "The extreme/peak of …",
+      "structure": "Danh từ ＋ の極み",
+      "notes": "Mức độ cao nhất, văn viết. 贅沢の極み, 感激の極み.",
+      "examples": [
+        {"ja": "あのホテルは贅沢の極みだ。", "reading": "あのホテルはぜいたくのきわみだ。", "vi": "Khách sạn đó xa hoa tột bậc.", "en": "That hotel is the height of luxury."},
+        {"ja": "連日の残業で、疲労の極みに達した。", "reading": "れんじつのざんぎょうで、ひろうのきわみにたっした。", "vi": "Tăng ca liên miên, tôi mệt đến cùng cực.", "en": "With days of overtime, I reached the extreme of exhaustion."}
+      ]
+    },
+    {
+      "pattern": "〜てやまない",
+      "meaning_vi": "… mãi không thôi, hằng … (tha thiết)",
+      "meaning_en": "Sincerely / endlessly …",
+      "structure": "Động từ thể て ＋ やまない",
+      "notes": "Cảm xúc／mong mỏi mãnh liệt kéo dài, văn viết. 願ってやまない, 愛してやまない.",
+      "examples": [
+        {"ja": "皆様のご活躍を願ってやみません。", "reading": "みなさまのごかつやくをねがってやみません。", "vi": "Tôi hằng mong mọi người thành công.", "en": "I sincerely wish for your continued success."},
+        {"ja": "彼が故郷を愛してやまない気持ちは伝わってくる。", "reading": "かれがふるさとをあいしてやまないきもちはつたわってくる。", "vi": "Tình yêu quê hương khôn nguôi của anh ấy truyền tới ta.", "en": "His endless love for his hometown comes through."}
+      ]
+    },
+    {
+      "pattern": "〜を禁じ得ない",
+      "meaning_vi": "Không thể không (cảm thấy) …, không kìm được …",
+      "meaning_en": "Cannot help (feeling) … / cannot suppress",
+      "structure": "Danh từ（cảm xúc）＋ を禁じ得ない",
+      "notes": "Không nén được cảm xúc, văn viết trang trọng. 怒りを禁じ得ない, 同情を禁じ得ない.",
+      "examples": [
+        {"ja": "その光景に、涙を禁じ得なかった。", "reading": "そのこうけいに、なみだをきんじえなかった。", "vi": "Trước cảnh đó, tôi không kìm được nước mắt.", "en": "At that sight, I couldn't hold back my tears."},
+        {"ja": "この対応には怒りを禁じ得ない。", "reading": "このたいおうにはいかりをきんじえない。", "vi": "Trước cách xử lý này tôi không nén nổi cơn giận.", "en": "I can't suppress my anger at this response."}
+      ]
+    },
+    {
+      "pattern": "〜ないではすまない／ずにはすまない",
+      "meaning_vi": "Không thể không …, ắt phải … (vì lẽ phải／hoàn cảnh)",
+      "meaning_en": "Cannot get away without …-ing / must",
+      "structure": "Động từ thể ない ＋ ではすまない（／ずにはすまない）",
+      "notes": "Theo lẽ thường／xã hội buộc phải làm. する→せずにはすまない.",
+      "examples": [
+        {"ja": "これだけ迷惑をかけたら、謝らないではすまない。", "reading": "これだけめいわくをかけたら、あやまらないではすまない。", "vi": "Đã làm phiền đến thế thì không thể không xin lỗi.", "en": "Having caused this much trouble, you can't get away without apologizing."},
+        {"ja": "壊したのだから、弁償せずにはすまないだろう。", "reading": "こわしたのだから、べんしょうせずにはすまないだろう。", "vi": "Đã làm hỏng thì ắt phải đền thôi.", "en": "Since you broke it, you'll have to compensate."}
+      ]
+    },
+    {
+      "pattern": "〜ないではおかない／ずにはおかない",
+      "meaning_vi": "Nhất định sẽ làm cho …, không thể không khiến …",
+      "meaning_en": "Will definitely / inevitably make …",
+      "structure": "Động từ thể ない ＋ ではおかない（／ずにはおかない）",
+      "notes": "Tất yếu gây ra kết quả, hoặc quyết tâm bắt làm bằng được. する→せずにはおかない.",
+      "examples": [
+        {"ja": "この映画は観る者を感動させないではおかない。", "reading": "このえいがはみるものをかんどうさせないではおかない。", "vi": "Bộ phim này nhất định sẽ làm người xem xúc động.", "en": "This film will surely move all who watch it."},
+        {"ja": "真相を聞き出さないではおかない。", "reading": "しんそうをききださないではおかない。", "vi": "Tôi nhất định sẽ hỏi cho ra sự thật.", "en": "I won't rest until I get the truth out."}
+      ]
+    },
+    {
+      "pattern": "〜てはばからない",
+      "meaning_vi": "Ngang nhiên …, không ngại … (công khai làm)",
+      "meaning_en": "Do not hesitate to … / openly …",
+      "structure": "Động từ thể て ＋ はばからない",
+      "notes": "Làm／nói công khai không e dè (thường táo bạo). 公言してはばからない.",
+      "examples": [
+        {"ja": "彼は自分が一番だと公言してはばからない。", "reading": "かれはじぶんがいちばんだとこうげんしてはばからない。", "vi": "Anh ta ngang nhiên tuyên bố mình là số một.", "en": "He doesn't hesitate to openly declare he's the best."},
+        {"ja": "政府を批判してはばからない。", "reading": "せいふをひはんしてはばからない。", "vi": "Ông ấy không ngại công khai phê phán chính phủ.", "en": "He doesn't shy away from openly criticizing the government."}
+      ]
+    },
+    {
+      "pattern": "〜にたえる",
+      "meaning_vi": "Đáng để …, chịu được … (giá trị)",
+      "meaning_en": "Worth …-ing / can withstand",
+      "structure": "Động từ thể từ điển／danh từ ＋ にたえる",
+      "notes": "Có giá trị để (鑑賞にたえる) hoặc chịu đựng được (使用にたえる). Phủ định 〜にたえない.",
+      "examples": [
+        {"ja": "この作品は十分鑑賞にたえる。", "reading": "このさくひんはじゅうぶんかんしょうにたえる。", "vi": "Tác phẩm này đủ đáng để thưởng thức.", "en": "This work is well worth appreciating."},
+        {"ja": "この素材は高温にたえる。", "reading": "このそざいはこうおんにたえる。", "vi": "Vật liệu này chịu được nhiệt độ cao.", "en": "This material can withstand high temperatures."}
+      ]
+    },
+    {
+      "pattern": "〜べくもない",
+      "meaning_vi": "Còn lâu mới có thể …, không tài nào … (trang trọng)",
+      "meaning_en": "There's no way one could … (formal)",
+      "structure": "Động từ thể từ điển ＋ べくもない（する→すべくもない）",
+      "notes": "Hoàn toàn không thể, văn viết. 知るべくもない, 望むべくもない.",
+      "examples": [
+        {"ja": "一介の社員に、真相を知るべくもない。", "reading": "いっかいのしゃいんに、しんそうをしるべくもない。", "vi": "Một nhân viên quèn thì không tài nào biết được sự thật.", "en": "A mere employee has no way of knowing the truth."},
+        {"ja": "優勝など望むべくもなかった。", "reading": "ゆうしょうなどのぞむべくもなかった。", "vi": "Vô địch thì còn lâu mới dám mơ.", "en": "Winning the title was out of the question to even hope for."}
+      ]
+    },
+    {
+      "pattern": "〜べからず／べからざる",
+      "meaning_vi": "Cấm …, không được … (răn cấm trang trọng／cổ)",
+      "meaning_en": "Must not … / forbidden (formal/archaic)",
+      "structure": "Động từ thể từ điển ＋ べからず（べからざる ＋ N）",
+      "notes": "Cấm trong biển báo／châm ngôn. 立入るべからず. Bổ nghĩa danh từ: べからざる.",
+      "examples": [
+        {"ja": "ここにゴミを捨てるべからず。", "reading": "ここにゴミをすてるべからず。", "vi": "Cấm vứt rác ở đây.", "en": "Do not litter here."},
+        {"ja": "教育者にあるまじき、許すべからざる行為だ。", "reading": "きょういくしゃにあるまじき、ゆるすべからざるこういだ。", "vi": "Hành vi không thể tha thứ, không xứng với nhà giáo.", "en": "An unforgivable act, unbecoming of an educator."}
+      ]
+    },
+    {
+      "pattern": "〜べく",
+      "meaning_vi": "Để (nhằm) …, với mục đích … (trang trọng)",
+      "meaning_en": "In order to … (formal)",
+      "structure": "Động từ thể từ điển ＋ べく（する→すべく）",
+      "notes": "Mục đích, văn viết. 目標を達成すべく. する→すべく.",
+      "examples": [
+        {"ja": "試験に合格すべく、毎日勉強している。", "reading": "しけんにごうかくすべく、まいにちべんきょうしている。", "vi": "Để đỗ kỳ thi, tôi học mỗi ngày.", "en": "I study every day in order to pass the exam."},
+        {"ja": "問題を解決すべく、会議を開いた。", "reading": "もんだいをかいけつすべく、かいぎをひらいた。", "vi": "Để giải quyết vấn đề, họ mở cuộc họp.", "en": "They held a meeting in order to solve the problem."}
+      ]
+    },
+    {
+      "pattern": "〜んがため（に）",
+      "meaning_vi": "Vì để …, nhằm để … (mục đích mạnh, trang trọng)",
+      "meaning_en": "For the sake of …-ing (formal)",
+      "structure": "Động từ thể ない bỏ ない ＋ んがため（する→せんがため）",
+      "notes": "Mục đích tha thiết, văn viết. する→せんがため.",
+      "examples": [
+        {"ja": "生き延びんがために、必死で働いた。", "reading": "いきのびんがために、ひっしではたらいた。", "vi": "Để sống sót, tôi đã làm việc bán mạng.", "en": "I worked desperately for the sake of survival."},
+        {"ja": "真実を伝えんがため、彼は筆を執った。", "reading": "しんじつをつたえんがため、かれはふでをとった。", "vi": "Để truyền đạt sự thật, ông cầm bút.", "en": "He took up his pen in order to convey the truth."}
+      ]
+    },
+    {
+      "pattern": "〜んばかり（に）",
+      "meaning_vi": "Như thể sắp …, gần như … (cường điệu)",
+      "meaning_en": "As if about to … / almost",
+      "structure": "Động từ thể ない bỏ ない ＋ んばかり（する→せんばかり）",
+      "notes": "Ví von cường điệu, văn viết. 泣かんばかり, あふれんばかり.",
+      "examples": [
+        {"ja": "彼女は泣かんばかりの顔で訴えた。", "reading": "かのじょはなかんばかりのかおでうったえた。", "vi": "Cô ấy van nài với gương mặt như sắp khóc.", "en": "She pleaded with a face as if about to cry."},
+        {"ja": "会場は割れんばかりの拍手に包まれた。", "reading": "かいじょうはわれんばかりのはくしゅにつつまれた。", "vi": "Hội trường ngập trong tràng vỗ tay như muốn vỡ tung.", "en": "The hall was filled with thunderous applause."}
+      ]
+    },
+    {
+      "pattern": "〜にあるまじき",
+      "meaning_vi": "Không xứng …, không nên có (ở cương vị …)",
+      "meaning_en": "Unbecoming of … / inexcusable for",
+      "structure": "Danh từ ＋ にあるまじき ＋ Danh từ",
+      "notes": "Hành vi không xứng với tư cách, văn viết. 教師にあるまじき行為.",
+      "examples": [
+        {"ja": "警察官にあるまじき行為だ。", "reading": "けいさつかんにあるまじきこういだ。", "vi": "Hành vi không xứng với một cảnh sát.", "en": "Conduct unbecoming of a police officer."},
+        {"ja": "プロにあるまじきミスを犯した。", "reading": "プロにあるまじきミスをおかした。", "vi": "Anh ta phạm sai lầm không đáng có ở một người chuyên nghiệp.", "en": "He made a mistake inexcusable for a professional."}
+      ]
+    },
+    {
+      "pattern": "〜なくはない／なくもない",
+      "meaning_vi": "Không phải là không …, cũng có phần …",
+      "meaning_en": "It's not that … not / somewhat",
+      "structure": "Động từ／tính từ thể ない bỏ い ＋ くはない（くもない）",
+      "notes": "Khẳng định dè dặt, gián tiếp. 分からなくはない.",
+      "examples": [
+        {"ja": "君の気持ちも分からなくはない。", "reading": "きみのきもちもわからなくはない。", "vi": "Tâm trạng của cậu không phải là tôi không hiểu.", "en": "It's not that I don't understand how you feel."},
+        {"ja": "行きたくなくもないが、お金がない。", "reading": "いきたくなくもないが、おかねがない。", "vi": "Cũng không phải không muốn đi, nhưng không có tiền.", "en": "It's not that I don't want to go, but I have no money."}
+      ]
+    },
+    {
+      "pattern": "〜ないものでもない",
+      "meaning_vi": "Cũng không hẳn là không …, cũng có thể …",
+      "meaning_en": "It's not entirely impossible to …",
+      "structure": "Động từ thể ない ＋ ものでもない",
+      "notes": "Khả năng dè dặt, văn viết. 努力次第で、できないものでもない.",
+      "examples": [
+        {"ja": "条件次第では、引き受けないものでもない。", "reading": "じょうけんしだいでは、ひきうけないものでもない。", "vi": "Tùy điều kiện, tôi cũng không hẳn là không nhận.", "en": "Depending on the terms, it's not impossible for me to take it on."},
+        {"ja": "急げば、間に合わないものでもない。", "reading": "いそげば、まにあわないものでもない。", "vi": "Vội lên thì cũng không hẳn là không kịp.", "en": "If we hurry, it's not entirely impossible to make it."}
+      ]
+    },
+    {
+      "pattern": "〜うにも〜ない",
+      "meaning_vi": "Muốn … cũng không thể …",
+      "meaning_en": "Even if one wants to …, one can't",
+      "structure": "Động từ thể ý chí ＋ にも ＋ động từ thể khả năng phủ định",
+      "notes": "Muốn làm nhưng hoàn cảnh không cho. 出かけようにも、雨で出かけられない.",
+      "examples": [
+        {"ja": "連絡しようにも、電話番号が分からない。", "reading": "れんらくしようにも、でんわばんごうがわからない。", "vi": "Muốn liên lạc cũng không được vì không biết số điện thoại.", "en": "Even if I wanted to contact them, I don't know the number."},
+        {"ja": "帰ろうにも、終電がもうない。", "reading": "かえろうにも、しゅうでんがもうない。", "vi": "Muốn về cũng chẳng được vì hết tàu cuối rồi.", "en": "Even if I wanted to go home, the last train is gone."}
+      ]
+    },
+    {
+      "pattern": "〜が早いか",
+      "meaning_vi": "Vừa … là (lập tức) …",
+      "meaning_en": "As soon as / the instant …",
+      "structure": "Động từ thể từ điển／た ＋ が早いか",
+      "notes": "Ngay khi A là B xảy ra tức thì, văn viết. 席に着くが早いか, 寝るが早いか.",
+      "examples": [
+        {"ja": "彼は席に着くが早いか、食べ始めた。", "reading": "かれはせきにつくがはやいか、たべはじめた。", "vi": "Anh ấy vừa ngồi xuống là ăn ngay.", "en": "The instant he sat down, he started eating."},
+        {"ja": "ベルが鳴るが早いか、生徒は教室を飛び出した。", "reading": "ベルがなるがはやいか、せいとはきょうしつをとびだした。", "vi": "Chuông vừa reo là học sinh lao ra khỏi lớp.", "en": "The moment the bell rang, the students dashed out."}
+      ]
+    },
+    {
+      "pattern": "〜や／や否や",
+      "meaning_vi": "Vừa … thì đã …, ngay khi …",
+      "meaning_en": "No sooner … than / as soon as",
+      "structure": "Động từ thể từ điển ＋ や（否や）",
+      "notes": "Văn viết, trang trọng. Hai việc nối tiếp tức thì. 顔を見るや否や.",
+      "examples": [
+        {"ja": "母の顔を見るや否や、子供は泣き出した。", "reading": "ははのかおをみるやいなや、こどもはなきだした。", "vi": "Vừa thấy mặt mẹ là đứa bé khóc òa.", "en": "No sooner did the child see its mother than it burst into tears."},
+        {"ja": "知らせを聞くや、彼は駆け出した。", "reading": "しらせをきくや、かれはかけだした。", "vi": "Vừa nghe tin là anh ấy chạy đi ngay.", "en": "The moment he heard the news, he started running."}
+      ]
+    },
+    {
+      "pattern": "〜なり（vừa … là）",
+      "meaning_vi": "Vừa … là liền … (bất ngờ)",
+      "meaning_en": "As soon as … (and unexpectedly)",
+      "structure": "Động từ thể từ điển ＋ なり",
+      "notes": "Ngay sau A thì B (thường bất ngờ, cùng chủ thể), văn viết. 帰ってくるなり、寝てしまった.",
+      "examples": [
+        {"ja": "彼は家に帰るなり、ベッドに倒れ込んだ。", "reading": "かれはいえにかえるなり、ベッドにたおれこんだ。", "vi": "Vừa về nhà là anh ấy đổ vật xuống giường.", "en": "The moment he got home, he collapsed onto the bed."},
+        {"ja": "彼女は私を見るなり、走り去った。", "reading": "かのじょはわたしをみるなり、はしりさった。", "vi": "Vừa thấy tôi là cô ấy bỏ chạy.", "en": "As soon as she saw me, she ran off."}
+      ]
+    },
+    {
+      "pattern": "〜そばから",
+      "meaning_vi": "Cứ … xong là lại …, vừa … đã …",
+      "meaning_en": "No sooner … than (repeatedly)",
+      "structure": "Động từ thể từ điển／た ＋ そばから",
+      "notes": "A vừa xong B lại lặp lại ngay (thường bực bội). 覚えるそばから忘れる.",
+      "examples": [
+        {"ja": "覚えるそばから忘れてしまう。", "reading": "おぼえるそばからわすれてしまう。", "vi": "Cứ học xong là lại quên ngay.", "en": "No sooner do I memorize it than I forget it."},
+        {"ja": "片付けるそばから、子供が散らかす。", "reading": "かたづけるそばから、こどもがちらかす。", "vi": "Vừa dọn xong là bọn trẻ lại bày bừa.", "en": "The moment I tidy up, the kids make a mess again."}
+      ]
+    },
+    {
+      "pattern": "〜てからというもの",
+      "meaning_vi": "Kể từ khi … (thì mọi thứ đổi)",
+      "meaning_en": "Ever since …-ing",
+      "structure": "Động từ thể て ＋ からというもの",
+      "notes": "Từ một mốc, một thay đổi lớn kéo dài đến nay, văn viết. 結婚してからというもの.",
+      "examples": [
+        {"ja": "禁煙してからというもの、体調がいい。", "reading": "きんえんしてからというもの、たいちょうがいい。", "vi": "Kể từ khi bỏ thuốc, sức khỏe tôi tốt hẳn.", "en": "Ever since I quit smoking, I've felt great."},
+        {"ja": "引っ越してからというもの、一度も会っていない。", "reading": "ひっこしてからというもの、いちどもあっていない。", "vi": "Kể từ khi chuyển nhà, tôi chưa gặp lại lần nào.", "en": "Ever since I moved, I haven't seen them once."}
+      ]
+    },
+    {
+      "pattern": "〜を境に",
+      "meaning_vi": "Lấy … làm mốc, kể từ … (bước ngoặt)",
+      "meaning_en": "With … as a turning point",
+      "structure": "Danh từ ＋ を境に（として）",
+      "notes": "Một mốc làm ranh giới thay đổi. 入院を境に, あの日を境に.",
+      "examples": [
+        {"ja": "あの事件を境に、彼は人が変わった。", "reading": "あのじけんをさかいに、かれはひとがかわった。", "vi": "Lấy vụ đó làm mốc, anh ấy thay đổi hẳn con người.", "en": "With that incident as a turning point, he became a different person."},
+        {"ja": "40歳を境に、体力が落ちてきた。", "reading": "よんじゅっさいをさかいに、たいりょくがおちてきた。", "vi": "Từ mốc 40 tuổi, thể lực tôi giảm sút.", "en": "From around age 40 on, my stamina began to decline."}
+      ]
+    },
+    {
+      "pattern": "〜を限りに",
+      "meaning_vi": "Kể từ … là chấm dứt; dốc hết … (đến cùng)",
+      "meaning_en": "As of … (ending); with all one's …",
+      "structure": "Danh từ ＋ を限りに",
+      "notes": "Mốc kết thúc (本日を限りに) hoặc dốc toàn lực (声を限りに).",
+      "examples": [
+        {"ja": "本日を限りに、当店は閉店いたします。", "reading": "ほんじつをかぎりに、とうてんはへいてんいたします。", "vi": "Kể từ hôm nay, cửa hàng chúng tôi đóng cửa.", "en": "As of today, our store is closing."},
+        {"ja": "彼は声を限りに助けを呼んだ。", "reading": "かれはこえをかぎりにたすけをよんだ。", "vi": "Anh ấy gào hết sức để gọi cứu.", "en": "He called for help at the top of his lungs."}
+      ]
+    },
+    {
+      "pattern": "〜すら",
+      "meaning_vi": "Ngay cả … (cũng), đến … (cũng) — trang trọng",
+      "meaning_en": "Even … (formal)",
+      "structure": "Danh từ（＋ trợ từ）＋ すら",
+      "notes": "Như さえ nhưng trang trọng, văn viết. 専門家ですら, 名前すら.",
+      "examples": [
+        {"ja": "専門家ですら答えられない難問だ。", "reading": "せんもんかですらこたえられないなんもんだ。", "vi": "Là câu hỏi khó đến chuyên gia cũng không trả lời nổi.", "en": "It's a hard question even experts can't answer."},
+        {"ja": "忙しくて、食事をする時間すらない。", "reading": "いそがしくて、しょくじをするじかんすらない。", "vi": "Bận đến mức ngay cả thời gian ăn cũng không có.", "en": "I'm so busy I don't even have time to eat."}
+      ]
+    },
+    {
+      "pattern": "〜だに",
+      "meaning_vi": "Chỉ … thôi (đã); ngay cả … (cũng không)",
+      "meaning_en": "Even (just) … / not even",
+      "structure": "Động từ thể từ điển／danh từ ＋ だに",
+      "notes": "Văn viết cổ. 想像するだに恐ろしい, 微動だにしない.",
+      "examples": [
+        {"ja": "想像するだに恐ろしい光景だ。", "reading": "そうぞうするだにおそろしいこうけいだ。", "vi": "Cảnh chỉ tưởng tượng thôi đã thấy rùng rợn.", "en": "A scene horrifying just to imagine."},
+        {"ja": "彼は微動だにしなかった。", "reading": "かれはびどうだにしなかった。", "vi": "Anh ấy không hề nhúc nhích dù chỉ một li.", "en": "He didn't even budge an inch."}
+      ]
+    },
+    {
+      "pattern": "〜とて",
+      "meaning_vi": "Dù là … cũng; vì là … nên (trang trọng／cổ)",
+      "meaning_en": "Even … / since (formal)",
+      "structure": "Danh từ／thể thường ＋ とて",
+      "notes": "Văn viết cổ. Nghĩa \"ngay cả\" (私とて) hoặc lý do (慣れぬこととて).",
+      "examples": [
+        {"ja": "私とて、好きでこうしているわけではない。", "reading": "わたしとて、すきでこうしているわけではない。", "vi": "Ngay cả tôi cũng đâu phải thích mà làm thế này.", "en": "Even I'm not doing this because I want to."},
+        {"ja": "慣れぬこととて、ご無礼をお許しください。", "reading": "なれぬこととて、ごぶれいをおゆるしください。", "vi": "Vì chưa quen nên có gì thất lễ xin lượng thứ.", "en": "Being unaccustomed, please forgive any rudeness."}
+      ]
+    },
+    {
+      "pattern": "〜からある／からする",
+      "meaning_vi": "Những … (nhiều／lớn／đắt đến mức)",
+      "meaning_en": "As much/many/big as … (no less than)",
+      "structure": "Số lượng ＋ からある（からする = giá; からの = số người）",
+      "notes": "Nhấn số lượng／kích cỡ／giá lớn đáng nể. 100キロからある荷物, 10万円からするバッグ.",
+      "examples": [
+        {"ja": "彼は100キロからある荷物を一人で運んだ。", "reading": "かれはひゃくキロからあるにもつをひとりではこんだ。", "vi": "Anh ấy một mình vác kiện hàng nặng tới cả trăm kg.", "en": "He carried a load of no less than 100 kg by himself."},
+        {"ja": "10万円からするコートを買った。", "reading": "じゅうまんえんからするコートをかった。", "vi": "Tôi mua chiếc áo khoác giá tới cả trăm nghìn yên.", "en": "I bought a coat costing as much as 100,000 yen."}
+      ]
+    },
+    {
+      "pattern": "〜たる（者）",
+      "meaning_vi": "Là …, với tư cách là … (đấng／bậc — trang trọng)",
+      "meaning_en": "One who is … / in the position of (formal)",
+      "structure": "Danh từ ＋ たる ＋ Danh từ／者",
+      "notes": "Văn viết trang trọng, nêu tư cách kèm trách nhiệm. 教師たる者, リーダーたる者.",
+      "examples": [
+        {"ja": "教師たる者、模範を示すべきだ。", "reading": "きょうしたるもの、もはんをしめすべきだ。", "vi": "Đã là nhà giáo thì phải làm gương.", "en": "One who is a teacher should set an example."},
+        {"ja": "指導者たる者には、強い責任感が求められる。", "reading": "しどうしゃたるものには、つよいせきにんかんがもとめられる。", "vi": "Người ở cương vị lãnh đạo cần có ý thức trách nhiệm cao.", "en": "One in the position of a leader is required to have a strong sense of responsibility."}
+      ]
+    },
+    {
+      "pattern": "〜ともあろう",
+      "meaning_vi": "Là … (đáng kính／đáng tin) vậy mà lại …",
+      "meaning_en": "Someone as … (should not) / of all people",
+      "structure": "Danh từ ＋ ともあろう ＋ 者／N",
+      "notes": "Bất ngờ／thất vọng vì người đáng lẽ giỏi lại làm điều không hay. 専門家ともあろう者が.",
+      "examples": [
+        {"ja": "大臣ともあろう人が、そんな発言をするとは。", "reading": "だいじんともあろうひとが、そんなはつげんをするとは。", "vi": "Là bộ trưởng vậy mà lại phát ngôn như thế.", "en": "For someone of all people who's a minister to say such a thing…"},
+        {"ja": "プロともあろう者が、こんなミスをするなんて。", "reading": "プロともあろうものが、こんなミスをするなんて。", "vi": "Là dân chuyên vậy mà lại phạm lỗi thế này.", "en": "For a professional, of all people, to make such a mistake…"}
+      ]
+    },
+    {
+      "pattern": "〜といい〜といい",
+      "meaning_vi": "Cả … lẫn …, xét cả … lẫn … (đều)",
+      "meaning_en": "Both … and … (taking both into account)",
+      "structure": "Danh từ ＋ といい ＋ Danh từ ＋ といい",
+      "notes": "Nêu hai phương diện tiêu biểu để đánh giá chung. 色といいデザインといい.",
+      "examples": [
+        {"ja": "色といいデザインといい、申し分ない。", "reading": "いろといいデザインといい、もうしぶんない。", "vi": "Cả màu sắc lẫn kiểu dáng đều chê vào đâu được.", "en": "Both the color and the design are flawless."},
+        {"ja": "味といい量といい、この店は最高だ。", "reading": "あじといいりょうといい、このみせはさいこうだ。", "vi": "Cả vị lẫn lượng, quán này đều tuyệt nhất.", "en": "Both in taste and portion, this place is the best."}
+      ]
+    }
+  ]
+}

@@ -1,0 +1,413 @@
+{
+  "level": "N2",
+  "wave": 1,
+  "entries": [
+    {
+      "pattern": "〜によって／により",
+      "meaning_vi": "Do, bởi, bằng, tùy theo (nguyên nhân／tác nhân／phương tiện／tùy thuộc)",
+      "meaning_en": "By / due to / depending on / according to",
+      "structure": "Danh từ ＋ によって／により",
+      "notes": "Đa nghĩa: tác nhân bị động (〜により作られた), nguyên nhân (地震により), phương tiện, hoặc khác nhau tùy theo (人によって違う).",
+      "examples": [
+        {"ja": "この小説は夏目漱石によって書かれた。", "reading": "このしょうせつはなつめそうせきによってかかれた。", "vi": "Tiểu thuyết này do Natsume Soseki viết.", "en": "This novel was written by Natsume Soseki."},
+        {"ja": "考え方は人によって違う。", "reading": "かんがえかたはひとによってちがう。", "vi": "Cách nghĩ khác nhau tùy người.", "en": "Ways of thinking differ from person to person."}
+      ]
+    },
+    {
+      "pattern": "〜による ＋ N",
+      "meaning_vi": "… do …, … bởi … (bổ nghĩa danh từ)",
+      "meaning_en": "… caused by / due to (modifying a noun)",
+      "structure": "Danh từ ＋ による ＋ Danh từ",
+      "notes": "Dạng bổ nghĩa danh từ của による. 地震による被害, 不注意による事故.",
+      "examples": [
+        {"ja": "地震による被害が広がっている。", "reading": "じしんによるひがいがひろがっている。", "vi": "Thiệt hại do động đất đang lan rộng.", "en": "Damage caused by the earthquake is spreading."},
+        {"ja": "過労による病気が増えている。", "reading": "かろうによるびょうきがふえている。", "vi": "Bệnh do làm việc quá sức đang gia tăng.", "en": "Illnesses due to overwork are increasing."}
+      ]
+    },
+    {
+      "pattern": "〜次第だ／次第で",
+      "meaning_vi": "Tùy thuộc vào …, tùy theo … (mà …)",
+      "meaning_en": "Depending on …",
+      "structure": "Danh từ ＋ 次第だ／次第で",
+      "notes": "Kết quả thay đổi tùy vào A. 結果はあなたの努力次第だ. 〜次第で = tùy vào … mà.",
+      "examples": [
+        {"ja": "成功するかどうかは努力次第だ。", "reading": "せいこうするかどうかはどりょくしだいだ。", "vi": "Thành công hay không tùy vào nỗ lực.", "en": "Whether you succeed depends on your effort."},
+        {"ja": "天気次第で、予定を変えます。", "reading": "てんきしだいで、よていをかえます。", "vi": "Tùy thời tiết mà tôi đổi lịch.", "en": "Depending on the weather, I'll change my plans."}
+      ]
+    },
+    {
+      "pattern": "〜にかかわらず",
+      "meaning_vi": "Bất kể …, không phụ thuộc vào …",
+      "meaning_en": "Regardless of …",
+      "structure": "Danh từ／(động từ thể từ điển・ない) ＋ にかかわらず",
+      "notes": "Hành động không đổi dù điều kiện A thế nào. Hay đi với cặp đối lập: 行く行かないにかかわらず.",
+      "examples": [
+        {"ja": "経験の有無にかかわらず、応募できます。", "reading": "けいけんのうむにかかわらず、おうぼできます。", "vi": "Bất kể có kinh nghiệm hay không, đều có thể ứng tuyển.", "en": "You can apply regardless of experience."},
+        {"ja": "天候にかかわらず、試合は行われる。", "reading": "てんこうにかかわらず、しあいはおこなわれる。", "vi": "Bất kể thời tiết, trận đấu vẫn diễn ra.", "en": "The match will be held regardless of the weather."}
+      ]
+    },
+    {
+      "pattern": "〜にもかかわらず",
+      "meaning_vi": "Mặc dù …, bất chấp …",
+      "meaning_en": "Despite / in spite of …",
+      "structure": "Thể thường（danh từ）＋ にもかかわらず",
+      "notes": "Vế sau trái ngược mong đợi từ A, mạnh và trang trọng. 努力したにもかかわらず失敗した.",
+      "examples": [
+        {"ja": "努力したにもかかわらず、失敗した。", "reading": "どりょくしたにもかかわらず、しっぱいした。", "vi": "Mặc dù đã nỗ lực nhưng vẫn thất bại.", "en": "Despite my efforts, I failed."},
+        {"ja": "雨にもかかわらず、多くの人が集まった。", "reading": "あめにもかかわらず、おおくのひとがあつまった。", "vi": "Bất chấp mưa, rất đông người tụ họp.", "en": "Despite the rain, many people gathered."}
+      ]
+    },
+    {
+      "pattern": "〜を問わず",
+      "meaning_vi": "Không phân biệt …, bất kể …",
+      "meaning_en": "Regardless of / irrespective of …",
+      "structure": "Danh từ ＋ を問わず",
+      "notes": "Không đặt điều kiện về A. 男女を問わず, 経験を問わず. Hay với danh từ cặp đối.",
+      "examples": [
+        {"ja": "年齢、性別を問わず、誰でも参加できる。", "reading": "ねんれい、せいべつをとわず、だれでもさんかできる。", "vi": "Không phân biệt tuổi tác, giới tính, ai cũng tham gia được.", "en": "Anyone can join regardless of age or gender."},
+        {"ja": "昼夜を問わず働いている。", "reading": "ちゅうやをとわずはたらいている。", "vi": "Làm việc bất kể ngày đêm.", "en": "They work day and night."}
+      ]
+    },
+    {
+      "pattern": "〜はともかく",
+      "meaning_vi": "Gác … sang một bên, … thì khoan nói đã",
+      "meaning_en": "Setting … aside / regardless of …",
+      "structure": "Danh từ ＋ はともかく（として）",
+      "notes": "Tạm để A qua một bên để tập trung vào B. 値段はともかく、味はいい.",
+      "examples": [
+        {"ja": "値段はともかく、味は最高だ。", "reading": "ねだんはともかく、あじはさいこうだ。", "vi": "Giá cả thì khoan nói, vị thì tuyệt.", "en": "Setting aside the price, the taste is the best."},
+        {"ja": "結果はともかく、よく頑張った。", "reading": "けっかはともかく、よくがんばった。", "vi": "Kết quả thì gác lại, cậu đã cố gắng tốt.", "en": "Regardless of the result, you did your best."}
+      ]
+    },
+    {
+      "pattern": "〜はさておき",
+      "meaning_vi": "Tạm gác … lại, hãy khoan bàn …",
+      "meaning_en": "Putting … aside (for now)",
+      "structure": "Danh từ ＋ はさておき",
+      "notes": "Gác chủ đề A để chuyển sang B quan trọng／cấp thiết hơn. 冗談はさておき.",
+      "examples": [
+        {"ja": "冗談はさておき、本題に入ろう。", "reading": "じょうだんはさておき、ほんだいにはいろう。", "vi": "Đùa thế đủ rồi, vào việc chính thôi.", "en": "Joking aside, let's get to the main point."},
+        {"ja": "細かい話はさておき、まず結論を言う。", "reading": "こまかいはなしはさておき、まずけつろんをいう。", "vi": "Chuyện chi tiết để sau, trước hết nói kết luận.", "en": "Setting the details aside, let me state the conclusion first."}
+      ]
+    },
+    {
+      "pattern": "〜にひきかえ",
+      "meaning_vi": "Trái ngược với …, khác hẳn với …",
+      "meaning_en": "In contrast to / unlike …",
+      "structure": "Thể thường（danh từ な／の）＋ にひきかえ",
+      "notes": "Tương phản mạnh giữa A và B, kèm đánh giá chủ quan. 兄にひきかえ、弟は…",
+      "examples": [
+        {"ja": "去年にひきかえ、今年は売上がいい。", "reading": "きょねんにひきかえ、ことしはうりあげがいい。", "vi": "Khác hẳn năm ngoái, năm nay doanh số tốt.", "en": "Unlike last year, sales are good this year."},
+        {"ja": "姉にひきかえ、妹はおとなしい。", "reading": "あねにひきかえ、いもうとはおとなしい。", "vi": "Trái với chị, em gái thì trầm tính.", "en": "In contrast to her sister, the younger one is quiet."}
+      ]
+    },
+    {
+      "pattern": "〜に比べて",
+      "meaning_vi": "So với …",
+      "meaning_en": "Compared to …",
+      "structure": "Danh từ ＋ に比べて",
+      "notes": "So sánh hai đối tượng. 去年に比べて, 都会に比べて.",
+      "examples": [
+        {"ja": "去年に比べて、物価が上がった。", "reading": "きょねんにくらべて、ぶっかがあがった。", "vi": "So với năm ngoái, vật giá đã tăng.", "en": "Compared to last year, prices have risen."},
+        {"ja": "男性に比べて、女性の方が長生きだ。", "reading": "だんせいにくらべて、じょせいのほうがながいきだ。", "vi": "So với nam giới, nữ giới sống thọ hơn.", "en": "Compared to men, women live longer."}
+      ]
+    },
+    {
+      "pattern": "〜に加えて",
+      "meaning_vi": "Thêm vào …, ngoài … ra còn …",
+      "meaning_en": "In addition to …",
+      "structure": "Danh từ ＋ に加えて",
+      "notes": "Cộng thêm yếu tố nữa. 雨に加えて風も強い.",
+      "examples": [
+        {"ja": "雨に加えて、風も強くなってきた。", "reading": "あめにくわえて、かぜもつよくなってきた。", "vi": "Thêm vào mưa, gió cũng mạnh lên.", "en": "In addition to the rain, the wind has picked up."},
+        {"ja": "授業料に加えて、教材費もかかる。", "reading": "じゅぎょうりょうにくわえて、きょうざいひもかかる。", "vi": "Ngoài học phí còn tốn tiền tài liệu.", "en": "In addition to tuition, there are material costs."}
+      ]
+    },
+    {
+      "pattern": "〜に反して",
+      "meaning_vi": "Trái với …, ngược lại với …",
+      "meaning_en": "Contrary to / against …",
+      "structure": "Danh từ ＋ に反して",
+      "notes": "Kết quả trái với A (kỳ vọng, dự đoán, quy tắc). 〜に反する ＋ N.",
+      "examples": [
+        {"ja": "予想に反して、彼が勝った。", "reading": "よそうにはんして、かれがかった。", "vi": "Trái với dự đoán, anh ấy đã thắng.", "en": "Contrary to expectations, he won."},
+        {"ja": "親の期待に反して、彼は進学しなかった。", "reading": "おやのきたいにはんして、かれはしんがくしなかった。", "vi": "Trái với kỳ vọng của cha mẹ, anh ấy không học lên.", "en": "Against his parents' hopes, he didn't go on to higher education."}
+      ]
+    },
+    {
+      "pattern": "〜に沿って",
+      "meaning_vi": "Dọc theo …; theo đúng …",
+      "meaning_en": "Along … / in line with …",
+      "structure": "Danh từ ＋ に沿って",
+      "notes": "Dọc theo (川に沿って) hoặc làm theo (方針に沿って, 計画に沿って).",
+      "examples": [
+        {"ja": "川に沿って遊歩道がある。", "reading": "かわにそってゆうほどうがある。", "vi": "Dọc theo sông có đường đi dạo.", "en": "There's a promenade along the river."},
+        {"ja": "計画に沿って進めてください。", "reading": "けいかくにそってすすめてください。", "vi": "Hãy tiến hành theo đúng kế hoạch.", "en": "Please proceed in line with the plan."}
+      ]
+    },
+    {
+      "pattern": "〜にこたえて",
+      "meaning_vi": "Đáp lại …, hưởng ứng …",
+      "meaning_en": "In response to / answering …",
+      "structure": "Danh từ ＋ にこたえて（に応えて）",
+      "notes": "Đáp ứng kỳ vọng／yêu cầu. 期待にこたえて, 要望にこたえて.",
+      "examples": [
+        {"ja": "ファンの期待にこたえて、再結成した。", "reading": "ファンのきたいにこたえて、さいけっせいした。", "vi": "Đáp lại kỳ vọng người hâm mộ, họ tái hợp.", "en": "In response to fans' hopes, they reunited."},
+        {"ja": "要望にこたえて、営業時間を延長した。", "reading": "ようぼうにこたえて、えいぎょうじかんをえんちょうした。", "vi": "Đáp ứng yêu cầu, họ kéo dài giờ mở cửa.", "en": "In response to requests, they extended their hours."}
+      ]
+    },
+    {
+      "pattern": "〜をめぐって",
+      "meaning_vi": "Xoay quanh …, về vấn đề … (tranh luận)",
+      "meaning_en": "Concerning / over (a dispute) …",
+      "structure": "Danh từ ＋ をめぐって",
+      "notes": "Nhiều bên tranh luận／đối lập quanh một vấn đề. 〜をめぐる ＋ N.",
+      "examples": [
+        {"ja": "その問題をめぐって、議論が続いている。", "reading": "そのもんだいをめぐって、ぎろんがつづいている。", "vi": "Tranh luận quanh vấn đề đó vẫn tiếp diễn.", "en": "The debate over that issue continues."},
+        {"ja": "遺産をめぐって、兄弟が争った。", "reading": "いさんをめぐって、きょうだいがあらそった。", "vi": "Anh em tranh chấp quanh chuyện thừa kế.", "en": "The siblings fought over the inheritance."}
+      ]
+    },
+    {
+      "pattern": "〜を通じて／を通して",
+      "meaning_vi": "Thông qua …; suốt … (cả thời gian)",
+      "meaning_en": "Through / throughout …",
+      "structure": "Danh từ ＋ を通じて／を通して",
+      "notes": "Phương tiện／trung gian (友人を通じて) hoặc suốt khoảng thời gian (一年を通じて).",
+      "examples": [
+        {"ja": "友人を通じて彼女と知り合った。", "reading": "ゆうじんをつうじてかのじょとしりあった。", "vi": "Tôi quen cô ấy qua một người bạn.", "en": "I got to know her through a friend."},
+        {"ja": "この地域は一年を通して温暖だ。", "reading": "このちいきはいちねんをとおしておんだんだ。", "vi": "Vùng này ấm áp quanh năm.", "en": "This region is warm throughout the year."}
+      ]
+    },
+    {
+      "pattern": "〜にわたって／にわたる",
+      "meaning_vi": "Suốt, trải dài (thời gian／phạm vi)",
+      "meaning_en": "Spanning / over (a range/period)",
+      "structure": "Danh từ ＋ にわたって（にわたる ＋ N）",
+      "notes": "Phạm vi rộng về thời gian／không gian. 10年にわたって, 広範囲にわたる.",
+      "examples": [
+        {"ja": "工事は3年にわたって続いた。", "reading": "こうじはさんねんにわたってつづいた。", "vi": "Công trình kéo dài suốt 3 năm.", "en": "The construction continued for three years."},
+        {"ja": "全国にわたる調査を行った。", "reading": "ぜんこくにわたるちょうさをおこなった。", "vi": "Họ tiến hành điều tra trên toàn quốc.", "en": "They conducted a nationwide survey."}
+      ]
+    },
+    {
+      "pattern": "〜をきっかけに（して）",
+      "meaning_vi": "Nhân dịp …, lấy … làm cơ hội／khởi điểm",
+      "meaning_en": "Triggered by / taking … as an opportunity",
+      "structure": "Danh từ／động từ thể た の ＋ をきっかけに（して）",
+      "notes": "Một sự việc trở thành duyên cớ cho thay đổi. 入院をきっかけに禁煙した.",
+      "examples": [
+        {"ja": "入院をきっかけに、お酒をやめた。", "reading": "にゅういんをきっかけに、おさけをやめた。", "vi": "Nhân lần nhập viện, tôi bỏ rượu.", "en": "Triggered by my hospitalization, I quit drinking."},
+        {"ja": "留学をきっかけに、視野が広がった。", "reading": "りゅうがくをきっかけに、しやがひろがった。", "vi": "Nhờ chuyến du học, tầm nhìn tôi mở rộng.", "en": "My horizons broadened thanks to studying abroad."}
+      ]
+    },
+    {
+      "pattern": "〜を契機に",
+      "meaning_vi": "Nhân dịp …, lấy … làm bước ngoặt (trang trọng)",
+      "meaning_en": "On the occasion of / prompted by … (formal)",
+      "structure": "Danh từ／động từ thể た の ＋ を契機に（として）",
+      "notes": "Trang trọng hơn をきっかけに. 退職を契機に田舎へ移住した.",
+      "examples": [
+        {"ja": "定年退職を契機に、田舎へ移り住んだ。", "reading": "ていねんたいしょくをけいきに、いなかへうつりすんだ。", "vi": "Nhân dịp nghỉ hưu, tôi dọn về quê sống.", "en": "Prompted by my retirement, I moved to the countryside."},
+        {"ja": "この事件を契機に、法律が改正された。", "reading": "このじけんをけいきに、ほうりつがかいせいされた。", "vi": "Lấy vụ việc này làm bước ngoặt, luật được sửa đổi.", "en": "This incident prompted a revision of the law."}
+      ]
+    },
+    {
+      "pattern": "〜のもとに",
+      "meaning_vi": "Dưới (sự／với điều kiện) …",
+      "meaning_en": "Under (the condition/premise of) …",
+      "structure": "Danh từ ＋ のもとに",
+      "notes": "Với tiền đề／điều kiện nào đó. 許可のもとに, 〜という条件のもとに. (のもとで nhấn nơi／người chỉ đạo.)",
+      "examples": [
+        {"ja": "親の許可のもとに、旅行に行った。", "reading": "おやのきょかのもとに、りょこうにいった。", "vi": "Với sự cho phép của cha mẹ, tôi đi du lịch.", "en": "I went on the trip with my parents' permission."},
+        {"ja": "返すという約束のもとに、お金を貸した。", "reading": "かえすというやくそくのもとに、おかねをかした。", "vi": "Với lời hứa sẽ trả, tôi cho mượn tiền.", "en": "I lent the money on the promise that it'd be returned."}
+      ]
+    },
+    {
+      "pattern": "〜あっての",
+      "meaning_vi": "Có … mới có …, nhờ có … (mới tồn tại)",
+      "meaning_en": "… only thanks to … / exists because of",
+      "structure": "Danh từ ＋ あっての ＋ Danh từ",
+      "notes": "B chỉ tồn tại được nhờ có A. 客あっての商売, 命あっての物種.",
+      "examples": [
+        {"ja": "お客様あっての商売です。", "reading": "おきゃくさまあってのしょうばいです。", "vi": "Có khách hàng mới có việc kinh doanh.", "en": "Business exists only thanks to customers."},
+        {"ja": "健康あっての仕事だ。", "reading": "けんこうあってのしごとだ。", "vi": "Có sức khỏe thì mới làm việc được.", "en": "Work is possible only if you have your health."}
+      ]
+    },
+    {
+      "pattern": "〜からこそ",
+      "meaning_vi": "Chính vì … nên (mới …)",
+      "meaning_en": "Precisely because …",
+      "structure": "Thể thường ＋ からこそ",
+      "notes": "Nhấn mạnh lý do duy nhất／đặc biệt. Hay kết bằng のだ.",
+      "examples": [
+        {"ja": "君だからこそ、本当のことを話す。", "reading": "きみだからこそ、ほんとうのことをはなす。", "vi": "Chính vì là cậu nên tôi mới nói thật.", "en": "It's precisely because it's you that I'll tell the truth."},
+        {"ja": "苦労したからこそ、今の幸せがある。", "reading": "くろうしたからこそ、いまのしあわせがある。", "vi": "Chính vì từng vất vả nên mới có hạnh phúc hôm nay.", "en": "It's precisely because I struggled that I have happiness now."}
+      ]
+    },
+    {
+      "pattern": "〜というより",
+      "meaning_vi": "Đúng hơn là …, nói … thì không bằng nói …",
+      "meaning_en": "Rather than … / more like …",
+      "structure": "Thể thường（danh từ）＋ というより",
+      "notes": "Chọn cách diễn đạt phù hợp hơn. 趣味というより仕事だ.",
+      "examples": [
+        {"ja": "これは趣味というより、もう仕事だ。", "reading": "これはしゅみというより、もうしごとだ。", "vi": "Cái này nói là sở thích thì không bằng nói là công việc.", "en": "This is more like work than a hobby now."},
+        {"ja": "彼は優しいというより、気が弱い。", "reading": "かれはやさしいというより、きがよわい。", "vi": "Anh ấy nói là hiền thì đúng hơn là nhu nhược.", "en": "He's not so much kind as weak-willed."}
+      ]
+    },
+    {
+      "pattern": "〜どころではない",
+      "meaning_vi": "Không phải lúc để …, còn tâm trí đâu mà …",
+      "meaning_en": "This is no time for … / can't afford to …",
+      "structure": "Danh từ／động từ thể từ điển ＋ どころではない",
+      "notes": "Hoàn cảnh không cho phép làm việc thong thả đó. 忙しくて旅行どころではない.",
+      "examples": [
+        {"ja": "仕事が忙しくて、旅行どころではない。", "reading": "しごとがいそがしくて、りょこうどころではない。", "vi": "Công việc bận, còn tâm trí đâu mà du lịch.", "en": "I'm so busy with work, this is no time for a trip."},
+        {"ja": "試験前で、遊んでいるどころではない。", "reading": "しけんまえで、あそんでいるどころではない。", "vi": "Sắp thi rồi, không phải lúc để chơi.", "en": "It's right before the exam — no time to be playing around."}
+      ]
+    },
+    {
+      "pattern": "〜にすぎない",
+      "meaning_vi": "Chỉ là …, chẳng qua là …",
+      "meaning_en": "Merely / no more than …",
+      "structure": "Thể thường（danh từ）＋ にすぎない",
+      "notes": "Hạ thấp, đánh giá là không hơn mức đó. 言い訳にすぎない, 子供にすぎない.",
+      "examples": [
+        {"ja": "それは言い訳にすぎない。", "reading": "それはいいわけにすぎない。", "vi": "Đó chẳng qua chỉ là cái cớ.", "en": "That's merely an excuse."},
+        {"ja": "私は一社員にすぎません。", "reading": "わたしはいちしゃいんにすぎません。", "vi": "Tôi chỉ là một nhân viên quèn thôi.", "en": "I'm no more than an ordinary employee."}
+      ]
+    },
+    {
+      "pattern": "〜にほかならない",
+      "meaning_vi": "Không gì khác chính là …, chính là …",
+      "meaning_en": "It is none other than … / nothing but",
+      "structure": "Danh từ ＋ にほかならない",
+      "notes": "Khẳng định mạnh: chính xác là A chứ không gì khác. 成功は努力の結果にほかならない.",
+      "examples": [
+        {"ja": "成功は努力の結果にほかならない。", "reading": "せいこうはどりょくのけっかにほかならない。", "vi": "Thành công chính là kết quả của nỗ lực.", "en": "Success is nothing but the result of effort."},
+        {"ja": "それは愛情の表れにほかならない。", "reading": "それはあいじょうのあらわれにほかならない。", "vi": "Đó chính là biểu hiện của tình yêu thương.", "en": "That is none other than an expression of love."}
+      ]
+    },
+    {
+      "pattern": "〜ものと思われる",
+      "meaning_vi": "Được cho là …, có thể nghĩ rằng …",
+      "meaning_en": "It is thought/believed that …",
+      "structure": "Thể thường ＋ ものと思われる",
+      "notes": "Phán đoán khách quan, trang trọng (tin tức, báo cáo). 原因は漏電によるものと思われる.",
+      "examples": [
+        {"ja": "火事の原因は漏電によるものと思われる。", "reading": "かじのげんいんはろうでんによるものとおもわれる。", "vi": "Nguyên nhân cháy được cho là do chập điện.", "en": "The fire is believed to have been caused by an electrical short."},
+        {"ja": "回復には時間がかかるものと思われます。", "reading": "かいふくにはじかんがかかるものとおもわれます。", "vi": "Được cho là sẽ mất thời gian để hồi phục.", "en": "It is thought that recovery will take time."}
+      ]
+    },
+    {
+      "pattern": "〜とみえて",
+      "meaning_vi": "Có vẻ như … nên …, dường như …",
+      "meaning_en": "It appears that … (so)",
+      "structure": "Thể thường（danh từ）＋ とみえて（とみえる）",
+      "notes": "Suy đoán từ chứng cứ quan sát, vế sau là biểu hiện. 疲れているとみえて、すぐ寝た.",
+      "examples": [
+        {"ja": "道が濡れている。雨が降ったとみえる。", "reading": "みちがぬれている。あめがふったとみえる。", "vi": "Đường ướt. Có vẻ như đã mưa.", "en": "The road is wet; it appears it rained."},
+        {"ja": "留守とみえて、返事がない。", "reading": "るすとみえて、へんじがない。", "vi": "Có vẻ vắng nhà nên không thấy trả lời.", "en": "There's no answer, so it seems no one's home."}
+      ]
+    },
+    {
+      "pattern": "〜かのようだ",
+      "meaning_vi": "Cứ như là …, làm như … (dù không thật)",
+      "meaning_en": "As if / as though …",
+      "structure": "Thể thường ＋ かのようだ",
+      "notes": "Ví von điều không có thật. Hay đi với まるで. 死んだかのように静かだ.",
+      "examples": [
+        {"ja": "彼はまるで何も知らないかのように話した。", "reading": "かれはまるでなにもしらないかのようにはなした。", "vi": "Anh ấy nói cứ như chẳng biết gì.", "en": "He spoke as if he knew nothing."},
+        {"ja": "5月なのに、真夏であるかのような暑さだ。", "reading": "ごがつなのに、まなつであるかのようなあつさだ。", "vi": "Mới tháng 5 mà nóng như đang giữa hè.", "en": "Though it's May, it's hot as if it were midsummer."}
+      ]
+    },
+    {
+      "pattern": "〜ようがない",
+      "meaning_vi": "Không có cách nào để …, hết cách …",
+      "meaning_en": "There's no way to …",
+      "structure": "Động từ thân ます ＋ ようがない",
+      "notes": "Muốn làm nhưng không có phương tiện／cách. 連絡しようがない (không có cách liên lạc).",
+      "examples": [
+        {"ja": "住所が分からないので、連絡しようがない。", "reading": "じゅうしょがわからないので、れんらくしようがない。", "vi": "Không biết địa chỉ nên hết cách liên lạc.", "en": "I don't know the address, so there's no way to contact them."},
+        {"ja": "こんなに壊れていては、直しようがない。", "reading": "こんなにこわれていては、なおしようがない。", "vi": "Hỏng thế này thì không có cách nào sửa.", "en": "Broken this badly, there's no way to fix it."}
+      ]
+    },
+    {
+      "pattern": "〜っこない",
+      "meaning_vi": "Làm gì có chuyện …, đời nào … (văn nói)",
+      "meaning_en": "There's no way … (casual, emphatic)",
+      "structure": "Động từ thân ます ＋ っこない",
+      "notes": "Phủ định khả năng mạnh, thân mật. 勝てっこない, できっこない.",
+      "examples": [
+        {"ja": "そんな難しい問題、解けっこない。", "reading": "そんなむずかしいもんだい、とけっこない。", "vi": "Bài khó thế đời nào giải được.", "en": "There's no way I can solve such a hard problem."},
+        {"ja": "今から行っても間に合いっこない。", "reading": "いまからいってもまにあいっこない。", "vi": "Giờ có đi cũng làm gì kịp.", "en": "Even if we go now, there's no way we'll make it."}
+      ]
+    },
+    {
+      "pattern": "〜得る／得ない",
+      "meaning_vi": "Có thể …／không thể … (về khả năng lý thuyết)",
+      "meaning_en": "Can (possibly) … / cannot …",
+      "structure": "Động từ thân ます ＋ 得る（うる／える）／得ない（えない）",
+      "notes": "Khả năng tồn tại về mặt lý thuyết, văn viết. あり得る, 考え得る. Phủ định luôn đọc えない.",
+      "examples": [
+        {"ja": "誰にでも起こり得ることだ。", "reading": "だれにでもおこりうることだ。", "vi": "Đó là điều có thể xảy ra với bất kỳ ai.", "en": "It's something that can happen to anyone."},
+        {"ja": "そんなことはあり得ない。", "reading": "そんなことはありえない。", "vi": "Chuyện đó không thể nào có được.", "en": "Such a thing is impossible."}
+      ]
+    },
+    {
+      "pattern": "〜かねる",
+      "meaning_vi": "Khó mà …, không thể … (dù muốn)",
+      "meaning_en": "Cannot bring oneself to … / find it hard to",
+      "structure": "Động từ thân ます ＋ かねる",
+      "notes": "Vì lý do tâm lý／lập trường mà không thể làm, trang trọng／lịch sự. 賛成しかねる, お答えしかねます.",
+      "examples": [
+        {"ja": "その件については、お答えしかねます。", "reading": "そのけんについては、おこたえしかねます。", "vi": "Về việc đó tôi khó lòng trả lời được.", "en": "I'm afraid I cannot answer regarding that matter."},
+        {"ja": "その意見には賛成しかねる。", "reading": "そのいけんにはさんせいしかねる。", "vi": "Tôi khó mà tán thành ý kiến đó.", "en": "I find it hard to agree with that opinion."}
+      ]
+    },
+    {
+      "pattern": "〜かねない",
+      "meaning_vi": "Có nguy cơ …, e là có thể … (điều xấu)",
+      "meaning_en": "Might (well) … / be capable of (something bad)",
+      "structure": "Động từ thân ます ＋ かねない",
+      "notes": "Khả năng điều không hay xảy ra. 過労で倒れかねない. (Trái với かねる.)",
+      "examples": [
+        {"ja": "そんな運転では、事故を起こしかねない。", "reading": "そんなうんてんでは、じこをおこしかねない。", "vi": "Lái xe kiểu đó dễ gây tai nạn lắm.", "en": "Driving like that, you might cause an accident."},
+        {"ja": "無理を続けると、病気になりかねない。", "reading": "むりをつづけると、びょうきになりかねない。", "vi": "Cứ gắng sức mãi thì có nguy cơ đổ bệnh.", "en": "If you keep overdoing it, you might well get sick."}
+      ]
+    },
+    {
+      "pattern": "〜ざるを得ない",
+      "meaning_vi": "Buộc phải …, không thể không … (bất đắc dĩ)",
+      "meaning_en": "Have no choice but to … / be forced to",
+      "structure": "Động từ thể ない bỏ ない ＋ ざるを得ない（する→せざるを得ない）",
+      "notes": "Bất đắc dĩ phải làm do hoàn cảnh. Trang trọng. する→せざるを得ない.",
+      "examples": [
+        {"ja": "上司の命令だから、従わざるを得ない。", "reading": "じょうしのめいれいだから、したがわざるをえない。", "vi": "Vì là lệnh cấp trên nên buộc phải tuân theo.", "en": "Since it's the boss's order, I have no choice but to obey."},
+        {"ja": "雪で、試合は中止せざるを得なかった。", "reading": "ゆきで、しあいはちゅうしせざるをえなかった。", "vi": "Vì tuyết, đành phải hủy trận đấu.", "en": "Due to snow, we had no choice but to cancel the match."}
+      ]
+    },
+    {
+      "pattern": "〜ないわけにはいかない",
+      "meaning_vi": "Không thể không …, đành phải … (vì nghĩa vụ)",
+      "meaning_en": "Cannot not … / have to (out of obligation)",
+      "structure": "Động từ thể ない ＋ わけにはいかない",
+      "notes": "Vì lý do đạo lý／xã hội nên buộc phải làm. 約束したから、行かないわけにはいかない.",
+      "examples": [
+        {"ja": "約束したから、行かないわけにはいかない。", "reading": "やくそくしたから、いかないわけにはいかない。", "vi": "Đã hứa rồi nên không thể không đi.", "en": "I promised, so I can't not go."},
+        {"ja": "上司の誘いだから、断らないわけにはいかない。", "reading": "じょうしのさそいだから、ことわらないわけにはいかない。", "vi": "Là lời mời của sếp nên không thể không nhận.", "en": "It's the boss's invitation, so I can't refuse."}
+      ]
+    },
+    {
+      "pattern": "〜ぬく",
+      "meaning_vi": "… đến cùng, … cho trót (vượt khó)",
+      "meaning_en": "Do … all the way through / to the end",
+      "structure": "Động từ thân ます ＋ 抜く",
+      "notes": "Hoàn thành đến cùng dù gian khó (khác きる - chỉ hoàn tất). 最後までやり抜く, 考え抜く.",
+      "examples": [
+        {"ja": "苦しかったが、最後まで走り抜いた。", "reading": "くるしかったが、さいごまではしりぬいた。", "vi": "Tuy khổ nhưng tôi đã chạy đến cùng.", "en": "It was tough, but I ran all the way to the end."},
+        {"ja": "よく考え抜いた末の決断だ。", "reading": "よくかんがえぬいたすえのけつだんだ。", "vi": "Đây là quyết định sau khi đã nghĩ cạn cùng.", "en": "It's a decision made after thinking it through thoroughly."}
+      ]
+    }
+  ]
+}

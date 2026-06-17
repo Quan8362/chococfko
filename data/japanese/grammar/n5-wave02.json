@@ -1,0 +1,358 @@
+{
+  "level": "N5",
+  "wave": 2,
+  "entries": [
+    {
+      "pattern": "い形容詞 ＋ です",
+      "meaning_vi": "Tính từ đuôi -i (khẳng định lịch sự)",
+      "meaning_en": "I-adjective + desu (polite affirmative)",
+      "structure": "Tính từ-i (giữ nguyên 〜い) ＋ です",
+      "notes": "Tính từ-i đứng trước です không đổi đuôi. KHÔNG nói 〜いだ. Khi bổ nghĩa danh từ thì đứng trực tiếp: 高い山.",
+      "examples": [
+        {"ja": "この本は面白いです。", "reading": "このほんはおもしろいです。", "vi": "Quyển sách này thú vị.", "en": "This book is interesting."},
+        {"ja": "富士山は高いです。", "reading": "ふじさんはたかいです。", "vi": "Núi Phú Sĩ cao.", "en": "Mt. Fuji is tall."}
+      ]
+    },
+    {
+      "pattern": "〜くないです",
+      "meaning_vi": "Không … (phủ định tính từ-i)",
+      "meaning_en": "Not … (i-adjective negative)",
+      "structure": "Tính từ-i bỏ い ＋ くないです",
+      "notes": "高い→高くないです. Riêng いい (tốt) chia bất quy tắc: よくないです. 〜くありません trang trọng hơn.",
+      "examples": [
+        {"ja": "この問題は難しくないです。", "reading": "このもんだいはむずかしくないです。", "vi": "Bài này không khó.", "en": "This problem is not difficult."},
+        {"ja": "今日は暑くないです。", "reading": "きょうはあつくないです。", "vi": "Hôm nay không nóng.", "en": "It is not hot today."}
+      ]
+    },
+    {
+      "pattern": "〜かったです",
+      "meaning_vi": "Đã … (quá khứ tính từ-i)",
+      "meaning_en": "Was … (i-adjective past)",
+      "structure": "Tính từ-i bỏ い ＋ かったです",
+      "notes": "楽しい→楽しかったです. いい→よかったです (bất quy tắc).",
+      "examples": [
+        {"ja": "旅行は楽しかったです。", "reading": "りょこうはたのしかったです。", "vi": "Chuyến đi đã vui.", "en": "The trip was fun."},
+        {"ja": "試験は難しかったです。", "reading": "しけんはむずかしかったです。", "vi": "Bài thi đã khó.", "en": "The exam was difficult."}
+      ]
+    },
+    {
+      "pattern": "〜くなかったです",
+      "meaning_vi": "Đã không … (quá khứ phủ định tính từ-i)",
+      "meaning_en": "Was not … (i-adjective past negative)",
+      "structure": "Tính từ-i bỏ い ＋ くなかったです",
+      "notes": "高い→高くなかったです. いい→よくなかったです.",
+      "examples": [
+        {"ja": "映画は面白くなかったです。", "reading": "えいがはおもしろくなかったです。", "vi": "Bộ phim đã không hay.", "en": "The movie was not interesting."},
+        {"ja": "天気はよくなかったです。", "reading": "てんきはよくなかったです。", "vi": "Thời tiết đã không tốt.", "en": "The weather was not good."}
+      ]
+    },
+    {
+      "pattern": "な形容詞 ＋ な ＋ 名詞",
+      "meaning_vi": "Tính từ đuôi -na bổ nghĩa danh từ",
+      "meaning_en": "Na-adjective modifying a noun",
+      "structure": "Tính từ-na ＋ な ＋ Danh từ",
+      "notes": "Khi bổ nghĩa danh từ, tính từ-na thêm な: 静かな町. Khi đứng cuối câu thì dùng です: 静かです.",
+      "examples": [
+        {"ja": "静かな町に住んでいます。", "reading": "しずかなまちにすんでいます。", "vi": "Tôi sống ở thị trấn yên tĩnh.", "en": "I live in a quiet town."},
+        {"ja": "親切な人ですね。", "reading": "しんせつなひとですね。", "vi": "Người tốt bụng nhỉ.", "en": "He is a kind person, isn't he?"}
+      ]
+    },
+    {
+      "pattern": "〜くて／〜で（nối tính từ）",
+      "meaning_vi": "… và … — nối hai tính từ／mệnh đề",
+      "meaning_en": "… and … (linking adjectives)",
+      "structure": "Tính từ-i bỏ い ＋ くて ／ Tính từ-na ＋ で",
+      "notes": "Nối hai tính từ hoặc nêu lý do nhẹ. い-adj: 安い→安くて; な-adj／danh từ: 便利→便利で. いい→よくて.",
+      "examples": [
+        {"ja": "この部屋は広くて明るいです。", "reading": "このへやはひろくてあかるいです。", "vi": "Phòng này vừa rộng vừa sáng.", "en": "This room is spacious and bright."},
+        {"ja": "彼は親切で優しいです。", "reading": "かれはしんせつでやさしいです。", "vi": "Anh ấy vừa tốt bụng vừa dịu dàng.", "en": "He is kind and gentle."}
+      ]
+    },
+    {
+      "pattern": "〜ません",
+      "meaning_vi": "Không … (phủ định lịch sự của động từ)",
+      "meaning_en": "Do not … (polite negative verb)",
+      "structure": "Thân ます của động từ ＋ ません",
+      "notes": "Thể phủ định lịch sự hiện tại／tương lai. 行きます→行きません.",
+      "examples": [
+        {"ja": "お酒は飲みません。", "reading": "おさけはのみません。", "vi": "Tôi không uống rượu.", "en": "I do not drink alcohol."},
+        {"ja": "明日は来ません。", "reading": "あしたはきません。", "vi": "Ngày mai tôi không đến.", "en": "I will not come tomorrow."}
+      ]
+    },
+    {
+      "pattern": "〜ました",
+      "meaning_vi": "Đã … (quá khứ lịch sự của động từ)",
+      "meaning_en": "Did … (polite past verb)",
+      "structure": "Thân ます của động từ ＋ ました",
+      "notes": "Thể quá khứ lịch sự khẳng định. 食べます→食べました.",
+      "examples": [
+        {"ja": "昨日、映画を見ました。", "reading": "きのう、えいがをみました。", "vi": "Hôm qua tôi đã xem phim.", "en": "I watched a movie yesterday."},
+        {"ja": "宿題をしました。", "reading": "しゅくだいをしました。", "vi": "Tôi đã làm bài tập.", "en": "I did my homework."}
+      ]
+    },
+    {
+      "pattern": "〜ませんでした",
+      "meaning_vi": "Đã không … (quá khứ phủ định lịch sự)",
+      "meaning_en": "Did not … (polite past negative)",
+      "structure": "Thân ます của động từ ＋ ませんでした",
+      "notes": "Thể quá khứ phủ định lịch sự. 行きます→行きませんでした.",
+      "examples": [
+        {"ja": "昨日は学校へ行きませんでした。", "reading": "きのうはがっこうへいきませんでした。", "vi": "Hôm qua tôi đã không đi học.", "en": "I did not go to school yesterday."},
+        {"ja": "何も買いませんでした。", "reading": "なにもかいませんでした。", "vi": "Tôi đã không mua gì cả.", "en": "I did not buy anything."}
+      ]
+    },
+    {
+      "pattern": "〜ましょう",
+      "meaning_vi": "Nào hãy … (rủ rê cùng làm)",
+      "meaning_en": "Let's …",
+      "structure": "Thân ます của động từ ＋ ましょう",
+      "notes": "Rủ rê hoặc đề nghị cùng làm. Khi đáp lời mời 〜ませんか cũng dùng 〜ましょう.",
+      "examples": [
+        {"ja": "一緒に帰りましょう。", "reading": "いっしょにかえりましょう。", "vi": "Cùng về nào.", "en": "Let's go home together."},
+        {"ja": "そろそろ始めましょう。", "reading": "そろそろはじめましょう。", "vi": "Bắt đầu thôi nào.", "en": "Let's begin now."}
+      ]
+    },
+    {
+      "pattern": "〜ましょうか",
+      "meaning_vi": "Để tôi … nhé?／Chúng ta … nhé?",
+      "meaning_en": "Shall I / shall we …?",
+      "structure": "Thân ます của động từ ＋ ましょうか",
+      "notes": "Đề nghị giúp đỡ ai đó hoặc rủ làm chung, chờ ý kiến người nghe.",
+      "examples": [
+        {"ja": "荷物を持ちましょうか。", "reading": "にもつをもちましょうか。", "vi": "Để tôi xách hành lý giúp nhé?", "en": "Shall I carry your luggage?"},
+        {"ja": "窓を開けましょうか。", "reading": "まどをあけましょうか。", "vi": "Tôi mở cửa sổ nhé?", "en": "Shall I open the window?"}
+      ]
+    },
+    {
+      "pattern": "〜ています",
+      "meaning_vi": "Đang …; trạng thái duy trì",
+      "meaning_en": "Be doing …; resulting state",
+      "structure": "Thể て của động từ ＋ います",
+      "notes": "Diễn tả hành động đang tiếp diễn (食べています) hoặc trạng thái／kết quả duy trì (住んでいます, 知っています).",
+      "examples": [
+        {"ja": "今、本を読んでいます。", "reading": "いま、ほんをよんでいます。", "vi": "Bây giờ tôi đang đọc sách.", "en": "I am reading a book now."},
+        {"ja": "兄は東京に住んでいます。", "reading": "あにはとうきょうにすんでいます。", "vi": "Anh trai tôi đang sống ở Tokyo.", "en": "My older brother lives in Tokyo."}
+      ]
+    },
+    {
+      "pattern": "〜てから",
+      "meaning_vi": "Sau khi … (rồi mới …)",
+      "meaning_en": "After doing …",
+      "structure": "Thể て của động từ ＋ から",
+      "notes": "Nhấn trình tự: làm xong A rồi mới B. So với 〜たあとで, から nhấn \"ngay sau, theo thứ tự\".",
+      "examples": [
+        {"ja": "手を洗ってから食べます。", "reading": "てをあらってからたべます。", "vi": "Rửa tay xong rồi mới ăn.", "en": "I eat after washing my hands."},
+        {"ja": "仕事が終わってから映画を見ます。", "reading": "しごとがおわってからえいがをみます。", "vi": "Sau khi xong việc tôi sẽ xem phim.", "en": "After work I will watch a movie."}
+      ]
+    },
+    {
+      "pattern": "〜ないでください",
+      "meaning_vi": "Xin đừng … (yêu cầu không làm)",
+      "meaning_en": "Please don't …",
+      "structure": "Động từ thể ない ＋ でください",
+      "notes": "Yêu cầu lịch sự đừng làm gì. 入る→入らないでください.",
+      "examples": [
+        {"ja": "ここで写真を撮らないでください。", "reading": "ここでしゃしんをとらないでください。", "vi": "Xin đừng chụp ảnh ở đây.", "en": "Please don't take photos here."},
+        {"ja": "心配しないでください。", "reading": "しんぱいしないでください。", "vi": "Xin đừng lo lắng.", "en": "Please don't worry."}
+      ]
+    },
+    {
+      "pattern": "〜なければなりません",
+      "meaning_vi": "Phải … (nghĩa vụ／bắt buộc)",
+      "meaning_en": "Must / have to …",
+      "structure": "Động từ thể ない bỏ い ＋ ければなりません",
+      "notes": "行かない→行かなければなりません. Văn nói rút gọn: 〜なきゃ. Đồng nghĩa 〜なくてはいけません.",
+      "examples": [
+        {"ja": "明日までにレポートを出さなければなりません。", "reading": "あしたまでにレポートをださなければなりません。", "vi": "Tôi phải nộp báo cáo trước ngày mai.", "en": "I must submit the report by tomorrow."},
+        {"ja": "薬を飲まなければなりません。", "reading": "くすりをのまなければなりません。", "vi": "Tôi phải uống thuốc.", "en": "I have to take medicine."}
+      ]
+    },
+    {
+      "pattern": "〜なくてもいいです",
+      "meaning_vi": "Không … cũng được (không cần phải …)",
+      "meaning_en": "Don't have to …",
+      "structure": "Động từ thể ない bỏ い ＋ くてもいいです",
+      "notes": "来ない→来なくてもいいです. Diễn tả việc không cần thiết phải làm.",
+      "examples": [
+        {"ja": "明日は来なくてもいいです。", "reading": "あしたはこなくてもいいです。", "vi": "Ngày mai không cần đến cũng được.", "en": "You don't have to come tomorrow."},
+        {"ja": "急がなくてもいいですよ。", "reading": "いそがなくてもいいですよ。", "vi": "Không cần vội đâu.", "en": "You don't have to hurry."}
+      ]
+    },
+    {
+      "pattern": "〜てもいいです",
+      "meaning_vi": "… cũng được (cho phép)",
+      "meaning_en": "May / it's OK to …",
+      "structure": "Thể て của động từ ＋ もいいです",
+      "notes": "Cho phép hoặc xin phép. Dạng câu hỏi 〜てもいいですか = \"… có được không?\".",
+      "examples": [
+        {"ja": "ここに座ってもいいですか。", "reading": "ここにすわってもいいですか。", "vi": "Tôi ngồi đây có được không?", "en": "May I sit here?"},
+        {"ja": "写真を撮ってもいいです。", "reading": "しゃしんをとってもいいです。", "vi": "Chụp ảnh cũng được.", "en": "You may take photos."}
+      ]
+    },
+    {
+      "pattern": "〜てはいけません",
+      "meaning_vi": "Không được … (cấm đoán)",
+      "meaning_en": "Must not …",
+      "structure": "Thể て của động từ ＋ はいけません",
+      "notes": "Cấm đoán mạnh. Văn nói rút gọn: 〜ちゃいけません／〜じゃいけません.",
+      "examples": [
+        {"ja": "ここでタバコを吸ってはいけません。", "reading": "ここでタバコをすってはいけません。", "vi": "Không được hút thuốc ở đây.", "en": "You must not smoke here."},
+        {"ja": "授業中に寝てはいけません。", "reading": "じゅぎょうちゅうにねてはいけません。", "vi": "Không được ngủ trong giờ học.", "en": "You must not sleep during class."}
+      ]
+    },
+    {
+      "pattern": "〜たり〜たりする",
+      "meaning_vi": "Lúc thì … lúc thì …; làm những việc như …",
+      "meaning_en": "Do things like … and …",
+      "structure": "Thể た của động từ ＋ り … ＋ たり ＋ する",
+      "notes": "Liệt kê vài hành động tiêu biểu (chưa hết). 食べる→食べたり, 飲む→飲んだり.",
+      "examples": [
+        {"ja": "休みの日は本を読んだり音楽を聞いたりします。", "reading": "やすみのひはほんをよんだりおんがくをきいたりします。", "vi": "Ngày nghỉ tôi đọc sách, nghe nhạc, v.v.", "en": "On days off I do things like reading and listening to music."},
+        {"ja": "部屋を行ったり来たりしています。", "reading": "へやをいったりきたりしています。", "vi": "Tôi đi đi lại lại trong phòng.", "en": "I am pacing back and forth in the room."}
+      ]
+    },
+    {
+      "pattern": "〜まえに",
+      "meaning_vi": "Trước khi …",
+      "meaning_en": "Before …",
+      "structure": "Động từ thể từ điển ／ Danh từ の ＋ まえに",
+      "notes": "Động từ luôn ở thể từ điển (kể cả khi câu ở quá khứ). 食べる前に, 食事の前に.",
+      "examples": [
+        {"ja": "寝る前に歯を磨きます。", "reading": "ねるまえにはをみがきます。", "vi": "Trước khi ngủ tôi đánh răng.", "en": "I brush my teeth before going to bed."},
+        {"ja": "食事の前に手を洗います。", "reading": "しょくじのまえにてをあらいます。", "vi": "Trước bữa ăn tôi rửa tay.", "en": "I wash my hands before meals."}
+      ]
+    },
+    {
+      "pattern": "〜あとで",
+      "meaning_vi": "Sau khi …",
+      "meaning_en": "After …",
+      "structure": "Động từ thể た ／ Danh từ の ＋ あとで",
+      "notes": "Động từ ở thể た. 食べたあとで, 授業のあとで. Nhấn \"sau khi xong A\".",
+      "examples": [
+        {"ja": "食べたあとで、皿を洗います。", "reading": "たべたあとで、さらをあらいます。", "vi": "Sau khi ăn tôi rửa bát.", "en": "After eating, I wash the dishes."},
+        {"ja": "授業のあとで、図書館へ行きます。", "reading": "じゅぎょうのあとで、としょかんへいきます。", "vi": "Sau giờ học tôi đến thư viện.", "en": "After class I go to the library."}
+      ]
+    },
+    {
+      "pattern": "〜とき",
+      "meaning_vi": "Khi, lúc …",
+      "meaning_en": "When …",
+      "structure": "Động từ／Tính từ／Danh từ の ＋ とき",
+      "notes": "Thì của động từ trước とき quyết định trình tự: 行くとき (trước khi tới nơi) ↔ 行ったとき (sau khi tới).",
+      "examples": [
+        {"ja": "子供のとき、よく泣きました。", "reading": "こどものとき、よくなきました。", "vi": "Hồi nhỏ tôi hay khóc.", "en": "When I was a child, I cried often."},
+        {"ja": "出かけるとき、鍵をかけます。", "reading": "でかけるとき、かぎをかけます。", "vi": "Khi ra ngoài tôi khóa cửa.", "en": "When I go out, I lock the door."}
+      ]
+    },
+    {
+      "pattern": "〜でしょう",
+      "meaning_vi": "Chắc là …; … phải không?",
+      "meaning_en": "Probably …; … right?",
+      "structure": "Thể thường ／ Danh từ ＋ でしょう",
+      "notes": "Phỏng đoán (xuống giọng) hoặc tìm đồng tình (lên giọng). Lịch sự hơn だろう.",
+      "examples": [
+        {"ja": "明日は雨でしょう。", "reading": "あしたはあめでしょう。", "vi": "Ngày mai chắc sẽ mưa.", "en": "It will probably rain tomorrow."},
+        {"ja": "あの店は高いでしょう。", "reading": "あのみせはたかいでしょう。", "vi": "Cửa hàng kia chắc đắt nhỉ?", "en": "That shop is expensive, right?"}
+      ]
+    },
+    {
+      "pattern": "辞書形（thể từ điển）",
+      "meaning_vi": "Thể từ điển — dạng nguyên thể của động từ",
+      "meaning_en": "Dictionary (plain present) form",
+      "structure": "〜う âm cuối（書く・食べる・する・来る）",
+      "notes": "Dạng thường, kết thúc bằng hàng 〜u. Dùng trong văn thân mật và trước nhiều mẫu ngữ pháp (まえに, ことができる…).",
+      "examples": [
+        {"ja": "毎日日本語を勉強する。", "reading": "まいにちにほんごをべんきょうする。", "vi": "Mỗi ngày tôi học tiếng Nhật.", "en": "I study Japanese every day."},
+        {"ja": "朝ご飯を食べる。", "reading": "あさごはんをたべる。", "vi": "Tôi ăn sáng.", "en": "I eat breakfast."}
+      ]
+    },
+    {
+      "pattern": "ない形（thể phủ định thường）",
+      "meaning_vi": "Thể phủ định thường — không …",
+      "meaning_en": "Plain negative form",
+      "structure": "〜ない（書かない・食べない・しない・来ない）",
+      "notes": "Dạng phủ định thân mật. Nhóm 1 đổi hàng u→a＋ない, nhóm 2 bỏ る＋ない. する→しない, 来る→こない.",
+      "examples": [
+        {"ja": "今日はどこへも行かない。", "reading": "きょうはどこへもいかない。", "vi": "Hôm nay tôi chẳng đi đâu cả.", "en": "I'm not going anywhere today."},
+        {"ja": "お肉を食べない。", "reading": "おにくをたべない。", "vi": "Tôi không ăn thịt.", "en": "I don't eat meat."}
+      ]
+    },
+    {
+      "pattern": "た形（thể quá khứ thường）",
+      "meaning_vi": "Thể quá khứ thường — đã …",
+      "meaning_en": "Plain past form",
+      "structure": "〜た／〜だ（書いた・食べた・した・来た）",
+      "notes": "Dạng quá khứ thân mật, biến đổi giống thể て (て→た, で→だ). Dùng trước たり, あとで, ことがある…",
+      "examples": [
+        {"ja": "昨日、友達に会った。", "reading": "きのう、ともだちにあった。", "vi": "Hôm qua tôi đã gặp bạn.", "en": "I met a friend yesterday."},
+        {"ja": "もう昼ご飯を食べた。", "reading": "もうひるごはんをたべた。", "vi": "Tôi đã ăn trưa rồi.", "en": "I already ate lunch."}
+      ]
+    },
+    {
+      "pattern": "〜がほしい",
+      "meaning_vi": "Muốn có … (đồ vật)",
+      "meaning_en": "Want (something)",
+      "structure": "Danh từ ＋ が ＋ ほしい",
+      "notes": "Diễn tả mong muốn sở hữu một vật. Chỉ dùng cho người nói／người nghe; nói về người thứ ba dùng ほしがっている.",
+      "examples": [
+        {"ja": "新しいパソコンがほしいです。", "reading": "あたらしいパソコンがほしいです。", "vi": "Tôi muốn có máy tính mới.", "en": "I want a new computer."},
+        {"ja": "今、何がほしいですか。", "reading": "いま、なにがほしいですか。", "vi": "Bây giờ bạn muốn gì?", "en": "What do you want now?"}
+      ]
+    },
+    {
+      "pattern": "〜が好き／嫌い",
+      "meaning_vi": "Thích／ghét …",
+      "meaning_en": "Like / dislike …",
+      "structure": "Danh từ ＋ が ＋ 好き／嫌い（です）",
+      "notes": "好き, 嫌い là tính từ-na, đối tượng đánh dấu bằng が. 大好き = rất thích, 大嫌い = rất ghét.",
+      "examples": [
+        {"ja": "わたしは音楽が好きです。", "reading": "わたしはおんがくがすきです。", "vi": "Tôi thích âm nhạc.", "en": "I like music."},
+        {"ja": "彼は野菜が嫌いです。", "reading": "かれはやさいがきらいです。", "vi": "Anh ấy ghét rau.", "en": "He dislikes vegetables."}
+      ]
+    },
+    {
+      "pattern": "〜が上手／下手",
+      "meaning_vi": "Giỏi／kém về …",
+      "meaning_en": "Good / bad at …",
+      "structure": "Danh từ ＋ が ＋ 上手／下手（です）",
+      "notes": "Tính từ-na, đối tượng đánh dấu bằng が. Không tự khen mình 上手; nói về bản thân thường dùng 得意.",
+      "examples": [
+        {"ja": "彼女は料理が上手です。", "reading": "かのじょはりょうりがじょうずです。", "vi": "Cô ấy nấu ăn giỏi.", "en": "She is good at cooking."},
+        {"ja": "わたしは歌が下手です。", "reading": "わたしはうたがへたです。", "vi": "Tôi hát dở.", "en": "I am bad at singing."}
+      ]
+    },
+    {
+      "pattern": "〜になる／〜くなる",
+      "meaning_vi": "Trở nên …; trở thành …",
+      "meaning_en": "Become …",
+      "structure": "Danh từ／Tính từ-na ＋ になる ／ Tính từ-i bỏ い ＋ くなる",
+      "notes": "Diễn tả sự thay đổi trạng thái. 医者になる, 静かになる, 寒くなる. いい→よくなる.",
+      "examples": [
+        {"ja": "寒くなりました。", "reading": "さむくなりました。", "vi": "Trời đã trở lạnh.", "en": "It has gotten cold."},
+        {"ja": "兄は先生になりました。", "reading": "あにはせんせいになりました。", "vi": "Anh tôi đã trở thành giáo viên.", "en": "My brother became a teacher."}
+      ]
+    },
+    {
+      "pattern": "〜にする（chọn）",
+      "meaning_vi": "Chọn …; quyết định lấy …",
+      "meaning_en": "Decide on / I'll have …",
+      "structure": "Danh từ ＋ にする",
+      "notes": "Dùng khi chọn món hoặc lựa chọn giữa các phương án. コーヒーにします = tôi chọn cà phê.",
+      "examples": [
+        {"ja": "私はコーヒーにします。", "reading": "わたしはコーヒーにします。", "vi": "Tôi chọn cà phê.", "en": "I'll have coffee."},
+        {"ja": "飲み物は何にしますか。", "reading": "のみものはなににしますか。", "vi": "Đồ uống bạn chọn gì?", "en": "What will you have to drink?"}
+      ]
+    },
+    {
+      "pattern": "〜ことができる",
+      "meaning_vi": "Có thể …; có khả năng …",
+      "meaning_en": "Can / be able to …",
+      "structure": "Động từ thể từ điển ＋ ことができる",
+      "notes": "Diễn tả khả năng hoặc sự cho phép. Trang trọng hơn thể khả năng (〜られる). 泳ぐことができる = có thể bơi.",
+      "examples": [
+        {"ja": "私はピアノを弾くことができます。", "reading": "わたしはピアノをひくことができます。", "vi": "Tôi có thể chơi piano.", "en": "I can play the piano."},
+        {"ja": "ここで車を止めることができます。", "reading": "ここでくるまをとめることができます。", "vi": "Có thể đỗ xe ở đây.", "en": "You can park your car here."}
+      ]
+    }
+  ]
+}

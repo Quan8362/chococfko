@@ -1,0 +1,391 @@
+{
+  "level": "N3",
+  "wave": 4,
+  "entries": [
+    {
+      "pattern": "〜ことはない",
+      "meaning_vi": "Không cần phải …, chẳng việc gì phải …",
+      "meaning_en": "There's no need to …",
+      "structure": "Động từ thể từ điển ＋ ことはない",
+      "notes": "Trấn an rằng không cần làm gì. 心配することはない = không cần lo.",
+      "examples": [
+        {"ja": "君が謝ることはないよ。", "reading": "きみがあやまることはないよ。", "vi": "Cậu chẳng việc gì phải xin lỗi cả.", "en": "There's no need for you to apologize."},
+        {"ja": "急ぐことはない、時間はたっぷりある。", "reading": "いそぐことはない、じかんはたっぷりある。", "vi": "Không cần vội, còn nhiều thời gian.", "en": "No need to hurry; there's plenty of time."}
+      ]
+    },
+    {
+      "pattern": "自動詞・他動詞（cặp tự／tha động）",
+      "meaning_vi": "Cặp động từ tự động／tha động (như 開く／開ける)",
+      "meaning_en": "Intransitive / transitive verb pairs",
+      "structure": "Tự động: 〜が ＋ 開く ; Tha động: 〜を ＋ 開ける",
+      "notes": "Tự động (tự xảy ra): 〜が, không có tác nhân (ドアが開く). Tha động (có người làm): 〜を (ドアを開ける). Nhiều cặp: つく／つける, 始まる／始める.",
+      "examples": [
+        {"ja": "風でドアが開いた。", "reading": "かぜでドアがあいた。", "vi": "Cửa mở ra vì gió.", "en": "The door opened due to the wind."},
+        {"ja": "彼がドアを開けた。", "reading": "かれがドアをあけた。", "vi": "Anh ấy đã mở cửa.", "en": "He opened the door."}
+      ]
+    },
+    {
+      "pattern": "〜て済む",
+      "meaning_vi": "Chỉ cần … là xong, … là đủ (nhẹ hơn dự kiến)",
+      "meaning_en": "Get by with just …-ing",
+      "structure": "Động từ thể て／danh từ で ＋ 済む",
+      "notes": "Giải quyết được mà không cần nhiều hơn. 電話で済む = chỉ cần gọi điện là xong.",
+      "examples": [
+        {"ja": "軽いけがで済んでよかった。", "reading": "かるいけがですんでよかった。", "vi": "May mà chỉ bị thương nhẹ là xong.", "en": "I'm glad I got off with just a minor injury."},
+        {"ja": "メールで済むなら、行かなくてもいい。", "reading": "メールですむなら、いかなくてもいい。", "vi": "Nếu chỉ cần email là xong thì khỏi đi.", "en": "If an email will do, you don't have to go."}
+      ]
+    },
+    {
+      "pattern": "〜ずに済む／ないで済む",
+      "meaning_vi": "Khỏi phải …, không cần … cũng xong",
+      "meaning_en": "Avoid having to … / get by without …-ing",
+      "structure": "Động từ thể ない bỏ ない ＋ ずに済む（／ないで済む）",
+      "notes": "Tránh được việc đáng lẽ phải làm. 並ばずに済んだ = khỏi phải xếp hàng. する→せずに済む.",
+      "examples": [
+        {"ja": "予約したので、並ばずに済んだ。", "reading": "よやくしたので、ならばずにすんだ。", "vi": "Vì đã đặt chỗ nên khỏi phải xếp hàng.", "en": "Since I reserved, I didn't have to wait in line."},
+        {"ja": "友達が貸してくれたので、買わないで済んだ。", "reading": "ともだちがかしてくれたので、かわないですんだ。", "vi": "Bạn cho mượn nên tôi khỏi phải mua.", "en": "My friend lent it to me, so I didn't have to buy one."}
+      ]
+    },
+    {
+      "pattern": "〜きり（chỉ／kể từ）",
+      "meaning_vi": "Chỉ có …; kể từ khi … (rồi không …)",
+      "meaning_en": "Only / just …; (ever) since …",
+      "structure": "Danh từ ＋ きり ／ động từ thể た ＋ きり",
+      "notes": "Giới hạn \"chỉ\" (二人きり = chỉ hai người) hoặc \"kể từ … thì không nữa\" (出かけたきり).",
+      "examples": [
+        {"ja": "二人きりで話したい。", "reading": "ふたりきりではなしたい。", "vi": "Tôi muốn nói chuyện chỉ riêng hai người.", "en": "I want to talk just the two of us."},
+        {"ja": "彼は朝出かけたきり、帰ってこない。", "reading": "かれはあさでかけたきり、かえってこない。", "vi": "Anh ấy đi từ sáng rồi không thấy về.", "en": "He went out in the morning and hasn't come back since."}
+      ]
+    },
+    {
+      "pattern": "〜たきり",
+      "meaning_vi": "Sau khi … thì không … nữa (mãi giữ nguyên)",
+      "meaning_en": "After …-ing, (nothing further happened)",
+      "structure": "Động từ thể た ＋ きり（vế sau phủ định）",
+      "notes": "Một hành động xảy ra rồi trạng thái giữ nguyên, không tiếp diễn như mong đợi. 寝たきり (nằm liệt giường).",
+      "examples": [
+        {"ja": "祖父は10年前に会ったきりだ。", "reading": "そふはじゅうねんまえにあったきりだ。", "vi": "Tôi gặp ông nội 10 năm trước, từ đó chưa gặp lại.", "en": "I last saw my grandfather ten years ago and not since."},
+        {"ja": "彼は病気で寝たきりになった。", "reading": "かれはびょうきでねたきりになった。", "vi": "Anh ấy bị bệnh phải nằm liệt giường.", "en": "He became bedridden from illness."}
+      ]
+    },
+    {
+      "pattern": "〜ようなら／ようだったら",
+      "meaning_vi": "Nếu (xem ra) … thì",
+      "meaning_en": "If it seems / if it looks like …",
+      "structure": "Thể thường（danh từ の／tính từ-na な）＋ ようなら",
+      "notes": "Điều kiện dựa trên phán đoán／quan sát. 難しいようなら手伝う = nếu thấy khó thì tôi giúp.",
+      "examples": [
+        {"ja": "熱が下がらないようなら、病院へ行ってください。", "reading": "ねつがさがらないようなら、びょういんへいってください。", "vi": "Nếu xem ra không hạ sốt thì hãy đi viện.", "en": "If it looks like your fever won't go down, please go to the hospital."},
+        {"ja": "都合が悪いようだったら、連絡してください。", "reading": "つごうがわるいようだったら、れんらくしてください。", "vi": "Nếu thấy không tiện thì hãy báo tôi.", "en": "If it seems inconvenient, please let me know."}
+      ]
+    },
+    {
+      "pattern": "〜とか（nghe đồn）",
+      "meaning_vi": "Nghe nói là …, hình như là … (thông tin không chắc)",
+      "meaning_en": "I heard something like … (vague hearsay)",
+      "structure": "Thể thường ＋ とか",
+      "notes": "Truyền đạt thông tin nghe được nhưng không chắc chắn. Khác とか liệt kê (N4).",
+      "examples": [
+        {"ja": "田中さん、来月で会社を辞めるとか。", "reading": "たなかさん、らいげつでかいしゃをやめるとか。", "vi": "Nghe nói anh Tanaka tháng sau nghỉ việc.", "en": "I heard Mr. Tanaka is quitting next month or something."},
+        {"ja": "今年の冬は暖かいとか聞きました。", "reading": "ことしのふゆはあたたかいとかききました。", "vi": "Tôi nghe đâu mùa đông năm nay ấm.", "en": "I heard something about this winter being warm."}
+      ]
+    },
+    {
+      "pattern": "〜ぶりに",
+      "meaning_vi": "Sau (bao lâu) mới lại …, lần đầu sau …",
+      "meaning_en": "For the first time in … / after (a period)",
+      "structure": "Khoảng thời gian ＋ ぶりに",
+      "notes": "Sau một khoảng thời gian dài mới lại làm／xảy ra. 三年ぶりに会った = 3 năm mới gặp lại.",
+      "examples": [
+        {"ja": "三年ぶりに故郷へ帰った。", "reading": "さんねんぶりにふるさとへかえった。", "vi": "Sau ba năm tôi mới về quê.", "en": "I returned home for the first time in three years."},
+        {"ja": "久しぶりに雨が降った。", "reading": "ひさしぶりにあめがふった。", "vi": "Lâu lắm rồi trời mới mưa.", "en": "It rained for the first time in a long while."}
+      ]
+    },
+    {
+      "pattern": "〜中（じゅう／ちゅう）",
+      "meaning_vi": "Trong suốt …; đang trong khi …; khắp …",
+      "meaning_en": "During / throughout / all over …",
+      "structure": "Danh từ ＋ 中（じゅう = toàn bộ; ちゅう = đang trong）",
+      "notes": "〜じゅう: toàn bộ phạm vi／thời gian (一日中, 世界中). 〜ちゅう: đang diễn ra (会議中, 工事中).",
+      "examples": [
+        {"ja": "一日中、家で勉強した。", "reading": "いちにちじゅう、いえでべんきょうした。", "vi": "Tôi học ở nhà suốt cả ngày.", "en": "I studied at home all day long."},
+        {"ja": "ただ今、会議中です。", "reading": "ただいま、かいぎちゅうです。", "vi": "Bây giờ đang trong cuộc họp.", "en": "We are in a meeting right now."}
+      ]
+    },
+    {
+      "pattern": "〜以来",
+      "meaning_vi": "Kể từ khi … (đến nay)",
+      "meaning_en": "Since … (up to now)",
+      "structure": "Động từ thể て／danh từ ＋ 以来",
+      "notes": "Từ một mốc trong quá khứ kéo dài đến hiện tại. 卒業以来, 入社して以来.",
+      "examples": [
+        {"ja": "卒業以来、彼に会っていない。", "reading": "そつぎょういらい、かれにあっていない。", "vi": "Kể từ khi tốt nghiệp tôi chưa gặp lại anh ấy.", "en": "I haven't seen him since graduation."},
+        {"ja": "日本に来て以来、毎日が新鮮だ。", "reading": "にほんにきていらい、まいにちがしんせんだ。", "vi": "Kể từ khi sang Nhật, ngày nào cũng mới mẻ.", "en": "Ever since coming to Japan, every day feels fresh."}
+      ]
+    },
+    {
+      "pattern": "むしろ",
+      "meaning_vi": "Thà rằng …, đúng hơn là …, ngược lại",
+      "meaning_en": "Rather / if anything …",
+      "structure": "… よりむしろ … ／ đầu mệnh đề",
+      "notes": "So sánh và chọn vế sau là phù hợp hơn. 安いより、むしろ高くてもいい物がいい.",
+      "examples": [
+        {"ja": "都会よりむしろ田舎に住みたい。", "reading": "とかいよりむしろいなかにすみたい。", "vi": "Thay vì thành phố, tôi thà sống ở quê.", "en": "I'd rather live in the countryside than the city."},
+        {"ja": "怒っているというより、むしろ悲しい。", "reading": "おこっているというより、むしろかなしい。", "vi": "Nói tức giận thì đúng hơn là buồn.", "en": "It's not so much anger as, if anything, sadness."}
+      ]
+    },
+    {
+      "pattern": "ところが",
+      "meaning_vi": "Thế nhưng, ai ngờ (kết quả ngoài dự đoán)",
+      "meaning_en": "However / but (unexpectedly)",
+      "structure": "Đầu câu (nối hai câu)",
+      "notes": "Nối hai câu, vế sau trái với mong đợi một cách bất ngờ. Mạnh hơn しかし về sắc thái ngạc nhiên.",
+      "examples": [
+        {"ja": "出かけようとした。ところが、急に雨が降ってきた。", "reading": "でかけようとした。ところが、きゅうにあめがふってきた。", "vi": "Tôi định ra ngoài. Thế nhưng trời bỗng đổ mưa.", "en": "I was about to go out. However, it suddenly started to rain."},
+        {"ja": "簡単だと思った。ところが、意外に難しかった。", "reading": "かんたんだとおもった。ところが、いがいにむずかしかった。", "vi": "Tôi tưởng dễ. Ai ngờ lại khó bất ngờ.", "en": "I thought it'd be easy. But surprisingly, it was hard."}
+      ]
+    },
+    {
+      "pattern": "それなのに",
+      "meaning_vi": "Vậy mà, thế mà (bất mãn)",
+      "meaning_en": "And yet / even so",
+      "structure": "Đầu câu",
+      "notes": "Nối câu, nhấn sự trái ngược kèm bất mãn／ngạc nhiên. Như のに ở dạng nối câu độc lập.",
+      "examples": [
+        {"ja": "一生懸命勉強した。それなのに、不合格だった。", "reading": "いっしょうけんめいべんきょうした。それなのに、ふごうかくだった。", "vi": "Tôi đã học chăm chỉ. Vậy mà lại trượt.", "en": "I studied hard. And yet, I failed."},
+        {"ja": "約束したのに。それなのに、彼は来なかった。", "reading": "やくそくしたのに。それなのに、かれはこなかった。", "vi": "Đã hứa rồi. Thế mà anh ấy không đến.", "en": "He promised. And yet he didn't come."}
+      ]
+    },
+    {
+      "pattern": "そのため（に）",
+      "meaning_vi": "Vì thế, do đó (nguyên nhân-kết quả)",
+      "meaning_en": "For that reason / therefore",
+      "structure": "Đầu câu",
+      "notes": "Nối câu, nêu kết quả từ nguyên nhân vừa nói. Trang trọng, hay dùng trong văn viết.",
+      "examples": [
+        {"ja": "大雪が降った。そのため、電車が止まった。", "reading": "おおゆきがふった。そのため、でんしゃがとまった。", "vi": "Tuyết rơi dày. Vì thế tàu điện dừng.", "en": "It snowed heavily. For that reason, the trains stopped."},
+        {"ja": "人口が増えた。そのために住宅が不足している。", "reading": "じんこうがふえた。そのためにじゅうたくがふそくしている。", "vi": "Dân số tăng. Do đó thiếu nhà ở.", "en": "The population grew, and therefore housing is in short supply."}
+      ]
+    },
+    {
+      "pattern": "それで",
+      "meaning_vi": "Thế là, vì vậy; rồi sao nữa",
+      "meaning_en": "And so / because of that",
+      "structure": "Đầu câu",
+      "notes": "Nối câu nêu kết quả／diễn tiến tự nhiên. Trong hội thoại còn để giục kể tiếp (それで？).",
+      "examples": [
+        {"ja": "道が込んでいた。それで遅れてしまった。", "reading": "みちがこんでいた。それでおくれてしまった。", "vi": "Đường tắc. Thế là tôi đến muộn.", "en": "The road was congested, and so I was late."},
+        {"ja": "昨日、彼に会ったよ。それで、元気そうだった。", "reading": "きのう、かれにあったよ。それで、げんきそうだった。", "vi": "Hôm qua tôi gặp anh ấy đấy. Và trông anh ấy khỏe.", "en": "I met him yesterday, and he seemed well."}
+      ]
+    },
+    {
+      "pattern": "すると",
+      "meaning_vi": "Thế là (ngay sau đó); vậy thì",
+      "meaning_en": "Thereupon / then (just then)",
+      "structure": "Đầu câu",
+      "notes": "Vế sau xảy ra ngay sau, thường là phát hiện bất ngờ. Cũng để suy ra: \"vậy thì nghĩa là…\".",
+      "examples": [
+        {"ja": "ボタンを押した。すると、ドアが開いた。", "reading": "ボタンをおした。すると、ドアがあいた。", "vi": "Tôi nhấn nút. Thế là cửa mở ra.", "en": "I pressed the button. Thereupon, the door opened."},
+        {"ja": "明日は休みだ。すると、今日中に終わらせないと。", "reading": "あしたはやすみだ。すると、きょうじゅうにおわらせないと。", "vi": "Mai nghỉ. Vậy thì phải xong trong hôm nay.", "en": "Tomorrow's a holiday. Then we must finish it today."}
+      ]
+    },
+    {
+      "pattern": "つまり",
+      "meaning_vi": "Tức là, nói cách khác, nói tóm lại",
+      "meaning_en": "In other words / that is to say",
+      "structure": "Đầu câu／mệnh đề",
+      "notes": "Diễn giải lại điều vừa nói một cách rõ／ngắn gọn hơn.",
+      "examples": [
+        {"ja": "彼は父の兄、つまり私のおじです。", "reading": "かれはちちのあに、つまりわたしのおじです。", "vi": "Anh ấy là anh của bố, tức là bác của tôi.", "en": "He's my father's older brother — in other words, my uncle."},
+        {"ja": "反応がない。つまり、誰もいないということだ。", "reading": "はんのうがない。つまり、だれもいないということだ。", "vi": "Không có phản hồi. Tức là chẳng có ai.", "en": "There's no response — in other words, no one is there."}
+      ]
+    },
+    {
+      "pattern": "ただし",
+      "meaning_vi": "Tuy nhiên, với điều kiện là (nêu ngoại lệ／điều kiện)",
+      "meaning_en": "However / provided that (exception)",
+      "structure": "Đầu câu／mệnh đề",
+      "notes": "Bổ sung điều kiện hoặc ngoại lệ cho điều vừa nói, trang trọng (quy định, thông báo).",
+      "examples": [
+        {"ja": "入場無料。ただし、子供に限る。", "reading": "にゅうじょうむりょう。ただし、こどもにかぎる。", "vi": "Vào cửa miễn phí. Tuy nhiên chỉ áp dụng cho trẻ em.", "en": "Admission is free; however, only for children."},
+        {"ja": "参加できます。ただし、事前の予約が必要です。", "reading": "さんかできます。ただし、じぜんのよやくがひつようです。", "vi": "Bạn có thể tham gia, với điều kiện phải đặt trước.", "en": "You may join, provided that you book in advance."}
+      ]
+    },
+    {
+      "pattern": "なお",
+      "meaning_vi": "Ngoài ra, vả lại (bổ sung trang trọng)",
+      "meaning_en": "Furthermore / in addition (formal note)",
+      "structure": "Đầu câu",
+      "notes": "Thêm thông tin bổ sung trong văn bản trang trọng／thông báo.",
+      "examples": [
+        {"ja": "会議は3時からです。なお、資料は当日配布します。", "reading": "かいぎはさんじからです。なお、しりょうはとうじつはいふします。", "vi": "Họp từ 3 giờ. Ngoài ra, tài liệu sẽ phát trong ngày.", "en": "The meeting starts at 3. In addition, materials will be handed out on the day."},
+        {"ja": "締め切りは金曜です。なお、延長はできません。", "reading": "しめきりはきんようです。なお、えんちょうはできません。", "vi": "Hạn chót là thứ Sáu. Vả lại, không thể gia hạn.", "en": "The deadline is Friday. Furthermore, no extensions are possible."}
+      ]
+    },
+    {
+      "pattern": "または",
+      "meaning_vi": "Hoặc là, hay (chọn một trong các phương án)",
+      "meaning_en": "Or / alternatively",
+      "structure": "Danh từ ＋ または ＋ Danh từ",
+      "notes": "Nối các lựa chọn trong văn viết／trang trọng. 鉛筆またはボールペンで.",
+      "examples": [
+        {"ja": "鉛筆またはボールペンで記入してください。", "reading": "えんぴつまたはボールペンできにゅうしてください。", "vi": "Hãy điền bằng bút chì hoặc bút bi.", "en": "Please fill it out with a pencil or a ballpoint pen."},
+        {"ja": "メールまたは電話でご連絡ください。", "reading": "メールまたはでんわでごれんらくください。", "vi": "Xin liên hệ qua email hoặc điện thoại.", "en": "Please contact us by email or phone."}
+      ]
+    },
+    {
+      "pattern": "それとも",
+      "meaning_vi": "Hay là (chọn giữa hai khả năng trong câu hỏi)",
+      "meaning_en": "Or (in a question)",
+      "structure": "Câu hỏi ＋ それとも ＋ Câu hỏi",
+      "notes": "Đưa hai lựa chọn trong câu nghi vấn. お茶にしますか、それともコーヒーにしますか.",
+      "examples": [
+        {"ja": "行きますか、それともやめますか。", "reading": "いきますか、それともやめますか。", "vi": "Bạn đi, hay là thôi?", "en": "Will you go, or will you not?"},
+        {"ja": "飲み物はお茶ですか、それともコーヒーですか。", "reading": "のみものはおちゃですか、それともコーヒーですか。", "vi": "Đồ uống là trà hay cà phê ạ?", "en": "Would you like tea, or coffee?"}
+      ]
+    },
+    {
+      "pattern": "そのうえ",
+      "meaning_vi": "Hơn nữa, thêm vào đó",
+      "meaning_en": "Moreover / on top of that",
+      "structure": "Đầu câu",
+      "notes": "Thêm thông tin cùng chiều, tăng tiến. この店は安い。そのうえ、おいしい.",
+      "examples": [
+        {"ja": "この店は安い。そのうえ、料理もおいしい。", "reading": "このみせはやすい。そのうえ、りょうりもおいしい。", "vi": "Quán này rẻ. Hơn nữa, món cũng ngon.", "en": "This place is cheap. On top of that, the food is good."},
+        {"ja": "道に迷った。そのうえ、雨まで降ってきた。", "reading": "みちにまよった。そのうえ、あめまでふってきた。", "vi": "Tôi lạc đường. Thêm vào đó, trời còn mưa.", "en": "I got lost, and on top of that, it started to rain."}
+      ]
+    },
+    {
+      "pattern": "ところで",
+      "meaning_vi": "Mà này, nhân tiện (đổi chủ đề)",
+      "meaning_en": "By the way (changing topic)",
+      "structure": "Đầu câu",
+      "notes": "Chuyển sang chủ đề mới không liên quan. (Khác 〜たところで \"dù có … cũng\" của N2.)",
+      "examples": [
+        {"ja": "ところで、最近仕事はどう。", "reading": "ところで、さいきんしごとはどう。", "vi": "Mà này, dạo này công việc thế nào?", "en": "By the way, how's work lately?"},
+        {"ja": "ところで、あの件はどうなりましたか。", "reading": "ところで、あのけんはどうなりましたか。", "vi": "Nhân tiện, vụ kia sao rồi ạ?", "en": "By the way, what happened with that matter?"}
+      ]
+    },
+    {
+      "pattern": "さて",
+      "meaning_vi": "Nào, giờ thì (chuyển sang việc tiếp theo)",
+      "meaning_en": "Now then / well then",
+      "structure": "Đầu câu",
+      "notes": "Báo hiệu chuyển sang phần／hành động tiếp theo, hoặc bắt đầu việc gì.",
+      "examples": [
+        {"ja": "さて、そろそろ始めましょうか。", "reading": "さて、そろそろはじめましょうか。", "vi": "Nào, ta bắt đầu nhé?", "en": "Now then, shall we get started?"},
+        {"ja": "食事も終わった。さて、何をしようか。", "reading": "しょくじもおわった。さて、なにをしようか。", "vi": "Ăn xong rồi. Giờ thì làm gì đây?", "en": "The meal's done. Now then, what shall we do?"}
+      ]
+    },
+    {
+      "pattern": "ちなみに",
+      "meaning_vi": "Nhân tiện thì, tiện nói thêm",
+      "meaning_en": "Incidentally / by the way (adding info)",
+      "structure": "Đầu câu",
+      "notes": "Thêm thông tin phụ liên quan đến điều vừa nói.",
+      "examples": [
+        {"ja": "会議は3時です。ちなみに、場所は5階です。", "reading": "かいぎはさんじです。ちなみに、ばしょはごかいです。", "vi": "Họp lúc 3 giờ. Nhân tiện, địa điểm ở tầng 5.", "en": "The meeting is at 3. Incidentally, it's on the 5th floor."},
+        {"ja": "これは私の作品です。ちなみに、賞も取りました。", "reading": "これはわたしのさくひんです。ちなみに、しょうもとりました。", "vi": "Đây là tác phẩm của tôi. Tiện nói, nó còn đoạt giải.", "en": "This is my work. Incidentally, it won an award too."}
+      ]
+    },
+    {
+      "pattern": "したがって",
+      "meaning_vi": "Do đó, vì vậy (suy luận trang trọng)",
+      "meaning_en": "Therefore / consequently",
+      "structure": "Đầu câu",
+      "notes": "Kết luận logic, văn viết trang trọng (luận văn, báo cáo). Trang trọng hơn だから.",
+      "examples": [
+        {"ja": "需要が減った。したがって、価格も下がった。", "reading": "じゅようがへった。したがって、かかくもさがった。", "vi": "Nhu cầu giảm. Do đó giá cũng giảm.", "en": "Demand fell; therefore, the price dropped too."},
+        {"ja": "規則に反している。したがって、認められない。", "reading": "きそくにはんしている。したがって、みとめられない。", "vi": "Vi phạm quy định. Vì vậy không được chấp nhận.", "en": "It violates the rules; consequently, it cannot be approved."}
+      ]
+    },
+    {
+      "pattern": "ただ（có điều）",
+      "meaning_vi": "Có điều, chỉ có điều (bổ sung điểm lưu ý nhẹ)",
+      "meaning_en": "However / the only thing is …",
+      "structure": "Đầu câu",
+      "notes": "Thừa nhận điều trên nhưng nêu một điểm dè dặt. Nhẹ hơn ただし.",
+      "examples": [
+        {"ja": "いい部屋です。ただ、少し駅から遠い。", "reading": "いいへやです。ただ、すこしえきからとおい。", "vi": "Phòng đẹp đấy. Có điều hơi xa ga.", "en": "It's a nice room. The only thing is, it's a bit far from the station."},
+        {"ja": "行きたい。ただ、時間があるかどうか。", "reading": "いきたい。ただ、じかんがあるかどうか。", "vi": "Tôi muốn đi. Chỉ có điều không biết có thời gian không.", "en": "I want to go; the only question is whether I'll have time."}
+      ]
+    },
+    {
+      "pattern": "それにしても",
+      "meaning_vi": "Dù vậy thì cũng, nhưng mà (quả là)",
+      "meaning_en": "Even so / still (that said)",
+      "structure": "Đầu câu",
+      "notes": "Thừa nhận điều trên nhưng vẫn bày tỏ cảm thán／ngạc nhiên về mức độ.",
+      "examples": [
+        {"ja": "渋滞は分かるが、それにしても遅すぎる。", "reading": "じゅうたいはわかるが、それにしてもおそすぎる。", "vi": "Tắc đường thì hiểu, nhưng dù vậy cũng muộn quá.", "en": "I get that there's traffic, but even so, this is too late."},
+        {"ja": "それにしても、よく食べるね。", "reading": "それにしても、よくたべるね。", "vi": "Dù gì đi nữa thì cậu ăn khỏe thật.", "en": "Even so, you sure eat a lot."}
+      ]
+    },
+    {
+      "pattern": "とはいえ",
+      "meaning_vi": "Tuy nói vậy nhưng …, dù là … đi nữa",
+      "meaning_en": "Having said that / nonetheless",
+      "structure": "Thể thường／danh từ ＋ とはいえ（đầu câu）",
+      "notes": "Thừa nhận A nhưng B mâu thuẫn phần nào. 春とはいえ、まだ寒い.",
+      "examples": [
+        {"ja": "春とはいえ、まだ風が冷たい。", "reading": "はるとはいえ、まだかぜがつめたい。", "vi": "Tuy là xuân nhưng gió vẫn còn lạnh.", "en": "Although it's spring, the wind is still cold."},
+        {"ja": "慣れたとはいえ、緊張する。", "reading": "なれたとはいえ、きんちょうする。", "vi": "Tuy đã quen nhưng tôi vẫn hồi hộp.", "en": "Even though I've gotten used to it, I still get nervous."}
+      ]
+    },
+    {
+      "pattern": "もっとも（接続詞）",
+      "meaning_vi": "Tuy nhiên (nói thế chứ), dù vậy phải thêm rằng",
+      "meaning_en": "That said / though (qualification)",
+      "structure": "Đầu câu",
+      "notes": "Bổ sung điều kiện／đính chính cho phát ngôn trước, giảm nhẹ. (Khác もっとも \"nhất\".)",
+      "examples": [
+        {"ja": "彼は親切だ。もっとも、気が短いところもあるが。", "reading": "かれはしんせつだ。もっとも、きがみじかいところもあるが。", "vi": "Anh ấy tốt bụng. Tuy nhiên cũng có lúc nóng tính.", "en": "He's kind — though he can be short-tempered."},
+        {"ja": "試験に受かった。もっとも、ぎりぎりだったが。", "reading": "しけんにうかった。もっとも、ぎりぎりだったが。", "vi": "Tôi đỗ rồi. Nói thế chứ là sát nút thôi.", "en": "I passed the exam — barely, mind you."}
+      ]
+    },
+    {
+      "pattern": "なぜなら（〜から）",
+      "meaning_vi": "Sở dĩ vậy là vì, bởi vì",
+      "meaning_en": "This is because …",
+      "structure": "なぜなら ＋ … ＋ から（だ）",
+      "notes": "Nêu lý do cho điều vừa khẳng định, văn viết. Thường kết bằng からだ.",
+      "examples": [
+        {"ja": "私は反対だ。なぜなら、危険すぎるからだ。", "reading": "わたしははんたいだ。なぜなら、きけんすぎるからだ。", "vi": "Tôi phản đối. Bởi vì nó quá nguy hiểm.", "en": "I'm against it, because it's too dangerous."},
+        {"ja": "彼を信じる。なぜなら、彼は嘘をつかないからだ。", "reading": "かれをしんじる。なぜなら、かれはうそをつかないからだ。", "vi": "Tôi tin anh ấy. Sở dĩ vậy vì anh ấy không nói dối.", "en": "I trust him, because he doesn't lie."}
+      ]
+    },
+    {
+      "pattern": "そこで",
+      "meaning_vi": "Vì thế, thế là (nên đã chủ động …)",
+      "meaning_en": "And so / that's why (I then …)",
+      "structure": "Đầu câu",
+      "notes": "Trước một tình huống nên đã chủ động làm gì. Khác それで (kết quả tự nhiên); そこで nhấn hành động đối phó.",
+      "examples": [
+        {"ja": "道が分からなかった。そこで、交番で聞いた。", "reading": "みちがわからなかった。そこで、こうばんできいた。", "vi": "Tôi không biết đường. Thế là hỏi ở bốt cảnh sát.", "en": "I didn't know the way, so I asked at the police box."},
+        {"ja": "反応が悪かった。そこで、方法を変えてみた。", "reading": "はんのうがわるかった。そこで、ほうほうをかえてみた。", "vi": "Phản ứng không tốt. Vì thế tôi thử đổi cách.", "en": "The response was poor, so I tried changing my approach."}
+      ]
+    },
+    {
+      "pattern": "かえって",
+      "meaning_vi": "Trái lại, ngược lại còn …",
+      "meaning_en": "On the contrary / rather (the opposite)",
+      "structure": "Đầu mệnh đề／trạng từ",
+      "notes": "Kết quả ngược với mong đợi. 薬を飲んだら、かえって悪くなった.",
+      "examples": [
+        {"ja": "薬を飲んだら、かえって具合が悪くなった。", "reading": "くすりをのんだら、かえってぐあいがわるくなった。", "vi": "Uống thuốc xong, trái lại còn thấy mệt hơn.", "en": "After taking the medicine, I felt worse instead."},
+        {"ja": "手伝ったら、かえって邪魔になった。", "reading": "てつだったら、かえってじゃまになった。", "vi": "Tôi giúp mà hóa ra lại thành vướng víu.", "en": "I tried to help, but it got in the way instead."}
+      ]
+    },
+    {
+      "pattern": "やはり／やっぱり",
+      "meaning_vi": "Quả nhiên, đúng như nghĩ, dù sao thì vẫn",
+      "meaning_en": "As expected / after all / sure enough",
+      "structure": "Trạng từ (đầu／giữa mệnh đề)",
+      "notes": "Xác nhận điều đúng như dự đoán hoặc trở lại kết luận ban đầu. やっぱり thân mật hơn.",
+      "examples": [
+        {"ja": "やはり、彼が犯人だった。", "reading": "やはり、かれがはんにんだった。", "vi": "Quả nhiên, anh ta là thủ phạm.", "en": "As expected, he was the culprit."},
+        {"ja": "いろいろ考えたが、やっぱりやめておく。", "reading": "いろいろかんがえたが、やっぱりやめておく。", "vi": "Nghĩ tới nghĩ lui, rốt cuộc tôi vẫn thôi.", "en": "I thought it over, but after all I'll pass."}
+      ]
+    }
+  ]
+}

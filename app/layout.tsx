@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { NextIntlClientProvider } from 'next-intl'
 import { getLocale, getMessages, getTranslations } from 'next-intl/server'
 import './globals.css'
@@ -20,6 +20,12 @@ export const preferredRegion = 'hnd1'
 
 const SITE_NAME = 'Chợ Cóc FKO'
 const SITE_URL  = 'https://chococfko.com'
+
+// Tô vùng status bar / thanh địa chỉ Safari iOS bằng đúng màu cream của header,
+// tránh tình trạng lộ nội dung trang chạy phía sau ở mép trên khi cuộn.
+export const viewport: Viewport = {
+  themeColor: '#faf4ea',
+}
 
 const OG_LOCALE: Record<string, string> = {
   vi: 'vi_VN', en: 'en_US', ja: 'ja_JP', ko: 'ko_KR', zh: 'zh_CN',

@@ -1,0 +1,336 @@
+{
+  "level": "N5",
+  "wave": 3,
+  "entries": [
+    {
+      "pattern": "〜より",
+      "meaning_vi": "Hơn … (mốc bị so sánh)",
+      "meaning_en": "Than … (comparison)",
+      "structure": "Danh từ ＋ より",
+      "notes": "Đánh dấu đối tượng bị so sánh (cái kém hơn). Thường đi cặp với 〜のほうが.",
+      "examples": [
+        {"ja": "電車はバスより速いです。", "reading": "でんしゃはバスよりはやいです。", "vi": "Tàu điện nhanh hơn xe buýt.", "en": "Trains are faster than buses."},
+        {"ja": "今日は昨日より暑いです。", "reading": "きょうはきのうよりあついです。", "vi": "Hôm nay nóng hơn hôm qua.", "en": "Today is hotter than yesterday."}
+      ]
+    },
+    {
+      "pattern": "〜のほうが〜",
+      "meaning_vi": "… thì hơn (vế được chọn trong so sánh)",
+      "meaning_en": "… is more … (the preferred side)",
+      "structure": "Danh từ ＋ のほうが ＋ 〜（より）",
+      "notes": "Nêu vế trội hơn trong so sánh. Cặp đầy đủ: AのほうがBより〜.",
+      "examples": [
+        {"ja": "海より山のほうが好きです。", "reading": "うみよりやまのほうがすきです。", "vi": "Tôi thích núi hơn biển.", "en": "I like mountains more than the sea."},
+        {"ja": "こっちのほうが安いです。", "reading": "こっちのほうがやすいです。", "vi": "Cái này rẻ hơn.", "en": "This one is cheaper."}
+      ]
+    },
+    {
+      "pattern": "〜と〜とどちらが",
+      "meaning_vi": "Giữa A và B, cái nào … hơn?",
+      "meaning_en": "Which is more …, A or B?",
+      "structure": "A と B とどちらが ＋ tính từ",
+      "notes": "Câu hỏi so sánh hai đối tượng. Trả lời bằng 〜のほうが.",
+      "examples": [
+        {"ja": "コーヒーと紅茶とどちらが好きですか。", "reading": "コーヒーとこうちゃとどちらがすきですか。", "vi": "Cà phê và trà, bạn thích cái nào hơn?", "en": "Which do you like better, coffee or tea?"},
+        {"ja": "電車と車とどちらが速いですか。", "reading": "でんしゃとくるまとどちらがはやいですか。", "vi": "Tàu và ô tô, cái nào nhanh hơn?", "en": "Which is faster, the train or the car?"}
+      ]
+    },
+    {
+      "pattern": "〜（の中）でいちばん〜",
+      "meaning_vi": "… nhất trong …",
+      "meaning_en": "The most … in/among …",
+      "structure": "Phạm vi ＋ で（いちばん）＋ tính từ",
+      "notes": "So sánh nhất trong một phạm vi. Phạm vi là người／loại thì thêm の中で.",
+      "examples": [
+        {"ja": "クラスでいちばん背が高いです。", "reading": "クラスでいちばんせがたかいです。", "vi": "(Bạn ấy) cao nhất lớp.", "en": "He is the tallest in the class."},
+        {"ja": "果物の中でりんごがいちばん好きです。", "reading": "くだもののなかでりんごがいちばんすきです。", "vi": "Trong các loại trái cây, tôi thích táo nhất.", "en": "Among fruits, I like apples the best."}
+      ]
+    },
+    {
+      "pattern": "〜んです／のです",
+      "meaning_vi": "Là vì …; (giải thích／nhấn mạnh)",
+      "meaning_en": "It's that … (explanatory)",
+      "structure": "Thể thường ＋ んです（danh từ／tính từ-na ＋ なんです）",
+      "notes": "Giải thích lý do, đưa bối cảnh hoặc nhấn mạnh. Văn nói: 〜んです; văn viết: 〜のです.",
+      "examples": [
+        {"ja": "どうしたんですか。", "reading": "どうしたんですか。", "vi": "Bạn bị làm sao vậy?", "en": "What's the matter?"},
+        {"ja": "頭が痛いんです。", "reading": "あたまがいたいんです。", "vi": "Là vì tôi đau đầu.", "en": "It's because I have a headache."}
+      ]
+    },
+    {
+      "pattern": "〜に行く（mục đích）",
+      "meaning_vi": "Đi／đến／về để làm …",
+      "meaning_en": "Go/come (in order) to do …",
+      "structure": "Thân ます của động từ ／ Danh từ ＋ に行く／来る／帰る",
+      "notes": "Chỉ mục đích của việc di chuyển. 食べに行く, 買い物に行く.",
+      "examples": [
+        {"ja": "映画を見に行きます。", "reading": "えいがをみにいきます。", "vi": "Tôi đi xem phim.", "en": "I am going to see a movie."},
+        {"ja": "日本へ日本語を勉強しに来ました。", "reading": "にほんへにほんごをべんきょうしにきました。", "vi": "Tôi đến Nhật để học tiếng Nhật.", "en": "I came to Japan to study Japanese."}
+      ]
+    },
+    {
+      "pattern": "〜が、〜（nhưng）",
+      "meaning_vi": "… nhưng …",
+      "meaning_en": "… but …",
+      "structure": "Mệnh đề ＋ が、＋ Mệnh đề",
+      "notes": "Nối hai mệnh đề trái ngược (lịch sự, văn viết). Cũng dùng làm lời mở đầu mềm.",
+      "examples": [
+        {"ja": "高いですが、買います。", "reading": "たかいですが、かいます。", "vi": "Đắt nhưng tôi vẫn mua.", "en": "It's expensive, but I'll buy it."},
+        {"ja": "行きたいですが、時間がありません。", "reading": "いきたいですが、じかんがありません。", "vi": "Tôi muốn đi nhưng không có thời gian.", "en": "I want to go, but I have no time."}
+      ]
+    },
+    {
+      "pattern": "〜から、〜（vì）",
+      "meaning_vi": "Vì … nên …",
+      "meaning_en": "Because … (so …)",
+      "structure": "Mệnh đề (thể thường／lịch sự) ＋ から",
+      "notes": "Nêu lý do chủ quan. Lý do đứng trước, kết quả đứng sau. Khác ので (khách quan, mềm hơn).",
+      "examples": [
+        {"ja": "雨だから、行きません。", "reading": "あめだから、いきません。", "vi": "Vì trời mưa nên tôi không đi.", "en": "Because it's raining, I won't go."},
+        {"ja": "危ないから、気をつけてください。", "reading": "あぶないから、きをつけてください。", "vi": "Vì nguy hiểm nên hãy cẩn thận.", "en": "It's dangerous, so please be careful."}
+      ]
+    },
+    {
+      "pattern": "〜けど／けれど",
+      "meaning_vi": "… nhưng (thân mật)",
+      "meaning_en": "… but (colloquial)",
+      "structure": "Thể thường／lịch sự ＋ けど",
+      "notes": "Giống が nhưng thân mật hơn. けれど ＞ けれども trang trọng dần. Hay dùng làm lời mở đầu.",
+      "examples": [
+        {"ja": "安いけど、おいしいです。", "reading": "やすいけど、おいしいです。", "vi": "Rẻ nhưng ngon.", "en": "It's cheap, but delicious."},
+        {"ja": "もしもし、田中ですけど。", "reading": "もしもし、たなかですけど。", "vi": "Alô, tôi là Tanaka đây ạ.", "en": "Hello, this is Tanaka."}
+      ]
+    },
+    {
+      "pattern": "〜でも（rủ／nêu ví dụ）",
+      "meaning_vi": "… hay gì đó; … chẳng hạn (gợi ý nhẹ)",
+      "meaning_en": "… or something (soft suggestion)",
+      "structure": "Danh từ ＋ でも",
+      "notes": "Nêu một ví dụ tiêu biểu nhẹ nhàng khi mời／đề nghị. お茶でも = trà hay gì đó.",
+      "examples": [
+        {"ja": "お茶でも飲みませんか。", "reading": "おちゃでものみませんか。", "vi": "Mình uống trà hay gì đó không?", "en": "Shall we have some tea or something?"},
+        {"ja": "映画でも見ましょう。", "reading": "えいがでもみましょう。", "vi": "Xem phim hay gì đó đi.", "en": "Let's watch a movie or something."}
+      ]
+    },
+    {
+      "pattern": "もう〜ました",
+      "meaning_vi": "Đã … rồi",
+      "meaning_en": "Already did …",
+      "structure": "もう ＋ động từ thể ました",
+      "notes": "もう = đã, rồi. Câu hỏi もう〜ましたか thường trả lời phủ định bằng まだです／まだ〜ていません.",
+      "examples": [
+        {"ja": "もう昼ご飯を食べました。", "reading": "もうひるごはんをたべました。", "vi": "Tôi đã ăn trưa rồi.", "en": "I have already eaten lunch."},
+        {"ja": "宿題はもう終わりました。", "reading": "しゅくだいはもうおわりました。", "vi": "Bài tập đã xong rồi.", "en": "The homework is already done."}
+      ]
+    },
+    {
+      "pattern": "まだ〜ていません",
+      "meaning_vi": "Vẫn chưa … (chưa hoàn thành)",
+      "meaning_en": "Have not … yet",
+      "structure": "まだ ＋ động từ thể て ＋ いません",
+      "notes": "Trả lời cho もう〜ましたか khi chưa làm. KHÔNG nói まだ〜ませんでした.",
+      "examples": [
+        {"ja": "まだ昼ご飯を食べていません。", "reading": "まだひるごはんをたべていません。", "vi": "Tôi vẫn chưa ăn trưa.", "en": "I haven't eaten lunch yet."},
+        {"ja": "宿題はまだ終わっていません。", "reading": "しゅくだいはまだおわっていません。", "vi": "Bài tập vẫn chưa xong.", "en": "The homework isn't finished yet."}
+      ]
+    },
+    {
+      "pattern": "まだ〜（vẫn còn）",
+      "meaning_vi": "Vẫn còn …, hãy còn …",
+      "meaning_en": "Still …",
+      "structure": "まだ ＋ tính từ／động từ／danh từ",
+      "notes": "Diễn tả trạng thái còn tiếp tục. まだ早い = vẫn còn sớm.",
+      "examples": [
+        {"ja": "まだ時間があります。", "reading": "まだじかんがあります。", "vi": "Vẫn còn thời gian.", "en": "There is still time."},
+        {"ja": "外はまだ明るいです。", "reading": "そとはまだあかるいです。", "vi": "Bên ngoài trời vẫn còn sáng.", "en": "It is still bright outside."}
+      ]
+    },
+    {
+      "pattern": "〜という〜",
+      "meaning_vi": "… được gọi là …; tên là …",
+      "meaning_en": "… called / named …",
+      "structure": "Tên ＋ という ＋ Danh từ",
+      "notes": "Giới thiệu tên gọi của người／vật mà người nghe chưa biết. 「すし」という食べ物.",
+      "examples": [
+        {"ja": "「ドラえもん」というアニメを知っていますか。", "reading": "「ドラえもん」というアニメをしっていますか。", "vi": "Bạn có biết bộ anime tên là \"Doraemon\" không?", "en": "Do you know an anime called \"Doraemon\"?"},
+        {"ja": "田中という人から電話がありました。", "reading": "たなかというひとからでんわがありました。", "vi": "Có điện thoại từ một người tên Tanaka.", "en": "There was a call from a person named Tanaka."}
+      ]
+    },
+    {
+      "pattern": "〜は〜が〜（chủ đề kép）",
+      "meaning_vi": "Cấu trúc chủ đề lớn ＋ chủ ngữ nhỏ",
+      "meaning_en": "Topic + inner subject construction",
+      "structure": "Danh từ ＋ は ＋ Danh từ ＋ が ＋ vị ngữ",
+      "notes": "は nêu chủ đề lớn, が nêu bộ phận／chủ ngữ nhỏ. 象は鼻が長い = voi thì mũi dài.",
+      "examples": [
+        {"ja": "象は鼻が長いです。", "reading": "ぞうははながながいです。", "vi": "Voi thì mũi dài.", "en": "Elephants have long trunks."},
+        {"ja": "日本は富士山が有名です。", "reading": "にほんはふじさんがゆうめいです。", "vi": "Nhật Bản thì núi Phú Sĩ nổi tiếng.", "en": "In Japan, Mt. Fuji is famous."}
+      ]
+    },
+    {
+      "pattern": "〜に会う",
+      "meaning_vi": "Gặp (ai đó)",
+      "meaning_en": "Meet (someone)",
+      "structure": "Người ＋ に ＋ 会う",
+      "notes": "Đối tượng gặp dùng に (KHÔNG dùng を). 友達に会う.",
+      "examples": [
+        {"ja": "駅で友達に会いました。", "reading": "えきでともだちにあいました。", "vi": "Tôi đã gặp bạn ở ga.", "en": "I met a friend at the station."},
+        {"ja": "明日、先生に会います。", "reading": "あした、せんせいにあいます。", "vi": "Ngày mai tôi gặp thầy.", "en": "I will meet my teacher tomorrow."}
+      ]
+    },
+    {
+      "pattern": "〜に乗る",
+      "meaning_vi": "Lên／đi (phương tiện)",
+      "meaning_en": "Get on / ride (a vehicle)",
+      "structure": "Phương tiện ＋ に ＋ 乗る",
+      "notes": "Phương tiện dùng に (KHÔNG dùng を). Trái nghĩa: 〜を降りる (xuống xe).",
+      "examples": [
+        {"ja": "バスに乗ります。", "reading": "バスにのります。", "vi": "Tôi lên xe buýt.", "en": "I get on the bus."},
+        {"ja": "自転車に乗るのが好きです。", "reading": "じてんしゃにのるのがすきです。", "vi": "Tôi thích đạp xe đạp.", "en": "I like riding a bicycle."}
+      ]
+    },
+    {
+      "pattern": "〜がわかる",
+      "meaning_vi": "Hiểu, biết được …",
+      "meaning_en": "Understand …",
+      "structure": "Danh từ ＋ が ＋ わかる",
+      "notes": "Đối tượng hiểu dùng が. 日本語がわかる = hiểu tiếng Nhật.",
+      "examples": [
+        {"ja": "日本語が少しわかります。", "reading": "にほんごがすこしわかります。", "vi": "Tôi hiểu tiếng Nhật một chút.", "en": "I understand a little Japanese."},
+        {"ja": "意味がわかりません。", "reading": "いみがわかりません。", "vi": "Tôi không hiểu nghĩa.", "en": "I don't understand the meaning."}
+      ]
+    },
+    {
+      "pattern": "〜が要る（いる）",
+      "meaning_vi": "Cần …",
+      "meaning_en": "Need …",
+      "structure": "Danh từ ＋ が ＋ 要る",
+      "notes": "要る (いる) = cần, là động từ nhóm 1: 要ります／要りません. Đối tượng dùng が.",
+      "examples": [
+        {"ja": "お金が要ります。", "reading": "おかねがいります。", "vi": "Tôi cần tiền.", "en": "I need money."},
+        {"ja": "ビザは要りますか。", "reading": "ビザはいりますか。", "vi": "Có cần visa không?", "en": "Do I need a visa?"}
+      ]
+    },
+    {
+      "pattern": "動詞ます形 ＋ 方（かた）",
+      "meaning_vi": "Cách …, cách thức làm …",
+      "meaning_en": "How to do … / way of doing",
+      "structure": "Thân ます của động từ ＋ 方",
+      "notes": "Biến động từ thành danh từ \"cách làm\". 使い方 = cách dùng, 読み方 = cách đọc.",
+      "examples": [
+        {"ja": "この漢字の読み方を教えてください。", "reading": "このかんじのよみかたをおしえてください。", "vi": "Hãy chỉ tôi cách đọc chữ Hán này.", "en": "Please tell me how to read this kanji."},
+        {"ja": "使い方が分かりません。", "reading": "つかいかたがわかりません。", "vi": "Tôi không biết cách dùng.", "en": "I don't know how to use it."}
+      ]
+    },
+    {
+      "pattern": "〜に〜回（tần suất）",
+      "meaning_vi": "… lần trên mỗi …",
+      "meaning_en": "… times per …",
+      "structure": "Khoảng thời gian ＋ に ＋ số lần",
+      "notes": "に đánh dấu đơn vị thời gian, sau đó là tần suất. 週に三回 = 3 lần/tuần.",
+      "examples": [
+        {"ja": "週に三回ジムに行きます。", "reading": "しゅうにさんかいジムにいきます。", "vi": "Tôi đến phòng gym 3 lần một tuần.", "en": "I go to the gym three times a week."},
+        {"ja": "一日に二回薬を飲みます。", "reading": "いちにちににかいくすりをのみます。", "vi": "Tôi uống thuốc 2 lần một ngày.", "en": "I take medicine twice a day."}
+      ]
+    },
+    {
+      "pattern": "お〜／ご〜（tiền tố lịch sự）",
+      "meaning_vi": "Tiền tố làm đẹp／lịch sự cho danh từ",
+      "meaning_en": "Polite / beautifying prefix",
+      "structure": "お ＋ từ thuần Nhật ／ ご ＋ từ gốc Hán",
+      "notes": "お đi với từ thuần Nhật (お金, お茶), ご đi với từ gốc Hán (ご家族). Tăng sự lịch sự, trang nhã.",
+      "examples": [
+        {"ja": "お名前は何ですか。", "reading": "おなまえはなんですか。", "vi": "Tên bạn là gì ạ?", "en": "What is your name?"},
+        {"ja": "ご家族はお元気ですか。", "reading": "ごかぞくはおげんきですか。", "vi": "Gia đình bạn vẫn khỏe chứ ạ?", "en": "Is your family well?"}
+      ]
+    },
+    {
+      "pattern": "こそあど（これ・それ・あれ）",
+      "meaning_vi": "Đại từ chỉ định: cái này／đó／kia／nào",
+      "meaning_en": "Demonstratives: this / that / that over there / which",
+      "structure": "これ／それ／あれ／どれ；この／その／あの ＋ Danh từ",
+      "notes": "こ = gần người nói, そ = gần người nghe, あ = xa cả hai, ど = câu hỏi. この＋danh từ; ここ／そこ／あそこ chỉ nơi chốn.",
+      "examples": [
+        {"ja": "これは何ですか。", "reading": "これはなんですか。", "vi": "Cái này là gì?", "en": "What is this?"},
+        {"ja": "その本を取ってください。", "reading": "そのほんをとってください。", "vi": "Hãy lấy giúp tôi quyển sách đó.", "en": "Please pass me that book."}
+      ]
+    },
+    {
+      "pattern": "〜だ（copula thường）",
+      "meaning_vi": "Là … (thể thường của です)",
+      "meaning_en": "To be … (plain copula)",
+      "structure": "Danh từ／Tính từ-na ＋ だ",
+      "notes": "Dạng thường (thân mật) của です. Tính từ-i KHÔNG thêm だ (高いだ ✗).",
+      "examples": [
+        {"ja": "彼は学生だ。", "reading": "かれはがくせいだ。", "vi": "Anh ấy là sinh viên.", "en": "He is a student."},
+        {"ja": "ここは静かだ。", "reading": "ここはしずかだ。", "vi": "Ở đây yên tĩnh.", "en": "It is quiet here."}
+      ]
+    },
+    {
+      "pattern": "〜だった（copula quá khứ thường）",
+      "meaning_vi": "Đã là … (quá khứ thể thường)",
+      "meaning_en": "Was/were … (plain past copula)",
+      "structure": "Danh từ／Tính từ-na ＋ だった",
+      "notes": "Dạng quá khứ thường của でした. Phủ định quá khứ thường: 〜じゃなかった.",
+      "examples": [
+        {"ja": "昨日は休みだった。", "reading": "きのうはやすみだった。", "vi": "Hôm qua là ngày nghỉ.", "en": "Yesterday was a day off."},
+        {"ja": "昔、この町は静かだった。", "reading": "むかし、このまちはしずかだった。", "vi": "Ngày xưa thị trấn này yên tĩnh.", "en": "This town used to be quiet."}
+      ]
+    },
+    {
+      "pattern": "〜じゃない（copula phủ định thường）",
+      "meaning_vi": "Không phải là … (thể thường)",
+      "meaning_en": "Is not … (plain negative)",
+      "structure": "Danh từ／Tính từ-na ＋ じゃない",
+      "notes": "Dạng thường của じゃありません. では trang trọng hơn じゃ. Lên giọng cuối thành câu hỏi／xác nhận.",
+      "examples": [
+        {"ja": "これは私の傘じゃない。", "reading": "これはわたしのかさじゃない。", "vi": "Đây không phải ô của tôi.", "en": "This is not my umbrella."},
+        {"ja": "あの店は有名じゃない。", "reading": "あのみせはゆうめいじゃない。", "vi": "Cửa hàng kia không nổi tiếng.", "en": "That shop is not famous."}
+      ]
+    },
+    {
+      "pattern": "形容詞 → 〜く／〜に（trạng từ）",
+      "meaning_vi": "Biến tính từ thành trạng từ (một cách …)",
+      "meaning_en": "Adjective → adverb",
+      "structure": "Tính từ-i bỏ い ＋ く ／ Tính từ-na ＋ に",
+      "notes": "早い→早く, 静か→静かに. Bổ nghĩa cho động từ. いい→よく.",
+      "examples": [
+        {"ja": "早く起きてください。", "reading": "はやくおきてください。", "vi": "Hãy dậy sớm.", "en": "Please get up early."},
+        {"ja": "静かに歩きます。", "reading": "しずかにあるきます。", "vi": "Tôi đi khẽ khàng.", "en": "I walk quietly."}
+      ]
+    },
+    {
+      "pattern": "〜の（danh từ hóa）",
+      "meaning_vi": "Việc …, cái … (danh từ hóa động từ／mệnh đề)",
+      "meaning_en": "Nominalizer の (the act of …)",
+      "structure": "Động từ thể từ điển ＋ の",
+      "notes": "Biến mệnh đề thành danh từ. 泳ぐのが好き = thích (việc) bơi. Dùng nhiều với 好き, 上手, 見える, 聞こえる.",
+      "examples": [
+        {"ja": "映画を見るのが好きです。", "reading": "えいがをみるのがすきです。", "vi": "Tôi thích xem phim.", "en": "I like watching movies."},
+        {"ja": "日本語を話すのは難しいです。", "reading": "にほんごをはなすのはむずかしいです。", "vi": "Việc nói tiếng Nhật thì khó.", "en": "Speaking Japanese is difficult."}
+      ]
+    },
+    {
+      "pattern": "〜こと（danh từ hóa）",
+      "meaning_vi": "Việc … (danh từ hóa, thiên về khái niệm)",
+      "meaning_en": "Nominalizer こと (the matter of …)",
+      "structure": "Động từ thể từ điển ＋ こと",
+      "notes": "Giống の nhưng trừu tượng hơn; bắt buộc dùng こと trước です, がある, ができる. 趣味は歌うことです.",
+      "examples": [
+        {"ja": "私の趣味は本を読むことです。", "reading": "わたしのしゅみはほんをよむことです。", "vi": "Sở thích của tôi là đọc sách.", "en": "My hobby is reading books."},
+        {"ja": "朝早く起きることは大切です。", "reading": "あさはやくおきることはたいせつです。", "vi": "Việc dậy sớm rất quan trọng.", "en": "Getting up early is important."}
+      ]
+    },
+    {
+      "pattern": "〜くする／〜にする（làm cho …）",
+      "meaning_vi": "Làm cho … trở nên … (chủ động thay đổi)",
+      "meaning_en": "Make something … (change it)",
+      "structure": "Tính từ-i bỏ い ＋ くする ／ Tính từ-na・Danh từ ＋ にする",
+      "notes": "Chủ thể chủ động thay đổi trạng thái của vật. Khác 〜くなる／になる (tự thay đổi). 音を大きくする, 部屋をきれいにする.",
+      "examples": [
+        {"ja": "音を大きくしてください。", "reading": "おとをおおきくしてください。", "vi": "Hãy vặn to âm thanh lên.", "en": "Please turn up the volume."},
+        {"ja": "部屋をきれいにしました。", "reading": "へやをきれいにしました。", "vi": "Tôi đã dọn phòng cho sạch.", "en": "I made the room clean."}
+      ]
+    }
+  ]
+}

@@ -14,9 +14,10 @@ interface GrammarClientProps {
   grammar: JapaneseGrammar[]
   isLoggedIn: boolean
   initialBookmarkedGrammarIds: string[]
+  commentCounts?: Record<string, number>
 }
 
-export default function GrammarClient({ grammar, isLoggedIn, initialBookmarkedGrammarIds }: GrammarClientProps) {
+export default function GrammarClient({ grammar, isLoggedIn, initialBookmarkedGrammarIds, commentCounts }: GrammarClientProps) {
   const t = useTranslations('japanese')
   const locale = useLocale()
   const [query, setQuery] = useState('')
@@ -80,6 +81,9 @@ export default function GrammarClient({ grammar, isLoggedIn, initialBookmarkedGr
                 grammar={g}
                 locale={locale}
                 labels={labels}
+                detailHref={`/tieng-nhat/ngu-phap/item/${g.id}`}
+                detailLabel={t('detail_comment')}
+                commentCount={commentCounts?.[g.id]}
                 actionSlot={
                   <BookmarkButton
                     itemId={g.id}

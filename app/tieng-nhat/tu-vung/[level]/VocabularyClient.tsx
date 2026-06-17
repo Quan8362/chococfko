@@ -19,6 +19,7 @@ interface VocabularyClientProps {
   initialProgress: ProgressMap
   isLoggedIn: boolean
   level: string
+  commentCounts?: Record<string, number>
 }
 
 export default function VocabularyClient({
@@ -26,6 +27,7 @@ export default function VocabularyClient({
   initialProgress,
   isLoggedIn,
   level,
+  commentCounts,
 }: VocabularyClientProps) {
   const t = useTranslations('japanese')
   const [progressMap, setProgressMap] = useState<ProgressMap>(initialProgress)
@@ -184,6 +186,7 @@ export default function VocabularyClient({
                 isLoggedIn={isLoggedIn}
                 onAction={handleAction}
                 loginMessage={t('login_to_save')}
+                commentCount={commentCounts?.[word.id]}
               />
             ))}
           </div>

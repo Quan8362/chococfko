@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import JlptBadge from './JlptBadge'
 import PosBadges from './PosBadges'
@@ -15,6 +16,7 @@ interface VocabularyCardProps {
   isLoggedIn: boolean
   onAction: (wordId: string, action: 'correct' | 'review' | 'wrong') => Promise<void>
   loginMessage: string
+  commentCount?: number
 }
 
 const STATUS_STYLE: Record<ProgressStatus, string> = {
@@ -24,7 +26,7 @@ const STATUS_STYLE: Record<ProgressStatus, string> = {
 }
 
 export default function VocabularyCard({
-  word, progress, isLoggedIn, onAction, loginMessage
+  word, progress, isLoggedIn, onAction, loginMessage, commentCount
 }: VocabularyCardProps) {
   const t = useTranslations('japanese')
   const [busy, setBusy] = useState(false)
@@ -128,6 +130,15 @@ export default function VocabularyCard({
         >
           ↺ {t('need_review')}
         </button>
+        <Link
+          href={`/tieng-nhat/tu-dien/${encodeURIComponent(word.word)}`}
+          className="ml-auto inline-flex items-center gap-1.5 text-[12px] font-semibold text-rose hover:text-rose-deep transition-colors"
+        >
+          💬 {t('detail_comment')}
+          {commentCount ? (
+            <span className="text-[11px] font-bold bg-rose/10 text-rose px-1.5 py-0.5 rounded-full leading-none">{commentCount}</span>
+          ) : null}
+        </Link>
       </div>
 
       {/* Toast */}

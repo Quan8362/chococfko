@@ -36,7 +36,7 @@ export default async function Nav() {
   const initial = displayName[0].toUpperCase()
 
   return (
-    <header className="sticky top-0 z-[100] bg-[rgba(250,244,234,0.92)] backdrop-blur-md border-b border-line">
+    <header className="sticky top-0 z-[100] bg-[rgba(250,244,234,0.985)] backdrop-blur-md border-b border-line">
       <div className="max-w-[1240px] mx-auto px-4 sm:px-6 h-[68px] flex items-center">
 
         {/* Logo — bên trái */}

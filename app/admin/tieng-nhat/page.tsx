@@ -14,7 +14,7 @@ export default async function JapaneseAdminPage() {
 
   const t = await getTranslations('admin_jp')
   const admin = createAdminClient()
-  const [words, kanji, grammar, quiz] = await Promise.all([
+  const [words, kanji, grammar, quiz, comments] = await Promise.all([
     admin.from('japanese_words').select('id,is_published', { count: 'exact' }).then(r => ({
       total: r.count ?? 0,
       published: r.data?.filter(x => x.is_published).length ?? 0,
@@ -31,6 +31,10 @@ export default async function JapaneseAdminPage() {
       total: r.count ?? 0,
       published: r.data?.filter(x => x.is_published).length ?? 0,
     })),
+    admin.from('japanese_comments').select('id,status', { count: 'exact' }).then(r => ({
+      total: r.count ?? 0,
+      published: r.data?.filter(x => x.status === 'approved').length ?? 0,
+    })).then(s => s, () => ({ total: 0, published: 0 })),
   ])
 
   const sections = [
@@ -38,6 +42,7 @@ export default async function JapaneseAdminPage() {
     { emoji: '漢', label: 'Kanji', href: '/admin/tieng-nhat/kanji', stats: kanji, color: 'amber' },
     { emoji: '✏️', label: t('section_grammar'), href: '/admin/tieng-nhat/ngu-phap', stats: grammar, color: 'violet' },
     { emoji: '🎯', label: 'Quiz', href: '/admin/tieng-nhat/quiz', stats: quiz, color: 'teal' },
+    { emoji: '💬', label: t('section_comments'), href: '/admin/tieng-nhat/binh-luan', stats: comments, color: 'rose' },
   ]
 
   return (

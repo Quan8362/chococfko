@@ -1,0 +1,347 @@
+{
+  "level": "N4",
+  "wave": 4,
+  "entries": [
+    {
+      "pattern": "〜なくてはいけない／ならない",
+      "meaning_vi": "Phải … (bắt buộc, nghĩa vụ)",
+      "meaning_en": "Must / have to …",
+      "structure": "Động từ thể ない bỏ い ＋ くてはいけない／ならない",
+      "notes": "いけない nhấn nghĩa vụ trong tình huống cụ thể; ならない nhấn quy tắc chung. Đồng nghĩa 〜なければならない.",
+      "examples": [
+        {"ja": "明日は早く起きなくてはいけません。", "reading": "あしたははやくおきなくてはいけません。", "vi": "Ngày mai tôi phải dậy sớm.", "en": "I have to get up early tomorrow."},
+        {"ja": "ルールを守らなくてはならない。", "reading": "ルールをまもらなくてはならない。", "vi": "Phải tuân thủ quy tắc.", "en": "You must obey the rules."}
+      ]
+    },
+    {
+      "pattern": "〜なくちゃ／なきゃ",
+      "meaning_vi": "Phải … (văn nói rút gọn)",
+      "meaning_en": "Gotta … (casual must)",
+      "structure": "Động từ thể ない bỏ い ＋ くちゃ／きゃ",
+      "notes": "Rút gọn của 〜なくては／〜なければ. Hay bỏ lửng cuối câu (〜なくちゃ). Rất thông dụng trong hội thoại.",
+      "examples": [
+        {"ja": "もう行かなきゃ。", "reading": "もういかなきゃ。", "vi": "Tôi phải đi rồi.", "en": "I gotta go now."},
+        {"ja": "宿題をやらなくちゃ。", "reading": "しゅくだいをやらなくちゃ。", "vi": "Tôi phải làm bài tập đây.", "en": "I've gotta do my homework."}
+      ]
+    },
+    {
+      "pattern": "〜ちゃいけない／じゃいけない",
+      "meaning_vi": "Không được … (văn nói)",
+      "meaning_en": "Must not … (casual)",
+      "structure": "Thể て→ちゃ／で→じゃ ＋ いけない",
+      "notes": "Rút gọn của 〜てはいけない／〜ではいけない. 食べてはいけない→食べちゃいけない.",
+      "examples": [
+        {"ja": "ここで遊んじゃいけないよ。", "reading": "ここであそんじゃいけないよ。", "vi": "Không được chơi ở đây đâu.", "en": "You mustn't play here."},
+        {"ja": "嘘をついちゃいけない。", "reading": "うそをついちゃいけない。", "vi": "Không được nói dối.", "en": "You mustn't tell lies."}
+      ]
+    },
+    {
+      "pattern": "〜てもかまわない",
+      "meaning_vi": "… cũng không sao, … cũng được",
+      "meaning_en": "It's fine even if … / don't mind if …",
+      "structure": "Thể て của động từ ＋ もかまわない",
+      "notes": "Cho phép, chấp nhận (nhẹ hơn 〜てもいい). 〜なくてもかまわない = không … cũng chẳng sao.",
+      "examples": [
+        {"ja": "ここに座ってもかまいませんか。", "reading": "ここにすわってもかまいませんか。", "vi": "Tôi ngồi đây có sao không?", "en": "Do you mind if I sit here?"},
+        {"ja": "少し遅れてもかまいません。", "reading": "すこしおくれてもかまいません。", "vi": "Đến trễ một chút cũng không sao.", "en": "It's fine even if you're a bit late."}
+      ]
+    },
+    {
+      "pattern": "〜ようとする",
+      "meaning_vi": "Cố gắng …; vừa định …",
+      "meaning_en": "Try to … / be about to …",
+      "structure": "Động từ thể ý chí ＋ とする",
+      "notes": "Nỗ lực thực hiện, hoặc ngay trước khi làm. Phủ định: 〜ようとしない (không chịu …).",
+      "examples": [
+        {"ja": "ドアを開けようとしたが、開かなかった。", "reading": "ドアをあけようとしたが、あかなかった。", "vi": "Tôi định mở cửa nhưng không mở được.", "en": "I tried to open the door, but it wouldn't open."},
+        {"ja": "子供が薬を飲もうとしない。", "reading": "こどもがくすりをのもうとしない。", "vi": "Đứa bé không chịu uống thuốc.", "en": "The child won't take the medicine."}
+      ]
+    },
+    {
+      "pattern": "〜ところだった",
+      "meaning_vi": "Suýt thì …, tí nữa thì …",
+      "meaning_en": "Almost …, was about to … (but didn't)",
+      "structure": "Động từ thể từ điển ＋ ところだった",
+      "notes": "Việc suýt xảy ra nhưng đã tránh được. Thường đi với あぶなく／もう少しで.",
+      "examples": [
+        {"ja": "もう少しで電車に遅れるところだった。", "reading": "もうすこしででんしゃにおくれるところだった。", "vi": "Tí nữa thì trễ tàu.", "en": "I almost missed the train."},
+        {"ja": "危なく転ぶところだった。", "reading": "あぶなくころぶところだった。", "vi": "Suýt nữa thì ngã.", "en": "I almost fell."}
+      ]
+    },
+    {
+      "pattern": "〜み（danh từ hóa）",
+      "meaning_vi": "Sự …, cảm giác … (danh từ mang sắc thái cảm nhận)",
+      "meaning_en": "-ness (noun with nuance of feeling)",
+      "structure": "Tính từ-i bỏ い ＋ み ／ một số tính từ-na ＋ み",
+      "notes": "Tạo danh từ chỉ cảm nhận cụ thể, khác さ (đo lường khách quan). 楽しみ (niềm vui), 痛み (cơn đau), 重み.",
+      "examples": [
+        {"ja": "旅行を楽しみにしています。", "reading": "りょこうをたのしみにしています。", "vi": "Tôi đang mong chờ chuyến đi.", "en": "I'm looking forward to the trip."},
+        {"ja": "足の痛みがひどい。", "reading": "あしのいたみがひどい。", "vi": "Chân tôi đau dữ dội.", "en": "The pain in my leg is terrible."}
+      ]
+    },
+    {
+      "pattern": "〜っぽい",
+      "meaning_vi": "Có vẻ …, mang tính …, hay …",
+      "meaning_en": "-ish / tends to / looks like",
+      "structure": "Danh từ／động từ thân ます／tính từ ＋ っぽい",
+      "notes": "Chỉ khuynh hướng hoặc vẻ giống. 子供っぽい (trẻ con), 忘れっぽい (hay quên), 油っぽい. Chia như tính từ-i.",
+      "examples": [
+        {"ja": "彼は怒りっぽい性格です。", "reading": "かれはおこりっぽいせいかくです。", "vi": "Anh ấy có tính hay nổi nóng.", "en": "He has a short temper."},
+        {"ja": "この料理は油っぽいです。", "reading": "このりょうりはあぶらっぽいです。", "vi": "Món này nhiều dầu mỡ.", "en": "This dish is greasy."}
+      ]
+    },
+    {
+      "pattern": "〜ことになっている",
+      "meaning_vi": "Theo quy định／lịch thì …, đã định là …",
+      "meaning_en": "It's a rule/arrangement that …",
+      "structure": "Động từ thể từ điển／ない ＋ ことになっている",
+      "notes": "Quy tắc, lịch trình, thông lệ đã định (không phải ý cá nhân). 9時に集まることになっている.",
+      "examples": [
+        {"ja": "学校では制服を着ることになっている。", "reading": "がっこうではせいふくをきることになっている。", "vi": "Ở trường quy định phải mặc đồng phục.", "en": "At school, students are required to wear uniforms."},
+        {"ja": "来週、会議をすることになっています。", "reading": "らいしゅう、かいぎをすることになっています。", "vi": "Theo lịch tuần sau sẽ họp.", "en": "It's arranged that we'll have a meeting next week."}
+      ]
+    },
+    {
+      "pattern": "〜ことにしている",
+      "meaning_vi": "Tự đặt cho mình thói quen …, luôn …",
+      "meaning_en": "Make it a rule/habit to …",
+      "structure": "Động từ thể từ điển／ない ＋ ことにしている",
+      "notes": "Thói quen do bản thân chủ động duy trì. Khác ことになっている (quy định bên ngoài).",
+      "examples": [
+        {"ja": "毎朝ジョギングをすることにしています。", "reading": "まいあさジョギングをすることにしています。", "vi": "Tôi tự đặt thói quen chạy bộ mỗi sáng.", "en": "I make it a rule to jog every morning."},
+        {"ja": "夜は甘い物を食べないことにしている。", "reading": "よるはあまいものをたべないことにしている。", "vi": "Tôi tự nhắc mình không ăn đồ ngọt buổi tối.", "en": "I make it a rule not to eat sweets at night."}
+      ]
+    },
+    {
+      "pattern": "〜ことになる",
+      "meaning_vi": "(Hóa ra／kết cục) sẽ là …; được quyết định là …",
+      "meaning_en": "It will turn out / be decided that …",
+      "structure": "Động từ thể từ điển／ない ＋ ことになる",
+      "notes": "Kết quả／quyết định do hoàn cảnh, không phải ý chí cá nhân (khác 〜ことにする).",
+      "examples": [
+        {"ja": "来月、大阪へ転勤することになりました。", "reading": "らいげつ、おおさかへてんきんすることになりました。", "vi": "Tháng sau tôi được điều chuyển đến Osaka.", "en": "It's been decided that I'll transfer to Osaka next month."},
+        {"ja": "結局、私が行くことになった。", "reading": "けっきょく、わたしがいくことになった。", "vi": "Rốt cuộc thành ra tôi là người đi.", "en": "In the end, it turned out that I would go."}
+      ]
+    },
+    {
+      "pattern": "〜だろう",
+      "meaning_vi": "Chắc là …, có lẽ … (thể thường)",
+      "meaning_en": "Probably … (plain)",
+      "structure": "Thể thường（danh từ・tính từ-na bỏ だ）＋ だろう",
+      "notes": "Dạng thường của でしょう. Phỏng đoán hoặc tìm đồng tình. 〜だろうと思う.",
+      "examples": [
+        {"ja": "明日は晴れるだろう。", "reading": "あしたははれるだろう。", "vi": "Mai chắc trời sẽ đẹp.", "en": "It'll probably be sunny tomorrow."},
+        {"ja": "彼はもう知っているだろう。", "reading": "かれはもうしっているだろう。", "vi": "Chắc anh ấy biết rồi.", "en": "He probably already knows."}
+      ]
+    },
+    {
+      "pattern": "〜かな／かなあ",
+      "meaning_vi": "Không biết có … nhỉ; tự hỏi …",
+      "meaning_en": "I wonder if … (to oneself)",
+      "structure": "Thể thường ＋ かな（あ）",
+      "notes": "Tự hỏi bản thân, thân mật. かなあ kéo dài nhấn băn khoăn. 〜ないかな = ước gì … (mong mỏi).",
+      "examples": [
+        {"ja": "明日は雨が降るかなあ。", "reading": "あしたはあめがふるかなあ。", "vi": "Không biết mai có mưa không nhỉ.", "en": "I wonder if it'll rain tomorrow."},
+        {"ja": "この答えで合っているかな。", "reading": "このこたえであっているかな。", "vi": "Không biết đáp án này đúng không nhỉ.", "en": "I wonder if this answer is right."}
+      ]
+    },
+    {
+      "pattern": "〜っけ",
+      "meaning_vi": "… nhỉ? (hỏi lại điều quên／không chắc)",
+      "meaning_en": "What was it again …? / was it …?",
+      "structure": "Thể thường（danh từ・tính từ-na ＋ だ）＋ っけ",
+      "notes": "Hỏi lại điều mình quên hoặc không nhớ rõ, thân mật. 約束は何時だっけ？.",
+      "examples": [
+        {"ja": "会議は何時からだっけ。", "reading": "かいぎはなんじからだっけ。", "vi": "Cuộc họp bắt đầu lúc mấy giờ ấy nhỉ?", "en": "What time was the meeting again?"},
+        {"ja": "君の名前、何だっけ。", "reading": "きみのなまえ、なんだっけ。", "vi": "Tên cậu là gì ấy nhỉ?", "en": "What was your name again?"}
+      ]
+    },
+    {
+      "pattern": "〜でも（ngay cả …）",
+      "meaning_vi": "Ngay cả …, dù là …",
+      "meaning_en": "Even …",
+      "structure": "Danh từ ＋ でも（疑問詞 ＋ でも = bất kỳ）",
+      "notes": "Nhấn trường hợp cực đoan (\"ngay cả X cũng…\"). 疑問詞＋でも: 誰でも (bất kỳ ai), いつでも (bất cứ lúc nào).",
+      "examples": [
+        {"ja": "子供でもできる簡単な問題です。", "reading": "こどもでもできるかんたんなもんだいです。", "vi": "Bài đơn giản đến trẻ con cũng làm được.", "en": "It's an easy problem even a child can do."},
+        {"ja": "誰でも参加できます。", "reading": "だれでもさんかできます。", "vi": "Bất kỳ ai cũng có thể tham gia.", "en": "Anyone can participate."}
+      ]
+    },
+    {
+      "pattern": "〜だけで",
+      "meaning_vi": "Chỉ với／chỉ bằng … (mà …)",
+      "meaning_en": "Just by / just with …",
+      "structure": "Danh từ／động từ thể từ điển ＋ だけで",
+      "notes": "Chỉ cần ngần đó là đủ. 見るだけで = chỉ nhìn thôi (đã …). 〜だけでいい = chỉ … là được.",
+      "examples": [
+        {"ja": "写真を見るだけで、楽しくなる。", "reading": "しゃしんをみるだけで、たのしくなる。", "vi": "Chỉ cần nhìn ảnh là thấy vui.", "en": "Just looking at the photos makes me happy."},
+        {"ja": "サインするだけで申し込めます。", "reading": "サインするだけでもうしこめます。", "vi": "Chỉ cần ký là đăng ký được.", "en": "You can apply just by signing."}
+      ]
+    },
+    {
+      "pattern": "〜だけでなく〜も",
+      "meaning_vi": "Không chỉ … mà cả … cũng",
+      "meaning_en": "Not only … but also …",
+      "structure": "Danh từ／thể thường ＋ だけでなく〜も",
+      "notes": "Mở rộng phạm vi. Trang trọng hơn 〜だけじゃなく (văn nói).",
+      "examples": [
+        {"ja": "彼は英語だけでなく、フランス語も話せる。", "reading": "かれはえいごだけでなく、フランスごもはなせる。", "vi": "Anh ấy không chỉ nói được tiếng Anh mà cả tiếng Pháp.", "en": "He can speak not only English but also French."},
+        {"ja": "この店は安いだけでなく、味もいい。", "reading": "このみせはやすいだけでなく、あじもいい。", "vi": "Quán này không chỉ rẻ mà vị cũng ngon.", "en": "This shop is not only cheap but also tasty."}
+      ]
+    },
+    {
+      "pattern": "〜たびに",
+      "meaning_vi": "Mỗi lần … là …, cứ … là …",
+      "meaning_en": "Every time / whenever …",
+      "structure": "Động từ thể từ điển／Danh từ の ＋ たびに",
+      "notes": "Mỗi khi A xảy ra thì B cũng theo. 会うたびに, 旅行のたびに.",
+      "examples": [
+        {"ja": "この曲を聞くたびに、故郷を思い出す。", "reading": "このきょくをきくたびに、ふるさとをおもいだす。", "vi": "Mỗi lần nghe bài này tôi lại nhớ quê.", "en": "Every time I hear this song, I remember my hometown."},
+        {"ja": "彼は会うたびに背が高くなっている。", "reading": "かれはあうたびにせがたかくなっている。", "vi": "Mỗi lần gặp là cậu ấy lại cao thêm.", "en": "He gets taller every time I see him."}
+      ]
+    },
+    {
+      "pattern": "〜たて",
+      "meaning_vi": "Vừa mới … xong (còn tươi mới)",
+      "meaning_en": "Freshly … / just-done",
+      "structure": "Động từ thân ます ＋ たて",
+      "notes": "Trạng thái mới hoàn thành còn tươi／mới. 焼きたてのパン (bánh mới ra lò), できたて.",
+      "examples": [
+        {"ja": "焼きたてのパンはおいしい。", "reading": "やきたてのパンはおいしい。", "vi": "Bánh mì mới ra lò thì ngon.", "en": "Freshly baked bread is delicious."},
+        {"ja": "できたての料理を食べた。", "reading": "できたてのりょうりをたべた。", "vi": "Tôi ăn món vừa làm xong.", "en": "I ate a freshly made dish."}
+      ]
+    },
+    {
+      "pattern": "〜げ（trông có vẻ …）",
+      "meaning_vi": "Trông có vẻ …, ra vẻ …",
+      "meaning_en": "Looking … / seeming …",
+      "structure": "Tính từ cảm xúc bỏ い・な ＋ げ",
+      "notes": "Biểu lộ cảm xúc qua vẻ ngoài. 嬉しげ (ra vẻ vui), 寂しげ (trông buồn). Trang nhã, thiên văn viết.",
+      "examples": [
+        {"ja": "彼女は寂しげな顔をしていた。", "reading": "かのじょはさびしげなかおをしていた。", "vi": "Cô ấy có vẻ mặt buồn bã.", "en": "She had a lonely look on her face."},
+        {"ja": "子供たちは楽しげに遊んでいる。", "reading": "こどもたちはたのしげにあそんでいる。", "vi": "Bọn trẻ chơi đùa ra chiều vui vẻ.", "en": "The children are playing happily."}
+      ]
+    },
+    {
+      "pattern": "〜ふりをする",
+      "meaning_vi": "Giả vờ …, làm bộ …",
+      "meaning_en": "Pretend to …",
+      "structure": "Động từ／tính từ thể thường・Danh từ の ＋ ふりをする",
+      "notes": "Giả bộ một trạng thái không có thật. 寝たふり (giả vờ ngủ), 知らないふり.",
+      "examples": [
+        {"ja": "彼は聞こえないふりをした。", "reading": "かれはきこえないふりをした。", "vi": "Anh ấy giả vờ không nghe thấy.", "en": "He pretended not to hear."},
+        {"ja": "寝たふりをしていた。", "reading": "ねたふりをしていた。", "vi": "Tôi đã giả vờ ngủ.", "en": "I was pretending to be asleep."}
+      ]
+    },
+    {
+      "pattern": "まるで〜のようだ",
+      "meaning_vi": "Cứ như là …, y hệt như …",
+      "meaning_en": "Just like / as if …",
+      "structure": "まるで ＋ … ＋ のようだ／みたいだ",
+      "notes": "So sánh ví von mạnh. まるで nhấn \"y như thật\". Kết hợp ように／みたいに cho động từ.",
+      "examples": [
+        {"ja": "まるで夢のようだ。", "reading": "まるでゆめのようだ。", "vi": "Cứ như là mơ vậy.", "en": "It's just like a dream."},
+        {"ja": "彼の日本語はまるで日本人のようだ。", "reading": "かれのにほんごはまるでにほんじんのようだ。", "vi": "Tiếng Nhật của anh ấy y như người Nhật.", "en": "His Japanese is just like a native speaker's."}
+      ]
+    },
+    {
+      "pattern": "なかなか〜ない",
+      "meaning_vi": "Mãi không …, khó mà …",
+      "meaning_en": "Not easily / won't … (no matter what)",
+      "structure": "なかなか ＋ động từ thể phủ định",
+      "notes": "Diễn tả việc mãi không xảy ra dù mong đợi. (なかなか với khẳng định = khá, rất.)",
+      "examples": [
+        {"ja": "バスがなかなか来ない。", "reading": "バスがなかなかこない。", "vi": "Xe buýt mãi không đến.", "en": "The bus just won't come."},
+        {"ja": "漢字がなかなか覚えられない。", "reading": "かんじがなかなかおぼえられない。", "vi": "Chữ Hán mãi mà không nhớ được.", "en": "I just can't seem to memorize kanji."}
+      ]
+    },
+    {
+      "pattern": "ぜんぜん〜ない",
+      "meaning_vi": "Hoàn toàn không …, chẳng … chút nào",
+      "meaning_en": "Not … at all",
+      "structure": "ぜんぜん（全然）＋ động từ／tính từ phủ định",
+      "notes": "Phủ định hoàn toàn. (Văn nói hiện đại đôi khi dùng với khẳng định: 全然大丈夫.)",
+      "examples": [
+        {"ja": "お酒は全然飲みません。", "reading": "おさけはぜんぜんのみません。", "vi": "Tôi hoàn toàn không uống rượu.", "en": "I don't drink alcohol at all."},
+        {"ja": "全然分かりませんでした。", "reading": "ぜんぜんわかりませんでした。", "vi": "Tôi chẳng hiểu gì cả.", "en": "I didn't understand at all."}
+      ]
+    },
+    {
+      "pattern": "あまり〜ない",
+      "meaning_vi": "Không … lắm, ít khi …",
+      "meaning_en": "Not very / not much …",
+      "structure": "あまり（あんまり）＋ động từ／tính từ phủ định",
+      "notes": "Phủ định mức độ nhẹ. あんまり thân mật hơn.",
+      "examples": [
+        {"ja": "最近、あまり寝ていません。", "reading": "さいきん、あまりねていません。", "vi": "Gần đây tôi ngủ không nhiều lắm.", "en": "I haven't been sleeping much lately."},
+        {"ja": "この映画はあまり面白くなかった。", "reading": "このえいがはあまりおもしろくなかった。", "vi": "Phim này không hay lắm.", "en": "This movie wasn't very interesting."}
+      ]
+    },
+    {
+      "pattern": "決して〜ない",
+      "meaning_vi": "Quyết không …, không bao giờ …",
+      "meaning_en": "Never / by no means …",
+      "structure": "決して（けっして）＋ động từ thể phủ định",
+      "notes": "Phủ định mạnh mang quyết tâm／cam kết. Trang trọng. 決して忘れない.",
+      "examples": [
+        {"ja": "この恩は決して忘れません。", "reading": "このおんはけっしてわすれません。", "vi": "Ơn này tôi quyết không quên.", "en": "I will never forget this kindness."},
+        {"ja": "決して諦めない。", "reading": "けっしてあきらめない。", "vi": "Tôi quyết không bỏ cuộc.", "en": "I will never give up."}
+      ]
+    },
+    {
+      "pattern": "ほとんど〜ない",
+      "meaning_vi": "Hầu như không …",
+      "meaning_en": "Hardly / almost never …",
+      "structure": "ほとんど ＋ động từ thể phủ định",
+      "notes": "Gần như không có／không xảy ra. (ほとんど với khẳng định = hầu hết.)",
+      "examples": [
+        {"ja": "彼とはほとんど話したことがない。", "reading": "かれとはほとんどはなしたことがない。", "vi": "Tôi hầu như chưa từng nói chuyện với anh ấy.", "en": "I've hardly ever talked with him."},
+        {"ja": "お金がほとんど残っていない。", "reading": "おかねがほとんどのこっていない。", "vi": "Tiền hầu như chẳng còn.", "en": "I have hardly any money left."}
+      ]
+    },
+    {
+      "pattern": "もう〜ない",
+      "meaning_vi": "Không … nữa",
+      "meaning_en": "No longer / not anymore",
+      "structure": "もう ＋ động từ thể phủ định",
+      "notes": "Một trạng thái đã chấm dứt. Khác もう〜た (đã … rồi). もう子供じゃない.",
+      "examples": [
+        {"ja": "もうあの店には行かない。", "reading": "もうあのみせにはいかない。", "vi": "Tôi sẽ không đến quán đó nữa.", "en": "I won't go to that shop anymore."},
+        {"ja": "もう若くない。", "reading": "もうわかくない。", "vi": "Tôi không còn trẻ nữa.", "en": "I'm not young anymore."}
+      ]
+    },
+    {
+      "pattern": "一度も〜ない",
+      "meaning_vi": "Chưa một lần nào …, chưa hề …",
+      "meaning_en": "Not even once / never",
+      "structure": "一度も（いちども）＋ động từ thể phủ định",
+      "notes": "Nhấn \"chưa lần nào\". Thường đi với 〜たことがない.",
+      "examples": [
+        {"ja": "海外へは一度も行ったことがない。", "reading": "かいがいへはいちどもいったことがない。", "vi": "Tôi chưa một lần ra nước ngoài.", "en": "I've never been abroad even once."},
+        {"ja": "彼は一度も遅刻したことがない。", "reading": "かれはいちどもちこくしたことがない。", "vi": "Anh ấy chưa lần nào đi muộn.", "en": "He has never been late, not even once."}
+      ]
+    },
+    {
+      "pattern": "別に〜ない",
+      "meaning_vi": "Không … gì đặc biệt, chẳng …",
+      "meaning_en": "Not particularly / not really",
+      "structure": "別に（べつに）＋ động từ／tính từ phủ định",
+      "notes": "Phủ định nhẹ \"không có gì đặc biệt\". 別に〜 đứng một mình (đáp lại) = \"chẳng có gì đâu\".",
+      "examples": [
+        {"ja": "別に欲しい物はありません。", "reading": "べつにほしいものはありません。", "vi": "Tôi chẳng có gì đặc biệt muốn.", "en": "There's nothing in particular I want."},
+        {"ja": "別に怒ってないよ。", "reading": "べつにおこってないよ。", "vi": "Tôi có giận gì đâu.", "en": "I'm not really mad."}
+      ]
+    },
+    {
+      "pattern": "二度と〜ない",
+      "meaning_vi": "Không bao giờ … lần nữa",
+      "meaning_en": "Never again",
+      "structure": "二度と（にどと）＋ động từ thể phủ định",
+      "notes": "Cương quyết không lặp lại. Sắc thái mạnh, thường về điều tiêu cực. 二度と会わない.",
+      "examples": [
+        {"ja": "あんな失敗は二度としたくない。", "reading": "あんなしっぱいはにどとしたくない。", "vi": "Tôi không muốn phạm lỗi như thế lần nào nữa.", "en": "I never want to make a mistake like that again."},
+        {"ja": "二度とここへ来るな。", "reading": "にどとここへくるな。", "vi": "Đừng bao giờ đến đây lần nữa.", "en": "Never come here again."}
+      ]
+    }
+  ]
+}

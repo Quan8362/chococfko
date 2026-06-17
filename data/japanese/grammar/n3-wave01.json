@@ -1,0 +1,391 @@
+{
+  "level": "N3",
+  "wave": 1,
+  "entries": [
+    {
+      "pattern": "〜ば〜ほど",
+      "meaning_vi": "Càng … thì càng …",
+      "meaning_en": "The more … the more …",
+      "structure": "Động từ thể ば ＋ động từ thể từ điển ＋ ほど",
+      "notes": "Tỉ lệ thuận giữa hai vế. Tính từ-i: 〜ければ〜いほど; tính từ-na: 〜なら〜なほど. 考えれば考えるほど.",
+      "examples": [
+        {"ja": "練習すればするほど上手になります。", "reading": "れんしゅうすればするほどじょうずになります。", "vi": "Càng luyện tập thì càng giỏi.", "en": "The more you practice, the better you get."},
+        {"ja": "考えれば考えるほど分からなくなる。", "reading": "かんがえればかんがえるほどわからなくなる。", "vi": "Càng nghĩ thì càng rối.", "en": "The more I think, the less I understand."}
+      ]
+    },
+    {
+      "pattern": "〜ほど（mức độ）",
+      "meaning_vi": "Đến mức …, … đến nỗi …",
+      "meaning_en": "To the extent that … / so … that",
+      "structure": "Động từ thể từ điển／danh từ ＋ ほど",
+      "notes": "Diễn tả mức độ bằng cách nêu hệ quả cực điểm. 立てないほど疲れた = mệt đến mức không đứng nổi.",
+      "examples": [
+        {"ja": "立てないほど疲れました。", "reading": "たてないほどつかれました。", "vi": "Tôi mệt đến mức không đứng nổi.", "en": "I was so tired I couldn't stand."},
+        {"ja": "涙が出るほど嬉しかった。", "reading": "なみだがでるほどうれしかった。", "vi": "Tôi vui đến mức rơi nước mắt.", "en": "I was so happy I could have cried."}
+      ]
+    },
+    {
+      "pattern": "〜うちに",
+      "meaning_vi": "Trong khi (còn) …, nhân lúc …",
+      "meaning_en": "While … (still) / before it changes",
+      "structure": "Động từ thể từ điển／ている・tính từ・danh từ の ＋ うちに",
+      "notes": "Tận dụng khoảng thời gian trước khi trạng thái thay đổi. 熱いうちに食べる = ăn lúc còn nóng.",
+      "examples": [
+        {"ja": "温かいうちに召し上がってください。", "reading": "あたたかいうちにめしあがってください。", "vi": "Xin dùng lúc còn ấm.", "en": "Please eat it while it's warm."},
+        {"ja": "明るいうちに帰りましょう。", "reading": "あかるいうちにかえりましょう。", "vi": "Về nhà lúc trời còn sáng thôi.", "en": "Let's go home while it's still light."}
+      ]
+    },
+    {
+      "pattern": "〜ないうちに",
+      "meaning_vi": "Trước khi … (xảy ra), nhân lúc chưa …",
+      "meaning_en": "Before … happens",
+      "structure": "Động từ thể ない ＋ うちに",
+      "notes": "Làm gì trước khi một thay đổi (thường bất lợi) xảy ra. 忘れないうちにメモする.",
+      "examples": [
+        {"ja": "忘れないうちにメモしておきます。", "reading": "わすれないうちにメモしておきます。", "vi": "Tôi ghi chú lại trước khi quên.", "en": "I'll jot it down before I forget."},
+        {"ja": "雨が降らないうちに帰ろう。", "reading": "あめがふらないうちにかえろう。", "vi": "Về thôi, trước khi trời mưa.", "en": "Let's head home before it rains."}
+      ]
+    },
+    {
+      "pattern": "〜さえ",
+      "meaning_vi": "Ngay cả …, đến cả …",
+      "meaning_en": "Even …",
+      "structure": "Danh từ（＋ trợ từ）＋ さえ",
+      "notes": "Nêu ví dụ cực đoan, mạnh hơn も. 子供さえ知っている = đến cả trẻ con cũng biết. Có thể thành 〜でさえ.",
+      "examples": [
+        {"ja": "そんなことは子供さえ知っている。", "reading": "そんなことはこどもさえしっている。", "vi": "Chuyện đó đến cả trẻ con cũng biết.", "en": "Even a child knows that."},
+        {"ja": "忙しくて、食事をする時間さえない。", "reading": "いそがしくて、しょくじをするじかんさえない。", "vi": "Bận đến mức không có cả thời gian ăn.", "en": "I'm so busy I don't even have time to eat."}
+      ]
+    },
+    {
+      "pattern": "〜さえ〜ば",
+      "meaning_vi": "Chỉ cần … thì …",
+      "meaning_en": "If only … / as long as …",
+      "structure": "Danh từ ＋ さえ ＋ động từ thể ば（động từ: thân ます ＋ さえすれば）",
+      "notes": "Nêu điều kiện duy nhất cần đủ. お金さえあれば, 押しさえすれば.",
+      "examples": [
+        {"ja": "お金さえあれば、何でも買える。", "reading": "おかねさえあれば、なんでもかえる。", "vi": "Chỉ cần có tiền là mua được mọi thứ.", "en": "As long as you have money, you can buy anything."},
+        {"ja": "このボタンを押しさえすればいい。", "reading": "このボタンをおしさえすればいい。", "vi": "Chỉ cần nhấn nút này là được.", "en": "You just have to press this button."}
+      ]
+    },
+    {
+      "pattern": "〜こそ",
+      "meaning_vi": "Chính là …, mới đúng là …",
+      "meaning_en": "Precisely … / it is exactly …",
+      "structure": "Danh từ ＋ こそ",
+      "notes": "Nhấn mạnh chính đối tượng đó. こちらこそ = chính tôi mới phải (cảm ơn). 今度こそ = lần này nhất định.",
+      "examples": [
+        {"ja": "今度こそ成功させます。", "reading": "こんどこそせいこうさせます。", "vi": "Lần này nhất định tôi sẽ làm thành công.", "en": "This time, I'll definitely make it succeed."},
+        {"ja": "こちらこそよろしくお願いします。", "reading": "こちらこそよろしくおねがいします。", "vi": "Chính tôi mới phải nhờ cậy mới đúng.", "en": "The pleasure is all mine."}
+      ]
+    },
+    {
+      "pattern": "〜ばかりか／ばかりでなく",
+      "meaning_vi": "Không chỉ … mà còn …",
+      "meaning_en": "Not only … but also …",
+      "structure": "Thể thường（danh từ）＋ ばかりか／ばかりでなく",
+      "notes": "Vế sau thường tăng tiến, vượt mong đợi. Mạnh hơn だけでなく. Hay đi với 〜も／さえ.",
+      "examples": [
+        {"ja": "彼は英語ばかりか中国語も話せる。", "reading": "かれはえいごばかりかちゅうごくごもはなせる。", "vi": "Anh ấy không chỉ tiếng Anh mà cả tiếng Trung cũng nói được.", "en": "He can speak not only English but also Chinese."},
+        {"ja": "雨ばかりでなく、風も強くなってきた。", "reading": "あめばかりでなく、かぜもつよくなってきた。", "vi": "Không chỉ mưa mà gió cũng mạnh lên.", "en": "Not only is it raining, but the wind has gotten strong too."}
+      ]
+    },
+    {
+      "pattern": "〜くせに",
+      "meaning_vi": "Mặc dù … vậy mà … (chê trách, bất mãn)",
+      "meaning_en": "Even though … (with criticism)",
+      "structure": "Thể thường（danh từ の／tính từ-na な）＋ くせに",
+      "notes": "Như のに nhưng mang sắc thái trách móc, coi thường. Chủ ngữ hai vế phải cùng một người.",
+      "examples": [
+        {"ja": "知っているくせに、教えてくれない。", "reading": "しっているくせに、おしえてくれない。", "vi": "Rõ ràng biết vậy mà chẳng chịu chỉ.", "en": "He knows, yet he won't tell me."},
+        {"ja": "子供のくせに、生意気だ。", "reading": "こどものくせに、なまいきだ。", "vi": "Con nít mà bày đặt láo.", "en": "Just a kid, yet so cheeky."}
+      ]
+    },
+    {
+      "pattern": "たとえ〜ても",
+      "meaning_vi": "Cho dù … đi nữa cũng …",
+      "meaning_en": "Even if / no matter how …",
+      "structure": "たとえ ＋ động từ／tính từ thể て ＋ も",
+      "notes": "Nhấn giả định cực đoan. たとえ phối hợp với 〜ても／〜でも. たとえ失敗しても.",
+      "examples": [
+        {"ja": "たとえ失敗しても、後悔しない。", "reading": "たとえしっぱいしても、こうかいしない。", "vi": "Dù có thất bại tôi cũng không hối hận.", "en": "Even if I fail, I won't regret it."},
+        {"ja": "たとえ高くても買います。", "reading": "たとえたかくてもかいます。", "vi": "Dù có đắt tôi cũng mua.", "en": "Even if it's expensive, I'll buy it."}
+      ]
+    },
+    {
+      "pattern": "〜やら〜やら",
+      "meaning_vi": "Nào là … nào là … (lộn xộn, nhiều thứ)",
+      "meaning_en": "What with … and … (and so on)",
+      "structure": "Danh từ／động từ ＋ やら ＋ … ＋ やら",
+      "notes": "Liệt kê vài thứ trong tình trạng bộn bề, thường mệt mỏi/phức tạp. 掃除やら洗濯やら.",
+      "examples": [
+        {"ja": "引っ越しで、掃除やら片付けやらで忙しい。", "reading": "ひっこしで、そうじやらかたづけやらでいそがしい。", "vi": "Vì chuyển nhà nên nào dọn dẹp nào sắp xếp, bận tối mắt.", "en": "With the move, I'm busy with cleaning, tidying, and all that."},
+        {"ja": "嬉しいやら恥ずかしいやら、複雑な気持ちだ。", "reading": "うれしいやらはずかしいやら、ふくざつなきもちだ。", "vi": "Nào vui nào ngượng, cảm xúc thật lẫn lộn.", "en": "What with being happy and embarrassed, my feelings are mixed."}
+      ]
+    },
+    {
+      "pattern": "〜も〜ば〜も",
+      "meaning_vi": "Vừa … lại vừa …; có … có …",
+      "meaning_en": "Both … and … (listing, formal)",
+      "structure": "Danh từ ＋ も ＋ động từ／tính từ thể ば ＋ Danh từ ＋ も",
+      "notes": "Liệt kê các điểm cùng chiều một cách trang trọng. お金もなければ時間もない = không tiền cũng chẳng có thời gian.",
+      "examples": [
+        {"ja": "彼は頭もよければ、性格もいい。", "reading": "かれはあたまもよければ、せいかくもいい。", "vi": "Anh ấy vừa thông minh lại vừa tính tốt.", "en": "He is both smart and good-natured."},
+        {"ja": "お金もなければ、時間もない。", "reading": "おかねもなければ、じかんもない。", "vi": "Đã không có tiền lại chẳng có thời gian.", "en": "I have neither money nor time."}
+      ]
+    },
+    {
+      "pattern": "〜一方で",
+      "meaning_vi": "Một mặt … (mặt khác …); trong khi đó",
+      "meaning_en": "On one hand … (on the other) / while",
+      "structure": "Thể thường（danh từ の／tính từ-na な）＋ 一方（で）",
+      "notes": "Nêu hai mặt đối lập hoặc song song của một sự việc. 都会は便利な一方で、物価が高い.",
+      "examples": [
+        {"ja": "都会は便利な一方で、物価が高い。", "reading": "とかいはべんりないっぽうで、ぶっかがたかい。", "vi": "Thành phố một mặt tiện lợi, mặt khác giá cả lại đắt.", "en": "Cities are convenient, but on the other hand, prices are high."},
+        {"ja": "輸出が増える一方で、輸入は減っている。", "reading": "ゆしゅつがふえるいっぽうで、ゆにゅうはへっている。", "vi": "Trong khi xuất khẩu tăng thì nhập khẩu lại giảm.", "en": "While exports are rising, imports are falling."}
+      ]
+    },
+    {
+      "pattern": "〜反面",
+      "meaning_vi": "Mặt khác lại …, trái lại …",
+      "meaning_en": "On the other hand / while (contrast)",
+      "structure": "Thể thường（danh từ である／tính từ-na な）＋ 反面",
+      "notes": "Nêu hai khía cạnh trái ngược của cùng một đối tượng. この仕事は楽しい反面、責任も重い.",
+      "examples": [
+        {"ja": "この仕事は楽しい反面、責任も重い。", "reading": "このしごとはたのしいはんめん、せきにんもおもい。", "vi": "Công việc này một mặt thú vị, mặt khác trách nhiệm cũng nặng.", "en": "This job is fun, but on the other hand the responsibility is heavy."},
+        {"ja": "便利な反面、危険もある。", "reading": "べんりなはんめん、きけんもある。", "vi": "Tiện lợi đấy nhưng cũng có mặt nguy hiểm.", "en": "It's convenient, but on the flip side there are dangers."}
+      ]
+    },
+    {
+      "pattern": "〜だけあって",
+      "meaning_vi": "Quả đúng là …, xứng đáng là … nên",
+      "meaning_en": "As (one would) expect of …",
+      "structure": "Thể thường（danh từ）＋ だけあって",
+      "notes": "Khen ngợi: kết quả tốt phù hợp với lý do (kinh nghiệm, địa vị). プロだけあって上手だ.",
+      "examples": [
+        {"ja": "さすがプロだけあって、演奏が素晴らしい。", "reading": "さすがプロだけあって、えんそうがすばらしい。", "vi": "Quả đúng là dân chuyên nghiệp, biểu diễn thật tuyệt.", "en": "As expected of a pro, the performance is wonderful."},
+        {"ja": "彼は留学していただけあって、英語が上手だ。", "reading": "かれはりゅうがくしていただけあって、えいごがじょうずだ。", "vi": "Đúng là từng du học có khác, anh ấy giỏi tiếng Anh.", "en": "As you'd expect of someone who studied abroad, his English is good."}
+      ]
+    },
+    {
+      "pattern": "〜だけに",
+      "meaning_vi": "Chính vì … nên (lại càng) …",
+      "meaning_en": "Precisely because … (all the more)",
+      "structure": "Thể thường（danh từ である／tính từ-na な）＋ だけに",
+      "notes": "Lý do đặc thù dẫn đến kết quả tương xứng, thường nhấn mức độ cao. 期待が大きかっただけに、失望も大きい.",
+      "examples": [
+        {"ja": "期待が大きかっただけに、失望も大きかった。", "reading": "きたいがおおきかっただけに、しつぼうもおおきかった。", "vi": "Chính vì kỳ vọng lớn nên thất vọng cũng lớn.", "en": "Precisely because my hopes were high, the disappointment was great."},
+        {"ja": "プロだけに、ミスは許されない。", "reading": "プロだけに、ミスはゆるされない。", "vi": "Chính vì là dân chuyên nên không được phép sai sót.", "en": "Being a professional, mistakes are not allowed."}
+      ]
+    },
+    {
+      "pattern": "〜ことから",
+      "meaning_vi": "Vì lẽ …, xuất phát từ việc … (nên)",
+      "meaning_en": "From the fact that … / because",
+      "structure": "Thể thường（danh từ である／tính từ-na な）＋ ことから",
+      "notes": "Nêu căn cứ/lý do dẫn đến kết luận hoặc nguồn gốc tên gọi. 煙が出ていることから、火事に気づいた.",
+      "examples": [
+        {"ja": "煙が出ていることから、火事に気づいた。", "reading": "けむりがでていることから、かじにきづいた。", "vi": "Từ việc có khói bốc lên, tôi nhận ra có cháy.", "en": "From the fact that smoke was rising, I realized there was a fire."},
+        {"ja": "形が富士山に似ていることから、この名がついた。", "reading": "かたちがふじさんににていることから、このながついた。", "vi": "Vì hình dạng giống núi Phú Sĩ nên có tên này.", "en": "It got this name from the fact that its shape resembles Mt. Fuji."}
+      ]
+    },
+    {
+      "pattern": "〜ことだから",
+      "meaning_vi": "Vì là … (nên chắc sẽ …)",
+      "meaning_en": "Since it's … (so surely …)",
+      "structure": "Danh từ の ＋ ことだから",
+      "notes": "Suy đoán dựa trên tính cách/đặc điểm đã biết của người được nói tới. 彼のことだから、きっと遅れる.",
+      "examples": [
+        {"ja": "彼のことだから、きっと約束を守るだろう。", "reading": "かれのことだから、きっとやくそくをまもるだろう。", "vi": "Vì là anh ấy nên chắc chắn sẽ giữ lời hứa.", "en": "Knowing him, he'll surely keep his promise."},
+        {"ja": "まじめな田中さんのことだから、もう来ているはずだ。", "reading": "まじめなたなかさんのことだから、もうきているはずだ。", "vi": "Anh Tanaka nghiêm túc thế thì chắc đã đến rồi.", "en": "Since it's the diligent Mr. Tanaka, he must already be here."}
+      ]
+    },
+    {
+      "pattern": "〜あまり（に）",
+      "meaning_vi": "Vì quá … nên …",
+      "meaning_en": "So much … that …",
+      "structure": "Động từ thể từ điển／danh từ の ＋ あまり",
+      "notes": "Nguyên nhân là cảm xúc/mức độ quá lớn dẫn đến kết quả (thường ngoài ý muốn). 緊張のあまり.",
+      "examples": [
+        {"ja": "緊張のあまり、声が震えた。", "reading": "きんちょうのあまり、こえがふるえた。", "vi": "Vì quá căng thẳng nên giọng tôi run lên.", "en": "I was so nervous that my voice trembled."},
+        {"ja": "喜びのあまり、泣いてしまった。", "reading": "よろこびのあまり、ないてしまった。", "vi": "Vì quá vui mà tôi đã khóc.", "en": "I was so happy that I cried."}
+      ]
+    },
+    {
+      "pattern": "〜せいか",
+      "meaning_vi": "Có lẽ vì … (mà …)",
+      "meaning_en": "Perhaps because …",
+      "structure": "Thể thường（danh từ の／tính từ-na な）＋ せいか",
+      "notes": "Phỏng đoán nguyên nhân (thường cho kết quả không tốt), không chắc chắn. 年のせいか、疲れやすい.",
+      "examples": [
+        {"ja": "年のせいか、最近疲れやすい。", "reading": "としのせいか、さいきんつかれやすい。", "vi": "Có lẽ vì tuổi tác mà dạo này tôi hay mệt.", "en": "Perhaps because of my age, I get tired easily lately."},
+        {"ja": "緊張していたせいか、よく眠れなかった。", "reading": "きんちょうしていたせいか、よくねむれなかった。", "vi": "Có lẽ vì căng thẳng mà tôi ngủ không ngon.", "en": "Maybe because I was nervous, I couldn't sleep well."}
+      ]
+    },
+    {
+      "pattern": "〜ものだから",
+      "meaning_vi": "Là vì … (nên) — biện minh",
+      "meaning_en": "Because … (excuse/explanation)",
+      "structure": "Thể thường（danh từ な／tính từ-na な）＋ ものだから",
+      "notes": "Nêu lý do để biện bạch, nhấn mức độ khiến mình buộc phải làm vậy. Văn nói: 〜もんだから.",
+      "examples": [
+        {"ja": "電車が遅れたものだから、遅刻しました。", "reading": "でんしゃがおくれたものだから、ちこくしました。", "vi": "Là tại tàu trễ nên tôi mới muộn.", "en": "It was because the train was late that I was tardy."},
+        {"ja": "あまりに眠かったものだから、つい寝てしまった。", "reading": "あまりにねむかったものだから、ついねてしまった。", "vi": "Tại buồn ngủ quá nên tôi lỡ ngủ mất.", "en": "I was just so sleepy that I dozed off."}
+      ]
+    },
+    {
+      "pattern": "〜以上は",
+      "meaning_vi": "Một khi đã …, đã … thì (phải) …",
+      "meaning_en": "Now that … / since …",
+      "structure": "Thể thường（danh từ である）＋ 以上（は）",
+      "notes": "Đã ở trạng thái A thì đương nhiên phải làm B (quyết tâm, nghĩa vụ). 約束した以上は守る.",
+      "examples": [
+        {"ja": "約束した以上は、必ず守ります。", "reading": "やくそくしたいじょうは、かならずまもります。", "vi": "Một khi đã hứa thì tôi nhất định giữ lời.", "en": "Now that I've promised, I will definitely keep it."},
+        {"ja": "学生である以上、勉強するのは当然だ。", "reading": "がくせいであるいじょう、べんきょうするのはとうぜんだ。", "vi": "Đã là học sinh thì học là chuyện đương nhiên.", "en": "As long as you're a student, studying is only natural."}
+      ]
+    },
+    {
+      "pattern": "〜からには",
+      "meaning_vi": "Đã … thì (nhất định phải) …",
+      "meaning_en": "Since / now that … (then certainly)",
+      "structure": "Thể thường（danh từ である）＋ からには",
+      "notes": "Gần nghĩa 以上は, nhấn quyết tâm/lẽ đương nhiên sau khi đã quyết. やるからには全力で.",
+      "examples": [
+        {"ja": "やるからには、最後まで頑張る。", "reading": "やるからには、さいごまでがんばる。", "vi": "Đã làm thì tôi sẽ cố đến cùng.", "en": "Since I'm doing it, I'll give it my all to the end."},
+        {"ja": "引き受けたからには、責任を持つ。", "reading": "ひきうけたからには、せきにんをもつ。", "vi": "Đã nhận thì tôi sẽ chịu trách nhiệm.", "en": "Now that I've taken it on, I'll be responsible."}
+      ]
+    },
+    {
+      "pattern": "〜からといって",
+      "meaning_vi": "Không phải cứ … là …; dù … cũng không hẳn …",
+      "meaning_en": "Just because … (doesn't mean …)",
+      "structure": "Thể thường ＋ からといって（vế sau thường phủ định）",
+      "notes": "Bác bỏ suy luận hiển nhiên. Hay đi với 〜とは限らない／〜わけではない. Văn nói: 〜からって.",
+      "examples": [
+        {"ja": "高いからといって、いいとは限らない。", "reading": "たかいからといって、いいとはかぎらない。", "vi": "Không phải cứ đắt là tốt.", "en": "Just because it's expensive doesn't mean it's good."},
+        {"ja": "日本人だからといって、敬語が完璧なわけではない。", "reading": "にほんじんだからといって、けいごがかんぺきなわけではない。", "vi": "Dù là người Nhật cũng không hẳn dùng kính ngữ hoàn hảo.", "en": "Just because someone is Japanese doesn't mean their keigo is perfect."}
+      ]
+    },
+    {
+      "pattern": "〜にしては",
+      "meaning_vi": "So với việc là … thì (lại) …",
+      "meaning_en": "For (being) … / considering …",
+      "structure": "Thể thường（danh từ）＋ にしては",
+      "notes": "Kết quả khác với mong đợi từ tiền đề. 初めてにしては上手 = lần đầu mà làm vậy là giỏi.",
+      "examples": [
+        {"ja": "初めてにしては、よくできました。", "reading": "はじめてにしては、よくできました。", "vi": "So với lần đầu thì làm vậy là tốt rồi.", "en": "For a first attempt, you did well."},
+        {"ja": "冬にしては暖かい日だ。", "reading": "ふゆにしてはあたたかいひだ。", "vi": "So với mùa đông thì hôm nay là ngày ấm.", "en": "It's a warm day for winter."}
+      ]
+    },
+    {
+      "pattern": "〜にしても",
+      "meaning_vi": "Cho dù là … đi nữa cũng …",
+      "meaning_en": "Even if / even for …",
+      "structure": "Thể thường（danh từ）＋ にしても",
+      "notes": "Thừa nhận một trường hợp nhưng vế sau vẫn đúng. 冗談にしても言い過ぎだ. Dạng 〜にしても〜にしても = dù A hay B.",
+      "examples": [
+        {"ja": "忙しいにしても、連絡ぐらいできるはずだ。", "reading": "いそがしいにしても、れんらくぐらいできるはずだ。", "vi": "Dù bận đến mấy thì ít ra cũng liên lạc được chứ.", "en": "Even if you're busy, you could at least get in touch."},
+        {"ja": "冗談にしても、言い過ぎだよ。", "reading": "じょうだんにしても、いいすぎだよ。", "vi": "Cho dù là đùa thì cũng quá lời rồi.", "en": "Even as a joke, that's going too far."}
+      ]
+    },
+    {
+      "pattern": "〜としても",
+      "meaning_vi": "Giả sử … thì cũng …",
+      "meaning_en": "Even supposing that …",
+      "structure": "Thể thường ＋ としても",
+      "notes": "Giả định một điều rồi nói vế sau vẫn không đổi. たとえ本当だとしても.",
+      "examples": [
+        {"ja": "それが本当だとしても、信じられない。", "reading": "それがほんとうだとしても、しんじられない。", "vi": "Giả sử điều đó là thật thì tôi cũng không tin nổi.", "en": "Even if that's true, I can't believe it."},
+        {"ja": "急いだとしても、間に合わないだろう。", "reading": "いそいだとしても、まにあわないだろう。", "vi": "Giả sử có vội thì chắc cũng không kịp.", "en": "Even if we hurry, we probably won't make it."}
+      ]
+    },
+    {
+      "pattern": "〜わりに（は）",
+      "meaning_vi": "So với … thì (lại) …",
+      "meaning_en": "Considering … / for …",
+      "structure": "Thể thường（danh từ の／tính từ-na な）＋ わりに（は）",
+      "notes": "Kết quả không tương xứng với tiền đề (theo hướng bất ngờ). 値段のわりにおいしい = ngon so với giá tiền.",
+      "examples": [
+        {"ja": "この店は値段のわりにおいしい。", "reading": "このみせはねだんのわりにおいしい。", "vi": "Quán này ngon so với giá tiền.", "en": "This place is tasty for the price."},
+        {"ja": "彼は年のわりに若く見える。", "reading": "かれはとしのわりにわかくみえる。", "vi": "So với tuổi thì anh ấy trông trẻ.", "en": "He looks young for his age."}
+      ]
+    },
+    {
+      "pattern": "〜とともに",
+      "meaning_vi": "Cùng với …; đồng thời …",
+      "meaning_en": "Together with … / as … (changes)",
+      "structure": "Danh từ／động từ thể từ điển ＋ とともに",
+      "notes": "Hai việc xảy ra song song, hoặc cùng với sự thay đổi của A thì B cũng đổi. 時代とともに変わる.",
+      "examples": [
+        {"ja": "時代とともに、生活も変わってきた。", "reading": "じだいとともに、せいかつもかわってきた。", "vi": "Cùng với thời đại, cuộc sống cũng thay đổi.", "en": "As the times change, life has changed too."},
+        {"ja": "家族とともに新年を迎えた。", "reading": "かぞくとともにしんねんをむかえた。", "vi": "Tôi đón năm mới cùng gia đình.", "en": "I welcomed the new year together with my family."}
+      ]
+    },
+    {
+      "pattern": "〜にしたがって",
+      "meaning_vi": "Theo như …; cùng với việc … thì …",
+      "meaning_en": "In accordance with … / as …",
+      "structure": "Danh từ／động từ thể từ điển ＋ にしたがって",
+      "notes": "Tuân theo chỉ dẫn, hoặc B biến đổi theo A. 指示にしたがう, 年を取るにしたがって.",
+      "examples": [
+        {"ja": "係員の指示にしたがって行動してください。", "reading": "かかりいんのしじにしたがってこうどうしてください。", "vi": "Hãy hành động theo chỉ dẫn của nhân viên.", "en": "Please act according to the staff's instructions."},
+        {"ja": "山を登るにしたがって、空気が薄くなる。", "reading": "やまをのぼるにしたがって、くうきがうすくなる。", "vi": "Càng leo lên núi thì không khí càng loãng.", "en": "As you climb the mountain, the air gets thinner."}
+      ]
+    },
+    {
+      "pattern": "〜につれて",
+      "meaning_vi": "Càng … thì càng … (cùng biến đổi)",
+      "meaning_en": "As … (gradually changes)",
+      "structure": "Danh từ／động từ thể từ điển ＋ につれて",
+      "notes": "Hai biến đổi diễn ra song song dần dần. Gần にしたがって nhưng chỉ dùng cho thay đổi tự nhiên. 成長するにつれて.",
+      "examples": [
+        {"ja": "成長するにつれて、考え方も変わる。", "reading": "せいちょうするにつれて、かんがえかたもかわる。", "vi": "Càng lớn lên thì cách suy nghĩ cũng thay đổi.", "en": "As you grow up, your way of thinking changes too."},
+        {"ja": "時間がたつにつれて、悲しみは薄れていった。", "reading": "じかんがたつにつれて、かなしみはうすれていった。", "vi": "Theo thời gian, nỗi buồn cũng nhạt dần.", "en": "As time passed, the sadness faded."}
+      ]
+    },
+    {
+      "pattern": "〜ながらも",
+      "meaning_vi": "Tuy … nhưng vẫn …",
+      "meaning_en": "Although … / even while …",
+      "structure": "Động từ thân ます／tính từ／danh từ ＋ ながらも",
+      "notes": "Nghịch ý: thừa nhận A nhưng B trái ngược. Khác ながら (đồng thời). 狭いながらも楽しい我が家.",
+      "examples": [
+        {"ja": "狭いながらも、楽しい我が家です。", "reading": "せまいながらも、たのしいわがやです。", "vi": "Tuy chật nhưng vẫn là tổ ấm vui vẻ của tôi.", "en": "Cramped though it is, it's my happy home."},
+        {"ja": "残念ながらも、結果を受け入れた。", "reading": "ざんねんながらも、けっかをうけいれた。", "vi": "Tuy tiếc nhưng tôi vẫn chấp nhận kết quả.", "en": "Regrettable as it was, I accepted the result."}
+      ]
+    },
+    {
+      "pattern": "〜どころか",
+      "meaning_vi": "Đừng nói … mà ngược lại …; nào đâu chỉ …",
+      "meaning_en": "Far from … / let alone …",
+      "structure": "Thể thường（danh từ）＋ どころか",
+      "notes": "Phủ nhận mạnh điều vừa nêu, thực tế trái ngược hoặc còn hơn thế. 感謝されるどころか、怒られた.",
+      "examples": [
+        {"ja": "感謝されるどころか、怒られてしまった。", "reading": "かんしゃされるどころか、おこられてしまった。", "vi": "Đừng nói được cảm ơn, tôi còn bị mắng.", "en": "Far from being thanked, I got scolded."},
+        {"ja": "彼は漢字どころか、ひらがなも読めない。", "reading": "かれはかんじどころか、ひらがなもよめない。", "vi": "Nào đâu chỉ Kanji, đến hiragana anh ấy cũng không đọc được.", "en": "Far from kanji, he can't even read hiragana."}
+      ]
+    },
+    {
+      "pattern": "〜とは限らない",
+      "meaning_vi": "Không hẳn là …, chưa chắc …",
+      "meaning_en": "Not necessarily …",
+      "structure": "Thể thường ＋ とは限らない",
+      "notes": "Phủ nhận một khái quát hóa. Hay đi với からといって, 必ずしも. 高い物がいいとは限らない.",
+      "examples": [
+        {"ja": "高い物が必ずしもいいとは限らない。", "reading": "たかいものがかならずしもいいとはかぎらない。", "vi": "Đồ đắt chưa chắc đã tốt.", "en": "Expensive things aren't necessarily good."},
+        {"ja": "努力すれば成功するとは限らない。", "reading": "どりょくすればせいこうするとはかぎらない。", "vi": "Cố gắng chưa chắc đã thành công.", "en": "Effort doesn't necessarily lead to success."}
+      ]
+    },
+    {
+      "pattern": "〜ことに（は）",
+      "meaning_vi": "Điều … là (đặt cảm xúc lên trước)",
+      "meaning_en": "To one's … (surprise/joy …)",
+      "structure": "Tính từ／động từ thể た ＋ ことに（は）",
+      "notes": "Nêu cảm xúc của người nói ngay đầu câu để nhấn. 驚いたことに, 残念なことに.",
+      "examples": [
+        {"ja": "驚いたことに、彼が一位だった。", "reading": "おどろいたことに、かれがいちいだった。", "vi": "Điều đáng ngạc nhiên là anh ấy hạng nhất.", "en": "To my surprise, he came in first."},
+        {"ja": "残念なことに、試合は中止になった。", "reading": "ざんねんなことに、しあいはちゅうしになった。", "vi": "Đáng tiếc là trận đấu đã bị hủy.", "en": "Unfortunately, the match was cancelled."}
+      ]
+    }
+  ]
+}

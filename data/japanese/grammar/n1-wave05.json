@@ -1,0 +1,292 @@
+{
+  "level": "N1",
+  "wave": 5,
+  "entries": [
+    {
+      "pattern": "〜を余儀なくさせる",
+      "meaning_vi": "Buộc (sự việc) phải … (chủ thể gây ép buộc)",
+      "meaning_en": "Force / compel (something to happen)",
+      "structure": "Danh từ ＋ を余儀なくさせる",
+      "notes": "A (nguyên nhân) ép buộc B xảy ra. (Bị động: 〜を余儀なくされる — xem N2.)",
+      "examples": [
+        {"ja": "大雨が、計画の変更を余儀なくさせた。", "reading": "おおあめが、けいかくのへんこうをよぎなくさせた。", "vi": "Mưa lớn đã buộc phải thay đổi kế hoạch.", "en": "The heavy rain forced a change of plans."},
+        {"ja": "資金不足が、事業の縮小を余儀なくさせた。", "reading": "しきんぶそくが、じぎょうのしゅくしょうをよぎなくさせた。", "vi": "Thiếu vốn đã buộc phải thu hẹp kinh doanh.", "en": "The lack of funds compelled a downsizing of the business."}
+      ]
+    },
+    {
+      "pattern": "〜に足りない",
+      "meaning_vi": "Không đáng để …, chẳng đáng …",
+      "meaning_en": "Not worth …-ing",
+      "structure": "Động từ thể từ điển／danh từ ＋ に足りない",
+      "notes": "Không đủ giá trị／tư cách. 取るに足りない (không đáng kể), 恐れるに足りない.",
+      "examples": [
+        {"ja": "そんな噂は、取るに足りない。", "reading": "そんなうわさは、とるにたりない。", "vi": "Tin đồn đó chẳng đáng để bận tâm.", "en": "Such a rumor is not worth taking seriously."},
+        {"ja": "彼など恐れるに足りない相手だ。", "reading": "かれなどおそれるにたりないあいてだ。", "vi": "Đối thủ như hắn chẳng đáng để sợ.", "en": "He's an opponent not worth fearing."}
+      ]
+    },
+    {
+      "pattern": "〜ったらない",
+      "meaning_vi": "… hết sức, … không tả nổi (văn nói, nhấn)",
+      "meaning_en": "Extremely … / so … (colloquial)",
+      "structure": "Tính từ／danh từ ＋ ったらない",
+      "notes": "Cảm thán mức độ cực, văn nói (gọn của といったらない). 眠いったらない.",
+      "examples": [
+        {"ja": "仕事が山積みで、忙しいったらない。", "reading": "しごとがやまづみで、いそがしいったらない。", "vi": "Việc chất đống, bận không tả nổi.", "en": "Work is piled up — I'm extremely busy."},
+        {"ja": "あの態度、腹立たしいったらない。", "reading": "あのたいど、はらだたしいったらない。", "vi": "Cái thái độ đó tức không chịu được.", "en": "That attitude is so infuriating."}
+      ]
+    },
+    {
+      "pattern": "〜びる",
+      "meaning_vi": "Trở nên có vẻ …, nhuốm dáng …",
+      "meaning_en": "Take on the look of / become …-ish",
+      "structure": "Danh từ ＋ びる",
+      "notes": "Dần mang dáng vẻ A. 大人びる, 古びる, 田舎びる.",
+      "examples": [
+        {"ja": "久しぶりに会ったら、彼女はずいぶん大人びていた。", "reading": "ひさしぶりにあったら、かのじょはずいぶんおとなびていた。", "vi": "Lâu mới gặp, cô ấy trông chững chạc hẳn lên.", "en": "When I saw her after a while, she'd grown quite mature-looking."},
+        {"ja": "この家具は古びているが、味がある。", "reading": "このかぐはふるびているが、あじがある。", "vi": "Bộ đồ này cũ kỹ nhưng có nét riêng.", "en": "This furniture looks aged but has character."}
+      ]
+    },
+    {
+      "pattern": "〜の一途をたどる",
+      "meaning_vi": "Cứ … mãi theo một chiều, ngày càng …",
+      "meaning_en": "Steadily / increasingly … (one direction)",
+      "structure": "Danh từ／động từ thể từ điển ＋ 一途をたどる",
+      "notes": "Xu hướng (thường xấu) tiếp diễn không ngừng, văn viết. 悪化の一途をたどる.",
+      "examples": [
+        {"ja": "景気は悪化の一途をたどっている。", "reading": "けいきはあっかのいっとをたどっている。", "vi": "Kinh tế cứ xấu đi không phanh.", "en": "The economy is steadily deteriorating."},
+        {"ja": "人口は減少の一途をたどっている。", "reading": "じんこうはげんしょうのいっとをたどっている。", "vi": "Dân số ngày càng giảm.", "en": "The population is on a steady decline."}
+      ]
+    },
+    {
+      "pattern": "〜を経て",
+      "meaning_vi": "Trải qua …, sau khi qua … (quá trình／thời gian)",
+      "meaning_en": "After going through / via …",
+      "structure": "Danh từ ＋ を経て",
+      "notes": "Qua một quá trình／giai đoạn rồi đến kết quả, văn viết. 長い年月を経て.",
+      "examples": [
+        {"ja": "長い議論を経て、ようやく結論に達した。", "reading": "ながいぎろんをへて、ようやくけつろんにたっした。", "vi": "Trải qua tranh luận dài, cuối cùng cũng đi đến kết luận.", "en": "After a long discussion, we finally reached a conclusion."},
+        {"ja": "幾多の困難を経て、彼は成功した。", "reading": "いくたのこんなんをへて、かれはせいこうした。", "vi": "Sau bao gian khó, anh ấy đã thành công.", "en": "Having gone through many hardships, he succeeded."}
+      ]
+    },
+    {
+      "pattern": "〜ことは否めない",
+      "meaning_vi": "Không thể phủ nhận rằng …",
+      "meaning_en": "It cannot be denied that …",
+      "structure": "Thể thường（danh từ である／tính từ-na な）＋ ことは否めない",
+      "notes": "Thừa nhận một sự thật khó chối, văn viết. 影響があったことは否めない.",
+      "examples": [
+        {"ja": "計画に無理があったことは否めない。", "reading": "けいかくにむりがあったことはいなめない。", "vi": "Không thể phủ nhận rằng kế hoạch có chỗ gượng ép.", "en": "It can't be denied that there were flaws in the plan."},
+        {"ja": "彼の努力が結果に影響したことは否めない。", "reading": "かれのどりょくがけっかにえいきょうしたことはいなめない。", "vi": "Không thể phủ nhận nỗ lực của anh ấy ảnh hưởng đến kết quả.", "en": "It cannot be denied that his effort affected the result."}
+      ]
+    },
+    {
+      "pattern": "〜とは裏腹に",
+      "meaning_vi": "Trái ngược với …, ngược hẳn với …",
+      "meaning_en": "Contrary to / in contrast with …",
+      "structure": "Danh từ／thể thường の ＋ とは裏腹に",
+      "notes": "Thực tế trái với A (vẻ ngoài, lời nói, kỳ vọng). 言葉とは裏腹に.",
+      "examples": [
+        {"ja": "彼は言葉とは裏腹に、本当は優しい。", "reading": "かれはことばとはうらはらに、ほんとうはやさしい。", "vi": "Trái với lời nói, thật ra anh ấy rất dịu dàng.", "en": "Contrary to his words, he's actually kind."},
+        {"ja": "期待とは裏腹に、結果は散々だった。", "reading": "きたいとはうらはらに、けっかはさんざんだった。", "vi": "Ngược với kỳ vọng, kết quả lại bết bát.", "en": "Contrary to expectations, the result was terrible."}
+      ]
+    },
+    {
+      "pattern": "〜と言わざるを得ない",
+      "meaning_vi": "Phải nói rằng …, không thể không nói là …",
+      "meaning_en": "One cannot but say that … / must say",
+      "structure": "Thể thường ＋ と言わざるを得ない",
+      "notes": "Buộc phải đưa ra nhận định (thường tiêu cực), trang trọng. 失敗だと言わざるを得ない.",
+      "examples": [
+        {"ja": "この結果は、失敗だと言わざるを得ない。", "reading": "このけっかは、しっぱいだといわざるをえない。", "vi": "Kết quả này thì phải nói là thất bại.", "en": "We can't but call this result a failure."},
+        {"ja": "対応が遅すぎたと言わざるを得ない。", "reading": "たいおうがおそすぎたといわざるをえない。", "vi": "Phải nói rằng cách xử lý đã quá chậm.", "en": "I must say the response was too slow."}
+      ]
+    },
+    {
+      "pattern": "〜とは言い切れない",
+      "meaning_vi": "Không thể khẳng định chắc chắn rằng …",
+      "meaning_en": "Cannot say for certain that …",
+      "structure": "Thể thường ＋ とは言い切れない",
+      "notes": "Không dám quả quyết, để ngỏ khả năng. 安全だとは言い切れない.",
+      "examples": [
+        {"ja": "絶対に安全だとは言い切れない。", "reading": "ぜったいにあんぜんだとはいいきれない。", "vi": "Không thể khẳng định chắc là an toàn tuyệt đối.", "en": "We can't say for certain that it's absolutely safe."},
+        {"ja": "彼が無関係だとは言い切れない。", "reading": "かれがむかんけいだとはいいきれない。", "vi": "Không thể quả quyết rằng anh ấy hoàn toàn vô can.", "en": "I can't say for sure that he's unrelated."}
+      ]
+    },
+    {
+      "pattern": "〜羽目になる",
+      "meaning_vi": "Rốt cuộc rơi vào cảnh …, lâm vào tình thế phải …",
+      "meaning_en": "End up (having to) … (in a bad spot)",
+      "structure": "Động từ thể từ điển ＋ 羽目になる",
+      "notes": "Kết cục không hay buộc phải làm gì. 払う羽目になる, 残業する羽目になった.",
+      "examples": [
+        {"ja": "終電を逃して、歩いて帰る羽目になった。", "reading": "しゅうでんをのがして、あるいてかえるはめになった。", "vi": "Lỡ tàu cuối nên rốt cuộc phải đi bộ về.", "en": "I missed the last train and ended up walking home."},
+        {"ja": "安請け合いして、後で苦労する羽目になった。", "reading": "やすうけあいして、あとでくろうするはめになった。", "vi": "Nhận lời bừa nên sau phải khổ sở.", "en": "I agreed too readily and ended up in trouble later."}
+      ]
+    },
+    {
+      "pattern": "〜運びとなる",
+      "meaning_vi": "Đi đến giai đoạn …, tiến tới việc … (trang trọng)",
+      "meaning_en": "Reach the stage of / come to (formal)",
+      "structure": "Động từ thể từ điển／danh từ の ＋ 運びとなる",
+      "notes": "Trang trọng (thông báo), tiến tới một bước. 開業の運びとなりました.",
+      "examples": [
+        {"ja": "このたび、新店舗を開店する運びとなりました。", "reading": "このたび、しんてんぽをかいてんするはこびとなりました。", "vi": "Lần này chúng tôi đã đi đến việc khai trương cửa hàng mới.", "en": "We are pleased to announce that we will be opening a new store."},
+        {"ja": "無事、契約締結の運びとなった。", "reading": "ぶじ、けいやくていけつのはこびとなった。", "vi": "Cuối cùng đã tiến tới việc ký kết hợp đồng suôn sẻ.", "en": "We have successfully reached the stage of signing the contract."}
+      ]
+    },
+    {
+      "pattern": "〜次第です（giải thích）",
+      "meaning_vi": "Sự tình là …, lý do là … (giải thích khiêm tốn)",
+      "meaning_en": "The situation/reason is that … (humble)",
+      "structure": "Thể thường（danh từ な）＋ 次第です",
+      "notes": "Giải thích lý do／hoàn cảnh lịch sự. ご連絡した次第です.",
+      "examples": [
+        {"ja": "至急ご報告したく、ご連絡した次第です。", "reading": "しきゅうごほうこくしたく、ごれんらくしたしだいです。", "vi": "Vì muốn báo cáo gấp nên tôi đã liên lạc ạ.", "en": "I'm contacting you because I wished to report this urgently."},
+        {"ja": "そのような事情で、欠席させていただいた次第です。", "reading": "そのようなじじょうで、けっせきさせていただいたしだいです。", "vi": "Vì hoàn cảnh như vậy nên tôi đã xin phép vắng mặt ạ.", "en": "It is for such reasons that I had to be absent."}
+      ]
+    },
+    {
+      "pattern": "〜所存です",
+      "meaning_vi": "Tôi có ý định …, tôi nguyện sẽ … (khiêm nhường)",
+      "meaning_en": "I intend to … (humble)",
+      "structure": "Động từ thể từ điển ＋ 所存です",
+      "notes": "Bày tỏ ý định trang trọng khiêm nhường. 努力する所存です.",
+      "examples": [
+        {"ja": "期待に応えるべく、努力する所存です。", "reading": "きたいにこたえるべく、どりょくするしょぞんです。", "vi": "Tôi nguyện sẽ cố gắng để đáp lại kỳ vọng ạ.", "en": "I intend to make every effort to meet your expectations."},
+        {"ja": "今後も精進する所存でございます。", "reading": "こんごもしょうじんするしょぞんでございます。", "vi": "Từ nay tôi cũng nguyện sẽ rèn giũa thêm ạ.", "en": "I intend to keep striving from now on."}
+      ]
+    },
+    {
+      "pattern": "〜一心で",
+      "meaning_vi": "Chỉ một lòng …, dốc lòng vì …",
+      "meaning_en": "With the single-minded thought of …",
+      "structure": "Động từ thể từ điển／danh từ の ＋ 一心で",
+      "notes": "Chuyên tâm một mục đích duy nhất. 助けたい一心で, 合格したい一心で.",
+      "examples": [
+        {"ja": "子供を助けたい一心で、火の中に飛び込んだ。", "reading": "こどもをたすけたいいっしんで、ひのなかにとびこんだ。", "vi": "Chỉ một lòng muốn cứu con, anh ấy lao vào lửa.", "en": "With the single thought of saving his child, he leapt into the fire."},
+        {"ja": "合格したい一心で、必死に勉強した。", "reading": "ごうかくしたいいっしんで、ひっしにべんきょうした。", "vi": "Chỉ một lòng muốn đỗ, tôi học bán mạng.", "en": "Single-mindedly determined to pass, I studied desperately."}
+      ]
+    },
+    {
+      "pattern": "〜矢先に",
+      "meaning_vi": "Đúng ngay lúc vừa định …, vừa toan … thì",
+      "meaning_en": "Just as one was about to …",
+      "structure": "Động từ thể ようとする／た ＋ 矢先に",
+      "notes": "Ngay thời điểm sắp／vừa làm A thì B xảy đến. 出かけようとした矢先に.",
+      "examples": [
+        {"ja": "出かけようとした矢先に、電話が鳴った。", "reading": "でかけようとしたやさきに、でんわがなった。", "vi": "Đúng lúc vừa định ra ngoài thì điện thoại reo.", "en": "Just as I was about to go out, the phone rang."},
+        {"ja": "注意しようと思った矢先に、彼が謝ってきた。", "reading": "ちゅういしようとおもったやさきに、かれがあやまってきた。", "vi": "Vừa định nhắc nhở thì anh ấy đã đến xin lỗi.", "en": "Just as I was about to caution him, he came and apologized."}
+      ]
+    },
+    {
+      "pattern": "〜折に／折には",
+      "meaning_vi": "Vào dịp …, nhân khi … (trang trọng)",
+      "meaning_en": "On the occasion of / when (formal)",
+      "structure": "Động từ thể từ điển／た・danh từ の ＋ 折に（は）",
+      "notes": "Như とき nhưng trang trọng, xã giao. 上京の折には.",
+      "examples": [
+        {"ja": "上京の折には、ぜひお立ち寄りください。", "reading": "じょうきょうのおりには、ぜひおたちよりください。", "vi": "Khi nào lên Tokyo, nhất định hãy ghé qua ạ.", "en": "When you come up to Tokyo, please do drop by."},
+        {"ja": "お近くにお越しの折は、お声がけください。", "reading": "おちかくにおこしのおりは、おこえがけください。", "vi": "Khi nào ngài đến gần đây, xin gọi cho tôi ạ.", "en": "When you're in the area, please let me know."}
+      ]
+    },
+    {
+      "pattern": "〜の感がある",
+      "meaning_vi": "Có cảm giác như …, mang dáng vẻ …",
+      "meaning_en": "Have the feeling/impression of …",
+      "structure": "Danh từ／thể thường の ＋ 感がある",
+      "notes": "Nhận định cảm tính, văn viết. 時代遅れの感がある.",
+      "examples": [
+        {"ja": "そのデザインは、やや時代遅れの感がある。", "reading": "そのデザインは、ややじだいおくれのかんがある。", "vi": "Thiết kế đó có cảm giác hơi lỗi thời.", "en": "That design has a somewhat dated feel to it."},
+        {"ja": "彼の説明は、言い訳の感が否めない。", "reading": "かれのせつめいは、いいわけのかんがいなめない。", "vi": "Lời giải thích của anh ấy khó tránh cảm giác như biện bạch.", "en": "His explanation gives an undeniable impression of an excuse."}
+      ]
+    },
+    {
+      "pattern": "〜思いをする",
+      "meaning_vi": "Phải nếm trải cảm giác …, trải qua … (cảm xúc)",
+      "meaning_en": "Have a … experience / feel …",
+      "structure": "Tính từ ＋ 思いをする",
+      "notes": "Trải nghiệm cảm xúc (thường mạnh). 怖い思いをする, 恥ずかしい思いをする.",
+      "examples": [
+        {"ja": "道に迷って、心細い思いをした。", "reading": "みちにまよって、こころぼそいおもいをした。", "vi": "Lạc đường nên tôi đã thấp thỏm lo sợ.", "en": "I got lost and had a lonely, uneasy experience."},
+        {"ja": "大勢の前で転んで、恥ずかしい思いをした。", "reading": "おおぜいのまえでころんで、はずかしいおもいをした。", "vi": "Ngã trước đám đông, tôi xấu hổ vô cùng.", "en": "I fell in front of a crowd and felt so embarrassed."}
+      ]
+    },
+    {
+      "pattern": "〜べし",
+      "meaning_vi": "Nên …, phải … (văn cổ, châm ngôn)",
+      "meaning_en": "Should / must … (classical)",
+      "structure": "Động từ thể từ điển ＋ べし（する→すべし）",
+      "notes": "Dạng kết câu cổ của べきだ; trong châm ngôn, khẩu hiệu. 初心忘るべからず (phủ định).",
+      "examples": [
+        {"ja": "学生は学業に専念すべし。", "reading": "がくせいはがくぎょうにせんねんすべし。", "vi": "Học sinh nên chuyên tâm vào việc học.", "en": "Students should devote themselves to their studies."},
+        {"ja": "疑わしきは罰せず、これを原則とすべし。", "reading": "うたがわしきはばっせず、これをげんそくとすべし。", "vi": "Nghi ngờ thì chưa phạt — hãy lấy đó làm nguyên tắc.", "en": "\"Innocent until proven guilty\" should be taken as a principle."}
+      ]
+    },
+    {
+      "pattern": "〜ぬ（phủ định văn cổ）",
+      "meaning_vi": "Không … (phủ định thể văn cổ của ない)",
+      "meaning_en": "Not … (classical negative)",
+      "structure": "Động từ thể ない bỏ ない ＋ ぬ（する→せぬ）",
+      "notes": "Văn viết cổ／trang trọng = ない. 思わぬ, 知らぬ, 行かぬ.",
+      "examples": [
+        {"ja": "思わぬ事態が起きた。", "reading": "おもわぬじたいがおきた。", "vi": "Đã xảy ra tình huống không ngờ.", "en": "An unexpected situation arose."},
+        {"ja": "知らぬ間に、日が暮れていた。", "reading": "しらぬまに、ひがくれていた。", "vi": "Chẳng hay biết, trời đã tối.", "en": "Before I knew it, the day had ended."}
+      ]
+    },
+    {
+      "pattern": "〜ざる（phủ định văn cổ）",
+      "meaning_vi": "Không … (phủ định văn cổ, bổ nghĩa danh từ)",
+      "meaning_en": "Not … (classical negative attributive)",
+      "structure": "Động từ thể ない bỏ ない ＋ ざる（する→せざる）",
+      "notes": "Văn cổ, đứng trước danh từ. 見ざる聞かざる言わざる, やむを得ざる.",
+      "examples": [
+        {"ja": "見ざる、聞かざる、言わざる。", "reading": "みざる、きかざる、いわざる。", "vi": "Không nhìn, không nghe, không nói.", "en": "See no evil, hear no evil, speak no evil."},
+        {"ja": "やむを得ざる事情で欠席した。", "reading": "やむをえざるじじょうでけっせきした。", "vi": "Tôi vắng mặt vì lý do bất khả kháng.", "en": "I was absent due to unavoidable circumstances."}
+      ]
+    },
+    {
+      "pattern": "〜ん（ý chí văn cổ）",
+      "meaning_vi": "… chứ, … đây (ý chí／phỏng đoán văn cổ)",
+      "meaning_en": "Will / shall (classical volitional)",
+      "structure": "Động từ thể ない bỏ ない ＋ ん（văn cổ）",
+      "notes": "Văn cổ／thành ngữ. 言わんとする (định nói). Hay gặp trong 〜んとする, 〜んがため.",
+      "examples": [
+        {"ja": "彼の言わんとすることは理解できる。", "reading": "かれのいわんとすることはりかいできる。", "vi": "Tôi hiểu điều mà anh ấy muốn nói.", "en": "I understand what he is trying to say."},
+        {"ja": "何としても勝たんと、心に誓った。", "reading": "なんとしてもかたんと、こころにちかった。", "vi": "Tôi tự thề trong lòng nhất định phải thắng.", "en": "I vowed in my heart that I would win no matter what."}
+      ]
+    },
+    {
+      "pattern": "〜まじ",
+      "meaning_vi": "Không được …, chớ … (cấm đoán văn cổ)",
+      "meaning_en": "Must not … (classical)",
+      "structure": "Động từ thể từ điển ＋ まじ（dạng bổ nghĩa: まじき）",
+      "notes": "Văn cổ, gốc của まじき. 慢心生ずまじ. Hiếm dùng độc lập ngày nay.",
+      "examples": [
+        {"ja": "初心忘るべからず、慢心生ずまじ。", "reading": "しょしんわするべからず、まんしんしょうずまじ。", "vi": "Đừng quên sơ tâm, chớ sinh tự mãn.", "en": "Never forget your original intent; never let arrogance arise."},
+        {"ja": "武士たる者、卑怯な振る舞いはあるまじ。", "reading": "ぶしたるもの、ひきょうなふるまいはあるまじ。", "vi": "Đã là võ sĩ thì không được có hành vi hèn nhát.", "en": "A samurai must never act in a cowardly manner."}
+      ]
+    },
+    {
+      "pattern": "〜この上ない",
+      "meaning_vi": "… không gì hơn, vô cùng …, tột bậc",
+      "meaning_en": "Utmost / extremely … (nothing more …)",
+      "structure": "Tính từ／danh từ ＋ この上ない",
+      "notes": "Mức cao nhất, văn viết. 光栄この上ない, 幸せこの上ない.",
+      "examples": [
+        {"ja": "皆様にお会いでき、光栄この上ないことです。", "reading": "みなさまにおあいでき、こうえいこのうえないことです。", "vi": "Được gặp mọi người là vinh dự không gì hơn.", "en": "Meeting you all is an honor beyond compare."},
+        {"ja": "静かでのどかな、心地よいことこの上ない場所だ。", "reading": "しずかでのどかな、ここちよいことこのうえないばしょだ。", "vi": "Một nơi yên tĩnh thanh bình, dễ chịu không gì sánh.", "en": "A quiet, peaceful place that couldn't be more pleasant."}
+      ]
+    },
+    {
+      "pattern": "〜とみるや",
+      "meaning_vi": "Vừa thấy／nhận ra … là (lập tức)",
+      "meaning_en": "The moment one sees/realizes …",
+      "structure": "Động từ thể từ điển／た ＋ とみるや",
+      "notes": "Văn viết. Vừa nhận thấy A là B ngay. 不利とみるや.",
+      "examples": [
+        {"ja": "形勢が不利とみるや、彼は逃げ出した。", "reading": "けいせいがふりとみるや、かれはにげだした。", "vi": "Vừa thấy thế bất lợi là hắn bỏ chạy.", "en": "The moment he saw the situation was unfavorable, he fled."},
+        {"ja": "隙ありとみるや、猫は飛びかかった。", "reading": "すきありとみるや、ねこはとびかかった。", "vi": "Vừa thấy sơ hở là con mèo vồ tới.", "en": "The instant it saw an opening, the cat pounced."}
+      ]
+    }
+  ]
+}

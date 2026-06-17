@@ -101,7 +101,7 @@ export default function ExploreSearch({
       {/* ── STICKY SEARCH BAR + CATEGORY CHIPS ──────────────── */}
       <div
         id="categories"
-        className="sticky top-[68px] z-[90] bg-[rgba(250,244,234,0.94)] backdrop-blur-md border-b border-line"
+        className="sticky top-[68px] z-[90] bg-[rgba(250,244,234,0.985)] backdrop-blur-md border-b border-line"
       >
         <div className="max-w-[1240px] mx-auto px-6 py-3.5 flex flex-col gap-3">
           {/* Unified search bar: [ prefecture ▾ | search input ] */}

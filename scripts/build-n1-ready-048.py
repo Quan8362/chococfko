@@ -1,0 +1,78 @@
+# -*- coding: utf-8 -*-
+"""Build N1 ready wave 048 — 四字熟語 + literary 漢語 (set 48)."""
+import os
+OUT = os.path.join(os.path.dirname(__file__), "..", "data", "japanese", "jmdict-n1-vi-ready-048.csv")
+HEADER = "word,reading,romaji,jlpt_level,pos,meaning_vi,meaning_en,tags,frequency,source,source_id,license,attribution,example_jp,example_reading,example_vi,example_en,review_status,meaning_source"
+LIC = "CC BY-SA 3.0 — verify at edrdg.org before production use"
+def q(v): return '"' + str(v).replace('"','""') + '"'
+def row(w,r,p,vi,en,s):
+    return ",".join([q(w),q(r),q(""),q("N1"),q(p),q(vi),q(en),q(""),q("0"),q("jmdict"),q(s),q(LIC),q("JMdict/EDRDG"),q(""),q(""),q(""),q(""),q("ai_draft"),q("jmdict_ai")])
+DATA = [
+    ("悪逆無道","あくぎゃくむどう","adj-na|adj-no","đại nghịch vô đạo | tàn ác bất nhân | gian ác phản phúc | hung tàn","treacherous | heinous | atrocious","1151660"),
+    ("暗雲低迷","あんうんていめい","n","mây đen vần vũ | tình thế u ám | bóng đen bao trùm | điềm chẳng lành","gathering dark clouds | being under a shadow","2029840"),
+    ("安心立命","あんしんりつめい","n|vs|vi","an tâm lập mệnh | thanh thản giác ngộ | tâm an định nhờ đức tin","spiritual peace and enlightenment","1153900"),
+    ("威風堂々","いふうどうどう","adv-to|adj-t","oai phong lẫm liệt | uy nghi đường bệ | hùng dũng trang nghiêm","majestic | imposing | with pomp and circumstance","1781240"),
+    ("意気衝天","いきしょうてん","n","khí thế ngút trời | hăng hái tột độ | hừng hực khí thế","being in high spirits | sky-high morale","1759920"),
+    ("異体同心","いたいどうしん","n","đồng tâm hiệp lực | khác thân nhưng đồng lòng | tâm đầu ý hợp","being of one mind | acting in perfect harmony","1834520"),
+    ("一陽来復","いちようらいふく","n","bĩ cực thái lai | xuân về | vận may sau cơn bĩ cực | hết khổ tới sướng","return of spring | a long-awaited turn of fortune","1728230"),
+    ("一罰百戒","いちばつひゃっかい","n","phạt một răn trăm | trừng trị một để răn nhiều | giết gà dọa khỉ","punishing one to warn a hundred","2030010"),
+    ("一刻千金","いっこくせんきん","exp","một khắc ngàn vàng | thời gian quý báu | tấc bóng tấc vàng","every moment is precious | time is gold","1162520"),
+    ("一言居士","いちげんこじ","n","kẻ luôn xen lời | người gì cũng bình phẩm | tay phê bình lắm lời","a person ready to comment on everything","1162270"),
+    ("一言半句","いちげんはんく","n","nửa lời | một câu một chữ | dù chỉ một lời (一言半句も漏らさず)","a single word | not even a syllable","1576000"),
+    ("意気阻喪","いきそそう","n|vs|vi","nhụt chí | sa sút tinh thần | nản lòng | mất nhuệ khí","being disheartened | depressed in spirits","1156470"),
+    ("一視同仁","いっしどうじん","n","nhất thị đồng nhân | đối xử công bằng với mọi người | bác ái không phân biệt","loving all impartially | universal benevolence","1162880"),
+    ("一汁一菜","いちじゅういっさい","n","một canh một rau | bữa ăn đạm bạc | cơm rau thanh đạm | ăn uống kham khổ","a simple meal | an austerity diet","1163280"),
+    ("一世一代","いっせいちだい","n|adj-no","có một không hai trong đời | dịp ngàn năm có một | lần đầu và cuối","a once-in-a-lifetime event","1576190"),
+    ("一念","いちねん","n","một lòng quyết tâm | ý chí kiên định | một niệm | sát na (一念発起)","determined purpose | a single thought","1165610"),
+    ("一致団結","いっちだんけつ","n|vs","đoàn kết một lòng | đồng tâm hiệp lực | chung sức chung lòng","banding together as one | solidarity","1930320"),
+    ("一刀","いっとう","n","một nhát kiếm | một đường gươm | thanh kiếm (一刀両断)","a single sword stroke","1165180"),
+    ("雲泥万里","うんでいばんり","n","khác một trời một vực | cách biệt vạn dặm | mây và bùn xa nhau","being poles apart | a world of difference","2030080"),
+    ("会者定離","えしゃじょうり","exp","hợp tan có số | gặp gỡ rồi chia ly | đời là vô thường tan hợp","those who meet must part","2030210"),
+    ("円転滑脱","えんてんかつだつ","adj-na","khéo léo uyển chuyển | linh hoạt mềm mỏng | xử sự trơn tru | ứng biến tài tình","suave | tactful | smooth | adaptable","1176080"),
+    ("横行闊歩","おうこうかっぽ","n|vs","nghênh ngang đi lại | tác oai tác quái | hống hách lộng hành","swaggering about | acting high-handedly","1719630"),
+    ("開口一番","かいこういちばん","adv","vừa mở miệng đã | câu đầu tiên thốt ra | mở lời ngay lập tức | nói trước hết","at the very beginning of one's speech","1202650"),
+    ("偕老同穴","かいろうどうけつ","n","sống chết bên nhau | vợ chồng chung thủy trọn đời | đồng tịch đồng sàng","living faithfully together till death","1563780"),
+    ("佳人","かじん","n","giai nhân | người đẹp | mỹ nhân | trang quốc sắc (佳人薄命)","a beauty | a beautiful woman","1189810"),
+    ("花鳥風月","かちょうふうげつ","n","hoa điểu phong nguyệt | vẻ đẹp thiên nhiên | thú vui phong nhã | cảnh đẹp đất trời","the beauties of nature","1194810"),
+    ("活殺","かっさつ","n","quyền sinh sát | sống và chết | nắm quyền sinh tử (活殺自在)","life or death","1747230"),
+    ("眼光紙背","がんこうしはい","n","đọc thấu giữa các dòng | hiểu ý sâu xa | nhìn thấu bản chất văn chương","reading between the lines","2030350"),
+    ("冠婚葬祭","かんこんそうさい","n","quan hôn tang tế | các nghi lễ trọng đại đời người | hiếu hỉ ma chay","important ceremonial occasions of life","1210260"),
+    ("緩急自在","かんきゅうじざい","n|adj-na","điều khiển nhịp độ tùy ý | khoan nhặt tự do | nhanh chậm tùy nghi","varying the tempo at will","2030340"),
+    ("艱難辛苦","かんなんしんく","n","gian nan khốn khổ | trăm cay nghìn đắng | gian truân vất vả","trials and tribulations | hardships","1571410"),
+    ("気韻","きいん","n","khí vận | phong cách tao nhã | thần thái | cốt cách thanh cao","dignity | refinement","1791370"),
+    ("危機","きき","n","khủng hoảng | nguy cơ | tình thế hiểm nghèo | bước ngoặt nguy hiểm","a crisis | a critical situation | an emergency","1218450"),
+    ("奇々怪々","ききかいかい","adj-na|n","quái dị | kỳ quái khó hiểu | bí ẩn lạ lùng | huyền bí khó lường","very strange | bizarre | mysterious","1777920"),
+    ("旗幟鮮明","きしせんめい","n","lập trường rõ ràng | thái độ dứt khoát | bày tỏ rõ chính kiến","making one's stand clear","2030400"),
+    ("喜色満面","きしょくまんめん","exp","mặt mày hớn hở | rạng rỡ niềm vui | tươi cười rạng rỡ | hân hoan ra mặt","being all smiles with joy","1218860"),
+    ("規矩","きく","n","quy củ | chuẩn mực | khuôn phép | thước ngắm (compa và thước)","a standard | a criterion | a norm","1868810"),
+    ("気息奄々","きそくえんえん","adj-no|adj-t|adv-to","thoi thóp | hấp hối | thở hắt ra | ngắc ngoải | sống dở chết dở","gasping for breath | at one's last gasp","1222450"),
+    ("吉凶","きっきょう","n","cát hung | may rủi | hên xui | điềm lành dữ","good or bad luck | fortune","1226290"),
+    ("驚天動地","きょうてんどうち","n|adj-no","kinh thiên động địa | chấn động trời đất | gây chấn động lớn","earth-shattering | astounding","1238730"),
+    ("毀誉褒貶","きよほうへん","n","khen chê | dư luận bình phẩm | lời ra tiếng vào | tiếng khen chê của đời","praise and censure | public criticism","1565790"),
+    ("金枝玉葉","きんしぎょくよう","n","cành vàng lá ngọc | con cháu hoàng tộc | dòng dõi quý phái | mây đẹp","a member of the Imperial family | royalty","2113080"),
+    ("金殿玉楼","きんでんぎょくろう","n","cung điện nguy nga | lầu son gác tía | đền đài lộng lẫy","a magnificent palace","1682420"),
+    ("苦心惨憺","くしんさんたん","n|vs|vi","dày công khổ tứ | lao tâm khổ trí | dốc hết tâm sức | vắt óc","taking great pains | painstaking effort","1684970"),
+    ("鶏群","けいぐん","n","đàn gà | bầy gà tầm thường (鶏群の一鶴: hạc giữa bầy gà)","a flock of chickens","1769440"),
+    ("軽挙妄動","けいきょもうどう","n|vs","hành động hấp tấp mù quáng | manh động | làm liều thiếu suy nghĩ","a rash and blind act","1252650"),
+    ("経世済民","けいせいさいみん","n","kinh bang tế thế | trị nước cứu dân | lo việc nước giúp dân","governing a nation and relieving the people","2030690"),
+    ("鶏鳴狗盗","けいめいくとう","n","tài vặt mọn | kẻ chỉ giỏi tiểu xảo | người tài cán cỏn con","a person capable of only petty tricks","2030710"),
+    ("月下氷人","げっかひょうじん","n","ông tơ bà nguyệt | người mai mối | nguyệt lão | bà mối","a go-between | a matchmaker | Cupid","1255510"),
+    ("堅忍","けんにん","n|vs|vt|vi","kiên nhẫn bền bỉ | nhẫn nại | kiên trì chịu đựng (堅忍不抜)","perseverance | fortitude","1257190"),
+    ("乾燥無味","かんそうむみ","adj-na|n","khô khan vô vị | nhạt nhẽo | tẻ ngắt | chán ngắt","dry and dull | insipid","1210040"),
+    ("恒産","こうさん","n","gia sản cố định | của cải bền vững | nghề nghiệp ổn định (恒産なき者は恒心なし)","fixed property | a stable occupation","1760320"),
+    ("巧言","こうげん","n","lời ngọt ngào | lời tâng bốc | lời đường mật (巧言令色)","flattery | honeyed words","1278300"),
+    ("公明","こうめい","n|adj-na","công minh | quang minh chính đại | công bằng minh bạch","fairness | openness | impartiality","1274850"),
+    ("五行","ごぎょう","n","ngũ hành (kim mộc thủy hỏa thổ) | năm yếu tố (triết học phương Đông)","the five elements (wood, fire, earth, metal, water)","1268250"),
+    ("孤城落日","こじょうらくじつ","n","thành cô bóng xế | đơn độc tàn lụi | cô thế bơ vơ | sa cơ thất thế","feeling lone and helpless | the decline of the once-powerful","2030760"),
+    ("狐疑","こぎ","n|vs|vt|vi","hồ nghi | nghi ngờ | do dự | lưỡng lự | ngần ngại","doubt | suspicion | hesitation","1845800"),
+    ("古色","こしょく","n","màu cũ kỹ | vẻ cổ kính | dáng vẻ xưa cũ | nét rêu phong (古色蒼然)","a faded color | an antique look","1265570"),
+    ("故知","こち","n","trí tuệ người xưa | mưu lược cổ nhân | kế sách tiền nhân","the wisdom of the ancients","1685230"),
+    ("昏迷","こんめい","n|vs|adj-no","hôn mê | mê man | choáng váng | rối loạn ý thức","stupor | unconsciousness | confusion","1290545"),
+    ("才気","さいき","n","tài trí | sự thông minh | trí tuệ sắc sảo | tài năng (才気煥発)","wit and intelligence","1294470"),
+    ("才知","さいち","n","tài trí | trí khôn | tài năng và mưu trí | thông minh tháo vát","wit and intelligence","1593630"),
+    ("山河","さんが","n","sông núi | non sông | giang sơn | cảnh sắc thiên nhiên","mountains and rivers | natural surroundings","1755240"),
+    ("四時","しじ","n","bốn mùa | tứ thời | bốn mùa trong năm","the four seasons","1767250"),
+]
+rows=[row(*d) for d in DATA]
+open(OUT,"w",encoding="utf-8",newline="\n").write(HEADER+"\n"+"\n".join(rows)+"\n")
+print(f"Written {len(rows)} rows")

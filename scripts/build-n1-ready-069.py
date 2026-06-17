@@ -1,0 +1,77 @@
+# -*- coding: utf-8 -*-
+"""Build N1 ready wave 069 — compound nouns (-ken, -sei, -jo, -nan, -heki, -ya, -shirazu) (set 69)."""
+import os
+OUT = os.path.join(os.path.dirname(__file__), "..", "data", "japanese", "jmdict-n1-vi-ready-069.csv")
+HEADER = "word,reading,romaji,jlpt_level,pos,meaning_vi,meaning_en,tags,frequency,source,source_id,license,attribution,example_jp,example_reading,example_vi,example_en,review_status,meaning_source"
+LIC = "CC BY-SA 3.0 — verify at edrdg.org before production use"
+def q(v): return '"' + str(v).replace('"','""') + '"'
+def row(w,r,p,vi,en,s):
+    return ",".join([q(w),q(r),q(""),q("N1"),q(p),q(vi),q(en),q(""),q("0"),q("jmdict"),q(s),q(LIC),q("JMdict/EDRDG"),q(""),q(""),q(""),q(""),q("ai_draft"),q("jmdict_ai")])
+DATA = [
+    ("主導権","しゅどうけん","n","quyền chủ động | quyền lãnh đạo | thế chủ động | vai trò dẫn dắt (主導権を握る)","initiative | leadership | hegemony","1325990"),
+    ("裁量権","さいりょうけん","n","quyền tự quyết | quyền tùy nghi | quyền định đoạt | thẩm quyền linh hoạt","discretionary power","2243940"),
+    ("統帥権","とうすいけん","n","thống soái quyền | quyền tổng chỉ huy quân đội (của thiên hoàng)","supreme command authority","1770510"),
+    ("受益権","じゅえきけん","n","quyền thụ hưởng | quyền lợi được hưởng | quyền hưởng lợi","beneficiary right","1697760"),
+    ("独占権","どくせんけん","n","độc quyền | quyền độc chiếm | quyền sở hữu duy nhất","exclusive right | sole right","2394210"),
+    ("生存権","せいぞんけん","n","quyền sống | quyền sinh tồn | quyền được tồn tại","the right to life","1829720"),
+    ("請求権","せいきゅうけん","n","quyền yêu cầu | quyền đòi hỏi | quyền khiếu nại | quyền truy đòi","the right to claim","1751490"),
+    ("官僚制","かんりょうせい","n","chế độ quan liêu | bộ máy hành chính cồng kềnh | thể chế công chức","bureaucracy","1979470"),
+    ("封建制","ほうけんせい","n","chế độ phong kiến | thể chế phong kiến | phong kiến chế","feudalism","2801730"),
+    ("身分制","みぶんせい","n","chế độ đẳng cấp | phân chia giai cấp | thể chế thân phận","a class system","2406380"),
+    ("世襲制","せしゅうせい","n","chế độ cha truyền con nối | thế tập | kế thừa theo dòng họ","a hereditary system","2836410"),
+    ("連邦制","れんぽうせい","n","chế độ liên bang | thể chế liên bang","a federal system","1781770"),
+    ("紹介状","しょうかいじょう","n","thư giới thiệu | giấy giới thiệu | thư tiến cử","a letter of introduction","1660220"),
+    ("果たし状","はたしじょう","n","thư khiêu chiến | thư thách đấu | tối hậu thư đọ sức","a letter of challenge (to a duel)","1600770"),
+    ("免許状","めんきょじょう","n","giấy phép | chứng chỉ | bằng cấp | văn bằng (cho phép hành nghề/dạy)","a license | a certificate | a diploma","1533160"),
+    ("果報","かほう","adj-na|n","phúc phận | may mắn | có phước | quả báo (果報は寝て待て)","good fortune | luck | karmic retribution","1193080"),
+    ("嘆願書","たんがんしょ","n","đơn thỉnh nguyện | đơn kêu xin | bản kiến nghị | đơn cầu xin","a written petition","1942040"),
+    ("誓約書","せいやくしょ","n","bản cam kết | giấy tuyên thệ | văn bản giao ước | đơn cam đoan","a written oath | a pledge","1784780"),
+    ("免状","めんじょう","n","giấy phép | chứng chỉ | văn bằng | bằng tốt nghiệp | chứng nhận","a license | a certificate | a diploma","1533210"),
+    ("判決文","はんけつぶん","n","bản án | văn bản phán quyết | nội dung tuyên án","a judgment paper","1902870"),
+    ("弔問","ちょうもん","n|vs|vt","viếng tang | đến chia buồn | thăm hỏi tang quyến | điếu tang","a condolence call","1427750"),
+    ("慶弔","けいちょう","n","hiếu hỉ | việc vui buồn | mừng và viếng | chúc mừng và chia buồn","congratulations and condolences","1250550"),
+    ("受難","じゅなん","n|vs","chịu nạn | gian nan thử thách | khổ nạn | cuộc khổ nạn (Chúa Jesus)","sufferings | ordeals | the Passion (of Christ)","1330020"),
+    ("艱難","かんなん","n|vs","gian nan | gian khổ | khó khăn vất vả | gian truân (艱難辛苦)","hardships | privations | difficulties","1571400"),
+    ("危難","きなん","n","hiểm nguy | nguy nan | tai họa hiểm nghèo | cảnh nguy khốn","peril | danger | distress","1218690"),
+    ("盗癖","とうへき","n","tật ăn cắp | thói trộm cắp | chứng ăn trộm | bệnh đạo chích","a propensity to steal | kleptomania","1448540"),
+    ("放浪癖","ほうろうへき","n","tật lang thang | thói phiêu bạt | máu giang hồ | tính thích lưu lạc","wanderlust | vagrant habits","1655040"),
+    ("浪費癖","ろうひへき","n","tật hoang phí | thói tiêu xài hoang | tính phung phí","wasteful habits","1775430"),
+    ("虚言癖","きょげんへき","n","tật nói dối | thói bịa chuyện | bệnh nói dối | chứng hoang ngôn","a propensity to lie | mythomania","2861162"),
+    ("収集癖","しゅうしゅうへき","n","tật sưu tầm | thói gom góp | máu sưu tập | bệnh tích trữ","a collecting mania","2642330"),
+    ("怠け癖","なまけぐせ","n","tật lười | thói lười biếng | tính ỷ lại biếng nhác","a habit of laziness | indolence","1953460"),
+    ("酒癖","さけぐせ","n","tật rượu chè | thói quen lúc say | tính nết khi say xỉn","drinking habits | drunken behavior","1663290"),
+    ("癇癪","かんしゃく","n","tính nóng nảy | sự cáu kỉnh | cơn thịnh nộ | cơn tam bành (癇癪を起こす)","temper | a tantrum | a fit of anger","1569690"),
+    ("癇癖","かんぺき","n","tính khí nóng nảy | tật dễ nổi cáu | tính cộc","a short temper","1569680"),
+    ("偏執","へんしゅう","n","cố chấp | định kiến | bảo thủ ngoan cố | tính lập dị | thiên kiến","bias | obstinacy | eccentricity","1510470"),
+    ("意固地","いこじ","adj-na|n","cố chấp | bướng bỉnh | ngoan cố | lì lợm | cứng đầu cứng cổ","obstinate | stubborn | headstrong","1156550"),
+    ("食い意地","くいいじ","n","tính tham ăn | thói háu ăn | sự phàm ăn (食い意地が張る)","gluttony","1839780"),
+    ("負けず嫌い","まけずぎらい","adj-na|n","không chịu thua | hiếu thắng | hay ganh đua | không cam chịu kém","hating to lose | competitive | unyielding","1740840"),
+    ("寂しがり屋","さびしがりや","n","người hay cô đơn | kẻ sợ ở một mình | người cần có bạn bên cạnh","a person who gets lonely easily","2210090"),
+    ("照れ屋","てれや","n|adj-na","người hay mắc cỡ | kẻ bẽn lẽn | người dễ ngượng | tính cả thẹn","a very shy, bashful person","1350890"),
+    ("気分屋","きぶんや","n","người thất thường | kẻ tính khí đồng bóng | người hay đổi tâm trạng","a moody person","1222600"),
+    ("分からず屋","わからずや","n","kẻ ngoan cố | người cứng đầu | đồ đần độn | kẻ khó bảo","an obstinate person | a blockhead","1502930"),
+    ("気取り屋","きどりや","n","kẻ làm bộ làm tịch | người điệu đà | tay sĩ diện | kẻ kiểu cách","a snob | an affected person","1869350"),
+    ("恥ずかしがり屋","はずかしがりや","n","người nhút nhát | kẻ hay xấu hổ | người rụt rè e thẹn","a shy person","1901770"),
+    ("食わず嫌い","くわずぎらい","exp|n|vs","chưa ăn đã chê | thành kiến chưa thử | ghét bỏ vô căn cứ | định kiến mù quáng","disliking something without having tried it | prejudice","1640630"),
+    ("食道楽","しょくどうらく","n|adj-no","sành ăn | mê ẩm thực | thú vui ăn uống | người ham ăn ngon","a gourmand | an epicure","1839690"),
+    ("着道楽","きどうらく","n","mê ăn diện | thú vui quần áo | nghiện chưng diện | sở thích mặc đẹp","having a weakness for fine clothes","1701270"),
+    ("道楽息子","どうらくむすこ","n","cậu ấm ăn chơi | đứa con phá gia chi tử | con trai trác táng | công tử bột","a prodigal son | a wastrel","1770840"),
+    ("放蕩息子","ほうとうむすこ","n","đứa con hoang đàng | con trai trụy lạc | đứa con phá của | phá gia chi tử","a good-for-nothing, profligate son","1710660"),
+    ("末っ子","すえっこ","n","con út | đứa con nhỏ nhất | út ít","the youngest child","1584380"),
+    ("箱入り娘","はこいりむすめ","n","tiểu thư khuê các | con gái cưng được bao bọc | gái ngây thơ kín cổng cao tường","a sheltered girl | a pet daughter","1749320"),
+    ("一人っ子","ひとりっこ","n","con một | đứa con duy nhất","an only child","1727720"),
+    ("苦労人","くろうにん","n","người từng trải | kẻ nếm đủ mùi đời | người dày dạn gian khổ | người hiểu đời","a worldly-wise person who has been through a lot","1244690"),
+    ("変わり者","かわりもの","n","người lập dị | kẻ khác người | tay quái dị | người kỳ quặc","an eccentric | an oddball | a weirdo","1510760"),
+    ("世間知らず","せけんしらず","adj-no|adj-na|n","không biết sự đời | ngây thơ khờ khạo | thiếu hiểu biết xã hội | non nớt","ignorant of the ways of the world","1848140"),
+    ("怖いもの知らず","こわいものしらず","adj-no|n","điếc không sợ súng | gan cùng mình | liều lĩnh | không biết sợ là gì","foolhardy | reckless | fearless","2843658"),
+    ("恥知らず","はじしらず","adj-na|n","vô liêm sỉ | trơ trẽn | mặt dày | không biết xấu hổ","shameless | a shameless person","1611180"),
+    ("礼儀知らず","れいぎしらず","adj-no|adj-na|n","vô lễ | bất lịch sự | thiếu lễ độ | không biết phép tắc","rude | impolite | mannerless","2789830"),
+    ("身の程知らず","みのほどしらず","exp|adj-no|adj-na|n","không biết thân phận | tự lượng sức | trèo cao | ếch muốn to bằng bò","not knowing one's place | overreaching","2798830"),
+    ("命知らず","いのちしらず","n|adj-no|adj-na","liều mạng | bất chấp tính mạng | kẻ coi thường cái chết | gan liều","recklessness | a daredevil","1532080"),
+    ("恩知らず","おんしらず","adj-no|adj-na|n","vô ơn | bội bạc | ăn cháo đá bát | quên ơn","ungrateful","1183250"),
+    ("後先","あとさき","n","trước sau | đầu đuôi | thứ tự | hậu quả | trước và sau (後先考えず)","before and after | order | consequences","1269850"),
+    ("向こう傷","むこうきず","n","vết sẹo trước trán | thương tích phía trước (đối mặt kẻ thù) | vết thương dũng cảm","a scar on one's forehead | a frontal wound","1820650"),
+]
+rows=[row(*d) for d in DATA]
+open(OUT,"w",encoding="utf-8",newline="\n").write(HEADER+"\n"+"\n".join(rows)+"\n")
+print(f"Written {len(rows)} rows")

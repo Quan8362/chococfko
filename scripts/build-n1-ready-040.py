@@ -1,0 +1,76 @@
+# -*- coding: utf-8 -*-
+"""Build N1 ready wave 040 — 慣用句 + 四字熟語 + nouns (set 40)."""
+import os
+OUT = os.path.join(os.path.dirname(__file__), "..", "data", "japanese", "jmdict-n1-vi-ready-040.csv")
+HEADER = "word,reading,romaji,jlpt_level,pos,meaning_vi,meaning_en,tags,frequency,source,source_id,license,attribution,example_jp,example_reading,example_vi,example_en,review_status,meaning_source"
+LIC = "CC BY-SA 3.0 — verify at edrdg.org before production use"
+def q(v): return '"' + str(v).replace('"','""') + '"'
+def row(w,r,p,vi,en,s):
+    return ",".join([q(w),q(r),q(""),q("N1"),q(p),q(vi),q(en),q(""),q("0"),q("jmdict"),q(s),q(LIC),q("JMdict/EDRDG"),q(""),q(""),q(""),q(""),q("ai_draft"),q("jmdict_ai")])
+DATA = [
+    ("舌先","したさき","n","đầu lưỡi | chót lưỡi (舌先三寸: ba tấc lưỡi)","the tip of the tongue","1387040"),
+    ("舌足らず","したたらず","n|adj-na|adj-no","nói ngọng | nói không rõ | diễn đạt vụng | giải thích chưa thấu","unclear speech | poorly expressed","1387060"),
+    ("舌鼓を打つ","したつづみをうつ","exp|v5t","tặc lưỡi khen ngon | ăn ngon lành | thưởng thức thích thú","to smack one's lips over a dish | to eat with relish","1387030"),
+    ("質に取る","しちにとる","exp|v5r","cầm cố | nhận làm vật thế chấp | đem cầm","to take in pawn | to take as a pledge","2857729"),
+    ("失笑を買う","しっしょうをかう","exp|v5u","bị cười nhạo | làm trò cười | gây cười vì ngớ ngẩn","to get oneself laughed at","2756090"),
+    ("尻すぼみ","しりすぼみ","n","đầu voi đuôi chuột | hụt hơi về sau | nhạt dần | thoái trào","a weak ending | an anticlimax | tapering off","1883490"),
+    ("四六時中","しろくじちゅう","adv|n","suốt ngày đêm | cả ngày lẫn đêm | hai mươi tư trên hai mươi tư","around the clock | day and night","1307420"),
+    ("人海戦術","じんかいせんじゅつ","n","chiến thuật biển người | lấy số đông áp đảo | ném người vào việc","human wave tactics | throwing manpower at a problem","1366690"),
+    ("心願","しんがん","n","tâm nguyện | lời nguyện cầu | ước nguyện tận đáy lòng","a prayer | a heartfelt wish","1793910"),
+    ("進退窮まる","しんたいきわまる","exp|v5r","tiến thoái lưỡng nan | mắc kẹt | bị dồn vào đường cùng | tiến không được lùi không xong","to be driven into a corner | to be in a dilemma","1884050"),
+    ("人面獣心","じんめんじゅうしん","n","mặt người dạ thú | thú đội lốt người | lòng lang dạ thú","a beast in human form","1580750"),
+    ("酢豆腐","すどうふ","n","kẻ ra vẻ hiểu biết | thầy dùi nửa mùa | tỏ vẻ thông thái suông","a self-proclaimed expert with only superficial knowledge","2857884"),
+    ("図星を指す","ずぼしをさす","exp|v5s","nói trúng tim đen | đoán đúng phóc | chỉ đúng chỗ | trúng phóc","to hit the nail on the head | to guess exactly right","1370460"),
+    ("住み心地","すみごこち","n","cảm giác sống | độ thoải mái nơi ở | mức dễ chịu khi sống","the comfort level of one's home","1333990"),
+    ("青雲の志","せいうんのこころざし","n","chí lớn | hoài bão cao xa | chí khí vươn cao | tham vọng lớn lao","a lofty ambition","1853270"),
+    ("堰を切る","せきをきる","exp|v5r","vỡ đê | tuôn trào | bật ra ào ạt | trào ra không ngăn được","to burst out (like a broken dam)","2427570"),
+    ("前後不覚","ぜんごふかく","adj-na|n","bất tỉnh nhân sự | không còn biết gì | mê man không nhớ gì","unconsciousness | having no recollection of one's actions","1392940"),
+    ("千慮の一失","せんりょのいっしつ","n","khôn ngoan cũng có lúc sai | bậc trí cũng có khi lầm | sai sót của người tài","even a wise man makes mistakes","1389350"),
+    ("象牙の塔","ぞうげのとう","exp|n","tháp ngà | thế giới học thuật xa rời thực tế | sự tách biệt với đời","an ivory tower","1351850"),
+    ("草根木皮","そうこんもくひ","n","rễ cỏ vỏ cây | thảo dược (Đông y) | cây cỏ làm thuốc","roots and barks used in herbal medicine","1818440"),
+    ("そぞろ歩き","そぞろあるき","n|vs|vi","dạo bước thong thả | tản bộ | đi dạo nhàn nhã | lững thững","a slow, relaxed stroll","1006770"),
+    ("そつ","そつ","n","sơ suất | thiếu sót | lỗi vặt | lãng phí (そつがない: chu đáo)","a slip-up | an oversight | waste","2107380"),
+    ("反り身","そりみ","n","ưỡn ngực vênh váo | ngả người ra sau | dáng kiêu căng","strutting | sticking out one's chest","1480140"),
+    ("損得勘定","そんとくかんじょう","n","tính toán thiệt hơn | so đo lợi hại | đong đếm được mất | vụ lợi","calculating profit and loss | a mercenary view","2049470"),
+    ("大車輪","だいしゃりん","n","động tác xà đu lớn | nỗ lực hết mình | làm việc điên cuồng | dốc toàn lực","an all-out effort | frenzied activity","1785870"),
+    ("大上段","だいじょうだん","n","giơ kiếm quá đầu (kendo) | thái độ kẻ cả | tư thế áp đảo | hống hách","a haughty attitude | an overbearing manner","1785230"),
+    ("大同","だいどう","n","đại đồng | về cơ bản giống nhau | hợp nhất chung mục tiêu (大同小異)","general resemblance | uniting with a common goal","1785600"),
+    ("立ち往生","たちおうじょう","n|vs|vi","đứng chết trân | mắc kẹt | tiến thoái lưỡng nan | đứng như trời trồng | bí","being stranded | being brought to a standstill | being stumped","1838030"),
+    ("立て続け","たてつづけ","n","liên tiếp | dồn dập | nối tiếp nhau | hết cái này đến cái khác","succession | a continuous series","1610260"),
+    ("玉虫色","たまむしいろ","n|adj-no","màu cánh cam óng ánh | lập lờ nước đôi | mập mờ | nói nước đôi","iridescent | equivocal | ambiguous","1240650"),
+    ("為にする","ためにする","exp|vs-i","có ý đồ riêng | mưu lợi cá nhân | làm vì tư lợi | có dụng ý xấu","to have an ulterior motive | to have an axe to grind","2089200"),
+    ("惰眠","だみん","n","ngủ vùi lười nhác | sự uể oải | trì trệ (惰眠を貪る: lười biếng ăn không ngồi rồi)","idle slumber | indolence | inactivity","1408580"),
+    ("段違い","だんちがい","adj-no|adj-na|n","khác hẳn một trời một vực | hơn hẳn | đẳng cấp khác | chênh lệch cao thấp","wildly different | on another level | far better","1419940"),
+    ("血の気","ちのけ","exp|n","sắc máu (trên mặt) | sự hăng máu | nóng tính | bốc đồng","blood (in one's face) | hot-bloodedness","1669850"),
+    ("茶坊主","ちゃぼうず","n","kẻ pha trà nịnh bợ | tay sai xu nịnh | kẻ luồn cúi","a sycophant | a flatterer (orig. a tea-server)","1711460"),
+    ("茶番劇","ちゃばんげき","n","trò hề | màn kịch lố bịch | tấn tuồng | trò khôi hài rẻ tiền","a farce | low comedy","1655100"),
+    ("忠言耳に逆らう","ちゅうげんみみにさからう","exp|v5u","lời thật mất lòng | trung ngôn nghịch nhĩ | lời khuyên ngay khó nghe","good advice is harsh to the ear","2419010"),
+    ("猪口才","ちょこざい","adj-na|n","láo xược | hỗn xược | vô lễ | ranh mãnh xấc láo","impertinent | impudent | cheeky","1427030"),
+    ("追従笑い","ついしょうわらい","n","nụ cười nịnh bợ | cười lấy lòng | cười xu nịnh","a servile, sycophantic smile","2668130"),
+    ("痛し痒し","いたしかゆし","exp|adj-no","tiến thoái lưỡng nan | nửa nạc nửa mỡ | được cái này mất cái kia | khó xử","a delicate situation | a mixed blessing","1687630"),
+    ("月並み","つきなみ","n|adj-no|adj-na","tầm thường | sáo mòn | nhàm chán | quê mùa cũ kỹ | thường lệ","trite | commonplace | hackneyed","1255810"),
+    ("壺","つぼ","n","cái hũ | cái bình | điểm mấu chốt | điểm trọng yếu | huyệt đạo","a pot | a jar | the key point | an acupuncture point","1433870"),
+    ("爪弾き","つまはじき","n|vs|vt","tẩy chay | xa lánh | hắt hủi | ruồng bỏ | bị cô lập","shunning | ostracism | giving the cold shoulder","1433930"),
+    ("手当たり次第","てあたりしだい","adv|exp","vớ được gì làm nấy | bạ đâu làm đó | bừa bãi | bạ gì lấy nấy","using anything one can grab | haphazardly | at random","1328220"),
+    ("手練手管","てれんてくだ","n","mánh khóe dụ dỗ | thủ đoạn lừa phỉnh | ngón nghề dỗ ngọt | mưu mẹo","wiles | the art of coaxing","1328430"),
+    ("鉄槌","てっつい","n","búa sắt | đòn trừng phạt nặng | giáng đòn chí mạng (鉄槌を下す)","an iron hammer | a crushing blow","2826875"),
+    ("出っ歯","でっぱ","n|adj-no","răng vẩu | răng hô | răng chìa ra","a protruding tooth | buckteeth","1338200"),
+    ("手鼻","てばな","n","hỉ mũi bằng tay | xì mũi bằng ngón tay (手鼻をかむ)","blowing one's nose with one's fingers","1699380"),
+    ("手間取る","てまどる","v5r|vi","mất thời gian | chậm trễ | lề mề | tốn công lâu hơn dự kiến","to take longer than expected | to be delayed","1327420"),
+    ("手枷足枷","てかせあしかせ","n","xiềng xích | gông cùm | sự trói buộc | ràng buộc nặng nề","manacles and shackles | fetters","2050480"),
+    ("出来心","できごころ","n","ý nghĩ bột phát | nổi hứng nhất thời | phút nông nổi | máu nóng nhất thời","a sudden impulse | a passing fancy","1340620"),
+    ("照れ隠し","てれかくし","n","che giấu ngượng ngùng | gượng gạo che thẹn | giấu nỗi xấu hổ","hiding one's embarrassment","1742310"),
+    ("天狗","てんぐ","n","thiên cẩu (yêu quái mũi dài) | kẻ tự cao | tự phụ | huênh hoang (天狗になる)","tengu (long-nosed goblin) | a braggart | conceit","1438850"),
+    ("天真","てんしん","adj-na|n","ngây thơ | hồn nhiên | chất phác (天真爛漫)","naivete | innocence","1439470"),
+    ("天井知らず","てんじょうしらず","adj-no|adj-na|n","tăng vô hạn | giá leo thang không phanh | tăng vọt không trần","skyrocketing (prices) | with no ceiling","1438360"),
+    ("天罰覿面","てんばつてきめん","n","quả báo nhãn tiền | trời phạt tức thì | gieo gió gặt bão ngay","swift divine punishment","1440190"),
+    ("等閑","とうかん","n|vs|vt","xem nhẹ | lơ là | coi thường | bỏ bê | thờ ơ (等閑に付す)","neglect | disregard | making light of","2863221"),
+    ("胴間声","どうまごえ","n","giọng ồm ề thô tục | giọng oang oang thô kệch","a vulgar, thick voice","1687930"),
+    ("読書百遍","どくしょひゃっぺん","exp","đọc trăm lần nghĩa tự thông | đọc đi đọc lại sẽ hiểu | thư đọc trăm lần","repeated reading reveals the meaning","2051140"),
+    ("毒気","どっき","n","khí độc | hơi độc | ác ý | lòng dạ độc địa (毒気を抜かれる)","poisonous air | malice | spite","1649750"),
+    ("徒手空拳","としゅくうけん","n","tay không | trắng tay | không vốn liếng | hai bàn tay trắng","being empty-handed | having no capital","1444470"),
+    ("土性骨","どしょうぼね","n","cốt cách | bản lĩnh | khí phách | tinh thần bẩm sinh","one's innate character | spirit | backbone","1702240"),
+]
+rows=[row(*d) for d in DATA]
+open(OUT,"w",encoding="utf-8",newline="\n").write(HEADER+"\n"+"\n".join(rows)+"\n")
+print(f"Written {len(rows)} rows")

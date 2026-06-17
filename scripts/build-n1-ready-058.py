@@ -1,0 +1,76 @@
+# -*- coding: utf-8 -*-
+"""Build N1 ready wave 058 — literary 漢語 (set 58)."""
+import os
+OUT = os.path.join(os.path.dirname(__file__), "..", "data", "japanese", "jmdict-n1-vi-ready-058.csv")
+HEADER = "word,reading,romaji,jlpt_level,pos,meaning_vi,meaning_en,tags,frequency,source,source_id,license,attribution,example_jp,example_reading,example_vi,example_en,review_status,meaning_source"
+LIC = "CC BY-SA 3.0 — verify at edrdg.org before production use"
+def q(v): return '"' + str(v).replace('"','""') + '"'
+def row(w,r,p,vi,en,s):
+    return ",".join([q(w),q(r),q(""),q("N1"),q(p),q(vi),q(en),q(""),q("0"),q("jmdict"),q(s),q(LIC),q("JMdict/EDRDG"),q(""),q(""),q(""),q(""),q("ai_draft"),q("jmdict_ai")])
+DATA = [
+    ("忍辱","にんにく","n","nhẫn nhục | nhẫn nại chịu đựng | kiên nhẫn trước nghịch cảnh","forbearance (in the face of adversity)","2192680"),
+    ("寝技","ねわざ","n","đòn vật nằm | đòn khóa (judo) | thủ đoạn ngầm | mưu mẹo hậu trường","a pinning technique | underhanded dealings","1792860"),
+    ("熱涙","ねつるい","n","giọt lệ nóng hổi | nước mắt xúc động | lệ nóng tuôn rơi","hot tears","1832400"),
+    ("熱願","ねつがん","n|vs|vt","khẩn cầu tha thiết | ước nguyện cháy bỏng | mong mỏi nồng nhiệt","an ardent desire","1832590"),
+    ("捻出","ねんしゅつ","n|vs|vt","xoay xở | gắng gom góp (tiền) | vắt óc nghĩ ra | thu xếp (thời gian)","scraping together (money) | contriving | devising","1469550"),
+    ("脳漿","のうしょう","n","dịch não tủy | óc | trí tuệ | nước não","cerebrospinal fluid | brains","1828320"),
+    ("能筆","のうひつ","n|adj-no","viết chữ đẹp | bút pháp điêu luyện | nhà thư pháp giỏi","skillful penmanship | a skilled calligrapher","1470240"),
+    ("野末","のずえ","n","cuối cánh đồng | góc ruộng xa | nơi đồng nội xa xôi","the far corners of a field","1711880"),
+    ("俳人","はいじん","n","nhà thơ haiku | thi sĩ haiku","a haiku poet","1471920"),
+    ("背徳","はいとく","n","vô đạo đức | đồi bại | sa đọa | trái luân thường (背徳行為)","corruption | immorality | a lapse from virtue","1472830"),
+    ("廃藩","はいはん","n","bãi bỏ chế độ phiên trấn (1871) | phế phiên lập huyện (廃藩置県)","abolition of the han (feudal domain) system","1901330"),
+    ("背理","はいり","n|vs|vi","phi lý | nghịch lý | trái logic | sự vô lý (背理法)","absurdity | irrationality","1740680"),
+    ("博引旁証","はくいんぼうしょう","n|vs|vi","viện dẫn phong phú | trích dẫn rộng rãi để chứng minh | dẫn chứng dồi dào","citing copious references","1474560"),
+    ("白皙","はくせき","adj-no","da trắng | nước da trắng trẻo | làn da trắng nõn","white (complexion) | fair-skinned","1841600"),
+    ("薄謝","はくしゃ","n","chút thù lao mọn | quà tạ ơn nhỏ | lễ mọn (khiêm nhường)","a small token of gratitude","1626010"),
+    ("白寿","はくじゅ","n","đại thọ 99 tuổi | mừng thọ chín mươi chín","one's 99th birthday","1475210"),
+    ("薄情者","はくじょうもの","n","kẻ vô tình | người bạc bẽo | kẻ nhẫn tâm | đồ vô tâm","an insensitive, heartless person","2589410"),
+    ("白濁","はくだく","n|vs|vi","vẩn đục | đục trắng | mờ đục | đục ngầu (chất lỏng)","cloudiness | turbidity","1841740"),
+    ("白文","はくぶん","n","văn Hán không phiên âm | Hán văn không chấm câu | nguyên văn chữ Hán","unpunctuated Chinese text","1841130"),
+    ("博聞","はくぶん","adj-na|n","hiểu biết rộng | uyên bác | kiến văn quảng bác | thông tỏ nhiều điều","well-informed | erudite","1474730"),
+    ("派出","はしゅつ","n|vs|vt","cử đi | phái cử | điều người đi | cử phái (派出所: đồn cảnh sát)","sending out | dispatching","1617060"),
+    ("馬車馬","ばしゃうま","n","ngựa kéo xe | làm việc cật lực | miệt mài không ngơi (馬車馬のように働く)","a cart-horse | working wholeheartedly","1982870"),
+    ("肌寒い","はださむい","adj-i","se lạnh | hơi lạnh | lành lạnh | rét buốt khó chịu","chilly | unpleasantly cold","1583660"),
+    ("発露","はつろ","n|vs|vt|vi","bộc lộ | biểu lộ | thể hiện ra | bày tỏ (cảm xúc)","appearance | expression | manifestation","1626400"),
+    ("初花","はつはな","n","hoa đầu mùa | hoa nở đầu tiên | kinh nguyệt lần đầu | thiếu nữ vừa lớn","the first flower of the season | first menstruation","1798810"),
+    ("端武者","はむしゃ","n","lính quèn | binh tốt thường | quân hạng bét","a common soldier","1704770"),
+    ("浜風","はまかぜ","n","gió biển | gió bãi biển | làn gió từ biển thổi vào","a sea breeze","1626040"),
+    ("祓い","はらい","n","lễ tẩy uế | trừ tà | lễ thanh tẩy | giải trừ tà khí (Thần đạo)","purification | exorcism","1570100"),
+    ("反間","はんかん","n","phản gián | hoạt động tình báo ngược | kế ly gián (反間苦肉の計)","counterintelligence","1480270"),
+    ("半旗","はんき","n","cờ rủ | treo cờ rủ (để tang) | cờ hạ nửa cột","a flag at half-mast","1479110"),
+    ("万斛","ばんこく","n","đầm đìa | chan chứa | dào dạt (nước mắt) (万斛の涙)","copious (tears)","1526620"),
+    ("万古","ばんこ","n|adv","muôn đời | vĩnh viễn | ngàn xưa | thiên cổ (万古不易)","perpetuity | eternity","1525930"),
+    ("頒価","はんか","n","giá phân phối | giá phát hành | giá lưu hành","a distribution price","1902810"),
+    ("版図","はんと","n","lãnh thổ | bản đồ cương vực | đất đai cai trị | giang sơn","territory | domain","1651940"),
+    ("反問","はんもん","n|vs|vt|vi","hỏi vặn lại | chất vấn ngược | gặng hỏi lại | phản vấn","a retort | asking in return","1481050"),
+    ("万緑","ばんりょく","n","muôn lá xanh | bạt ngàn cây xanh | một màu xanh tươi (万緑叢中紅一点)","myriad green leaves","1526610"),
+    ("悲喜","ひき","n","buồn vui | bi hỉ | vui buồn lẫn lộn (悲喜こもごも)","joys and sorrows","1626760"),
+    ("卑金属","ひきんぞく","n","kim loại thường | kim loại không quý | kim loại cơ bản","a base metal","1482730"),
+    ("微光","びこう","n","ánh sáng mờ nhạt | tia sáng leo lét | ánh sáng yếu ớt","a faint light","1485910"),
+    ("悲愴","ひそう","adj-na|n","bi thương | đau thương | thê lương | sầu thảm","pathetic | sorrowful | grievous","1483370"),
+    ("左褄","ひだりづま","n","vạt trái kimono | geisha (vì hay cầm vạt trái khi đi) (左褄を取る)","the left hem of a kimono | a geisha","2592350"),
+    ("必定","ひつじょう","adj-na|adv|n","tất nhiên | chắc chắn | nhất định | ắt hẳn","inevitably | certainly","1487620"),
+    ("卑属","ひぞく","n","ti thuộc | hàng con cháu | bậc dưới trong họ tộc","lineal descendants","1601840"),
+    ("匹儔","ひっちゅう","n|vs","ngang hàng | tương xứng | sánh ngang | đối thủ ngang sức","an equal | a match","1487300"),
+    ("人見知り","ひとみしり","n|vs|vi|adj-na","nhút nhát với người lạ | sợ người lạ | bẽn lẽn | lạ người (trẻ con)","shyness | fear of strangers","1367260"),
+    ("一頻り","ひとしきり","adv|adj-no","một hồi | một lúc | trong chốc lát | một thôi một hồi","for a while | for a period","1166150"),
+    ("非難轟々","ひなんごうごう","n","chỉ trích ầm ầm | búa rìu dư luận | làn sóng phản đối dữ dội","a torrent of criticism | uproarious outcry","2032310"),
+    ("火縄","ひなわ","n","dây mồi lửa | dây cháy chậm | ngòi đốt (火縄銃: súng hỏa mai)","a fuse | a slow match","1724610"),
+    ("皮膜","ひまく","n","màng mỏng | lớp màng | da và màng | màng bọc","a film | a membrane","1771370"),
+    ("百計","ひゃっけい","n","trăm phương ngàn kế | mọi cách | đủ mọi mưu kế (百計尽きる)","all possible means","1488130"),
+    ("氷解","ひょうかい","n|vs|vi","tan biến (nghi ngờ) | tan như băng | giải tỏa | băng tan","being dispelled (of doubt) | melting away","1488930"),
+    ("飄然","ひょうぜん","adv-to|adj-t","phiêu hốt | thản nhiên đến đi | vô định | thoát tục | lãng đãng","casually (coming or going) | aimlessly | aloof","1489250"),
+    ("氷壁","ひょうへき","n","vách băng | bức tường băng | dốc băng dựng đứng","an ice wall | an ice ridge","1627630"),
+    ("貧富","ひんぷ","n","giàu nghèo | sự chênh lệch giàu nghèo | bần phú (貧富の差)","wealth and poverty | rich and poor","1490890"),
+    ("品評","ひんぴょう","n|vs|vt","bình phẩm | đánh giá | nhận xét | phẩm bình (品評会)","estimation | criticism | comment","1626900"),
+    ("頻発","ひんぱつ","n|vs|vi","xảy ra liên tục | thường xuyên xảy ra | dồn dập | liên tiếp diễn ra","frequent occurrence","1491040"),
+    ("風雅","ふうが","n|adj-na","phong nhã | thanh tao | tao nhã | gu thẩm mỹ tinh tế | thú thanh cao","elegance | refinement | refined taste","1499780"),
+    ("風教","ふうきょう","n","phong hóa | luân thường đạo lý | nền nếp đạo đức xã hội","morals | moral influence","1844230"),
+    ("封緘","ふうかん","n|vs|vt","niêm phong | dán kín (thư) | đóng dấu niêm","sealing (a letter)","1729340"),
+    ("風光","ふうこう","n","phong cảnh | cảnh đẹp | vẻ đẹp thiên nhiên (風光明媚)","beautiful scenery | natural beauty","1624680"),
+    ("風塵","ふうじん","n","bụi gió cuốn | cát bụi | cõi tục lụy | nỗi lo toan trần thế","wind-blown dust | worldly affairs","1844360"),
+    ("風霜","ふうそう","n","gió sương | gió và sương giá | gian khổ | sương gió cuộc đời","wind and frost | hardships","1844410"),
+]
+rows=[row(*d) for d in DATA]
+open(OUT,"w",encoding="utf-8",newline="\n").write(HEADER+"\n"+"\n".join(rows)+"\n")
+print(f"Written {len(rows)} rows")

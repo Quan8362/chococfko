@@ -1,0 +1,76 @@
+# -*- coding: utf-8 -*-
+"""Build N1 ready wave 042 — formal/colloquial nouns + 慣用句 (set 42)."""
+import os
+OUT = os.path.join(os.path.dirname(__file__), "..", "data", "japanese", "jmdict-n1-vi-ready-042.csv")
+HEADER = "word,reading,romaji,jlpt_level,pos,meaning_vi,meaning_en,tags,frequency,source,source_id,license,attribution,example_jp,example_reading,example_vi,example_en,review_status,meaning_source"
+LIC = "CC BY-SA 3.0 — verify at edrdg.org before production use"
+def q(v): return '"' + str(v).replace('"','""') + '"'
+def row(w,r,p,vi,en,s):
+    return ",".join([q(w),q(r),q(""),q("N1"),q(p),q(vi),q(en),q(""),q("0"),q("jmdict"),q(s),q(LIC),q("JMdict/EDRDG"),q(""),q(""),q(""),q(""),q("ai_draft"),q("jmdict_ai")])
+DATA = [
+    ("骨董品","こっとうひん","n","đồ cổ | cổ vật | đồ sưu tầm | đồ xưa","a curio | an antique","1288710"),
+    ("小細工","こざいく","n","tiểu xảo | mánh khóe vặt | thủ đoạn vụng | trò vặt","a cheap trick | a petty ploy | delicate handiwork","1348110"),
+    ("御曹司","おんぞうし","n","công tử | cậu ấm | con nhà quyền quý | thiếu gia","the son of a distinguished family | a young master","1270470"),
+    ("小春","こはる","n","tháng mười âm lịch | đầu đông | cuối thu (小春日和)","the 10th lunar month | late autumn","1348270"),
+    ("御利益","ごりやく","n","phúc lành | ơn trên | sự linh nghiệm | lợi ích thần ban","divine grace | a blessing | an answered prayer","1878090"),
+    ("転がし","ころがし","n","sự lăn | việc đảo qua đảo lại | mua đi bán lại kiếm lời | lật đổ","rolling | repeatedly buying and selling","2270080"),
+    ("細工","さいく","n|vs|vt","công việc thủ công | tay nghề | mánh khóe | gian lận | làm giả","workmanship | handiwork | a trick | tampering","1295610"),
+    ("盛り","さかり","n|n-suf","lúc đỉnh điểm | thời kỳ rộ | thời sung mãn | mùa cao điểm | động dục","the height (of) | the peak | one's prime | (in) heat","1379640"),
+    ("先回り","さきまわり","n|vs|vi","đi trước đón đầu | đoán trước | chặn đầu | tới trước","going on ahead | forestalling | anticipating","1387360"),
+    ("差し金","さしがね","n","thước thợ | sự xúi giục | giật dây | bày mưu (someone's doing)","a carpenter's square | instigation | manipulation","1789650"),
+    ("殺気","さっき","n","sát khí | khí thế giết chóc | hơi hướng chết chóc (殺気立つ)","bloodlust | a thirst for blood","1299060"),
+    ("左党","さとう","n","người thích rượu | dân nhậu | bợm rượu | phe cánh tả","a drinker | a person fond of alcohol","1291010"),
+    ("鯖","さば","n","cá thu | cá nục hoa | server (lóng game) (鯖を読む: nói dối số)","mackerel | a server (slang)","1299610"),
+    ("五月晴れ","さつきばれ","n","ngày nắng đẹp giữa mùa mưa | hửng nắng mùa mưa","fine weather during the rainy season","1268220"),
+    ("障り","さわり","n","trở ngại | điều bất tiện | ảnh hưởng xấu | chu kỳ kinh nguyệt","a hindrance | a bad effect | menstruation","1853200"),
+    ("三拝九拝","さんぱいきゅうはい","n|vs|vi","ba lạy chín vái | cúi đầu khẩn cầu nhiều lần | kính cẩn vái lạy","kowtowing | bowing repeatedly | my deepest respects","1301410"),
+    ("三文","さんもん","n|n-pref","ba xu | rẻ mạt | bèo bọt | giá trị không đáng (二束三文)","a paltry amount | cheapness | worthlessness","1301590"),
+    ("塩梅","あんばい","n|vs|vt","nêm nếm | hương vị | tình trạng | tình hình | cách sắp xếp | sức khỏe","seasoning | condition | arrangement | (state of) health","1586960"),
+    ("直談判","じかだんぱん","n|vs|vi","đàm phán trực tiếp | thương lượng tay đôi | nói chuyện trực diện","direct negotiations | talking in person","1431410"),
+    ("四角四面","しかくしめん","adj-na|adj-no|n","vuông vức cứng nhắc | quá nghiêm trang | khô khan câu nệ | nghiêm nghị","square | overly formal | stuffy | prim","1633250"),
+    ("時化る","しける","v1|vi","biển động | gặp lúc khó khăn | túng thiếu | ủ rũ | ảm đạm","to be stormy (sea) | to go through hard times | to be gloomy","1315900"),
+    ("地獄耳","じごくみみ","n|exp","tai thính | thính tin đồn | nghe ngóng nhanh | nhớ dai mọi điều nghe được","being quick to learn secrets | having sharp ears","1942310"),
+    ("仕儀","しぎ","n","tình thế | cục diện | diễn biến | kết cục (khó xử)","a situation | developments | an outcome","1304860"),
+    ("死出の旅","しでのたび","exp|n","chuyến đi cuối cùng | hành trình sang thế giới bên kia | cái chết","one's last journey | the journey to the afterlife","2105540"),
+    ("品定め","しなさだめ","n|vs|vt","đánh giá | thẩm định | bình phẩm | nhận xét | bàn tán","evaluation | appraisal | commenting on","1805520"),
+    ("鎬","しのぎ","n","sống lưỡi kiếm | gờ trên thân kiếm (鎬を削る: tranh đấu ác liệt)","the ridge on the side of a sword blade","2055730"),
+    ("四の五の","しのごの","exp|adv","lằng nhằng | càu nhàu chuyện này chuyện kia | lý sự dông dài","complaining about this and that","2854324"),
+    ("忍び足","しのびあし","n","bước chân rón rén | đi nhẹ nhàng | rón rén | nhón chân","stealthy steps | soft footsteps","1467440"),
+    ("痺れ","しびれ","n","tê | tê liệt | tê rần | tê cứng (chân tay)","numbness | pins and needles","1569610"),
+    ("始末書","しまつしょ","n","bản tường trình | bản kiểm điểm | bản giải trình tạ lỗi","a written explanation | a written apology","1733160"),
+    ("締まり","しまり","n","sự đóng chặt | tính kỷ luật | sự chặt chẽ | tính tiết kiệm | kết thúc","firmness | discipline | thrift | conclusion","1881440"),
+    ("釈迦","しゃか","n","Đức Phật Thích Ca | Thích Ca Mâu Ni | Phật Tổ","Gautama Buddha | Shakyamuni","1324230"),
+    ("邪険","じゃけん","adj-na|n","cay nghiệt | tàn nhẫn | lạnh lùng | thô bạo | nhẫn tâm","cruel | hard-hearted | harsh | unkind","1323460"),
+    ("杓子","しゃくし","n","vá tre | muôi múc | cái môi (杓子定規)","a bamboo ladle","1324150"),
+    ("洒落っ気","しゃれっけ","n","ý thích ăn diện | sự chăm chút vẻ ngoài | óc hài hước | duyên dáng","fashion-consciousness | wit | humor","1568660"),
+    ("重鎮","じゅうちん","n","trụ cột | nhân vật kỳ cựu | bậc uy quyền | chỗ dựa | đại thụ","a leader | an authority | a mainstay","1336560"),
+    ("祝儀","しゅうぎ","n","lễ mừng | tiệc cưới | tiền mừng | tiền boa | quà chúc mừng","a celebration | a congratulatory gift | a tip","1337420"),
+    ("宿命","しゅくめい","n","số mệnh | định mệnh | số phận | tiền định","fate | destiny | predestination","1337330"),
+    ("朱肉","しゅにく","n","mực đỏ đóng dấu | hộp mực son | mực son đóng triện","red ink pad (for seals) | vermillion ink","1328600"),
+    ("潤滑油","じゅんかつゆ","n","dầu bôi trơn | chất bôi trơn | người/vật làm trơn tru mọi việc","lubricating oil | a facilitator","1341830"),
+    ("順送り","じゅんおくり","n","chuyền tay theo thứ tự | đưa lần lượt | luân chuyển | gửi tiếp","passing along in order | sending on","1736610"),
+    ("正味","しょうみ","adj-no|n","thực chất | trọng lượng tịnh | thời gian thực | giá gốc | phần ròng","net (amount/weight) | actual content | cost price","1377980"),
+    ("精進落とし","しょうじんおとし","n","bữa ăn mặn sau kỳ chay | dỡ chay | trở lại ăn mặn sau tang lễ","ending a period of abstinence (after a funeral)","2128910"),
+    ("焦土","しょうど","n","đất cháy | bãi đất hoang tàn | tro tàn chiến tranh | cảnh đổ nát","scorched earth","1656670"),
+    ("精霊流し","しょうりょうながし","n","thả đèn tiễn vong | lễ thả đèn cho linh hồn người mất","floating lanterns for the spirits of the dead","1751460"),
+    ("食い扶持","くいぶち","n","tiền ăn | chi phí ăn uống | miếng cơm manh áo | tiền nuôi miệng","food expenses | the cost of one's board","1839520"),
+    ("所作","しょさ","n","cử chỉ | hành vi | điệu bộ | động tác diễn xuất | điệu múa","conduct | gesture | a performance | a dance","1343230"),
+    ("処世術","しょせいじゅつ","n","thuật xử thế | nghệ thuật sống ở đời | bí quyết thành công trên đời","worldly wisdom | the secret of success in life","1342460"),
+    ("尻目","しりめ","n","liếc xéo | nhìn khinh khỉnh | phớt lờ | bỏ mặc (尻目にかける)","a sidelong glance | disregarding | ignoring","1741740"),
+    ("辛党","からとう","n","người thích đồ cay | dân thích nhậu hơn ngọt | người ưa cay","a person fond of spicy food or alcohol","1365920"),
+    ("尻すぼまり","しりすぼまり","adj-na|adj-no","đầu voi đuôi chuột | yếu dần | xìu dần | hụt hơi về cuối","attenuating | fizzling out","1741790"),
+    ("辛気臭い","しんきくさい","adj-i","ảm đạm | u ám | bực bội | tẻ nhạt | chán ngắt | rầu rĩ","depressing | grim | tedious | irritating","1720140"),
+    ("人後","じんご","n|adv","thua kém người | đứng sau người (人後に落ちない: không thua ai)","behind others | losing out to others","1367270"),
+    ("信賞","しんしょう","n","thưởng công xứng đáng | tưởng thưởng công trạng (信賞必罰)","rewarding merit","2870373"),
+    ("末枯れ","うらがれ","n","cây khô héo ngọn | cành lá tàn úa | héo dần ngọn","the dying of twigs and branches","1525340"),
+    ("すすり泣き","すすりなき","n|vs","tiếng nức nở | sụt sùi | thổn thức | khóc rấm rứt","sobbing | weeping","1955410"),
+    ("脛","すね","n","ống chân | cẳng chân | ống quyển | bắp chân (脛をかじる)","the shin | the shank | the lower leg","1570850"),
+    ("墨付き","すみつき","n","sự bảo chứng | giấy chứng nhận | cái gật đầu của cấp trên | đảm bảo","a certificate | a seal of approval | the thumbs up","1521680"),
+    ("青雲","せいうん","n","trời xanh | mây xanh | chí cao | địa vị cao | thanh cao thoát tục","the blue sky | high rank | lofty ideals","1750300"),
+    ("贅肉","ぜいにく","n","mỡ thừa | thịt dư | ngấn mỡ | phần béo dư","excess flab | surplus fat","1802740"),
+    ("関取","せきとり","n","đô vật sumo hạng cao | lực sĩ sumo có hạng | tuyển thủ sumo chính thức","a ranking sumo wrestler","1614310"),
+    ("世間体","せけんてい","n","thể diện | sĩ diện với đời | bộ mặt trước xã hội | con mắt thiên hạ","appearance in the eyes of society | decency","1645820"),
+]
+rows=[row(*d) for d in DATA]
+open(OUT,"w",encoding="utf-8",newline="\n").write(HEADER+"\n"+"\n".join(rows)+"\n")
+print(f"Written {len(rows)} rows")

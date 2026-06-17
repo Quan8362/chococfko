@@ -1,0 +1,35 @@
+# -*- coding: utf-8 -*-
+"""Build N1 ready wave 076 — 慣用句 idiomatic expressions (set 76)."""
+import os
+OUT = os.path.join(os.path.dirname(__file__), "..", "data", "japanese", "jmdict-n1-vi-ready-076.csv")
+HEADER = "word,reading,romaji,jlpt_level,pos,meaning_vi,meaning_en,tags,frequency,source,source_id,license,attribution,example_jp,example_reading,example_vi,example_en,review_status,meaning_source"
+LIC = "CC BY-SA 3.0 — verify at edrdg.org before production use"
+def q(v): return '"' + str(v).replace('"','""') + '"'
+def row(w,r,p,vi,en,s):
+    return ",".join([q(w),q(r),q(""),q("N1"),q(p),q(vi),q(en),q(""),q("0"),q("jmdict"),q(s),q(LIC),q("JMdict/EDRDG"),q(""),q(""),q(""),q(""),q("ai_draft"),q("jmdict_ai")])
+DATA = [
+    ("腕を磨く","うでをみがく","exp|v5k","mài giũa tay nghề | trau dồi kỹ năng | rèn luyện bản lĩnh | nâng cao tay nghề","to polish one's skills","2102290"),
+    ("肩を並べる","かたをならべる","exp|v1","sánh vai | ngang hàng | đứng cùng đẳng cấp | so kè ngang ngửa","to be on a par with | to stand shoulder-to-shoulder","2102910"),
+    ("口車に乗せる","くちぐるまにのせる","exp|v1","dụ dỗ bằng lời ngọt | tán tỉnh lừa phỉnh | dỗ ngọt | gạt bằng lời đường mật","to deceive with smooth talk | to wheedle","2836491"),
+    ("腰が重い","こしがおもい","exp","chậm chạp | lề mề khởi động | ngại bắt tay làm | ì ạch","slow to act | slow in starting work","1640180"),
+    ("死力を尽くす","しりょくをつくす","exp|v5s","dốc toàn lực | gắng hết sức bình sinh | liều mạng cố gắng | nỗ lực tột cùng","to make an all-out effort | to try desperately","1883520"),
+    ("腑分け","ふわけ","n|vs|vt","mổ xẻ | giải phẫu | phân tích kỹ lưỡng | mổ xẻ vấn đề | sắp xếp phân loại","dissection | autopsy | analysis (of a problem)","2529750"),
+    ("手綱を締める","たづなをしめる","exp|v1","ghìm cương | siết chặt quản lý | kiềm chế | đưa vào khuôn khổ","to tighten the reins | to bring under control","2833772"),
+    ("泣きを見る","なきをみる","exp|v1","nếm trải cay đắng | chịu thiệt thòi | rơi vào cảnh khó | lãnh hậu quả","to suffer a bad experience | to be put in a tough spot","2402700"),
+    ("腹を割って話す","はらをわってはなす","exp|v5s","nói thẳng ruột gan | tâm sự thật lòng | trải lòng | nói chuyện thẳng thắn","to speak frankly | to have a heart-to-heart talk","2534360"),
+    ("人目を忍ぶ","ひとめをしのぶ","exp|v5b","tránh ánh mắt người đời | lén lút | giấu giếm | làm vụng trộm","to avoid being seen | to be clandestine","2126560"),
+    ("物にする","ものにする","exp|vs-i","làm chủ | thành thạo | chiếm được | đạt được | nắm bắt | chinh phục (trái tim)","to master | to make one's own | to win over","1012670"),
+    ("噛んで含める","かんでふくめる","exp|v1","giảng giải tỉ mỉ | giải thích cặn kẽ dễ hiểu | bón từng thìa kiến thức | dạy từ từ","to explain carefully in simple terms | to spoon-feed","2122430"),
+    ("首を縦に振る","くびをたてにふる","exp|v5r","gật đầu đồng ý | chấp thuận | gật đầu tán thành","to nod yes | to agree","2542790"),
+    ("心を込める","こころをこめる","exp|v1","dồn cả tấm lòng | làm bằng cả trái tim | tận tâm | hết lòng | đặt cả tâm huyết","to do wholeheartedly | to put one's heart into","2027890"),
+    ("白い目で見る","しろいめでみる","exp|v1","nhìn bằng con mắt lạnh nhạt | nhìn ghẻ lạnh | nhìn với ánh mắt khinh thị | hắt hủi","to look coldly at | to turn a cold shoulder","2028410"),
+    ("背筋が凍る","せすじがこおる","exp|v5r","lạnh sống lưng | ớn lạnh xương sống | rùng mình ghê sợ | sởn gai ốc","to have a chill run down one's spine","2866131"),
+    ("頂門の一針","ちょうもんのいっしん","exp|n","lời cảnh tỉnh thấm thía | lời phê bình chí mạng | mũi kim châm tỉnh ngộ","a painful but apt reproach","1776940"),
+    ("手玉","てだま","n","túi đậu | hòn chơi đánh chuyền | bi cái (手玉に取る: thao túng)","beanbags | jackstones","1628650"),
+    ("腹に一物","はらにいちもつ","exp","bụng dạ tính toan | có ý đồ ngầm | giấu mưu trong lòng | toan tính riêng","a secret plot | a trick up one's sleeve","2866068"),
+    ("水を向ける","みずをむける","exp|v1","gợi chuyện | khơi gợi để dò ý | dẫn dắt moi tin | thăm dò khéo léo","to try and draw someone out | to fish for information","2116140"),
+    ("耳を疑う","みみをうたがう","exp|v5u","không tin vào tai mình | nghi ngờ tai mình | sửng sốt khi nghe","to not believe one's ears","2402950"),
+]
+rows=[row(*d) for d in DATA]
+open(OUT,"w",encoding="utf-8",newline="\n").write(HEADER+"\n"+"\n".join(rows)+"\n")
+print(f"Written {len(rows)} rows")

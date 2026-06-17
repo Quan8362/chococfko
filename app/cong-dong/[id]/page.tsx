@@ -61,6 +61,12 @@ export default async function PostDetail({ params }: { params: { id: string } })
 
   const t = await getTranslations('common')
   const tCat = await getTranslations('categories')
+  const tCom = await getTranslations('community')
+
+  const COMMUNITY_CATS = ['life', 'paperwork', 'transport', 'study', 'work', 'story']
+  const categoryLabel = COMMUNITY_CATS.includes(post.category)
+    ? tCom(`cat_${post.category}` as Parameters<typeof tCom>[0])
+    : tCat(post.category as Parameters<typeof tCat>[0])
 
   return (
     <article className="pb-16">
@@ -84,7 +90,7 @@ export default async function PostDetail({ params }: { params: { id: string } })
             </Link>
             <div className="flex items-center gap-2.5 mb-3 flex-wrap">
               <span className="bg-[rgba(255,253,248,0.94)] text-rose-deep text-[12px] font-bold px-3 py-[5px] rounded-full uppercase tracking-[0.5px]">
-                {tCat(post.category as Parameters<typeof tCat>[0])}
+                {categoryLabel}
               </span>
               <span className="text-gold text-[15px] tracking-[2px]">
                 {'★'.repeat(post.rating)}

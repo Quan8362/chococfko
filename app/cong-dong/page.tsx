@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
-import { posts as staticPosts, getPostsFromDb } from '@/lib/posts'
+import { getPostsFromDb } from '@/lib/posts'
 import { checkIsAdmin } from '@/lib/supabase/admin'
 import PostFeed from '@/components/PostFeed'
 
@@ -13,7 +13,7 @@ export const dynamic = 'force-dynamic'
 export default async function CongDong() {
   const t = await getTranslations('community')
   const [dbPosts, isAdmin] = await Promise.all([getPostsFromDb(), checkIsAdmin()])
-  const displayPosts = dbPosts ?? staticPosts
+  const displayPosts = dbPosts ?? []
 
   return (
     <>
@@ -51,7 +51,7 @@ export default async function CongDong() {
                 {t('cta_write')}
               </Link>
               <Link
-                href="/"
+                href="#chu-de"
                 className="inline-flex items-center font-semibold text-[14px] px-6 py-[11px] rounded-full border border-[#c8b8a8] text-[#5c4d44] hover:border-ink hover:bg-ink hover:text-cream transition-all"
               >
                 {t('cta_explore')}
@@ -62,7 +62,7 @@ export default async function CongDong() {
       </section>
 
       {/* ── POSTS ────────────────────────────────────────────── */}
-      <section className="pt-6 pb-[60px]">
+      <section id="chu-de" className="pt-6 pb-[60px] scroll-mt-24">
         <div className="max-w-[1240px] mx-auto px-6">
           {/* Section header */}
           <div className="flex items-end justify-between flex-wrap gap-3 mb-6">

@@ -24,6 +24,13 @@ const CATEGORY_LABEL: Record<string, string> = {
   cafe_milk_tea: 'Cà phê & trà sữa',
   kids_playground: 'Khu vui chơi dành cho bé',
   onsen: 'Onsen',
+  // Community article categories
+  life: 'Cuộc sống ở Nhật',
+  paperwork: 'Giấy tờ & thủ tục',
+  transport: 'Đi lại & mua sắm',
+  study: 'Học tập & tiếng Nhật',
+  work: 'Công việc & tìm việc',
+  story: 'Chia sẻ cá nhân',
 }
 
 function mapAuthError(msg: string, lang: 'login' | 'register', t: (key: string) => string): string {

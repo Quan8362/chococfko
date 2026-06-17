@@ -7,92 +7,53 @@ import { avatarSrc } from "@/lib/avatar";
 import { useTranslations } from "next-intl";
 import type { Post } from "@/lib/posts";
 
-const CAT_EMOJI: Record<string, string> = {
-  landmark: "🏯", food: "🍜", sea: "🏖️", camp: "⛺", mountain: "⛰️",
-  park: "🌳", viet: "🥢", grocery: "🛒", izakaya: "🍺",
-  japanese: "🍣", thai: "🌶️", chinese: "🥡", korean: "🥩",
-  cafe_milk_tea: "☕",
-  kids_playground: "🎠",
-  onsen: "♨️",
-};
+// Community article categories (post_type = 'community')
+const COMMUNITY_CATS = [
+  { f: "life",      emoji: "🏠", key: "cat_life" },
+  { f: "paperwork", emoji: "📋", key: "cat_paperwork" },
+  { f: "transport", emoji: "🚃", key: "cat_transport" },
+  { f: "study",     emoji: "📚", key: "cat_study" },
+  { f: "work",      emoji: "💼", key: "cat_work" },
+  { f: "story",     emoji: "💬", key: "cat_story" },
+] as const;
 
-// Maps Vietnamese time-of-day area strings to translation keys
-const AREA_TIME_MAP: Record<string, string> = {
-  "Tối": "area_toi",
-  "Sáng": "area_sang",
-  "Trưa": "area_trua",
-  "Chiều": "area_chieu",
-  "Trưa / Tối": "area_trua_toi",
-};
-
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-function Stars({ n }: { n: number }) {
-  return (
-    <div className="flex items-center gap-0.5">
-      {Array.from({ length: 5 }).map((_, i) => (
-        <svg
-          key={i}
-          className={`w-3 h-3 ${i < n ? "text-gold" : "text-line"}`}
-          fill="currentColor"
-          viewBox="0 0 20 20"
-        >
-          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.372 1.24.588 1.81l-3.37 2.449a1 1 0 00-.364 1.118l1.286 3.957c.3.921-.755 1.688-1.54 1.118L10 15.347l-3.37 2.449c-.784.57-1.838-.197-1.539-1.118l1.286-3.957a1 1 0 00-.364-1.118L2.644 9.384c-.784-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69L9.05 2.927z" />
-        </svg>
-      ))}
-    </div>
-  );
-}
+const CAT_EMOJI: Record<string, string> = Object.fromEntries(
+  COMMUNITY_CATS.map((c) => [c.f, c.emoji]),
+);
 
 interface Props {
   posts: Post[];
   isAdmin?: boolean;
 }
 
-export default function PostFeed({ posts, isAdmin = false }: Props) {
-  const t = useTranslations("filters");
-  const tc = useTranslations("common");
+export default function PostFeed({ posts }: Props) {
+  const t = useTranslations("community");
   const [active, setActive] = useState("all");
 
-  const ALL_CATEGORY_FILTERS = [
-    { f: "landmark", emoji: "🏯",  label: t("landmark") },
-    { f: "food",     emoji: "🍜",  label: t("food") },
-    { f: "sea",      emoji: "🏖️", label: t("sea") },
-    { f: "camp",     emoji: "⛺",  label: t("camp") },
-    { f: "mountain", emoji: "⛰️", label: t("mountain") },
-    { f: "park",     emoji: "🌳",  label: t("park") },
-    { f: "viet",     emoji: "🥢",  label: t("viet") },
-    { f: "grocery",  emoji: "🛒",  label: t("grocery") },
-    { f: "izakaya",  emoji: "🍺",  label: t("izakaya") },
-    { f: "japanese", emoji: "🍣",  label: t("japanese") },
-    { f: "thai",     emoji: "🌶️", label: t("thai") },
-    { f: "chinese",  emoji: "🥡",  label: t("chinese") },
-    { f: "korean",   emoji: "🥩",  label: t("korean") },
-  ];
-
-  // Chỉ hiển thị chip cho category có ít nhất 1 bài viết
+  // Only show a chip for categories that actually have posts
   const FILTERS = [
-    { f: "all", emoji: null, label: t("all") },
-    ...ALL_CATEGORY_FILTERS.filter(({ f }) => posts.some((p) => p.category === f)),
+    { f: "all", emoji: null, label: t("cat_all") },
+    ...COMMUNITY_CATS.filter(({ f }) => posts.some((p) => p.category === f)).map(
+      ({ f, emoji, key }) => ({ f, emoji, label: t(key as Parameters<typeof t>[0]) }),
+    ),
   ];
 
   const shown = posts.filter((p) => active === "all" || p.category === active);
 
-  function translateArea(area: string): string {
-    const raw = area.split("·")[0].trim();
-    const key = AREA_TIME_MAP[raw];
-    return key ? tc(key as Parameters<typeof tc>[0]) : raw;
+  function catLabel(p: Post): string {
+    const cat = COMMUNITY_CATS.find((c) => c.f === p.category);
+    return cat ? t(cat.key as Parameters<typeof t>[0]) : p.categoryLabel;
   }
 
   return (
     <>
-      {/* ── Category filter ───────────────────────────── */}
-      <div className="flex gap-1.5 flex-wrap mb-7">
+      {/* ── Category filter — horizontally scrollable on mobile ── */}
+      <div className="flex gap-2 mb-7 overflow-x-auto pb-1.5 -mx-1 px-1 sm:flex-wrap sm:overflow-visible sm:mx-0 sm:px-0 sm:pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {FILTERS.map((f) => (
           <button
             key={f.f}
             onClick={() => setActive(f.f)}
-            className={`inline-flex items-center gap-1.5 text-[12.5px] font-medium px-4 py-[8px] rounded-full border transition-all ${
+            className={`inline-flex flex-none items-center gap-1.5 text-[12.5px] font-medium px-4 py-[8px] rounded-full border whitespace-nowrap transition-all ${
               active === f.f
                 ? "bg-rose text-white border-rose shadow-[0_2px_10px_rgba(194,24,91,0.25)]"
                 : "bg-paper text-[#5c4d44] border-line hover:bg-rose-soft hover:border-rose/40 hover:text-rose"
@@ -106,15 +67,23 @@ export default function PostFeed({ posts, isAdmin = false }: Props) {
 
       {/* ── Post grid ─────────────────────────────────── */}
       {shown.length === 0 ? (
-        <div className="bg-paper border border-line rounded-2xl py-16 text-center">
-          <div className="text-[36px] mb-3">✍️</div>
-          <p className="text-muted text-[14px]">{tc("no_posts_feed")}</p>
+        <div className="bg-paper border border-line rounded-2xl py-16 px-6 text-center">
+          <div className="text-[40px] mb-4">✍️</div>
+          <h3 className="font-serif font-bold text-[20px] text-ink mb-2">{t("empty_title")}</h3>
+          <p className="text-muted text-[14px] max-w-[420px] mx-auto leading-[1.7] mb-6">
+            {t("empty_sub")}
+          </p>
+          <Link
+            href="/cong-dong/viet-bai"
+            className="inline-flex items-center gap-2 font-semibold text-[14px] px-6 py-[11px] rounded-full bg-rose text-white shadow-[0_4px_14px_-4px_rgba(194,24,91,0.45)] hover:bg-rose-deep hover:-translate-y-px transition-all"
+          >
+            {t("empty_cta")}
+          </Link>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {shown.map((p) => {
-            const isDbPost = UUID_RE.test(p.id);
-            const displayArea = translateArea(p.area);
+            const label = catLabel(p);
             return (
               <article
                 key={p.id}
@@ -130,9 +99,9 @@ export default function PostFeed({ posts, isAdmin = false }: Props) {
                     p.big ? "sm:flex-[1.1] min-h-[240px]" : "h-[200px]"
                   }`}
                 >
-                  {/* Area tag */}
+                  {/* Category tag */}
                   <span className="absolute top-3 left-3 z-[2] bg-paper/95 text-rose-deep text-[10.5px] font-semibold tracking-[0.5px] uppercase px-2.5 py-[5px] rounded-full shadow-sm">
-                    {displayArea}
+                    {label}
                   </span>
                   {/* Category emoji */}
                   {CAT_EMOJI[p.category] && (
@@ -150,12 +119,11 @@ export default function PostFeed({ posts, isAdmin = false }: Props) {
 
                 {/* Content */}
                 <div className={`flex flex-col flex-1 ${p.big ? "p-7 justify-center" : "p-4"}`}>
-                  {/* Area + rating row */}
-                  <div className="flex items-center justify-between gap-2 mb-2">
+                  {/* Category row */}
+                  <div className="mb-2">
                     <span className="text-[11px] text-teal font-semibold tracking-[0.8px] uppercase">
-                      {p.area}
+                      {label}
                     </span>
-                    <Stars n={p.rating} />
                   </div>
 
                   {/* Title */}

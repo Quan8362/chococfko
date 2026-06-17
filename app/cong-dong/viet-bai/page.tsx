@@ -49,10 +49,10 @@ export default async function VietBai({
     redirect('/dia-diem/dang')
   }
 
-  const [user, t, tf] = await Promise.all([
+  const [user, t, tcat] = await Promise.all([
     getUser(),
     getTranslations('post_form'),
-    getTranslations('filters'),
+    getTranslations('community'),
   ])
   const tn = await getTranslations('nav')
 
@@ -164,25 +164,15 @@ export default async function VietBai({
                   <div className="relative">
                     <select
                       name="category"
-                      defaultValue="food"
+                      defaultValue="life"
                       className="w-full appearance-none text-[14px] px-3.5 py-2.5 pr-9 border border-line rounded-xl bg-white focus:outline-none focus:border-rose focus:ring-2 focus:ring-rose/15 transition-all text-ink"
                     >
-                      <option value="landmark">{tf('landmark')}</option>
-                      <option value="food">{tf('food')}</option>
-                      <option value="sea">{tf('sea')}</option>
-                      <option value="camp">{tf('camp')}</option>
-                      <option value="mountain">{tf('mountain')}</option>
-                      <option value="park">{tf('park')}</option>
-                      <option value="viet">{tf('viet')}</option>
-                      <option value="grocery">{tf('grocery')}</option>
-                      <option value="izakaya">{tf('izakaya')}</option>
-                      <option value="japanese">{tf('japanese')}</option>
-                      <option value="thai">{tf('thai')}</option>
-                      <option value="chinese">{tf('chinese')}</option>
-                      <option value="korean">{tf('korean')}</option>
-                      <option value="cafe_milk_tea">{tf('cafe_milk_tea')}</option>
-                      <option value="kids_playground">{tf('kids_playground')}</option>
-                      <option value="onsen">{tf('onsen')}</option>
+                      <option value="life">{tcat('cat_life')}</option>
+                      <option value="paperwork">{tcat('cat_paperwork')}</option>
+                      <option value="transport">{tcat('cat_transport')}</option>
+                      <option value="study">{tcat('cat_study')}</option>
+                      <option value="work">{tcat('cat_work')}</option>
+                      <option value="story">{tcat('cat_story')}</option>
                     </select>
                     <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />

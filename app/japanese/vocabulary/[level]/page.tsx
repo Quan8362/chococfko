@@ -1,0 +1,107 @@
+import Link from 'next/link'
+import { notFound } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
+import { createClient } from '@/lib/supabase/server'
+import { dbLevel, urlLevel } from '@/components/japanese/LevelPicker'
+import JlptBadge from '@/components/japanese/JlptBadge'
+import VocabularyClient from './VocabularyClient'
+import { fetchAllUserProgress } from '@/app/japanese/actions'
+import { getJapaneseCommentCounts } from '@/app/japanese/comment-actions'
+import { getAllWordsForLevel } from '@/lib/japanese/words'
+
+export const dynamic = 'force-dynamic'
+
+export async function generateMetadata({ params }: { params: { level: string } }) {
+  const level = dbLevel(params.level)
+  if (!level) return {}
+  const t = await getTranslations('japanese')
+  return {
+    title: `${level} ${t('vocab_heading')} · ${t('page_heading')}`,
+    alternates: { canonical: `https://chococfko.com/japanese/vocabulary/${urlLevel(level)}` },
+  }
+}
+
+interface Props {
+  params: { level: string }
+}
+
+export default async function VocabularyLevelPage({ params }: Props) {
+  const level = dbLevel(params.level)
+  if (!level) notFound()
+
+  const [t, supabase] = await Promise.all([
+    getTranslations('japanese'),
+    Promise.resolve(createClient()),
+  ])
+
+  const { data: { user } } = await supabase.auth.getUser()
+  const [words, commentCounts] = await Promise.all([
+    getAllWordsForLevel(level),
+    getJapaneseCommentCounts('word'),
+  ])
+  const initialProgress = user ? await fetchAllUserProgress() : {}
+
+  const levelDescs: Record<string, string> = {
+    N5: t('n5_desc'),
+    N4: t('n4_desc'),
+    N3: t('n3_desc'),
+    N2: t('n2_desc'),
+    N1: t('n1_desc'),
+  }
+
+  return (
+    <div className="max-w-[960px] mx-auto px-5 sm:px-6 py-10 pb-20">
+
+      {/* Breadcrumb */}
+      <nav className="flex items-center gap-1.5 text-[12.5px] text-muted mb-8 flex-wrap">
+        <Link href="/japanese" className="hover:text-rose transition-colors">
+          {t('page_heading')}
+        </Link>
+        <span>/</span>
+        <Link href="/japanese/vocabulary" className="hover:text-rose transition-colors">
+          {t('vocab_heading')}
+        </Link>
+        <span>/</span>
+        <span className="text-ink font-semibold">{level}</span>
+      </nav>
+
+      {/* Header */}
+      <div className="mb-8 flex items-start justify-between flex-wrap gap-4">
+        <div>
+          <div className="flex items-center gap-3 mb-2">
+            <h1 className="font-serif font-bold text-[clamp(24px,4vw,36px)] text-ink leading-tight">
+              {level}
+            </h1>
+            <JlptBadge level={level} />
+          </div>
+          <p className="text-[14px] text-muted">{levelDescs[level]}</p>
+        </div>
+        {/* Level nav */}
+        <div className="flex items-center gap-1.5 flex-wrap">
+          {(['N5', 'N4', 'N3', 'N2', 'N1'] as const).map(l => (
+            <Link
+              key={l}
+              href={`/japanese/vocabulary/${urlLevel(l)}`}
+              className={`text-[12px] font-bold px-2.5 py-1 rounded-lg transition-colors ${
+                l === level
+                  ? 'bg-rose text-white'
+                  : 'bg-cream text-muted hover:text-ink hover:bg-line'
+              }`}
+            >
+              {l}
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      {/* Vocabulary client — search, filter, cards */}
+      <VocabularyClient
+        words={words}
+        initialProgress={initialProgress}
+        isLoggedIn={!!user}
+        level={urlLevel(level)}
+        commentCounts={commentCounts}
+      />
+    </div>
+  )
+}

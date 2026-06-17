@@ -16,6 +16,37 @@ const SECURITY_HEADERS = [
   { key: 'Permissions-Policy', value: 'camera=(self), microphone=(self), geolocation=(self)' },
 ]
 
+// Permanent (308) redirects from the old Vietnamese public URLs to the new
+// English URLs. Next's `permanent: true` emits 308 Permanent Redirect, which
+// Google treats equivalently to 301 for ranking/consolidation. Order matters:
+// more specific sub-routes are listed before their generic wildcard so they win.
+// `:path*` matches zero-or-more trailing segments, so each rule also covers the
+// bare base path (e.g. /tieng-nhat/tu-dien → /japanese/dictionary).
+// Note: /dia-diem/:path* will NOT match /dia-diem-da-luu (different segment),
+// so the saved-places route is left untouched.
+const LEGACY_REDIRECTS = [
+  // ── Japanese learning ──────────────────────────────────────────────
+  { source: '/tieng-nhat/tu-dien/:path*',   destination: '/japanese/dictionary/:path*' },
+  { source: '/tieng-nhat/tu-vung/:path*',   destination: '/japanese/vocabulary/:path*' },
+  { source: '/tieng-nhat/ngu-phap/:path*',  destination: '/japanese/grammar/:path*' },
+  { source: '/tieng-nhat/kanji/:path*',     destination: '/japanese/kanji/:path*' },
+  { source: '/tieng-nhat/luyen-tap/:path*', destination: '/japanese/practice/:path*' },
+  { source: '/tieng-nhat/flashcard/:path*', destination: '/japanese/flashcards/:path*' },
+  { source: '/tieng-nhat/tap-viet/:path*',  destination: '/japanese/writing/:path*' },
+  { source: '/tieng-nhat/thi-thu/:path*',   destination: '/japanese/jlpt-mock-test/:path*' },
+  { source: '/tieng-nhat/ho-so/:path*',     destination: '/japanese/profile/:path*' },
+  { source: '/tieng-nhat/:path*',           destination: '/japanese/:path*' },
+
+  // ── Community ──────────────────────────────────────────────────────
+  { source: '/cong-dong/viet-bai/:path*',   destination: '/community/write/:path*' },
+  { source: '/cong-dong/:path*',            destination: '/community/:path*' },
+
+  // ── Places / Explore ───────────────────────────────────────────────
+  { source: '/dia-diem/dang/:path*',        destination: '/places/new/:path*' },
+  { source: '/dia-diem/:path*',             destination: '/places/:path*' },
+  { source: '/kham-pha/:path*',             destination: '/places/:path*' },
+].map(r => ({ ...r, permanent: true }))
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
@@ -28,6 +59,9 @@ const nextConfig = {
       { protocol: 'https', hostname: 'pixabay.com' },
       { protocol: 'https', hostname: 'cdn.pixabay.com' },
     ],
+  },
+  async redirects() {
+    return LEGACY_REDIRECTS
   },
   async headers() {
     return [{ source: '/:path*', headers: SECURITY_HEADERS }]

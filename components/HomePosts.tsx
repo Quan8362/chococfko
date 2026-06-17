@@ -42,7 +42,7 @@ export default async function HomePosts() {
             <p className="text-muted text-[13.5px]">{t('latest_posts_sub')}</p>
           </div>
           <Link
-            href="/cong-dong"
+            href="/community"
             className="text-[13px] font-semibold text-rose hover:text-rose-deep transition-colors"
           >
             {t('latest_posts_more')} →
@@ -53,7 +53,7 @@ export default async function HomePosts() {
           <div className="bg-cream border border-line rounded-2xl p-10 text-center">
             <p className="text-muted text-[15px]">{t('latest_posts_empty')}</p>
             <Link
-              href="/cong-dong/viet-bai?type=community"
+              href="/community/write?type=community"
               className="inline-flex mt-4 items-center gap-2 font-semibold text-[13.5px] px-6 py-2.5 rounded-full bg-rose text-white hover:bg-rose-deep transition-colors"
             >
               {t('write_cta')}
@@ -65,7 +65,7 @@ export default async function HomePosts() {
           {latest.map((post) => (
             <Link
               key={post.id}
-              href={`/cong-dong/${post.id}`}
+              href={`/community/${post.id}`}
               className="group bg-cream border border-line rounded-2xl overflow-hidden shadow-card hover:-translate-y-1 hover:shadow-card-hover transition-all flex flex-col"
             >
               {/* Image */}

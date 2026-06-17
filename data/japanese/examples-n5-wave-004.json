@@ -1,0 +1,70 @@
+[
+ {"id":"f412e1ac-be82-4aaa-a9cd-b1a14adf8d84","word":"消防士","reading":"しょうぼうし","examples":[
+   {"ja":"兄は消防士です。","reading":"あにはしょうぼうしです。","vi":"Anh trai tôi là lính cứu hỏa.","en":"My older brother is a firefighter."},
+   {"ja":"消防士が火を消しました。","reading":"しょうぼうしがひをけしました。","vi":"Lính cứu hỏa đã dập tắt đám cháy.","en":"The firefighter put out the fire."}
+ ]},
+ {"id":"57b37027-4a8d-4921-b511-384634f9350d","word":"通す","reading":"とおす","examples":[
+   {"ja":"お客様を部屋に通します。","reading":"おきゃくさまをへやにとおします。","vi":"Tôi mời khách vào phòng.","en":"I show the guest into the room."},
+   {"ja":"糸を針に通してください。","reading":"いとをはりにとおしてください。","vi":"Hãy xỏ chỉ qua kim.","en":"Please thread the needle."}
+ ]},
+ {"id":"33b902f3-9ab3-4fad-8d00-624cac939529","word":"臭い","reading":"くさい","examples":[
+   {"ja":"このごみはとても臭いです。","reading":"このごみはとてもくさいです。","vi":"Rác này rất hôi.","en":"This garbage smells terrible."},
+   {"ja":"魚が古くなって臭いです。","reading":"さかながふるくなってくさいです。","vi":"Cá để lâu nên bốc mùi.","en":"The fish has gone old and smells."}
+ ]},
+ {"id":"314c317e-c7cd-4b5f-b9d9-05608e1ddae5","word":"表","reading":"おもて","examples":[
+   {"ja":"紙の表に名前を書いてください。","reading":"かみのおもてになまえをかいてください。","vi":"Hãy viết tên lên mặt trước tờ giấy.","en":"Please write your name on the front of the paper."},
+   {"ja":"コインの表と裏を見ます。","reading":"コインのおもてとうらをみます。","vi":"Tôi xem mặt trước và mặt sau của đồng xu.","en":"I look at the front and back of the coin."}
+ ]},
+ {"id":"ed8a792e-5f48-41c4-80c7-a0f2d7cf1c01","word":"八つ","reading":"やっつ","examples":[
+   {"ja":"みかんを八つ買いました。","reading":"みかんをやっつかいました。","vi":"Tôi đã mua tám quả quýt.","en":"I bought eight mandarin oranges."},
+   {"ja":"箱が八つあります。","reading":"はこがやっつあります。","vi":"Có tám cái hộp.","en":"There are eight boxes."}
+ ]},
+ {"id":"d1be41ca-e19f-4bc5-9475-e4f65a8ab214","word":"六つ","reading":"むっつ","examples":[
+   {"ja":"りんごが六つあります。","reading":"りんごがむっつあります。","vi":"Có sáu quả táo.","en":"There are six apples."},
+   {"ja":"卵を六つください。","reading":"たまごをむっつください。","vi":"Cho tôi sáu quả trứng.","en":"Six eggs, please."}
+ ]},
+ {"id":"200ee16c-2d67-4347-846f-8a07dc3d9c29","word":"あの","reading":"あの","examples":[
+   {"ja":"あの店はとても安いです。","reading":"あのみせはとてもやすいです。","vi":"Cửa hàng kia rất rẻ.","en":"That shop over there is very cheap."},
+   {"ja":"あの人を知っていますか。","reading":"あのひとをしっていますか。","vi":"Bạn có biết người kia không?","en":"Do you know that person?"}
+ ]},
+ {"id":"8c7c8922-141a-4443-992a-a89ea5db6296","word":"あんな","reading":"あんな","examples":[
+   {"ja":"あんな大きな犬は初めて見ました。","reading":"あんなおおきないぬははじめてみました。","vi":"Lần đầu tôi thấy con chó to như thế.","en":"I've never seen such a big dog before."},
+   {"ja":"私もあんな家に住みたいです。","reading":"わたしもあんないえにすみたいです。","vi":"Tôi cũng muốn sống trong ngôi nhà như vậy.","en":"I want to live in a house like that too."}
+ ]},
+ {"id":"a3e7af28-bd88-4e32-bba0-8a9ebb09749b","word":"山","reading":"さん","examples":[
+   {"ja":"夏に富士山に登りました。","reading":"なつにふじさんにのぼりました。","vi":"Mùa hè tôi đã leo núi Phú Sĩ.","en":"I climbed Mt. Fuji in summer."},
+   {"ja":"来月、高野山を訪れます。","reading":"らいげつ、こうやさんをおとずれます。","vi":"Tháng tới tôi sẽ đến thăm núi Koya.","en":"Next month I'll visit Mt. Koya."}
+ ]},
+ {"id":"a569ec64-2cc7-420f-881c-a295d31d0b98","word":"足","reading":"そく","examples":[
+   {"ja":"靴下を三足買いました。","reading":"くつしたをさんぞくかいました。","vi":"Tôi đã mua ba đôi tất.","en":"I bought three pairs of socks."},
+   {"ja":"新しい靴を一足ください。","reading":"あたらしいくつをいっそくください。","vi":"Cho tôi một đôi giày mới.","en":"One pair of new shoes, please."}
+ ]},
+ {"id":"e3079e1f-3b75-4e66-b247-74eb5632d2b3","word":"港","reading":"こう","examples":[
+   {"ja":"大きな船が神戸港に着きました。","reading":"おおきなふねがこうべこうにつきました。","vi":"Con tàu lớn đã cập cảng Kobe.","en":"A large ship arrived at the port of Kobe."},
+   {"ja":"横浜港はとても有名です。","reading":"よこはまこうはとてもゆうめいです。","vi":"Cảng Yokohama rất nổi tiếng.","en":"The port of Yokohama is very famous."}
+ ]},
+ {"id":"5fa71904-2ba8-41e7-aaf7-b770a9a757bf","word":"島","reading":"とう","examples":[
+   {"ja":"船で無人島へ行きました。","reading":"ふねでむじんとうへいきました。","vi":"Tôi đi thuyền ra đảo hoang.","en":"I went to an uninhabited island by boat."},
+   {"ja":"その半島はとても美しいです。","reading":"そのはんとうはとてもうつくしいです。","vi":"Bán đảo đó rất đẹp.","en":"That peninsula is very beautiful."}
+ ]},
+ {"id":"ad4e23ec-5c0e-4e8d-ae70-5ae5a5a1d797","word":"男","reading":"だん","examples":[
+   {"ja":"男子トイレはあちらです。","reading":"だんしトイレはあちらです。","vi":"Nhà vệ sinh nam ở đằng kia.","en":"The men's restroom is over there."},
+   {"ja":"このクラスは男子が多いです。","reading":"このクラスはだんしがおおいです。","vi":"Lớp này nhiều học sinh nam.","en":"This class has many boys."}
+ ]},
+ {"id":"b9185ab3-dbb7-4c7d-b787-93c28ac4a9fe","word":"リーダー","reading":"リーダー","examples":[
+   {"ja":"この英語のリーダーは少し難しいです。","reading":"このえいごのリーダーはすこしむずかしいです。","vi":"Cuốn sách đọc tiếng Anh này hơi khó.","en":"This English reader is a little difficult."},
+   {"ja":"先生が新しいリーダーを配りました。","reading":"せんせいがあたらしいリーダーをくばりました。","vi":"Thầy giáo phát sách đọc mới.","en":"The teacher handed out the new readers."}
+ ]},
+ {"id":"9a595004-6802-4469-82bd-df69f150dbb4","word":"月","reading":"げつ","examples":[
+   {"ja":"私のアルバイトは月と木です。","reading":"わたしのアルバイトはげつともくです。","vi":"Tôi làm thêm vào thứ Hai và thứ Năm.","en":"My part-time job is on Mondays and Thursdays."},
+   {"ja":"会議は毎週月にあります。","reading":"かいぎはまいしゅうげつにあります。","vi":"Cuộc họp diễn ra vào thứ Hai hằng tuần.","en":"The meeting is every Monday."}
+ ]},
+ {"id":"09ceab60-1e3e-4088-9151-5246ce634ffb","word":"水","reading":"すい","examples":[
+   {"ja":"プールは月と水に開きます。","reading":"プールはげつとすいにひらきます。","vi":"Hồ bơi mở vào thứ Hai và thứ Tư.","en":"The pool opens on Mondays and Wednesdays."},
+   {"ja":"ゴミは水と土に出します。","reading":"ゴミはすいとどにだします。","vi":"Rác đổ vào thứ Tư và thứ Bảy.","en":"Garbage is put out on Wednesdays and Saturdays."}
+ ]},
+ {"id":"2a96e050-4867-4573-8842-3643aa118288","word":"日","reading":"にち","examples":[
+   {"ja":"この店は日と祝日が休みです。","reading":"このみせはにちとしゅくじつがやすみです。","vi":"Cửa hàng này nghỉ Chủ nhật và ngày lễ.","en":"This shop is closed on Sundays and holidays."},
+   {"ja":"配達は日には来ません。","reading":"はいたつはにちにはきません。","vi":"Chủ nhật không có giao hàng.","en":"Deliveries don't come on Sundays."}
+ ]}
+]

@@ -1165,7 +1165,12 @@
     "site_description": "福岡に住むベトナム人コミュニティ — グルメスポット、海、山、公園、ベトナム料理店、旅の情報を共有。",
     "site_twitter_description": "福岡に住むベトナム人コミュニティ — グルメスポット、海、公園、ベトナム料理店。",
     "site_keywords": "福岡, ベトナム人, スポット, コミュニティ, グルメ, 旅行, 日本",
-    "site_og_image_alt": "Chợ Cóc FKO — 福岡ガイド"
+    "site_og_image_alt": "Chợ Cóc FKO — 福岡ガイド",
+    "community_description": "福岡のベトナム人コミュニティ — 生活、手続き、交通、勉強、仕事、日常の体験を共有しましょう。",
+    "community_keywords": "ベトナム人コミュニティ, 福岡, 日本生活, 手続き, 仕事",
+    "places": "スポット",
+    "places_description": "福岡や日本各地のグルメ・観光・海・山・公園・ベトナム料理店・温泉などのスポットを探そう。",
+    "places_keywords": "福岡 スポット, グルメ, 日本 旅行, ベトナム料理, 温泉, 公園"
   },
   "games": {
     "page_badge": "🎮 ミニゲーム",
@@ -2141,6 +2146,7 @@
     "copy_word": "コピー",
     "copied": "コピーしました",
     "related_words": "関連語",
+    "entry_lead": "「{word}」の意味は {meaning}。読み方・例文・関連語を Chợ Cóc FKO 和越辞典で調べましょう。",
     "view_more": "もっと見る",
     "word_not_found": "単語が見つかりません",
     "meanings_label": "意味",

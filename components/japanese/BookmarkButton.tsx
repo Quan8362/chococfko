@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react'
 import { useTranslations } from 'next-intl'
-import { toggleBookmark, ItemType } from '@/app/tieng-nhat/bookmark-actions'
+import { toggleBookmark, ItemType } from '@/app/japanese/bookmark-actions'
 
 type Props = {
   itemId: string

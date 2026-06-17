@@ -19,6 +19,7 @@ export interface Post {
   mapUrl?: string;
   fee?: string;
   postType?: string;
+  createdAt?: string; // raw ISO timestamp for SEO/JSON-LD; `date` is the localized relative string
 }
 
 function lf(tags: string, n: number) {
@@ -222,6 +223,7 @@ function mapDbPost(row: DbPost, index: number, locale = 'vi'): Post {
     mapUrl: row.map_url || undefined,
     fee: row.fee || undefined,
     postType: row.post_type || undefined,
+    createdAt: row.created_at || undefined,
   };
 }
 

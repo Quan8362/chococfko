@@ -55,7 +55,7 @@ export default function MobileMenu({ isLoggedIn }: MobileMenuProps) {
               </Link>
 
               <p className="px-3 pt-3 pb-1.5 text-[11px] font-bold uppercase tracking-wider text-muted/70">{t('community')}</p>
-              <Link href="/cong-dong" onClick={close} className="group/m flex items-center gap-3 px-2.5 py-2.5 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
+              <Link href="/community" onClick={close} className="group/m flex items-center gap-3 px-2.5 py-2.5 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
                 <span className="flex-none grid place-items-center w-9 h-9 rounded-lg bg-cream text-muted group-hover/m:bg-rose/10 group-hover/m:text-rose transition-colors"><NavIcon name="posts" /></span>
                 {t('community_posts')}
               </Link>
@@ -63,7 +63,7 @@ export default function MobileMenu({ isLoggedIn }: MobileMenuProps) {
                 <span className="flex-none grid place-items-center w-9 h-9 rounded-lg bg-cream text-muted group-hover/m:bg-rose/10 group-hover/m:text-rose transition-colors"><NavIcon name="confession" /></span>
                 {tConf('nav')}
               </Link>
-              <Link href="/cong-dong/chat" onClick={close} className="group/m flex items-center gap-3 px-2.5 py-2.5 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
+              <Link href="/community/chat" onClick={close} className="group/m flex items-center gap-3 px-2.5 py-2.5 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
                 <span className="flex-none grid place-items-center w-9 h-9 rounded-lg bg-cream text-muted group-hover/m:bg-rose/10 group-hover/m:text-rose transition-colors"><NavIcon name="chat" /></span>
                 <span className="flex-1">{t('chat')}</span>
                 <ChatUnreadBadge />
@@ -80,7 +80,7 @@ export default function MobileMenu({ isLoggedIn }: MobileMenuProps) {
               </Link>
 
               <p className="px-3 pt-3 pb-1.5 text-[11px] font-bold uppercase tracking-wider text-muted/70">{t('more')}</p>
-              <Link href="/tieng-nhat" onClick={close} className="group/m flex items-center gap-3 px-2.5 py-2.5 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
+              <Link href="/japanese" onClick={close} className="group/m flex items-center gap-3 px-2.5 py-2.5 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
                 <span className="flex-none grid place-items-center w-9 h-9 rounded-lg bg-cream text-muted group-hover/m:bg-rose/10 group-hover/m:text-rose transition-colors"><NavIcon name="language" /></span>
                 {tJp('nav')}
               </Link>
@@ -90,7 +90,7 @@ export default function MobileMenu({ isLoggedIn }: MobileMenuProps) {
               </Link>
 
               <div className="my-1.5 border-t border-line" />
-              <Link href="/cong-dong/viet-bai" onClick={close} className="group/m flex items-center gap-3 px-2.5 py-2.5 rounded-xl text-[15px] font-semibold text-rose hover:bg-rose-soft transition-colors">
+              <Link href="/community/write" onClick={close} className="group/m flex items-center gap-3 px-2.5 py-2.5 rounded-xl text-[15px] font-semibold text-rose hover:bg-rose-soft transition-colors">
                 <span className="flex-none grid place-items-center w-9 h-9 rounded-lg bg-rose/10 text-rose"><NavIcon name="pencil" /></span>
                 {t('write_post')}
               </Link>

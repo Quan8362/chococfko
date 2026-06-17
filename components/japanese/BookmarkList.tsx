@@ -3,15 +3,15 @@
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
-import type { BookmarkItem, ItemType } from '@/app/tieng-nhat/bookmark-actions'
+import type { BookmarkItem, ItemType } from '@/app/japanese/bookmark-actions'
 import JlptBadge from './JlptBadge'
 
 type FilterType = 'all' | ItemType
 
 const HREF: Record<ItemType, string> = {
-  word: '/tieng-nhat/tu-dien',
-  kanji: '/tieng-nhat/kanji',
-  grammar: '/tieng-nhat/ngu-phap',
+  word: '/japanese/dictionary',
+  kanji: '/japanese/kanji',
+  grammar: '/japanese/grammar',
 }
 
 type Props = {

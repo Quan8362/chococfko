@@ -216,7 +216,7 @@ export default async function AdminDiaDiem({
                 {/* Actions */}
                 <div className="flex items-center gap-2 flex-none">
                   <Link
-                    href={`/dia-diem/${p.slug}`}
+                    href={`/places/${p.slug}`}
                     target="_blank"
                     className="text-[12px] text-muted hover:text-rose px-2.5 py-1.5 rounded-lg hover:bg-rose-soft border border-transparent hover:border-rose/20 transition-all"
                   >

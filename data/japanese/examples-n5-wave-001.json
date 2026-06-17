@@ -1,0 +1,150 @@
+[
+ {"id":"d9c009f8-1563-4577-80a4-cce60ef7a325","word":"一冊","reading":"いっさつ","examples":[
+   {"ja":"本を一冊買いました。","reading":"ほんをいっさつかいました。","vi":"Tôi đã mua một cuốn sách.","en":"I bought one book."},
+   {"ja":"図書館で一冊だけ借りました。","reading":"としょかんでいっさつだけかりました。","vi":"Tôi chỉ mượn một cuốn ở thư viện.","en":"I borrowed only one book at the library."}
+ ]},
+ {"id":"4a42a5f0-cb41-46c8-b2c1-2fc4b790e862","word":"一台","reading":"いちだい","examples":[
+   {"ja":"駐車場に車が一台あります。","reading":"ちゅうしゃじょうにくるまがいちだいあります。","vi":"Có một chiếc xe ở bãi đỗ.","en":"There is one car in the parking lot."},
+   {"ja":"パソコンを一台買いました。","reading":"パソコンをいちだいかいました。","vi":"Tôi đã mua một chiếc máy tính.","en":"I bought one computer."}
+ ]},
+ {"id":"a4c32e73-62dd-4756-9294-357a81fe7bc0","word":"差し上げる","reading":"さしあげる","examples":[
+   {"ja":"先生にお土産を差し上げます。","reading":"せんせいにおみやげをさしあげます。","vi":"Tôi xin biếu thầy món quà.","en":"I will give the teacher a souvenir."},
+   {"ja":"これをあなたに差し上げます。","reading":"これをあなたにさしあげます。","vi":"Tôi xin tặng cái này cho bạn.","en":"I'll give this to you."}
+ ]},
+ {"id":"ee7989a7-3adf-4c50-9942-da459d46006e","word":"一本","reading":"いっぽん","examples":[
+   {"ja":"ペンを一本ください。","reading":"ペンをいっぽんください。","vi":"Cho tôi một cây bút.","en":"One pen, please."},
+   {"ja":"庭に木が一本あります。","reading":"にわにきがいっぽんあります。","vi":"Trong vườn có một cái cây.","en":"There is one tree in the garden."}
+ ]},
+ {"id":"3d6c1574-0474-4a16-94d5-be4081fb5c96","word":"形","reading":"かたち","examples":[
+   {"ja":"この箱は変な形です。","reading":"このはこはへんなかたちです。","vi":"Cái hộp này có hình dạng kỳ lạ.","en":"This box has a strange shape."},
+   {"ja":"雲の形がきれいです。","reading":"くものかたちがきれいです。","vi":"Hình dạng của đám mây thật đẹp.","en":"The shape of the clouds is beautiful."}
+ ]},
+ {"id":"7a704ac5-8e48-4286-9ecf-5aac7db5a4e1","word":"太る","reading":"ふとる","examples":[
+   {"ja":"食べすぎると太ります。","reading":"たべすぎるとふとります。","vi":"Ăn quá nhiều thì sẽ béo.","en":"If you eat too much, you'll gain weight."},
+   {"ja":"最近少し太りました。","reading":"さいきんすこしふとりました。","vi":"Dạo này tôi hơi tăng cân.","en":"I've put on a little weight lately."}
+ ]},
+ {"id":"20c555ad-4388-4bdf-8d75-fa7313d9dd00","word":"所","reading":"ところ","examples":[
+   {"ja":"静かな所で勉強したいです。","reading":"しずかなところでべんきょうしたいです。","vi":"Tôi muốn học ở một nơi yên tĩnh.","en":"I want to study in a quiet place."},
+   {"ja":"私の住んでいる所は駅から近いです。","reading":"わたしのすんでいるところはえきからちかいです。","vi":"Nơi tôi sống gần ga.","en":"The place where I live is near the station."}
+ ]},
+ {"id":"31ca795c-7b49-4d8a-9036-65dc2f306019","word":"少ない","reading":"すくない","examples":[
+   {"ja":"今月はお金が少ないです。","reading":"こんげつはおかねがすくないです。","vi":"Tháng này tôi ít tiền.","en":"I have little money this month."},
+   {"ja":"この店は客が少ないです。","reading":"このみせはきゃくがすくないです。","vi":"Cửa hàng này ít khách.","en":"This shop has few customers."}
+ ]},
+ {"id":"cb7b4038-85a8-45a0-8620-0fdd15dede0c","word":"消しゴム","reading":"けしゴム","examples":[
+   {"ja":"消しゴムを貸してください。","reading":"けしゴムをかしてください。","vi":"Cho tôi mượn cục tẩy với.","en":"Please lend me an eraser."},
+   {"ja":"新しい消しゴムを買いました。","reading":"あたらしいけしゴムをかいました。","vi":"Tôi đã mua một cục tẩy mới.","en":"I bought a new eraser."}
+ ]},
+ {"id":"0f6a94d3-aea1-43c7-858e-6c7098934e6f","word":"森","reading":"もり","examples":[
+   {"ja":"森の中を散歩しました。","reading":"もりのなかをさんぽしました。","vi":"Tôi đã đi dạo trong rừng.","en":"I took a walk in the forest."},
+   {"ja":"この森には鳥がたくさんいます。","reading":"このもりにはとりがたくさんいます。","vi":"Trong rừng này có rất nhiều chim.","en":"There are many birds in this forest."}
+ ]},
+ {"id":"14a68529-288c-4b29-a31e-712e816ca173","word":"村","reading":"むら","examples":[
+   {"ja":"小さな村に住んでいます。","reading":"ちいさなむらにすんでいます。","vi":"Tôi sống ở một ngôi làng nhỏ.","en":"I live in a small village."},
+   {"ja":"この村はとても静かです。","reading":"このむらはとてもしずかです。","vi":"Ngôi làng này rất yên tĩnh.","en":"This village is very quiet."}
+ ]},
+ {"id":"85f64a20-e720-4d40-926c-4d3bccb7e5dc","word":"中国語","reading":"ちゅうごくご","examples":[
+   {"ja":"中国語を勉強しています。","reading":"ちゅうごくごをべんきょうしています。","vi":"Tôi đang học tiếng Trung.","en":"I am studying Chinese."},
+   {"ja":"彼女は中国語が上手です。","reading":"かのじょはちゅうごくごがじょうずです。","vi":"Cô ấy giỏi tiếng Trung.","en":"She is good at Chinese."}
+ ]},
+ {"id":"a2a42361-ba15-4bfc-b9ef-5a8a8ab427a0","word":"不便","reading":"ふべん","examples":[
+   {"ja":"この町はバスが少なくて不便です。","reading":"このまちはバスがすくなくてふべんです。","vi":"Thị trấn này ít xe buýt nên bất tiện.","en":"This town is inconvenient because there are few buses."},
+   {"ja":"駅から遠いと不便です。","reading":"えきからとおいとふべんです。","vi":"Xa ga thì bất tiện.","en":"It's inconvenient when it's far from the station."}
+ ]},
+ {"id":"338279ab-f0a4-4915-9d1d-99dd260b2d11","word":"腹","reading":"はら","examples":[
+   {"ja":"お腹がすきました。","reading":"おなかがすきました。","vi":"Tôi đói bụng rồi.","en":"I'm hungry."},
+   {"ja":"腹が痛いので休みます。","reading":"はらがいたいのでやすみます。","vi":"Vì đau bụng nên tôi nghỉ.","en":"My stomach hurts, so I'll rest."}
+ ]},
+ {"id":"08edd360-61f5-47a5-b1dd-e41b470d274b","word":"方法","reading":"ほうほう","examples":[
+   {"ja":"いい方法を考えます。","reading":"いいほうほうをかんがえます。","vi":"Tôi sẽ nghĩ ra cách hay.","en":"I'll think of a good method."},
+   {"ja":"この方法は簡単です。","reading":"このほうほうはかんたんです。","vi":"Cách này đơn giản.","en":"This method is simple."}
+ ]},
+ {"id":"1fee186a-a5fc-4bee-9f56-f0b34126d54d","word":"痩せる","reading":"やせる","examples":[
+   {"ja":"運動して少し痩せたいです。","reading":"うんどうしてすこしやせたいです。","vi":"Tôi muốn tập thể dục để gầy đi một chút.","en":"I want to exercise and lose a little weight."},
+   {"ja":"彼は最近痩せました。","reading":"かれはさいきんやせました。","vi":"Dạo này anh ấy gầy đi.","en":"He has lost weight recently."}
+ ]},
+ {"id":"6c0ecc29-761a-45c5-b03d-9946f3bf169e","word":"虫","reading":"むし","examples":[
+   {"ja":"庭に虫がいます。","reading":"にわにむしがいます。","vi":"Trong vườn có côn trùng.","en":"There are insects in the garden."},
+   {"ja":"夏は虫が多いです。","reading":"なつはむしがおおいです。","vi":"Mùa hè có nhiều côn trùng.","en":"There are many insects in summer."}
+ ]},
+ {"id":"255532e9-5c14-4415-8c54-69c5ccdb0b20","word":"豚","reading":"ぶた","examples":[
+   {"ja":"農場で豚を飼っています。","reading":"のうじょうでぶたをかっています。","vi":"Ở nông trại người ta nuôi lợn.","en":"They raise pigs on the farm."},
+   {"ja":"豚は鼻が大きいです。","reading":"ぶたははながおおきいです。","vi":"Con lợn có cái mũi to.","en":"Pigs have big noses."}
+ ]},
+ {"id":"ec411492-00e1-489f-986f-b20bfc219daa","word":"二つ","reading":"ふたつ","examples":[
+   {"ja":"りんごを二つください。","reading":"りんごをふたつください。","vi":"Cho tôi hai quả táo.","en":"Two apples, please."},
+   {"ja":"答えは二つあります。","reading":"こたえはふたつあります。","vi":"Có hai câu trả lời.","en":"There are two answers."}
+ ]},
+ {"id":"47151a16-7947-4869-ba2c-bf8150a14ad9","word":"二週間","reading":"にしゅうかん","examples":[
+   {"ja":"二週間休みを取りました。","reading":"にしゅうかんやすみをとりました。","vi":"Tôi đã xin nghỉ hai tuần.","en":"I took two weeks off."},
+   {"ja":"二週間後に試験があります。","reading":"にしゅうかんごにしけんがあります。","vi":"Hai tuần nữa có kỳ thi.","en":"There is an exam in two weeks."}
+ ]},
+ {"id":"b06810b7-50c3-43c5-9920-2ed7d79e9054","word":"夜中","reading":"よなか","examples":[
+   {"ja":"夜中に目が覚めました。","reading":"よなかにめがさめました。","vi":"Tôi tỉnh giấc lúc nửa đêm.","en":"I woke up in the middle of the night."},
+   {"ja":"夜中まで勉強しました。","reading":"よなかまでべんきょうしました。","vi":"Tôi học đến tận khuya.","en":"I studied until the middle of the night."}
+ ]},
+ {"id":"1b2b5387-0405-4c37-8034-860b54d51eb2","word":"一月","reading":"ひとつき","examples":[
+   {"ja":"一月で本を五冊読みました。","reading":"ひとつきでほんをごさつよみました。","vi":"Trong một tháng tôi đọc năm cuốn sách.","en":"I read five books in one month."},
+   {"ja":"一月に一度旅行します。","reading":"ひとつきにいちどりょこうします。","vi":"Mỗi tháng tôi đi du lịch một lần.","en":"I travel once a month."}
+ ]},
+ {"id":"dd652fa0-7207-4f57-a227-2fb06b81dffc","word":"浅い","reading":"あさい","examples":[
+   {"ja":"この川は浅いです。","reading":"このかわはあさいです。","vi":"Con sông này nông.","en":"This river is shallow."},
+   {"ja":"浅いプールで泳ぎます。","reading":"あさいプールでおよぎます。","vi":"Tôi bơi ở hồ bơi nông.","en":"I swim in the shallow pool."}
+ ]},
+ {"id":"fe37166e-edd4-481a-91f4-0eb091c4854d","word":"心臓","reading":"しんぞう","examples":[
+   {"ja":"走った後で心臓がどきどきします。","reading":"はしったあとでしんぞうがどきどきします。","vi":"Sau khi chạy, tim tôi đập thình thịch.","en":"My heart pounds after running."},
+   {"ja":"心臓は体の大切な器官です。","reading":"しんぞうはからだのたいせつなきかんです。","vi":"Tim là cơ quan quan trọng của cơ thể.","en":"The heart is an important organ of the body."}
+ ]},
+ {"id":"94962be3-b881-4267-a3c0-d1b692df93ec","word":"深さ","reading":"ふかさ","examples":[
+   {"ja":"このプールの深さは二メートルです。","reading":"このプールのふかさはにメートルです。","vi":"Độ sâu của hồ bơi này là hai mét.","en":"The depth of this pool is two meters."},
+   {"ja":"湖の深さを調べました。","reading":"みずうみのふかさをしらべました。","vi":"Tôi đã đo độ sâu của hồ.","en":"I measured the depth of the lake."}
+ ]},
+ {"id":"3d3a67a5-d449-4ae0-97fe-a3c22aca2108","word":"速さ","reading":"はやさ","examples":[
+   {"ja":"車の速さに驚きました。","reading":"くるまのはやさにおどろきました。","vi":"Tôi ngạc nhiên về tốc độ của xe.","en":"I was surprised at the speed of the car."},
+   {"ja":"風の速さを測ります。","reading":"かぜのはやさをはかります。","vi":"Tôi đo tốc độ gió.","en":"I measure the speed of the wind."}
+ ]},
+ {"id":"136f58c5-fa3e-4779-9502-91d0e118c9d7","word":"バター","reading":"バター","examples":[
+   {"ja":"パンにバターを塗ります。","reading":"パンにバターをぬります。","vi":"Tôi phết bơ lên bánh mì.","en":"I spread butter on the bread."},
+   {"ja":"このケーキはバターの味がします。","reading":"このケーキはバターのあじがします。","vi":"Cái bánh này có vị bơ.","en":"This cake tastes of butter."}
+ ]},
+ {"id":"7f4bde02-fd59-483c-8a3e-cc1f40389ea2","word":"プログラム","reading":"プログラム","examples":[
+   {"ja":"コンサートのプログラムをもらいました。","reading":"コンサートのプログラムをもらいました。","vi":"Tôi đã nhận tờ chương trình của buổi hòa nhạc.","en":"I received the program for the concert."},
+   {"ja":"新しいプログラムを作ります。","reading":"あたらしいプログラムをつくります。","vi":"Tôi tạo một chương trình mới.","en":"I will make a new program."}
+ ]},
+ {"id":"872cd682-8da3-4d8c-84d7-2fb4fcc8a724","word":"メンバー","reading":"メンバー","examples":[
+   {"ja":"チームのメンバーは五人です。","reading":"チームのメンバーはごにんです。","vi":"Đội có năm thành viên.","en":"The team has five members."},
+   {"ja":"新しいメンバーを紹介します。","reading":"あたらしいメンバーをしょうかいします。","vi":"Tôi giới thiệu thành viên mới.","en":"I'll introduce the new member."}
+ ]},
+ {"id":"7bfb5f8f-2628-4703-a2b8-5b69b0f4e3fb","word":"サラダ","reading":"サラダ","examples":[
+   {"ja":"昼ごはんにサラダを食べました。","reading":"ひるごはんにサラダをたべました。","vi":"Tôi ăn salad vào bữa trưa.","en":"I ate a salad for lunch."},
+   {"ja":"野菜のサラダが好きです。","reading":"やさいのサラダがすきです。","vi":"Tôi thích salad rau.","en":"I like vegetable salad."}
+ ]},
+ {"id":"15db8a2d-ae2c-4cda-b8c7-b80d141b5984","word":"灰色","reading":"はいいろ","examples":[
+   {"ja":"空が灰色になりました。","reading":"そらがはいいろになりました。","vi":"Bầu trời chuyển sang màu xám.","en":"The sky turned gray."},
+   {"ja":"灰色のセーターを着ています。","reading":"はいいろのセーターをきています。","vi":"Tôi đang mặc áo len màu xám.","en":"I'm wearing a gray sweater."}
+ ]},
+ {"id":"88506d3c-7df6-41e2-b34d-2fee698eefda","word":"曲げる","reading":"まげる","examples":[
+   {"ja":"膝を曲げてください。","reading":"ひざをまげてください。","vi":"Hãy gập đầu gối lại.","en":"Please bend your knees."},
+   {"ja":"針金を曲げて形を作ります。","reading":"はりがねをまげてかたちをつくります。","vi":"Tôi uốn dây thép để tạo hình.","en":"I bend the wire to make a shape."}
+ ]},
+ {"id":"5846dd4a-cd2d-42c3-879b-394a4333b1c6","word":"外見","reading":"がいけん","examples":[
+   {"ja":"外見で人を判断してはいけません。","reading":"がいけんでひとをはんだんしてはいけません。","vi":"Không nên đánh giá người qua vẻ ngoài.","en":"You shouldn't judge people by their appearance."},
+   {"ja":"彼は外見より優しいです。","reading":"かれはがいけんよりやさしいです。","vi":"Anh ấy hiền hơn vẻ bề ngoài.","en":"He is kinder than he looks."}
+ ]},
+ {"id":"7a1eca50-1182-4f1c-b645-24d594978145","word":"向ける","reading":"むける","examples":[
+   {"ja":"カメラをこちらに向けてください。","reading":"カメラをこちらにむけてください。","vi":"Hãy hướng máy ảnh về phía này.","en":"Please point the camera this way."},
+   {"ja":"彼は私に背を向けました。","reading":"かれはわたしにせをむけました。","vi":"Anh ấy quay lưng lại với tôi.","en":"He turned his back to me."}
+ ]},
+ {"id":"df353b7b-8799-4e06-8d0f-8e6555ca12e5","word":"速度","reading":"そくど","examples":[
+   {"ja":"車の速度を落としてください。","reading":"くるまのそくどをおとしてください。","vi":"Hãy giảm tốc độ xe.","en":"Please slow down the car's speed."},
+   {"ja":"この道は速度制限があります。","reading":"このみちはそくどせいげんがあります。","vi":"Con đường này có giới hạn tốc độ.","en":"This road has a speed limit."}
+ ]},
+ {"id":"2f07715c-631f-4cfd-a049-09b8aae37fbd","word":"血","reading":"ち","examples":[
+   {"ja":"指を切って血が出ました。","reading":"ゆびをきってちがでました。","vi":"Tôi cắt vào ngón tay và chảy máu.","en":"I cut my finger and it bled."},
+   {"ja":"傷から血が流れています。","reading":"きずからちがながれています。","vi":"Máu chảy ra từ vết thương.","en":"Blood is flowing from the wound."}
+ ]},
+ {"id":"84c9983c-64f5-4a19-a057-36f4053e220b","word":"入れ替える","reading":"いれかえる","examples":[
+   {"ja":"古い電池を新しいのと入れ替えます。","reading":"ふるいでんちをあたらしいのといれかえます。","vi":"Tôi thay pin cũ bằng pin mới.","en":"I replace the old battery with a new one."},
+   {"ja":"部屋の空気を入れ替えましょう。","reading":"へやのくうきをいれかえましょう。","vi":"Hãy thay không khí trong phòng nào.","en":"Let's air out the room."}
+ ]}
+]

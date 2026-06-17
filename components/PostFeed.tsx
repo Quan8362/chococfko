@@ -88,7 +88,7 @@ export default function PostFeed({ posts }: Props) {
             {t("empty_sub")}
           </p>
           <Link
-            href="/cong-dong/viet-bai"
+            href="/community/write"
             className="inline-flex items-center gap-2 font-semibold text-[14px] px-6 py-[11px] rounded-full bg-rose text-white shadow-[0_4px_14px_-4px_rgba(194,24,91,0.45)] hover:bg-rose-deep hover:-translate-y-px transition-all"
           >
             {t("empty_cta")}
@@ -108,7 +108,7 @@ export default function PostFeed({ posts }: Props) {
 
                 {/* Image */}
                 <Link
-                  href={`/cong-dong/${p.id}`}
+                  href={`/community/${p.id}`}
                   className={`relative overflow-hidden bg-gradient-to-br from-[#f3e1d2] to-[#e9cdb6] flex-none ${
                     p.big ? "sm:flex-[1.1] min-h-[240px]" : "h-[200px]"
                   }`}
@@ -141,7 +141,7 @@ export default function PostFeed({ posts }: Props) {
                   </div>
 
                   {/* Title */}
-                  <Link href={`/cong-dong/${p.id}`}>
+                  <Link href={`/community/${p.id}`}>
                     <h3
                       className={`font-serif font-bold leading-[1.28] text-ink hover:text-rose transition-colors mb-2 ${
                         p.big ? "text-[26px]" : "text-[17.5px]"

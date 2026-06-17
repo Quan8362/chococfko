@@ -1,0 +1,142 @@
+[
+ {"id":"7a6fbc08-8286-4fda-861f-269d497ef5d0","word":"手袋","reading":"てぶくろ","examples":[
+   {"ja":"冬は手袋をします。","reading":"ふゆはてぶくろをします。","vi":"Mùa đông tôi đeo găng tay.","en":"I wear gloves in winter."},
+   {"ja":"電車で手袋をなくしました。","reading":"でんしゃでてぶくろをなくしました。","vi":"Tôi làm mất găng tay trên tàu.","en":"I lost my gloves on the train."}
+ ]},
+ {"id":"2617c06c-d1f6-4add-92a9-11ae6c300662","word":"牛","reading":"うし","examples":[
+   {"ja":"牧場に牛がたくさんいます。","reading":"ぼくじょうにうしがたくさんいます。","vi":"Trên đồng cỏ có rất nhiều bò.","en":"There are many cows on the ranch."},
+   {"ja":"牛は草を食べます。","reading":"うしはくさをたべます。","vi":"Bò ăn cỏ.","en":"Cows eat grass."}
+ ]},
+ {"id":"6b9eb06d-5901-476f-ad91-7376de2b4c93","word":"腰","reading":"こし","examples":[
+   {"ja":"重い荷物を持って腰が痛いです。","reading":"おもいにもつをもってこしがいたいです。","vi":"Mang đồ nặng nên tôi đau lưng.","en":"My lower back hurts from carrying heavy luggage."},
+   {"ja":"腰を曲げて挨拶しました。","reading":"こしをまげてあいさつしました。","vi":"Tôi cúi lưng chào.","en":"I bent at the waist and bowed."}
+ ]},
+ {"id":"5023a3d4-6dd6-4f3e-ba2c-de2e487bb249","word":"舌","reading":"した","examples":[
+   {"ja":"熱いスープで舌をやけどしました。","reading":"あついスープでしたをやけどしました。","vi":"Tôi bị phỏng lưỡi vì súp nóng.","en":"I burned my tongue on the hot soup."},
+   {"ja":"猫は舌で水を飲みます。","reading":"ねこはしたでみずをのみます。","vi":"Mèo uống nước bằng lưỡi.","en":"Cats drink water with their tongue."}
+ ]},
+ {"id":"7d156b25-2910-4a40-81ac-b02b334161eb","word":"下着","reading":"したぎ","examples":[
+   {"ja":"新しい下着を買いました。","reading":"あたらしいしたぎをかいました。","vi":"Tôi đã mua đồ lót mới.","en":"I bought new underwear."},
+   {"ja":"下着を洗濯します。","reading":"したぎをせんたくします。","vi":"Tôi giặt đồ lót.","en":"I wash my underwear."}
+ ]},
+ {"id":"88233dde-6206-42f1-83e5-9865a8669453","word":"自由","reading":"じゆう","examples":[
+   {"ja":"週末は自由な時間が多いです。","reading":"しゅうまつはじゆうなじかんがおおいです。","vi":"Cuối tuần tôi có nhiều thời gian rảnh.","en":"I have a lot of free time on weekends."},
+   {"ja":"ここでは自由に話せます。","reading":"ここではじゆうにはなせます。","vi":"Ở đây có thể nói chuyện tự do.","en":"You can speak freely here."}
+ ]},
+ {"id":"726c79f3-c840-416f-92dd-450ca99c5554","word":"長さ","reading":"ながさ","examples":[
+   {"ja":"机の長さを測ります。","reading":"つくえのながさをはかります。","vi":"Tôi đo chiều dài cái bàn.","en":"I measure the length of the desk."},
+   {"ja":"このひもは長さが足りません。","reading":"このひもはながさがたりません。","vi":"Sợi dây này không đủ dài.","en":"This string isn't long enough."}
+ ]},
+ {"id":"a125bea0-4d05-44d0-b1e0-36961fbc40e0","word":"骨","reading":"ほね","examples":[
+   {"ja":"転んで骨を折りました。","reading":"ころんでほねをおりました。","vi":"Tôi bị ngã gãy xương.","en":"I fell and broke a bone."},
+   {"ja":"魚の骨に気をつけてください。","reading":"さかなのほねにきをつけてください。","vi":"Hãy cẩn thận với xương cá.","en":"Please be careful of the fish bones."}
+ ]},
+ {"id":"ebde4614-3e5a-4497-81d6-f23f804b25f6","word":"アイスクリーム","reading":"アイスクリーム","examples":[
+   {"ja":"夏にアイスクリームを食べます。","reading":"なつにアイスクリームをたべます。","vi":"Mùa hè tôi ăn kem.","en":"I eat ice cream in summer."},
+   {"ja":"バニラのアイスクリームが好きです。","reading":"バニラのアイスクリームがすきです。","vi":"Tôi thích kem vani.","en":"I like vanilla ice cream."}
+ ]},
+ {"id":"726645fe-28a5-48f3-856e-585b60236fb6","word":"授業料","reading":"じゅぎょうりょう","examples":[
+   {"ja":"今月の授業料を払いました。","reading":"こんげつのじゅぎょうりょうをはらいました。","vi":"Tôi đã đóng học phí tháng này.","en":"I paid this month's tuition."},
+   {"ja":"この学校は授業料が高いです。","reading":"このがっこうはじゅぎょうりょうがたかいです。","vi":"Trường này học phí cao.","en":"This school's tuition is expensive."}
+ ]},
+ {"id":"7eed8d2d-9368-4106-beaf-5d3a1738693c","word":"胸","reading":"むね","examples":[
+   {"ja":"走ったので胸がどきどきします。","reading":"はしったのでむねがどきどきします。","vi":"Vì chạy nên ngực tôi đập thình thịch.","en":"My chest is pounding because I ran."},
+   {"ja":"嬉しくて胸がいっぱいです。","reading":"うれしくてむねがいっぱいです。","vi":"Vui đến nghẹn cả lòng.","en":"My heart is full of joy."}
+ ]},
+ {"id":"82f10d97-519d-498d-a296-e91addc94e53","word":"爪","reading":"つめ","examples":[
+   {"ja":"爪が伸びたので切ります。","reading":"つめがのびたのできります。","vi":"Móng tay dài rồi nên tôi cắt.","en":"My nails have grown, so I'll cut them."},
+   {"ja":"猫の爪は鋭いです。","reading":"ねこのつめはするどいです。","vi":"Móng mèo rất sắc.","en":"A cat's claws are sharp."}
+ ]},
+ {"id":"d4f4c471-6486-4cc6-be6c-847abdfc871d","word":"妹さん","reading":"いもうとさん","examples":[
+   {"ja":"妹さんはおいくつですか。","reading":"いもうとさんはおいくつですか。","vi":"Em gái bạn bao nhiêu tuổi?","en":"How old is your younger sister?"},
+   {"ja":"妹さんはとても優しいですね。","reading":"いもうとさんはとてもやさしいですね。","vi":"Em gái bạn rất hiền nhỉ.","en":"Your younger sister is very kind."}
+ ]},
+ {"id":"28d6c1d5-79d8-4d0e-99a3-d9b90626a5b9","word":"洗濯機","reading":"せんたくき","examples":[
+   {"ja":"洗濯機が壊れました。","reading":"せんたくきがこわれました。","vi":"Máy giặt hỏng rồi.","en":"The washing machine broke."},
+   {"ja":"新しい洗濯機を買いたいです。","reading":"あたらしいせんたくきをかいたいです。","vi":"Tôi muốn mua máy giặt mới.","en":"I want to buy a new washing machine."}
+ ]},
+ {"id":"689c1e6b-e706-418c-b129-479380b91109","word":"ソファ","reading":"ソファ","examples":[
+   {"ja":"ソファに座ってテレビを見ます。","reading":"ソファにすわってテレビをみます。","vi":"Tôi ngồi trên ghế sofa xem tivi.","en":"I sit on the sofa and watch TV."},
+   {"ja":"新しいソファを買いました。","reading":"あたらしいソファをかいました。","vi":"Tôi đã mua ghế sofa mới.","en":"I bought a new sofa."}
+ ]},
+ {"id":"9f9ecb22-32c4-4114-ac61-450eed162fbc","word":"チーズ","reading":"チーズ","examples":[
+   {"ja":"パンにチーズをのせます。","reading":"パンにチーズをのせます。","vi":"Tôi đặt phô mai lên bánh mì.","en":"I put cheese on the bread."},
+   {"ja":"このピザはチーズが多いです。","reading":"このピザはチーズがおおいです。","vi":"Cái pizza này nhiều phô mai.","en":"This pizza has a lot of cheese."}
+ ]},
+ {"id":"621fb024-3556-476c-9f24-066907d9b670","word":"以下","reading":"いか","examples":[
+   {"ja":"十八歳以下は無料です。","reading":"じゅうはっさいいかはむりょうです。","vi":"Dưới 18 tuổi được miễn phí.","en":"Those eighteen or under are free."},
+   {"ja":"詳しいことは以下の通りです。","reading":"くわしいことはいかのとおりです。","vi":"Chi tiết như dưới đây.","en":"The details are as follows."}
+ ]},
+ {"id":"cb1b47b4-46ac-4a78-8d03-c2679510206a","word":"以後","reading":"いご","examples":[
+   {"ja":"五時以後は家にいます。","reading":"ごじいごはいえにいます。","vi":"Sau năm giờ tôi ở nhà.","en":"I'll be home after five o'clock."},
+   {"ja":"以後、気をつけます。","reading":"いご、きをつけます。","vi":"Từ giờ trở đi tôi sẽ cẩn thận.","en":"I'll be careful from now on."}
+ ]},
+ {"id":"431ece1d-0319-47a1-bab0-b002ace555b7","word":"以上","reading":"いじょう","examples":[
+   {"ja":"千円以上買うと割引があります。","reading":"せんえんいじょうかうとわりびきがあります。","vi":"Mua từ 1000 yên trở lên thì được giảm giá.","en":"There's a discount if you buy 1,000 yen or more."},
+   {"ja":"以上で説明を終わります。","reading":"いじょうでせつめいをおわります。","vi":"Trên đây là phần giải thích.","en":"That concludes my explanation."}
+ ]},
+ {"id":"d213a9e6-8f52-424f-af26-6c7e1ae27d56","word":"触れる","reading":"ふれる","examples":[
+   {"ja":"作品に触れないでください。","reading":"さくひんにふれないでください。","vi":"Xin đừng chạm vào tác phẩm.","en":"Please do not touch the artwork."},
+   {"ja":"手が冷たい水に触れました。","reading":"てがつめたいみずにふれました。","vi":"Tay tôi chạm vào nước lạnh.","en":"My hand touched the cold water."}
+ ]},
+ {"id":"a4560d56-ee6b-467a-aa0c-02eaf8ed90c3","word":"唇","reading":"くちびる","examples":[
+   {"ja":"冬は唇が乾きます。","reading":"ふゆはくちびるがかわきます。","vi":"Mùa đông môi bị khô.","en":"My lips get dry in winter."},
+   {"ja":"寒くて唇が青くなりました。","reading":"さむくてくちびるがあおくなりました。","vi":"Lạnh đến mức môi tím tái.","en":"My lips turned blue from the cold."}
+ ]},
+ {"id":"b1d95928-6550-44df-bda9-106348ba3fd9","word":"今後","reading":"こんご","examples":[
+   {"ja":"今後ともよろしくお願いします。","reading":"こんごともよろしくおねがいします。","vi":"Mong được giúp đỡ từ nay về sau.","en":"I look forward to working with you from now on."},
+   {"ja":"今後の予定を話し合います。","reading":"こんごのよていをはなしあいます。","vi":"Chúng tôi bàn về kế hoạch sắp tới.","en":"We'll discuss future plans."}
+ ]},
+ {"id":"e8142ce4-8c2b-49d2-b9a7-9e584dcf2584","word":"今度","reading":"こんど","examples":[
+   {"ja":"今度の日曜日に会いましょう。","reading":"こんどのにちようびにあいましょう。","vi":"Chủ nhật tới mình gặp nhau nhé.","en":"Let's meet this coming Sunday."},
+   {"ja":"今度こそ頑張ります。","reading":"こんどこそがんばります。","vi":"Lần này nhất định tôi sẽ cố gắng.","en":"This time I'll really do my best."}
+ ]},
+ {"id":"d31249df-3c0c-4533-b527-8448f4a5ba23","word":"チョコレート","reading":"チョコレート","examples":[
+   {"ja":"甘いチョコレートが好きです。","reading":"あまいチョコレートがすきです。","vi":"Tôi thích sô cô la ngọt.","en":"I like sweet chocolate."},
+   {"ja":"友達にチョコレートをあげました。","reading":"ともだちにチョコレートをあげました。","vi":"Tôi tặng bạn sô cô la.","en":"I gave my friend chocolate."}
+ ]},
+ {"id":"9c49baa1-c1ca-497e-9f39-5526d80b8080","word":"一個","reading":"いっこ","examples":[
+   {"ja":"りんごを一個ください。","reading":"りんごをいっこください。","vi":"Cho tôi một quả táo.","en":"One apple, please."},
+   {"ja":"卵が一個残っています。","reading":"たまごがいっこのこっています。","vi":"Còn lại một quả trứng.","en":"There is one egg left."}
+ ]},
+ {"id":"20980a91-76cd-4c82-b016-cdeb7dd314cb","word":"コート","reading":"コート","examples":[
+   {"ja":"寒いのでコートを着ます。","reading":"さむいのでコートをきます。","vi":"Trời lạnh nên tôi mặc áo khoác.","en":"It's cold, so I'll wear a coat."},
+   {"ja":"テニスコートで練習します。","reading":"テニスコートでれんしゅうします。","vi":"Tôi luyện tập ở sân tennis.","en":"I practice on the tennis court."}
+ ]},
+ {"id":"1942e1a7-ac7b-4ae6-839a-e5b5726fc04f","word":"ゴルフ","reading":"ゴルフ","examples":[
+   {"ja":"父は週末ゴルフをします。","reading":"ちちはしゅうまつゴルフをします。","vi":"Bố tôi chơi golf vào cuối tuần.","en":"My father plays golf on weekends."},
+   {"ja":"ゴルフは難しいスポーツです。","reading":"ゴルフはむずかしいスポーツです。","vi":"Golf là môn thể thao khó.","en":"Golf is a difficult sport."}
+ ]},
+ {"id":"b8483eea-555f-431f-827a-30e217310ecc","word":"一年間","reading":"いちねんかん","examples":[
+   {"ja":"一年間日本に住みました。","reading":"いちねんかんにほんにすみました。","vi":"Tôi đã sống ở Nhật một năm.","en":"I lived in Japan for one year."},
+   {"ja":"一年間日本語を勉強しました。","reading":"いちねんかんにほんごをべんきょうしました。","vi":"Tôi học tiếng Nhật trong một năm.","en":"I studied Japanese for one year."}
+ ]},
+ {"id":"5ca7c079-0ae4-458f-9c25-716b3d7591e8","word":"何個","reading":"なんこ","examples":[
+   {"ja":"りんごは何個ありますか。","reading":"りんごはなんこありますか。","vi":"Có bao nhiêu quả táo?","en":"How many apples are there?"},
+   {"ja":"卵を何個買いますか。","reading":"たまごをなんこかいますか。","vi":"Bạn mua bao nhiêu quả trứng?","en":"How many eggs will you buy?"}
+ ]},
+ {"id":"72074397-2f64-4965-90f3-e292b3470359","word":"何度","reading":"なんど","examples":[
+   {"ja":"何度も電話しましたが、出ませんでした。","reading":"なんどもでんわしましたが、でませんでした。","vi":"Tôi gọi mấy lần mà không ai bắt máy.","en":"I called many times, but no one answered."},
+   {"ja":"この映画を何度も見ました。","reading":"このえいがをなんどもみました。","vi":"Tôi đã xem bộ phim này nhiều lần.","en":"I've watched this movie many times."}
+ ]},
+ {"id":"8c3679ef-01da-4d2b-8eb8-ce5633de472d","word":"何日","reading":"なんにち","examples":[
+   {"ja":"今日は何日ですか。","reading":"きょうはなんにちですか。","vi":"Hôm nay là ngày mấy?","en":"What's the date today?"},
+   {"ja":"旅行は何日休みますか。","reading":"りょこうはなんにちやすみますか。","vi":"Bạn nghỉ mấy ngày để đi du lịch?","en":"How many days off will you take for the trip?"}
+ ]},
+ {"id":"e7e29ba2-f15b-4306-9a47-bb49cc398c05","word":"何階","reading":"なんがい","examples":[
+   {"ja":"事務所は何階ですか。","reading":"じむしょはなんがいですか。","vi":"Văn phòng ở tầng mấy?","en":"What floor is the office on?"},
+   {"ja":"このビルは何階までありますか。","reading":"このビルはなんがいまでありますか。","vi":"Tòa nhà này có bao nhiêu tầng?","en":"How many floors does this building have?"}
+ ]},
+ {"id":"606d0a21-3254-4f62-857d-196f38de08a5","word":"生む","reading":"うむ","examples":[
+   {"ja":"鶏が卵を生みます。","reading":"にわとりがたまごをうみます。","vi":"Gà đẻ trứng.","en":"The hen lays eggs."},
+   {"ja":"母が私を生みました。","reading":"ははがわたしをうみました。","vi":"Mẹ đã sinh ra tôi.","en":"My mother gave birth to me."}
+ ]},
+ {"id":"d886754f-5930-4a73-a502-5423c5ef3e57","word":"居る","reading":"おる","examples":[
+   {"ja":"父は今家に居ります。","reading":"ちちはいまいえにおります。","vi":"Bố tôi bây giờ đang ở nhà.","en":"My father is at home now."},
+   {"ja":"社長は事務所に居ります。","reading":"しゃちょうはじむしょにおります。","vi":"Giám đốc đang ở văn phòng.","en":"The president is in the office."}
+ ]},
+ {"id":"8bfb786f-dbf2-468d-8546-cf9376961cf2","word":"来る","reading":"きたる","examples":[
+   {"ja":"来る土曜日に試合があります。","reading":"きたるどようびにしあいがあります。","vi":"Thứ Bảy tới có trận đấu.","en":"There is a match this coming Saturday."},
+   {"ja":"来る春に向けて準備します。","reading":"きたるはるにむけてじゅんびします。","vi":"Tôi chuẩn bị cho mùa xuân sắp tới.","en":"I'm preparing for the coming spring."}
+ ]}
+]

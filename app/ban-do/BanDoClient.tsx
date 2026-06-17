@@ -157,7 +157,7 @@ export default function BanDoClient({ places, areas, cats, filterAll, filterTopi
               <span className="text-[11px] font-semibold tracking-[0.8px] uppercase text-teal">
                 {p.area}
               </span>
-              <Link href={`/dia-diem/${p.slug}`}>
+              <Link href={`/places/${p.slug}`}>
                 <h3 className="font-serif font-bold text-[16px] leading-snug text-ink hover:text-rose transition-colors line-clamp-2">
                   {p.name}
                 </h3>
@@ -173,7 +173,7 @@ export default function BanDoClient({ places, areas, cats, filterAll, filterTopi
                   {openMaps}
                 </a>
                 <Link
-                  href={`/dia-diem/${p.slug}`}
+                  href={`/places/${p.slug}`}
                   className="flex-1 text-center py-2 text-[11.5px] font-semibold rounded-xl bg-teal-soft text-teal border border-teal/20 hover:bg-teal hover:text-white transition-all"
                 >
                   {detail}

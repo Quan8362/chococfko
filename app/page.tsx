@@ -86,13 +86,13 @@ export default async function Home() {
                 {t("cta_explore")}
               </Link>
               <Link
-                href="/cong-dong"
+                href="/community"
                 className="font-semibold text-[14px] px-6 py-3 rounded-full border border-[#c8b8a8] text-[#5c4d44] hover:border-ink hover:bg-ink hover:text-cream transition-all"
               >
                 {t("cta_community")}
               </Link>
               <Link
-                href="/dia-diem/dang"
+                href="/places/new"
                 className="font-semibold text-[14px] px-6 py-3 rounded-full border border-rose/50 text-rose bg-rose-soft hover:bg-rose hover:text-white hover:border-rose transition-all"
               >
                 {t("write_place_cta")}
@@ -160,7 +160,7 @@ export default async function Home() {
               </div>
               <div className="flex-none">
                 <Link
-                  href="/cong-dong/viet-bai"
+                  href="/community/write"
                   className="group inline-flex items-center gap-2.5 font-semibold text-[15px] px-9 py-4 rounded-full bg-white text-rose-deep shadow-[0_8px_30px_rgba(0,0,0,0.22)] hover:bg-[#fffdf8] hover:-translate-y-0.5 hover:shadow-[0_14px_40px_rgba(0,0,0,0.3)] transition-all duration-200 whitespace-nowrap"
                 >
                   {t("cta_write")}

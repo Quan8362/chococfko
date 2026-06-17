@@ -99,7 +99,7 @@ export default async function AdminAuctionDetailPage({ params }: { params: { id:
             </div>
             <div className="flex gap-2 ml-auto">
               <Link href={`/nguoi-dung/${winnerId}`} target="_blank" className="text-[12.5px] font-semibold px-3.5 py-1.5 rounded-full bg-cream border border-line text-ink hover:border-rose/30 transition-all">{t('view_profile')}</Link>
-              <Link href={`/cong-dong/chat?dm=${winnerId}`} className="text-[12.5px] font-semibold px-3.5 py-1.5 rounded-full bg-rose text-white hover:bg-rose-deep transition-all">{t('contact')}</Link>
+              <Link href={`/community/chat?dm=${winnerId}`} className="text-[12.5px] font-semibold px-3.5 py-1.5 rounded-full bg-rose text-white hover:bg-rose-deep transition-all">{t('contact')}</Link>
             </div>
           </div>
         ) : (

@@ -67,7 +67,7 @@ export async function upsertWord(formData: FormData): Promise<{ error?: string }
 
   if (error) return { error: error.message }
   revalidatePath('/admin/tieng-nhat/tu-dien')
-  revalidatePath('/tieng-nhat/tu-dien')
+  revalidatePath('/japanese/dictionary')
   return {}
 }
 
@@ -77,7 +77,7 @@ export async function toggleWordPublished(id: string, published: boolean): Promi
   const { error } = await admin.from('japanese_words').update({ is_published: published }).eq('id', id)
   if (error) return { error: error.message }
   revalidatePath('/admin/tieng-nhat/tu-dien')
-  revalidatePath('/tieng-nhat/tu-dien')
+  revalidatePath('/japanese/dictionary')
   return {}
 }
 
@@ -124,7 +124,7 @@ export async function upsertKanji(formData: FormData): Promise<{ error?: string 
 
   if (error) return { error: error.message }
   revalidatePath('/admin/tieng-nhat/kanji')
-  revalidatePath('/tieng-nhat/kanji')
+  revalidatePath('/japanese/kanji')
   return {}
 }
 
@@ -134,7 +134,7 @@ export async function toggleKanjiPublished(id: string, published: boolean): Prom
   const { error } = await admin.from('japanese_kanji').update({ is_published: published }).eq('id', id)
   if (error) return { error: error.message }
   revalidatePath('/admin/tieng-nhat/kanji')
-  revalidatePath('/tieng-nhat/kanji')
+  revalidatePath('/japanese/kanji')
   return {}
 }
 
@@ -169,7 +169,7 @@ export async function upsertGrammar(formData: FormData): Promise<{ error?: strin
 
   if (error) return { error: error.message }
   revalidatePath('/admin/tieng-nhat/ngu-phap')
-  revalidatePath('/tieng-nhat/ngu-phap')
+  revalidatePath('/japanese/grammar')
   return {}
 }
 
@@ -179,7 +179,7 @@ export async function toggleGrammarPublished(id: string, published: boolean): Pr
   const { error } = await admin.from('japanese_grammar').update({ is_published: published }).eq('id', id)
   if (error) return { error: error.message }
   revalidatePath('/admin/tieng-nhat/ngu-phap')
-  revalidatePath('/tieng-nhat/ngu-phap')
+  revalidatePath('/japanese/grammar')
   return {}
 }
 
@@ -264,6 +264,6 @@ export async function adminSetJpCommentStatus(formData: FormData) {
     .eq('parent_id', id)
 
   revalidatePath('/admin/tieng-nhat/binh-luan')
-  revalidatePath('/tieng-nhat/tu-dien')
-  revalidatePath('/tieng-nhat/ngu-phap')
+  revalidatePath('/japanese/dictionary')
+  revalidatePath('/japanese/grammar')
 }

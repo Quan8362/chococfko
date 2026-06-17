@@ -115,7 +115,7 @@ export default function MentionNotificationProvider() {
 
           const params = new URLSearchParams(window.location.search)
           const viewingThisRoom =
-            window.location.pathname.includes('/cong-dong/chat') &&
+            window.location.pathname.includes('/community/chat') &&
             room && params.get('room') === room.key
           // Focused & actively viewing this room → they see the message live.
           if (viewingThisRoom) return
@@ -126,8 +126,8 @@ export default function MentionNotificationProvider() {
             .slice(0, 60)
           const roomName = room?.name ?? tn('mention_dm_room')
           const roomUrl = room
-            ? `/cong-dong/chat?room=${room.key}&msg=${message_id}`
-            : `/cong-dong/chat?msg=${message_id}`
+            ? `/community/chat?room=${room.key}&msg=${message_id}`
+            : `/community/chat?msg=${message_id}`
 
           // Tab is active → in-app popup
           const notif: MentionNotif = {

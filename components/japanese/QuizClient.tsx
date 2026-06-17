@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { getQuizQuestions, saveStudySession, type QuizQuestion } from '@/app/tieng-nhat/quiz-actions'
+import { getQuizQuestions, saveStudySession, type QuizQuestion } from '@/app/japanese/quiz-actions'
 import { JLPT_LEVELS } from '@/components/japanese/LevelPicker'
 import QuizQuestionComponent from '@/components/japanese/QuizQuestion'
 import ResultSummary from '@/components/japanese/ResultSummary'
@@ -192,7 +192,7 @@ export default function QuizClient({ isLoggedIn }: QuizClientProps) {
         total={questions.length}
         durationSec={elapsedSec}
         onRetry={handleRetry}
-        backHref="/tieng-nhat"
+        backHref="/japanese"
         isLoggedIn={isLoggedIn}
         isSaving={isSaving}
         isSaved={isSaved}

@@ -378,7 +378,7 @@ function ResultCard({
         {/* Action buttons */}
         <div className="flex flex-wrap gap-3">
           <Link
-            href={`/dia-diem/${place.slug}`}
+            href={`/places/${place.slug}`}
             className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-rose text-white font-semibold text-[14px] hover:bg-rose-deep transition-all hover:-translate-y-0.5 shadow-sm hover:shadow-md"
           >
             {tDetail}

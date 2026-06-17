@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useTranslations, useLocale } from 'next-intl'
-import { submitComment, deleteComment, type CommentResult } from '@/app/cong-dong/actions'
+import { submitComment, deleteComment, type CommentResult } from '@/app/community/actions'
 import AuthorLink from '@/components/AuthorLink'
 import { avatarSrc, proxyHtml } from '@/lib/avatar'
 

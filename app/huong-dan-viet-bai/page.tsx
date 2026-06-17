@@ -71,7 +71,7 @@ export default async function HuongDanVietBai() {
             {t('heading')} {t('heading_accent')}?
           </p>
           <Link
-            href="/cong-dong/viet-bai"
+            href="/community/write"
             className="inline-flex items-center gap-2 font-semibold text-[14.5px] px-8 py-3.5 rounded-full bg-rose text-white shadow-[0_6px_20px_-6px_rgba(194,24,91,0.5)] hover:bg-rose-deep hover:-translate-y-0.5 transition-all"
           >
             {t('cta')}

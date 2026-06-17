@@ -131,7 +131,7 @@ export default function VocabularyCard({
           ↺ {t('need_review')}
         </button>
         <Link
-          href={`/tieng-nhat/tu-dien/${encodeURIComponent(word.word)}`}
+          href={`/japanese/dictionary/${encodeURIComponent(word.word)}`}
           className="ml-auto inline-flex items-center gap-1.5 text-[12px] font-semibold text-rose hover:text-rose-deep transition-colors"
         >
           💬 {t('detail_comment')}

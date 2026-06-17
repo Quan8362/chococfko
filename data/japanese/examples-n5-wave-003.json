@@ -1,0 +1,90 @@
+[
+ {"id":"c9d98ff5-ad60-4d8a-8b44-50bdf2b897d4","word":"家","reading":"か","examples":[
+   {"ja":"彼は有名な小説家です。","reading":"かれはゆうめいなしょうせつかです。","vi":"Anh ấy là tiểu thuyết gia nổi tiếng.","en":"He is a famous novelist."},
+   {"ja":"兄は音楽家になりたいそうです。","reading":"あにはおんがくかになりたいそうです。","vi":"Nghe nói anh trai tôi muốn trở thành nhạc sĩ.","en":"My older brother wants to become a musician."}
+ ]},
+ {"id":"9804e50e-19a0-4296-991a-ef129f8e839a","word":"鍵","reading":"けん","examples":[
+   {"ja":"ピアノの白い鍵をそっと押します。","reading":"ピアノのしろいけんをそっとおします。","vi":"Tôi nhẹ nhàng nhấn phím trắng của đàn piano.","en":"I gently press the white key of the piano."},
+   {"ja":"左の鍵を強く弾きました。","reading":"ひだりのけんをつよくひきました。","vi":"Tôi nhấn mạnh phím bên trái.","en":"I played the left key hard."}
+ ]},
+ {"id":"cda3f35e-482b-4950-8d94-f575faff854e","word":"週","reading":"しゅう","examples":[
+   {"ja":"今週はとても忙しい週でした。","reading":"こんしゅうはとてもいそがしいしゅうでした。","vi":"Tuần này là một tuần rất bận.","en":"This week was a very busy week."},
+   {"ja":"一週に一回部屋を掃除します。","reading":"いっしゅうにいっかいへやをそうじします。","vi":"Mỗi tuần tôi dọn phòng một lần.","en":"I clean my room once a week."}
+ ]},
+ {"id":"83c35d34-c64d-41dc-bd5f-ddbd1e3d25b3","word":"朝","reading":"ちょう","examples":[
+   {"ja":"この王朝は長く続きました。","reading":"このおうちょうはながくつづきました。","vi":"Triều đại này kéo dài rất lâu.","en":"This dynasty lasted a long time."},
+   {"ja":"唐の王朝はとても栄えました。","reading":"とうのおうちょうはとてもさかえました。","vi":"Triều đại nhà Đường rất hưng thịnh.","en":"The Tang dynasty flourished greatly."}
+ ]},
+ {"id":"bc18ee4f-acfc-48e5-be00-f2d0fa150f5d","word":"風","reading":"ふう","examples":[
+   {"ja":"この部屋は和風です。","reading":"このへやはわふうです。","vi":"Căn phòng này theo phong cách Nhật.","en":"This room is in the Japanese style."},
+   {"ja":"西洋風の建物が好きです。","reading":"せいようふうのたてものがすきです。","vi":"Tôi thích những tòa nhà kiểu Tây.","en":"I like Western-style buildings."}
+ ]},
+ {"id":"891660e0-f572-41b0-800e-e4c4c8ab1418","word":"辛い","reading":"づらい","examples":[
+   {"ja":"この字は小さくて読み辛いです。","reading":"このじはちいさくてよみづらいです。","vi":"Chữ này nhỏ nên khó đọc.","en":"This text is small and hard to read."},
+   {"ja":"彼には言い辛いことがあります。","reading":"かれにはいいづらいことがあります。","vi":"Có điều khó nói với anh ấy.","en":"There's something that's hard to tell him."}
+ ]},
+ {"id":"554379a8-2e36-4e50-b955-1fe4386e6030","word":"開ける","reading":"ひらける","examples":[
+   {"ja":"丘の上から海が開けて見えます。","reading":"おかのうえからうみがひらけてみえます。","vi":"Từ trên đồi, biển hiện ra rộng mở.","en":"From the hilltop, the sea opens out into view."},
+   {"ja":"森を抜けると道が開けました。","reading":"もりをぬけるとみちがひらけました。","vi":"Ra khỏi rừng thì con đường mở ra.","en":"When I came out of the forest, the path opened up."}
+ ]},
+ {"id":"17068114-b392-4df6-819c-d0f2f1277bac","word":"上手","reading":"うわて","examples":[
+   {"ja":"彼は私より一枚上手です。","reading":"かれはわたしよりいちまいうわてです。","vi":"Anh ấy hơn tôi một bậc.","en":"He is one step above me."},
+   {"ja":"交渉では相手の上手に出ました。","reading":"こうしょうではあいてのうわてにでました。","vi":"Trong đàm phán, tôi đã ở thế trên cơ đối phương.","en":"In the negotiation, I gained the upper hand over my opponent."}
+ ]},
+ {"id":"05be98b0-fad4-43e8-ae89-82d462006d6c","word":"今","reading":"こん","examples":[
+   {"ja":"今シーズンはチームの調子がいいです。","reading":"こんシーズンはチームのちょうしがいいです。","vi":"Mùa giải này đội đang có phong độ tốt.","en":"The team is doing well this season."},
+   {"ja":"今学期は数学を頑張ります。","reading":"こんがっきはすうがくをがんばります。","vi":"Học kỳ này tôi sẽ cố gắng môn toán.","en":"I'll work hard at math this semester."}
+ ]},
+ {"id":"f214c5fe-b829-4426-8056-20e5de778540","word":"何人","reading":"なにじん","examples":[
+   {"ja":"あの人は何人ですか。","reading":"あのひとはなにじんですか。","vi":"Người kia là người nước nào?","en":"What nationality is that person?"},
+   {"ja":"あなたは何人ですか。","reading":"あなたはなにじんですか。","vi":"Bạn là người nước nào?","en":"What nationality are you?"}
+ ]},
+ {"id":"a4129b8c-d8e2-4781-a29d-8ccfa116f955","word":"何人","reading":"なにびと","examples":[
+   {"ja":"何人もこの部屋に入れません。","reading":"なにびともこのへやにはいれません。","vi":"Không một ai được vào phòng này.","en":"No one may enter this room."},
+   {"ja":"何人もその秘密を知りません。","reading":"なにびともそのひみつをしりません。","vi":"Không một ai biết bí mật đó.","en":"No one knows that secret."}
+ ]},
+ {"id":"68b8a72c-fd59-4291-b046-584b36091de4","word":"嫌い","reading":"ぎらい","examples":[
+   {"ja":"弟は野菜嫌いです。","reading":"おとうとはやさいぎらいです。","vi":"Em trai tôi ghét rau.","en":"My younger brother dislikes vegetables."},
+   {"ja":"彼は負けず嫌いです。","reading":"かれはまけずぎらいです。","vi":"Anh ấy là người ghét thua cuộc.","en":"He hates to lose."}
+ ]},
+ {"id":"4a7cefd5-f735-49b3-907e-3f6acd4c9a1a","word":"一日","reading":"ひとひ","examples":[
+   {"ja":"秋の一日、静かな山に登りました。","reading":"あきのひとひ、しずかなやまにのぼりました。","vi":"Một ngày mùa thu, tôi leo lên ngọn núi yên tĩnh.","en":"One autumn day, I climbed a quiet mountain."},
+   {"ja":"春の一日をのんびり過ごしました。","reading":"はるのひとひをのんびりすごしました。","vi":"Tôi đã thong thả tận hưởng một ngày mùa xuân.","en":"I spent a spring day leisurely."}
+ ]},
+ {"id":"f9a5aa9f-b9e2-48ba-985c-fab2ecc93fe2","word":"開ける","reading":"はだける","examples":[
+   {"ja":"暑くて胸を開けました。","reading":"あつくてむねをはだけました。","vi":"Nóng quá nên tôi phanh ngực áo.","en":"It was hot, so I opened my shirt at the chest."},
+   {"ja":"風で着物の前が開けました。","reading":"かぜできもののまえがはだけました。","vi":"Gió làm vạt áo kimono mở ra.","en":"The wind made the front of the kimono come open."}
+ ]},
+ {"id":"c8fb161d-ded9-4a29-af51-9c00d03e03af","word":"二","reading":"に","examples":[
+   {"ja":"二階に私の部屋があります。","reading":"にかいにわたしのへやがあります。","vi":"Phòng tôi ở tầng hai.","en":"My room is on the second floor."},
+   {"ja":"二月はとても寒いです。","reading":"にがつはとてもさむいです。","vi":"Tháng Hai rất lạnh.","en":"February is very cold."}
+ ]},
+ {"id":"1bbe3fe6-75f1-494c-a482-2e9050f5caff","word":"三","reading":"さん","examples":[
+   {"ja":"三時に駅で会いましょう。","reading":"さんじにえきであいましょう。","vi":"Ba giờ gặp nhau ở ga nhé.","en":"Let's meet at the station at three o'clock."},
+   {"ja":"三月に学校を卒業します。","reading":"さんがつにがっこうをそつぎょうします。","vi":"Tháng Ba tôi tốt nghiệp.","en":"I'll graduate from school in March."}
+ ]},
+ {"id":"8a21cdc6-61c7-46e9-aee7-1924b3c84d72","word":"四","reading":"し","examples":[
+   {"ja":"四月に新しい学校が始まります。","reading":"しがつにあたらしいがっこうがはじまります。","vi":"Tháng Tư trường mới bắt đầu.","en":"The new school year starts in April."},
+   {"ja":"夏休みに四国へ旅行しました。","reading":"なつやすみにしこくへりょこうしました。","vi":"Nghỉ hè tôi đi du lịch Shikoku.","en":"I traveled to Shikoku during summer vacation."}
+ ]},
+ {"id":"082e133c-a980-49ba-bad4-0351371eb513","word":"六","reading":"ろく","examples":[
+   {"ja":"毎朝六時に起きます。","reading":"まいあさろくじにおきます。","vi":"Sáng nào tôi cũng dậy lúc sáu giờ.","en":"I get up at six every morning."},
+   {"ja":"六月は雨が多いです。","reading":"ろくがつはあめがおおいです。","vi":"Tháng Sáu mưa nhiều.","en":"It rains a lot in June."}
+ ]},
+ {"id":"496ab51e-d956-4480-a373-2a77b48c3b29","word":"七","reading":"しち","examples":[
+   {"ja":"七時に家を出ます。","reading":"しちじにいえをでます。","vi":"Bảy giờ tôi ra khỏi nhà.","en":"I leave home at seven o'clock."},
+   {"ja":"七月はとても暑いです。","reading":"しちがつはとてもあついです。","vi":"Tháng Bảy rất nóng.","en":"July is very hot."}
+ ]},
+ {"id":"45d306d5-7172-48df-966c-401475809772","word":"八","reading":"はち","examples":[
+   {"ja":"毎朝八時に学校へ行きます。","reading":"まいあさはちじにがっこうへいきます。","vi":"Sáng nào tôi cũng đến trường lúc tám giờ.","en":"I go to school at eight every morning."},
+   {"ja":"八月に夏祭りがあります。","reading":"はちがつになつまつりがあります。","vi":"Tháng Tám có lễ hội mùa hè.","en":"There is a summer festival in August."}
+ ]},
+ {"id":"93904c9c-a8a8-41e0-a40d-8d3426f70812","word":"九","reading":"きゅう","examples":[
+   {"ja":"夏休みに九州へ行きました。","reading":"なつやすみにきゅうしゅうへいきました。","vi":"Nghỉ hè tôi đã đi Kyushu.","en":"I went to Kyushu during summer vacation."},
+   {"ja":"テストで九十点を取りました。","reading":"テストできゅうじゅってんをとりました。","vi":"Tôi được 90 điểm trong bài kiểm tra.","en":"I got ninety points on the test."}
+ ]},
+ {"id":"07ba8572-44a7-4e26-a570-b2749136fc1a","word":"十","reading":"じゅう","examples":[
+   {"ja":"夜十時に寝ます。","reading":"よるじゅうじにねます。","vi":"Mười giờ tối tôi đi ngủ.","en":"I go to bed at ten at night."},
+   {"ja":"教室に十人の生徒がいます。","reading":"きょうしつにじゅうにんのせいとがいます。","vi":"Trong lớp có mười học sinh.","en":"There are ten students in the classroom."}
+ ]}
+]

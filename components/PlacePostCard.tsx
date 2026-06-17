@@ -26,7 +26,7 @@ export default async function PlacePostCard({ post }: { post: Post }) {
   const t = await getTranslations("common");
   const tCat = await getTranslations("categories");
 
-  const href = `/cong-dong/${post.id}`;
+  const href = `/community/${post.id}`;
   const catKey = post.category as Parameters<typeof tCat>[0];
   const displayCategory = tCat(catKey);
 

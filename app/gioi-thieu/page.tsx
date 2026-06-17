@@ -117,7 +117,7 @@ export default async function GioiThieu() {
             {t('cta_sub')}
           </p>
           <Link
-            href="/cong-dong/viet-bai"
+            href="/community/write"
             className="inline-flex items-center gap-2 font-semibold text-[14px] px-7 py-3 rounded-full bg-white text-rose-deep shadow-[0_4px_16px_rgba(0,0,0,0.2)] hover:bg-[#fffdf8] hover:-translate-y-0.5 transition-all"
           >
             {t('cta')}

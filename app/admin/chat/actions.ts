@@ -2,7 +2,7 @@
 
 import { checkIsAdmin, createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
-import { pinMessage, unpinMessage } from '@/app/cong-dong/chat/actions'
+import { pinMessage, unpinMessage } from '@/app/community/chat/actions'
 
 export async function adminDeleteMessage(id: string): Promise<{ ok?: boolean; error?: string }> {
   const isAdmin = await checkIsAdmin()

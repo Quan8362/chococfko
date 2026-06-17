@@ -14,7 +14,7 @@ export async function approvePost(formData: FormData) {
   const admin = createAdminClient()
   await admin.from('posts').update({ status: 'approved' }).eq('id', id)
   revalidatePath('/admin')
-  revalidatePath('/cong-dong')
+  revalidatePath('/community')
 }
 
 export async function rejectPost(formData: FormData) {
@@ -23,7 +23,7 @@ export async function rejectPost(formData: FormData) {
   const admin = createAdminClient()
   await admin.from('posts').update({ status: 'rejected' }).eq('id', id)
   revalidatePath('/admin')
-  revalidatePath('/cong-dong')
+  revalidatePath('/community')
 }
 
 export async function deletePost(formData: FormData) {
@@ -32,7 +32,7 @@ export async function deletePost(formData: FormData) {
   const admin = createAdminClient()
   await admin.from('posts').delete().eq('id', id)
   revalidatePath('/admin')
-  revalidatePath('/cong-dong')
+  revalidatePath('/community')
 }
 
 const CATEGORY_LABEL: Record<string, string> = {
@@ -61,6 +61,6 @@ export async function updatePost(formData: FormData) {
   }).eq('id', id)
 
   revalidatePath('/admin')
-  revalidatePath('/cong-dong')
+  revalidatePath('/community')
   redirect('/admin')
 }

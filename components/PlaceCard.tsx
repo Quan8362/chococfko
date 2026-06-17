@@ -51,7 +51,7 @@ const AREA_TIME_MAP: Record<string, string> = {
 export default async function PlaceCard({ place }: { place: Place }) {
   const t = await getTranslations("common");
   const tCat = await getTranslations("categories");
-  const href = `/dia-diem/${place.slug}`;
+  const href = `/places/${place.slug}`;
 
   const catKey = place.category as Parameters<typeof tCat>[0];
   const displayCategory = tCat(catKey);

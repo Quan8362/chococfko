@@ -1,5 +1,5 @@
 import { getTranslations, getLocale } from 'next-intl/server'
-import type { StudySessionRecord } from '@/app/tieng-nhat/bookmark-actions'
+import type { StudySessionRecord } from '@/app/japanese/bookmark-actions'
 import JlptBadge from './JlptBadge'
 
 function formatDuration(sec: number): string {

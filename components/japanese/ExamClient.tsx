@@ -2,7 +2,7 @@
 
 import { useCallback, useRef, useState } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
-import { saveStudySession, type QuizQuestion } from '@/app/tieng-nhat/quiz-actions'
+import { saveStudySession, type QuizQuestion } from '@/app/japanese/quiz-actions'
 import JlptBadge from '@/components/japanese/JlptBadge'
 import Timer from '@/components/japanese/Timer'
 import ResultSummary from '@/components/japanese/ResultSummary'
@@ -91,7 +91,7 @@ export default function ExamClient({
           score={score}
           total={questions.length}
           durationSec={elapsedRef.current}
-          backHref="/tieng-nhat/thi-thu"
+          backHref="/japanese/jlpt-mock-test"
           backLabel={t('back_to_exam')}
           isLoggedIn={isLoggedIn}
           isSaving={isSaving}

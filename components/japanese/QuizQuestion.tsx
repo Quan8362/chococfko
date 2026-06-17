@@ -1,7 +1,7 @@
 'use client'
 
 import { useLocale, useTranslations } from 'next-intl'
-import type { QuizQuestion as QuizQuestionType } from '@/app/tieng-nhat/quiz-actions'
+import type { QuizQuestion as QuizQuestionType } from '@/app/japanese/quiz-actions'
 
 interface QuizQuestionProps {
   question: QuizQuestionType

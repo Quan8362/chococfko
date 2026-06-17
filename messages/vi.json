@@ -1165,7 +1165,12 @@
     "site_description": "Cộng đồng người Việt tại Fukuoka — chia sẻ địa điểm ăn uống, biển, núi, công viên, quán Việt và những chuyến đi.",
     "site_twitter_description": "Cộng đồng người Việt tại Fukuoka — địa điểm ăn uống, biển, công viên, quán Việt.",
     "site_keywords": "Fukuoka, người Việt, địa điểm, cộng đồng, ăn uống, du lịch, Nhật Bản",
-    "site_og_image_alt": "Chợ Cóc FKO — Cẩm nang Fukuoka"
+    "site_og_image_alt": "Chợ Cóc FKO — Cẩm nang Fukuoka",
+    "community_description": "Cộng đồng người Việt tại Fukuoka — chia sẻ kinh nghiệm sống, thủ tục, giao thông, học tập, việc làm và những câu chuyện đời thường.",
+    "community_keywords": "cộng đồng người Việt, Fukuoka, chia sẻ kinh nghiệm, cuộc sống Nhật Bản, thủ tục, việc làm",
+    "places": "Địa điểm",
+    "places_description": "Khám phá địa điểm ăn uống, du lịch, biển, núi, công viên, quán Việt và onsen tại Fukuoka và khắp Nhật Bản.",
+    "places_keywords": "địa điểm Fukuoka, ăn uống, du lịch Nhật Bản, quán Việt, onsen, công viên"
   },
   "games": {
     "page_badge": "🎮 Mini Game",
@@ -2141,6 +2146,7 @@
     "copy_word": "Sao chép",
     "copied": "Đã sao chép",
     "related_words": "Từ liên quan",
+    "entry_lead": "{word} nghĩa là {meaning} — tra cứu cách đọc, ví dụ câu và từ vựng liên quan trong từ điển Nhật Việt Chợ Cóc FKO.",
     "view_more": "Xem thêm",
     "word_not_found": "Không tìm thấy từ này",
     "meanings_label": "Nghĩa",

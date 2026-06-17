@@ -1165,7 +1165,12 @@
     "site_description": "福冈的越南人社区 — 分享美食地点、海滩、山、公园、越南餐厅和旅行。",
     "site_twitter_description": "福冈的越南人社区 — 美食地点、海滩、公园、越南餐厅。",
     "site_keywords": "福冈, 越南人, 地点, 社区, 美食, 旅游, 日本",
-    "site_og_image_alt": "Chợ Cóc FKO — 福冈指南"
+    "site_og_image_alt": "Chợ Cóc FKO — 福冈指南",
+    "community_description": "福冈越南人社区 —— 分享生活、手续、交通、学习、工作和日常故事。",
+    "community_keywords": "越南人社区, 福冈, 日本生活, 手续, 工作",
+    "places": "地点",
+    "places_description": "探索福冈及日本各地的美食、观光、海滩、山岳、公园、越南餐厅和温泉等地点。",
+    "places_keywords": "福冈 地点, 美食, 日本旅游, 越南餐厅, 温泉, 公园"
   },
   "games": {
     "destination_wheel": {
@@ -2141,6 +2146,7 @@
     "copy_word": "复制",
     "copied": "已复制",
     "related_words": "相关词汇",
+    "entry_lead": "{word} 的意思是 {meaning} —— 在 Chợ Cóc FKO 日越词典查询读音、例句和相关词汇。",
     "view_more": "查看更多",
     "word_not_found": "未找到该词",
     "meanings_label": "含义",

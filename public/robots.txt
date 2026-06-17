@@ -6,5 +6,12 @@ Disallow: /bai-viet-cua-toi/
 Disallow: /dia-diem-da-luu/
 Disallow: /api/
 Disallow: /auth/
+Disallow: /dang-nhap/
+Disallow: /dang-ky/
+Disallow: /quen-mat-khau/
+Disallow: /dat-lai-mat-khau/
+Disallow: /notifications/
+Disallow: /japanese/profile/
+Disallow: /community/chat/
 
 Sitemap: https://chococfko.com/sitemap.xml

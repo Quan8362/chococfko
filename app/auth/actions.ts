@@ -213,7 +213,7 @@ export async function submitPlace(formData: FormData) {
     user_id: user.id,
   })
 
-  if (error) redirect('/dia-diem/dang?error=' + encodeURIComponent(error.message))
+  if (error) redirect('/places/new?error=' + encodeURIComponent(error.message))
 
   await createAdminNotification({
     type: 'new_pending_place',
@@ -225,7 +225,7 @@ export async function submitPlace(formData: FormData) {
     actor_id: user.id,
   })
 
-  redirect('/dia-diem/dang?success=1')
+  redirect('/places/new?success=1')
 }
 
 export async function submitPost(formData: FormData) {
@@ -269,7 +269,7 @@ export async function submitPost(formData: FormData) {
     fee,
   })
 
-  const base = post_type === 'place' ? '/dia-diem/dang' : '/cong-dong/viet-bai'
+  const base = post_type === 'place' ? '/places/new' : '/community/write'
   if (error) redirect(`${base}?error=${encodeURIComponent(error.message)}`)
 
   await createAdminNotification({

@@ -66,7 +66,7 @@ export default async function AdminEditPlace({ params }: { params: { slug: strin
       <p className="text-[13.5px] text-muted mb-7 flex items-center gap-2 flex-wrap">
         <code className="bg-paper border border-line px-2 py-0.5 rounded text-[12px] font-mono">{params.slug}</code>
         <span className="opacity-30">·</span>
-        <Link href={`/dia-diem/${params.slug}`} target="_blank" className="text-teal hover:underline text-[13px]">
+        <Link href={`/places/${params.slug}`} target="_blank" className="text-teal hover:underline text-[13px]">
           {admin_t('view_page_link')} →
         </Link>
       </p>

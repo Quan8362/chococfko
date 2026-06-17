@@ -90,7 +90,7 @@ export default async function PublicProfilePage({ params }: { params: { id: stri
 
       {/* Breadcrumb */}
       <Link
-        href="/cong-dong"
+        href="/community"
         className="inline-flex items-center gap-1.5 text-[12.5px] font-medium text-muted hover:text-rose transition-colors group mb-6"
       >
         <svg className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -151,7 +151,7 @@ export default async function PublicProfilePage({ params }: { params: { id: stri
                   </Link>
                 ) : viewer ? (
                   <Link
-                    href={`/cong-dong/chat?dm=${profileId}`}
+                    href={`/community/chat?dm=${profileId}`}
                     className="inline-flex items-center gap-2 font-semibold text-[13.5px] px-5 py-2.5 rounded-full bg-rose text-white hover:bg-rose-deep hover:-translate-y-px transition-all shadow-[0_4px_16px_-4px_rgba(194,24,91,0.5)]"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -213,7 +213,7 @@ export default async function PublicProfilePage({ params }: { params: { id: stri
           {posts.map((p) => (
             <Link
               key={p.id}
-              href={`/cong-dong/${p.id}`}
+              href={`/community/${p.id}`}
               className="block bg-paper border border-line rounded-2xl px-5 py-4 hover:border-rose/30 hover:shadow-sm transition-all"
             >
               <div className="flex items-center gap-2 flex-wrap text-[11.5px] text-muted mb-1">

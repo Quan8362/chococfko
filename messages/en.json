@@ -1165,7 +1165,12 @@
     "site_description": "A community of Vietnamese people in Fukuoka — sharing food spots, beaches, mountains, parks, Vietnamese restaurants and trips.",
     "site_twitter_description": "A community of Vietnamese people in Fukuoka — food spots, beaches, parks, Vietnamese restaurants.",
     "site_keywords": "Fukuoka, Vietnamese, places, community, food, travel, Japan",
-    "site_og_image_alt": "Chợ Cóc FKO — Fukuoka guide"
+    "site_og_image_alt": "Chợ Cóc FKO — Fukuoka guide",
+    "community_description": "Vietnamese community in Fukuoka — share life tips, paperwork, transport, study, work and everyday stories.",
+    "community_keywords": "Vietnamese community, Fukuoka, life in Japan, tips, paperwork, jobs",
+    "places": "Places",
+    "places_description": "Discover places to eat, sightsee, beaches, mountains, parks, Vietnamese restaurants and onsen in Fukuoka and across Japan.",
+    "places_keywords": "Fukuoka places, food, Japan travel, Vietnamese restaurants, onsen, parks"
   },
   "games": {
     "page_badge": "🎮 Mini Game",
@@ -2141,6 +2146,7 @@
     "copy_word": "Copy",
     "copied": "Copied",
     "related_words": "Related words",
+    "entry_lead": "{word} means {meaning} — look up its readings, example sentences and related vocabulary in the Chợ Cóc FKO Japanese–Vietnamese dictionary.",
     "view_more": "View more",
     "word_not_found": "Word not found",
     "meanings_label": "Meanings",

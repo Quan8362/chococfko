@@ -64,12 +64,12 @@ export default async function Footer() {
             </h4>
             <ul className="space-y-3">
               <li>
-                <Link href="/cong-dong" className={LINK_CLS}>
+                <Link href="/community" className={LINK_CLS}>
                   {t('posts')}
                 </Link>
               </li>
               <li>
-                <Link href="/cong-dong/viet-bai" className={LINK_CLS}>
+                <Link href="/community/write" className={LINK_CLS}>
                   {t('write')}
                 </Link>
               </li>

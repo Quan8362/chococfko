@@ -66,7 +66,7 @@ export async function updatePlace(formData: FormData) {
   if (error) throw new Error(error.message)
 
   revalidatePath('/admin/dia-diem')
-  revalidatePath(`/dia-diem/${slug}`)
+  revalidatePath(`/places/${slug}`)
   revalidatePath('/')
   redirect('/admin/dia-diem')
 }
@@ -122,6 +122,6 @@ export async function upsertPlaceTranslation(formData: FormData): Promise<void> 
     )
   if (error) throw new Error(error.message)
   revalidatePath(`/admin/dia-diem/${slug}`)
-  revalidatePath(`/dia-diem/${slug}`)
+  revalidatePath(`/places/${slug}`)
   revalidatePath('/')
 }

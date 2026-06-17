@@ -1,6 +1,6 @@
 import { getTranslations } from 'next-intl/server'
 import Link from 'next/link'
-import type { ReviewItem } from '@/app/tieng-nhat/bookmark-actions'
+import type { ReviewItem } from '@/app/japanese/bookmark-actions'
 import JlptBadge from './JlptBadge'
 
 type Props = { items: ReviewItem[] }
@@ -35,7 +35,7 @@ export default async function ReviewList({ items }: Props) {
             ))}
           </div>
           <Link
-            href="/tieng-nhat/flashcard"
+            href="/japanese/flashcards"
             className="inline-flex items-center gap-2 text-[13px] font-semibold text-rose hover:underline"
           >
             {t('go_review')}

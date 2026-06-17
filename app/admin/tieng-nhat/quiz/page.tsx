@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { checkIsAdmin, createAdminClient } from '@/lib/supabase/admin'
-import type { QuizQuestion } from '@/app/tieng-nhat/quiz-actions'
+import type { QuizQuestion } from '@/app/japanese/quiz-actions'
 import QuizClient from './QuizClient'
 
 export const metadata = { title: 'Admin · Quiz · Chợ Cóc FKO' }

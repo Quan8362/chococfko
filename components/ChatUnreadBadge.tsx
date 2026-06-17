@@ -13,7 +13,7 @@ export default function ChatUnreadBadge() {
   // Unique per instance to avoid Supabase channel name collision between desktop nav and mobile menu
   const instanceId = useRef(`badge-${Math.random().toString(36).slice(2)}`)
 
-  const isOnChatPage = pathname?.startsWith('/cong-dong/chat') ?? false
+  const isOnChatPage = pathname?.startsWith('/community/chat') ?? false
 
   useEffect(() => { return () => { mountedRef.current = false } }, [])
 

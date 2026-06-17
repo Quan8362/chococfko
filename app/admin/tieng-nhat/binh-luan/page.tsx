@@ -107,8 +107,8 @@ export default async function JpCommentsAdminPage({
             const isWord = r.item_type === 'word'
             const label = isWord ? (wordMap.get(r.item_id) ?? '?') : (grammarMap.get(r.item_id) ?? '?')
             const href = isWord
-              ? `/tieng-nhat/tu-dien/${encodeURIComponent(label)}`
-              : `/tieng-nhat/ngu-phap/item/${r.item_id}`
+              ? `/japanese/dictionary/${encodeURIComponent(label)}`
+              : `/japanese/grammar/item/${r.item_id}`
             const authorName = profileMap.get(r.user_id) || r.user_id.slice(0, 8)
             const hidden = r.status === 'deleted'
 

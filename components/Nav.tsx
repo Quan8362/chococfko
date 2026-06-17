@@ -58,15 +58,15 @@ export default async function Nav() {
             label={t('community')}
             showChatBadgeOnParent
             items={[
-              { href: '/cong-dong', label: t('community_posts'), icon: 'posts' },
+              { href: '/community', label: t('community_posts'), icon: 'posts' },
               { href: '/confessions', label: tConf('nav'), icon: 'confession' },
-              { href: '/cong-dong/chat', label: t('chat'), icon: 'chat', badge: 'chat' },
+              { href: '/community/chat', label: t('chat'), icon: 'chat', badge: 'chat' },
             ]}
           />
           <Link href="/cho-do-cu" className="px-3 py-1.5 rounded-lg hover:bg-line hover:text-rose transition-colors whitespace-nowrap">
             {t('marketplace')}
           </Link>
-          <Link href="/tieng-nhat" className="px-3 py-1.5 rounded-lg hover:bg-line hover:text-rose transition-colors whitespace-nowrap">
+          <Link href="/japanese" className="px-3 py-1.5 rounded-lg hover:bg-line hover:text-rose transition-colors whitespace-nowrap">
             {tJp('nav')}
           </Link>
           <NavDropdown

@@ -127,7 +127,7 @@ export default function SavedPlacesClient({ emptyTitle, emptySub, exploreCta, de
 
               <div className="flex gap-2">
                 <Link
-                  href={`/dia-diem/${slug}`}
+                  href={`/places/${slug}`}
                   className="flex-1 text-center py-2 text-[12px] font-semibold rounded-xl bg-teal-soft text-teal border border-teal/20 hover:bg-teal hover:text-white transition-all"
                 >
                   {detailLabel}

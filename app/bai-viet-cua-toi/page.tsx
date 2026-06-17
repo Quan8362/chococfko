@@ -78,7 +78,7 @@ export default async function BaiVietCuaToi() {
               {t('empty_sub')}
             </p>
             <Link
-              href="/cong-dong/viet-bai"
+              href="/community/write"
               className="inline-flex items-center gap-2 font-semibold text-[14px] px-7 py-3 rounded-full bg-rose text-white shadow-[0_4px_14px_-4px_rgba(194,24,91,0.45)] hover:bg-rose-deep hover:-translate-y-0.5 transition-all"
             >
               {t('write_first')}
@@ -134,7 +134,7 @@ export default async function BaiVietCuaToi() {
                   {/* View link — only for approved posts */}
                   {post.status === 'approved' && (
                     <Link
-                      href={`/cong-dong/${post.id}`}
+                      href={`/community/${post.id}`}
                       className="flex-none text-[12.5px] font-semibold text-teal hover:text-teal/80 transition-colors whitespace-nowrap self-center"
                     >
                       {t('view')}
@@ -150,7 +150,7 @@ export default async function BaiVietCuaToi() {
         {posts && posts.length > 0 && (
           <div className="mt-10 text-center">
             <Link
-              href="/cong-dong/viet-bai"
+              href="/community/write"
               className="inline-flex items-center gap-2 font-semibold text-[14px] px-7 py-3 rounded-full bg-rose text-white shadow-[0_4px_14px_-4px_rgba(194,24,91,0.45)] hover:bg-rose-deep hover:-translate-y-0.5 transition-all"
             >
               ✍️ Viết thêm bài

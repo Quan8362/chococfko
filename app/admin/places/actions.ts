@@ -38,9 +38,9 @@ export async function seedPlaces() {
 
   if (error) throw new Error(error.message)
 
-  revalidatePath('/admin/dia-diem')
+  revalidatePath('/admin/places')
   revalidatePath('/')
-  redirect('/admin/dia-diem?seeded=1')
+  redirect('/admin/places?seeded=1')
 }
 
 export async function updatePlace(formData: FormData) {
@@ -65,10 +65,10 @@ export async function updatePlace(formData: FormData) {
 
   if (error) throw new Error(error.message)
 
-  revalidatePath('/admin/dia-diem')
+  revalidatePath('/admin/places')
   revalidatePath(`/places/${slug}`)
   revalidatePath('/')
-  redirect('/admin/dia-diem')
+  redirect('/admin/places')
 }
 
 export async function approvePlace(formData: FormData) {
@@ -76,10 +76,10 @@ export async function approvePlace(formData: FormData) {
   const slug = formData.get('slug') as string
   const admin = createAdminClient()
   await admin.from('places').update({ status: 'approved' }).eq('slug', slug)
-  revalidatePath('/admin/dia-diem')
+  revalidatePath('/admin/places')
   revalidatePath('/admin')
   revalidatePath('/')
-  redirect(formData.get('from') === 'dashboard' ? '/admin' : '/admin/dia-diem')
+  redirect(formData.get('from') === 'dashboard' ? '/admin' : '/admin/places')
 }
 
 export async function rejectPlace(formData: FormData) {
@@ -87,10 +87,10 @@ export async function rejectPlace(formData: FormData) {
   const slug = formData.get('slug') as string
   const admin = createAdminClient()
   await admin.from('places').update({ status: 'rejected' }).eq('slug', slug)
-  revalidatePath('/admin/dia-diem')
+  revalidatePath('/admin/places')
   revalidatePath('/admin')
   revalidatePath('/')
-  redirect(formData.get('from') === 'dashboard' ? '/admin' : '/admin/dia-diem')
+  redirect(formData.get('from') === 'dashboard' ? '/admin' : '/admin/places')
 }
 
 export async function deletePlace(slug: string) {
@@ -98,7 +98,7 @@ export async function deletePlace(slug: string) {
   const admin = createAdminClient()
   const { error } = await admin.from('places').delete().eq('slug', slug)
   if (error) throw new Error(error.message)
-  revalidatePath('/admin/dia-diem')
+  revalidatePath('/admin/places')
   revalidatePath('/')
 }
 
@@ -121,7 +121,7 @@ export async function upsertPlaceTranslation(formData: FormData): Promise<void> 
       { onConflict: 'place_slug,locale' }
     )
   if (error) throw new Error(error.message)
-  revalidatePath(`/admin/dia-diem/${slug}`)
+  revalidatePath(`/admin/places/${slug}`)
   revalidatePath(`/places/${slug}`)
   revalidatePath('/')
 }

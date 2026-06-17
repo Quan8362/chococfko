@@ -141,7 +141,7 @@ export default async function AdminDiaDiem({
           {/* ── CATEGORY FILTER ──────────────────────────────── */}
           <div className="flex gap-1.5 flex-wrap mb-6">
             <Link
-              href="/admin/dia-diem"
+              href="/admin/places"
               className={`inline-flex items-center gap-1 px-4 py-[8px] rounded-full text-[12.5px] font-medium border transition-all ${
                 !searchParams.cat
                   ? 'bg-rose text-white border-rose shadow-[0_2px_10px_rgba(194,24,91,0.25)]'
@@ -160,7 +160,7 @@ export default async function AdminDiaDiem({
               return (
                 <Link
                   key={c.code}
-                  href={`/admin/dia-diem?cat=${c.code}`}
+                  href={`/admin/places?cat=${c.code}`}
                   className={`inline-flex items-center gap-1 px-4 py-[8px] rounded-full text-[12.5px] font-medium border transition-all ${
                     isActive
                       ? 'bg-rose text-white border-rose shadow-[0_2px_10px_rgba(194,24,91,0.25)]'
@@ -223,7 +223,7 @@ export default async function AdminDiaDiem({
                     👁 {admin_t('action_view')}
                   </Link>
                   <Link
-                    href={`/admin/dia-diem/${p.slug}`}
+                    href={`/admin/places/${p.slug}`}
                     className="text-[12.5px] font-semibold px-3.5 py-1.5 rounded-lg bg-teal-soft text-teal border border-teal/25 hover:bg-teal hover:text-white hover:border-teal transition-all whitespace-nowrap"
                   >
                     {admin_t('action_edit')}

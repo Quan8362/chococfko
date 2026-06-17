@@ -23,7 +23,7 @@ export default async function AdminAuctionDetailPage({ params }: { params: { id:
   const { data: lData } = await admin.from('marketplace_listings').select('*').eq('id', params.id).maybeSingle()
   const listing = lData as Listing | null
   if (!listing) notFound()
-  if (listing.listing_type !== 'auction') redirect('/admin/cho-do-cu')
+  if (listing.listing_type !== 'auction') redirect('/admin/marketplace')
 
   const { data: bidData } = await admin
     .from('marketplace_bids')
@@ -50,7 +50,7 @@ export default async function AdminAuctionDetailPage({ params }: { params: { id:
 
   return (
     <div className="max-w-[860px] mx-auto px-5 sm:px-6 py-10 pb-20">
-      <Link href="/admin/cho-do-cu?tab=auction" className="inline-flex items-center gap-1.5 text-[12.5px] font-medium text-muted hover:text-rose transition-colors mb-5">
+      <Link href="/admin/marketplace?tab=auction" className="inline-flex items-center gap-1.5 text-[12.5px] font-medium text-muted hover:text-rose transition-colors mb-5">
         ← {t('back_listings')}
       </Link>
 

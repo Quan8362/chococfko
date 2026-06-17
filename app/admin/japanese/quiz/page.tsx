@@ -26,7 +26,7 @@ export default async function QuizAdminPage() {
       <nav className="flex items-center gap-1.5 text-[12.5px] text-muted mb-8">
         <Link href="/admin" className="hover:text-rose transition-colors">Admin</Link>
         <span>/</span>
-        <Link href="/admin/tieng-nhat" className="hover:text-rose transition-colors">{t('breadcrumb')}</Link>
+        <Link href="/admin/japanese" className="hover:text-rose transition-colors">{t('breadcrumb')}</Link>
         <span>/</span>
         <span className="text-ink">Quiz</span>
       </nav>

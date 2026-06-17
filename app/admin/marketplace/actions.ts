@@ -22,7 +22,7 @@ async function setStatus(id: string, status: 'approved' | 'rejected') {
   }
 
   await admin.from('marketplace_listings').update({ status }).eq('id', id)
-  revalidatePath('/admin/cho-do-cu')
+  revalidatePath('/admin/marketplace')
   revalidatePath('/marketplace')
   revalidatePath(`/marketplace/${id}`)
 
@@ -51,6 +51,6 @@ export async function adminDeleteListing(formData: FormData): Promise<void> {
   if (!isUuid(id)) return
   const admin = createAdminClient()
   await admin.from('marketplace_listings').delete().eq('id', id)
-  revalidatePath('/admin/cho-do-cu')
+  revalidatePath('/admin/marketplace')
   revalidatePath('/marketplace')
 }

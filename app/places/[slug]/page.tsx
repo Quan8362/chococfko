@@ -227,7 +227,7 @@ export default async function PlaceDetail({ params }: { params: { slug: string }
             <p className="text-[14px] text-muted mb-8 flex items-center gap-2">
               {t("no_desc")}
               {" "}
-              <Link href={`/admin/dia-diem/${place.slug}`} className="text-rose font-semibold hover:underline">
+              <Link href={`/admin/places/${place.slug}`} className="text-rose font-semibold hover:underline">
                 {t("add_desc")}
               </Link>
             </p>

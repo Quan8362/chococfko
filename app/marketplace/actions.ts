@@ -122,7 +122,7 @@ export async function submitListing(prevState: ListingResult, formData: FormData
     message: `${displayName}: ${d.title}`,
     target_type: 'listing',
     target_id: inserted.id as string,
-    target_url: '/admin/cho-do-cu?tab=pending',
+    target_url: '/admin/marketplace?tab=pending',
     actor_id: user.id,
   })
 

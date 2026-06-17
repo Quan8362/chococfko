@@ -4,7 +4,7 @@ import { getTranslations } from 'next-intl/server'
 import { checkIsAdmin, createAdminClient } from '@/lib/supabase/admin'
 import { approvePost, rejectPost, deletePost } from './actions'
 import { imgProxy } from '@/lib/avatar'
-import { approvePlace, rejectPlace } from './dia-diem/actions'
+import { approvePlace, rejectPlace } from './places/actions'
 
 async function getPendingConfessionsCount(): Promise<number> {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return 0
@@ -238,7 +238,7 @@ export default async function AdminPage({
 
         {/* Marketplace */}
         <Link
-          href="/admin/cho-do-cu"
+          href="/admin/marketplace"
           className="relative bg-paper border border-line rounded-2xl p-5 overflow-hidden hover:border-rose/35 hover:bg-rose-soft/30 hover:-translate-y-0.5 hover:shadow-card transition-all group"
         >
           {pendingListingsCount > 0 && (
@@ -266,7 +266,7 @@ export default async function AdminPage({
 
         {/* Places */}
         <Link
-          href="/admin/dia-diem"
+          href="/admin/places"
           className="relative bg-paper border border-line rounded-2xl p-5 overflow-hidden hover:border-teal/35 hover:bg-teal-soft/40 hover:-translate-y-0.5 hover:shadow-card transition-all group"
         >
           {pendingPlaces.length > 0 && (
@@ -363,7 +363,7 @@ export default async function AdminPage({
         </Link>
         {/* Japanese */}
         <Link
-          href="/admin/tieng-nhat"
+          href="/admin/japanese"
           className="relative bg-paper border border-line rounded-2xl p-5 overflow-hidden hover:border-rose/35 hover:bg-rose-soft/30 hover:-translate-y-0.5 hover:shadow-card transition-all group"
         >
           <div className="absolute -top-8 -right-8 w-28 h-28 bg-rose/4 rounded-full pointer-events-none" />
@@ -430,7 +430,7 @@ export default async function AdminPage({
                 {/* Actions */}
                 <div className="flex gap-2 flex-wrap sm:flex-nowrap flex-none">
                   <Link
-                    href={`/admin/dia-diem/${place.slug}`}
+                    href={`/admin/places/${place.slug}`}
                     className="text-[12px] font-semibold px-3 py-[7px] rounded-lg bg-teal-soft text-teal border border-teal/25 hover:bg-teal hover:text-white hover:border-teal transition-all whitespace-nowrap"
                   >
                     {admin_t('action_edit')}

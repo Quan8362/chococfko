@@ -66,7 +66,7 @@ export async function upsertWord(formData: FormData): Promise<{ error?: string }
     : await admin.from('japanese_words').insert(payload)
 
   if (error) return { error: error.message }
-  revalidatePath('/admin/tieng-nhat/tu-dien')
+  revalidatePath('/admin/japanese/dictionary')
   revalidatePath('/japanese/dictionary')
   return {}
 }
@@ -76,7 +76,7 @@ export async function toggleWordPublished(id: string, published: boolean): Promi
   const admin = createAdminClient()
   const { error } = await admin.from('japanese_words').update({ is_published: published }).eq('id', id)
   if (error) return { error: error.message }
-  revalidatePath('/admin/tieng-nhat/tu-dien')
+  revalidatePath('/admin/japanese/dictionary')
   revalidatePath('/japanese/dictionary')
   return {}
 }
@@ -123,7 +123,7 @@ export async function upsertKanji(formData: FormData): Promise<{ error?: string 
     : await admin.from('japanese_kanji').insert(payload)
 
   if (error) return { error: error.message }
-  revalidatePath('/admin/tieng-nhat/kanji')
+  revalidatePath('/admin/japanese/kanji')
   revalidatePath('/japanese/kanji')
   return {}
 }
@@ -133,7 +133,7 @@ export async function toggleKanjiPublished(id: string, published: boolean): Prom
   const admin = createAdminClient()
   const { error } = await admin.from('japanese_kanji').update({ is_published: published }).eq('id', id)
   if (error) return { error: error.message }
-  revalidatePath('/admin/tieng-nhat/kanji')
+  revalidatePath('/admin/japanese/kanji')
   revalidatePath('/japanese/kanji')
   return {}
 }
@@ -168,7 +168,7 @@ export async function upsertGrammar(formData: FormData): Promise<{ error?: strin
     : await admin.from('japanese_grammar').insert(payload)
 
   if (error) return { error: error.message }
-  revalidatePath('/admin/tieng-nhat/ngu-phap')
+  revalidatePath('/admin/japanese/grammar')
   revalidatePath('/japanese/grammar')
   return {}
 }
@@ -178,7 +178,7 @@ export async function toggleGrammarPublished(id: string, published: boolean): Pr
   const admin = createAdminClient()
   const { error } = await admin.from('japanese_grammar').update({ is_published: published }).eq('id', id)
   if (error) return { error: error.message }
-  revalidatePath('/admin/tieng-nhat/ngu-phap')
+  revalidatePath('/admin/japanese/grammar')
   revalidatePath('/japanese/grammar')
   return {}
 }
@@ -224,7 +224,7 @@ export async function upsertQuiz(formData: FormData): Promise<{ error?: string }
     : await admin.from('jp_quiz_questions').insert(payload)
 
   if (error) return { error: error.message }
-  revalidatePath('/admin/tieng-nhat/quiz')
+  revalidatePath('/admin/japanese/quiz')
   return {}
 }
 
@@ -233,7 +233,7 @@ export async function toggleQuizPublished(id: string, published: boolean): Promi
   const admin = createAdminClient()
   const { error } = await admin.from('jp_quiz_questions').update({ is_published: published }).eq('id', id)
   if (error) return { error: error.message }
-  revalidatePath('/admin/tieng-nhat/quiz')
+  revalidatePath('/admin/japanese/quiz')
   return {}
 }
 
@@ -263,7 +263,7 @@ export async function adminSetJpCommentStatus(formData: FormData) {
     .update({ status, deleted_at: deletedAt })
     .eq('parent_id', id)
 
-  revalidatePath('/admin/tieng-nhat/binh-luan')
+  revalidatePath('/admin/japanese/comments')
   revalidatePath('/japanese/dictionary')
   revalidatePath('/japanese/grammar')
 }

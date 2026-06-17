@@ -221,7 +221,7 @@ export async function submitPlace(formData: FormData) {
     message: name,
     target_type: 'place',
     target_id: slug,
-    target_url: `/admin/dia-diem/${slug}`,
+    target_url: `/admin/places/${slug}`,
     actor_id: user.id,
   })
 

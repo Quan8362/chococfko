@@ -70,6 +70,14 @@ const LEGACY_REDIRECTS = [
   { source: '/dang-ky/:path*',              destination: '/register/:path*' },
   { source: '/quen-mat-khau/:path*',        destination: '/forgot-password/:path*' },
   { source: '/dat-lai-mat-khau/:path*',     destination: '/reset-password/:path*' },
+
+  // ── Admin (internal — kept consistent in English) ──────────────────
+  { source: '/admin/tieng-nhat/tu-dien/:path*',  destination: '/admin/japanese/dictionary/:path*' },
+  { source: '/admin/tieng-nhat/ngu-phap/:path*', destination: '/admin/japanese/grammar/:path*' },
+  { source: '/admin/tieng-nhat/binh-luan/:path*', destination: '/admin/japanese/comments/:path*' },
+  { source: '/admin/tieng-nhat/:path*',          destination: '/admin/japanese/:path*' },
+  { source: '/admin/cho-do-cu/:path*',           destination: '/admin/marketplace/:path*' },
+  { source: '/admin/dia-diem/:path*',            destination: '/admin/places/:path*' },
 ].map(r => ({ ...r, permanent: true }))
 
 /** @type {import('next').NextConfig} */

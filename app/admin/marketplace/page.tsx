@@ -68,7 +68,7 @@ export default async function AdminMarketplacePage({ searchParams }: { searchPar
         {tabs.map(tb => (
           <Link
             key={tb.key}
-            href={`/admin/cho-do-cu?tab=${tb.key}`}
+            href={`/admin/marketplace?tab=${tb.key}`}
             className={`inline-flex items-center gap-2 text-[13.5px] font-semibold px-4 py-2 rounded-full border transition-all ${tab === tb.key ? 'border-rose bg-rose/10 text-rose' : 'border-line bg-paper text-muted hover:border-rose/30'}`}
           >
             {tb.label}
@@ -108,7 +108,7 @@ export default async function AdminMarketplacePage({ searchParams }: { searchPar
                   </p>
                   <div className="flex gap-2 mt-2.5 flex-wrap">
                     {l.listing_type === 'auction' && (
-                      <Link href={`/admin/cho-do-cu/${l.id}`} className="text-[12.5px] font-semibold px-3.5 py-1.5 rounded-full bg-rose/10 text-rose hover:bg-rose/20 transition-all">{t('view_bids')} →</Link>
+                      <Link href={`/admin/marketplace/${l.id}`} className="text-[12.5px] font-semibold px-3.5 py-1.5 rounded-full bg-rose/10 text-rose hover:bg-rose/20 transition-all">{t('view_bids')} →</Link>
                     )}
                     {l.status !== 'approved' && (
                       <form action={approveListing}><input type="hidden" name="id" value={l.id} /><button className="text-[12.5px] font-semibold px-3.5 py-1.5 rounded-full bg-emerald-500 text-white hover:bg-emerald-600 transition-all">{t('approve')}</button></form>

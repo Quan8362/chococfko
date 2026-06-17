@@ -71,7 +71,7 @@ export default async function JpCommentsAdminPage({
       <nav className="flex items-center gap-1.5 text-[12.5px] text-muted mb-8">
         <Link href="/admin" className="hover:text-rose transition-colors">Admin</Link>
         <span>/</span>
-        <Link href="/admin/tieng-nhat" className="hover:text-rose transition-colors">{t('breadcrumb')}</Link>
+        <Link href="/admin/japanese" className="hover:text-rose transition-colors">{t('breadcrumb')}</Link>
         <span>/</span>
         <span className="text-ink">{t('c_title')}</span>
       </nav>
@@ -86,7 +86,7 @@ export default async function JpCommentsAdminPage({
         {TABS.map(tk => (
           <Link
             key={tk}
-            href={`/admin/tieng-nhat/binh-luan${tk === 'all' ? '' : `?status=${tk}`}`}
+            href={`/admin/japanese/comments${tk === 'all' ? '' : `?status=${tk}`}`}
             className={`text-[12.5px] font-semibold px-3 py-1.5 rounded-lg transition-colors ${
               tab === tk ? 'bg-rose text-white' : 'bg-cream text-muted hover:text-ink hover:bg-line'
             }`}

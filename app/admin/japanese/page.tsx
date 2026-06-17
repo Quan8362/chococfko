@@ -38,11 +38,11 @@ export default async function JapaneseAdminPage() {
   ])
 
   const sections = [
-    { emoji: '📖', label: t('section_dictionary'), href: '/admin/tieng-nhat/tu-dien', stats: words, color: 'rose' },
-    { emoji: '漢', label: 'Kanji', href: '/admin/tieng-nhat/kanji', stats: kanji, color: 'amber' },
-    { emoji: '✏️', label: t('section_grammar'), href: '/admin/tieng-nhat/ngu-phap', stats: grammar, color: 'violet' },
-    { emoji: '🎯', label: 'Quiz', href: '/admin/tieng-nhat/quiz', stats: quiz, color: 'teal' },
-    { emoji: '💬', label: t('section_comments'), href: '/admin/tieng-nhat/binh-luan', stats: comments, color: 'rose' },
+    { emoji: '📖', label: t('section_dictionary'), href: '/admin/japanese/dictionary', stats: words, color: 'rose' },
+    { emoji: '漢', label: 'Kanji', href: '/admin/japanese/kanji', stats: kanji, color: 'amber' },
+    { emoji: '✏️', label: t('section_grammar'), href: '/admin/japanese/grammar', stats: grammar, color: 'violet' },
+    { emoji: '🎯', label: 'Quiz', href: '/admin/japanese/quiz', stats: quiz, color: 'teal' },
+    { emoji: '💬', label: t('section_comments'), href: '/admin/japanese/comments', stats: comments, color: 'rose' },
   ]
 
   return (
@@ -60,7 +60,7 @@ export default async function JapaneseAdminPage() {
           <h1 className="font-serif font-bold text-[28px] text-ink mb-1">🇯🇵 {t('hub_title')}</h1>
           <p className="text-[14px] text-muted">{t('hub_subtitle')}</p>
         </div>
-        <Link href="/admin/tieng-nhat/import"
+        <Link href="/admin/japanese/import"
           className="flex items-center gap-2 px-4 py-2.5 bg-cream border border-line rounded-xl text-[13px] font-semibold text-ink hover:border-rose/40 hover:text-rose transition-colors shrink-0">
           📥 {t('import_data')}
         </Link>

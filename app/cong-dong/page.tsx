@@ -111,28 +111,15 @@ export default async function CongDong() {
       <section id="chu-de" className="pt-6 pb-[60px] scroll-mt-24">
         <div className="max-w-[1240px] mx-auto px-6">
           {/* Section header */}
-          <div className="flex items-end justify-between flex-wrap gap-3 mb-6">
-            <div>
-              <h2 className="font-serif text-[26px] font-bold tracking-[-0.3px] text-ink leading-tight">
-                {t('latest_heading')}
-              </h2>
-              <p className="text-muted text-[13.5px] mt-1">
-                {dbPosts
-                  ? `${dbPosts.length} ${t('latest_sub_unit')}`
-                  : t('latest_sub')}
-              </p>
-            </div>
-            {dbPosts && dbPosts.length > 0 && (
-              <Link
-                href="/cong-dong/viet-bai"
-                className="hidden sm:inline-flex items-center gap-1.5 text-[13px] font-semibold text-rose hover:text-rose-deep transition-colors"
-              >
-                {t('cta_write')}
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </Link>
-            )}
+          <div className="mb-6">
+            <h2 className="font-serif text-[26px] font-bold tracking-[-0.3px] text-ink leading-tight">
+              {t('latest_heading')}
+            </h2>
+            <p className="text-muted text-[13.5px] mt-1">
+              {dbPosts
+                ? `${dbPosts.length} ${t('latest_sub_unit')}`
+                : t('latest_sub')}
+            </p>
           </div>
 
           <Suspense fallback={null}>

@@ -20,6 +20,7 @@ export interface Post {
   fee?: string;
   postType?: string;
   createdAt?: string; // raw ISO timestamp for SEO/JSON-LD; `date` is the localized relative string
+  placeSlug?: string | null; // place this post is about (places.slug), if any
 }
 
 function lf(tags: string, n: number) {
@@ -178,6 +179,7 @@ interface DbPost {
   author_avatar?: string | null;
   map_url?: string | null;
   fee?: string | null;
+  place_slug?: string | null;
 }
 
 const AUTHOR_COLORS = [
@@ -224,7 +226,34 @@ function mapDbPost(row: DbPost, index: number, locale = 'vi'): Post {
     fee: row.fee || undefined,
     postType: row.post_type || undefined,
     createdAt: row.created_at || undefined,
+    placeSlug: row.place_slug ?? null,
   };
+}
+
+/**
+ * Approved community posts written about a specific place (by places.slug).
+ *
+ * Resilient by design: if the `place_slug` column does not exist yet (migration
+ * not applied) or any query error occurs, returns [] so the place page simply
+ * shows its empty state instead of crashing.
+ */
+export async function getPostsForPlace(placeSlug: string, locale = 'vi', limit = 6): Promise<Post[]> {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !placeSlug) return [];
+  try {
+    const { createClient } = await import('@/lib/supabase/server');
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from('posts_with_author')
+      .select('*')
+      .eq('place_slug', placeSlug)
+      .eq('status', 'approved')
+      .order('created_at', { ascending: false })
+      .limit(limit);
+    if (error || !data) return [];
+    return (data as DbPost[]).map((row, i) => mapDbPost(row, i, locale));
+  } catch {
+    return [];
+  }
 }
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;

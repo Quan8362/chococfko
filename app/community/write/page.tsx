@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
+import { getPlace, getPlaceFromDb } from '@/lib/places'
 import { submitPost } from '@/app/auth/actions'
 import ImageUpload from '@/components/ImageUpload'
 
@@ -42,19 +43,25 @@ const TIP_KEYS = [
 export default async function VietBai({
   searchParams,
 }: {
-  searchParams: { error?: string; success?: string; type?: string }
+  searchParams: { error?: string; success?: string; type?: string; place?: string }
 }) {
   // Redirect place-type requests to the dedicated place form
   if (searchParams.type === 'place') {
     redirect('/places/new')
   }
 
-  const [user, t, tcat] = await Promise.all([
+  const [user, t, tcat, tc] = await Promise.all([
     getUser(),
     getTranslations('post_form'),
     getTranslations('community'),
+    getTranslations('common'),
   ])
   const tn = await getTranslations('nav')
+
+  // Optional: writing about a specific place (linked from a place detail page)
+  const place = searchParams.place
+    ? (await getPlaceFromDb(searchParams.place)) ?? getPlace(searchParams.place)
+    : null
 
   const TIPS = TIP_KEYS.map((key, i) => ({
     icon: TIP_ICONS[i],
@@ -148,6 +155,17 @@ export default async function VietBai({
 
             <form action={submitPost} className="space-y-5">
               <input type="hidden" name="post_type" value="community" />
+              {place && <input type="hidden" name="place_slug" value={place.slug} />}
+
+              {/* Linked place banner */}
+              {place && (
+                <div className="flex items-center gap-2.5 bg-rose-soft/60 border border-rose/20 rounded-xl px-3.5 py-2.5 text-[13.5px] text-ink">
+                  <span className="text-[15px] leading-none">📍</span>
+                  <span>
+                    {tc('write_about')} <b className="font-semibold text-rose">{place.name}</b>
+                  </span>
+                </div>
+              )}
 
               {/* Row 1: Title + Area */}
               <div className="grid sm:grid-cols-2 gap-4">

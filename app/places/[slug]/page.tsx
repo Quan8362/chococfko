@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { getTranslations, getLocale } from "next-intl/server";
 import { proxyStorageImages } from "@/lib/imageProxy";
 import { getPlace, places, getAllPlacesFromDb, getPlaceFromDb, getPlaceComments, getPlaceRating, type Place } from "@/lib/places";
+import { getPostsForPlace } from "@/lib/posts";
 import { checkIsAdmin } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { stripHtml } from "@/lib/sanitize";
@@ -11,6 +12,7 @@ import { SITE_URL, SITE_NAME, DEFAULT_OG_IMAGE, OG_LOCALE, breadcrumbJsonLd, jso
 import SmartImg from "@/components/SmartImg";
 import StarsDisplay from "@/components/marketplace/StarsDisplay";
 import PlaceCard from "@/components/PlaceCard";
+import PlacePostCard from "@/components/PlacePostCard";
 import PlaceRating from "./PlaceRating";
 import PlaceComments from "./PlaceComments";
 
@@ -91,12 +93,13 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 export default async function PlaceDetail({ params }: { params: { slug: string } }) {
   const locale = await getLocale()
   const currentUser = await getCurrentUser();
-  const [dbPlace, isAdmin, dbAllPlaces, comments, rating] = await Promise.all([
+  const [dbPlace, isAdmin, dbAllPlaces, comments, rating, placePosts] = await Promise.all([
     getPlaceFromDb(params.slug, locale),
     checkIsAdmin(),
     getAllPlacesFromDb(locale),
     getPlaceComments(params.slug),
     getPlaceRating(params.slug, currentUser?.id),
+    getPostsForPlace(params.slug, locale),
   ]);
 
   const place = dbPlace ?? getPlace(params.slug);
@@ -233,20 +236,31 @@ export default async function PlaceDetail({ params }: { params: { slug: string }
             </p>
           ) : null}
 
-          {/* Member posts */}
+          {/* Member posts written about this place */}
           <div className="border-t border-line pt-8">
-            <h3 className="font-serif font-bold text-[22px] mb-5">{t("member_posts")}</h3>
-            <div className="bg-paper border border-dashed border-line rounded-2xl p-7 text-center">
-              <p className="text-[14.5px] text-muted leading-[1.7] mb-5 max-w-[340px] mx-auto">
-                {t("no_posts_place")}
-              </p>
+            <div className="flex items-center justify-between gap-4 mb-5 flex-wrap">
+              <h3 className="font-serif font-bold text-[22px]">{t("member_posts")}</h3>
               <Link
-                href={`/community/write?category=${place.category}`}
-                className="inline-flex items-center gap-1.5 font-semibold text-[13.5px] px-5 py-2.5 rounded-full bg-rose text-white hover:bg-rose-deep transition-all shadow-[0_4px_14px_-4px_rgba(194,24,91,0.4)]"
+                href={`/community/write?place=${encodeURIComponent(place.slug)}`}
+                className="inline-flex items-center gap-1.5 font-semibold text-[13px] px-4 py-2 rounded-full bg-rose text-white hover:bg-rose-deep transition-all shadow-[0_4px_14px_-4px_rgba(194,24,91,0.4)]"
               >
                 {t("write_about")} {place.name}
               </Link>
             </div>
+
+            {placePosts.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                {placePosts.map((post) => (
+                  <PlacePostCard key={post.id} post={post} />
+                ))}
+              </div>
+            ) : (
+              <div className="bg-paper border border-dashed border-line rounded-2xl p-7 text-center">
+                <p className="text-[14.5px] text-muted leading-[1.7] max-w-[340px] mx-auto">
+                  {t("no_posts_place")}
+                </p>
+              </div>
+            )}
           </div>
         </div>
 

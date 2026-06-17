@@ -253,7 +253,20 @@ export async function submitPost(formData: FormData) {
   const map_url = post_type === 'place' ? ((formData.get('map_url') as string | null)?.trim() || null) : null
   const fee = post_type === 'place' ? ((formData.get('fee') as string | null) || null) : null
 
-  const { error } = await supabase.from('posts').insert({
+  // Community post written about a specific place (from a place detail page).
+  // Validate the slug against a real place so we never store a dangling link.
+  const placeSlugRaw = (formData.get('place_slug') as string | null)?.trim() || ''
+  let place_slug: string | null = null
+  if (placeSlugRaw) {
+    const { data: place } = await supabase
+      .from('places')
+      .select('slug')
+      .eq('slug', placeSlugRaw)
+      .maybeSingle()
+    place_slug = place?.slug ?? null
+  }
+
+  const baseRow: Record<string, unknown> = {
     user_id: user.id,
     title: (formData.get('title') as string).trim(),
     category,
@@ -267,7 +280,15 @@ export async function submitPost(formData: FormData) {
     status: 'pending',
     map_url,
     fee,
-  })
+  }
+  const insertRow: Record<string, unknown> = place_slug ? { ...baseRow, place_slug } : baseRow
+
+  let { error } = await supabase.from('posts').insert(insertRow)
+  // Backward-compat: if the place_slug column hasn't been migrated yet, still
+  // create the post (without the link) instead of failing the whole submission.
+  if (error && place_slug && /place_slug/.test(error.message)) {
+    ;({ error } = await supabase.from('posts').insert(baseRow))
+  }
 
   const base = post_type === 'place' ? '/places/new' : '/community/write'
   if (error) redirect(`${base}?error=${encodeURIComponent(error.message)}`)

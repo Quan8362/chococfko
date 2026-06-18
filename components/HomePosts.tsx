@@ -7,7 +7,7 @@ import { imgProxy } from '@/lib/avatar'
 import UserAvatar from '@/components/UserAvatar'
 
 const CAT_EMOJI: Record<string, string> = {
-  landmark: '🏯', food: '🍜', sea: '🏖️', camp: '⛺', mountain: '🥾',
+  landmark: '🏯', food: '🍜', sea: '🏖️', camp: '⛺', mountain: '⛰️',
   park: '🌳', viet: '🥢', grocery: '🛒', izakaya: '🍺', japanese: '🍣',
   thai: '🌶️', chinese: '🥡', korean: '🥩', cafe_milk_tea: '☕', kids_playground: '🎠', onsen: '♨️',
 }

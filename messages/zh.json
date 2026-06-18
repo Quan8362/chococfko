@@ -71,10 +71,7 @@
     "view_all_aria": "查看全部{category}地点",
     "load_more": "加载更多",
     "no_more": "没有更多了",
-    "category_count": "{count} 个地点",
-    "free_label": "免费",
-    "free_count": "{count} 个免费地点",
-    "suitable_weekend": "适合周末出行"
+    "category_count": "{count} 个地点"
   },
   "community": {
     "label": "Chợ Cóc FKO 社区",
@@ -504,23 +501,7 @@
     "kids_playground": "儿童游乐场",
     "kids_playground_full": "儿童游乐场",
     "onsen": "温泉",
-    "onsen_full": "温泉",
-    "landmark_subtitle": "值得游览、打卡和体验的热门地点",
-    "food_subtitle": "社区推荐的餐馆、酒馆和夜间去处",
-    "sea_subtitle": "看海、野餐与周末放松的好去处",
-    "camp_subtitle": "露营、野餐与户外休憩",
-    "mountain_subtitle": "徒步、登山与自然风景路线",
-    "park_subtitle": "适合散步、拍照与放松的绿地",
-    "viet_subtitle": "在日本的家乡越南菜馆",
-    "grocery_subtitle": "购买越南食品、调味料的店铺",
-    "izakaya_subtitle": "适合与朋友小聚的居酒屋、烤串和酒馆",
-    "japanese_subtitle": "从寿司拉面到经典的美味日料店",
-    "thai_subtitle": "在日本品尝地道的泰国风味",
-    "chinese_subtitle": "从点心到火锅的中华美食",
-    "korean_subtitle": "适合聚会的韩式烤肉、汤锅与料理",
-    "cafe_milk_tea_subtitle": "咖啡、奶茶与放松小坐的角落",
-    "kids_playground_subtitle": "安全又好玩的儿童游乐场所",
-    "onsen_subtitle": "温泉、钱汤与下班后放松的去处"
+    "onsen_full": "温泉"
   },
   "profile": {
     "title": "个人主页",

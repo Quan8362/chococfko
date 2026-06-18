@@ -9,7 +9,6 @@ import type { Place } from "@/lib/places";
 interface CatProp {
   code: string;
   label: string;
-  subtitle: string;
   emoji: string;
 }
 
@@ -262,40 +261,20 @@ export default function ExploreSearch({
           const href = prefecture
             ? `/places?category=${c.code}&prefecture=${prefecture}`
             : `/places?category=${c.code}`;
-
-          // Smart free-status: computed from the visible preview cards only.
-          // All free → show one section tag, hide per-card free badges (Case A).
-          // Some free → show a count, keep subtle badges on free cards (Case B).
-          const preview = items.slice(0, PREVIEW_LIMIT);
-          const freeCount = preview.filter((p) => p.fee === "free").length;
-          const allFree = freeCount > 0 && freeCount === preview.length;
-          const gridClass = allFree ? `${PREVIEW_GRID} [&_.place-free-badge]:hidden` : PREVIEW_GRID;
-
           return (
             <section key={c.code} id={`sec-${c.code}`} className="pt-14 pb-2 scroll-mt-[140px]">
               <div className="max-w-[1240px] mx-auto px-6">
-                <div className="flex items-start gap-3.5 mb-7">
-                  <div className="w-11 h-11 flex-none rounded-xl bg-rose/[0.07] text-[20px] grid place-items-center border border-rose/10">
+                <div className="flex items-center gap-3.5 mb-7">
+                  <div className="w-10 h-10 flex-none rounded-xl bg-rose/10 text-[20px] grid place-items-center border border-rose/15">
                     {c.emoji}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h2 className="font-serif text-[clamp(21px,2.6vw,30px)] font-bold tracking-[-0.3px] leading-tight text-ink">
-                      {c.label}
-                    </h2>
-                    <p className="mt-1 text-[13.5px] text-muted leading-snug line-clamp-2 sm:line-clamp-1">
-                      {c.subtitle}
-                    </p>
-                    {(allFree || freeCount > 0) && (
-                      <span className="mt-2 inline-flex items-center gap-1 text-[11.5px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-100/80 px-2.5 py-[3px] rounded-full">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
-                        {allFree ? t("free_label") : t("free_count", { count: freeCount })}
-                      </span>
-                    )}
-                  </div>
+                  <h2 className="font-serif text-[clamp(22px,2.8vw,32px)] font-bold tracking-[-0.3px] leading-tight text-ink flex-1 min-w-0">
+                    {c.label}
+                  </h2>
                   <Link
                     href={href}
                     aria-label={t("view_all_aria", { category: c.label })}
-                    className="group inline-flex items-center gap-1 flex-none mt-1 text-[13px] font-medium text-rose/85 hover:text-rose-deep focus-visible:text-rose-deep focus-visible:underline underline-offset-4 outline-none transition-colors whitespace-nowrap"
+                    className="group inline-flex items-center gap-1 flex-none text-[13px] font-semibold text-rose hover:text-rose-deep transition-colors whitespace-nowrap"
                   >
                     <span className="hidden sm:inline">{t("view_all_count", { count: items.length })}</span>
                     <span className="sm:hidden">{t("view_all")}</span>
@@ -304,8 +283,8 @@ export default function ExploreSearch({
                     </svg>
                   </Link>
                 </div>
-                <div className={gridClass}>
-                  {preview.map((p) => (
+                <div className={PREVIEW_GRID}>
+                  {items.slice(0, PREVIEW_LIMIT).map((p) => (
                     <Fragment key={p.slug}>{cards[p.slug]}</Fragment>
                   ))}
                 </div>

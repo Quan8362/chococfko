@@ -71,10 +71,7 @@
     "view_all_aria": "View all {category} places",
     "load_more": "Load more",
     "no_more": "No more items",
-    "category_count": "{count} places",
-    "free_label": "Free",
-    "free_count": "{count} free places",
-    "suitable_weekend": "Great for weekends"
+    "category_count": "{count} places"
   },
   "community": {
     "label": "Chợ Cóc FKO Community",
@@ -504,23 +501,7 @@
     "kids_playground": "Kids playgrounds",
     "kids_playground_full": "Kids playgrounds",
     "onsen": "Onsen",
-    "onsen_full": "Onsen (hot spring)",
-    "landmark_subtitle": "Standout sights, check-in spots and experiences",
-    "food_subtitle": "Eateries, bars and nightlife the community recommends",
-    "sea_subtitle": "Sea views, picnics and weekend getaways",
-    "camp_subtitle": "Camping, picnics and the outdoors",
-    "mountain_subtitle": "Hiking trails, trekking and nature views",
-    "park_subtitle": "Green spaces to stroll, shoot photos and relax",
-    "viet_subtitle": "Familiar Vietnamese restaurants in Japan",
-    "grocery_subtitle": "Where to buy Vietnamese goods, spices and food",
-    "izakaya_subtitle": "Izakaya, yakitori and bars great with friends",
-    "japanese_subtitle": "Great Japanese spots from sushi and ramen to classics",
-    "thai_subtitle": "Bold Thai flavours in the heart of Japan",
-    "chinese_subtitle": "Chinese dishes from dim sum to hotpot",
-    "korean_subtitle": "Korean BBQ, stews and dishes for gatherings",
-    "cafe_milk_tea_subtitle": "Coffee, milk tea and cosy spots to chill",
-    "kids_playground_subtitle": "Safe, fun play areas for kids",
-    "onsen_subtitle": "Hot springs, sento and post-work relaxation"
+    "onsen_full": "Onsen (hot spring)"
   },
   "profile": {
     "title": "Profile",

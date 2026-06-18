@@ -10,7 +10,7 @@ const CAT_EMOJI: Record<string, string> = {
   food: "🍜",
   sea: "🏖️",
   camp: "⛺",
-  mountain: "🥾",
+  mountain: "⛰️",
   park: "🌳",
   viet: "🥢",
   grocery: "🛒",
@@ -61,12 +61,10 @@ export default async function PlaceCard({
           <SavePlaceButton slug={place.slug} name={place.name} area={displayArea} img={place.img} categoryLabel={displayCategory} size="sm" />
         </span>
 
-        {/* Free badge — carries place-free-badge so a category section whose
-            visible cards are ALL free can hide them via CSS (the heading shows
-            "Miễn phí" instead). Kept subtle: soft bg, no shadow, a ✓ marker. */}
+        {/* Fee badge — moved below save button if no fee */}
         {place.fee === "free" && (
-          <span className="place-free-badge absolute bottom-3 right-3 z-[2] inline-flex items-center gap-0.5 text-[10.5px] font-semibold px-2.5 py-[4px] rounded-full bg-emerald-50/90 text-emerald-700 border border-emerald-100/80 backdrop-blur-sm">
-            ✓ {t("fee_free")}
+          <span className="absolute bottom-3 right-3 z-[2] text-[10.5px] font-semibold px-2.5 py-[5px] rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100">
+            {t("fee_free")}
           </span>
         )}
         {place.fee === "paid" && (

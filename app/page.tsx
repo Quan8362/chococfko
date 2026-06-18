@@ -14,7 +14,7 @@ const CAT_EMOJI: Record<string, string> = {
   food: "🍜",
   sea: "🏖️",
   camp: "⛺",
-  mountain: "🥾",
+  mountain: "⛰️",
   park: "🌳",
   viet: "🥢",
   grocery: "🛒",
@@ -132,7 +132,6 @@ export default async function Home() {
         categories={visibleCategories.map((c) => ({
           code: c.code,
           label: tc(`${c.code}_full` as Parameters<typeof tc>[0]),
-          subtitle: tc(`${c.code}_subtitle` as Parameters<typeof tc>[0]),
           emoji: CAT_EMOJI[c.code],
         }))}
         cards={Object.fromEntries(

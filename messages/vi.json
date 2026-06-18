@@ -71,10 +71,7 @@
     "view_all_aria": "Xem tất cả địa điểm {category}",
     "load_more": "Xem thêm",
     "no_more": "Đã hiển thị tất cả",
-    "category_count": "{count} địa điểm",
-    "free_label": "Miễn phí",
-    "free_count": "{count} địa điểm miễn phí",
-    "suitable_weekend": "Phù hợp đi cuối tuần"
+    "category_count": "{count} địa điểm"
   },
   "community": {
     "label": "Cộng đồng Chợ Cóc FKO",
@@ -504,23 +501,7 @@
     "kids_playground": "Khu vui chơi trẻ em",
     "kids_playground_full": "Khu vui chơi dành cho bé",
     "onsen": "Onsen",
-    "onsen_full": "Onsen (suối nước nóng)",
-    "landmark_subtitle": "Những địa điểm tham quan, check-in và trải nghiệm nổi bật",
-    "food_subtitle": "Quán ăn, quán nhậu và điểm vui chơi được cộng đồng gợi ý",
-    "sea_subtitle": "Những địa điểm ngắm biển, dã ngoại và thư giãn cuối tuần",
-    "camp_subtitle": "Không gian cắm trại, picnic và nghỉ ngơi ngoài trời",
-    "mountain_subtitle": "Cung đường hiking, trekking và ngắm cảnh thiên nhiên",
-    "park_subtitle": "Không gian xanh để đi dạo, chụp ảnh và thư giãn",
-    "viet_subtitle": "Những địa chỉ món Việt thân quen tại Nhật",
-    "grocery_subtitle": "Nơi mua đồ Việt, gia vị và thực phẩm quen thuộc",
-    "izakaya_subtitle": "Izakaya, yakitori và quán nhậu phù hợp đi cùng bạn bè",
-    "japanese_subtitle": "Quán Nhật ngon từ sushi, ramen đến món truyền thống",
-    "thai_subtitle": "Hương vị Thái Lan đậm đà giữa lòng nước Nhật",
-    "chinese_subtitle": "Món Trung Hoa từ dimsum đến lẩu nóng hổi",
-    "korean_subtitle": "BBQ, lẩu và món Hàn cho ngày tụ họp",
-    "cafe_milk_tea_subtitle": "Cà phê, trà sữa và góc ngồi chill thư giãn",
-    "kids_playground_subtitle": "Khu vui chơi an toàn và vui nhộn cho các bé",
-    "onsen_subtitle": "Suối nước nóng, sento và điểm thư giãn sau giờ làm"
+    "onsen_full": "Onsen (suối nước nóng)"
   },
   "profile": {
     "title": "Hồ sơ cá nhân",

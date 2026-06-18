@@ -71,10 +71,7 @@
     "view_all_aria": "{category}の地点をすべて見る",
     "load_more": "もっと見る",
     "no_more": "すべて表示しました",
-    "category_count": "{count}件",
-    "free_label": "無料",
-    "free_count": "無料スポット{count}件",
-    "suitable_weekend": "週末におすすめ"
+    "category_count": "{count}件"
   },
   "community": {
     "label": "Chợ Cóc FKO コミュニティ",
@@ -504,23 +501,7 @@
     "kids_playground": "子どもの遊び場",
     "kids_playground_full": "子どもの遊び場",
     "onsen": "温泉",
-    "onsen_full": "温泉",
-    "landmark_subtitle": "観光・撮影スポットや人気の体験",
-    "food_subtitle": "コミュニティおすすめの飲食店・居酒屋・夜遊びスポット",
-    "sea_subtitle": "海の景色・ピクニック・週末のリフレッシュ",
-    "camp_subtitle": "キャンプ・ピクニック・アウトドア",
-    "mountain_subtitle": "ハイキング・トレッキング・自然の絶景",
-    "park_subtitle": "散歩・撮影・くつろぎの緑のスポット",
-    "viet_subtitle": "日本で味わう懐かしのベトナム料理店",
-    "grocery_subtitle": "ベトナム食材・調味料が買えるお店",
-    "izakaya_subtitle": "友達と楽しむ居酒屋・焼き鳥・お店",
-    "japanese_subtitle": "寿司・ラーメンから定番まで美味しい和食店",
-    "thai_subtitle": "日本で味わう本格タイ料理",
-    "chinese_subtitle": "点心から火鍋まで中華料理",
-    "korean_subtitle": "集まりに最適な韓国BBQ・鍋・料理",
-    "cafe_milk_tea_subtitle": "コーヒー・タピオカ・くつろぎカフェ",
-    "kids_playground_subtitle": "子どもが安全に遊べる楽しいスポット",
-    "onsen_subtitle": "温泉・銭湯・仕事帰りの癒しスポット"
+    "onsen_full": "温泉"
   },
   "profile": {
     "title": "プロフィール",

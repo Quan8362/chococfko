@@ -34,7 +34,7 @@ const CATEGORY_EMOJI: Record<string, string> = {
   food: '🍜',
   sea: '🏖️',
   camp: '⛺',
-  mountain: '🥾',
+  mountain: '⛰️',
   park: '🌿',
   viet: '🥢',
   grocery: '🛒',

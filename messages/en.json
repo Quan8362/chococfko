@@ -326,7 +326,12 @@
     "tip2": "Add a Google Maps link so people can find it easily.",
     "tip3": "Keep the short description concise — it's what shows on the card.",
     "tip4": "Include the area so locals can discover it.",
-    "tip5": "Add details: opening hours, price range, how to get there..."
+    "tip5": "Add details: opening hours, price range, how to get there...",
+    "prefectureLabel": "Prefecture",
+    "cityLabel": "City / Ward",
+    "cityPlaceholder": "e.g. Yatsushiro, Hakata-ku",
+    "addressLabel": "Full address",
+    "addressPlaceholder": "e.g. 新港町1丁目25, Yatsushiro, Kumamoto"
   },
   "common": {
     "free": "Free",
@@ -389,7 +394,9 @@
     "save_place": "Save {name}",
     "unsave_place": "Unsave {name}",
     "you": "You",
-    "rating_count": "{count} reviews"
+    "rating_count": "{count} reviews",
+    "prefecture": "Prefecture:",
+    "address": "Address:"
   },
   "filters": {
     "all": "All",
@@ -1121,7 +1128,10 @@
     "tx_update": "💾 Update translation",
     "tx_save": "➕ Save translation",
     "analytics_period_day": "Day {date}",
-    "analytics_period_range": "From {from} to {to}"
+    "analytics_period_range": "From {from} to {to}",
+    "field_prefecture": "Prefecture",
+    "field_city": "City / Ward",
+    "field_address": "Full address"
   },
   "admin_jp": {
     "section_comments": "Comments",

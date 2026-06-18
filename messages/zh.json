@@ -326,7 +326,12 @@
     "tip2": "添加谷歌地图链接，让用户轻松找到位置。",
     "tip3": "简短描述要简洁——这是卡片上显示的重要信息。",
     "tip4": "注明区域，方便附近的人发现。",
-    "tip5": "详细信息：营业时间、价格范围、交通方式等。"
+    "tip5": "详细信息：营业时间、价格范围、交通方式等。",
+    "prefectureLabel": "都道府县",
+    "cityLabel": "市/区",
+    "cityPlaceholder": "例：八代、博多区",
+    "addressLabel": "详细地址",
+    "addressPlaceholder": "例：新港町1丁目25，八代，熊本"
   },
   "common": {
     "free": "免费",
@@ -389,7 +394,9 @@
     "save_place": "保存 {name}",
     "unsave_place": "取消保存 {name}",
     "you": "你",
-    "rating_count": "{count} 条评价"
+    "rating_count": "{count} 条评价",
+    "prefecture": "都道府县：",
+    "address": "地址："
   },
   "filters": {
     "all": "全部",
@@ -1121,7 +1128,10 @@
     "tx_update": "💾 更新翻译",
     "tx_save": "➕ 保存翻译",
     "analytics_period_day": "{date}",
-    "analytics_period_range": "{from} 至 {to}"
+    "analytics_period_range": "{from} 至 {to}",
+    "field_prefecture": "都道府县",
+    "field_city": "市/区",
+    "field_address": "详细地址"
   },
   "admin_jp": {
     "section_comments": "评论",

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import SmartImg from "./SmartImg";
 import SavePlaceButton from "./SavePlaceButton";
+import TagList from "./tags/TagList";
 import type { Place } from "@/lib/places";
 
 const CAT_EMOJI: Record<string, string> = {
@@ -108,6 +109,11 @@ export default async function PlaceCard({ place }: { place: Place }) {
         <p className="text-[13px] text-muted leading-[1.6] flex-1 line-clamp-2">
           {place.desc}
         </p>
+
+        {/* Tags */}
+        {place.tags && place.tags.length > 0 && (
+          <TagList tags={place.tags.slice(0, 3)} size="sm" className="mt-0.5" />
+        )}
 
         {/* Buttons */}
         <div className="flex gap-2 mt-2">

@@ -6,8 +6,9 @@ export interface Place {
   body?: string | null; // rich text HTML mô tả chi tiết (từ DB)
   // Phân cấp địa lý (mở rộng toàn Nhật) — backfill mặc định Fukuoka/Kyushu
   region?: string | null; prefecture?: string | null; city?: string | null;
+  address?: string | null;
   lat?: number | null; lng?: number | null;
-  tags?: string[] | null; // tag names, attached for search/display (optional)
+  tags?: { name: string; slug: string }[] | null; // attached for search/display (optional)
 }
 export interface Category { code: string; short: string; full: string; }
 
@@ -1075,6 +1076,7 @@ interface DbPlace {
   img: string | null; img_fallback: string | null; sort_order: number;
   status?: string | null; user_id?: string | null;
   region?: string | null; prefecture?: string | null; city?: string | null;
+  address?: string | null;
   lat?: number | null; lng?: number | null;
 }
 
@@ -1095,6 +1097,7 @@ function mapDbPlace(row: DbPlace): Place {
     region: row.region ?? 'kyushu',
     prefecture: row.prefecture ?? 'fukuoka',
     city: row.city ?? null,
+    address: row.address ?? null,
     lat: row.lat ?? null,
     lng: row.lng ?? null,
   };
@@ -1117,6 +1120,35 @@ async function fetchTranslationsForLocale(
     }
   } catch { /* table may not exist yet */ }
   return map
+}
+
+/**
+ * Enrich a list of places with their tag names+slugs (for card display & search).
+ * Best-effort: returns the input unchanged on any error or before the tags
+ * migration is applied. Uses the cookie-free public client (cache-safe).
+ */
+export async function attachPlaceTags(list: Place[]): Promise<Place[]> {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !list.length) return list;
+  try {
+    const { createPublicClient } = await import('@/lib/supabase/public');
+    const { getTagsForContents } = await import('@/lib/tags');
+    const sb = createPublicClient();
+    const slugs = list.map((p) => p.slug);
+    const { data } = await sb.from('places').select('id, slug').in('slug', slugs);
+    const rows = (data ?? []) as { id: string; slug: string }[];
+    if (!rows.length) return list;
+    const idToSlug = new Map(rows.map((r) => [r.id, r.slug]));
+    const tagMap = await getTagsForContents(sb, 'place', rows.map((r) => r.id));
+    const slugToTags = new Map<string, { name: string; slug: string }[]>();
+    for (const [id, tags] of Array.from(tagMap.entries())) {
+      const slug = idToSlug.get(id);
+      if (slug && tags.length) slugToTags.set(slug, tags.map((t) => ({ name: t.name, slug: t.slug })));
+    }
+    if (!slugToTags.size) return list;
+    return list.map((p) => (slugToTags.has(p.slug) ? { ...p, tags: slugToTags.get(p.slug) } : p));
+  } catch {
+    return list;
+  }
 }
 
 export async function getAllPlacesFromDb(locale?: string): Promise<Place[] | null> {

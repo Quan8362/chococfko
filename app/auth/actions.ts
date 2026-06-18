@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createAdminNotification } from '@/lib/admin/notifications'
 import { setContentTags } from '@/lib/tags'
+import { PREFECTURE_NAME, PREFECTURES } from '@/lib/japan'
 import { sanitizeUserName } from '@/lib/sanitize'
 
 const CATEGORY_LABEL: Record<string, string> = {
@@ -198,6 +199,14 @@ export async function submitPlace(formData: FormData) {
   const category = (formData.get('category') as string) || 'food'
   const slug = generateSlug(name)
 
+  // Prefecture (validated against the master list) drives the public area filter;
+  // region is derived from it. Default Fukuoka/Kyushu keeps existing behavior.
+  const prefRaw = (formData.get('prefecture') as string) || 'fukuoka'
+  const prefecture = PREFECTURE_NAME[prefRaw] ? prefRaw : 'fukuoka'
+  const region = PREFECTURES.find((p) => p.code === prefecture)?.region ?? 'kyushu'
+  const city = (formData.get('city') as string)?.trim() || null
+  const address = (formData.get('address') as string)?.trim() || null
+
   const { data: inserted, error } = await supabase.from('places').insert({
     slug,
     name,
@@ -210,6 +219,10 @@ export async function submitPlace(formData: FormData) {
     photo_url: (formData.get('photo_url') as string)?.trim() || null,
     img: (formData.get('img') as string) || null,
     body: (formData.get('body') as string)?.trim() || null,
+    prefecture,
+    region,
+    city,
+    address,
     sort_order: 999999,
     status: 'pending',
     user_id: user.id,

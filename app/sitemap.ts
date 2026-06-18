@@ -38,6 +38,7 @@ async function coreSitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE_URL}/community`,           priority: 0.8,  changeFrequency: 'daily'   as const },
     { url: `${BASE_URL}/places`,              priority: 0.8,  changeFrequency: 'weekly'  as const },
     { url: `${BASE_URL}/marketplace`,         priority: 0.75, changeFrequency: 'daily'   as const },
+    { url: `${BASE_URL}/tags`,                priority: 0.6,  changeFrequency: 'weekly'  as const },
     { url: `${BASE_URL}/map`,              priority: 0.7,  changeFrequency: 'weekly'  as const },
     { url: `${BASE_URL}/about`,          priority: 0.7,  changeFrequency: 'monthly' as const },
     { url: `${BASE_URL}/posting-guide`,  priority: 0.65, changeFrequency: 'monthly' as const },
@@ -115,7 +116,26 @@ async function coreSitemap(): Promise<MetadataRoute.Sitemap> {
     // Supabase unavailable — sitemap still works with static data
   }
 
-  return [...staticRoutes, ...japaneseHubs, ...levelPages, ...grammarRoutes, ...placeRoutes, ...postRoutes]
+  // Public tag pages — only tags actually in use (usage_count > 0), so empty
+  // or invalid tag pages are never indexed.
+  let tagRoutes: MetadataRoute.Sitemap = []
+  try {
+    if (process.env.NEXT_PUBLIC_SUPABASE_URL) {
+      const { createPublicClient } = await import('@/lib/supabase/public')
+      const { getPopularTags } = await import('@/lib/tags')
+      const tags = await getPopularTags(createPublicClient(), 5000)
+      tagRoutes = tags.map(tg => ({
+        url:             `${BASE_URL}/tags/${tg.slug}`,
+        lastModified:    now,
+        changeFrequency: 'weekly' as const,
+        priority:        0.5,
+      }))
+    }
+  } catch {
+    // Tags table may not exist yet — keep the rest of the sitemap valid
+  }
+
+  return [...staticRoutes, ...japaneseHubs, ...levelPages, ...grammarRoutes, ...placeRoutes, ...postRoutes, ...tagRoutes]
 }
 
 // ── Chunks 1..N: dictionary word detail pages ────────────────────────────────

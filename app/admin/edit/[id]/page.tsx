@@ -3,10 +3,11 @@ import { redirect } from 'next/navigation'
 import loadDynamic from 'next/dynamic'
 import { getTranslations } from 'next-intl/server'
 import { checkIsAdmin, createAdminClient } from '@/lib/supabase/admin'
-import { getTagsForContent } from '@/lib/tags'
+import { getTagsForContent, getPopularTags } from '@/lib/tags'
+import { createPublicClient } from '@/lib/supabase/public'
 import { updatePost } from '../../actions'
 import ImageUpload from '@/components/ImageUpload'
-import TagList from '@/components/tags/TagList'
+import TagInput from '@/components/tags/TagInput'
 
 const RichTextEditor = loadDynamic(() => import('@/components/RichTextEditor'), { ssr: false })
 
@@ -24,7 +25,11 @@ export default async function AdminEditPost({ params }: { params: { id: string }
 
   if (!post) redirect('/admin')
 
-  const tags = await getTagsForContent(admin, 'post', params.id)
+  const [tags, popularTags] = await Promise.all([
+    getTagsForContent(admin, 'post', params.id),
+    getPopularTags(createPublicClient(), 12).then((ts) => ts.map((tg) => tg.name)),
+  ])
+  const currentTagNames = tags.map((tg) => tg.name)
 
   const [t, tf, admin_t] = await Promise.all([
     getTranslations('post_form'),
@@ -49,12 +54,6 @@ export default async function AdminEditPost({ params }: { params: { id: string }
       <p className="text-[13.5px] text-muted mb-7">
         ID: <code className="text-[12px] bg-paper border border-line px-2 py-0.5 rounded font-mono">{params.id}</code>
       </p>
-      {tags.length > 0 && (
-        <div className="mb-7">
-          <TagList tags={tags} size="sm" />
-        </div>
-      )}
-
       <form action={updatePost} className="space-y-5">
         <input type="hidden" name="id" value={params.id} />
 
@@ -143,6 +142,14 @@ export default async function AdminEditPost({ params }: { params: { id: string }
             {t('writing_as')} <b>{post.author_name || 'Anonymous'}</b>
           </p>
         </div>
+
+        {/* Tags — admin can add/remove */}
+        <TagInput
+          contentType="post"
+          defaultTags={currentTagNames}
+          popularTags={popularTags}
+          suggestFields={{ title: 'title', area: 'area', category: 'category', description: 'body' }}
+        />
 
         <div className="flex gap-3 pt-2">
           <button

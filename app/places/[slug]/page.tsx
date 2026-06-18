@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getTranslations, getLocale } from "next-intl/server";
 import { proxyStorageImages } from "@/lib/imageProxy";
-import { getPlace, places, getAllPlacesFromDb, getPlaceFromDb, getPlaceComments, getPlaceRating, type Place } from "@/lib/places";
+import { getPlace, places, getAllPlacesFromDb, getPlaceFromDb, getPlaceComments, getPlaceRating, attachPlaceTags, type Place } from "@/lib/places";
 import { getPostsForPlace } from "@/lib/posts";
 import { checkIsAdmin } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
@@ -15,6 +15,7 @@ import PlaceCard from "@/components/PlaceCard";
 import PlacePostCard from "@/components/PlacePostCard";
 import TagList from "@/components/tags/TagList";
 import { getTagsForContent, type Tag } from "@/lib/tags";
+import { prefectureName } from "@/lib/japan";
 import PlaceRating from "./PlaceRating";
 import PlaceComments from "./PlaceComments";
 
@@ -146,9 +147,11 @@ export default async function PlaceDetail({ params }: { params: { slug: string }
   const displayCategory = tCat(place.category as Parameters<typeof tCat>[0]);
 
   const allPlaces = dbAllPlaces ?? places;
-  const related = allPlaces
-    .filter((x) => x.category === place.category && x.slug !== place.slug)
-    .slice(0, 3);
+  const related = await attachPlaceTags(
+    allPlaces
+      .filter((x) => x.category === place.category && x.slug !== place.slug)
+      .slice(0, 3),
+  );
 
   const costLabel =
     place.fee === "free" ? t("cost_free") :
@@ -322,6 +325,18 @@ export default async function PlaceDetail({ params }: { params: { slug: string }
                 <span className="text-[15px] leading-none mt-px">📍</span>
                 <span>{t("location")} <b className="text-ink">{displayArea}</b></span>
               </li>
+              {place.prefecture && (
+                <li className="flex items-start gap-2.5">
+                  <span className="text-[15px] leading-none mt-px">🗾</span>
+                  <span>{t("prefecture")} <b className="text-ink">{prefectureName(place.prefecture)}{place.city ? ` · ${place.city}` : ""}</b></span>
+                </li>
+              )}
+              {place.address && (
+                <li className="flex items-start gap-2.5">
+                  <span className="text-[15px] leading-none mt-px">🏠</span>
+                  <span>{t("address")} <b className="text-ink">{place.address}</b></span>
+                </li>
+              )}
               {place.fee && (
                 <li className="flex items-start gap-2.5">
                   <span className="text-[15px] leading-none mt-px">💰</span>

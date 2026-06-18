@@ -44,7 +44,7 @@ export function filterPlaces(places: Place[], criteria: PlaceCriteria): Place[] 
     if (pref && (p.prefecture ?? 'fukuoka') !== pref) return false;
     if (q) {
       const haystack = normalizeText(
-        `${p.name} ${p.area} ${p.categoryLabel} ${p.desc} ${p.city ?? ''} ${p.prefecture ?? ''} ${(p.tags ?? []).join(' ')}`,
+        `${p.name} ${p.area} ${p.categoryLabel} ${p.desc} ${p.city ?? ''} ${p.prefecture ?? ''} ${(p.tags ?? []).map((tg) => tg.name).join(' ')}`,
       );
       if (!haystack.includes(q)) return false;
     }

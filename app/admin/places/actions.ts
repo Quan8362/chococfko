@@ -4,6 +4,8 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { checkIsAdmin, createAdminClient } from '@/lib/supabase/admin'
 import { places } from '@/lib/places'
+import { setContentTags } from '@/lib/tags'
+import { PREFECTURE_NAME, PREFECTURES } from '@/lib/japan'
 
 async function guardAdmin() {
   if (!(await checkIsAdmin())) redirect('/')
@@ -61,9 +63,30 @@ export async function updatePlace(formData: FormData) {
   }
   if (statusValue) updatePayload.status = statusValue
 
+  // Prefecture/city are optional on the form; only update when provided so older
+  // forms (or partial edits) never wipe existing location data.
+  const prefRaw = formData.get('prefecture') as string | null
+  if (prefRaw) {
+    const prefecture = PREFECTURE_NAME[prefRaw] ? prefRaw : 'fukuoka'
+    updatePayload.prefecture = prefecture
+    updatePayload.region = PREFECTURES.find((p) => p.code === prefecture)?.region ?? 'kyushu'
+  }
+  if (formData.has('city')) {
+    updatePayload.city = (formData.get('city') as string)?.trim() || null
+  }
+  if (formData.has('address')) {
+    updatePayload.address = (formData.get('address') as string)?.trim() || null
+  }
+
   const { error } = await admin.from('places').update(updatePayload).eq('slug', slug)
 
   if (error) throw new Error(error.message)
+
+  if (formData.has('tags')) {
+    const { data: row } = await admin.from('places').select('id').eq('slug', slug).maybeSingle()
+    const placeId = (row as { id: string } | null)?.id
+    if (placeId) await setContentTags(admin, 'place', placeId, formData.get('tags'))
+  }
 
   revalidatePath('/admin/places')
   revalidatePath(`/places/${slug}`)

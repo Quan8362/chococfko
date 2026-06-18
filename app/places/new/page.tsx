@@ -9,6 +9,7 @@ import UserAvatar from '@/components/UserAvatar'
 import TagInput from '@/components/tags/TagInput'
 import { getPopularTags } from '@/lib/tags'
 import { createPublicClient } from '@/lib/supabase/public'
+import { PREFECTURES } from '@/lib/japan'
 
 const RichTextEditor = dynamic(() => import('@/components/RichTextEditor'), { ssr: false })
 
@@ -190,6 +191,33 @@ export default async function DangDiaDiem({
               </svg>
             </div>
           </div>
+
+          {/* Tỉnh + Thành phố/Quận */}
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-[13px] font-semibold mb-1.5 text-[#5c4d44]">
+                {t('prefectureLabel')}
+              </label>
+              <div className="relative">
+                <select
+                  name="prefecture"
+                  defaultValue="fukuoka"
+                  className="w-full appearance-none text-[14px] px-3.5 py-3 border-[1.5px] border-line rounded-xl bg-white focus:outline-none focus:border-rose transition-all text-ink"
+                >
+                  {PREFECTURES.map((p) => (
+                    <option key={p.code} value={p.code}>{p.name}</option>
+                  ))}
+                </select>
+                <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
+            <Field label={t('cityLabel')} name="city" placeholder={t('cityPlaceholder')} />
+          </div>
+
+          {/* Địa chỉ chi tiết */}
+          <Field label={t('addressLabel')} name="address" placeholder={t('addressPlaceholder')} />
 
           {/* Google Maps + Link tìm ảnh */}
           <div className="grid sm:grid-cols-2 gap-4">

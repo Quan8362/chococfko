@@ -326,7 +326,12 @@
     "tip2": "구글 맵 링크를 추가하면 사람들이 쉽게 찾을 수 있어요.",
     "tip3": "간단한 설명은 간결하게 — 카드에 표시되는 중요한 정보예요.",
     "tip4": "지역을 명시하면 근처 사람들이 더 쉽게 발견할 수 있어요.",
-    "tip5": "상세 정보: 영업시간, 가격대, 교통편도 함께 작성해 주세요."
+    "tip5": "상세 정보: 영업시간, 가격대, 교통편도 함께 작성해 주세요.",
+    "prefectureLabel": "도도부현",
+    "cityLabel": "시·구",
+    "cityPlaceholder": "예: 야츠시로, 하카타구",
+    "addressLabel": "상세 주소",
+    "addressPlaceholder": "예: 新港町1丁目25, 야츠시로, 구마모토"
   },
   "common": {
     "free": "무료",
@@ -389,7 +394,9 @@
     "save_place": "{name} 저장",
     "unsave_place": "{name} 저장 해제",
     "you": "나",
-    "rating_count": "평가 {count}개"
+    "rating_count": "평가 {count}개",
+    "prefecture": "도도부현:",
+    "address": "주소:"
   },
   "filters": {
     "all": "전체",
@@ -1121,7 +1128,10 @@
     "tx_update": "💾 번역 업데이트",
     "tx_save": "➕ 번역 저장",
     "analytics_period_day": "{date}",
-    "analytics_period_range": "{from} ~ {to}"
+    "analytics_period_range": "{from} ~ {to}",
+    "field_prefecture": "도도부현",
+    "field_city": "시·구",
+    "field_address": "상세 주소"
   },
   "admin_jp": {
     "section_comments": "댓글",

@@ -326,7 +326,12 @@
     "tip2": "Điền link Google Maps để người dùng dễ tìm đường đến.",
     "tip3": "Mô tả ngắn súc tích — đây là thứ hiển thị ngay trên card.",
     "tip4": "Ghi rõ khu vực để người ở gần dễ tìm thấy.",
-    "tip5": "Mô tả chi tiết: giờ mở cửa, giá, cách di chuyển..."
+    "tip5": "Mô tả chi tiết: giờ mở cửa, giá, cách di chuyển...",
+    "prefectureLabel": "Tỉnh/Thành (Nhật)",
+    "cityLabel": "Thành phố / Quận",
+    "cityPlaceholder": "VD: Yatsushiro, Hakata-ku",
+    "addressLabel": "Địa chỉ chi tiết",
+    "addressPlaceholder": "VD: 新港町1丁目25, Yatsushiro, Kumamoto"
   },
   "common": {
     "free": "Miễn phí",
@@ -389,7 +394,9 @@
     "save_place": "Lưu {name}",
     "unsave_place": "Bỏ lưu {name}",
     "you": "Bạn",
-    "rating_count": "{count} đánh giá"
+    "rating_count": "{count} đánh giá",
+    "prefecture": "Tỉnh/Thành:",
+    "address": "Địa chỉ:"
   },
   "filters": {
     "all": "Tất cả",
@@ -1121,7 +1128,10 @@
     "tx_update": "💾 Cập nhật bản dịch",
     "tx_save": "➕ Lưu bản dịch",
     "analytics_period_day": "Ngày {date}",
-    "analytics_period_range": "Từ {from} đến {to}"
+    "analytics_period_range": "Từ {from} đến {to}",
+    "field_prefecture": "Tỉnh/Thành (Nhật)",
+    "field_city": "Thành phố / Quận",
+    "field_address": "Địa chỉ chi tiết"
   },
   "admin_jp": {
     "section_comments": "Bình luận",

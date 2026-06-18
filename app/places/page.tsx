@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations, getLocale } from "next-intl/server";
-import { getAllPlacesFromDb, places as staticPlaces } from "@/lib/places";
+import { getAllPlacesFromDb, places as staticPlaces, attachPlaceTags } from "@/lib/places";
 import { SITE_URL, SITE_NAME, DEFAULT_OG_IMAGE, OG_LOCALE, breadcrumbJsonLd, jsonLdString } from "@/lib/seo";
 import PlaceCard from "@/components/PlaceCard";
 
@@ -32,7 +32,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function PlacesPage() {
   const [t, locale] = await Promise.all([getTranslations("meta"), getLocale()]);
-  const list = (await getAllPlacesFromDb(locale)) ?? staticPlaces;
+  const list = await attachPlaceTags((await getAllPlacesFromDb(locale)) ?? staticPlaces);
 
   const jsonLd = {
     "@context": "https://schema.org",

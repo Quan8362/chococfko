@@ -326,7 +326,12 @@
     "tip2": "Googleマップのリンクを入れると見つけやすくなります。",
     "tip3": "短い説明は簡潔に — カードに表示される重要な情報です。",
     "tip4": "エリアを明記すると近くの人に見つけてもらいやすくなります。",
-    "tip5": "詳細情報：営業時間、価格帯、アクセス方法なども書きましょう。"
+    "tip5": "詳細情報：営業時間、価格帯、アクセス方法なども書きましょう。",
+    "prefectureLabel": "都道府県",
+    "cityLabel": "市区町村",
+    "cityPlaceholder": "例: 八代、博多区",
+    "addressLabel": "詳細住所",
+    "addressPlaceholder": "例: 新港町1丁目25、八代市、熊本県"
   },
   "common": {
     "free": "無料",
@@ -389,7 +394,9 @@
     "save_place": "{name} を保存",
     "unsave_place": "{name} の保存を解除",
     "you": "あなた",
-    "rating_count": "{count}件の評価"
+    "rating_count": "{count}件の評価",
+    "prefecture": "都道府県:",
+    "address": "住所:"
   },
   "filters": {
     "all": "すべて",
@@ -1121,7 +1128,10 @@
     "tx_update": "💾 翻訳を更新",
     "tx_save": "➕ 翻訳を保存",
     "analytics_period_day": "{date}",
-    "analytics_period_range": "{from} 〜 {to}"
+    "analytics_period_range": "{from} 〜 {to}",
+    "field_prefecture": "都道府県",
+    "field_city": "市区町村",
+    "field_address": "詳細住所"
   },
   "admin_jp": {
     "section_comments": "コメント",

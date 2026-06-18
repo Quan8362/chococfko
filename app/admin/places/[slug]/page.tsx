@@ -4,10 +4,12 @@ import loadDynamic from 'next/dynamic'
 import { getTranslations } from 'next-intl/server'
 import { checkIsAdmin, createAdminClient } from '@/lib/supabase/admin'
 import { getPlaceAllTranslations, type PlaceTranslation } from '@/lib/places'
-import { getTagsForContent } from '@/lib/tags'
+import { getTagsForContent, getPopularTags } from '@/lib/tags'
+import { createPublicClient } from '@/lib/supabase/public'
+import { PREFECTURES } from '@/lib/japan'
 import { updatePlace, approvePlace, upsertPlaceTranslation } from '../actions'
 import ImageUpload from '@/components/ImageUpload'
-import TagList from '@/components/tags/TagList'
+import TagInput from '@/components/tags/TagInput'
 
 const RichTextEditor = loadDynamic(() => import('@/components/RichTextEditor'), { ssr: false })
 
@@ -19,6 +21,7 @@ type DbPlace = {
   map_url: string | null; photo_url: string | null;
   img: string | null; img_fallback: string | null;
   status: string | null; user_id: string | null;
+  prefecture?: string | null; city?: string | null; address?: string | null;
 }
 
 const LOCALES: { code: string; label: string; flag: string }[] = [
@@ -49,7 +52,11 @@ export default async function AdminEditPlace({ params }: { params: { slug: strin
   if (!p) redirect('/admin/places')
 
   const placeId = (data as { id?: string } | null)?.id
-  const tags = placeId ? await getTagsForContent(admin, 'place', placeId) : []
+  const [tags, popularTags] = await Promise.all([
+    placeId ? getTagsForContent(admin, 'place', placeId) : Promise.resolve([]),
+    getPopularTags(createPublicClient(), 12).then((ts) => ts.map((t) => t.name)),
+  ])
+  const currentTagNames = tags.map((t) => t.name)
 
   const txMap = new Map<string, PlaceTranslation>()
   for (const tx of existingTranslations) txMap.set(tx.locale, tx)
@@ -75,12 +82,6 @@ export default async function AdminEditPlace({ params }: { params: { slug: strin
           {admin_t('view_page_link')} →
         </Link>
       </p>
-      {tags.length > 0 && (
-        <div className="-mt-4 mb-7">
-          <TagList tags={tags} size="sm" />
-        </div>
-      )}
-
       <form action={updatePlace} className="space-y-5">
         <input type="hidden" name="slug" value={params.slug} />
 
@@ -111,6 +112,28 @@ export default async function AdminEditPlace({ params }: { params: { slug: strin
             </select>
           </div>
         </div>
+
+        {/* Tỉnh + Thành phố/Quận */}
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-[13px] font-semibold mb-1.5 text-[#5c4d44]">
+              {admin_t('field_prefecture')}
+            </label>
+            <select
+              name="prefecture"
+              defaultValue={p.prefecture ?? 'fukuoka'}
+              className="w-full text-[14px] px-3.5 py-3 border-[1.5px] border-line rounded-xl bg-white focus:outline-none focus:border-rose"
+            >
+              {PREFECTURES.map((pref) => (
+                <option key={pref.code} value={pref.code}>{pref.name}</option>
+              ))}
+            </select>
+          </div>
+          <Field label={admin_t('field_city')} name="city" defaultValue={p.city ?? ''} />
+        </div>
+
+        {/* Địa chỉ chi tiết */}
+        <Field label={admin_t('field_address')} name="address" defaultValue={p.address ?? ''} />
 
         {/* Google Maps + Ảnh thật */}
         <div className="grid sm:grid-cols-2 gap-4">
@@ -150,6 +173,14 @@ export default async function AdminEditPlace({ params }: { params: { slug: strin
             {admin_t('field_body_help')}
           </p>
         </div>
+
+        {/* Tags — admin can add/remove */}
+        <TagInput
+          contentType="place"
+          defaultTags={currentTagNames}
+          popularTags={popularTags}
+          suggestFields={{ title: 'name', area: 'area', description: 'desc' }}
+        />
 
         {/* Status field — only for user-submitted places (status is not null) */}
         {p.status !== null && (

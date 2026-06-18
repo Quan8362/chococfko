@@ -4,7 +4,7 @@ import type { Metadata } from 'next'
 import { getTranslations, getLocale } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import { createPublicClient } from '@/lib/supabase/public'
-import { getTagBySlug } from '@/lib/tags'
+import { getTagBySlug, getLocalizedTagName } from '@/lib/tags'
 import { getApprovedTagContent } from '@/lib/tagContent'
 import { getAllPlacesFromDb, places as staticPlaces, type Place } from '@/lib/places'
 import { getPostFromDb, type Post } from '@/lib/posts'
@@ -24,14 +24,15 @@ type TabKey = 'all' | 'place' | 'post' | 'listing'
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const tag = await getTagBySlug(createPublicClient(), params.slug)
   if (!tag) return { title: SITE_NAME, robots: { index: false, follow: true } }
-  const t = await getTranslations('tags')
+  const [t, locale] = await Promise.all([getTranslations('tags'), getLocale()])
+  const label = getLocalizedTagName(tag, locale)
   const canonical = `${SITE_URL}/tags/${tag.slug}`
-  const description = t('metaDescription', { tag: tag.name })
-  const title = `${tag.name} · ${t('relatedContent')} | ${SITE_NAME}`
+  const description = t('metaDescription', { tag: label })
+  const title = `${label} · ${t('relatedContent')} | ${SITE_NAME}`
   return {
     title,
     description,
-    keywords: [tag.name],
+    keywords: Array.from(new Set([label, tag.name])),
     alternates: { canonical },
     openGraph: { type: 'website', url: canonical, siteName: SITE_NAME, title, description },
   }
@@ -93,7 +94,7 @@ export default async function TagPage({
       </Link>
 
       <h1 className="font-serif font-black text-[clamp(26px,4vw,40px)] tracking-[-0.5px] text-ink mb-1.5">
-        #{tag.name}
+        #{getLocalizedTagName(tag, locale)}
       </h1>
       <p className="text-[14px] text-muted mb-6">
         {t('relatedContent')} · {t('resultCount', { count: counts.all })}

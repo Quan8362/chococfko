@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { findSystemTag } from './systemTags'
 
 // ── Constants ───────────────────────────────────────────────
 export const MAX_TAGS = 10
@@ -6,12 +7,35 @@ export const MAX_TAG_LEN = 30
 
 export type TagContentType = 'place' | 'post' | 'listing'
 
-export interface Tag {
-  id: string
+// Per-locale display columns + the minimum a UI needs to render a localized chip.
+// Stored tags carry their own translations (set at creation / via the seed);
+// proper nouns leave them null and fall back to `name`.
+export interface LocalizedTag {
   name: string
   slug: string
+  display_name_vi?: string | null
+  display_name_en?: string | null
+  display_name_ja?: string | null
+  display_name_ko?: string | null
+  display_name_zh?: string | null
+}
+
+export interface Tag extends LocalizedTag {
+  id: string
   normalized_name: string
   usage_count: number
+  is_system_tag?: boolean
+}
+
+// Columns selected wherever a tag is read for display.
+const TAG_COLS =
+  'id, name, slug, normalized_name, usage_count, is_system_tag, display_name_vi, display_name_en, display_name_ja, display_name_ko, display_name_zh'
+
+/** Display name for the current UI locale; falls back to the original name. */
+export function getLocalizedTagName(tag: LocalizedTag, locale: string): string {
+  const key = `display_name_${locale}` as keyof LocalizedTag
+  const value = tag[key]
+  return typeof value === 'string' && value.trim() ? value : tag.name
 }
 
 // ── Normalization (must mirror SQL public.tag_normalize) ────
@@ -139,11 +163,41 @@ export async function setContentTags(
   }
 }
 
-/** Get-or-create a single tag by its normalized name. Returns its id, or null. */
+/**
+ * Get-or-create a tag id for a user-entered (any-language) label.
+ * If the label matches a system tag (in any locale/alias), it resolves to that
+ * tag's single canonical row (with translations), so the same concept added in
+ * different languages never duplicates. Otherwise it's a normal user tag.
+ */
 async function resolveTagId(admin: SupabaseClient, displayName: string): Promise<string | null> {
   const name = displayName.trim().slice(0, MAX_TAG_LEN).trim()
-  const normalized = normalizeTagName(name)
-  if (!normalized) return null
+  if (!normalizeTagName(name)) return null
+
+  const sys = findSystemTag(name)
+  if (sys) {
+    return insertOrGetTag(admin, {
+      name: sys.canonical,
+      normalized: normalizeTagName(sys.canonical),
+      slug: sys.slug,
+      extra: {
+        is_system_tag: true,
+        display_name_vi: sys.vi,
+        display_name_en: sys.en,
+        display_name_ja: sys.ja,
+        display_name_ko: sys.ko,
+        display_name_zh: sys.zh,
+      },
+    })
+  }
+
+  return insertOrGetTag(admin, { name, normalized: normalizeTagName(name), slug: slugifyTag(name) })
+}
+
+async function insertOrGetTag(
+  admin: SupabaseClient,
+  opts: { name: string; normalized: string; slug: string; extra?: Record<string, unknown> },
+): Promise<string | null> {
+  const { name, normalized, extra } = opts
 
   const { data: existing } = await admin
     .from('tags')
@@ -153,11 +207,11 @@ async function resolveTagId(admin: SupabaseClient, displayName: string): Promise
   if (existing) return (existing as { id: string }).id
 
   // Insert new. Retry once with a disambiguated slug on a slug collision.
-  let slug = slugifyTag(name)
+  let slug = opts.slug
   for (let attempt = 0; attempt < 2; attempt++) {
     const { data, error } = await admin
       .from('tags')
-      .insert({ name, slug, normalized_name: normalized })
+      .insert({ name, slug, normalized_name: normalized, ...(extra ?? {}) })
       .select('id')
       .maybeSingle()
     if (data) return (data as { id: string }).id
@@ -171,7 +225,7 @@ async function resolveTagId(admin: SupabaseClient, displayName: string): Promise
       return row ? (row as { id: string }).id : null
     }
     if (error && /slug/.test(error.message)) {
-      slug = `${slugifyTag(name)}-${Math.random().toString(36).slice(2, 6)}`
+      slug = `${opts.slug}-${Math.random().toString(36).slice(2, 6)}`
       continue
     }
     break
@@ -188,7 +242,7 @@ export async function getTagsForContent(
 ): Promise<Tag[]> {
   const { data } = await client
     .from('content_tags')
-    .select('tags ( id, name, slug, normalized_name, usage_count )')
+    .select(`tags ( ${TAG_COLS} )`)
     .eq('content_type', contentType)
     .eq('content_id', contentId)
   const tags = (data ?? [])
@@ -208,7 +262,7 @@ export async function getTagsForContents(
   if (!contentIds.length) return map
   const { data } = await client
     .from('content_tags')
-    .select('content_id, tags ( id, name, slug, normalized_name, usage_count )')
+    .select(`content_id, tags ( ${TAG_COLS} )`)
     .eq('content_type', contentType)
     .in('content_id', contentIds)
   for (const row of data ?? []) {
@@ -227,21 +281,21 @@ export async function getTagsForContents(
 export async function getPopularTags(client: SupabaseClient, limit = 24): Promise<Tag[]> {
   const { data } = await client
     .from('tags')
-    .select('id, name, slug, normalized_name, usage_count')
+    .select(TAG_COLS)
     .gt('usage_count', 0)
     .order('usage_count', { ascending: false })
     .limit(limit)
-  return (data ?? []) as Tag[]
+  return (data ?? []) as unknown as Tag[]
 }
 
 /** Look up a tag by its slug. */
 export async function getTagBySlug(client: SupabaseClient, slug: string): Promise<Tag | null> {
   const { data } = await client
     .from('tags')
-    .select('id, name, slug, normalized_name, usage_count')
+    .select(TAG_COLS)
     .eq('slug', slug)
     .maybeSingle()
-  return (data as Tag | null) ?? null
+  return (data as unknown as Tag | null) ?? null
 }
 
 /** Content ids of a given type carrying a tag (newest join first). */

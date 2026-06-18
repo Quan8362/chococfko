@@ -1,10 +1,12 @@
 import { normalizeTagName, MAX_TAGS } from './tags'
+import { localizeSystemLabel } from './systemTags'
 
 // Local, rule-based tag suggestions — no paid AI API. Everything here is a plain
 // lookup over editable dictionaries so the logic is easy to extend later.
 //
-// Suggested values are tag *names* (user-generated content), not UI labels, so
-// they are intentionally not run through i18n.
+// Dictionaries store canonical labels; the final list is localized for the
+// current UI locale via the system-tag registry (proper nouns pass through
+// unchanged). Proper-noun place names are never translated.
 
 export type SuggestContentType = 'place' | 'post' | 'listing'
 
@@ -18,6 +20,8 @@ export interface SuggestInput {
   title?: string | null
   description?: string | null
   popular?: string[]
+  /** UI locale — localizes system-tag suggestion labels. */
+  locale?: string
 }
 
 /** Category → seed tags, keyed by content type. Extend freely. */
@@ -176,5 +180,18 @@ export function suggestTags(input: SuggestInput, limit = 12): string[] {
   // 4. Popular tags as a fallback tail
   for (const t of input.popular ?? []) push(t)
 
-  return out.slice(0, Math.max(limit, MAX_TAGS))
+  // Localize system-tag labels for the current UI locale; proper nouns pass
+  // through unchanged. De-duplicate again in case two canonicals localize alike.
+  const locale = input.locale ?? 'vi'
+  const localized: string[] = []
+  const seenLoc = new Set<string>()
+  for (const name of out) {
+    const label = localizeSystemLabel(name, locale)
+    const key = normalizeTagName(label)
+    if (!key || seenLoc.has(key)) continue
+    seenLoc.add(key)
+    localized.push(label)
+  }
+
+  return localized.slice(0, Math.max(limit, MAX_TAGS))
 }

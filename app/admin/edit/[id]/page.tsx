@@ -1,9 +1,9 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import loadDynamic from 'next/dynamic'
-import { getTranslations } from 'next-intl/server'
+import { getTranslations, getLocale } from 'next-intl/server'
 import { checkIsAdmin, createAdminClient } from '@/lib/supabase/admin'
-import { getTagsForContent, getPopularTags } from '@/lib/tags'
+import { getTagsForContent, getPopularTags, getLocalizedTagName } from '@/lib/tags'
 import { createPublicClient } from '@/lib/supabase/public'
 import { updatePost } from '../../actions'
 import ImageUpload from '@/components/ImageUpload'
@@ -29,7 +29,8 @@ export default async function AdminEditPost({ params }: { params: { id: string }
     getTagsForContent(admin, 'post', params.id),
     getPopularTags(createPublicClient(), 12).then((ts) => ts.map((tg) => tg.name)),
   ])
-  const currentTagNames = tags.map((tg) => tg.name)
+  const adminLocale = await getLocale()
+  const currentTagNames = tags.map((tg) => getLocalizedTagName(tg, adminLocale))
 
   const [t, tf, admin_t] = await Promise.all([
     getTranslations('post_form'),

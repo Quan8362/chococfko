@@ -1,3 +1,5 @@
+import type { LocalizedTag } from './tags';
+
 export type Fee = 'free' | 'paid' | null;
 export interface Place {
   slug: string; name: string; area: string; desc: string;
@@ -8,7 +10,7 @@ export interface Place {
   region?: string | null; prefecture?: string | null; city?: string | null;
   address?: string | null;
   lat?: number | null; lng?: number | null;
-  tags?: { name: string; slug: string }[] | null; // attached for search/display (optional)
+  tags?: LocalizedTag[] | null; // attached for search/display (optional)
 }
 export interface Category { code: string; short: string; full: string; }
 
@@ -1139,10 +1141,10 @@ export async function attachPlaceTags(list: Place[]): Promise<Place[]> {
     if (!rows.length) return list;
     const idToSlug = new Map(rows.map((r) => [r.id, r.slug]));
     const tagMap = await getTagsForContents(sb, 'place', rows.map((r) => r.id));
-    const slugToTags = new Map<string, { name: string; slug: string }[]>();
+    const slugToTags = new Map<string, LocalizedTag[]>();
     for (const [id, tags] of Array.from(tagMap.entries())) {
       const slug = idToSlug.get(id);
-      if (slug && tags.length) slugToTags.set(slug, tags.map((t) => ({ name: t.name, slug: t.slug })));
+      if (slug && tags.length) slugToTags.set(slug, tags);
     }
     if (!slugToTags.size) return list;
     return list.map((p) => (slugToTags.has(p.slug) ? { ...p, tags: slugToTags.get(p.slug) } : p));

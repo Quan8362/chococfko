@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { MAX_TAGS, MAX_TAG_LEN, normalizeTagName } from '@/lib/tags'
 import { suggestTags, type SuggestContentType } from '@/lib/tagSuggest'
 import SuggestedTags from './SuggestedTags'
@@ -39,6 +39,7 @@ export default function TagInput({
   liveContext?: Partial<Record<FieldKey, string | null | undefined>>
 }) {
   const t = useTranslations('tags')
+  const locale = useLocale()
   const [tags, setTags] = useState<string[]>(() => dedupe(defaultTags))
   const [error, setError] = useState<string | null>(null)
   const [ctx, setCtx] = useState<Partial<Record<FieldKey, string>>>({})
@@ -74,10 +75,10 @@ export default function TagInput({
 
   const suggestions = useMemo(() => {
     const merged = { ...ctx, ...stripUndefined(liveContext) }
-    const all = suggestTags({ contentType, popular: popularTags, ...merged }, 14)
+    const all = suggestTags({ contentType, popular: popularTags, locale, ...merged }, 14)
     const chosen = new Set(tags.map(normalizeTagName))
     return all.filter((s) => !chosen.has(normalizeTagName(s))).slice(0, 10)
-  }, [ctx, liveContext, contentType, popularTags, tags])
+  }, [ctx, liveContext, contentType, popularTags, tags, locale])
 
   function clearInput() {
     if (inputRef.current) inputRef.current.value = ''

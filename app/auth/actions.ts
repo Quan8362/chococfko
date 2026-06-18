@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
-import { getTranslations } from 'next-intl/server'
+import { getTranslations, getLocale } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createAdminNotification } from '@/lib/admin/notifications'
@@ -231,7 +231,7 @@ export async function submitPlace(formData: FormData) {
   if (error) redirect('/places/new?error=' + encodeURIComponent(error.message))
 
   if (inserted?.id) {
-    await setContentTags(createAdminClient(), 'place', inserted.id as string, formData.get('tags'))
+    await setContentTags(createAdminClient(), 'place', inserted.id as string, formData.get('tags'), await getLocale())
   }
 
   await createAdminNotification({
@@ -313,7 +313,7 @@ export async function submitPost(formData: FormData) {
   if (error) redirect(`${base}?error=${encodeURIComponent(error.message)}`)
 
   if (insertedPost?.id) {
-    await setContentTags(createAdminClient(), 'post', insertedPost.id as string, formData.get('tags'))
+    await setContentTags(createAdminClient(), 'post', insertedPost.id as string, formData.get('tags'), await getLocale())
   }
 
   await createAdminNotification({

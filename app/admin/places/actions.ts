@@ -6,6 +6,7 @@ import { checkIsAdmin, createAdminClient } from '@/lib/supabase/admin'
 import { places } from '@/lib/places'
 import { setContentTags } from '@/lib/tags'
 import { PREFECTURE_NAME, PREFECTURES } from '@/lib/japan'
+import { getLocale } from 'next-intl/server'
 
 async function guardAdmin() {
   if (!(await checkIsAdmin())) redirect('/')
@@ -85,7 +86,7 @@ export async function updatePlace(formData: FormData) {
   if (formData.has('tags')) {
     const { data: row } = await admin.from('places').select('id').eq('slug', slug).maybeSingle()
     const placeId = (row as { id: string } | null)?.id
-    if (placeId) await setContentTags(admin, 'place', placeId, formData.get('tags'))
+    if (placeId) await setContentTags(admin, 'place', placeId, formData.get('tags'), await getLocale())
   }
 
   revalidatePath('/admin/places')

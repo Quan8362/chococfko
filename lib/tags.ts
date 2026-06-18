@@ -118,6 +118,8 @@ export async function setContentTags(
   contentType: TagContentType,
   contentId: string,
   rawTags: unknown,
+  /** UI locale of the author — used to auto-translate new custom tags. */
+  locale?: string,
 ): Promise<void> {
   try {
     const names = parseTagsInput(rawTags)
@@ -125,7 +127,7 @@ export async function setContentTags(
     // Resolve / create tag ids for the desired set.
     const desiredIds: string[] = []
     for (const name of names) {
-      const id = await resolveTagId(admin, name)
+      const id = await resolveTagId(admin, name, locale)
       if (id) desiredIds.push(id)
     }
 
@@ -169,13 +171,18 @@ export async function setContentTags(
  * tag's single canonical row (with translations), so the same concept added in
  * different languages never duplicates. Otherwise it's a normal user tag.
  */
-async function resolveTagId(admin: SupabaseClient, displayName: string): Promise<string | null> {
+async function resolveTagId(
+  admin: SupabaseClient,
+  displayName: string,
+  locale?: string,
+): Promise<string | null> {
   const name = displayName.trim().slice(0, MAX_TAG_LEN).trim()
   if (!normalizeTagName(name)) return null
 
   const sys = findSystemTag(name)
   if (sys) {
-    return insertOrGetTag(admin, {
+    // System tags already have curated translations — never machine-translate.
+    const { id } = await insertOrGetTag(admin, {
       name: sys.canonical,
       normalized: normalizeTagName(sys.canonical),
       slug: sys.slug,
@@ -188,15 +195,23 @@ async function resolveTagId(admin: SupabaseClient, displayName: string): Promise
         display_name_zh: sys.zh,
       },
     })
+    return id
   }
 
-  return insertOrGetTag(admin, { name, normalized: normalizeTagName(name), slug: slugifyTag(name) })
+  const { id, created } = await insertOrGetTag(admin, {
+    name,
+    normalized: normalizeTagName(name),
+    slug: slugifyTag(name),
+  })
+  // Auto-translate a brand-new custom tag into the other UI languages (once).
+  if (id && created && locale) await autoTranslateTag(admin, id, name, locale)
+  return id
 }
 
 async function insertOrGetTag(
   admin: SupabaseClient,
   opts: { name: string; normalized: string; slug: string; extra?: Record<string, unknown> },
-): Promise<string | null> {
+): Promise<{ id: string | null; created: boolean }> {
   const { name, normalized, extra } = opts
 
   const { data: existing } = await admin
@@ -204,7 +219,7 @@ async function insertOrGetTag(
     .select('id')
     .eq('normalized_name', normalized)
     .maybeSingle()
-  if (existing) return (existing as { id: string }).id
+  if (existing) return { id: (existing as { id: string }).id, created: false }
 
   // Insert new. Retry once with a disambiguated slug on a slug collision.
   let slug = opts.slug
@@ -214,7 +229,7 @@ async function insertOrGetTag(
       .insert({ name, slug, normalized_name: normalized, ...(extra ?? {}) })
       .select('id')
       .maybeSingle()
-    if (data) return (data as { id: string }).id
+    if (data) return { id: (data as { id: string }).id, created: true }
     // Lost a race on normalized_name → fetch the winner.
     if (error && /normalized_name/.test(error.message)) {
       const { data: row } = await admin
@@ -222,7 +237,7 @@ async function insertOrGetTag(
         .select('id')
         .eq('normalized_name', normalized)
         .maybeSingle()
-      return row ? (row as { id: string }).id : null
+      return { id: row ? (row as { id: string }).id : null, created: false }
     }
     if (error && /slug/.test(error.message)) {
       slug = `${opts.slug}-${Math.random().toString(36).slice(2, 6)}`
@@ -230,7 +245,45 @@ async function insertOrGetTag(
     }
     break
   }
-  return null
+  return { id: null, created: false }
+}
+
+const TAG_LOCALES = ['vi', 'en', 'ja', 'ko', 'zh'] as const
+
+/**
+ * Machine-translate a new custom tag into the other UI languages and store the
+ * results in display_name_*. Best-effort: silently no-ops when the translation
+ * provider isn't configured (tag then falls back to its original name).
+ */
+async function autoTranslateTag(
+  admin: SupabaseClient,
+  tagId: string,
+  name: string,
+  sourceLocale: string,
+): Promise<void> {
+  try {
+    const src = (TAG_LOCALES as readonly string[]).includes(sourceLocale) ? sourceLocale : 'vi'
+    const { isTranslateConfigured, translateText } = await import('./japanese/translate')
+    if (!isTranslateConfigured()) return
+
+    const update: Record<string, string> = { [`display_name_${src}`]: name }
+    const targets = TAG_LOCALES.filter((l) => l !== src)
+    const results = await Promise.all(
+      targets.map((target) =>
+        translateText(name, target, src)
+          .then((r) => [target, r.text] as const)
+          .catch(() => null),
+      ),
+    )
+    for (const r of results) {
+      if (r && r[1]?.trim()) update[`display_name_${r[0]}`] = r[1].trim()
+    }
+    if (Object.keys(update).length > 1) {
+      await admin.from('tags').update(update).eq('id', tagId)
+    }
+  } catch {
+    /* best-effort — leave columns null on failure */
+  }
 }
 
 // ── Read ────────────────────────────────────────────────────

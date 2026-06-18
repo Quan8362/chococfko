@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { checkIsAdmin, createAdminClient } from '@/lib/supabase/admin'
 import { setContentTags } from '@/lib/tags'
+import { getLocale } from 'next-intl/server'
 
 async function guardAdmin() {
   if (!(await checkIsAdmin())) redirect('/')
@@ -62,7 +63,7 @@ export async function updatePost(formData: FormData) {
   }).eq('id', id)
 
   if (formData.has('tags')) {
-    await setContentTags(admin, 'post', id, formData.get('tags'))
+    await setContentTags(admin, 'post', id, formData.get('tags'), await getLocale())
   }
 
   revalidatePath('/admin')

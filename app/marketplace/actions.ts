@@ -8,6 +8,7 @@ import { notifyUsers } from '@/lib/notifications/user'
 import { stripHtml, sanitizeUserName } from '@/lib/sanitize'
 import { sanitizeHtml } from '@/lib/sanitizeHtml'
 import { setContentTags } from '@/lib/tags'
+import { getLocale } from 'next-intl/server'
 import { CATEGORIES, CONDITION_PRESETS, isUuid, nextMinBid, type Listing } from '@/lib/marketplace'
 
 export type ListingResult = { ok?: true; id?: string; error?: string } | null
@@ -113,7 +114,7 @@ export async function submitListing(prevState: ListingResult, formData: FormData
 
   if (error || !inserted) return { error: error?.message ?? 'db_error' }
 
-  await setContentTags(createAdminClient(), 'listing', inserted.id as string, formData.get('tags'))
+  await setContentTags(createAdminClient(), 'listing', inserted.id as string, formData.get('tags'), await getLocale())
 
   const displayName = (user.user_metadata?.display_name as string | undefined)
     || user.email?.split('@')[0]
@@ -154,7 +155,7 @@ export async function updateListing(prevState: ListingResult, formData: FormData
 
   if (error) return { error: error.message }
 
-  await setContentTags(createAdminClient(), 'listing', id, formData.get('tags'))
+  await setContentTags(createAdminClient(), 'listing', id, formData.get('tags'), await getLocale())
 
   revalidatePath('/marketplace')
   revalidatePath(`/marketplace/${id}`)

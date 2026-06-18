@@ -1,10 +1,10 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import loadDynamic from 'next/dynamic'
-import { getTranslations, getLocale } from 'next-intl/server'
+import { getTranslations } from 'next-intl/server'
 import { checkIsAdmin, createAdminClient } from '@/lib/supabase/admin'
 import { getPlaceAllTranslations, type PlaceTranslation } from '@/lib/places'
-import { getTagsForContent, getPopularTags, getLocalizedTagName } from '@/lib/tags'
+import { getTagsForContent, getPopularTags } from '@/lib/tags'
 import { createPublicClient } from '@/lib/supabase/public'
 import { PREFECTURES } from '@/lib/japan'
 import { updatePlace, approvePlace, upsertPlaceTranslation } from '../actions'
@@ -56,8 +56,9 @@ export default async function AdminEditPlace({ params }: { params: { slug: strin
     placeId ? getTagsForContent(admin, 'place', placeId) : Promise.resolve([]),
     getPopularTags(createPublicClient(), 12).then((ts) => ts.map((t) => t.name)),
   ])
-  const adminLocale = await getLocale()
-  const currentTagNames = tags.map((t) => getLocalizedTagName(t, adminLocale))
+  // Use canonical names so re-saving resolves to the same tag (no duplicates);
+  // public display is localized via getLocalizedTagName elsewhere.
+  const currentTagNames = tags.map((t) => t.name)
 
   const txMap = new Map<string, PlaceTranslation>()
   for (const tx of existingTranslations) txMap.set(tx.locale, tx)

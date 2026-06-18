@@ -7,6 +7,7 @@ export interface Place {
   // Phân cấp địa lý (mở rộng toàn Nhật) — backfill mặc định Fukuoka/Kyushu
   region?: string | null; prefecture?: string | null; city?: string | null;
   lat?: number | null; lng?: number | null;
+  tags?: string[] | null; // tag names, attached for search/display (optional)
 }
 export interface Category { code: string; short: string; full: string; }
 

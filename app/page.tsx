@@ -2,6 +2,8 @@ import Link from "next/link";
 import { getTranslations, getLocale } from "next-intl/server";
 import { categories, places as staticPlaces, getAllPlacesFromDb } from "@/lib/places";
 import type { Place } from "@/lib/places";
+import { createPublicClient } from "@/lib/supabase/public";
+import { getTagsForContents } from "@/lib/tags";
 import PlaceCard from "@/components/PlaceCard";
 import ExploreSearch from "@/components/ExploreSearch";
 import HomePosts from "@/components/HomePosts";
@@ -38,7 +40,30 @@ export default async function Home() {
   const dbPlaces = await getAllPlacesFromDb(locale);
   // getAllPlacesFromDb filters out pending places (status='pending')
   // so only approved/pre-existing places reach here
-  const allPlaces: Place[] = dbPlaces ?? staticPlaces;
+  const basePlaces: Place[] = dbPlaces ?? staticPlaces;
+
+  // Attach tag names so search can match them (e.g. "Kumamoto"). Best-effort.
+  let allPlaces: Place[] = basePlaces;
+  try {
+    const sb = createPublicClient();
+    const { data: idRows } = await sb.from("places").select("id, slug").eq("status", "approved");
+    const rows = (idRows ?? []) as { id: string; slug: string }[];
+    if (rows.length) {
+      const tagMap = await getTagsForContents(sb, "place", rows.map((r) => r.id));
+      const slugToTags = new Map<string, string[]>();
+      for (const r of rows) {
+        const tg = tagMap.get(r.id);
+        if (tg?.length) slugToTags.set(r.slug, tg.map((t) => t.name));
+      }
+      if (slugToTags.size) {
+        allPlaces = basePlaces.map((p) =>
+          slugToTags.has(p.slug) ? { ...p, tags: slugToTags.get(p.slug) } : p,
+        );
+      }
+    }
+  } catch {
+    /* tags are optional metadata */
+  }
 
   // Only render categories that have at least 1 place
   const visibleCategories = categories

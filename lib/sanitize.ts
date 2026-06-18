@@ -33,6 +33,45 @@ export function stripHtml(html: string): string {
 }
 
 /**
+ * Heuristic: does this string look like rich HTML (from the TipTap editor)
+ * rather than plain text? True if it contains a recognizable HTML tag.
+ * Legacy plain-text descriptions ("price < 100", "<3") do not match because the
+ * pattern requires `<` immediately followed by a letter or `/`.
+ */
+export function looksLikeHtml(value: string | null | undefined): boolean {
+  if (!value) return false
+  return /<\/?[a-z][\s\S]*?>/i.test(value)
+}
+
+/**
+ * Does sanitized rich HTML actually carry content worth storing/showing, or is
+ * it an empty editor (`<p></p>`)? True if there is visible text OR a block
+ * element that has no text of its own (image, table, divider, callout).
+ */
+export function htmlHasContent(html: string | null | undefined): boolean {
+  if (!html) return false
+  if (stripHtml(html).length > 0) return true
+  return /<(img|table|hr|figure)\b|data-callout/i.test(html)
+}
+
+/**
+ * Convert legacy plain-text into safe HTML paragraphs so it loads cleanly into
+ * the rich editor (preserving blank-line paragraph breaks and single line
+ * breaks). Escapes HTML special chars first so stray `<`/`&` can't inject markup.
+ */
+export function plainTextToHtml(text: string | null | undefined): string {
+  if (!text) return ''
+  const esc = String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+  return esc
+    .split(/\n{2,}/)
+    .map((para) => `<p>${para.replace(/\n/g, '<br>')}</p>`)
+    .join('')
+}
+
+/**
  * Plain-text sanitizer for user profile fields (name, area, bio).
  * Decodes basic entities FIRST so that entity-encoded markup
  * (e.g. "&lt;img src=x onerror=alert(1)&gt;") is also removed, then strips all

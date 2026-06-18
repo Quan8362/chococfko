@@ -149,6 +149,67 @@ body::before {
 .rich-content blockquote p { margin-bottom: 0.4em; }
 .rich-content blockquote p:last-child { margin-bottom: 0; }
 
+/* === Rich text: highlight / callouts / tables / image captions === */
+/* Highlight — background-color comes from the inline style set by TipTap. */
+.tiptap mark, .rich-content mark, .comment-content mark {
+  border-radius: 3px;
+  padding: 0.04em 0.18em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+/* Callout boxes (💡 Tip / ⚠️ Warning / 💰 Cost / 🚃 Access / ⭐ Highlight) */
+.tiptap .callout, .rich-content .callout {
+  border: 1px solid var(--line);
+  border-left-width: 4px;
+  border-radius: 12px;
+  padding: 0.8em 1.05em;
+  margin: 1.1em 0;
+  background: var(--cream);
+}
+.tiptap .callout-head, .rich-content .callout-head {
+  font-weight: 700;
+  font-size: 0.95em;
+  margin-bottom: 0.3em;
+  color: var(--ink);
+}
+.tiptap .callout-body > :last-child, .rich-content .callout-body > :last-child { margin-bottom: 0; }
+.tiptap .callout-tip, .rich-content .callout-tip { background: #fff8e6; border-left-color: #e0a92e; }
+.tiptap .callout-warning, .rich-content .callout-warning { background: #fdeeee; border-left-color: #d96a6a; }
+.tiptap .callout-cost, .rich-content .callout-cost { background: #eefaf0; border-left-color: #3f9e63; }
+.tiptap .callout-transit, .rich-content .callout-transit { background: #eef4fd; border-left-color: #4a83cf; }
+.tiptap .callout-highlight, .rich-content .callout-highlight { background: #fdf0f6; border-left-color: var(--rose); }
+
+/* Tables — useful for address / hours / price grids */
+.tiptap table, .rich-content table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1.1em 0;
+  font-size: 0.94em;
+  table-layout: auto;
+}
+.tiptap th, .tiptap td, .rich-content th, .rich-content td {
+  border: 1px solid var(--line);
+  padding: 0.5em 0.7em;
+  text-align: left;
+  vertical-align: top;
+  min-width: 3em;
+}
+.tiptap th, .rich-content th { background: var(--cream); font-weight: 700; }
+.tiptap table p, .rich-content table p { margin: 0; }
+.tiptap .selectedCell { background: rgba(194, 24, 91, 0.08); }
+
+/* Image caption */
+.tiptap figure, .rich-content figure { margin: 1.3em 0; }
+.tiptap figure img, .rich-content figure img { margin: 0 auto; }
+.tiptap figcaption, .rich-content figcaption {
+  text-align: center;
+  font-size: 0.85em;
+  color: var(--muted);
+  margin-top: 0.5em;
+  line-height: 1.5;
+}
+
 /* === Mobile chat page: fixed layout so iOS keyboard doesn't push content === */
 @media (max-width: 767px) {
   html.chat-mobile-lock {

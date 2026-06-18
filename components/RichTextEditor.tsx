@@ -3,13 +3,17 @@
 import { useEditor, EditorContent, type Editor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import TextAlign from '@tiptap/extension-text-align'
-import TiptapImage from '@tiptap/extension-image'
 import Link from '@tiptap/extension-link'
 import Underline from '@tiptap/extension-underline'
+import { TextStyle, Color } from '@tiptap/extension-text-style'
+import Highlight from '@tiptap/extension-highlight'
+import { Table, TableRow, TableHeader, TableCell } from '@tiptap/extension-table'
 import { useCallback, useRef, useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { compressImage } from '@/lib/imageCompress'
+import { Callout, ImageWithCaption } from '@/lib/editor/extensions'
+import { TEXT_COLORS, HIGHLIGHT_COLORS, CALLOUT_VARIANTS, colorMatches } from '@/lib/editor/palette'
 
 const DRAFT_KEY = 'ccc-post-draft'
 
@@ -22,7 +26,7 @@ function Btn({
   return (
     <button
       type="button"
-      onMouseDown={(e) => { e.preventDefault(); onClick() }}
+      onMouseDown={(e) => { e.preventDefault(); if (!disabled) onClick() }}
       disabled={disabled}
       title={title}
       className={`w-[30px] h-[28px] rounded flex items-center justify-center text-[13px] transition-colors flex-none ${
@@ -40,25 +44,73 @@ function Sep() {
   return <div className="w-px bg-line h-[18px] mx-1 flex-none" />
 }
 
+// ── Dropdown popover with click-outside ───────────────────────────────────────
+function Dropdown({
+  title, disabled, button, children,
+}: {
+  title: string; disabled?: boolean; button: React.ReactNode; children: (close: () => void) => React.ReactNode
+}) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (!open) return
+    const onDoc = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', onDoc)
+    return () => document.removeEventListener('mousedown', onDoc)
+  }, [open])
+  return (
+    <div ref={ref} className="relative flex-none">
+      <button
+        type="button"
+        onMouseDown={(e) => { e.preventDefault(); if (!disabled) setOpen((v) => !v) }}
+        disabled={disabled}
+        title={title}
+        className={`h-[28px] px-1.5 rounded flex items-center gap-0.5 text-[13px] transition-colors ${
+          open ? 'bg-rose text-white' : 'text-muted hover:bg-line hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed'
+        }`}
+      >
+        {button}
+        <svg className="w-2.5 h-2.5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+      {open && (
+        <div className="absolute z-30 top-full left-0 mt-1 bg-white border border-line rounded-lg shadow-lg p-2 min-w-[150px]">
+          {children(() => setOpen(false))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ── Toolbar ───────────────────────────────────────────────────────────────────
 function Toolbar({
-  editor, onImageUpload, onInsertCallout,
+  editor, onImageUpload, onPreview, onFullscreen, fullscreen, enableImages,
 }: {
   editor: Editor | null
   onImageUpload: () => void
-  onInsertCallout: (emoji: string, label: string) => void
+  onPreview: () => void
+  onFullscreen: () => void
+  fullscreen: boolean
+  enableImages: boolean
 }) {
   const t = useTranslations('post_form')
   if (!editor) return null
   const e = editor
 
-  const CALLOUTS = [
-    { emoji: '💡', label: t('callout_tip') },
-    { emoji: '⚠️', label: t('callout_warning') },
-    { emoji: '💰', label: t('callout_cost') },
-    { emoji: '🚃', label: t('callout_transit') },
-    { emoji: '⭐', label: t('callout_highlight') },
-  ] as const
+  const currentColor = e.getAttributes('textStyle').color as string | undefined
+  const currentHighlight = e.getAttributes('highlight').color as string | undefined
+  const inTable = e.isActive('table')
+  const imageSelected = e.isActive('image')
+
+  const addCaption = () => {
+    const current = (e.getAttributes('image').caption as string) || ''
+    const caption = window.prompt(t('editor_caption_prompt'), current)
+    if (caption === null) return
+    e.chain().focus().updateAttributes('image', { caption: caption.trim() || null }).run()
+  }
 
   return (
     <div className="flex flex-wrap items-center gap-x-0.5 gap-y-1 px-2.5 py-2 border-b border-line bg-cream/60">
@@ -69,7 +121,7 @@ function Toolbar({
           <b className="font-black text-[14px]">B</b>
         </Btn>
         <Btn onClick={() => e.chain().focus().toggleItalic().run()} active={e.isActive('italic')} title={t('editor_italic')}>
-          <i className="font-serif text-[14px] not-italic italic">I</i>
+          <i className="font-serif text-[14px] italic">I</i>
         </Btn>
         <Btn onClick={() => e.chain().focus().toggleUnderline().run()} active={e.isActive('underline')} title={t('editor_underline')}>
           <span className="underline font-semibold text-[13px]">U</span>
@@ -78,6 +130,87 @@ function Toolbar({
           <s className="text-[13px]">S</s>
         </Btn>
       </div>
+
+      <Sep />
+
+      {/* Text color */}
+      <Dropdown
+        title={t('editor_text_color')}
+        button={
+          <span className="flex flex-col items-center leading-none">
+            <span className="font-bold text-[13px]" style={{ color: currentColor || 'currentColor' }}>A</span>
+            <span className="block w-3.5 h-[3px] rounded-sm mt-[1px]" style={{ background: currentColor || 'var(--ink)' }} />
+          </span>
+        }
+      >
+        {(close) => (
+          <div>
+            <div className="grid grid-cols-4 gap-1.5">
+              {TEXT_COLORS.map((c) => (
+                <button
+                  key={c.key}
+                  type="button"
+                  title={t(c.key)}
+                  onMouseDown={(ev) => { ev.preventDefault(); e.chain().focus().setColor(c.hex).run(); close() }}
+                  className={`w-7 h-7 rounded-md border ${colorMatches(currentColor, c) ? 'border-rose ring-2 ring-rose/30' : 'border-line'}`}
+                  style={{ background: c.hex }}
+                />
+              ))}
+            </div>
+            <button
+              type="button"
+              onMouseDown={(ev) => { ev.preventDefault(); e.chain().focus().unsetColor().run(); close() }}
+              className="mt-2 w-full text-[12.5px] text-muted hover:text-ink py-1 rounded hover:bg-line/50"
+            >
+              {t('editor_color_default')}
+            </button>
+          </div>
+        )}
+      </Dropdown>
+
+      {/* Highlight */}
+      <Dropdown
+        title={t('editor_highlight')}
+        button={
+          <span className="relative flex items-center">
+            <span className="text-[13px] leading-none px-0.5 rounded-sm" style={{ background: currentHighlight || 'transparent' }}>H</span>
+          </span>
+        }
+      >
+        {(close) => (
+          <div>
+            <div className="grid grid-cols-3 gap-1.5">
+              {HIGHLIGHT_COLORS.map((c) => (
+                <button
+                  key={c.key}
+                  type="button"
+                  title={t(c.key)}
+                  onMouseDown={(ev) => { ev.preventDefault(); e.chain().focus().setHighlight({ color: c.hex }).run(); close() }}
+                  className={`w-8 h-7 rounded-md border ${colorMatches(currentHighlight, c) ? 'border-rose ring-2 ring-rose/30' : 'border-line'}`}
+                  style={{ background: c.hex }}
+                />
+              ))}
+            </div>
+            <button
+              type="button"
+              onMouseDown={(ev) => { ev.preventDefault(); e.chain().focus().unsetHighlight().run(); close() }}
+              className="mt-2 w-full text-[12.5px] text-muted hover:text-ink py-1 rounded hover:bg-line/50"
+            >
+              {t('editor_highlight_none')}
+            </button>
+          </div>
+        )}
+      </Dropdown>
+
+      {/* Clear formatting */}
+      <Btn
+        onClick={() => e.chain().focus().unsetColor().unsetHighlight().unsetAllMarks().run()}
+        title={t('editor_clear_format')}
+      >
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5h10M9 5l-2 14m0 0H5m2 0h3M13 5l-1 7M5 19l14-14" />
+        </svg>
+      </Btn>
 
       <Sep />
 
@@ -109,7 +242,7 @@ function Toolbar({
           </svg>
         </Btn>
         <Btn onClick={() => e.chain().focus().toggleBlockquote().run()} active={e.isActive('blockquote')} title={t('editor_blockquote')}>
-          <span className="text-[14px] font-serif italic font-bold leading-none">"</span>
+          <span className="text-[14px] font-serif italic font-bold leading-none">&ldquo;</span>
         </Btn>
       </div>
 
@@ -136,11 +269,11 @@ function Toolbar({
 
       <Sep />
 
-      {/* Insert */}
+      {/* Insert: link / image / caption / hr */}
       <div className="flex items-center gap-0.5 flex-none">
         <Btn
           onClick={() => {
-            const url = prompt(t('editor_link_prompt'))
+            const url = window.prompt(t('editor_link_prompt'))
             if (url) e.chain().focus().setLink({ href: url, target: '_blank' }).run()
           }}
           active={e.isActive('link')}
@@ -150,11 +283,20 @@ function Toolbar({
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
           </svg>
         </Btn>
-        <Btn onClick={onImageUpload} title={t('editor_insert_image')}>
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-          </svg>
-        </Btn>
+        {enableImages && (
+          <>
+            <Btn onClick={onImageUpload} title={t('editor_insert_image')}>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </Btn>
+            <Btn onClick={addCaption} disabled={!imageSelected} active={imageSelected && !!e.getAttributes('image').caption} title={t('editor_add_caption')}>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5h16M4 9h16M7 13h10M9 17h6" />
+              </svg>
+            </Btn>
+          </>
+        )}
         <Btn onClick={() => e.chain().focus().setHorizontalRule().run()} title={t('editor_horizontal_rule')}>
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h14" />
@@ -164,19 +306,63 @@ function Toolbar({
 
       <Sep />
 
+      {/* Table */}
+      <Dropdown
+        title={t('editor_insert_table')}
+        button={
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h18M3 12h18M3 19h18M9 5v14M15 5v14" />
+          </svg>
+        }
+      >
+        {(close) => (
+          <div className="flex flex-col gap-0.5 min-w-[160px] text-[12.5px]">
+            <button type="button" onMouseDown={(ev) => { ev.preventDefault(); e.chain().focus().insertTable({ rows: 2, cols: 2, withHeaderRow: true }).run(); close() }} className="text-left px-2 py-1.5 rounded hover:bg-line/50 text-ink">{t('editor_insert_table')}</button>
+            {inTable && (
+              <>
+                <div className="h-px bg-line my-1" />
+                <button type="button" onMouseDown={(ev) => { ev.preventDefault(); e.chain().focus().addRowAfter().run() }} className="text-left px-2 py-1.5 rounded hover:bg-line/50 text-muted">{t('editor_table_add_row')}</button>
+                <button type="button" onMouseDown={(ev) => { ev.preventDefault(); e.chain().focus().deleteRow().run() }} className="text-left px-2 py-1.5 rounded hover:bg-line/50 text-muted">{t('editor_table_del_row')}</button>
+                <button type="button" onMouseDown={(ev) => { ev.preventDefault(); e.chain().focus().addColumnAfter().run() }} className="text-left px-2 py-1.5 rounded hover:bg-line/50 text-muted">{t('editor_table_add_col')}</button>
+                <button type="button" onMouseDown={(ev) => { ev.preventDefault(); e.chain().focus().deleteColumn().run() }} className="text-left px-2 py-1.5 rounded hover:bg-line/50 text-muted">{t('editor_table_del_col')}</button>
+                <button type="button" onMouseDown={(ev) => { ev.preventDefault(); e.chain().focus().deleteTable().run(); close() }} className="text-left px-2 py-1.5 rounded hover:bg-red-50 text-red-600">{t('editor_table_delete')}</button>
+              </>
+            )}
+          </div>
+        )}
+      </Dropdown>
+
+      <Sep />
+
       {/* Callout blocks */}
-      <div className="flex items-center gap-0.5 flex-none">
-        <span className="text-[10px] text-muted/70 font-medium mr-0.5 hidden sm:block">{t('editor_block_label')}</span>
-        {CALLOUTS.map((c) => (
-          <Btn
-            key={c.emoji}
-            onClick={() => onInsertCallout(c.emoji, c.label)}
-            title={`${t('callout_add_prefix')}${c.label}`}
-          >
-            <span className="text-[13px] leading-none">{c.emoji}</span>
-          </Btn>
-        ))}
-      </div>
+      <Dropdown
+        title={t('editor_block_label')}
+        button={<span className="text-[13px] leading-none">💡</span>}
+      >
+        {(close) => (
+          <div className="flex flex-col gap-0.5 min-w-[170px] text-[12.5px]">
+            {CALLOUT_VARIANTS.map((c) => (
+              <button
+                key={c.variant}
+                type="button"
+                onMouseDown={(ev) => {
+                  ev.preventDefault()
+                  e.chain().focus().insertContent({
+                    type: 'callout',
+                    attrs: { variant: c.variant, icon: c.icon, title: t(c.titleKey) },
+                    content: [{ type: 'paragraph' }],
+                  }).run()
+                  close()
+                }}
+                className="text-left px-2 py-1.5 rounded hover:bg-line/50 text-ink flex items-center gap-2"
+              >
+                <span>{c.icon}</span>
+                <span>{t(c.titleKey)}</span>
+              </button>
+            ))}
+          </div>
+        )}
+      </Dropdown>
 
       <Sep />
 
@@ -193,6 +379,23 @@ function Toolbar({
           </svg>
         </Btn>
       </div>
+
+      <Sep />
+
+      {/* Preview + Fullscreen */}
+      <div className="flex items-center gap-0.5 flex-none ml-auto">
+        <Btn onClick={onPreview} title={t('editor_preview')}>
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+          </svg>
+        </Btn>
+        <Btn onClick={onFullscreen} active={fullscreen} title={fullscreen ? t('editor_exit_fullscreen') : t('editor_fullscreen')}>
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+          </svg>
+        </Btn>
+      </div>
     </div>
   )
 }
@@ -203,6 +406,12 @@ interface Props {
   defaultValue?: string
   placeholder?: string
   minHeight?: string
+  // localStorage key for autosaved drafts. Pass null to disable drafts entirely
+  // (e.g. marketplace, so it never collides with the community post draft).
+  draftKey?: string | null
+  // Show the inline image-upload + caption buttons. Disabled for marketplace,
+  // which has its own separate product-image uploader.
+  enableImages?: boolean
 }
 
 export default function RichTextEditor({
@@ -210,6 +419,8 @@ export default function RichTextEditor({
   defaultValue = '',
   placeholder,
   minHeight = '220px',
+  draftKey = DRAFT_KEY,
+  enableImages = true,
 }: Props) {
   const t = useTranslations('post_form')
   const resolvedPlaceholder = placeholder ?? t('editor_placeholder_default')
@@ -217,10 +428,13 @@ export default function RichTextEditor({
   const [uploading, setUploading] = useState(false)
   const [draftSaved, setDraftSaved] = useState(false)
   const [wordCount, setWordCount] = useState(0)
+  const [charCount, setCharCount] = useState(0)
+  const [preview, setPreview] = useState(false)
+  const [fullscreen, setFullscreen] = useState(false)
   // Draft found in localStorage but NOT yet loaded — user must confirm
   const [pendingDraft, setPendingDraft] = useState<string | null>(() => {
-    if (typeof window === 'undefined' || defaultValue) return null
-    const saved = localStorage.getItem(DRAFT_KEY)
+    if (typeof window === 'undefined' || defaultValue || !draftKey) return null
+    const saved = localStorage.getItem(draftKey)
     return (saved && saved !== '<p></p>') ? saved : null
   })
   const fileRef = useRef<HTMLInputElement>(null)
@@ -231,12 +445,20 @@ export default function RichTextEditor({
     extensions: [
       StarterKit,
       Underline,
+      TextStyle,
+      Color,
+      Highlight.configure({ multicolor: true }),
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
-      TiptapImage.configure({ inline: false, allowBase64: false }),
+      ImageWithCaption.configure({ inline: false, allowBase64: false }),
       Link.configure({
         openOnClick: false,
         HTMLAttributes: { rel: 'noopener noreferrer', target: '_blank' },
       }),
+      Table.configure({ resizable: false }),
+      TableRow,
+      TableHeader,
+      TableCell,
+      Callout,
     ],
     // Always start empty for new posts; draft is offered via banner below
     content: defaultValue || '<p></p>',
@@ -250,17 +472,19 @@ export default function RichTextEditor({
     onUpdate: ({ editor }) => {
       const newHtml = editor.getHTML()
       setHtml(newHtml)
-      updateWordCount(editor.state.doc.textContent)
+      updateCounts(editor.state.doc.textContent)
 
       // Auto-save draft (debounced 2s)
       if (draftTimerRef.current) clearTimeout(draftTimerRef.current)
-      draftTimerRef.current = setTimeout(() => {
-        if (!editor.isEmpty) {
-          localStorage.setItem(DRAFT_KEY, newHtml)
-          setDraftSaved(true)
-          setTimeout(() => setDraftSaved(false), 2000)
-        }
-      }, 2000)
+      if (draftKey) {
+        draftTimerRef.current = setTimeout(() => {
+          if (!editor.isEmpty) {
+            localStorage.setItem(draftKey, newHtml)
+            setDraftSaved(true)
+            setTimeout(() => setDraftSaved(false), 2000)
+          }
+        }, 2000)
+      }
     },
   })
 
@@ -268,18 +492,19 @@ export default function RichTextEditor({
     if (!pendingDraft || !editor) return
     editor.commands.setContent(pendingDraft)
     setHtml(pendingDraft)
-    updateWordCount(editor.state.doc.textContent)
+    updateCounts(editor.state.doc.textContent)
     setPendingDraft(null)
   }
 
   const discardDraft = () => {
-    localStorage.removeItem(DRAFT_KEY)
+    if (draftKey) localStorage.removeItem(draftKey)
     setPendingDraft(null)
   }
 
-  function updateWordCount(text: string) {
-    const words = text.trim().split(/\s+/).filter(Boolean)
-    setWordCount(words.length)
+  function updateCounts(text: string) {
+    const trimmed = text.trim()
+    setWordCount(trimmed ? trimmed.split(/\s+/).filter(Boolean).length : 0)
+    setCharCount(text.length)
   }
 
   const handleImageUpload = useCallback(async (file: File) => {
@@ -295,19 +520,22 @@ export default function RichTextEditor({
     editor?.chain().focus().setImage({ src: publicUrl }).run()
   }, [editor, supabase])
 
-  const insertCallout = useCallback((emoji: string, label: string) => {
-    editor?.chain().focus().insertContent(
-      `<blockquote><p><strong>${emoji} ${label}:</strong> </p></blockquote>`
-    ).run()
-  }, [editor])
-
   // Keep html in sync if defaultValue changes (edit mode)
   useEffect(() => {
     if (defaultValue && editor && editor.getHTML() === '<p></p>') {
       editor.commands.setContent(defaultValue)
       setHtml(defaultValue)
+      updateCounts(editor.state.doc.textContent)
     }
   }, [defaultValue, editor])
+
+  // Lock body scroll while fullscreen
+  useEffect(() => {
+    if (!fullscreen) return
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = prev }
+  }, [fullscreen])
 
   // Cleanup draft timer on unmount
   useEffect(() => {
@@ -319,7 +547,13 @@ export default function RichTextEditor({
   const isEmpty = editor?.isEmpty ?? true
 
   return (
-    <div className="border border-line rounded-xl overflow-hidden bg-white focus-within:border-rose focus-within:ring-2 focus-within:ring-rose/15 transition-all">
+    <div
+      className={`border border-line bg-white transition-all ${
+        fullscreen
+          ? 'fixed inset-0 z-[60] rounded-none flex flex-col overflow-hidden'
+          : 'rounded-xl overflow-hidden focus-within:border-rose focus-within:ring-2 focus-within:ring-rose/15'
+      }`}
+    >
       <input type="hidden" name={name} value={html} />
       <input
         ref={fileRef}
@@ -361,7 +595,10 @@ export default function RichTextEditor({
       <Toolbar
         editor={editor}
         onImageUpload={() => fileRef.current?.click()}
-        onInsertCallout={insertCallout}
+        onPreview={() => setPreview((v) => !v)}
+        onFullscreen={() => setFullscreen((v) => !v)}
+        fullscreen={fullscreen}
+        enableImages={enableImages}
       />
 
       {/* Upload indicator */}
@@ -375,26 +612,45 @@ export default function RichTextEditor({
         </div>
       )}
 
-      {/* Editor with placeholder */}
-      <div className="relative">
-        {isEmpty && (
-          <div
-            className="absolute top-4 left-4 right-4 text-[14.5px] text-muted/60 pointer-events-none select-none leading-[1.78] z-10"
-            aria-hidden="true"
-          >
-            {resolvedPlaceholder}
+      {/* Editor / Preview area */}
+      <div className={`relative ${fullscreen ? 'flex-1 overflow-y-auto' : ''}`}>
+        {preview ? (
+          <div className="rich-content px-4 py-4 text-[15px] text-ink">
+            {html && html !== '<p></p>'
+              ? <div dangerouslySetInnerHTML={{ __html: html }} />
+              : <p className="text-muted/60 italic">{t('editor_preview_empty')}</p>}
           </div>
+        ) : (
+          <>
+            {isEmpty && (
+              <div
+                className="absolute top-4 left-4 right-4 text-[14.5px] text-muted/60 pointer-events-none select-none leading-[1.78] z-10"
+                aria-hidden="true"
+              >
+                {resolvedPlaceholder}
+              </div>
+            )}
+            <EditorContent editor={editor} />
+          </>
         )}
-        <EditorContent editor={editor} />
       </div>
 
-      {/* Footer: word count + draft indicator */}
-      <div className="flex items-center justify-between px-4 py-2 border-t border-line/60 bg-cream/40">
-        <span className="text-[11.5px] text-muted/70">
-          {wordCount > 0 ? t('editor_word_count', { count: wordCount }) : ''}
+      {/* Footer: counts + draft indicator */}
+      <div className="flex items-center justify-between px-4 py-2 border-t border-line/60 bg-cream/40 gap-3">
+        <span className="text-[11.5px] text-muted/70 flex items-center gap-2 flex-wrap">
+          {charCount > 0 && (
+            <>
+              <span>{t('editor_char_count', { count: charCount })}</span>
+              <span className="text-muted/40">·</span>
+              <span>{t('editor_word_count', { count: wordCount })}</span>
+              {charCount < 300 && (
+                <span className="text-amber-600/80 hidden sm:inline">{t('editor_min_chars_hint')}</span>
+              )}
+            </>
+          )}
         </span>
         {draftSaved && (
-          <span className="text-[11.5px] text-emerald-600 flex items-center gap-1">
+          <span className="text-[11.5px] text-emerald-600 flex items-center gap-1 flex-none">
             <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
             </svg>

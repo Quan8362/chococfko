@@ -112,7 +112,7 @@ export default async function PlaceCard({ place }: { place: Place }) {
 
         {/* Tags */}
         {place.tags && place.tags.length > 0 && (
-          <TagList tags={place.tags.slice(0, 3)} size="sm" className="mt-0.5" />
+          <TagList tags={place.tags.slice(0, 3)} size="sm" variant="plain" />
         )}
 
         {/* Buttons */}

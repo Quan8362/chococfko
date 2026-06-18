@@ -252,8 +252,10 @@ const TAG_LOCALES = ['vi', 'en', 'ja', 'ko', 'zh'] as const
 
 /**
  * Machine-translate a new custom tag into the other UI languages and store the
- * results in display_name_*. Best-effort: silently no-ops when the translation
- * provider isn't configured (tag then falls back to its original name).
+ * results in display_name_*. Prefers the configured Google provider; otherwise
+ * falls back to the free, keyless MyMemory API so it works out of the box.
+ * Best-effort with a short timeout — leaves columns null (→ original name) on
+ * any failure so it never blocks/breaks content submission.
  */
 async function autoTranslateTag(
   admin: SupabaseClient,
@@ -263,26 +265,62 @@ async function autoTranslateTag(
 ): Promise<void> {
   try {
     const src = (TAG_LOCALES as readonly string[]).includes(sourceLocale) ? sourceLocale : 'vi'
-    const { isTranslateConfigured, translateText } = await import('./japanese/translate')
-    if (!isTranslateConfigured()) return
+    const translate = await getTagTranslator()
+    if (!translate) return
 
     const update: Record<string, string> = { [`display_name_${src}`]: name }
     const targets = TAG_LOCALES.filter((l) => l !== src)
     const results = await Promise.all(
       targets.map((target) =>
-        translateText(name, target, src)
-          .then((r) => [target, r.text] as const)
+        translate(name, target, src)
+          .then((text) => [target, text] as const)
           .catch(() => null),
       ),
     )
     for (const r of results) {
-      if (r && r[1]?.trim()) update[`display_name_${r[0]}`] = r[1].trim()
+      const text = r?.[1]?.trim()
+      if (text && text.toLowerCase() !== name.toLowerCase()) update[`display_name_${r![0]}`] = text
     }
     if (Object.keys(update).length > 1) {
       await admin.from('tags').update(update).eq('id', tagId)
     }
   } catch {
     /* best-effort — leave columns null on failure */
+  }
+}
+
+type Translator = (text: string, target: string, source: string) => Promise<string | null>
+
+async function getTagTranslator(): Promise<Translator | null> {
+  try {
+    const { isTranslateConfigured, translateText } = await import('./japanese/translate')
+    if (isTranslateConfigured()) {
+      return (text, target, source) => translateText(text, target, source).then((r) => r.text || null)
+    }
+  } catch {
+    /* fall through to free provider */
+  }
+  return freeTranslate
+}
+
+// Free, keyless fallback (MyMemory). Fine for short tag labels; rate-limited.
+async function freeTranslate(text: string, target: string, source: string): Promise<string | null> {
+  const tgt = target === 'zh' ? 'zh-CN' : target
+  const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${encodeURIComponent(`${source}|${tgt}`)}`
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), 3500)
+  try {
+    const res = await fetch(url, { cache: 'no-store', signal: controller.signal })
+    if (!res.ok) return null
+    const json = await res.json()
+    const out = json?.responseData?.translatedText
+    if (typeof out !== 'string' || !out.trim()) return null
+    if (/MYMEMORY WARNING|QUERY LENGTH LIMIT|INVALID/i.test(out)) return null
+    return out.trim()
+  } catch {
+    return null
+  } finally {
+    clearTimeout(timer)
   }
 }
 

@@ -134,7 +134,7 @@ export default async function PlacesPage({ searchParams }: { searchParams: Searc
           <p className="text-muted text-[15px]">{th("search_empty")}</p>
         </div>
       ) : (
-        <LoadMoreGrid cards={list.map((place) => <PlaceCard key={place.slug} place={place} />)} />
+        <LoadMoreGrid cards={list.map((place) => <PlaceCard key={place.slug} place={place} showCategoryBadge={!cat} />)} />
       )}
     </div>
   );

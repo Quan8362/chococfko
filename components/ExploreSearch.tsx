@@ -27,6 +27,9 @@ const GRID = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6";
 const PREVIEW_LIMIT = 9;
 const PREVIEW_GRID =
   GRID +
+  // Cards in a category section share its category, so the heading already says
+  // it — hide the per-card category badge to keep the section calm.
+  " [&_.place-cat-badge]:hidden" +
   " [&>*:nth-child(5)]:hidden [&>*:nth-child(6)]:hidden" +
   " sm:[&>*:nth-child(5)]:flex sm:[&>*:nth-child(6)]:flex" +
   " [&>*:nth-child(n+7)]:hidden lg:[&>*:nth-child(n+7)]:flex";

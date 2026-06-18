@@ -24,7 +24,18 @@ const CAT_EMOJI: Record<string, string> = {
   onsen: "♨️",
 };
 
-export default async function PlaceCard({ place }: { place: Place }) {
+export default async function PlaceCard({
+  place,
+  showCategoryBadge = true,
+}: {
+  place: Place;
+  // Hide the category badge in same-category contexts (e.g. a category section
+  // or the single-category list page) where the heading already states it.
+  // The badge also carries the `place-cat-badge` class so the homepage — which
+  // reuses one pre-rendered card node in both the category section (hidden) and
+  // mixed search results (shown) — can toggle it purely with CSS.
+  showCategoryBadge?: boolean;
+}) {
   const t = await getTranslations("common");
   const tCat = await getTranslations("categories");
   const href = `/places/${place.slug}`;
@@ -38,10 +49,12 @@ export default async function PlaceCard({ place }: { place: Place }) {
     <article className="bg-paper rounded-2xl overflow-hidden border border-line shadow-card flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover group">
       {/* Image */}
       <Link href={href} className="block relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-[#f3e1d2] to-[#e9cdb6] flex-none">
-        {/* Category badge */}
-        <span className="absolute top-3 left-3 z-[2] inline-flex items-center gap-1 bg-paper/95 text-ink text-[11px] font-semibold px-2.5 py-[5px] rounded-full shadow-sm">
-          {CAT_EMOJI[place.category]} {displayCategory}
-        </span>
+        {/* Category badge — hidden inside same-category sections (see prop docs) */}
+        {showCategoryBadge && (
+          <span className="place-cat-badge absolute top-3 left-3 z-[2] inline-flex items-center gap-1 bg-paper/95 text-ink text-[11px] font-semibold px-2.5 py-[5px] rounded-full shadow-sm">
+            {CAT_EMOJI[place.category]} {displayCategory}
+          </span>
+        )}
 
         {/* Save button */}
         <span className="absolute top-3 right-3 z-[2]">

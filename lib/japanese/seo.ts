@@ -100,21 +100,99 @@ export const getWordForDetail = unstable_cache(
 
 const RELATED_COLUMNS = 'id,word,reading,romaji,jlpt_level,pos,meanings,examples,tags,frequency'
 
-/** Same-level related words (excludes the current word). Cached daily. */
-export const getRelatedWords = unstable_cache(
-  async (level: string, excludeId: string): Promise<JapaneseWord[]> => {
+/** Semantic relation kinds, in the order they are displayed on the detail page. */
+export type RelationType = 'synonym' | 'antonym' | 'near_synonym' | 'confusing' | 'same_kanji' | 'related'
+
+const RELATION_ORDER: RelationType[] = ['synonym', 'antonym', 'near_synonym', 'confusing', 'same_kanji', 'related']
+
+/** A labelled group of related words shown under its own subheading. */
+export interface RelatedGroup {
+  type: RelationType
+  words: JapaneseWord[]
+}
+
+const MIN_RELATION_CONFIDENCE = 0.5
+const MAX_PER_GROUP = 6
+const MAX_SAME_KANJI = 6
+
+/**
+ * Build the semantically meaningful "related words" groups for a word:
+ *   1. Curated typed relations from `japanese_word_relations` (bidirectional,
+ *      high-confidence only). Degrades gracefully if the table is absent.
+ *   2. Same-Kanji family words derived at runtime (only when the word has Kanji).
+ *
+ * Returns an empty array when nothing useful is found — the page then hides the
+ * section rather than padding it with random same-level words. Cached daily.
+ */
+export const getWordRelations = unstable_cache(
+  async (wordId: string, wordText: string): Promise<RelatedGroup[]> => {
     const supabase = createPublicClient()
-    const { data } = await supabase
-      .from('japanese_words')
-      .select(RELATED_COLUMNS)
-      .neq('id', excludeId)
-      .eq('jlpt_level', level)
-      .eq('is_published', true)
-      .order('frequency', { ascending: false })
-      .limit(6)
-    return (data as JapaneseWord[]) ?? []
+    const groups = new Map<RelationType, JapaneseWord[]>()
+    const seen = new Set<string>([wordId])
+
+    // 1. Curated typed relations (works both directions; relation kinds are symmetric).
+    try {
+      const { data: rels } = await supabase
+        .from('japanese_word_relations')
+        .select('source_word_id,target_word_id,relation_type,confidence')
+        .or(`source_word_id.eq.${wordId},target_word_id.eq.${wordId}`)
+        .gte('confidence', MIN_RELATION_CONFIDENCE)
+
+      if (rels && rels.length > 0) {
+        const otherIds = Array.from(
+          new Set(rels.map(r => (r.source_word_id === wordId ? r.target_word_id : r.source_word_id))),
+        )
+        const { data: words } = await supabase
+          .from('japanese_words')
+          .select(RELATED_COLUMNS)
+          .in('id', otherIds)
+          .eq('is_published', true)
+        const byId = new Map((words as JapaneseWord[] | null ?? []).map(w => [w.id, w]))
+
+        for (const r of rels) {
+          const otherId = r.source_word_id === wordId ? r.target_word_id : r.source_word_id
+          const w = byId.get(otherId)
+          if (!w || seen.has(w.id)) continue
+          const type = (r.relation_type as RelationType) ?? 'related'
+          const list = groups.get(type) ?? []
+          if (list.length >= MAX_PER_GROUP) continue
+          list.push(w)
+          groups.set(type, list)
+          seen.add(w.id)
+        }
+      }
+    } catch {
+      // japanese_word_relations not migrated yet — fall through to Same-Kanji.
+    }
+
+    // 2. Same-Kanji family — genuinely useful and cheap. Skip kana-only words.
+    const kanji = extractKanji(wordText).slice(0, 2)
+    if (kanji.length > 0) {
+      const sameKanji: JapaneseWord[] = []
+      for (const k of kanji) {
+        if (sameKanji.length >= MAX_SAME_KANJI) break
+        const { data } = await supabase
+          .from('japanese_words')
+          .select(RELATED_COLUMNS)
+          .ilike('word', `%${k}%`)
+          .eq('is_published', true)
+          .order('frequency', { ascending: false })
+          .limit(10)
+        for (const w of (data as JapaneseWord[] | null ?? [])) {
+          if (seen.has(w.id)) continue
+          seen.add(w.id)
+          sameKanji.push(w)
+          if (sameKanji.length >= MAX_SAME_KANJI) break
+        }
+      }
+      if (sameKanji.length > 0) groups.set('same_kanji', sameKanji)
+    }
+
+    return RELATION_ORDER
+      .filter(t => (groups.get(t)?.length ?? 0) > 0)
+      .map(t => ({ type: t, words: groups.get(t)!.slice(0, MAX_PER_GROUP) }))
   },
-  ['related-words'],
+  ['word-relations'],
   { revalidate: 86400, tags: ['japanese-words'] },
 )
 

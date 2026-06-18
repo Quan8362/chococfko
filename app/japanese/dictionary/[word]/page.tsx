@@ -13,18 +13,19 @@ import CopyButton from '@/components/japanese/CopyButton'
 import WordImage from '@/components/japanese/WordImage'
 import PosBadges from '@/components/japanese/PosBadges'
 import KanjiPracticeSection from '@/components/japanese/KanjiPracticeSection'
-import WordCard, { type JapaneseWord } from '@/components/japanese/WordCard'
+import WordCard from '@/components/japanese/WordCard'
 import { urlLevel } from '@/components/japanese/LevelPicker'
 import { cleanMeaningText } from '@/lib/sanitize'
 import type { Metadata } from 'next'
 import {
   getWordForDetail,
-  getRelatedWords,
+  getWordRelations,
   wordUrl,
   wordDescription,
   wordKeywords,
   wordJsonLd,
   primaryMeanings,
+  type RelatedGroup,
 } from '@/lib/japanese/seo'
 
 export const dynamic = 'force-dynamic'
@@ -80,8 +81,8 @@ export default async function WordDetailPage({ params }: { params: { word: strin
 
   if (!word) notFound()
 
-  const [relatedWords, bookmarkIds, imageData, comments, isAdmin] = await Promise.all([
-    word.jlpt_level ? getRelatedWords(word.jlpt_level, word.id) : Promise.resolve([] as JapaneseWord[]),
+  const [relatedGroups, bookmarkIds, imageData, comments, isAdmin] = await Promise.all([
+    getWordRelations(word.id, word.word),
     user ? getBookmarkIds('word') : Promise.resolve([] as string[]),
     getOrFetchWordImage(word),
     getJapaneseComments('word', word.id),
@@ -98,6 +99,15 @@ export default async function WordDetailPage({ params }: { params: { word: strin
   const tCopy = t('copy_word')
   const tCopied = t('copied')
   const tViewDetail = t('view_detail')
+
+  const RELATION_LABEL: Record<RelatedGroup['type'], string> = {
+    synonym: t('relation_synonym'),
+    antonym: t('relation_antonym'),
+    near_synonym: t('relation_near_synonym'),
+    confusing: t('relation_confusing'),
+    same_kanji: t('relation_same_kanji'),
+    related: t('relation_related'),
+  }
 
   const { vi: meaningVi, en: meaningEn } = primaryMeanings(word)
   const leadMeaning = locale === 'en' ? (meaningEn || meaningVi) : (meaningVi || meaningEn)
@@ -191,8 +201,9 @@ export default async function WordDetailPage({ params }: { params: { word: strin
           </div>
         )}
 
-        {/* Illustration image */}
-        {imageData.image_url && (
+        {/* Illustration image — only shown when relevant; otherwise a light
+            placeholder so we never display a misleading photo. */}
+        {imageData.image_url ? (
           <WordImage
             src={imageData.image_url}
             alt={imageData.image_alt ?? t('image_alt_for_word', { word: word.word })}
@@ -201,7 +212,14 @@ export default async function WordDetailPage({ params }: { params: { word: strin
             wordId={word.id}
             label={t('illustration_label')}
           />
-        )}
+        ) : imageData.show_placeholder ? (
+          <div className="mb-6">
+            <p className="text-[10.5px] font-bold text-muted uppercase tracking-wide mb-3">{t('illustration_label')}</p>
+            <div className="rounded-2xl bg-cream/40 border border-dashed border-line text-center px-4 py-8">
+              <p className="text-[13px] text-muted">{t('no_suitable_image')}</p>
+            </div>
+          </div>
+        ) : null}
 
         {/* Examples */}
         {word.examples && word.examples.length > 0 && (
@@ -259,43 +277,58 @@ export default async function WordDetailPage({ params }: { params: { word: strin
         <KanjiPracticeSection word={word.word} />
       </aside>
 
-      {/* Related words — left column, row 2 (sits directly under the main card) */}
-      {relatedWords.length > 0 && (
+      {/* Related words — left column, row 2 (sits directly under the main card).
+          Only semantically meaningful, labelled groups are shown. When no useful
+          relation exists the whole section is hidden (no random same-level padding). */}
+      {(relatedGroups.length > 0 || word.jlpt_level) && (
         <section className="mt-8 lg:mt-0 min-w-0 lg:col-start-1 lg:row-start-2">
-          <h2 className="font-serif font-bold text-[17px] text-ink mb-4">{t('related_words')}</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {relatedWords.slice(0, 6).map(w => (
-              <WordCard
-                key={w.id}
-                word={w}
-                locale={locale}
-                actionSlot={
-                  <BookmarkButton
-                    itemId={w.id}
-                    itemType="word"
-                    initialBookmarked={bookmarkedSet.has(w.id)}
-                    loginMessage={!user ? t('login_to_save') : undefined}
-                  />
-                }
-                footerSlot={
-                  <div className="flex items-center justify-between mt-3 pt-3 border-t border-line/40">
-                    <CopyButton text={w.word} label={tCopy} copiedLabel={tCopied} />
-                    <Link
-                      href={`/japanese/dictionary/${encodeURIComponent(w.word)}`}
-                      className="flex items-center gap-1 text-[11px] font-medium text-muted hover:text-rose transition-colors"
-                    >
-                      {tViewDetail}
-                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                      </svg>
-                    </Link>
+          {relatedGroups.length > 0 && (
+            <>
+              <h2 className="font-serif font-bold text-[17px] text-ink mb-4">{t('related_words')}</h2>
+              <div className="space-y-6">
+                {relatedGroups.map(group => (
+                  <div key={group.type}>
+                    <p className="text-[10.5px] font-bold text-rose/80 uppercase tracking-wide mb-3">
+                      {RELATION_LABEL[group.type]}
+                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {group.words.map(w => (
+                        <WordCard
+                          key={w.id}
+                          word={w}
+                          locale={locale}
+                          actionSlot={
+                            <BookmarkButton
+                              itemId={w.id}
+                              itemType="word"
+                              initialBookmarked={bookmarkedSet.has(w.id)}
+                              loginMessage={!user ? t('login_to_save') : undefined}
+                            />
+                          }
+                          footerSlot={
+                            <div className="flex items-center justify-between mt-3 pt-3 border-t border-line/40">
+                              <CopyButton text={w.word} label={tCopy} copiedLabel={tCopied} />
+                              <Link
+                                href={`/japanese/dictionary/${encodeURIComponent(w.word)}`}
+                                className="flex items-center gap-1 text-[11px] font-medium text-muted hover:text-rose transition-colors"
+                              >
+                                {tViewDetail}
+                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                                </svg>
+                              </Link>
+                            </div>
+                          }
+                        />
+                      ))}
+                    </div>
                   </div>
-                }
-              />
-            ))}
-          </div>
+                ))}
+              </div>
+            </>
+          )}
           {word.jlpt_level && (
-            <div className="mt-5 text-center">
+            <div className="mt-6 text-center">
               <Link
                 href={`/japanese/vocabulary/${urlLevel(word.jlpt_level)}`}
                 className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-rose border border-rose/30 bg-rose/5 hover:bg-rose/10 px-4 py-2 rounded-full transition-colors"

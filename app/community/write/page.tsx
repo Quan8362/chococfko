@@ -39,9 +39,9 @@ async function getUser() {
   }
 }
 
-const TIP_ICONS = ['📸', '📍', '💬', '💰', '⏰', '✍️']
+const TIP_ICONS = ['🏷️', '💬', '📍', '📸', '🧰']
 const TIP_KEYS = [
-  'tip_photo', 'tip_location', 'tip_feeling', 'tip_cost', 'tip_time', 'tip_block',
+  'tip_title', 'tip_experience', 'tip_area', 'tip_image', 'tip_toolbar',
 ] as const
 
 export default async function VietBai({
@@ -175,49 +175,27 @@ export default async function VietBai({
                 <Field label={t('area_label')} placeholder={t('area_hint')} name="area" />
               </div>
 
-              {/* Row 2: Category + Rating */}
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-[13px] font-semibold mb-1.5 text-[#5c4d44]">
-                    {t('category_label')}
-                  </label>
-                  <div className="relative">
-                    <select
-                      name="category"
-                      defaultValue="life"
-                      className="w-full appearance-none text-[14px] px-3.5 py-2.5 pr-9 border border-line rounded-xl bg-white focus:outline-none focus:border-rose focus:ring-2 focus:ring-rose/15 transition-all text-ink"
-                    >
-                      <option value="life">{tcat('cat_life')}</option>
-                      <option value="paperwork">{tcat('cat_paperwork')}</option>
-                      <option value="transport">{tcat('cat_transport')}</option>
-                      <option value="study">{tcat('cat_study')}</option>
-                      <option value="work">{tcat('cat_work')}</option>
-                      <option value="story">{tcat('cat_story')}</option>
-                    </select>
-                    <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-[13px] font-semibold mb-1.5 text-[#5c4d44]">
-                    {t('rating_label')}
-                  </label>
-                  <div className="relative">
-                    <select
-                      name="rating"
-                      className="w-full appearance-none text-[14px] px-3.5 py-2.5 pr-9 border border-line rounded-xl bg-white focus:outline-none focus:border-rose focus:ring-2 focus:ring-rose/15 transition-all text-ink"
-                    >
-                      <option value="5">★★★★★ {t('rating_5')}</option>
-                      <option value="4">★★★★☆ {t('rating_4')}</option>
-                      <option value="3">★★★☆☆ {t('rating_3')}</option>
-                      <option value="2">★★☆☆☆ {t('rating_2')}</option>
-                      <option value="1">★☆☆☆☆ {t('rating_1')}</option>
-                    </select>
-                    <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </div>
+              {/* Row 2: Category (rating hidden — not relevant for general community posts) */}
+              <div>
+                <label className="block text-[13px] font-semibold mb-1.5 text-[#5c4d44]">
+                  {t('category_label')}
+                </label>
+                <div className="relative">
+                  <select
+                    name="category"
+                    defaultValue="life"
+                    className="w-full appearance-none text-[14px] px-3.5 py-2.5 pr-9 border border-line rounded-xl bg-white focus:outline-none focus:border-rose focus:ring-2 focus:ring-rose/15 transition-all text-ink"
+                  >
+                    <option value="life">{tcat('cat_life')}</option>
+                    <option value="paperwork">{tcat('cat_paperwork')}</option>
+                    <option value="transport">{tcat('cat_transport')}</option>
+                    <option value="study">{tcat('cat_study')}</option>
+                    <option value="work">{tcat('cat_work')}</option>
+                    <option value="story">{tcat('cat_story')}</option>
+                  </select>
+                  <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
                 </div>
               </div>
 

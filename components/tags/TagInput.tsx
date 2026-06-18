@@ -40,10 +40,10 @@ export default function TagInput({
 }) {
   const t = useTranslations('tags')
   const [tags, setTags] = useState<string[]>(() => dedupe(defaultTags))
-  const [draft, setDraft] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [ctx, setCtx] = useState<Partial<Record<FieldKey, string>>>({})
   const rootRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
 
   const fields = useMemo(() => ({ ...DEFAULT_FIELDS, ...suggestFields }), [suggestFields])
 
@@ -79,6 +79,10 @@ export default function TagInput({
     return all.filter((s) => !chosen.has(normalizeTagName(s))).slice(0, 10)
   }, [ctx, liveContext, contentType, popularTags, tags])
 
+  function clearInput() {
+    if (inputRef.current) inputRef.current.value = ''
+  }
+
   function addTag(raw: string) {
     const value = raw.trim().slice(0, MAX_TAG_LEN).trim()
     const norm = normalizeTagName(value)
@@ -95,8 +99,13 @@ export default function TagInput({
       return
     }
     setTags((prev) => [...prev, value])
-    setDraft('')
+    clearInput()
     setError(null)
+  }
+
+  function commitDraft() {
+    const value = inputRef.current?.value ?? ''
+    if (value.trim()) addTag(value)
   }
 
   function removeTag(tag: string) {
@@ -105,10 +114,11 @@ export default function TagInput({
   }
 
   function onKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    const value = inputRef.current?.value ?? ''
     if (e.key === 'Enter' || e.key === ',') {
       e.preventDefault()
-      if (draft.trim()) addTag(draft)
-    } else if (e.key === 'Backspace' && !draft && tags.length) {
+      if (value.trim()) addTag(value)
+    } else if (e.key === 'Backspace' && !value && tags.length) {
       removeTag(tags[tags.length - 1])
     }
   }
@@ -123,12 +133,10 @@ export default function TagInput({
       {/* Input row */}
       <div className="flex items-center gap-2">
         <input
+          ref={inputRef}
           type="text"
-          value={draft}
-          onChange={(e) => {
-            setDraft(e.target.value)
-            if (error) setError(null)
-          }}
+          defaultValue=""
+          onChange={() => { if (error) setError(null) }}
           onKeyDown={onKeyDown}
           maxLength={MAX_TAG_LEN + 1}
           disabled={atMax}
@@ -137,8 +145,8 @@ export default function TagInput({
         />
         <button
           type="button"
-          onClick={() => draft.trim() && addTag(draft)}
-          disabled={atMax || !draft.trim()}
+          onClick={commitDraft}
+          disabled={atMax}
           className="flex-none text-[13px] font-semibold px-4 py-2.5 rounded-xl border border-line text-[#5c4d44] hover:bg-line disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           {t('addTag')}

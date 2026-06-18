@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server'
 import { JLPT_LEVELS } from '@/components/japanese/LevelPicker'
 import JlptBadge from '@/components/japanese/JlptBadge'
 import HeroSearch from '@/components/japanese/HeroSearch'
+import HandwritingModal from '@/components/japanese/HandwritingModal'
 
 export async function generateMetadata() {
   const t = await getTranslations('japanese')
@@ -196,6 +197,14 @@ export default async function JapaneseLearningPage() {
           <div className="flex flex-wrap gap-2.5 mt-5">
             <Link href="/japanese/dictionary" className="inline-flex items-center gap-1.5 bg-rose text-white font-semibold text-[13.5px] px-4 py-2.5 rounded-full hover:bg-rose-deep transition-colors shadow-sm">
               {t('dict_heading')}
+            </Link>
+            {/* Quick tools — visible in the hero without scrolling */}
+            <HandwritingModal className="inline-flex items-center gap-1.5 bg-white text-rose font-semibold text-[13.5px] px-4 py-2.5 rounded-full border border-rose/30 hover:bg-rose/5 hover:border-rose/50 transition-colors shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/40" />
+            <Link href="/japanese/image-translate" className="inline-flex items-center gap-1.5 bg-white text-rose font-semibold text-[13.5px] px-4 py-2.5 rounded-full border border-rose/30 hover:bg-rose/5 hover:border-rose/50 transition-colors shadow-sm">
+              <svg aria-hidden className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.85} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              {t('hero_image_translate')}
             </Link>
             <Link href="/japanese/vocabulary" className="inline-flex items-center gap-1.5 bg-white text-ink font-semibold text-[13.5px] px-4 py-2.5 rounded-full border border-line hover:border-rose/40 hover:text-rose transition-colors">
               {t('vocabulary')}

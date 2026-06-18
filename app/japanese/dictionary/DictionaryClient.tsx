@@ -178,10 +178,10 @@ export default function DictionaryClient({ initialWords, initialQuery, isLoggedI
   }
 
   // Picking a kanji from the handwriting modal searches the dictionary for it.
-  function handleHandwritingPick(character: string) {
-    setQuery(character)
+  function handleHandwritingPick(word: string) {
+    setQuery(word)
     setShowSuggestions(false)
-    saveToHistory(character)
+    saveToHistory(word)
   }
 
   const isSearching = query.trim().length > 0

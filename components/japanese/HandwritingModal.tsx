@@ -5,8 +5,8 @@ import { useTranslations } from 'next-intl'
 import HandwritingCanvas from './HandwritingCanvas'
 
 interface Props {
-  /** When provided, picking a candidate calls this instead of navigating. */
-  onPick?: (character: string) => void
+  /** When provided, searching the composed word calls this instead of navigating. */
+  onPick?: (word: string) => void
   className?: string
 }
 
@@ -38,8 +38,8 @@ export default function HandwritingModal({ onPick, className }: Props) {
     }
   }, [open])
 
-  function handlePick(character: string) {
-    onPick?.(character)
+  function handlePick(word: string) {
+    onPick?.(word)
     setOpen(false)
   }
 

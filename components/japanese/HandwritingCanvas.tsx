@@ -18,8 +18,11 @@ interface Candidate {
 }
 
 interface Props {
-  /** Called when a candidate is chosen. If omitted, navigates to dictionary search. */
-  onPick?: (character: string) => void
+  /**
+   * Called when the user searches the composed word. Receives the full
+   * (possibly multi-character) word. If omitted, navigates to dictionary search.
+   */
+  onPick?: (word: string) => void
   /** Logical canvas size in px (square). */
   size?: number
 }
@@ -43,6 +46,8 @@ export default function HandwritingCanvas({ onPick, size = 300 }: Props) {
   const [loading, setLoading] = useState(false)
   const [candidates, setCandidates] = useState<Candidate[]>([])
   const [status, setStatus] = useState<'idle' | 'empty' | 'unavailable' | 'error'>('idle')
+  // The word being assembled one Kanji at a time.
+  const [composed, setComposed] = useState('')
 
   const redraw = useCallback(() => {
     const canvas = canvasRef.current
@@ -106,7 +111,8 @@ export default function HandwritingCanvas({ onPick, size = 300 }: Props) {
     try { canvasRef.current?.releasePointerCapture(e.pointerId) } catch { /* noop */ }
   }
 
-  function clearAll() {
+  /** Wipe only the drawing surface + candidates (keeps the composed word). */
+  function clearCanvas() {
     strokesRef.current = []
     setHasInk(false)
     setCandidates([])
@@ -148,14 +154,81 @@ export default function HandwritingCanvas({ onPick, size = 300 }: Props) {
     }
   }
 
+  /** Append the chosen Kanji to the composed word and reset the canvas for the next one. */
   function pick(c: Candidate) {
-    if (onPick) onPick(c.character)
-    else router.push(c.url)
+    setComposed(prev => prev + c.character)
+    clearCanvas()
   }
+
+  function deleteLastChar() {
+    setComposed(prev => {
+      const chars = Array.from(prev)
+      chars.pop()
+      return chars.join('')
+    })
+  }
+
+  function clearWord() {
+    setComposed('')
+  }
+
+  function searchWord() {
+    const w = composed.trim()
+    if (!w) return
+    if (onPick) onPick(w)
+    else router.push(`/japanese/dictionary?q=${encodeURIComponent(w)}`)
+  }
+
+  const hasWord = composed.length > 0
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-[13px] text-muted">{t('hw_instructions')}</p>
+      {/* Composed word — what gets searched */}
+      <div
+        className="rounded-2xl border border-line bg-cream/40 p-3.5"
+        aria-live="polite"
+        aria-label={t('hw_word_region_label')}
+      >
+        <p className="text-[11px] font-bold text-muted uppercase tracking-wide mb-1.5">
+          {t('hw_current_word')}
+        </p>
+        {hasWord ? (
+          <p lang="ja" className="font-serif text-[30px] leading-none text-ink break-all">{composed}</p>
+        ) : (
+          <p className="text-[13px] text-muted/70">{t('hw_empty_word')}</p>
+        )}
+        <div className="flex flex-wrap gap-2 mt-3">
+          <button
+            type="button"
+            onClick={searchWord}
+            disabled={!hasWord}
+            className="inline-flex items-center gap-1.5 bg-rose text-white font-semibold text-[13.5px] px-4 py-2 rounded-full hover:bg-rose-deep transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <svg aria-hidden className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            {t('hw_search_word')}
+          </button>
+          <button
+            type="button"
+            onClick={deleteLastChar}
+            disabled={!hasWord}
+            className="inline-flex items-center gap-1.5 bg-white text-ink font-semibold text-[13.5px] px-4 py-2 rounded-full border border-line hover:border-rose/40 hover:text-rose transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {t('hw_delete_last')}
+          </button>
+          <button
+            type="button"
+            onClick={clearWord}
+            disabled={!hasWord}
+            className="inline-flex items-center gap-1.5 bg-white text-ink font-semibold text-[13.5px] px-4 py-2 rounded-full border border-line hover:border-rose/40 hover:text-rose transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {t('hw_clear_word')}
+          </button>
+        </div>
+      </div>
+
+      <p className="text-[13px] text-muted">{t('hw_compose_help')}</p>
 
       <div className="flex flex-col sm:flex-row gap-4">
         {/* Drawing surface */}
@@ -191,11 +264,11 @@ export default function HandwritingCanvas({ onPick, size = 300 }: Props) {
             </button>
             <button
               type="button"
-              onClick={clearAll}
+              onClick={clearCanvas}
               disabled={!hasInk || loading}
               className="inline-flex items-center gap-1.5 bg-white text-ink font-semibold text-[13.5px] px-4 py-2 rounded-full border border-line hover:border-rose/40 hover:text-rose transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {t('hw_clear')}
+              {t('hw_clear_canvas')}
             </button>
           </div>
         </div>
@@ -220,38 +293,42 @@ export default function HandwritingCanvas({ onPick, size = 300 }: Props) {
             <p className="text-[13px] text-muted">{t('hw_no_candidates')}</p>
           )}
           {status === 'idle' && candidates.length === 0 && !loading && (
-            <p className="text-[13px] text-muted/70">{t('hw_hint')}</p>
+            <p className="text-[13px] text-muted/70">{hasWord ? t('hw_next_char') : t('hw_candidate_hint')}</p>
           )}
 
           {candidates.length > 0 && (
-            <ul className="grid grid-cols-2 gap-2">
-              {candidates.map((c, i) => (
-                <li key={`${c.character}-${i}`}>
-                  <button
-                    type="button"
-                    onClick={() => pick(c)}
-                    className="group w-full flex items-center gap-2.5 text-left bg-paper border border-line rounded-xl p-2.5 hover:border-rose/40 hover:bg-rose-soft/40 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/40"
-                  >
-                    <span lang="ja" className="font-serif text-[26px] leading-none text-ink group-hover:text-rose transition-colors">
-                      {c.character}
-                    </span>
-                    <span className="min-w-0">
-                      {c.reading && (
-                        <span lang="ja" className="block text-[11.5px] text-muted truncate">{c.reading}</span>
-                      )}
-                      {c.meaning_vi && (
-                        <span className="block text-[11.5px] text-ink/80 truncate">{c.meaning_vi}</span>
-                      )}
-                      {c.jlpt && (
-                        <span className={`inline-block mt-0.5 text-[9.5px] font-bold px-1.5 py-0.5 rounded-full ${JLPT_COLORS[c.jlpt] ?? 'bg-line text-muted'}`}>
-                          {c.jlpt}
-                        </span>
-                      )}
-                    </span>
-                  </button>
-                </li>
-              ))}
-            </ul>
+            <>
+              <p className="text-[12px] text-muted/80 mb-2">{t('hw_candidate_hint')}</p>
+              <ul className="grid grid-cols-2 gap-2">
+                {candidates.map((c, i) => (
+                  <li key={`${c.character}-${i}`}>
+                    <button
+                      type="button"
+                      onClick={() => pick(c)}
+                      aria-label={t('hw_add_character', { character: c.character })}
+                      className="group w-full flex items-center gap-2.5 text-left bg-paper border border-line rounded-xl p-2.5 hover:border-rose/40 hover:bg-rose-soft/40 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/40"
+                    >
+                      <span lang="ja" className="font-serif text-[26px] leading-none text-ink group-hover:text-rose transition-colors">
+                        {c.character}
+                      </span>
+                      <span className="min-w-0">
+                        {c.reading && (
+                          <span lang="ja" className="block text-[11.5px] text-muted truncate">{c.reading}</span>
+                        )}
+                        {c.meaning_vi && (
+                          <span className="block text-[11.5px] text-ink/80 truncate">{c.meaning_vi}</span>
+                        )}
+                        {c.jlpt && (
+                          <span className={`inline-block mt-0.5 text-[9.5px] font-bold px-1.5 py-0.5 rounded-full ${JLPT_COLORS[c.jlpt] ?? 'bg-line text-muted'}`}>
+                            {c.jlpt}
+                          </span>
+                        )}
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </>
           )}
         </div>
       </div>

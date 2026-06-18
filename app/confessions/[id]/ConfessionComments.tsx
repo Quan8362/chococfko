@@ -11,35 +11,12 @@ import { type ConfessionComment } from '@/lib/confessions'
 import AnonAvatar from '@/components/AnonAvatar'
 import AuthorLink from '@/components/AuthorLink'
 import { generateAnonId } from '@/lib/anon'
-import { avatarSrc, proxyHtml } from '@/lib/avatar'
+import { proxyHtml } from '@/lib/avatar'
+import UserAvatar from '@/components/UserAvatar'
 
 const CommentRichEditor = dynamic(() => import('@/components/CommentRichEditor'), { ssr: false })
 
 type CurrentUser = { id: string; name: string; initial: string } | null
-
-function UserAvatar({ src, name }: { src: string; name: string }) {
-  const [failed, setFailed] = useState(false)
-  if (failed) {
-    return (
-      <div className="w-8 h-8 rounded-full grid place-items-center text-[12px] font-bold ring-2 ring-white bg-gradient-to-br from-rose/40 to-teal/40 text-ink flex-none">
-        {name[0]?.toUpperCase() ?? '?'}
-      </div>
-    )
-  }
-  return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={avatarSrc(src)}
-      alt={name}
-      width={32}
-      height={32}
-      referrerPolicy="no-referrer"
-      crossOrigin="anonymous"
-      className="w-8 h-8 rounded-full object-cover object-center ring-2 ring-white flex-none"
-      onError={() => setFailed(true)}
-    />
-  )
-}
 
 function relativeDate(iso: string, locale: string): string {
   const secs = Math.floor((Date.now() - new Date(iso).getTime()) / 1000)
@@ -170,12 +147,8 @@ export default function ConfessionComments({
                 <div className="flex-none mt-0.5">
                   {c.is_anonymous ? (
                     <AnonAvatar size={32} className="ring-2 ring-white" />
-                  ) : c.author_avatar ? (
-                    <UserAvatar src={c.author_avatar} name={displayName} />
                   ) : (
-                    <div className="w-8 h-8 rounded-full grid place-items-center text-[12px] font-bold ring-2 ring-white bg-gradient-to-br from-rose/40 to-teal/40 text-ink flex-none">
-                      {displayName[0]?.toUpperCase() ?? '?'}
-                    </div>
+                    <UserAvatar src={c.author_avatar} name={displayName} size={32} className="ring-2 ring-white" />
                   )}
                 </div>
 

@@ -39,6 +39,19 @@ export function avatarSrc(url: string | null | undefined): string {
   return url
 }
 
+// Google/Facebook avatar URLs embed a size token (e.g. `=s96-c`, `/s96-c/`,
+// `?sz=96`). Rendering a 96px source at 40–80px looks blurry/pixelated, so bump
+// the requested size to ~2× the render size (retina), capped at 512. Non-sized
+// URLs (Supabase uploads, etc.) are returned unchanged. Call BEFORE avatarSrc().
+export function bumpAvatarSize(url: string | null | undefined, renderPx: number): string {
+  if (!url) return ''
+  const target = Math.min(512, Math.max(96, Math.round(renderPx * 2)))
+  return url
+    .replace(/=s\d+(-c)?/g, `=s${target}$1`)        // googleusercontent =s96-c
+    .replace(/\/s\d+(-c)?\//g, `/s${target}$1/`)     // googleusercontent /s96-c/
+    .replace(/([?&]sz=)\d+/g, `$1${target}`)         // ?sz=96
+}
+
 // Rewrite <img src="..."> in stored rich-text/comment HTML so blocked images
 // (e.g. GIPHY GIFs) and our own Supabase images are served through a proxy.
 // Safe to run on sanitized HTML.

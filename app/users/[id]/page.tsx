@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 import { getTranslations, getLocale } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import { isUuid } from '@/lib/posts'
-import { avatarSrc } from '@/lib/avatar'
+import UserAvatar from '@/components/UserAvatar'
 import { getUserIdentity } from '@/lib/userIdentity'
 import { getSellerRatingSummary } from '@/lib/marketplace-data'
 import StarsDisplay from '@/components/marketplace/StarsDisplay'
@@ -105,19 +105,7 @@ export default async function PublicProfilePage({ params }: { params: { id: stri
         <div className="px-6 sm:px-9 pt-8 pb-7">
           <div className="flex items-start gap-5 flex-wrap">
             {/* Avatar */}
-            {avatarUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={avatarSrc(avatarUrl)}
-                alt={name}
-                referrerPolicy="no-referrer"
-                className="w-20 h-20 rounded-full object-cover ring-4 ring-white shadow-sm flex-none"
-              />
-            ) : (
-              <div className="w-20 h-20 rounded-full grid place-items-center text-[28px] font-bold ring-4 ring-white shadow-sm bg-gradient-to-br from-rose/40 to-teal/40 text-ink flex-none">
-                {name[0]?.toUpperCase() ?? '?'}
-              </div>
-            )}
+            <UserAvatar src={avatarUrl} name={name} size={80} className="ring-4 ring-white shadow-sm" />
 
             <div className="flex-1 min-w-[200px]">
               <h1 className="font-serif font-bold text-[26px] sm:text-[30px] tracking-[-0.4px] text-ink leading-tight">

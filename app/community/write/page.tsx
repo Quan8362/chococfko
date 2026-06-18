@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/server'
 import { getPlace, getPlaceFromDb } from '@/lib/places'
 import { submitPost } from '@/app/auth/actions'
 import ImageUpload from '@/components/ImageUpload'
+import UserAvatar from '@/components/UserAvatar'
 
 const RichTextEditor = dynamic(() => import('@/components/RichTextEditor'), { ssr: false })
 
@@ -25,13 +26,16 @@ export async function generateMetadata() {
 }
 
 async function getUser() {
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return null
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return { user: null, avatarUrl: null as string | null }
   try {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
-    return user
+    if (!user) return { user: null, avatarUrl: null as string | null }
+    const { data: profile } = await supabase.from('profiles').select('avatar_url').eq('id', user.id).single()
+    const avatarUrl = profile?.avatar_url ?? (user.user_metadata?.avatar_url as string | undefined) ?? null
+    return { user, avatarUrl }
   } catch {
-    return null
+    return { user: null, avatarUrl: null as string | null }
   }
 }
 
@@ -50,7 +54,7 @@ export default async function VietBai({
     redirect('/places/new')
   }
 
-  const [user, t, tcat, tc] = await Promise.all([
+  const [{ user, avatarUrl }, t, tcat, tc] = await Promise.all([
     getUser(),
     getTranslations('post_form'),
     getTranslations('community'),
@@ -132,9 +136,7 @@ export default async function VietBai({
               {t('sub')}
             </p>
             <div className="inline-flex items-center gap-2.5 bg-cream border border-line/80 rounded-full px-3.5 py-2">
-              <span className="w-6 h-6 rounded-full bg-rose text-white text-[11px] font-bold grid place-items-center flex-none">
-                {displayName[0].toUpperCase()}
-              </span>
+              <UserAvatar src={avatarUrl} name={displayName} size={24} />
               <span className="text-[13px] text-muted">
                 {t('writing_as')}{' '}
                 <b className="text-ink font-semibold">{displayName}</b>

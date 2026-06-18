@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { signOut } from '@/app/auth/actions'
-import { avatarSrc } from '@/lib/avatar'
+import UserAvatar from './UserAvatar'
 import NavIcon from './NavIcon'
 
 interface UserMenuProps {
@@ -14,45 +14,7 @@ interface UserMenuProps {
   avatarUrl?: string | null
 }
 
-function Avatar({
-  avatarUrl, initial, size = 8,
-}: {
-  avatarUrl?: string | null
-  initial: string
-  size?: number
-}) {
-  const px = size * 4
-  if (avatarUrl) {
-    return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
-        src={avatarSrc(avatarUrl)}
-        alt=""
-        width={px * 2}
-        height={px * 2}
-        decoding="async"
-        style={{
-          width: px,
-          height: px,
-          borderRadius: '9999px',
-          objectFit: 'cover',
-          flexShrink: 0,
-          display: 'block',
-        }}
-      />
-    )
-  }
-  return (
-    <span
-      className="rounded-full bg-rose text-white font-semibold text-[13px] grid place-items-center flex-none"
-      style={{ width: px, height: px, flexShrink: 0 }}
-    >
-      {initial}
-    </span>
-  )
-}
-
-export default function UserMenu({ displayName, initial, isAdmin, avatarUrl }: UserMenuProps) {
+export default function UserMenu({ displayName, isAdmin, avatarUrl }: UserMenuProps) {
   const t = useTranslations('nav')
   const [open, setOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -73,7 +35,7 @@ export default function UserMenu({ displayName, initial, isAdmin, avatarUrl }: U
         aria-expanded={open}
         className="flex items-center gap-2 pl-1 pr-2.5 py-1 rounded-full hover:bg-line transition-colors"
       >
-        <Avatar avatarUrl={avatarUrl} initial={initial} size={8} />
+        <UserAvatar src={avatarUrl} name={displayName} size={32} />
         <span className="hidden lg:block text-[13px] text-[#5c4d44] font-medium max-w-[88px] truncate leading-none">
           {displayName}
         </span>
@@ -89,7 +51,7 @@ export default function UserMenu({ displayName, initial, isAdmin, avatarUrl }: U
         <div className="animate-fadein absolute right-0 top-[calc(100%+8px)] w-56 bg-paper border border-line rounded-2xl shadow-dropdown overflow-hidden z-[200]">
           {/* Dropdown header */}
           <div className="px-4 py-3 bg-cream/60 border-b border-line flex items-center gap-3">
-            <Avatar avatarUrl={avatarUrl} initial={initial} size={9} />
+            <UserAvatar src={avatarUrl} name={displayName} size={36} />
             <div className="min-w-0">
               <p className="text-[12px] text-muted font-medium">{t('account')}</p>
               <p className="text-[13.5px] font-semibold text-ink truncate leading-snug">{displayName}</p>

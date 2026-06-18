@@ -4,6 +4,7 @@ import { getTranslations } from 'next-intl/server'
 import { getPostsFromDb, posts as staticPosts } from '@/lib/posts'
 import type { Post } from '@/lib/posts'
 import { imgProxy } from '@/lib/avatar'
+import UserAvatar from '@/components/UserAvatar'
 
 const CAT_EMOJI: Record<string, string> = {
   landmark: '🏯', food: '🍜', sea: '🏖️', camp: '⛺', mountain: '⛰️',
@@ -97,12 +98,7 @@ export default async function HomePosts() {
                   {post.excerpt}
                 </p>
                 <div className="flex items-center gap-2 pt-1.5 border-t border-line mt-1">
-                  <div
-                    className="w-6 h-6 rounded-full text-white text-[10px] font-semibold grid place-items-center flex-none"
-                    style={{ background: `linear-gradient(135deg, ${post.authorColor.split(',')[0]}, ${post.authorColor.split(',')[1] ?? post.authorColor.split(',')[0]})` }}
-                  >
-                    {post.authorInitial}
-                  </div>
+                  <UserAvatar src={post.authorAvatar} name={post.author} size={24} />
                   <span className="text-[12px] text-muted truncate">{post.author}</span>
                   <span className="text-[11px] text-muted/70 ml-auto whitespace-nowrap">{post.date}</span>
                 </div>

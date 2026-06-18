@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import SmartImg from "./SmartImg";
-import { avatarSrc } from "@/lib/avatar";
+import UserAvatar from "./UserAvatar";
 import { useTranslations } from "next-intl";
 import type { Post } from "@/lib/posts";
 
@@ -162,21 +162,7 @@ export default function PostFeed({ posts }: Props) {
 
                   {/* Author row */}
                   <div className="flex items-center gap-2 pt-3 mt-auto border-t border-line/60">
-                    {p.authorAvatar ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={avatarSrc(p.authorAvatar)}
-                        alt={p.author}
-                        className="w-6 h-6 rounded-full object-cover flex-none"
-                      />
-                    ) : (
-                      <span
-                        className="w-6 h-6 rounded-full grid place-items-center text-white font-semibold text-[11px] flex-none"
-                        style={{ background: `linear-gradient(135deg, ${p.authorColor})` }}
-                      >
-                        {p.authorInitial}
-                      </span>
-                    )}
+                    <UserAvatar src={p.authorAvatar} name={p.author} size={24} />
                     <span className="text-[12px] text-muted truncate">
                       {p.author}
                     </span>

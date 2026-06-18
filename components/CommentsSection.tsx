@@ -8,7 +8,8 @@ import Link from 'next/link'
 import { useTranslations, useLocale } from 'next-intl'
 import { submitComment, deleteComment, type CommentResult } from '@/app/community/actions'
 import AuthorLink from '@/components/AuthorLink'
-import { avatarSrc, proxyHtml } from '@/lib/avatar'
+import { proxyHtml } from '@/lib/avatar'
+import UserAvatar from '@/components/UserAvatar'
 
 const CommentRichEditor = dynamic(() => import('@/components/CommentRichEditor'), { ssr: false })
 
@@ -117,7 +118,6 @@ export default function CommentsSection({ postId, comments, currentUser, isAdmin
           {comments.map((c) => {
             const isOwn = currentUser?.id === c.user_id
             const canDelete = isOwn || isAdmin
-            const initial = (c.author_name?.[0] ?? '?').toUpperCase()
 
             return (
               <div
@@ -129,18 +129,7 @@ export default function CommentsSection({ postId, comments, currentUser, isAdmin
               >
                 {/* Avatar */}
                 <div className="flex-none mt-0.5">
-                  {c.author_avatar ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={avatarSrc(c.author_avatar)}
-                      alt={c.author_name ?? ''}
-                      className="w-8 h-8 rounded-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-rose/40 to-teal/40 grid place-items-center text-[12px] font-bold text-ink">
-                      {initial}
-                    </div>
-                  )}
+                  <UserAvatar src={c.author_avatar} name={c.author_name} size={32} />
                 </div>
 
                 {/* Bubble */}
@@ -201,14 +190,7 @@ export default function CommentsSection({ postId, comments, currentUser, isAdmin
           <div className="flex gap-3">
             {/* User avatar */}
             <div className="flex-none mt-0.5">
-              {currentUser.avatar ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={avatarSrc(currentUser.avatar)} alt={currentUser.name} className="w-8 h-8 rounded-full object-cover" />
-              ) : (
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-rose/40 to-teal/40 grid place-items-center text-[12px] font-bold text-ink">
-                  {currentUser.initial}
-                </div>
-              )}
+              <UserAvatar src={currentUser.avatar} name={currentUser.name} size={32} />
             </div>
 
             {/* Form */}

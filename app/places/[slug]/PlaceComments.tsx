@@ -7,7 +7,8 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useTranslations, useLocale } from 'next-intl'
 import AuthorLink from '@/components/AuthorLink'
-import { avatarSrc, proxyHtml } from '@/lib/avatar'
+import { proxyHtml } from '@/lib/avatar'
+import UserAvatar from '@/components/UserAvatar'
 import { type PlaceComment } from '@/lib/places'
 import { submitPlaceComment, deletePlaceComment, type CommentResult } from '../actions'
 
@@ -92,12 +93,7 @@ export default function PlaceComments({
             return (
               <div key={c.id} className="group flex gap-3">
                 <div className="flex-none mt-0.5">
-                  {c.author_avatar ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={avatarSrc(c.author_avatar)} alt={name} className="w-8 h-8 rounded-full object-cover ring-2 ring-white" />
-                  ) : (
-                    <div className="w-8 h-8 rounded-full grid place-items-center text-[12px] font-bold ring-2 ring-white bg-gradient-to-br from-rose/40 to-teal/40 text-ink">{name[0]?.toUpperCase() ?? '?'}</div>
-                  )}
+                  <UserAvatar src={c.author_avatar} name={name} size={32} className="ring-2 ring-white" />
                 </div>
                 <div className="flex-1 bg-cream border border-line rounded-2xl rounded-tl-sm px-4 py-3">
                   <div className="flex items-center justify-between gap-2 mb-1">
@@ -140,12 +136,7 @@ export default function PlaceComments({
       {currentUser ? (
         <div className="bg-paper border border-line rounded-2xl p-4 flex gap-3">
           <div className="flex-none mt-0.5">
-            {currentUser.avatar ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={avatarSrc(currentUser.avatar)} alt={currentUser.name ?? ''} className="w-8 h-8 rounded-full object-cover" />
-            ) : (
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-rose/40 to-teal/40 grid place-items-center text-[12px] font-bold text-ink">{currentUser.initial}</div>
-            )}
+            <UserAvatar src={currentUser.avatar} name={currentUser.name} size={32} />
           </div>
           <form ref={formRef} action={formAction} className="flex-1 flex flex-col gap-3">
             <input type="hidden" name="place_slug" value={slug} />

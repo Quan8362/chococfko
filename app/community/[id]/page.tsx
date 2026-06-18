@@ -9,7 +9,7 @@ import { createClient } from '@/lib/supabase/server'
 import { stripHtml } from '@/lib/sanitize'
 import { SITE_URL, SITE_NAME, DEFAULT_OG_IMAGE, OG_LOCALE, PUBLISHER_JSONLD, breadcrumbJsonLd, jsonLdString } from '@/lib/seo'
 import SmartImg from '@/components/SmartImg'
-import { avatarSrc } from '@/lib/avatar'
+import UserAvatar from '@/components/UserAvatar'
 import AuthorLink from '@/components/AuthorLink'
 import CommentsSection, { type Comment } from '@/components/CommentsSection'
 import StarsDisplay from '@/components/marketplace/StarsDisplay'
@@ -186,21 +186,7 @@ export default async function PostDetail({ params }: { params: { id: string } })
         {/* Author row */}
         <div className="flex items-center justify-between pb-6 mb-7 border-b border-line">
           <div className="flex items-center gap-3">
-            {post.authorAvatar ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={avatarSrc(post.authorAvatar)}
-                alt={post.author}
-                className="w-11 h-11 rounded-full object-cover"
-              />
-            ) : (
-              <span
-                className="w-11 h-11 rounded-full grid place-items-center text-white font-bold text-[15px]"
-                style={{ background: `linear-gradient(135deg, ${post.authorColor})` }}
-              >
-                {post.authorInitial}
-              </span>
-            )}
+            <UserAvatar src={post.authorAvatar} name={post.author} size={44} />
             <div>
               <AuthorLink
                 userId={post.authorId}

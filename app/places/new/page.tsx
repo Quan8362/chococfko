@@ -5,6 +5,7 @@ import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import { submitPlace } from '@/app/auth/actions'
 import ImageUpload from '@/components/ImageUpload'
+import UserAvatar from '@/components/UserAvatar'
 
 const RichTextEditor = dynamic(() => import('@/components/RichTextEditor'), { ssr: false })
 
@@ -14,13 +15,16 @@ export async function generateMetadata() {
 }
 
 async function getUser() {
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return null
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return { user: null, avatarUrl: null as string | null }
   try {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
-    return user
+    if (!user) return { user: null, avatarUrl: null as string | null }
+    const { data: profile } = await supabase.from('profiles').select('avatar_url').eq('id', user.id).single()
+    const avatarUrl = profile?.avatar_url ?? (user.user_metadata?.avatar_url as string | undefined) ?? null
+    return { user, avatarUrl }
   } catch {
-    return null
+    return { user: null, avatarUrl: null as string | null }
   }
 }
 
@@ -29,7 +33,7 @@ export default async function DangDiaDiem({
 }: {
   searchParams: { error?: string; success?: string }
 }) {
-  const [user, t, tf, tn] = await Promise.all([
+  const [{ user, avatarUrl }, t, tf, tn] = await Promise.all([
     getUser(),
     getTranslations('placeForm'),
     getTranslations('filters'),
@@ -107,9 +111,7 @@ export default async function DangDiaDiem({
 
         {/* Card header */}
         <div className="px-7 pt-6 pb-5 border-b border-line flex items-center gap-2.5">
-          <span className="w-6 h-6 rounded-full bg-rose text-white text-[11px] font-bold grid place-items-center flex-none">
-            {displayName[0].toUpperCase()}
-          </span>
+          <UserAvatar src={avatarUrl} name={displayName} size={24} />
           <span className="text-[13px] text-muted">
             {t('writingAs')}{' '}
             <b className="text-ink font-semibold">{displayName}</b>

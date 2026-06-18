@@ -8,7 +8,7 @@ import { useTranslations, useLocale } from 'next-intl'
 import AnonAvatar from '@/components/AnonAvatar'
 import AuthorLink from '@/components/AuthorLink'
 import { generateAnonId } from '@/lib/anon'
-import { avatarSrc } from '@/lib/avatar'
+import UserAvatar from '@/components/UserAvatar'
 import {
   submitJapaneseComment,
   deleteJapaneseComment,
@@ -19,34 +19,6 @@ import {
 
 type CurrentUser = { id: string; name: string } | null
 type T = ReturnType<typeof useTranslations>
-
-function UserAvatar({ src, name, size = 32 }: { src: string; name: string; size?: number }) {
-  const [failed, setFailed] = useState(false)
-  if (failed || !src) {
-    return (
-      <div
-        className="rounded-full grid place-items-center text-[12px] font-bold ring-2 ring-white bg-gradient-to-br from-rose/40 to-teal/40 text-ink flex-none"
-        style={{ width: size, height: size }}
-      >
-        {name[0]?.toUpperCase() ?? '?'}
-      </div>
-    )
-  }
-  return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={avatarSrc(src)}
-      alt={name}
-      width={size}
-      height={size}
-      referrerPolicy="no-referrer"
-      crossOrigin="anonymous"
-      className="rounded-full object-cover object-center ring-2 ring-white flex-none"
-      style={{ width: size, height: size }}
-      onError={() => setFailed(true)}
-    />
-  )
-}
 
 function relativeDate(iso: string, locale: string): string {
   const secs = Math.floor((Date.now() - new Date(iso).getTime()) / 1000)
@@ -183,7 +155,7 @@ function Bubble({
         {c.is_anonymous ? (
           <AnonAvatar size={32} className="ring-2 ring-white" />
         ) : (
-          <UserAvatar src={c.author_avatar ?? ''} name={displayName} />
+          <UserAvatar src={c.author_avatar} name={displayName} size={32} className="ring-2 ring-white" />
         )}
       </div>
 

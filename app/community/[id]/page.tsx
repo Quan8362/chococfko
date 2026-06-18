@@ -13,6 +13,8 @@ import UserAvatar from '@/components/UserAvatar'
 import AuthorLink from '@/components/AuthorLink'
 import CommentsSection, { type Comment } from '@/components/CommentsSection'
 import StarsDisplay from '@/components/marketplace/StarsDisplay'
+import TagList from '@/components/tags/TagList'
+import { getTagsForContent } from '@/lib/tags'
 import PostRating from './PostRating'
 
 /** Plain-text description from a post's excerpt or body, capped for meta tags. */
@@ -33,6 +35,9 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   const canonical = `${SITE_URL}/community/${params.id}`
   const description = postDescription(p)
   const image = postOgImage(p)
+  const tagNames = isUuid(params.id)
+    ? (await getTagsForContent(createClient(), 'post', params.id)).map((tag) => tag.name)
+    : []
 
   return {
     title: p.title,
@@ -49,7 +54,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
       publishedTime: p.createdAt,
       modifiedTime: p.createdAt,
       authors: p.author ? [p.author] : undefined,
-      tags: p.categoryLabel ? [p.categoryLabel] : undefined,
+      tags: [...(p.categoryLabel ? [p.categoryLabel] : []), ...tagNames],
     },
     twitter: { card: 'summary_large_image', title: `${p.title} · ${SITE_NAME}`, description, images: [image] },
   }
@@ -100,6 +105,7 @@ export default async function PostDetail({ params }: { params: { id: string } })
   if (!post) notFound()
 
   const rating = await getPostRating(post.id, currentUser?.id)
+  const tags = await getTagsForContent(createClient(), 'post', post.id)
 
   const t = await getTranslations('common')
   const tCat = await getTranslations('categories')
@@ -215,6 +221,13 @@ export default async function PostDetail({ params }: { params: { id: string } })
               {para}
             </p>
           ))
+        )}
+
+        {/* ── TAGS ────────────────────────────────────────────── */}
+        {tags.length > 0 && (
+          <div className="mt-8">
+            <TagList tags={tags} />
+          </div>
         )}
 
         {/* ── RATING ──────────────────────────────────────────── */}

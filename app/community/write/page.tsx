@@ -7,6 +7,9 @@ import { getPlace, getPlaceFromDb } from '@/lib/places'
 import { submitPost } from '@/app/auth/actions'
 import ImageUpload from '@/components/ImageUpload'
 import UserAvatar from '@/components/UserAvatar'
+import TagInput from '@/components/tags/TagInput'
+import { getPopularTags } from '@/lib/tags'
+import { createPublicClient } from '@/lib/supabase/public'
 
 const RichTextEditor = dynamic(() => import('@/components/RichTextEditor'), { ssr: false })
 
@@ -54,11 +57,12 @@ export default async function VietBai({
     redirect('/places/new')
   }
 
-  const [{ user, avatarUrl }, t, tcat, tc] = await Promise.all([
+  const [{ user, avatarUrl }, t, tcat, tc, popularTags] = await Promise.all([
     getUser(),
     getTranslations('post_form'),
     getTranslations('community'),
     getTranslations('common'),
+    getPopularTags(createPublicClient(), 12).then((tags) => tags.map((tag) => tag.name)),
   ])
   const tn = await getTranslations('nav')
 
@@ -219,6 +223,13 @@ export default async function VietBai({
                   {t('pending_note')}
                 </p>
               </div>
+
+              {/* Tags */}
+              <TagInput
+                contentType="post"
+                popularTags={popularTags}
+                suggestFields={{ title: 'title', area: 'area', category: 'category', description: 'body' }}
+              />
 
               {/* Submit */}
               <div className="pt-1">

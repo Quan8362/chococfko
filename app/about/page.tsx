@@ -22,10 +22,50 @@ const SECTIONS = [
 
 // Find / Know / Open are brand words — kept identical across all languages.
 const FKO_CARDS = [
-  { word: 'Find', icon: '🔍', descKey: 'fko_find_desc' },
-  { word: 'Know', icon: '📚', descKey: 'fko_know_desc' },
-  { word: 'Open', icon: '🤝', descKey: 'fko_open_desc' },
+  { word: 'Find', icon: 'find', descKey: 'fko_find_desc' },
+  { word: 'Know', icon: 'know', descKey: 'fko_know_desc' },
+  { word: 'Open', icon: 'open', descKey: 'fko_open_desc' },
 ] as const
+
+// Consistent outline icons (single brand color, matched stroke weight).
+function FkoIcon({ name }: { name: 'find' | 'know' | 'open' }) {
+  const common = {
+    className: 'w-7 h-7 text-rose-deep',
+    fill: 'none',
+    stroke: 'currentColor',
+    strokeWidth: 1.75,
+    strokeLinecap: 'round' as const,
+    strokeLinejoin: 'round' as const,
+    viewBox: '0 0 24 24',
+  }
+  if (name === 'find') {
+    // Search
+    return (
+      <svg {...common} aria-hidden="true">
+        <circle cx="11" cy="11" r="7" />
+        <path d="M21 21l-4.3-4.3" />
+      </svg>
+    )
+  }
+  if (name === 'know') {
+    // Book open
+    return (
+      <svg {...common} aria-hidden="true">
+        <path d="M12 6.5C10.5 5.3 8.6 4.8 6 4.8c-1 0-2 .1-3 .4v13c1-.3 2-.4 3-.4 2.6 0 4.5.5 6 1.7 1.5-1.2 3.4-1.7 6-1.7 1 0 2 .1 3 .4v-13c-1-.3-2-.4-3-.4-2.6 0-4.5.5-6 1.7Z" />
+        <path d="M12 6.5V20" />
+      </svg>
+    )
+  }
+  // Open → people / community
+  return (
+    <svg {...common} aria-hidden="true">
+      <path d="M16 19v-1.5a3.5 3.5 0 0 0-3.5-3.5h-5A3.5 3.5 0 0 0 4 17.5V19" />
+      <circle cx="10" cy="8" r="3.2" />
+      <path d="M20 19v-1.5a3.5 3.5 0 0 0-2.6-3.4" />
+      <path d="M15.5 5.1a3.2 3.2 0 0 1 0 6.1" />
+    </svg>
+  )
+}
 
 async function getApprovedPostCount(): Promise<number> {
   try {
@@ -110,8 +150,8 @@ export default async function GioiThieu() {
                 key={word}
                 className="bg-paper border border-line rounded-2xl p-6 shadow-card hover:border-rose/30 hover:-translate-y-0.5 transition-all text-center"
               >
-                <div className="w-14 h-14 rounded-2xl bg-rose/10 border border-rose/15 text-[26px] grid place-items-center mx-auto mb-4">
-                  {icon}
+                <div className="w-14 h-14 rounded-2xl bg-rose/10 border border-rose/15 grid place-items-center mx-auto mb-4">
+                  <FkoIcon name={icon} />
                 </div>
                 <h3 className="font-serif font-bold text-[22px] text-rose-deep mb-2.5">{word}</h3>
                 <p className="text-[14px] text-muted leading-[1.7]">

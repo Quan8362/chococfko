@@ -11,6 +11,7 @@ import { getTagsForContent } from '@/lib/tags'
 import { isUuid, formatPriceJPY, relativeListingDate, CONDITION_PRESETS } from '@/lib/marketplace'
 import { getListingById, getListingComments, getRelatedListings, getListingRating } from '@/lib/marketplace-data'
 import { setSaleStatus, deleteListing, incrementListingView, resolveEndedAuction, getListingBids } from '../actions'
+import RichDescription from '@/components/RichDescription'
 import ListingGallery from './ListingGallery'
 import MarketplaceComments from './MarketplaceComments'
 import ReportButton from './ReportButton'
@@ -94,7 +95,7 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
             {listing.description && (
               <div className="mt-7 hidden lg:block">
                 <h2 className="font-serif font-bold text-[19px] text-ink mb-3">{t('description')}</h2>
-                <p className="text-[15px] text-[#3a2d22] leading-[1.85] whitespace-pre-wrap break-words">{listing.description}</p>
+                <RichDescription content={listing.description} className="text-[15px] text-[#3a2d22] leading-[1.85]" />
               </div>
             )}
           </div>
@@ -249,7 +250,7 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
         {listing.description && (
           <div className="mt-7 lg:hidden">
             <h2 className="font-serif font-bold text-[19px] text-ink mb-3">{t('description')}</h2>
-            <p className="text-[15px] text-[#3a2d22] leading-[1.85] whitespace-pre-wrap break-words">{listing.description}</p>
+            <RichDescription content={listing.description} className="text-[15px] text-[#3a2d22] leading-[1.85]" />
           </div>
         )}
 

@@ -1,14 +1,19 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import dynamic from 'next/dynamic'
 import { useFormState, useFormStatus } from 'react-dom'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { compressImage } from '@/lib/compressImage'
 import { CATEGORIES, CONDITION_PRESETS, type Listing } from '@/lib/marketplace'
+import { looksLikeHtml, plainTextToHtml } from '@/lib/sanitize'
 import TagInput from '@/components/tags/TagInput'
 import { submitListing, updateListing, type ListingResult } from './actions'
+
+// TipTap must not render on the server (hydration mismatch) — load client-only.
+const RichTextEditor = dynamic(() => import('@/components/RichTextEditor'), { ssr: false })
 
 const MAX_IMAGES = 6
 const INIT: ListingResult = null
@@ -391,16 +396,20 @@ export default function ListingForm({
         </div>
       </div>
 
-      {/* Description */}
+      {/* Description (rich text) */}
       <div>
         <label className="block text-[14px] font-semibold text-ink mb-2">{t('field_description')}</label>
-        <textarea
+        <RichTextEditor
           name="description"
-          defaultValue={listing?.description ?? ''}
-          rows={5}
-          maxLength={4000}
+          defaultValue={
+            listing?.description
+              ? (looksLikeHtml(listing.description) ? listing.description : plainTextToHtml(listing.description))
+              : ''
+          }
           placeholder={t('desc_placeholder')}
-          className="w-full px-4 py-3 rounded-xl border border-line bg-paper text-[15px] leading-relaxed resize-y focus:outline-none focus:border-rose/50 focus:ring-2 focus:ring-rose/10"
+          minHeight="180px"
+          draftKey={null}
+          enableImages={false}
         />
       </div>
 

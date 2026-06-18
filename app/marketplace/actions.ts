@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createAdminNotification } from '@/lib/admin/notifications'
 import { notifyUsers } from '@/lib/notifications/user'
-import { stripHtml, sanitizeUserName } from '@/lib/sanitize'
+import { stripHtml, sanitizeUserName, htmlHasContent } from '@/lib/sanitize'
 import { sanitizeHtml } from '@/lib/sanitizeHtml'
 import { setContentTags } from '@/lib/tags'
 import { getLocale } from 'next-intl/server'
@@ -22,7 +22,13 @@ function intOrNull(v: FormDataEntryValue | null): number | null {
 
 function parseListingForm(formData: FormData) {
   const title = (formData.get('title') as string ?? '').trim()
-  const description = (formData.get('description') as string ?? '').trim()
+  // Description is now rich HTML from RichTextEditor. Sanitize (the client editor
+  // can be bypassed, so this is the security boundary) and collapse an empty
+  // editor (`<p></p>`) to null. descriptionText is used for the length rule.
+  const descriptionRaw = (formData.get('description') as string ?? '').trim()
+  const descriptionHtml = sanitizeHtml(descriptionRaw)
+  const description: string | null = htmlHasContent(descriptionHtml) ? descriptionHtml : null
+  const descriptionText = description ? stripHtml(description) : ''
   const ltRaw = formData.get('listing_type')
   const listing_type = ltRaw === 'free' ? 'free' : ltRaw === 'auction' ? 'auction' : 'sell'
   const price = intOrNull(formData.get('price'))
@@ -47,7 +53,7 @@ function parseListingForm(formData: FormData) {
   } catch { /* ignore */ }
 
   return {
-    title, description, listing_type, price, is_negotiable, condition, condition_percent,
+    title, description, descriptionText, listing_type, price, is_negotiable, condition, condition_percent,
     category, area, images, start_price, min_increment, buy_now_price, auction_ends_at,
   }
 }
@@ -57,7 +63,7 @@ type ParsedListing = ReturnType<typeof parseListingForm>
 function validateListing(d: ParsedListing): string | null {
   if (!d.title || d.title.length < 4) return 'title_too_short'
   if (d.title.length > 120) return 'title_too_long'
-  if (d.description.length > 4000) return 'desc_too_long'
+  if (d.descriptionText.length > 4000) return 'desc_too_long'
   if (d.images.length === 0) return 'image_required'
   if (d.listing_type === 'sell') {
     if (!d.price || d.price <= 0) return 'price_required'
@@ -80,7 +86,7 @@ function listingDbRow(d: ParsedListing) {
   const isAuction = d.listing_type === 'auction'
   return {
     title: d.title,
-    description: d.description || null,
+    description: d.description,
     listing_type: d.listing_type,
     price: d.listing_type === 'sell' ? d.price : null,
     is_negotiable: d.listing_type === 'sell' ? d.is_negotiable : false,

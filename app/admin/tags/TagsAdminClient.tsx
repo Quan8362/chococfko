@@ -4,7 +4,9 @@ import Link from 'next/link'
 import { useMemo, useState } from 'react'
 import { useFormStatus } from 'react-dom'
 import { useTranslations } from 'next-intl'
-import { updateTagTranslations, autofillTag } from './actions'
+import { updateTagTranslations, autofillTag, autofillAllMissingTags } from './actions'
+
+const TAG_LOCALES = ['vi', 'en', 'ja', 'ko', 'zh'] as const
 
 export interface AdminTag {
   id: string
@@ -44,6 +46,25 @@ function SaveButton({ label }: { label: string }) {
   )
 }
 
+function BulkButton({ label, busy }: { label: string; busy: string }) {
+  const { pending } = useFormStatus()
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      className="inline-flex items-center gap-2 font-semibold text-[13px] px-5 py-2.5 rounded-full bg-rose text-white hover:bg-rose-deep transition-all disabled:opacity-60"
+    >
+      {pending && (
+        <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+        </svg>
+      )}
+      {pending ? busy : label}
+    </button>
+  )
+}
+
 function AutofillButton({ label }: { label: string }) {
   const { pending } = useFormStatus()
   return (
@@ -74,6 +95,11 @@ export default function TagsAdminClient({ tags }: { tags: AdminTag[] }) {
 
   const shown = filtered.slice(0, RENDER_CAP)
 
+  const missingCount = useMemo(
+    () => tags.filter((tag) => TAG_LOCALES.some((l) => !tag[`display_name_${l}` as keyof AdminTag])).length,
+    [tags],
+  )
+
   return (
     <div className="max-w-[920px] mx-auto px-5 sm:px-6 py-10 pb-20">
       <Link href="/admin" className="inline-flex items-center gap-1 text-[12.5px] text-muted hover:text-rose transition-colors mb-3">
@@ -81,6 +107,15 @@ export default function TagsAdminClient({ tags }: { tags: AdminTag[] }) {
       </Link>
       <h1 className="font-serif font-bold text-[28px] tracking-[-0.3px] text-ink mb-1.5">{t('tags_admin_title')}</h1>
       <p className="text-[14px] text-muted mb-6">{t('tags_admin_sub')}</p>
+
+      {missingCount > 0 && (
+        <form action={autofillAllMissingTags} className="flex items-center gap-3 flex-wrap mb-4 p-3.5 rounded-xl bg-rose-soft/40 border border-rose/15">
+          <span className="text-[13px] text-[#5c4d44]">{t('tags_missing_note', { count: missingCount })}</span>
+          <span className="ml-auto">
+            <BulkButton label={t('tags_autofill_all')} busy={t('tags_autofilling')} />
+          </span>
+        </form>
+      )}
 
       <input
         type="search"

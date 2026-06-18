@@ -37,3 +37,26 @@ export async function autofillTag(formData: FormData): Promise<void> {
   await autofillTagTranslations(createAdminClient(), id)
   revalidateTagViews()
 }
+
+// Bulk auto-fill processes a small batch per click (avoids serverless timeouts &
+// translation rate limits). Each tag is saved as it completes, so repeated
+// clicks keep making progress until none are missing. fillBlanks=true ensures
+// convergence (proper nouns / failed lookups don't get reprocessed forever).
+const BULK_BATCH = 10
+
+/** Auto-translate a batch of tags that are missing any locale. */
+export async function autofillAllMissingTags(): Promise<void> {
+  if (!(await checkIsAdmin())) return
+  const admin = createAdminClient()
+  const { data } = await admin
+    .from('tags')
+    .select('id')
+    .or(LOCALES.map((l) => `display_name_${l}.is.null`).join(','))
+    .order('usage_count', { ascending: false })
+    .limit(BULK_BATCH)
+  const ids = (data ?? []).map((r) => (r as { id: string }).id)
+  for (const id of ids) {
+    await autofillTagTranslations(admin, id, true)
+  }
+  revalidateTagViews()
+}

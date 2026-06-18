@@ -308,7 +308,14 @@ async function getTagTranslator(): Promise<Translator | null> {
  * translation (never overwrites manually-entered values). Source = the first
  * filled localized name, else the original `name`. Best-effort.
  */
-export async function autofillTagTranslations(admin: SupabaseClient, tagId: string): Promise<void> {
+export async function autofillTagTranslations(
+  admin: SupabaseClient,
+  tagId: string,
+  /** Bulk mode: fill any column still empty after translation with the source
+   * text, so the tag is no longer "missing" (proper nouns/failed lookups stop
+   * being reprocessed). Single-tag mode leaves failed locales empty for retry. */
+  fillBlanks = false,
+): Promise<void> {
   try {
     const { data } = await admin
       .from('tags')
@@ -337,6 +344,12 @@ export async function autofillTagTranslations(admin: SupabaseClient, tagId: stri
     for (const r of results) {
       const text = r?.[1]?.trim()
       if (text && text.toLowerCase() !== srcText.toLowerCase()) update[`display_name_${r![0]}`] = text
+    }
+    if (fillBlanks) {
+      for (const loc of TAG_LOCALES) {
+        const col = `display_name_${loc}`
+        if (!cur[loc] && update[col] === undefined) update[col] = srcText
+      }
     }
     if (Object.keys(update).length) await admin.from('tags').update(update).eq('id', tagId)
   } catch {

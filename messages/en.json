@@ -1142,7 +1142,10 @@
     "tags_save": "Save",
     "tags_autofill": "Auto-translate",
     "tags_empty": "No tags found",
-    "tags_more": "{count} more tags — search to narrow down"
+    "tags_more": "{count} more tags — search to narrow down",
+    "tags_missing_note": "{count} tags are missing translations.",
+    "tags_autofill_all": "Auto-translate all missing",
+    "tags_autofilling": "Translating…"
   },
   "admin_jp": {
     "section_comments": "Comments",

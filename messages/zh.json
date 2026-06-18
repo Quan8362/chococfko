@@ -1142,7 +1142,10 @@
     "tags_save": "保存",
     "tags_autofill": "自动翻译",
     "tags_empty": "没有标签",
-    "tags_more": "还有 {count} 个标签 — 请搜索以缩小范围"
+    "tags_more": "还有 {count} 个标签 — 请搜索以缩小范围",
+    "tags_missing_note": "有 {count} 个标签缺少翻译。",
+    "tags_autofill_all": "自动翻译所有缺失项",
+    "tags_autofilling": "翻译中…"
   },
   "admin_jp": {
     "section_comments": "评论",

@@ -1142,7 +1142,10 @@
     "tags_save": "Lưu",
     "tags_autofill": "Tự động dịch",
     "tags_empty": "Không có tag nào",
-    "tags_more": "Còn {count} tag nữa — hãy tìm kiếm để thu hẹp"
+    "tags_more": "Còn {count} tag nữa — hãy tìm kiếm để thu hẹp",
+    "tags_missing_note": "{count} tag chưa đủ bản dịch.",
+    "tags_autofill_all": "Tự động dịch tất cả còn thiếu",
+    "tags_autofilling": "Đang dịch…"
   },
   "admin_jp": {
     "section_comments": "Bình luận",

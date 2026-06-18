@@ -1142,7 +1142,10 @@
     "tags_save": "저장",
     "tags_autofill": "자동 번역",
     "tags_empty": "태그가 없습니다",
-    "tags_more": "{count}개의 태그 더 있음 — 검색으로 좁혀보세요"
+    "tags_more": "{count}개의 태그 더 있음 — 검색으로 좁혀보세요",
+    "tags_missing_note": "번역이 누락된 태그가 {count}개 있습니다.",
+    "tags_autofill_all": "누락된 항목 모두 자동 번역",
+    "tags_autofilling": "번역 중…"
   },
   "admin_jp": {
     "section_comments": "댓글",

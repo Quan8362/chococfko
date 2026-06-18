@@ -1142,7 +1142,10 @@
     "tags_save": "保存",
     "tags_autofill": "自動翻訳",
     "tags_empty": "タグがありません",
-    "tags_more": "他に{count}件のタグ — 検索で絞り込んでください"
+    "tags_more": "他に{count}件のタグ — 検索で絞り込んでください",
+    "tags_missing_note": "翻訳が不足しているタグが{count}件あります。",
+    "tags_autofill_all": "不足分をすべて自動翻訳",
+    "tags_autofilling": "翻訳中…"
   },
   "admin_jp": {
     "section_comments": "コメント",

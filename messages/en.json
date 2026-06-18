@@ -1131,7 +1131,18 @@
     "analytics_period_range": "From {from} to {to}",
     "field_prefecture": "Prefecture",
     "field_city": "City / Ward",
-    "field_address": "Full address"
+    "field_address": "Full address",
+    "tags_card_title": "Manage Tags",
+    "tags_card_desc": "Edit per-language display names for tags",
+    "tags_admin_title": "Manage Tags",
+    "tags_admin_sub": "Manually edit each tag’s display name per language. Leave blank to fall back to the original name.",
+    "tags_search_placeholder": "Search tags by name or slug…",
+    "tags_system_badge": "System tag",
+    "tags_usage": "{count} items",
+    "tags_save": "Save",
+    "tags_autofill": "Auto-translate",
+    "tags_empty": "No tags found",
+    "tags_more": "{count} more tags — search to narrow down"
   },
   "admin_jp": {
     "section_comments": "Comments",

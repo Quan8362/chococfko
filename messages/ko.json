@@ -1131,7 +1131,18 @@
     "analytics_period_range": "{from} ~ {to}",
     "field_prefecture": "도도부현",
     "field_city": "시·구",
-    "field_address": "상세 주소"
+    "field_address": "상세 주소",
+    "tags_card_title": "태그 관리",
+    "tags_card_desc": "태그 표시 이름을 5개 언어로 편집",
+    "tags_admin_title": "태그 관리",
+    "tags_admin_sub": "태그 표시 이름을 언어별로 직접 편집합니다. 비워 두면 원래 이름을 사용합니다.",
+    "tags_search_placeholder": "이름 또는 슬러그로 태그 검색…",
+    "tags_system_badge": "시스템 태그",
+    "tags_usage": "{count}개",
+    "tags_save": "저장",
+    "tags_autofill": "자동 번역",
+    "tags_empty": "태그가 없습니다",
+    "tags_more": "{count}개의 태그 더 있음 — 검색으로 좁혀보세요"
   },
   "admin_jp": {
     "section_comments": "댓글",

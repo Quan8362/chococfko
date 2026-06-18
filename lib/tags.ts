@@ -303,6 +303,47 @@ async function getTagTranslator(): Promise<Translator | null> {
   return freeTranslate
 }
 
+/**
+ * Admin helper: fill any EMPTY display_name_* columns of a tag via machine
+ * translation (never overwrites manually-entered values). Source = the first
+ * filled localized name, else the original `name`. Best-effort.
+ */
+export async function autofillTagTranslations(admin: SupabaseClient, tagId: string): Promise<void> {
+  try {
+    const { data } = await admin
+      .from('tags')
+      .select('name, display_name_vi, display_name_en, display_name_ja, display_name_ko, display_name_zh')
+      .eq('id', tagId)
+      .maybeSingle()
+    if (!data) return
+    const row = data as Record<string, string | null>
+    const cur: Record<string, string | null> = {
+      vi: row.display_name_vi, en: row.display_name_en, ja: row.display_name_ja,
+      ko: row.display_name_ko, zh: row.display_name_zh,
+    }
+    const srcLocale = cur.vi ? 'vi' : cur.en ? 'en' : (TAG_LOCALES.find((l) => cur[l]) ?? 'vi')
+    const srcText = cur[srcLocale] || row.name
+    if (!srcText) return
+
+    const translate = await getTagTranslator()
+    if (!translate) return
+
+    const update: Record<string, string> = {}
+    if (!cur[srcLocale]) update[`display_name_${srcLocale}`] = srcText
+    const targets = TAG_LOCALES.filter((l) => l !== srcLocale && !cur[l])
+    const results = await Promise.all(
+      targets.map((t) => translate(srcText, t, srcLocale).then((x) => [t, x] as const).catch(() => null)),
+    )
+    for (const r of results) {
+      const text = r?.[1]?.trim()
+      if (text && text.toLowerCase() !== srcText.toLowerCase()) update[`display_name_${r![0]}`] = text
+    }
+    if (Object.keys(update).length) await admin.from('tags').update(update).eq('id', tagId)
+  } catch {
+    /* best-effort */
+  }
+}
+
 // Free, keyless fallback (MyMemory). Fine for short tag labels; rate-limited.
 async function freeTranslate(text: string, target: string, source: string): Promise<string | null> {
   const tgt = target === 'zh' ? 'zh-CN' : target

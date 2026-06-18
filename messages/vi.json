@@ -1131,7 +1131,18 @@
     "analytics_period_range": "Từ {from} đến {to}",
     "field_prefecture": "Tỉnh/Thành (Nhật)",
     "field_city": "Thành phố / Quận",
-    "field_address": "Địa chỉ chi tiết"
+    "field_address": "Địa chỉ chi tiết",
+    "tags_card_title": "Quản lý Tags",
+    "tags_card_desc": "Sửa tên hiển thị của tag theo 5 ngôn ngữ",
+    "tags_admin_title": "Quản lý Tags",
+    "tags_admin_sub": "Sửa tay tên hiển thị của tag theo từng ngôn ngữ. Để trống = tự dùng tên gốc.",
+    "tags_search_placeholder": "Tìm tag theo tên hoặc slug…",
+    "tags_system_badge": "Tag hệ thống",
+    "tags_usage": "{count} nội dung",
+    "tags_save": "Lưu",
+    "tags_autofill": "Tự động dịch",
+    "tags_empty": "Không có tag nào",
+    "tags_more": "Còn {count} tag nữa — hãy tìm kiếm để thu hẹp"
   },
   "admin_jp": {
     "section_comments": "Bình luận",

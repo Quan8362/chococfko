@@ -1131,7 +1131,18 @@
     "analytics_period_range": "{from} 至 {to}",
     "field_prefecture": "都道府县",
     "field_city": "市/区",
-    "field_address": "详细地址"
+    "field_address": "详细地址",
+    "tags_card_title": "标签管理",
+    "tags_card_desc": "编辑标签的 5 种语言显示名称",
+    "tags_admin_title": "标签管理",
+    "tags_admin_sub": "按语言手动编辑标签显示名称。留空则使用原始名称。",
+    "tags_search_placeholder": "按名称或 slug 搜索标签…",
+    "tags_system_badge": "系统标签",
+    "tags_usage": "{count} 条内容",
+    "tags_save": "保存",
+    "tags_autofill": "自动翻译",
+    "tags_empty": "没有标签",
+    "tags_more": "还有 {count} 个标签 — 请搜索以缩小范围"
   },
   "admin_jp": {
     "section_comments": "评论",

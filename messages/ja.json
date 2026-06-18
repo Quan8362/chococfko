@@ -1131,7 +1131,18 @@
     "analytics_period_range": "{from} 〜 {to}",
     "field_prefecture": "都道府県",
     "field_city": "市区町村",
-    "field_address": "詳細住所"
+    "field_address": "詳細住所",
+    "tags_card_title": "タグ管理",
+    "tags_card_desc": "タグの表示名を5言語で編集",
+    "tags_admin_title": "タグ管理",
+    "tags_admin_sub": "タグの表示名を言語ごとに手動編集。空欄の場合は元の名前を使用します。",
+    "tags_search_placeholder": "名前またはスラッグでタグを検索…",
+    "tags_system_badge": "システムタグ",
+    "tags_usage": "{count}件",
+    "tags_save": "保存",
+    "tags_autofill": "自動翻訳",
+    "tags_empty": "タグがありません",
+    "tags_more": "他に{count}件のタグ — 検索で絞り込んでください"
   },
   "admin_jp": {
     "section_comments": "コメント",

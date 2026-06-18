@@ -4,8 +4,10 @@ import loadDynamic from 'next/dynamic'
 import { getTranslations } from 'next-intl/server'
 import { checkIsAdmin, createAdminClient } from '@/lib/supabase/admin'
 import { getPlaceAllTranslations, type PlaceTranslation } from '@/lib/places'
+import { getTagsForContent } from '@/lib/tags'
 import { updatePlace, approvePlace, upsertPlaceTranslation } from '../actions'
 import ImageUpload from '@/components/ImageUpload'
+import TagList from '@/components/tags/TagList'
 
 const RichTextEditor = loadDynamic(() => import('@/components/RichTextEditor'), { ssr: false })
 
@@ -46,6 +48,9 @@ export default async function AdminEditPlace({ params }: { params: { slug: strin
   const p = data as DbPlace | null
   if (!p) redirect('/admin/places')
 
+  const placeId = (data as { id?: string } | null)?.id
+  const tags = placeId ? await getTagsForContent(admin, 'place', placeId) : []
+
   const txMap = new Map<string, PlaceTranslation>()
   for (const tx of existingTranslations) txMap.set(tx.locale, tx)
 
@@ -70,6 +75,11 @@ export default async function AdminEditPlace({ params }: { params: { slug: strin
           {admin_t('view_page_link')} →
         </Link>
       </p>
+      {tags.length > 0 && (
+        <div className="-mt-4 mb-7">
+          <TagList tags={tags} size="sm" />
+        </div>
+      )}
 
       <form action={updatePlace} className="space-y-5">
         <input type="hidden" name="slug" value={params.slug} />

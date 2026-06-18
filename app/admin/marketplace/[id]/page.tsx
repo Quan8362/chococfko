@@ -4,6 +4,8 @@ import { getTranslations, getLocale } from 'next-intl/server'
 import { checkIsAdmin, createAdminClient } from '@/lib/supabase/admin'
 import { type Listing, formatPriceJPY, relativeListingDate, isUuid } from '@/lib/marketplace'
 import { avatarSrc, imgProxy } from '@/lib/avatar'
+import { getTagsForContent } from '@/lib/tags'
+import TagList from '@/components/tags/TagList'
 
 export const dynamic = 'force-dynamic'
 
@@ -44,6 +46,8 @@ export default async function AdminAuctionDetailPage({ params }: { params: { id:
   }
   const nameOf = (id: string) => profMap[id]?.name || tm('member_fallback')
 
+  const tags = await getTagsForContent(admin, 'listing', listing.id)
+
   const ended = listing.auction_ends_at ? new Date(listing.auction_ends_at).getTime() <= Date.now() : false
   const settled = !!listing.winner_id || listing.sale_status === 'sold'
   const uniqueBidders = new Set(bids.map(b => b.bidder_id)).size
@@ -78,6 +82,7 @@ export default async function AdminAuctionDetailPage({ params }: { params: { id:
               <div><p className="text-muted">{settled ? t('final_price_label') : tm('current_bid_label')}</p><p className="font-bold text-rose">{formatPriceJPY(listing.current_bid ?? listing.start_price)}</p></div>
               <div><p className="text-muted">{t('bidders_label')}</p><p className="font-semibold text-ink">{uniqueBidders} · {bids.length} {t('bids_unit')}</p></div>
             </div>
+            {tags.length > 0 && <div className="mt-3"><TagList tags={tags} size="sm" /></div>}
           </div>
         </div>
       </div>

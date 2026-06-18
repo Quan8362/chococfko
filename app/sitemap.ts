@@ -58,6 +58,8 @@ async function coreSitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE_URL}/japanese/jlpt-mock-test`,     priority: 0.6,  changeFrequency: 'monthly' as const },
     { url: `${BASE_URL}/japanese/writing`,    priority: 0.6,  changeFrequency: 'monthly' as const },
     { url: `${BASE_URL}/japanese/practice`,   priority: 0.6,  changeFrequency: 'monthly' as const },
+    { url: `${BASE_URL}/japanese/handwriting`,    priority: 0.6,  changeFrequency: 'monthly' as const },
+    { url: `${BASE_URL}/japanese/image-translate`, priority: 0.6, changeFrequency: 'monthly' as const },
   ].map(r => ({ ...r, lastModified: now }))
 
   const levelPages: MetadataRoute.Sitemap = JLPT_URL_LEVELS.flatMap(lv => [

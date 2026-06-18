@@ -11,6 +11,7 @@ import BookmarkButton from '@/components/japanese/BookmarkButton'
 import CopyButton from '@/components/japanese/CopyButton'
 import SearchSuggestions, { type SuggestionWord } from '@/components/japanese/SearchSuggestions'
 import Pagination from '@/components/japanese/Pagination'
+import HandwritingModal from '@/components/japanese/HandwritingModal'
 
 const HISTORY_KEY = 'jp_search_history'
 const MAX_HISTORY = 10
@@ -176,6 +177,13 @@ export default function DictionaryClient({ initialWords, initialQuery, isLoggedI
     setShowSuggestions(false)
   }
 
+  // Picking a kanji from the handwriting modal searches the dictionary for it.
+  function handleHandwritingPick(character: string) {
+    setQuery(character)
+    setShowSuggestions(false)
+    saveToHistory(character)
+  }
+
   const isSearching = query.trim().length > 0
 
   // Reset to first page whenever the underlying list changes.
@@ -229,34 +237,40 @@ export default function DictionaryClient({ initialWords, initialQuery, isLoggedI
 
   return (
     <div>
-      {/* Search box + suggestions dropdown */}
-      <div className="relative">
-        <DictionarySearchBox
-          value={query}
-          onChange={setQuery}
-          placeholder={t('search_placeholder')}
-          onFocus={handleSearchFocus}
-          onBlur={handleSearchBlur}
-          onSubmit={handleSearchSubmit}
-          onArrowDown={() => moveActive(1)}
-          onArrowUp={() => moveActive(-1)}
-          onEnterSelect={handleEnterSelect}
-          onEscape={handleEscape}
-          listboxId={SUGGESTIONS_ID}
-          activeOptionId={activeIndex >= 0 ? `${SUGGESTIONS_ID}-opt-${activeIndex}` : undefined}
-          expanded={showSuggestions && suggestions.length > 0}
-          clearLabel={t('search_clear')}
-        />
-        {showSuggestions && (
-          <SearchSuggestions
-            suggestions={suggestions}
-            onSelect={handleSuggestionSelect}
-            locale={locale}
-            activeIndex={activeIndex}
-            onActiveChange={setActiveIndex}
+      {/* Search box + handwriting + suggestions dropdown */}
+      <div className="flex items-stretch gap-2">
+        <div className="relative flex-1 min-w-0">
+          <DictionarySearchBox
+            value={query}
+            onChange={setQuery}
+            placeholder={t('search_placeholder')}
+            onFocus={handleSearchFocus}
+            onBlur={handleSearchBlur}
+            onSubmit={handleSearchSubmit}
+            onArrowDown={() => moveActive(1)}
+            onArrowUp={() => moveActive(-1)}
+            onEnterSelect={handleEnterSelect}
+            onEscape={handleEscape}
             listboxId={SUGGESTIONS_ID}
+            activeOptionId={activeIndex >= 0 ? `${SUGGESTIONS_ID}-opt-${activeIndex}` : undefined}
+            expanded={showSuggestions && suggestions.length > 0}
+            clearLabel={t('search_clear')}
           />
-        )}
+          {showSuggestions && (
+            <SearchSuggestions
+              suggestions={suggestions}
+              onSelect={handleSuggestionSelect}
+              locale={locale}
+              activeIndex={activeIndex}
+              onActiveChange={setActiveIndex}
+              listboxId={SUGGESTIONS_ID}
+            />
+          )}
+        </div>
+        <HandwritingModal
+          onPick={handleHandwritingPick}
+          className="shrink-0 inline-flex items-center gap-1.5 bg-white text-ink font-semibold text-[13px] px-3.5 sm:px-4 rounded-xl border border-line hover:border-rose/40 hover:text-rose transition-colors"
+        />
       </div>
 
       {/* Empty-query state: history + popular words */}

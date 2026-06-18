@@ -49,6 +49,12 @@ const ICON: Record<string, ReactNode> = {
   study_profile: (
     <path strokeLinecap="round" strokeLinejoin="round" d="M5 20V10m7 10V4m7 16v-7M3 20h18" />
   ),
+  handwriting: (
+    <path strokeLinecap="round" strokeLinejoin="round" d="M15 4l5 5-2 2-5-5 2-2zM13 6l-8 8c-1 1-2 4-2 6 2 0 5-1 6-2l8-8" />
+  ),
+  image_translate: (
+    <path strokeLinecap="round" strokeLinejoin="round" d="M4 6a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm2 10l4-4 3 3 3-3 2 2M9 9.5a1 1 0 11-2 0 1 1 0 012 0z" />
+  ),
 }
 
 function FeatureIcon({ name }: { name: string }) {
@@ -73,6 +79,7 @@ const GROUP_LOOKUP: FeatureDef[] = [
   { key: 'dictionary', href: '/japanese/dictionary', primary: true, cta: 'cta_start_lookup' },
   { key: 'kanji', href: '/japanese/kanji' },
   { key: 'grammar', href: '/japanese/grammar', primary: true, cta: 'cta_view_grammar' },
+  { key: 'handwriting', href: '/japanese/handwriting' },
 ]
 
 const GROUP_JLPT: FeatureDef[] = [
@@ -84,6 +91,7 @@ const GROUP_JLPT: FeatureDef[] = [
 
 const GROUP_TOOLS: FeatureDef[] = [
   { key: 'writing', href: '/japanese/writing' },
+  { key: 'image_translate', href: '/japanese/image-translate' },
   { key: 'study_profile', href: '/japanese/profile' },
 ]
 
@@ -97,6 +105,8 @@ const FEATURE_DESC: Record<string, string> = {
   jlpt_test: 'feature_jlpt_test_desc',
   writing: 'feature_writing_desc',
   study_profile: 'feature_study_profile_desc',
+  handwriting: 'feature_handwriting_desc',
+  image_translate: 'feature_image_translate_desc',
 }
 
 type Progress = { savedCount: number; dueCount: number; lastLevel: string | null }

@@ -6,10 +6,11 @@ export const dynamic = 'force-dynamic'
 
 export async function generateMetadata() {
   const t = await getTranslations('about')
+  const description = t('meta_description')
   return {
     title: t('title'),
-    description: t('intro'),
-    openGraph: { title: t('title'), description: t('intro') },
+    description,
+    openGraph: { title: t('title'), description },
   }
 }
 
@@ -17,6 +18,13 @@ const SECTIONS = [
   { key: 's1', icon: '🗺️' },
   { key: 's2', icon: '🤝' },
   { key: 's3', icon: '💡' },
+] as const
+
+// Find / Know / Open are brand words — kept identical across all languages.
+const FKO_CARDS = [
+  { word: 'Find', icon: '🔍', descKey: 'fko_find_desc' },
+  { word: 'Know', icon: '📚', descKey: 'fko_know_desc' },
+  { word: 'Open', icon: '🤝', descKey: 'fko_open_desc' },
 ] as const
 
 async function getApprovedPostCount(): Promise<number> {
@@ -84,6 +92,34 @@ export default async function GioiThieu() {
               </div>
             </div>
           ))}
+        </div>
+
+        {/* FKO meaning */}
+        <div className="mb-14">
+          <div className="text-center mb-8">
+            <h2 className="font-serif font-black text-[clamp(24px,3.5vw,34px)] tracking-[-0.4px] text-ink mb-3">
+              {t('fko_title')}
+            </h2>
+            <p className="text-[15px] text-muted leading-[1.7] max-w-[560px] mx-auto">
+              {t('fko_sub')}
+            </p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+            {FKO_CARDS.map(({ word, icon, descKey }) => (
+              <div
+                key={word}
+                className="bg-paper border border-line rounded-2xl p-6 shadow-card hover:border-rose/30 hover:-translate-y-0.5 transition-all text-center"
+              >
+                <div className="w-14 h-14 rounded-2xl bg-rose/10 border border-rose/15 text-[26px] grid place-items-center mx-auto mb-4">
+                  {icon}
+                </div>
+                <h3 className="font-serif font-bold text-[22px] text-rose-deep mb-2.5">{word}</h3>
+                <p className="text-[14px] text-muted leading-[1.7]">
+                  {t(descKey as Parameters<typeof t>[0])}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Sections */}

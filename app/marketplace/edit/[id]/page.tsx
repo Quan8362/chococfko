@@ -2,8 +2,10 @@ import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
+import { createPublicClient } from '@/lib/supabase/public'
 import { isUuid } from '@/lib/marketplace'
 import { getListingById } from '@/lib/marketplace-data'
+import { getPopularTags, getTagsForContent } from '@/lib/tags'
 import ListingForm from '../../ListingForm'
 
 export const dynamic = 'force-dynamic'
@@ -19,9 +21,11 @@ export default async function EditListingPage({ params }: { params: { id: string
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const [t, listing] = await Promise.all([
+  const [t, listing, popularTags, currentTags] = await Promise.all([
     getTranslations('marketplace'),
     getListingById(params.id),
+    getPopularTags(createPublicClient(), 12).then((tags) => tags.map((tag) => tag.name)),
+    getTagsForContent(supabase, 'listing', params.id).then((tags) => tags.map((tag) => tag.name)),
   ])
   if (!listing) notFound()
   if (listing.user_id !== user.id) redirect(`/marketplace/${params.id}`)
@@ -34,7 +38,7 @@ export default async function EditListingPage({ params }: { params: { id: string
       <h1 className="font-serif font-bold text-[28px] sm:text-[34px] tracking-[-0.5px] text-ink mb-1.5">{t('edit_title')}</h1>
       <p className="text-[14px] text-muted mb-8">{t('edit_subtitle')}</p>
 
-      <ListingForm userId={user.id} listing={listing} />
+      <ListingForm userId={user.id} listing={listing} popularTags={popularTags} defaultTags={currentTags} />
     </div>
   )
 }

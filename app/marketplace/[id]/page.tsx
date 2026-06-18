@@ -6,6 +6,8 @@ import { getUserIdentity } from '@/lib/userIdentity'
 import { avatarSrc } from '@/lib/avatar'
 import AuthorLink from '@/components/AuthorLink'
 import ListingCard from '@/components/marketplace/ListingCard'
+import TagList from '@/components/tags/TagList'
+import { getTagsForContent } from '@/lib/tags'
 import { isUuid, formatPriceJPY, relativeListingDate, CONDITION_PRESETS } from '@/lib/marketplace'
 import { getListingById, getListingComments, getRelatedListings, getListingRating } from '@/lib/marketplace-data'
 import { setSaleStatus, deleteListing, incrementListingView, resolveEndedAuction, getListingBids } from '../actions'
@@ -19,7 +21,14 @@ export const dynamic = 'force-dynamic'
 
 export async function generateMetadata({ params }: { params: { id: string } }) {
   const l = await getListingById(params.id)
-  return { title: l ? `${l.title} · Chợ đồ cũ · Chợ Cóc FKO` : 'Chợ đồ cũ · Chợ Cóc FKO' }
+  if (!l) return { title: 'Chợ đồ cũ · Chợ Cóc FKO' }
+  const tagNames = isUuid(params.id)
+    ? (await getTagsForContent(createClient(), 'listing', params.id)).map((tag) => tag.name)
+    : []
+  return {
+    title: `${l.title} · Chợ đồ cũ · Chợ Cóc FKO`,
+    keywords: [l.title, l.area, ...tagNames].filter(Boolean) as string[],
+  }
 }
 
 export default async function ListingDetailPage({ params }: { params: { id: string } }) {
@@ -45,12 +54,13 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
   const auctionResolve = listing.listing_type === 'auction'
     ? resolveEndedAuction(listing) : Promise.resolve()
 
-  const [seller, comments, related, rating, initialBids] = await Promise.all([
+  const [seller, comments, related, rating, initialBids, tags] = await Promise.all([
     getUserIdentity(listing.user_id),
     getListingComments(listing.id),
     getRelatedListings(listing.category, listing.id),
     getListingRating(listing.id, viewer?.id ?? null),
     listing.listing_type === 'auction' ? getListingBids(listing.id) : Promise.resolve([]),
+    getTagsForContent(supabase, 'listing', listing.id),
   ])
   // Ensure the writes finish before the serverless function returns (they were
   // already running in parallel with the reads above, so this rarely waits).
@@ -136,6 +146,12 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
               </div>
 
               <p className="text-[11.5px] text-muted mt-3">{relativeListingDate(listing.created_at, locale)}</p>
+
+              {tags.length > 0 && (
+                <div className="mt-3 pt-3 border-t border-line">
+                  <TagList tags={tags} size="sm" />
+                </div>
+              )}
             </div>
 
             {/* Auction panel */}

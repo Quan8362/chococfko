@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { compressImage } from '@/lib/compressImage'
 import { CATEGORIES, CONDITION_PRESETS, type Listing } from '@/lib/marketplace'
+import TagInput from '@/components/tags/TagInput'
 import { submitListing, updateListing, type ListingResult } from './actions'
 
 const MAX_IMAGES = 6
@@ -31,7 +32,17 @@ function SubmitBtn({ label, sending, disabled = false }: { label: string; sendin
   )
 }
 
-export default function ListingForm({ userId, listing }: { userId: string; listing?: Listing }) {
+export default function ListingForm({
+  userId,
+  listing,
+  popularTags = [],
+  defaultTags = [],
+}: {
+  userId: string
+  listing?: Listing
+  popularTags?: string[]
+  defaultTags?: string[]
+}) {
   const t = useTranslations('marketplace')
   const router = useRouter()
   const isEdit = !!listing
@@ -392,6 +403,14 @@ export default function ListingForm({ userId, listing }: { userId: string; listi
           className="w-full px-4 py-3 rounded-xl border border-line bg-paper text-[15px] leading-relaxed resize-y focus:outline-none focus:border-rose/50 focus:ring-2 focus:ring-rose/10"
         />
       </div>
+
+      {/* Tags */}
+      <TagInput
+        contentType="listing"
+        popularTags={popularTags}
+        defaultTags={defaultTags}
+        liveContext={{ listingType }}
+      />
 
       {errorMsg && (
         <p className="text-[13px] text-red-600 flex items-center gap-1.5">

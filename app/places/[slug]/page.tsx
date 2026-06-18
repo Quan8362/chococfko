@@ -13,8 +13,22 @@ import SmartImg from "@/components/SmartImg";
 import StarsDisplay from "@/components/marketplace/StarsDisplay";
 import PlaceCard from "@/components/PlaceCard";
 import PlacePostCard from "@/components/PlacePostCard";
+import TagList from "@/components/tags/TagList";
+import { getTagsForContent, type Tag } from "@/lib/tags";
 import PlaceRating from "./PlaceRating";
 import PlaceComments from "./PlaceComments";
+
+async function getPlaceTagsBySlug(slug: string): Promise<Tag[]> {
+  try {
+    const supabase = createClient();
+    const { data } = await supabase.from("places").select("id").eq("slug", slug).maybeSingle();
+    const id = (data as { id: string } | null)?.id;
+    if (!id) return [];
+    return await getTagsForContent(supabase, "place", id);
+  } catch {
+    return [];
+  }
+}
 
 async function getCurrentUser() {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return null;
@@ -70,7 +84,8 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   const canonical = `${SITE_URL}/places/${p.slug}`;
   const description = placeDescription(p) || `${p.name} — ${p.area}`;
   const image = placeImage(p);
-  const keywords = [p.name, p.categoryLabel, p.area, p.city, p.prefecture, "Nhật Bản"]
+  const tagNames = (await getPlaceTagsBySlug(p.slug)).map((tag) => tag.name);
+  const keywords = [p.name, p.categoryLabel, p.area, p.city, p.prefecture, ...tagNames, "Nhật Bản"]
     .filter(Boolean) as string[];
 
   return {
@@ -94,13 +109,14 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 export default async function PlaceDetail({ params }: { params: { slug: string } }) {
   const locale = await getLocale()
   const currentUser = await getCurrentUser();
-  const [dbPlace, isAdmin, dbAllPlaces, comments, rating, placePosts] = await Promise.all([
+  const [dbPlace, isAdmin, dbAllPlaces, comments, rating, placePosts, tags] = await Promise.all([
     getPlaceFromDb(params.slug, locale),
     checkIsAdmin(),
     getAllPlacesFromDb(locale),
     getPlaceComments(params.slug),
     getPlaceRating(params.slug, currentUser?.id),
     getPostsForPlace(params.slug, locale),
+    getPlaceTagsBySlug(params.slug),
   ]);
 
   const place = dbPlace ?? getPlace(params.slug);
@@ -236,6 +252,13 @@ export default async function PlaceDetail({ params }: { params: { slug: string }
               </Link>
             </p>
           ) : null}
+
+          {/* Tags */}
+          {tags.length > 0 && (
+            <div className="mb-8">
+              <TagList tags={tags} />
+            </div>
+          )}
 
           {/* Member posts written about this place */}
           <div className="border-t border-line pt-8">

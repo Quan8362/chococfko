@@ -6,6 +6,9 @@ import { createClient } from '@/lib/supabase/server'
 import { submitPlace } from '@/app/auth/actions'
 import ImageUpload from '@/components/ImageUpload'
 import UserAvatar from '@/components/UserAvatar'
+import TagInput from '@/components/tags/TagInput'
+import { getPopularTags } from '@/lib/tags'
+import { createPublicClient } from '@/lib/supabase/public'
 
 const RichTextEditor = dynamic(() => import('@/components/RichTextEditor'), { ssr: false })
 
@@ -33,11 +36,12 @@ export default async function DangDiaDiem({
 }: {
   searchParams: { error?: string; success?: string }
 }) {
-  const [{ user, avatarUrl }, t, tf, tn] = await Promise.all([
+  const [{ user, avatarUrl }, t, tf, tn, popularTags] = await Promise.all([
     getUser(),
     getTranslations('placeForm'),
     getTranslations('filters'),
     getTranslations('nav'),
+    getPopularTags(createPublicClient(), 12).then((tags) => tags.map((tag) => tag.name)),
   ])
 
   if (!user) {
@@ -218,6 +222,13 @@ export default async function DangDiaDiem({
             />
             <p className="text-[12px] text-muted mt-2">{t('pendingNote')}</p>
           </div>
+
+          {/* Tags */}
+          <TagInput
+            contentType="place"
+            popularTags={popularTags}
+            suggestFields={{ title: 'name', description: 'desc', area: 'area', category: 'category' }}
+          />
 
           {/* Submit */}
           <div className="flex gap-3 pt-2">

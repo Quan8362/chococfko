@@ -4,7 +4,9 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { createAdminNotification } from '@/lib/admin/notifications'
+import { setContentTags } from '@/lib/tags'
 import { sanitizeUserName } from '@/lib/sanitize'
 
 const CATEGORY_LABEL: Record<string, string> = {
@@ -196,7 +198,7 @@ export async function submitPlace(formData: FormData) {
   const category = (formData.get('category') as string) || 'food'
   const slug = generateSlug(name)
 
-  const { error } = await supabase.from('places').insert({
+  const { data: inserted, error } = await supabase.from('places').insert({
     slug,
     name,
     area: (formData.get('area') as string).trim(),
@@ -211,9 +213,13 @@ export async function submitPlace(formData: FormData) {
     sort_order: 999999,
     status: 'pending',
     user_id: user.id,
-  })
+  }).select('id').single()
 
   if (error) redirect('/places/new?error=' + encodeURIComponent(error.message))
+
+  if (inserted?.id) {
+    await setContentTags(createAdminClient(), 'place', inserted.id as string, formData.get('tags'))
+  }
 
   await createAdminNotification({
     type: 'new_pending_place',
@@ -283,15 +289,19 @@ export async function submitPost(formData: FormData) {
   }
   const insertRow: Record<string, unknown> = place_slug ? { ...baseRow, place_slug } : baseRow
 
-  let { error } = await supabase.from('posts').insert(insertRow)
+  let { data: insertedPost, error } = await supabase.from('posts').insert(insertRow).select('id').single()
   // Backward-compat: if the place_slug column hasn't been migrated yet, still
   // create the post (without the link) instead of failing the whole submission.
   if (error && place_slug && /place_slug/.test(error.message)) {
-    ;({ error } = await supabase.from('posts').insert(baseRow))
+    ;({ data: insertedPost, error } = await supabase.from('posts').insert(baseRow).select('id').single())
   }
 
   const base = post_type === 'place' ? '/places/new' : '/community/write'
   if (error) redirect(`${base}?error=${encodeURIComponent(error.message)}`)
+
+  if (insertedPost?.id) {
+    await setContentTags(createAdminClient(), 'post', insertedPost.id as string, formData.get('tags'))
+  }
 
   await createAdminNotification({
     type: 'new_pending_post',

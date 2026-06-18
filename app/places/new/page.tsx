@@ -10,6 +10,7 @@ import TagInput from '@/components/tags/TagInput'
 import { getPopularTags } from '@/lib/tags'
 import { createPublicClient } from '@/lib/supabase/public'
 import { PREFECTURES } from '@/lib/japan'
+import { RELATION_TYPES } from '@/lib/places'
 
 const RichTextEditor = dynamic(() => import('@/components/RichTextEditor'), { ssr: false })
 
@@ -37,11 +38,12 @@ export default async function DangDiaDiem({
 }: {
   searchParams: { error?: string; success?: string }
 }) {
-  const [{ user, avatarUrl }, t, tf, tn, popularTags] = await Promise.all([
+  const [{ user, avatarUrl }, t, tf, tn, tc, popularTags] = await Promise.all([
     getUser(),
     getTranslations('placeForm'),
     getTranslations('filters'),
     getTranslations('nav'),
+    getTranslations('common'),
     getPopularTags(createPublicClient(), 12).then((tags) => tags.map((tag) => tag.name)),
   ])
 
@@ -126,11 +128,22 @@ export default async function DangDiaDiem({
         {/* Form body — mirrors admin edit place form */}
         <form action={submitPlace} className="px-7 py-6 space-y-5">
 
-          {/* Tên + Khu vực */}
-          <div className="grid sm:grid-cols-2 gap-4">
-            <Field label={t('nameLabel')} name="name" placeholder={t('namePlaceholder')} required />
-            <Field label={t('areaLabel')} name="area" placeholder={t('areaPlaceholder')} required />
-          </div>
+          {/* Tên */}
+          <Field label={t('nameLabel')} name="name" placeholder={t('namePlaceholder')} required />
+
+          {/* Khu vực có cấu trúc — text cuối được render qua i18n, không trộn ngôn ngữ */}
+          <fieldset className="border border-line rounded-xl px-4 pt-3 pb-4">
+            <legend className="text-[12.5px] font-semibold text-[#5c4d44] px-1.5">{t('areaSectionLabel')}</legend>
+            <div className="grid sm:grid-cols-2 gap-4">
+              <Field label={t('areaMainLabel')} name="area_main" placeholder={t('areaMainPlaceholder')} required />
+              <Field label={t('cityOrPrefectureLabel')} name="city_or_prefecture" placeholder={t('cityOrPrefecturePlaceholder')} />
+            </div>
+            <div className="grid sm:grid-cols-[1fr_180px] gap-4 mt-4">
+              <Field label={t('nearbyPlaceLabel')} name="nearby_place" placeholder={t('nearbyPlacePlaceholder')} />
+              <RelationSelect label={t('relationLabel')} tc={tc} />
+            </div>
+            <p className="text-[11.5px] text-muted mt-2.5">{t('areaSectionHint')}</p>
+          </fieldset>
 
           {/* Mô tả ngắn + Chi phí */}
           <div className="grid sm:grid-cols-[1fr_180px] gap-4">
@@ -255,7 +268,7 @@ export default async function DangDiaDiem({
           <TagInput
             contentType="place"
             popularTags={popularTags}
-            suggestFields={{ title: 'name', description: 'desc', area: 'area', category: 'category' }}
+            suggestFields={{ title: 'name', description: 'desc', area: 'area_main', category: 'category' }}
           />
 
           {/* Submit */}
@@ -290,6 +303,32 @@ export default async function DangDiaDiem({
             </li>
           ))}
         </ul>
+      </div>
+    </div>
+  )
+}
+
+function RelationSelect({
+  label, tc, defaultValue = 'near',
+}: {
+  label: string; tc: (key: string) => string; defaultValue?: string
+}) {
+  return (
+    <div>
+      <label className="block text-[13px] font-semibold mb-1.5 text-[#5c4d44]">{label}</label>
+      <div className="relative">
+        <select
+          name="relation_type"
+          defaultValue={defaultValue}
+          className="w-full appearance-none text-[14px] px-3.5 py-3 border-[1.5px] border-line rounded-xl bg-white focus:outline-none focus:border-rose transition-all text-ink"
+        >
+          {RELATION_TYPES.map((r) => (
+            <option key={r} value={r}>{tc(`area_relation_${r}`)}</option>
+          ))}
+        </select>
+        <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
       </div>
     </div>
   )

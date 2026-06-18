@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import loadDynamic from 'next/dynamic'
 import { getTranslations } from 'next-intl/server'
 import { checkIsAdmin, createAdminClient } from '@/lib/supabase/admin'
-import { getPlaceAllTranslations, type PlaceTranslation } from '@/lib/places'
+import { getPlaceAllTranslations, RELATION_TYPES, type PlaceTranslation } from '@/lib/places'
 import { getTagsForContent, getPopularTags } from '@/lib/tags'
 import { createPublicClient } from '@/lib/supabase/public'
 import { PREFECTURES } from '@/lib/japan'
@@ -22,6 +22,8 @@ type DbPlace = {
   img: string | null; img_fallback: string | null;
   status: string | null; user_id: string | null;
   prefecture?: string | null; city?: string | null; address?: string | null;
+  area_main?: string | null; nearby_place?: string | null;
+  city_or_prefecture?: string | null; relation_type?: string | null;
 }
 
 const LOCALES: { code: string; label: string; flag: string }[] = [
@@ -35,7 +37,10 @@ const LOCALES: { code: string; label: string; flag: string }[] = [
 export default async function AdminEditPlace({ params }: { params: { slug: string } }) {
   if (!(await checkIsAdmin())) redirect('/')
 
-  const admin_t = await getTranslations('admin')
+  const [admin_t, common_t] = await Promise.all([
+    getTranslations('admin'),
+    getTranslations('common'),
+  ])
 
   const FEE_OPTIONS = [
     { value: '', label: admin_t('fee_varies') },
@@ -87,10 +92,32 @@ export default async function AdminEditPlace({ params }: { params: { slug: strin
       <form action={updatePlace} className="space-y-5">
         <input type="hidden" name="slug" value={params.slug} />
 
-        <div className="grid sm:grid-cols-2 gap-4">
-          <Field label={admin_t('field_name')} name="name" defaultValue={p.name} required />
-          <Field label={admin_t('field_area')} name="area" defaultValue={p.area ?? ''} required />
-        </div>
+        <Field label={admin_t('field_name')} name="name" defaultValue={p.name} required />
+
+        {/* Khu vực có cấu trúc — render qua i18n, không trộn ngôn ngữ */}
+        <fieldset className="border border-line rounded-xl px-4 pt-3 pb-4">
+          <legend className="text-[12.5px] font-semibold text-[#5c4d44] px-1.5">{admin_t('field_area_section')}</legend>
+          <div className="grid sm:grid-cols-2 gap-4">
+            <Field label={admin_t('field_area_main')} name="area_main" defaultValue={p.area_main ?? ''} required />
+            <Field label={admin_t('field_city_or_prefecture')} name="city_or_prefecture" defaultValue={p.city_or_prefecture ?? ''} />
+          </div>
+          <div className="grid sm:grid-cols-[1fr_180px] gap-4 mt-4">
+            <Field label={admin_t('field_nearby_place')} name="nearby_place" defaultValue={p.nearby_place ?? ''} />
+            <div>
+              <label className="block text-[13px] font-semibold mb-1.5 text-[#5c4d44]">{admin_t('field_relation')}</label>
+              <select
+                name="relation_type"
+                defaultValue={p.relation_type ?? 'near'}
+                className="w-full text-[14px] px-3.5 py-3 border-[1.5px] border-line rounded-xl bg-white focus:outline-none focus:border-rose"
+              >
+                {RELATION_TYPES.map((r) => (
+                  <option key={r} value={r}>{common_t(`area_relation_${r}` as Parameters<typeof common_t>[0])}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <p className="text-[11.5px] text-muted mt-2.5">{admin_t('field_area_section_help')}</p>
+        </fieldset>
 
         <div className="grid sm:grid-cols-[1fr_180px] gap-4">
           <Field
@@ -181,7 +208,7 @@ export default async function AdminEditPlace({ params }: { params: { slug: strin
           contentType="place"
           defaultTags={currentTagNames}
           popularTags={popularTags}
-          suggestFields={{ title: 'name', area: 'area', description: 'desc' }}
+          suggestFields={{ title: 'name', area: 'area_main', description: 'desc' }}
         />
 
         {/* Status field — only for user-submitted places (status is not null) */}

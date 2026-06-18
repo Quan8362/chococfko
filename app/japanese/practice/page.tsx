@@ -1,7 +1,12 @@
 import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
-import QuizClient from '@/components/japanese/QuizClient'
+import PracticeClient from '@/components/japanese/PracticeClient'
+import {
+  getPracticeAvailability,
+  getRecentPracticeSessions,
+  getWeakAreas,
+} from '@/app/japanese/practice-actions'
 
 export const dynamic = 'force-dynamic'
 
@@ -18,6 +23,12 @@ export default async function PracticePage() {
   const {
     data: { user },
   } = await supabase.auth.getUser()
+
+  const [availability, recentSessions, weakAreas] = await Promise.all([
+    getPracticeAvailability(),
+    user ? getRecentPracticeSessions() : Promise.resolve([]),
+    user ? getWeakAreas() : Promise.resolve([]),
+  ])
 
   return (
     <div className="max-w-[700px] mx-auto px-5 sm:px-6 py-10 pb-20">
@@ -38,10 +49,15 @@ export default async function PracticePage() {
         <h1 className="font-serif font-bold text-[clamp(24px,4vw,36px)] leading-tight tracking-[-0.4px] text-ink mb-2">
           {t('quiz_heading')}
         </h1>
-        <p className="text-[14px] text-muted">{t('quiz_desc')}</p>
+        <p className="text-[14px] text-muted">{t('practice_subtitle')}</p>
       </div>
 
-      <QuizClient isLoggedIn={!!user} />
+      <PracticeClient
+        isLoggedIn={!!user}
+        availability={availability}
+        recentSessions={recentSessions}
+        weakAreas={weakAreas}
+      />
     </div>
   )
 }

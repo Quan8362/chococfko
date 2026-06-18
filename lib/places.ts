@@ -1,6 +1,12 @@
 import type { LocalizedTag } from './tags';
 
 export type Fee = 'free' | 'paid' | null;
+
+// Quan hệ địa lý giữa areaMain và nearbyPlace — chỉ TỪ NÀY được dịch qua i18n,
+// còn tên địa danh (areaMain/nearbyPlace/cityOrPrefecture) KHÔNG bao giờ dịch.
+export type RelationType = 'near' | 'in' | 'central' | 'suburb';
+export const RELATION_TYPES: RelationType[] = ['near', 'in', 'central', 'suburb'];
+
 export interface Place {
   slug: string; name: string; area: string; desc: string;
   category: string; categoryLabel: string; fee: Fee;
@@ -10,7 +16,82 @@ export interface Place {
   region?: string | null; prefecture?: string | null; city?: string | null;
   address?: string | null;
   lat?: number | null; lng?: number | null;
+  // Khu vực có cấu trúc — render text cuối qua i18n thay vì lưu text trộn ngôn ngữ.
+  areaMain?: string | null;        // VD "Sasaguri"
+  nearbyPlace?: string | null;     // VD "Hakata" (tuỳ chọn)
+  cityOrPrefecture?: string | null; // VD "Fukuoka"
+  relationType?: RelationType | null; // VD "near"
   tags?: LocalizedTag[] | null; // attached for search/display (optional)
+}
+
+// Map các chuỗi "area" tiếng Việt cũ (free text) sang i18n key tương ứng.
+// Dùng cho địa điểm legacy chưa có trường có cấu trúc.
+export const AREA_LEGACY_KEY_MAP: Record<string, string> = {
+  'Tối': 'area_toi', 'Sáng': 'area_sang', 'Trưa': 'area_trua',
+  'Chiều': 'area_chieu', 'Trưa / Tối': 'area_trua_toi',
+  'Gần Ohori': 'area_near_ohori', 'Gần Fukuoka Tower': 'area_near_fukuoka_tower',
+  'Dễ · hợp người mới': 'area_mountain_easy_beginner',
+  'Dễ–TB · gần thành phố': 'area_mountain_easymid_city',
+  'Dễ–TB': 'area_mountain_easymid',
+  'Trung bình · rất nổi tiếng': 'area_mountain_mid_popular',
+  'Trung bình · thiên nhiên đẹp': 'area_mountain_mid_nature',
+  'Trung bình · mùa lá đỏ': 'area_mountain_mid_autumn',
+  'Trung bình · view biển': 'area_mountain_mid_seaview',
+  'Có cáp treo · ngắm đêm': 'area_mountain_cable_night',
+  'Umi-machi · gần Dazaifu': 'area_umi_near_dazaifu',
+  'Đảo Nokonoshima': 'area_nokonoshima_island',
+};
+
+type AreaTranslator = (key: string, values?: Record<string, string | number>) => string;
+
+/**
+ * Build the localized "area" display string.
+ * - Nếu có areaMain (dữ liệu có cấu trúc): chỉ dịch TỪ quan hệ (near/in/…),
+ *   ghép tên địa danh theo template từng ngôn ngữ. nearbyPlace trống → chỉ
+ *   hiện areaMain + cityOrPrefecture.
+ * - Nếu không: fallback về text cũ (qua AREA_LEGACY_KEY_MAP nếu khớp).
+ */
+export function formatArea(
+  place: Pick<Place, 'area' | 'areaMain' | 'nearbyPlace' | 'cityOrPrefecture' | 'relationType'>,
+  t: AreaTranslator,
+): string {
+  const main = place.areaMain?.trim();
+  if (!main) {
+    const legacy = place.area ?? '';
+    const key = AREA_LEGACY_KEY_MAP[legacy];
+    return key ? t(key) : legacy;
+  }
+  const nearby = place.nearbyPlace?.trim() || '';
+  const city = place.cityOrPrefecture?.trim() || '';
+  const relation = t(`area_relation_${place.relationType || 'near'}`);
+
+  let out: string;
+  if (nearby) {
+    out = t('area_format_with_nearby', { main, relation, nearby, city });
+  } else if (city) {
+    out = t('area_format_no_nearby', { main, city });
+  } else {
+    out = main;
+  }
+  // Dọn dấu phân tách/khoảng trắng dư khi một thành phần rỗng
+  // (relation rỗng ở ngôn ngữ dùng dấu cách, hoặc city/nearby trống).
+  return out
+    .replace(/\s+([,，、・])/g, '$1')   // bỏ space trước dấu phân tách
+    .replace(/([,，、・])\s*(?=[,，、・])/g, '') // gộp dấu phân tách liền nhau
+    .replace(/\s{2,}/g, ' ')
+    .replace(/^[\s,，、・]+|[\s,，、・]+$/g, '') // bỏ dấu phân tách ở đầu/cuối
+    .trim();
+}
+
+// Ghép các tên địa danh có cấu trúc thành 1 chuỗi trung tính (KHÔNG có từ quan
+// hệ) để lưu vào cột `area` cũ — phục vụ tìm kiếm & fallback hiển thị.
+export function neutralAreaString(parts: {
+  areaMain?: string | null; nearbyPlace?: string | null; cityOrPrefecture?: string | null;
+}): string {
+  return [parts.areaMain, parts.nearbyPlace, parts.cityOrPrefecture]
+    .map((s) => s?.trim())
+    .filter(Boolean)
+    .join(', ');
 }
 export interface Category { code: string; short: string; full: string; }
 
@@ -1080,6 +1161,8 @@ interface DbPlace {
   region?: string | null; prefecture?: string | null; city?: string | null;
   address?: string | null;
   lat?: number | null; lng?: number | null;
+  area_main?: string | null; nearby_place?: string | null;
+  city_or_prefecture?: string | null; relation_type?: string | null;
 }
 
 function mapDbPlace(row: DbPlace): Place {
@@ -1102,6 +1185,10 @@ function mapDbPlace(row: DbPlace): Place {
     address: row.address ?? null,
     lat: row.lat ?? null,
     lng: row.lng ?? null,
+    areaMain: row.area_main ?? null,
+    nearbyPlace: row.nearby_place ?? null,
+    cityOrPrefecture: row.city_or_prefecture ?? null,
+    relationType: (row.relation_type as RelationType | null) ?? null,
   };
 }
 

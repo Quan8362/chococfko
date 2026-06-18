@@ -3,8 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getTranslations, getLocale } from "next-intl/server";
 import { proxyStorageImages } from "@/lib/imageProxy";
-import { getPlace, places, getAllPlacesFromDb, getPlaceFromDb, getPlaceComments, getPlaceRating, attachPlaceTags, type Place } from "@/lib/places";
-import { getPostsForPlace } from "@/lib/posts";
+import { getPlace, places, getAllPlacesFromDb, getPlaceFromDb, getPlaceComments, getPlaceRating, attachPlaceTags, formatArea, type Place } from "@/lib/places";
 import { checkIsAdmin } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { stripHtml } from "@/lib/sanitize";
@@ -12,7 +11,6 @@ import { SITE_URL, SITE_NAME, DEFAULT_OG_IMAGE, OG_LOCALE, breadcrumbJsonLd, jso
 import SmartImg from "@/components/SmartImg";
 import StarsDisplay from "@/components/marketplace/StarsDisplay";
 import PlaceCard from "@/components/PlaceCard";
-import PlacePostCard from "@/components/PlacePostCard";
 import TagList from "@/components/tags/TagList";
 import { getTagsForContent, type Tag } from "@/lib/tags";
 import { prefectureName } from "@/lib/japan";
@@ -110,13 +108,12 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 export default async function PlaceDetail({ params }: { params: { slug: string } }) {
   const locale = await getLocale()
   const currentUser = await getCurrentUser();
-  const [dbPlace, isAdmin, dbAllPlaces, comments, rating, placePosts, tags] = await Promise.all([
+  const [dbPlace, isAdmin, dbAllPlaces, comments, rating, tags] = await Promise.all([
     getPlaceFromDb(params.slug, locale),
     checkIsAdmin(),
     getAllPlacesFromDb(locale),
     getPlaceComments(params.slug),
     getPlaceRating(params.slug, currentUser?.id),
-    getPostsForPlace(params.slug, locale),
     getPlaceTagsBySlug(params.slug),
   ]);
 
@@ -127,23 +124,7 @@ export default async function PlaceDetail({ params }: { params: { slug: string }
   const tCat = await getTranslations("categories");
   const tMeta = await getTranslations("meta");
 
-  const AREA_TIME_MAP: Record<string, string> = {
-    "Tối": "area_toi", "Sáng": "area_sang", "Trưa": "area_trua",
-    "Chiều": "area_chieu", "Trưa / Tối": "area_trua_toi",
-    "Gần Ohori": "area_near_ohori", "Gần Fukuoka Tower": "area_near_fukuoka_tower",
-    "Dễ · hợp người mới": "area_mountain_easy_beginner",
-    "Dễ–TB · gần thành phố": "area_mountain_easymid_city",
-    "Dễ–TB": "area_mountain_easymid",
-    "Trung bình · rất nổi tiếng": "area_mountain_mid_popular",
-    "Trung bình · thiên nhiên đẹp": "area_mountain_mid_nature",
-    "Trung bình · mùa lá đỏ": "area_mountain_mid_autumn",
-    "Trung bình · view biển": "area_mountain_mid_seaview",
-    "Có cáp treo · ngắm đêm": "area_mountain_cable_night",
-    "Umi-machi · gần Dazaifu": "area_umi_near_dazaifu",
-    "Đảo Nokonoshima": "area_nokonoshima_island",
-  };
-  const areaTimeKey = AREA_TIME_MAP[place.area];
-  const displayArea = areaTimeKey ? t(areaTimeKey as Parameters<typeof t>[0]) : place.area;
+  const displayArea = formatArea(place, (k, v) => t(k as never, v as never));
   const displayCategory = tCat(place.category as Parameters<typeof tCat>[0]);
 
   const allPlaces = dbAllPlaces ?? places;
@@ -262,33 +243,6 @@ export default async function PlaceDetail({ params }: { params: { slug: string }
               <TagList tags={tags} />
             </div>
           )}
-
-          {/* Member posts written about this place */}
-          <div className="border-t border-line pt-8">
-            <div className="flex items-center justify-between gap-4 mb-5 flex-wrap">
-              <h3 className="font-serif font-bold text-[22px]">{t("member_posts")}</h3>
-              <Link
-                href={`/community/write?place=${encodeURIComponent(place.slug)}`}
-                className="inline-flex items-center gap-1.5 font-semibold text-[13px] px-4 py-2 rounded-full bg-rose text-white hover:bg-rose-deep transition-all shadow-[0_4px_14px_-4px_rgba(194,24,91,0.4)]"
-              >
-                {t("write_about")} {place.name}
-              </Link>
-            </div>
-
-            {placePosts.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                {placePosts.map((post) => (
-                  <PlacePostCard key={post.id} post={post} />
-                ))}
-              </div>
-            ) : (
-              <div className="bg-paper border border-dashed border-line rounded-2xl p-7 text-center">
-                <p className="text-[14.5px] text-muted leading-[1.7] max-w-[340px] mx-auto">
-                  {t("no_posts_place")}
-                </p>
-              </div>
-            )}
-          </div>
         </div>
 
         {/* ── RIGHT — sticky sidebar ────────────────────────── */}

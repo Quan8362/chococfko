@@ -3,7 +3,7 @@ import { getTranslations } from "next-intl/server";
 import SmartImg from "./SmartImg";
 import SavePlaceButton from "./SavePlaceButton";
 import TagList from "./tags/TagList";
-import type { Place } from "@/lib/places";
+import { formatArea, type Place } from "@/lib/places";
 
 const CAT_EMOJI: Record<string, string> = {
   landmark: "🏯",
@@ -24,31 +24,6 @@ const CAT_EMOJI: Record<string, string> = {
   onsen: "♨️",
 };
 
-// Maps Vietnamese area strings to common translation keys
-const AREA_TIME_MAP: Record<string, string> = {
-  // Time-of-day areas
-  "Tối":                        "area_toi",
-  "Sáng":                       "area_sang",
-  "Trưa":                       "area_trua",
-  "Chiều":                      "area_chieu",
-  "Trưa / Tối":                 "area_trua_toi",
-  // Location areas
-  "Gần Ohori":                  "area_near_ohori",
-  "Gần Fukuoka Tower":          "area_near_fukuoka_tower",
-  // Mountain / hiking difficulty areas
-  "Dễ · hợp người mới":         "area_mountain_easy_beginner",
-  "Dễ–TB · gần thành phố":      "area_mountain_easymid_city",
-  "Dễ–TB":                      "area_mountain_easymid",
-  "Trung bình · rất nổi tiếng": "area_mountain_mid_popular",
-  "Trung bình · thiên nhiên đẹp": "area_mountain_mid_nature",
-  "Trung bình · mùa lá đỏ":    "area_mountain_mid_autumn",
-  "Trung bình · view biển":     "area_mountain_mid_seaview",
-  "Có cáp treo · ngắm đêm":     "area_mountain_cable_night",
-  // Other Vietnamese areas
-  "Umi-machi · gần Dazaifu":    "area_umi_near_dazaifu",
-  "Đảo Nokonoshima":             "area_nokonoshima_island",
-};
-
 export default async function PlaceCard({ place }: { place: Place }) {
   const t = await getTranslations("common");
   const tCat = await getTranslations("categories");
@@ -57,8 +32,7 @@ export default async function PlaceCard({ place }: { place: Place }) {
   const catKey = place.category as Parameters<typeof tCat>[0];
   const displayCategory = tCat(catKey);
 
-  const areaTimeKey = AREA_TIME_MAP[place.area];
-  const displayArea = areaTimeKey ? t(areaTimeKey as Parameters<typeof t>[0]) : place.area;
+  const displayArea = formatArea(place, (k, v) => t(k as never, v as never));
 
   return (
     <article className="bg-paper rounded-2xl overflow-hidden border border-line shadow-card flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover group">

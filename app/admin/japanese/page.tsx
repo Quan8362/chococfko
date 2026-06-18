@@ -45,6 +45,10 @@ export default async function JapaneseAdminPage() {
     { emoji: '💬', label: t('section_comments'), href: '/admin/japanese/comments', stats: comments, color: 'rose' },
   ]
 
+  const quickLinks = [
+    { emoji: '🩺', label: t('dq'), href: '/admin/japanese/data-quality' },
+  ]
+
   return (
     <div className="max-w-[960px] mx-auto px-6 py-10">
 
@@ -94,6 +98,15 @@ export default async function JapaneseAdminPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
               </svg>
             </div>
+          </Link>
+        ))}
+      </div>
+
+      <div className="flex flex-wrap gap-3 mt-6">
+        {quickLinks.map(l => (
+          <Link key={l.href} href={l.href}
+            className="flex items-center gap-2 px-4 py-2.5 bg-cream border border-line rounded-xl text-[13px] font-semibold text-ink hover:border-rose/40 hover:text-rose transition-colors">
+            {l.emoji} {l.label}
           </Link>
         ))}
       </div>

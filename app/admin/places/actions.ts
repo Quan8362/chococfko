@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { checkIsAdmin, createAdminClient } from '@/lib/supabase/admin'
-import { places } from '@/lib/places'
+import { places, neutralAreaString, RELATION_TYPES, type RelationType } from '@/lib/places'
 import { setContentTags } from '@/lib/tags'
 import { PREFECTURE_NAME, PREFECTURES } from '@/lib/japan'
 import { getLocale } from 'next-intl/server'
@@ -52,9 +52,22 @@ export async function updatePlace(formData: FormData) {
   const slug = formData.get('slug') as string
   const statusValue = (formData.get('status') as string) || undefined
 
+  // Khu vực có cấu trúc — chỉ relation_type được dịch, tên địa danh giữ nguyên.
+  const areaMain = (formData.get('area_main') as string)?.trim() || ''
+  const nearbyPlace = (formData.get('nearby_place') as string)?.trim() || null
+  const cityOrPrefecture = (formData.get('city_or_prefecture') as string)?.trim() || null
+  const relRaw = (formData.get('relation_type') as string) || 'near'
+  const relationType: RelationType = RELATION_TYPES.includes(relRaw as RelationType)
+    ? (relRaw as RelationType) : 'near'
+
   const updatePayload: Record<string, unknown> = {
     name: (formData.get('name') as string).trim(),
-    area: (formData.get('area') as string).trim(),
+    // `area` cũ = chuỗi trung tính (chỉ tên địa danh) cho tìm kiếm & fallback.
+    area: neutralAreaString({ areaMain, nearbyPlace, cityOrPrefecture }),
+    area_main: areaMain,
+    nearby_place: nearbyPlace,
+    city_or_prefecture: cityOrPrefecture,
+    relation_type: relationType,
     description: (formData.get('desc') as string).trim(),
     body: (formData.get('body') as string) || null,
     fee: (formData.get('fee') as string) || null,

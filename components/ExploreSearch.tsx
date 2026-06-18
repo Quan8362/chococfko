@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { filterPlaces } from "@/lib/placeSearch";
@@ -18,6 +19,17 @@ interface PrefProp {
 }
 
 const GRID = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6";
+
+// Homepage preview is a teaser, not an archive: show at most 9 cards per
+// category (3×3) on desktop, 6 on tablet, 4 on mobile. We render the first 9 and
+// hide the overflow per breakpoint with nth-child rules — cards are `flex`
+// (PlaceCard root), so reveal with `:flex` (not `:block`) to keep their layout.
+const PREVIEW_LIMIT = 9;
+const PREVIEW_GRID =
+  GRID +
+  " [&>*:nth-child(5)]:hidden [&>*:nth-child(6)]:hidden" +
+  " sm:[&>*:nth-child(5)]:flex sm:[&>*:nth-child(6)]:flex" +
+  " [&>*:nth-child(n+7)]:hidden lg:[&>*:nth-child(n+7)]:flex";
 
 export default function ExploreSearch({
   places,
@@ -237,23 +249,39 @@ export default function ExploreSearch({
           </div>
         </section>
       ) : (
-        /* Browse layout — sectioned by category, scoped to selected prefecture */
-        categories.map((c, idx) => {
+        /* Browse layout — sectioned by category, scoped to selected prefecture.
+           Each section is a preview (max 9 cards) with a "View all" link to the
+           full, paginated category page; no per-section pagination. */
+        categories.map((c) => {
           const items = scoped.filter((p) => p.category === c.code);
           if (items.length === 0) return null;
+          const href = prefecture
+            ? `/places?category=${c.code}&prefecture=${prefecture}`
+            : `/places?category=${c.code}`;
           return (
             <section key={c.code} id={`sec-${c.code}`} className="pt-14 pb-2 scroll-mt-[140px]">
               <div className="max-w-[1240px] mx-auto px-6">
                 <div className="flex items-center gap-3.5 mb-7">
-                  <div className="w-10 h-10 flex-none rounded-xl bg-rose/10 text-rose font-bold text-[15px] grid place-items-center border border-rose/15">
-                    {idx + 1}
+                  <div className="w-10 h-10 flex-none rounded-xl bg-rose/10 text-[20px] grid place-items-center border border-rose/15">
+                    {c.emoji}
                   </div>
-                  <h2 className="font-serif text-[clamp(22px,2.8vw,32px)] font-bold tracking-[-0.3px] leading-tight text-ink flex-1">
+                  <h2 className="font-serif text-[clamp(22px,2.8vw,32px)] font-bold tracking-[-0.3px] leading-tight text-ink flex-1 min-w-0">
                     {c.label}
                   </h2>
+                  <Link
+                    href={href}
+                    aria-label={t("view_all_aria", { category: c.label })}
+                    className="group inline-flex items-center gap-1 flex-none text-[13px] font-semibold text-rose hover:text-rose-deep transition-colors whitespace-nowrap"
+                  >
+                    <span className="hidden sm:inline">{t("view_all_count", { count: items.length })}</span>
+                    <span className="sm:hidden">{t("view_all")}</span>
+                    <svg className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </Link>
                 </div>
-                <div className={GRID}>
-                  {items.map((p) => (
+                <div className={PREVIEW_GRID}>
+                  {items.slice(0, PREVIEW_LIMIT).map((p) => (
                     <Fragment key={p.slug}>{cards[p.slug]}</Fragment>
                   ))}
                 </div>

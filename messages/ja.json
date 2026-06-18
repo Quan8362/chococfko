@@ -65,7 +65,13 @@
     "latest_posts_heading": "コミュニティの最新投稿",
     "latest_posts_sub": "メンバーのリアルな体験",
     "latest_posts_more": "すべての投稿を見る",
-    "latest_posts_empty": "まだ投稿がありません。最初の投稿をしてみませんか？"
+    "latest_posts_empty": "まだ投稿がありません。最初の投稿をしてみませんか？",
+    "view_all": "すべて見る",
+    "view_all_count": "{count}件をすべて見る",
+    "view_all_aria": "{category}の地点をすべて見る",
+    "load_more": "もっと見る",
+    "no_more": "すべて表示しました",
+    "category_count": "{count}件"
   },
   "community": {
     "label": "Chợ Cóc FKO コミュニティ",

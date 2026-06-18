@@ -95,6 +95,27 @@ export function neutralAreaString(parts: {
 }
 export interface Category { code: string; short: string; full: string; }
 
+// Single source of truth for category emoji (also mirrored in PlaceCard /
+// homepage for their local use). 🏯 for landmark must stay unchanged.
+export const categoryEmoji: Record<string, string> = {
+  landmark: "🏯",
+  food: "🍜",
+  sea: "🏖️",
+  camp: "⛺",
+  mountain: "⛰️",
+  park: "🌳",
+  viet: "🥢",
+  grocery: "🛒",
+  izakaya: "🍺",
+  japanese: "🍣",
+  thai: "🌶️",
+  chinese: "🥡",
+  korean: "🥩",
+  cafe_milk_tea: "☕",
+  kids_playground: "🎠",
+  onsen: "♨️",
+};
+
 export const categories: Category[] = [
   { "code": "landmark", "short": "Du lịch",   "full": "Du lịch" },
   { "code": "food",     "short": "Ăn đêm",    "full": "Ăn uống & vui chơi đêm" },

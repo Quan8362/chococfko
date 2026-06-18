@@ -65,7 +65,13 @@
     "latest_posts_heading": "Bài viết mới từ cộng đồng",
     "latest_posts_sub": "Chia sẻ thật từ thành viên",
     "latest_posts_more": "Xem tất cả bài viết",
-    "latest_posts_empty": "Chưa có bài viết nào. Bạn có muốn viết bài đầu tiên?"
+    "latest_posts_empty": "Chưa có bài viết nào. Bạn có muốn viết bài đầu tiên?",
+    "view_all": "Xem tất cả",
+    "view_all_count": "Xem tất cả {count} địa điểm",
+    "view_all_aria": "Xem tất cả địa điểm {category}",
+    "load_more": "Xem thêm",
+    "no_more": "Đã hiển thị tất cả",
+    "category_count": "{count} địa điểm"
   },
   "community": {
     "label": "Cộng đồng Chợ Cóc FKO",

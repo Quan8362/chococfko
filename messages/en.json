@@ -65,7 +65,13 @@
     "latest_posts_heading": "Latest from the community",
     "latest_posts_sub": "Real stories from members",
     "latest_posts_more": "View all posts",
-    "latest_posts_empty": "No posts yet. Be the first to share!"
+    "latest_posts_empty": "No posts yet. Be the first to share!",
+    "view_all": "View all",
+    "view_all_count": "View all {count} places",
+    "view_all_aria": "View all {category} places",
+    "load_more": "Load more",
+    "no_more": "No more items",
+    "category_count": "{count} places"
   },
   "community": {
     "label": "Chợ Cóc FKO Community",

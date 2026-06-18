@@ -65,7 +65,13 @@
     "latest_posts_heading": "커뮤니티 최신 글",
     "latest_posts_sub": "멤버들의 실제 경험",
     "latest_posts_more": "더 많은 글 보기",
-    "latest_posts_empty": "아직 글이 없습니다. 첫 번째 글을 써보세요!"
+    "latest_posts_empty": "아직 글이 없습니다. 첫 번째 글을 써보세요!",
+    "view_all": "전체 보기",
+    "view_all_count": "{count}곳 전체 보기",
+    "view_all_aria": "{category} 장소 전체 보기",
+    "load_more": "더 보기",
+    "no_more": "더 이상 항목이 없습니다",
+    "category_count": "{count}곳"
   },
   "community": {
     "label": "Chợ Cóc FKO 커뮤니티",

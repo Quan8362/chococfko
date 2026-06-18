@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import HandwritingCanvas from './HandwritingCanvas'
 
@@ -20,6 +21,7 @@ function PenIcon() {
 
 export default function HandwritingModal({ onPick, className }: Props) {
   const t = useTranslations('japanese')
+  const router = useRouter()
   const [open, setOpen] = useState(false)
   const closeBtnRef = useRef<HTMLButtonElement>(null)
 
@@ -39,7 +41,8 @@ export default function HandwritingModal({ onPick, className }: Props) {
   }, [open])
 
   function handlePick(word: string) {
-    onPick?.(word)
+    if (onPick) onPick(word)
+    else router.push(`/japanese/dictionary?q=${encodeURIComponent(word)}`)
     setOpen(false)
   }
 

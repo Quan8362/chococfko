@@ -71,7 +71,10 @@
     "view_all_aria": "{category} 장소 전체 보기",
     "load_more": "더 보기",
     "no_more": "더 이상 항목이 없습니다",
-    "category_count": "{count}곳"
+    "category_count": "{count}곳",
+    "free_label": "무료",
+    "free_count": "무료 장소 {count}곳",
+    "suitable_weekend": "주말 나들이에 좋음"
   },
   "community": {
     "label": "Chợ Cóc FKO 커뮤니티",
@@ -501,7 +504,23 @@
     "kids_playground": "어린이 놀이터",
     "kids_playground_full": "어린이 놀이터",
     "onsen": "온천",
-    "onsen_full": "온천"
+    "onsen_full": "온천",
+    "landmark_subtitle": "관광·인증샷 명소와 인기 체험",
+    "food_subtitle": "커뮤니티가 추천하는 맛집·술집·밤놀이",
+    "sea_subtitle": "바다 풍경·소풍·주말 휴식 명소",
+    "camp_subtitle": "캠핑·피크닉·야외 휴식",
+    "mountain_subtitle": "하이킹·트레킹·자연 경관",
+    "park_subtitle": "산책·사진·휴식을 위한 녹지",
+    "viet_subtitle": "일본에서 즐기는 정겨운 베트남 음식점",
+    "grocery_subtitle": "베트남 식료품·조미료를 살 수 있는 곳",
+    "izakaya_subtitle": "친구와 가기 좋은 이자카야·야키토리·술집",
+    "japanese_subtitle": "스시·라멘부터 정통까지 맛있는 일식당",
+    "thai_subtitle": "일본에서 즐기는 진한 태국의 맛",
+    "chinese_subtitle": "딤섬부터 훠궈까지 중화요리",
+    "korean_subtitle": "모임에 좋은 한식 바비큐·찌개·요리",
+    "cafe_milk_tea_subtitle": "커피·버블티·여유로운 카페",
+    "kids_playground_subtitle": "아이들이 안전하게 즐기는 놀이 공간",
+    "onsen_subtitle": "온천·센토·퇴근 후 휴식 명소"
   },
   "profile": {
     "title": "프로필",

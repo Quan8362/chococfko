@@ -2,13 +2,20 @@ import { redirect } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import { checkIsAdmin } from '@/lib/supabase/admin'
+import { isInternalMember } from '@/lib/access-server'
+import { validateRequestedScope, type Scope } from '@/lib/access'
 import { getUserIdentity } from '@/lib/userIdentity'
 import { getOrCreateDmConversation, getDmMessages, type DmMessage, type DmReactionsMap } from './dm-actions'
 import ChatClient from './ChatClient'
 
 export async function generateMetadata() {
   const t = await getTranslations('meta')
-  return { title: `${t('community_chat')} · Chợ Cóc FKO` }
+  // Chat is auth-gated, user-specific, and (for internal members) contains
+  // internal content — never index it.
+  return {
+    title: `${t('community_chat')} · Chợ Cóc FKO`,
+    robots: { index: false, follow: false },
+  }
 }
 export const dynamic = 'force-dynamic'
 
@@ -20,6 +27,7 @@ export type Room = {
   is_private: boolean
   created_by: string | null
   avatar_url: string | null
+  community_scope: Scope
 }
 
 export type ChatMessage = {
@@ -110,7 +118,7 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 export default async function CongDongChatPage({
   searchParams,
 }: {
-  searchParams: { room?: string; msg?: string; dm?: string }
+  searchParams: { room?: string; msg?: string; dm?: string; scope?: string }
 }) {
   const supabase = createClient()
   const t = await getTranslations('community_chat')
@@ -118,18 +126,26 @@ export default async function CongDongChatPage({
 
   if (!user) redirect('/login')
 
-  const [isAdmin, profileResult, roomsResult, membershipsResult] = await Promise.all([
+  // Effective access (auth + internal + admin). Memberships + profile don't
+  // depend on the resolved scope, so fetch them in the same wave.
+  const [isAdmin, isInternal, profileResult, membershipsResult] = await Promise.all([
     checkIsAdmin(),
+    isInternalMember(user.id),
     supabase.from('profiles').select('display_name, avatar_url').eq('id', user.id).single(),
-    supabase
-      .from('community_chat_rooms')
-      .select('id, key, name, sort_order, is_private, created_by, avatar_url')
-      .eq('is_active', true)
-      .order('sort_order', { ascending: true }),
-    // Membership only needs user.id (known) → fetch it in the same wave instead
-    // of a second sequential round-trip.
     supabase.from('community_chat_room_members').select('room_id, role').eq('user_id', user.id),
   ])
+
+  // A community user who forges ?scope=fko_internal is silently downgraded to
+  // community (never leaks internal data). RLS independently enforces the same.
+  const access = { userId: user.id, isInternal, isAdmin }
+  const scope: Scope = validateRequestedScope(searchParams.scope, access)
+
+  const roomsResult = await supabase
+    .from('community_chat_rooms')
+    .select('id, key, name, sort_order, is_private, created_by, avatar_url, community_scope')
+    .eq('is_active', true)
+    .eq('community_scope', scope)
+    .order('sort_order', { ascending: true })
 
   const rooms = (roomsResult.data ?? []) as Room[]
   const membershipsData = membershipsResult.data
@@ -278,6 +294,8 @@ export default async function CongDongChatPage({
       displayName={displayName}
       avatarUrl={profileResult.data?.avatar_url ?? null}
       isAdmin={isAdmin}
+      isInternal={isInternal}
+      scope={scope}
       rooms={rooms}
       initialRoomId={initialRoom?.id ?? ''}
       initialRoomKey={initialRoom?.key ?? 'general'}

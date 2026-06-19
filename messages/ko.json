@@ -1260,6 +1260,9 @@
     "chat_tab_deleted": "삭제됨",
     "chat_page_subtitle": "커뮤니티 메시지 보기 및 관리",
     "chat_all_rooms": "모든 채팅방",
+    "chat_scope_all": "전체",
+    "chat_scope_community": "커뮤니티",
+    "chat_scope_internal": "FKO 내부",
     "chat_no_messages": "메시지가 없습니다",
     "chat_report_count": "신고 {count}건",
     "chat_pinned": "고정됨",
@@ -1971,6 +1974,12 @@
     "comment_notif_someone": "누군가"
   },
   "community_chat": {
+    "scope_community": "커뮤니티",
+    "scope_internal": "FKO 내부",
+    "internal_notice": "여기는 FKO 내부 채팅 공간입니다. 내용은 승인된 멤버에게만 표시됩니다.",
+    "create_internal_group_hint": "FKO 내부 그룹은 승인된 내부 멤버에게만 표시됩니다.",
+    "error_internal_required": "승인된 FKO 내부 멤버여야 합니다.",
+    "access_denied": "이 영역을 볼 권한이 없습니다.",
     "voice_record": "음성 녹음",
     "voice_permission_denied": "마이크에 접근할 수 없습니다. 권한을 허용하세요.",
     "voice_error": "음성 메시지 전송에 실패했습니다.",

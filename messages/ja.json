@@ -1260,6 +1260,9 @@
     "chat_tab_deleted": "削除済み",
     "chat_page_subtitle": "コミュニティのメッセージを表示・管理",
     "chat_all_rooms": "すべてのルーム",
+    "chat_scope_all": "すべて",
+    "chat_scope_community": "コミュニティ",
+    "chat_scope_internal": "FKO内部",
     "chat_no_messages": "メッセージがありません",
     "chat_report_count": "{count} 件の報告",
     "chat_pinned": "ピン留め済み",
@@ -1971,6 +1974,12 @@
     "comment_notif_someone": "誰か"
   },
   "community_chat": {
+    "scope_community": "コミュニティ",
+    "scope_internal": "FKO内部",
+    "internal_notice": "ここはFKO内部チャットエリアです。内容は承認されたメンバーのみに表示されます。",
+    "create_internal_group_hint": "FKO内部グループは、承認された内部メンバーにのみ表示されます。",
+    "error_internal_required": "承認されたFKO内部メンバーである必要があります。",
+    "access_denied": "このエリアを表示する権限がありません。",
     "voice_record": "音声を録音",
     "voice_permission_denied": "マイクにアクセスできません。許可してください。",
     "voice_error": "音声メッセージの送信に失敗しました。",

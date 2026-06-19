@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { useTranslations, useLocale } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
@@ -14,7 +15,7 @@ const EmojiPicker = dynamic(() => import('@emoji-mart/react'), { ssr: false })
 import {
   sendMessage, deleteMessage, reportMessage,
   toggleReaction, pinMessage, unpinMessage, saveImageMessage, saveFileMessage, saveAudioMessage, editMessage,
-  createPoll, votePoll,
+  createPoll, votePoll, getChatSignedUrls,
 } from './actions'
 import {
   getOrCreateDmConversation, getDmConversations, getDmMessages, sendDmMessage, searchUsersForDm,
@@ -305,6 +306,8 @@ export default function ChatClient({
   displayName,
   avatarUrl,
   isAdmin,
+  isInternal,
+  scope,
   rooms,
   initialRoomId,
   initialRoomKey: _initialRoomKey,
@@ -320,6 +323,8 @@ export default function ChatClient({
   displayName: string
   avatarUrl: string | null
   isAdmin: boolean
+  isInternal: boolean
+  scope: 'community' | 'fko_internal'
   rooms: Room[]
   initialRoomId: string
   initialRoomKey: string
@@ -333,6 +338,20 @@ export default function ChatClient({
 }) {
   const t = useTranslations('community_chat')
   const locale = useLocale()
+  const router = useRouter()
+
+  // Scope tabs (Cộng đồng | 🔒 Nội bộ FKO) only for active internal members /
+  // admins. Community users never see the internal tab or a one-item tab bar.
+  const showScopeTabs = isInternal || isAdmin
+  const isInternalScope = scope === 'fko_internal'
+
+  // Switch scope via navigation: the server re-fetches scope-correct rooms +
+  // messages and all stale (possibly internal) client state is dropped on
+  // remount — no cross-scope data lingers in the client cache.
+  const switchScope = useCallback((next: 'community' | 'fko_internal') => {
+    if (next === scope) return
+    router.push(`/community/chat?scope=${next}`)
+  }, [scope, router])
 
   // Public rooms have a fixed key → show the localized name; private rooms keep their custom name.
   const roomLabel = (room: Room) =>
@@ -389,6 +408,9 @@ export default function ChatClient({
   const [showCreateRoom, setShowCreateRoom] = useState(false)
   const [createRoomName, setCreateRoomName] = useState('')
   const [createRoomDesc, setCreateRoomDesc] = useState('')
+  // New private groups inherit the scope you're viewing; internal members may
+  // override via the selector (community users never see it).
+  const [createRoomScope, setCreateRoomScope] = useState<'community' | 'fko_internal'>(scope)
   const [createRoomLoading, setCreateRoomLoading] = useState(false)
   const [roomModalError, setRoomModalError] = useState<string | null>(null)
 
@@ -603,18 +625,12 @@ export default function ChatClient({
     }
     if (toFetch.length === 0) return
 
-    const supabase = createClient()
-    Promise.all(
-      toFetch.map(({ path, bucket }) =>
-        supabase.storage.from(bucket).createSignedUrl(path, 86400).then(
-          ({ data }) => ({ path, url: data?.signedUrl ?? null })
-        )
-      )
-    ).then(results => {
+    // Cross-user attachments are minted server-side (owner-only storage RLS).
+    getChatSignedUrls(toFetch.map(({ path, bucket }) => ({ bucket, path }))).then(map => {
       if (!mountedRef.current) return
       const updates: Record<string, string> = {}
-      for (const { path, url } of results) {
-        if (url) updates[path] = url
+      for (const { path } of toFetch) {
+        if (map[path]) updates[path] = map[path]
         else pendingSignedUrlsRef.current.delete(path)
       }
       if (Object.keys(updates).length > 0) setSignedUrls(prev => ({ ...prev, ...updates }))
@@ -960,7 +976,7 @@ export default function ChatClient({
     setShowSearch(false)
     setSearchQuery('')
     setSearchResults([])
-    window.history.replaceState(null, '', `/community/chat?room=${room.key ?? room.id}`)
+    window.history.replaceState(null, '', `/community/chat?scope=${scope}&room=${room.key ?? room.id}`)
     if (!isAdmin) trackEvent('switch_chat_room', { userId })
     await loadRoomMessages(room.id)
     await updateReadState(room.id)
@@ -1278,8 +1294,8 @@ export default function ChatClient({
           const bucket = raw.attachment_bucket as string | null
           const path = raw.attachment_path as string | null
           if (bucket && path) {
-            supabase.storage.from(bucket).createSignedUrl(path, 86400).then(({ data }) => {
-              if (mounted) add({ ...base, attachment_url: data?.signedUrl ?? null })
+            getChatSignedUrls([{ bucket, path }]).then((map) => {
+              if (mounted) add({ ...base, attachment_url: map[path] ?? null })
             })
           } else {
             add(base)
@@ -2248,13 +2264,22 @@ export default function ChatClient({
     const name = createRoomName.trim()
     if (!name) { setRoomModalError(t('error_room_name_empty')); return }
     if (name.length > 50) { setRoomModalError(t('error_room_name_too_long')); return }
+    // Non-internal users are forced to community regardless of any forged value.
+    const targetScope = showScopeTabs ? createRoomScope : 'community'
     setCreateRoomLoading(true); setRoomModalError(null)
-    const result = await createRoom(name, createRoomDesc)
+    const result = await createRoom(name, createRoomDesc, targetScope)
     setCreateRoomLoading(false)
     if (result.error) {
       if (result.error === 'empty_name') setRoomModalError(t('error_room_name_empty'))
       else if (result.error === 'name_too_long') setRoomModalError(t('error_room_name_too_long'))
+      else if (result.error === 'unauthorized') setRoomModalError(t('error_internal_required'))
       else setRoomModalError(t('error_create_room'))
+      return
+    }
+    setShowCreateRoom(false); setCreateRoomName(''); setCreateRoomDesc(''); setRoomModalError(null)
+    // If the new room lives in the other tab, navigate there so it shows up.
+    if (targetScope !== scope) {
+      router.push(`/community/chat?scope=${targetScope}&room=${result.roomId}`)
       return
     }
     const newRoom: Room = {
@@ -2265,10 +2290,10 @@ export default function ChatClient({
       is_private: true,
       created_by: userId,
       avatar_url: null,
+      community_scope: targetScope,
     }
     setLocalRooms(prev => [...prev, newRoom])
     setLocalMembershipMap(prev => ({ ...prev, [result.roomId!]: { role: 'owner' } }))
-    setShowCreateRoom(false); setCreateRoomName(''); setCreateRoomDesc(''); setRoomModalError(null)
     await switchRoom(newRoom)
     setMobileView('chat')
   }
@@ -2500,6 +2525,37 @@ export default function ChatClient({
         </h1>
       </div>
 
+      {/* Scope tabs — only for active internal members / admins. Community users
+          never see the internal tab (a plain layout, no one-item tab bar). */}
+      {showScopeTabs && (
+        <div className="flex gap-2 mb-3 px-4 sm:px-0">
+          <button
+            onClick={() => switchScope('community')}
+            className={`px-3.5 py-1.5 rounded-full text-[12.5px] font-semibold border transition-colors ${
+              !isInternalScope ? 'bg-rose text-white border-rose' : 'bg-paper text-muted border-line hover:text-ink'
+            }`}
+          >
+            {t('scope_community')}
+          </button>
+          <button
+            onClick={() => switchScope('fko_internal')}
+            className={`px-3.5 py-1.5 rounded-full text-[12.5px] font-semibold border transition-colors ${
+              isInternalScope ? 'bg-ink text-cream border-ink' : 'bg-paper text-muted border-line hover:text-ink'
+            }`}
+          >
+            🔒 {t('scope_internal')}
+          </button>
+        </div>
+      )}
+
+      {/* Internal-scope notice + persistent indicator (never color-only). */}
+      {isInternalScope && (
+        <div className="mb-3 mx-4 sm:mx-0 px-4 py-2 bg-ink/5 border border-ink/15 rounded-xl text-[12.5px] text-ink flex items-center gap-2">
+          <span className="font-semibold whitespace-nowrap">🔒 {t('scope_internal')}</span>
+          <span className="text-muted">{t('internal_notice')}</span>
+        </div>
+      )}
+
       {/* Report feedback toast */}
       {reportFeedback && (
         <div className="mb-3 px-4 py-2 bg-emerald-50 border border-emerald-200 rounded-xl text-[13px] text-emerald-700 flex justify-between items-center">
@@ -2653,7 +2709,7 @@ export default function ChatClient({
           {/* Create room button (groups tab) */}
           {sidebarTab === 'groups' && (
           <button
-            onClick={() => setShowCreateRoom(true)}
+            onClick={() => { setCreateRoomScope(scope); setShowCreateRoom(true) }}
             className="flex-none flex items-center gap-2.5 px-4 py-3 text-[12.5px] text-muted/60 hover:text-rose hover:bg-rose/8 transition-all border-t border-line font-medium"
           >
             <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -3984,6 +4040,35 @@ export default function ChatClient({
                 maxLength={200}
                 className="w-full px-3 py-2 text-[16px] sm:text-[13px] border border-line rounded-xl focus:outline-none focus:border-rose/50 bg-white"
               />
+              {/* Scope selector — internal members only. Community users always
+                  create a community group and never see this control. */}
+              {showScopeTabs && (
+                <div>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setCreateRoomScope('community')}
+                      className={`flex-1 py-2 text-[12.5px] font-semibold rounded-xl border transition-colors ${
+                        createRoomScope === 'community' ? 'bg-rose text-white border-rose' : 'bg-white text-muted border-line hover:text-ink'
+                      }`}
+                    >
+                      {t('scope_community')}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setCreateRoomScope('fko_internal')}
+                      className={`flex-1 py-2 text-[12.5px] font-semibold rounded-xl border transition-colors ${
+                        createRoomScope === 'fko_internal' ? 'bg-ink text-cream border-ink' : 'bg-white text-muted border-line hover:text-ink'
+                      }`}
+                    >
+                      🔒 {t('scope_internal')}
+                    </button>
+                  </div>
+                  {createRoomScope === 'fko_internal' && (
+                    <p className="text-[11.5px] text-muted mt-1.5">{t('create_internal_group_hint')}</p>
+                  )}
+                </div>
+              )}
               {roomModalError && <p className="text-[12px] text-red-500">{roomModalError}</p>}
             </div>
             <div className="flex gap-2 mt-4">

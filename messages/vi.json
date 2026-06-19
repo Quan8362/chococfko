@@ -1260,6 +1260,9 @@
     "chat_tab_deleted": "Đã xóa",
     "chat_page_subtitle": "Xem và quản lý tin nhắn cộng đồng",
     "chat_all_rooms": "Tất cả phòng",
+    "chat_scope_all": "Tất cả",
+    "chat_scope_community": "Cộng đồng",
+    "chat_scope_internal": "Nội bộ FKO",
     "chat_no_messages": "Không có tin nhắn nào",
     "chat_report_count": "{count} báo cáo",
     "chat_pinned": "Đã ghim",
@@ -1971,6 +1974,12 @@
     "comment_notif_someone": "Ai đó"
   },
   "community_chat": {
+    "scope_community": "Cộng đồng",
+    "scope_internal": "Nội bộ FKO",
+    "internal_notice": "Đây là khu vực trò chuyện nội bộ FKO. Nội dung chỉ hiển thị cho những thành viên đã được xác nhận.",
+    "create_internal_group_hint": "Nhóm nội bộ FKO chỉ hiển thị cho những thành viên nội bộ đã được xác nhận.",
+    "error_internal_required": "Bạn cần là thành viên nội bộ FKO đã được xác nhận.",
+    "access_denied": "Bạn không có quyền xem khu vực này.",
     "voice_record": "Ghi âm",
     "voice_permission_denied": "Không thể truy cập micro. Hãy cấp quyền.",
     "voice_error": "Gửi tin nhắn thoại thất bại.",

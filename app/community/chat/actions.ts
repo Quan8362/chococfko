@@ -15,6 +15,43 @@ export type UserSuggestion = {
   avatar_url: string | null
 }
 
+// Mint signed URLs for chat attachments (group + DM). The private buckets now
+// allow only owner-direct reads, so cross-user viewing is authorized here:
+// we re-select the attachment row through the caller's RLS context (a row is
+// returned only if the caller may access the parent room/conversation), then
+// mint with the service-role client. A path the caller can't reach yields no URL.
+export async function getChatSignedUrls(
+  items: { bucket: string; path: string }[],
+): Promise<Record<string, string>> {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user || items.length === 0) return {}
+
+  const paths = Array.from(new Set(items.map((i) => i.path))).slice(0, 100)
+
+  const [groupRes, dmRes] = await Promise.all([
+    supabase.from('community_chat_attachments').select('storage_path').in('storage_path', paths),
+    supabase.from('community_dm_messages').select('attachment_path').in('attachment_path', paths),
+  ])
+
+  const allowed = new Set<string>()
+  for (const r of (groupRes.data ?? []) as { storage_path: string }[]) allowed.add(r.storage_path)
+  for (const r of (dmRes.data ?? []) as { attachment_path: string | null }[]) {
+    if (r.attachment_path) allowed.add(r.attachment_path)
+  }
+
+  const admin = createAdminClient()
+  const out: Record<string, string> = {}
+  await Promise.all(
+    items.map(async ({ bucket, path }) => {
+      if (!allowed.has(path) || out[path]) return
+      const { data } = await admin.storage.from(bucket).createSignedUrl(path, 86400)
+      if (data?.signedUrl) out[path] = data.signedUrl
+    }),
+  )
+  return out
+}
+
 // Background/closed-tab push to mentioned users. Best-effort; resolves the room
 // key so the click deep-links to the right room.
 async function sendMentionPush(
@@ -118,6 +155,27 @@ export async function sendMessage(
   const { ids: safeIds, names: resolvedNames } =
     await resolveMentions(supabase, trimmed, user.id, mentionedUserIds, mentionedNames)
 
+  // In an internal room a community-only user must never receive an internal
+  // mention or its notification preview. Drop any mentioned ids that aren't
+  // active internal members before they are stored / notified.
+  let effectiveIds = safeIds
+  let effectiveNames = resolvedNames
+  if (safeIds.length > 0) {
+    const { data: roomRow } = await supabase
+      .from('community_chat_rooms').select('community_scope').eq('id', roomId).maybeSingle()
+    if ((roomRow as { community_scope?: string } | null)?.community_scope === 'fko_internal') {
+      const admin = createAdminClient()
+      const { data: im } = await admin
+        .from('internal_members').select('user_id').in('user_id', safeIds).eq('status', 'active')
+      const allow = new Set((im ?? []).map(r => r.user_id as string))
+      const kept = safeIds
+        .map((id, i) => [id, resolvedNames[i]] as const)
+        .filter(([id]) => allow.has(id))
+      effectiveIds = kept.map(k => k[0])
+      effectiveNames = kept.map(k => k[1])
+    }
+  }
+
   // Snapshot reply context — validates same room + not deleted
   let replyToMessage: string | null = null
   let replyToDisplayName: string | null = null
@@ -149,8 +207,8 @@ export async function sendMessage(
       display_name: displayName,
       avatar_url: profile?.avatar_url ?? null,
       message: trimmed,
-      mentioned_user_ids: safeIds,
-      mentioned_names: resolvedNames,
+      mentioned_user_ids: effectiveIds,
+      mentioned_names: effectiveNames,
       reply_to_id: replyToId ?? null,
       reply_to_message: replyToMessage,
       reply_to_display_name: replyToDisplayName,
@@ -163,8 +221,8 @@ export async function sendMessage(
   const { id: msgId, created_at: createdAt } = newMsg as { id: string; created_at: string }
 
   // Insert mention records via admin client to bypass RLS
-  if (safeIds.length > 0) {
-    const mentionRows = safeIds.map(uid => ({
+  if (effectiveIds.length > 0) {
+    const mentionRows = effectiveIds.map(uid => ({
       message_id: msgId,
       mentioned_user_id: uid,
       mentioned_by: user.id,
@@ -174,7 +232,7 @@ export async function sendMessage(
     const { error: mentionErr } = await admin.from('community_chat_mentions').insert(mentionRows)
     if (mentionErr) console.error('[sendMessage] mention insert failed:', mentionErr.message)
 
-    await sendMentionPush(supabase, safeIds, user.id, displayName, profile?.avatar_url ?? null, trimmed, roomId, msgId)
+    await sendMentionPush(supabase, effectiveIds, user.id, displayName, profile?.avatar_url ?? null, trimmed, roomId, msgId)
   }
 
   return { ok: true, msgId, createdAt }

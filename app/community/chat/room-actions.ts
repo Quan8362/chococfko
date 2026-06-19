@@ -1,7 +1,22 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { createAdminClient } from '@/lib/supabase/admin'
+import { createAdminClient, checkIsAdmin } from '@/lib/supabase/admin'
+import { isInternalMember } from '@/lib/access-server'
+
+// Active internal member ids among a candidate list (service-role lookup).
+async function activeInternalIds(
+  admin: ReturnType<typeof createAdminClient>,
+  ids: string[],
+): Promise<Set<string>> {
+  if (ids.length === 0) return new Set()
+  const { data } = await admin
+    .from('internal_members')
+    .select('user_id')
+    .in('user_id', ids)
+    .eq('status', 'active')
+  return new Set((data ?? []).map((r) => r.user_id as string))
+}
 
 export type RoomMember = {
   user_id: string
@@ -20,6 +35,7 @@ export type UserSearchResult = {
 export async function createRoom(
   name: string,
   description?: string,
+  scope?: string,
 ): Promise<{ ok?: boolean; roomId?: string; error?: string }> {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -28,6 +44,15 @@ export async function createRoom(
   const trimmedName = name.trim()
   if (!trimmedName) return { error: 'empty_name' }
   if (trimmedName.length > 50) return { error: 'name_too_long' }
+
+  // Only an active internal member / admin may create an internal group. A forged
+  // fko_internal from a community user is rejected (never silently created).
+  let communityScope: 'community' | 'fko_internal' = 'community'
+  if (scope === 'fko_internal') {
+    const [internal, admin2] = await Promise.all([isInternalMember(user.id), checkIsAdmin()])
+    if (!internal && !admin2) return { error: 'unauthorized' }
+    communityScope = 'fko_internal'
+  }
 
   const admin = createAdminClient()
 
@@ -43,6 +68,7 @@ export async function createRoom(
       is_active: true,
       created_by: user.id,
       sort_order: 999,
+      community_scope: communityScope,
     })
     .select('id')
     .single()
@@ -128,10 +154,13 @@ export async function searchUsersForRoom(
 
   const admin = createAdminClient()
 
-  const [{ data: existingMembers }, { data: { users: authUsers } }] = await Promise.all([
+  const [{ data: existingMembers }, { data: { users: authUsers } }, { data: roomRow }] = await Promise.all([
     admin.from('community_chat_room_members').select('user_id').eq('room_id', roomId),
     admin.auth.admin.listUsers({ perPage: 1000 }),
+    admin.from('community_chat_rooms').select('community_scope').eq('id', roomId).maybeSingle(),
   ])
+
+  const roomIsInternal = (roomRow as { community_scope?: string } | null)?.community_scope === 'fko_internal'
 
   const existingIds = new Set((existingMembers ?? []).map(m => m.user_id as string))
   const qLower = q.toLowerCase()
@@ -173,12 +202,20 @@ export async function searchUsersForRoom(
   const combined = [...(nameMatches ?? []), ...extraProfiles]
   const seen = new Set<string>()
 
-  const users: UserSearchResult[] = combined
-    .filter(p => {
-      if (existingIds.has(p.id) || seen.has(p.id)) return false
-      seen.add(p.id)
-      return true
-    })
+  let candidates = combined.filter(p => {
+    if (existingIds.has(p.id) || seen.has(p.id)) return false
+    seen.add(p.id)
+    return true
+  })
+
+  // For an internal group, only active internal members are eligible — a
+  // community-only user must never be searchable as a candidate participant.
+  if (roomIsInternal) {
+    const internalIds = await activeInternalIds(admin, candidates.map(p => p.id))
+    candidates = candidates.filter(p => internalIds.has(p.id))
+  }
+
+  const users: UserSearchResult[] = candidates
     .slice(0, 8)
     .map(p => ({
       id: p.id,
@@ -200,15 +237,24 @@ export async function addMembersToRoom(
 
   const admin = createAdminClient()
 
-  const { data: myMembership } = await admin
-    .from('community_chat_room_members')
-    .select('role')
-    .eq('room_id', roomId)
-    .eq('user_id', user.id)
-    .maybeSingle()
+  const [{ data: myMembership }, { data: roomRow }] = await Promise.all([
+    admin
+      .from('community_chat_room_members')
+      .select('role')
+      .eq('room_id', roomId)
+      .eq('user_id', user.id)
+      .maybeSingle(),
+    admin.from('community_chat_rooms').select('community_scope').eq('id', roomId).maybeSingle(),
+  ])
 
   if (!myMembership || !(['owner', 'admin'] as string[]).includes(myMembership.role as string)) {
     return { error: 'unauthorized' }
+  }
+
+  // Internal group: every added participant must be an active internal member.
+  if ((roomRow as { community_scope?: string } | null)?.community_scope === 'fko_internal') {
+    const internalIds = await activeInternalIds(admin, userIds)
+    if (userIds.some(uid => !internalIds.has(uid))) return { error: 'unauthorized' }
   }
 
   const rows = userIds.map(uid => ({

@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { isInternalMember } from '@/lib/access-server'
 import { notifyUsers } from '@/lib/notifications/user'
 
 const DM_MSG_PAGE = 50
@@ -57,18 +58,32 @@ export async function getOrCreateDmConversation(
 
   const [uid1, uid2] = [user.id, otherUserId].sort() as [string, string]
 
-  const { data: existing } = await supabase
+  // Look up the canonical pair with the admin client so we can see (and refuse)
+  // a pre-existing INTERNAL conversation even when RLS would hide it from a
+  // community caller — otherwise the insert below would hit the unique-pair
+  // constraint and leak the conversation's existence via the error.
+  const admin = createAdminClient()
+  const { data: existing } = await admin
     .from('community_dm_conversations')
-    .select('id')
+    .select('id, community_scope')
     .eq('user1_id', uid1)
     .eq('user2_id', uid2)
     .maybeSingle()
 
-  if (existing) return { conversationId: (existing as { id: string }).id }
+  if (existing) {
+    const row = existing as { id: string; community_scope: string }
+    // A community-only user must never reach an existing internal DM, and scope
+    // is never flipped here.
+    if (row.community_scope === 'fko_internal' && !(await isInternalMember(user.id))) {
+      return { error: 'forbidden' }
+    }
+    return { conversationId: row.id }
+  }
 
-  const { data: created, error } = await supabase
+  // New pairs are always community-scoped (existing employee DMs stay internal).
+  const { data: created, error } = await admin
     .from('community_dm_conversations')
-    .insert({ user1_id: uid1, user2_id: uid2 })
+    .insert({ user1_id: uid1, user2_id: uid2, community_scope: 'community' })
     .select('id')
     .single()
 
@@ -149,12 +164,16 @@ export async function getDmMessages(
   if (error) return { error: error.message }
 
   const rows = (data ?? []) as Array<Record<string, unknown>>
+  // Private attachment buckets now allow owner-only direct reads, so mint signed
+  // URLs with the service-role client. The rows above were already RLS-gated to a
+  // conversation this user may access, so this exposes nothing extra.
+  const admin = createAdminClient()
   const messages: DmMessage[] = await Promise.all(rows.map(async (r) => {
     let attachment_url: string | null = null
     const bucket = r.attachment_bucket as string | null
     const path = r.attachment_path as string | null
     if (bucket && path) {
-      const { data: signed } = await supabase.storage.from(bucket).createSignedUrl(path, 86400)
+      const { data: signed } = await admin.storage.from(bucket).createSignedUrl(path, 86400)
       attachment_url = signed?.signedUrl ?? null
     }
     return {

@@ -8,6 +8,10 @@ export default function ChatUnreadBadge() {
   const [count, setCount] = useState(0)
   const [mentionCount, setMentionCount] = useState(0)
   const [userId, setUserId] = useState<string | null>(null)
+  // Only the rooms the viewer may access (RLS-filtered). Internal rooms never
+  // appear here for a community user, so they are never subscribed to and their
+  // activity never reaches this badge.
+  const [roomIds, setRoomIds] = useState<string[]>([])
   const pathname = usePathname()
   const mountedRef = useRef(true)
   // Unique per instance to avoid Supabase channel name collision between desktop nav and mobile menu
@@ -49,6 +53,8 @@ export default function ChatUnreadBadge() {
 
       if (!rooms || !mountedRef.current) return
 
+      setRoomIds(rooms.map((r) => r.id as string))
+
       // Unread messages per room (parallel)
       const msgCounts = await Promise.all(
         rooms.map(async (room) => {
@@ -80,32 +86,38 @@ export default function ChatUnreadBadge() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOnChatPage])
 
-  // Realtime: unread messages
+  // Realtime: unread messages — one room-filtered channel per ACCESSIBLE room.
+  // We never open a broad community_chat_messages feed, so a community user
+  // cannot receive (or even observe the existence of) internal-room messages.
+  const roomKey = roomIds.join(',')
   useEffect(() => {
-    if (!userId || isOnChatPage) return
+    if (!userId || isOnChatPage || roomIds.length === 0) return
 
     const supabase = createClient()
     let mounted = true
 
-    const channel = supabase
-      .channel(`chat-unread-badge-${instanceId.current}`)
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'community_chat_messages' },
-        (payload) => {
-          if (!mounted) return
-          const msg = payload.new as { user_id: string | null; is_deleted: boolean }
-          if (msg.is_deleted || msg.user_id === userId) return
-          setCount((n) => n + 1)
-        }
-      )
-      .subscribe()
+    const channels = roomIds.map((rid) =>
+      supabase
+        .channel(`chat-unread-${instanceId.current}-${rid}`)
+        .on(
+          'postgres_changes',
+          { event: 'INSERT', schema: 'public', table: 'community_chat_messages', filter: `room_id=eq.${rid}` },
+          (payload) => {
+            if (!mounted) return
+            const msg = payload.new as { user_id: string | null; is_deleted: boolean }
+            if (msg.is_deleted || msg.user_id === userId) return
+            setCount((n) => n + 1)
+          }
+        )
+        .subscribe()
+    )
 
     return () => {
       mounted = false
-      supabase.removeChannel(channel)
+      channels.forEach((c) => supabase.removeChannel(c))
     }
-  }, [userId, isOnChatPage])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId, isOnChatPage, roomKey])
 
   // Realtime: unread mentions (only for current user)
   useEffect(() => {

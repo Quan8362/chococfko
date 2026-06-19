@@ -11,8 +11,9 @@ export async function generateMetadata() {
 export const dynamic = 'force-dynamic'
 
 type FilterTab = 'all' | 'reported' | 'deleted'
+type ScopeFilter = 'all' | 'community' | 'fko_internal'
 
-type DbRoom = { id: string; key: string; name: string }
+type DbRoom = { id: string; key: string; name: string; community_scope: 'community' | 'fko_internal' }
 
 type DbMessage = {
   id: string
@@ -39,7 +40,7 @@ function fmtDate(iso: string) {
 export default async function AdminChatPage({
   searchParams,
 }: {
-  searchParams: { tab?: string; room?: string }
+  searchParams: { tab?: string; room?: string; scope?: string }
 }) {
   if (!(await checkIsAdmin())) redirect('/')
 
@@ -48,14 +49,18 @@ export default async function AdminChatPage({
 
   const tab = (['all', 'reported', 'deleted'].includes(searchParams.tab ?? '')
     ? searchParams.tab : 'all') as FilterTab
+  const scopeFilter = (['all', 'community', 'fko_internal'].includes(searchParams.scope ?? '')
+    ? searchParams.scope : 'all') as ScopeFilter
 
-  // Fetch rooms
+  // Fetch rooms (admin sees ALL scopes)
   const { data: rooms } = await admin
     .from('community_chat_rooms')
-    .select('id, key, name')
+    .select('id, key, name, community_scope')
     .order('sort_order', { ascending: true })
 
-  const roomList = (rooms ?? []) as DbRoom[]
+  const allRooms = (rooms ?? []) as DbRoom[]
+  const roomList = scopeFilter === 'all' ? allRooms : allRooms.filter((r) => r.community_scope === scopeFilter)
+  const roomIdsInScope = new Set(roomList.map((r) => r.id))
   const selectedRoomId = searchParams.room || 'all'
 
   // Base query
@@ -67,6 +72,9 @@ export default async function AdminChatPage({
 
   if (selectedRoomId !== 'all') {
     query = query.eq('room_id', selectedRoomId)
+  } else if (scopeFilter !== 'all') {
+    // Restrict to rooms of the selected scope (reports/messages reviewed per scope).
+    query = query.in('room_id', Array.from(roomIdsInScope))
   }
 
   if (tab === 'deleted') {
@@ -132,10 +140,31 @@ export default async function AdminChatPage({
         <p className="text-muted text-[14px] mt-1">{at('chat_page_subtitle')}</p>
       </div>
 
+      {/* Scope filter (admin sees both; identify + review per scope) */}
+      <div className="flex gap-2 flex-wrap mb-3">
+        {([
+          { key: 'all', label: at('chat_scope_all') },
+          { key: 'community', label: at('chat_scope_community') },
+          { key: 'fko_internal', label: `🔒 ${at('chat_scope_internal')}` },
+        ] as { key: ScopeFilter; label: string }[]).map((s) => (
+          <Link
+            key={s.key}
+            href={`/admin/chat?tab=${tab}&scope=${s.key}&room=all`}
+            className={`text-[12.5px] px-3 py-1.5 rounded-full border transition-colors ${
+              scopeFilter === s.key
+                ? 'bg-rose text-white border-rose'
+                : 'border-line text-muted hover:border-ink hover:text-ink'
+            }`}
+          >
+            {s.label}
+          </Link>
+        ))}
+      </div>
+
       {/* Room filter */}
       <div className="flex gap-2 flex-wrap mb-4">
         <Link
-          href={`/admin/chat?tab=${tab}&room=all`}
+          href={`/admin/chat?tab=${tab}&scope=${scopeFilter}&room=all`}
           className={`text-[13px] px-3 py-1.5 rounded-lg border transition-colors ${
             selectedRoomId === 'all'
               ? 'bg-ink text-cream border-ink'
@@ -147,13 +176,14 @@ export default async function AdminChatPage({
         {roomList.map((room) => (
           <Link
             key={room.id}
-            href={`/admin/chat?tab=${tab}&room=${room.id}`}
-            className={`text-[13px] px-3 py-1.5 rounded-lg border transition-colors ${
+            href={`/admin/chat?tab=${tab}&scope=${scopeFilter}&room=${room.id}`}
+            className={`text-[13px] px-3 py-1.5 rounded-lg border transition-colors inline-flex items-center gap-1 ${
               selectedRoomId === room.id
                 ? 'bg-ink text-cream border-ink'
                 : 'border-line text-muted hover:border-ink hover:text-ink'
             }`}
           >
+            {room.community_scope === 'fko_internal' && <span title={at('chat_scope_internal')}>🔒</span>}
             {room.name}
           </Link>
         ))}
@@ -164,7 +194,7 @@ export default async function AdminChatPage({
         {TABS.map((t) => (
           <Link
             key={t.key}
-            href={`/admin/chat?tab=${t.key}&room=${selectedRoomId}`}
+            href={`/admin/chat?tab=${t.key}&scope=${scopeFilter}&room=${selectedRoomId}`}
             className={`px-4 py-2.5 text-[13.5px] font-medium border-b-2 transition-all -mb-px ${
               tab === t.key
                 ? 'border-rose text-rose'
@@ -190,7 +220,9 @@ export default async function AdminChatPage({
         <div className="space-y-2">
           {shown.map((msg) => {
             const reportCount = reportCounts.get(msg.id) ?? 0
-            const roomName = roomList.find((r) => r.id === msg.room_id)?.name ?? '?'
+            const room = allRooms.find((r) => r.id === msg.room_id)
+            const roomName = room?.name ?? '?'
+            const roomIsInternal = room?.community_scope === 'fko_internal'
 
             return (
               <div
@@ -212,7 +244,12 @@ export default async function AdminChatPage({
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap mb-0.5">
                     <span className="text-[13px] font-semibold text-ink">{msg.display_name}</span>
-                    <span className="text-[11px] bg-line/60 text-muted px-1.5 py-0.5 rounded-md">{roomName}</span>
+                    <span className="text-[11px] bg-line/60 text-muted px-1.5 py-0.5 rounded-md">
+                      {roomIsInternal && '🔒 '}{roomName}
+                    </span>
+                    {roomIsInternal && (
+                      <span className="text-[11px] bg-ink/10 text-ink px-1.5 py-0.5 rounded-md font-semibold">{at('chat_scope_internal')}</span>
+                    )}
                     {reportCount > 0 && (
                       <span className="text-[11px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-md font-bold">
                         🚩 {at('chat_report_count', { count: reportCount })}

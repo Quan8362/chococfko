@@ -1260,6 +1260,9 @@
     "chat_tab_deleted": "Deleted",
     "chat_page_subtitle": "View and manage community messages",
     "chat_all_rooms": "All rooms",
+    "chat_scope_all": "All",
+    "chat_scope_community": "Community",
+    "chat_scope_internal": "FKO Internal",
     "chat_no_messages": "No messages",
     "chat_report_count": "{count} reports",
     "chat_pinned": "Pinned",
@@ -1971,6 +1974,12 @@
     "comment_notif_someone": "Someone"
   },
   "community_chat": {
+    "scope_community": "Community",
+    "scope_internal": "FKO Internal",
+    "internal_notice": "This is the FKO internal chat area. Content is visible only to confirmed members.",
+    "create_internal_group_hint": "FKO internal groups are visible only to confirmed internal members.",
+    "error_internal_required": "You must be a confirmed FKO internal member.",
+    "access_denied": "You don't have permission to view this area.",
     "voice_record": "Record voice",
     "voice_permission_denied": "Can't access microphone. Please grant permission.",
     "voice_error": "Failed to send voice message.",

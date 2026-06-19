@@ -1260,6 +1260,9 @@
     "chat_tab_deleted": "已删除",
     "chat_page_subtitle": "查看和管理社区消息",
     "chat_all_rooms": "所有房间",
+    "chat_scope_all": "全部",
+    "chat_scope_community": "社区",
+    "chat_scope_internal": "FKO 内部",
     "chat_no_messages": "没有消息",
     "chat_report_count": "{count} 条举报",
     "chat_pinned": "已置顶",
@@ -1971,6 +1974,12 @@
     "comment_notif_someone": "有人"
   },
   "community_chat": {
+    "scope_community": "社区",
+    "scope_internal": "FKO 内部",
+    "internal_notice": "这是 FKO 内部聊天区。内容仅对已确认的成员可见。",
+    "create_internal_group_hint": "FKO 内部群组仅对已确认的内部成员可见。",
+    "error_internal_required": "您必须是已确认的 FKO 内部成员。",
+    "access_denied": "您无权查看此区域。",
     "voice_record": "录音",
     "voice_permission_denied": "无法访问麦克风，请授予权限。",
     "voice_error": "语音消息发送失败。",

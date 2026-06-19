@@ -40,7 +40,8 @@ export function sanitizeHtml(dirty: string): string {
       img: ['src', 'alt', 'title', 'width', 'height'],
       // text-align / color / background-color are set via inline style by TipTap.
       p: ['style'], h1: ['style'], h2: ['style'], h3: ['style'], h4: ['style'],
-      span: ['style'],
+      // class on span enables the icon-heading badge (.article-icon).
+      span: ['style', 'class'],
       mark: ['style', 'data-color'],
       li: ['style'],
       // Callout block: <div data-callout> wrapper + head/body, plus the variant

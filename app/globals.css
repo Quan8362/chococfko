@@ -180,6 +180,30 @@ body::before {
 .tiptap .callout-transit, .rich-content .callout-transit { background: #eef4fd; border-left-color: #4a83cf; }
 .tiptap .callout-highlight, .rich-content .callout-highlight { background: #fdf0f6; border-left-color: var(--rose); }
 
+/* Icon section headings (📍 Địa điểm, 🌙 Không khí về đêm, …) */
+.tiptap .article-icon-heading, .rich-content .article-icon-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.55em;
+  margin: 1.5em 0 0.7em;
+  padding: 0.5em 0.85em;
+  background: var(--cream);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--rose);
+  border-radius: 12px;
+}
+.tiptap .article-icon-heading .article-icon, .rich-content .article-icon-heading .article-icon {
+  font-size: 1.2em;
+  line-height: 1;
+  flex: none;
+}
+.tiptap .article-icon-heading strong, .rich-content .article-icon-heading strong {
+  font-family: var(--font-serif-display);
+  font-weight: 700;
+  font-size: 1.05em;
+  color: var(--ink);
+}
+
 /* Tables — useful for address / hours / price grids */
 .tiptap table, .rich-content table {
   border-collapse: collapse;

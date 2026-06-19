@@ -1,6 +1,41 @@
 import { Node, mergeAttributes } from '@tiptap/core'
 import Image from '@tiptap/extension-image'
 
+// ── Icon section heading ──────────────────────────────────────────────────────
+// A styled one-line heading (icon badge + editable bold label) the editor can
+// insert from the icon menu, e.g. "📍 Địa điểm" / "🌙 Không khí về đêm". The icon
+// is a non-editable attribute (round-trips via data-icon); the label is normal
+// editable inline text inside <strong> so the writer can rename it.
+export const IconHeading = Node.create({
+  name: 'iconHeading',
+  group: 'block',
+  content: 'inline*',
+  defining: true,
+
+  addAttributes() {
+    return {
+      icon: {
+        default: '📍',
+        parseHTML: (el) => (el as HTMLElement).getAttribute('data-icon') || '',
+        renderHTML: (attrs) => ({ 'data-icon': attrs.icon }),
+      },
+    }
+  },
+
+  parseHTML() {
+    return [{ tag: 'div.article-icon-heading', contentElement: 'strong' }]
+  },
+
+  renderHTML({ node, HTMLAttributes }) {
+    return [
+      'div',
+      mergeAttributes(HTMLAttributes, { class: 'article-icon-heading' }),
+      ['span', { class: 'article-icon', contenteditable: 'false' }, node.attrs.icon ?? ''],
+      ['strong', { class: 'article-heading-text' }, 0],
+    ]
+  },
+})
+
 // ── Callout block ─────────────────────────────────────────────────────────────
 // A coloured box (💡 Tip / ⚠️ Warning / 💰 Cost / 🚃 Access / ⭐ Highlight) with a
 // non-editable header (icon + localized title, stored on the node so it survives

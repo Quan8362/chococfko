@@ -12,8 +12,9 @@ import { useCallback, useRef, useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { compressImage } from '@/lib/imageCompress'
-import { Callout, ImageWithCaption } from '@/lib/editor/extensions'
+import { Callout, ImageWithCaption, IconHeading } from '@/lib/editor/extensions'
 import { TEXT_COLORS, HIGHLIGHT_COLORS, CALLOUT_VARIANTS, colorMatches } from '@/lib/editor/palette'
+import IconSectionMenu from '@/components/editor/IconSectionMenu'
 
 const DRAFT_KEY = 'ccc-post-draft'
 
@@ -366,6 +367,32 @@ function Toolbar({
 
       <Sep />
 
+      {/* Icon section headings (📍 Địa điểm, 🌙 Không khí về đêm, …) */}
+      <Dropdown
+        title={t('isec_button_title')}
+        button={
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h10M7 12h6M7 17h10" />
+            <circle cx="18.5" cy="12" r="1.4" fill="currentColor" stroke="none" />
+          </svg>
+        }
+      >
+        {(close) => (
+          <IconSectionMenu
+            onPick={(icon, label) => {
+              e.chain().focus().insertContent({
+                type: 'iconHeading',
+                attrs: { icon },
+                content: [{ type: 'text', text: label }],
+              }).run()
+              close()
+            }}
+          />
+        )}
+      </Dropdown>
+
+      <Sep />
+
       {/* Undo / Redo */}
       <div className="flex items-center gap-0.5 flex-none">
         <Btn onClick={() => e.chain().focus().undo().run()} disabled={!e.can().undo()} title={t('editor_undo')}>
@@ -459,6 +486,7 @@ export default function RichTextEditor({
       TableHeader,
       TableCell,
       Callout,
+      IconHeading,
     ],
     // Always start empty for new posts; draft is offered via banner below
     content: defaultValue || '<p></p>',

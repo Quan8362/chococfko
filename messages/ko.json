@@ -1165,6 +1165,7 @@
     "col_provider": "로그인 방법",
     "col_role": "역할",
     "col_last_signin": "최근 로그인",
+    "col_last_activity": "최근 활동",
     "last_signin_label": "마지막 로그인:",
     "last_signin_none": "없음",
     "role_user": "사용자",

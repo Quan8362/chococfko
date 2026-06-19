@@ -12,6 +12,7 @@ export type UserRow = {
   provider: string
   createdAt: string
   lastSignIn: string | null
+  lastActivity: string | null
   isAdmin: boolean
   postCount: number
   placeCount: number
@@ -33,8 +34,16 @@ function fmt(iso: string | null) {
   })
 }
 
+// Same Tokyo calendar day as now? Used to highlight users active today.
+function isTodayTokyo(iso: string | null): boolean {
+  if (!iso) return false
+  const day = (d: Date) =>
+    new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Tokyo', year: 'numeric', month: '2-digit', day: '2-digit' }).format(d)
+  return day(new Date(iso)) === day(new Date())
+}
+
 const PAGE_SIZE = 20
-const GRID = 'grid-cols-1 sm:grid-cols-[2fr_1fr_1.4fr_1.4fr_70px_70px_90px]'
+const GRID = 'grid-cols-1 sm:grid-cols-[1.8fr_0.9fr_1.2fr_1.3fr_1.3fr_60px_60px_84px]'
 
 type ProviderFilter = 'all' | 'email' | 'google' | 'facebook'
 type RoleFilter     = 'all' | 'user' | 'admin'
@@ -104,6 +113,7 @@ export default function AdminUsersClient({ users }: { users: UserRow[] }) {
         <span>{t('col_provider')}</span>
         <span>{t('col_registered_date')}</span>
         <span>{t('col_last_signin')}</span>
+        <span>{t('col_last_activity')}</span>
         <span className="text-center">{t('col_posts')}</span>
         <span className="text-center">{t('col_places')}</span>
         <span className="text-center">{t('col_role')}</span>
@@ -154,6 +164,18 @@ export default function AdminUsersClient({ users }: { users: UserRow[] }) {
                   ? fmt(u.lastSignIn)
                   : <span className="text-muted/50 italic">{t('last_signin_none')}</span>
                 }
+              </div>
+
+              {/* Last activity (real visits via analytics; green = active today) */}
+              <div className="text-[11.5px] leading-snug">
+                {u.lastActivity ? (
+                  <span className={isTodayTokyo(u.lastActivity) ? 'inline-flex items-center gap-1 text-emerald-600 font-semibold' : 'text-muted'}>
+                    {isTodayTokyo(u.lastActivity) && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />}
+                    {fmt(u.lastActivity)}
+                  </span>
+                ) : (
+                  <span className="text-muted/50 italic">{t('last_signin_none')}</span>
+                )}
               </div>
 
               {/* Posts */}

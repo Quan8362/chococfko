@@ -1165,6 +1165,7 @@
     "col_provider": "ログイン方法",
     "col_role": "役割",
     "col_last_signin": "最終ログイン",
+    "col_last_activity": "最終アクティビティ",
     "last_signin_label": "最終ログイン:",
     "last_signin_none": "なし",
     "role_user": "ユーザー",

@@ -63,6 +63,27 @@ export default async function AdminUsers() {
     if (row.user_id) placeCountMap.set(row.user_id, (placeCountMap.get(row.user_id) ?? 0) + 1)
   }
 
+  // Last activity per user: the latest analytics event carrying their user_id.
+  // last_sign_in_at only updates on an explicit re-login, so a user browsing with
+  // a persistent session looks "inactive" there — this reflects real visits.
+  // Page newest-first, keeping the first (latest) hit per user; stop once every
+  // user is covered or after a bounded scan.
+  const lastActivityMap = new Map<string, string>()
+  const ACT_PAGE = 1000
+  for (let from = 0; from < 20000; from += ACT_PAGE) {
+    const { data } = await admin
+      .from('analytics_events')
+      .select('user_id, created_at')
+      .not('user_id', 'is', null)
+      .order('created_at', { ascending: false })
+      .range(from, from + ACT_PAGE - 1)
+    if (!data || data.length === 0) break
+    for (const row of data as { user_id: string; created_at: string }[]) {
+      if (!lastActivityMap.has(row.user_id)) lastActivityMap.set(row.user_id, row.created_at)
+    }
+    if (data.length < ACT_PAGE || lastActivityMap.size >= authUsers.length) break
+  }
+
   const users: UserRow[] = authUsers.map((u) => {
     const profile = profileMap.get(u.id)
     const provider = u.app_metadata?.provider ?? 'email'
@@ -74,6 +95,7 @@ export default async function AdminUsers() {
       provider,
       createdAt: u.created_at,
       lastSignIn: u.last_sign_in_at,
+      lastActivity: lastActivityMap.get(u.id) ?? null,
       isAdmin: adminEmails.includes(u.email),
       postCount: postCountMap.get(u.id) ?? 0,
       placeCount: placeCountMap.get(u.id) ?? 0,

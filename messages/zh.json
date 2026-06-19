@@ -1165,6 +1165,7 @@
     "col_provider": "登录方式",
     "col_role": "角色",
     "col_last_signin": "最近登录",
+    "col_last_activity": "最近活动",
     "last_signin_label": "最后登录:",
     "last_signin_none": "无",
     "role_user": "用户",

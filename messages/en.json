@@ -1165,6 +1165,7 @@
     "col_provider": "Login Method",
     "col_role": "Role",
     "col_last_signin": "Last Login",
+    "col_last_activity": "Last activity",
     "last_signin_label": "Last sign-in:",
     "last_signin_none": "Never",
     "role_user": "User",

@@ -1165,6 +1165,7 @@
     "col_provider": "Phương thức đăng nhập",
     "col_role": "Vai trò",
     "col_last_signin": "Lần đăng nhập gần nhất",
+    "col_last_activity": "Hoạt động gần nhất",
     "last_signin_label": "Đăng nhập:",
     "last_signin_none": "Chưa có",
     "role_user": "Người dùng",

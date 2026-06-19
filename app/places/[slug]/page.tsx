@@ -281,13 +281,13 @@ export default async function PlaceDetail({ params }: { params: { slug: string }
               </li>
               {place.prefecture && (
                 <li className="flex items-start gap-2.5">
-                  <span className="text-[15px] leading-none mt-px">🗾</span>
+                  <span className="text-[15px] leading-none mt-px">🏙️</span>
                   <span>{t("prefecture")} <b className="text-ink">{prefectureName(place.prefecture)}{place.city ? ` · ${place.city}` : ""}</b></span>
                 </li>
               )}
               {place.address && (
                 <li className="flex items-start gap-2.5">
-                  <span className="text-[15px] leading-none mt-px">🏠</span>
+                  <span className="text-[15px] leading-none mt-px">🧭</span>
                   <span>{t("address")} <b className="text-ink">{place.address}</b></span>
                 </li>
               )}

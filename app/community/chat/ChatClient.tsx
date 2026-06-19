@@ -508,6 +508,10 @@ export default function ChatClient({
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const roomAvatarInputRef = useRef<HTMLInputElement>(null)
   const activeDmConvIdRef = useRef<string | null>(null)
+  // Guard so the DM list loads once per mount (a scope switch remounts the
+  // component, so this naturally reloads for the new scope). Without it an empty
+  // result re-triggers the load effect forever (infinite spinner).
+  const dmConvsLoadedRef = useRef(false)
   const dmScrollRef = useRef<HTMLDivElement>(null)
   const profileCacheRef = useRef<Record<string, string>>({})
   const reactionTooltipTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -1226,17 +1230,19 @@ export default function ChatClient({
     return () => { mounted = false; reactionChannelRef.current = null; supabase.removeChannel(channel) }
   }, [currentRoomId]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ── DM: load conversation list when tab switches to DMs ──────────────────
+  // ── DM: load conversation list once when the DM tab is first opened ──────
   useEffect(() => {
-    if (sidebarTab !== 'dms') return
-    if (dmConversations.length > 0 || dmConvsLoading) return
+    if (sidebarTab !== 'dms' || dmConvsLoadedRef.current) return
+    dmConvsLoadedRef.current = true
     setDmConvsLoading(true)
-    getDmConversations().then(({ conversations }) => {
-      if (!mountedRef.current) return
-      setDmConversations(conversations ?? [])
-      setDmConvsLoading(false)
-    })
-  }, [sidebarTab, dmConversations.length, dmConvsLoading])
+    getDmConversations(scope)
+      .then(({ conversations }) => {
+        if (!mountedRef.current) return
+        setDmConversations(conversations ?? [])
+      })
+      .catch(() => { /* surfaced as empty; spinner still clears below */ })
+      .finally(() => { if (mountedRef.current) setDmConvsLoading(false) })
+  }, [sidebarTab, scope])
 
   // ── DM: global Realtime subscription (all DM messages this user can see) ──
   useEffect(() => {
@@ -1385,13 +1391,16 @@ export default function ChatClient({
 
   // ── DM handlers ────────────────────────────────────────────────────────────
   const loadDmConversationsList = useCallback(async () => {
-    if (dmConvsLoading) return
+    dmConvsLoadedRef.current = true
     setDmConvsLoading(true)
-    const { conversations } = await getDmConversations()
-    if (!mountedRef.current) return
-    setDmConversations(conversations ?? [])
-    setDmConvsLoading(false)
-  }, [dmConvsLoading])
+    try {
+      const { conversations } = await getDmConversations(scope)
+      if (!mountedRef.current) return
+      setDmConversations(conversations ?? [])
+    } finally {
+      if (mountedRef.current) setDmConvsLoading(false)
+    }
+  }, [scope])
 
   const openDm = useCallback(async (otherUser: { id: string; display_name: string; avatar_url: string | null }) => {
     setDmOpeningUserId(otherUser.id)

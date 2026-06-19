@@ -91,7 +91,7 @@ export async function getOrCreateDmConversation(
   return { conversationId: (created as { id: string }).id }
 }
 
-export async function getDmConversations(): Promise<{
+export async function getDmConversations(scope?: string): Promise<{
   conversations?: DmConversation[]
   error?: string
 }> {
@@ -99,10 +99,16 @@ export async function getDmConversations(): Promise<{
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'unauthenticated' }
 
-  const { data, error } = await supabase
+  let q = supabase
     .from('community_dm_conversations')
-    .select('id, user1_id, user2_id, last_message_at, last_message_preview')
+    .select('id, user1_id, user2_id, last_message_at, last_message_preview, community_scope')
     .or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`)
+  // Keep each tab's DM list within its scope (RLS still gates access). A forged
+  // value other than the exact internal token resolves to community.
+  if (scope === 'fko_internal' || scope === 'community') {
+    q = q.eq('community_scope', scope)
+  }
+  const { data, error } = await q
     .order('last_message_at', { ascending: false, nullsFirst: false })
     .limit(30)
 

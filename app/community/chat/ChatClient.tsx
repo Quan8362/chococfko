@@ -2536,10 +2536,11 @@ export default function ChatClient({
         </h1>
       </div>
 
-      {/* Scope tabs — only for active internal members / admins. Community users
-          never see the internal tab (a plain layout, no one-item tab bar). */}
+      {/* Scope tabs (desktop) — only for active internal members / admins.
+          Community users never see the internal tab. On mobile the full-height
+          chat container covers this area, so a mobile copy lives in the sidebar. */}
       {showScopeTabs && (
-        <div className="flex gap-2 mb-3 px-4 sm:px-0">
+        <div className="hidden md:flex gap-2 mb-3">
           <button
             onClick={() => switchScope('community')}
             className={`px-3.5 py-1.5 rounded-full text-[12.5px] font-semibold border transition-colors ${
@@ -2559,9 +2560,10 @@ export default function ChatClient({
         </div>
       )}
 
-      {/* Internal-scope notice + persistent indicator (never color-only). */}
+      {/* Internal-scope notice + persistent indicator (never color-only).
+          Desktop only — mobile shows the 🔒 indicator in the sidebar selector. */}
       {isInternalScope && (
-        <div className="mb-3 mx-4 sm:mx-0 px-4 py-2 bg-ink/5 border border-ink/15 rounded-xl text-[12.5px] text-ink flex items-center gap-2">
+        <div className="hidden md:flex mb-3 px-4 py-2 bg-ink/5 border border-ink/15 rounded-xl text-[12.5px] text-ink items-center gap-2">
           <span className="font-semibold whitespace-nowrap">🔒 {t('scope_internal')}</span>
           <span className="text-muted">{t('internal_notice')}</span>
         </div>
@@ -2585,6 +2587,29 @@ export default function ChatClient({
           className={`w-56 flex-none border-r border-line flex-col bg-cream/20
             ${mobileView === 'rooms' ? 'flex' : 'hidden'} md:flex`}
         >
+          {/* Mobile scope selector (desktop shows the tabs above the container).
+              The active 🔒 chip is the persistent internal indicator on mobile. */}
+          {showScopeTabs && (
+            <div className="md:hidden flex gap-1.5 p-2 border-b border-line">
+              <button
+                onClick={() => switchScope('community')}
+                className={`flex-1 py-1.5 rounded-lg text-[12px] font-semibold border transition-colors ${
+                  !isInternalScope ? 'bg-rose text-white border-rose' : 'bg-paper text-muted border-line'
+                }`}
+              >
+                {t('scope_community')}
+              </button>
+              <button
+                onClick={() => switchScope('fko_internal')}
+                className={`flex-1 py-1.5 rounded-lg text-[12px] font-semibold border transition-colors ${
+                  isInternalScope ? 'bg-ink text-cream border-ink' : 'bg-paper text-muted border-line'
+                }`}
+              >
+                🔒 {t('scope_internal')}
+              </button>
+            </div>
+          )}
+
           {/* Sidebar tabs */}
           <div className="flex-none border-b border-line flex">
             <button

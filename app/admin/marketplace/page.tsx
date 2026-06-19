@@ -19,9 +19,10 @@ type Tab = 'pending' | 'approved' | 'rejected' | 'reported' | 'auction'
 export default async function AdminMarketplacePage({ searchParams }: { searchParams: { tab?: string } }) {
   if (!(await checkIsAdmin())) redirect('/')
 
-  const [t, tm, locale] = await Promise.all([
+  const [t, tm, tAccess, locale] = await Promise.all([
     getTranslations('marketplace_admin'),
     getTranslations('marketplace'),
+    getTranslations('access'),
     getLocale(),
   ])
   const admin = createAdminClient()
@@ -94,6 +95,7 @@ export default async function AdminMarketplacePage({ searchParams }: { searchPar
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap mb-1">
                     <span className={`text-[10.5px] font-bold px-2 py-0.5 rounded-full ${STATUS_STYLE[l.status]}`}>{tm(`mod_${l.status}` as Parameters<typeof tm>[0])}</span>
+                    <span className={`text-[10.5px] font-bold px-2 py-0.5 rounded-full ${l.community_scope === 'fko_internal' ? 'bg-rose/10 text-rose' : 'bg-teal-soft text-teal'}`}>{l.community_scope === 'fko_internal' ? tAccess('badge_internal') : tAccess('badge_community')}</span>
                     {reports > 0 && <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-600">🚩 {reports}</span>}
                     <span className="text-[11.5px] text-muted">{relativeListingDate(l.created_at, locale)}</span>
                   </div>

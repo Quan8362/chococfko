@@ -2,6 +2,8 @@
 // NO server-only imports here so this module is safe to import from client
 // components. Data-fetching helpers live in `@/lib/marketplace-data`.
 
+import type { Scope } from '@/lib/access'
+
 export type ListingType = 'sell' | 'free' | 'auction'
 export type ListingCondition = 'new' | 'used'
 export type ListingStatus = 'pending' | 'approved' | 'rejected'
@@ -12,6 +14,7 @@ export interface Listing {
   user_id: string
   title: string
   description: string | null
+  community_scope: Scope
   listing_type: ListingType
   price: number | null
   is_negotiable: boolean
@@ -113,4 +116,5 @@ export type ListingFilters = {
   type?: ListingType
   condition?: ListingCondition
   sort?: SortKey
+  scope?: Scope
 }

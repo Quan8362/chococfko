@@ -8,6 +8,8 @@ import { stripHtml } from '@/lib/sanitize'
 import { sanitizeHtml } from '@/lib/sanitizeHtml'
 import { createAdminNotification } from '@/lib/admin/notifications'
 import { notifyNewComment } from '@/lib/notifications/comments'
+import { getCurrentUserAccess } from '@/lib/access-server'
+import { resolvePostScope } from '@/lib/access'
 
 export type ConfessionResult = { ok?: true; error?: string } | null
 
@@ -35,6 +37,11 @@ export async function submitConfession(
   // Sanitize before storing
   const content = sanitizeHtml(rawContent)
 
+  // Resolve the requested scope against the viewer's access. A community user
+  // who forges 'fko_internal' is forced back to community; RLS double-checks.
+  const access = await getCurrentUserAccess()
+  const community_scope = resolvePostScope(formData.get('scope') as string | null, access)
+
   const { data: confessionData, error } = await supabase
     .from('confessions')
     .insert({
@@ -43,6 +50,7 @@ export async function submitConfession(
       author_id: user.id,
       is_anonymous: isAnonymous,
       status: 'pending',
+      community_scope,
     })
     .select('id')
     .single()

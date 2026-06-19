@@ -2,6 +2,9 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getTranslations, getLocale } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
+import { getCurrentUserAccess } from '@/lib/access-server'
+import { canAccessScope } from '@/lib/access'
+import AccessDenied from '@/components/access/AccessDenied'
 import { getUserIdentity } from '@/lib/userIdentity'
 import { avatarSrc } from '@/lib/avatar'
 import AuthorLink from '@/components/AuthorLink'
@@ -23,6 +26,10 @@ export const dynamic = 'force-dynamic'
 export async function generateMetadata({ params }: { params: { id: string } }) {
   const l = await getListingById(params.id)
   if (!l) return { title: 'Chợ đồ cũ · Chợ Cóc FKO' }
+  // Never index internal listings; never leak the internal title into metadata.
+  if (l.community_scope === 'fko_internal') {
+    return { title: 'Chợ đồ cũ · Chợ Cóc FKO', robots: { index: false, follow: false } }
+  }
   const tagNames = isUuid(params.id)
     ? (await getTagsForContent(createClient(), 'listing', params.id)).map((tag) => tag.name)
     : []
@@ -36,16 +43,30 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
   if (!isUuid(params.id)) notFound()
 
   const supabase = createClient()
-  const [t, locale, listing, authRes] = await Promise.all([
+  const [t, tAccess, locale, listing, authRes, access] = await Promise.all([
     getTranslations('marketplace'),
+    getTranslations('access'),
     getLocale(),
     getListingById(params.id),
     supabase.auth.getUser(),
+    getCurrentUserAccess(),
   ])
 
   if (!listing) notFound()
   const viewer = authRes.data.user
   const isOwner = viewer?.id === listing.user_id
+
+  // Authorization wall for internal listings — render NO listing data before this.
+  if (listing.community_scope === 'fko_internal' && !isOwner && !canAccessScope(access, 'fko_internal')) {
+    return (
+      <AccessDenied
+        message={tAccess('denied_message')}
+        backHref="/marketplace"
+        backLabel={tAccess('back_to_marketplace')}
+      />
+    )
+  }
+
   if (listing.status !== 'approved' && !isOwner) notFound()
 
   // Kick off the side-effect writes concurrently (not on the critical path) so
@@ -58,7 +79,7 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
   const [seller, comments, related, rating, initialBids, tags] = await Promise.all([
     getUserIdentity(listing.user_id),
     getListingComments(listing.id),
-    getRelatedListings(listing.category, listing.id),
+    getRelatedListings(listing.category, listing.id, listing.community_scope),
     getListingRating(listing.id, viewer?.id ?? null),
     listing.listing_type === 'auction' ? getListingBids(listing.id) : Promise.resolve([]),
     getTagsForContent(supabase, 'listing', listing.id),

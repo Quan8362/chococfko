@@ -9,6 +9,8 @@ import { stripHtml, sanitizeUserName, htmlHasContent } from '@/lib/sanitize'
 import { sanitizeHtml } from '@/lib/sanitizeHtml'
 import { setContentTags } from '@/lib/tags'
 import { getLocale } from 'next-intl/server'
+import { getCurrentUserAccess } from '@/lib/access-server'
+import { resolvePostScope } from '@/lib/access'
 import { CATEGORIES, CONDITION_PRESETS, isUuid, nextMinBid, type Listing } from '@/lib/marketplace'
 
 export type ListingResult = { ok?: true; id?: string; error?: string } | null
@@ -112,9 +114,13 @@ export async function submitListing(prevState: ListingResult, formData: FormData
   const err = validateListing(d)
   if (err) return { error: err }
 
+  // Resolve scope against the viewer's access; community is forced for non-members.
+  const access = await getCurrentUserAccess()
+  const community_scope = resolvePostScope(formData.get('scope') as string | null, access)
+
   const { data: inserted, error } = await supabase
     .from('marketplace_listings')
-    .insert({ user_id: user.id, ...listingDbRow(d), status: 'pending' })
+    .insert({ user_id: user.id, ...listingDbRow(d), community_scope, status: 'pending' })
     .select('id')
     .single()
 

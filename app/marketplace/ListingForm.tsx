@@ -10,6 +10,8 @@ import { compressImage } from '@/lib/compressImage'
 import { CATEGORIES, CONDITION_PRESETS, type Listing } from '@/lib/marketplace'
 import { looksLikeHtml, plainTextToHtml } from '@/lib/sanitize'
 import TagInput from '@/components/tags/TagInput'
+import ScopeSelector from '@/components/access/ScopeSelector'
+import type { Scope } from '@/lib/access'
 import { submitListing, updateListing, type ListingResult } from './actions'
 
 // TipTap must not render on the server (hydration mismatch) — load client-only.
@@ -42,15 +44,21 @@ export default function ListingForm({
   listing,
   popularTags = [],
   defaultTags = [],
+  canPostInternal = false,
+  initialScope = 'community',
 }: {
   userId: string
   listing?: Listing
   popularTags?: string[]
   defaultTags?: string[]
+  canPostInternal?: boolean
+  initialScope?: Scope
 }) {
   const t = useTranslations('marketplace')
+  const tAccess = useTranslations('access')
   const router = useRouter()
   const isEdit = !!listing
+  const [scope, setScope] = useState<Scope>(listing?.community_scope ?? initialScope)
   const action = isEdit ? updateListing : submitListing
   const [state, formAction] = useFormState(action, INIT)
 
@@ -174,6 +182,19 @@ export default function ListingForm({
     <form action={formAction} className="space-y-7">
       {isEdit && <input type="hidden" name="id" value={listing!.id} />}
       <input type="hidden" name="images" value={JSON.stringify(images)} />
+      <input type="hidden" name="scope" value={scope} />
+
+      {/* Scope selector — internal members only, when creating a new listing */}
+      {canPostInternal && !isEdit && (
+        <ScopeSelector
+          value={scope}
+          onChange={setScope}
+          communityLabel={tAccess('marketplace_scope_community')}
+          internalLabel={tAccess('marketplace_scope_internal')}
+          hint={tAccess('scope_hint')}
+          legend={tAccess('scope_legend')}
+        />
+      )}
       <input type="hidden" name="listing_type" value={listingType} />
       <input type="hidden" name="condition" value={condition} />
       <input type="hidden" name="condition_percent" value={condition === 'new' ? 100 : percent} />

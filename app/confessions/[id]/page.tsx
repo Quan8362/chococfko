@@ -3,8 +3,10 @@ import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { proxyStorageImages } from '@/lib/imageProxy'
 import { getConfessionById, getConfessionComments, relativeConfessionDate, isUuid } from '@/lib/confessions'
-import { checkIsAdmin } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
+import { getCurrentUserAccess } from '@/lib/access-server'
+import { canAccessScope } from '@/lib/access'
+import AccessDenied from '@/components/access/AccessDenied'
 import AnonAvatar from '@/components/AnonAvatar'
 import AuthorLink from '@/components/AuthorLink'
 import { generateAnonId } from '@/lib/anon'
@@ -14,6 +16,10 @@ export const dynamic = 'force-dynamic'
 
 export async function generateMetadata({ params }: { params: { id: string } }) {
   const c = await getConfessionById(params.id)
+  // Never index internal confessions; never leak the internal title into metadata.
+  if (c?.community_scope === 'fko_internal') {
+    return { title: 'FKO Confessions · Chợ Cóc FKO', robots: { index: false, follow: false } }
+  }
   return { title: c ? `${c.title} · FKO Confessions` : 'FKO Confessions · Chợ Cóc FKO' }
 }
 
@@ -35,15 +41,31 @@ async function getCurrentUser() {
 export default async function ConfessionDetailPage({ params }: { params: { id: string } }) {
   if (!isUuid(params.id)) notFound()
 
-  const [confession, isAdmin, comments, currentUser, t] = await Promise.all([
+  const [confession, access, t, tAccess] = await Promise.all([
     getConfessionById(params.id),
-    checkIsAdmin(),
-    getConfessionComments(params.id),
-    getCurrentUser(),
+    getCurrentUserAccess(),
     getTranslations('confessions'),
+    getTranslations('access'),
   ])
 
   if (!confession) notFound()
+
+  // Authorization wall — render NO internal metadata before this check.
+  if (confession.community_scope === 'fko_internal' && !canAccessScope(access, 'fko_internal')) {
+    return (
+      <AccessDenied
+        message={tAccess('denied_message')}
+        backHref="/confessions"
+        backLabel={tAccess('back_to_confessions')}
+      />
+    )
+  }
+
+  const isAdmin = access.isAdmin
+  const [comments, currentUser] = await Promise.all([
+    getConfessionComments(params.id),
+    getCurrentUser(),
+  ])
 
   const displayName = confession.is_anonymous
     ? generateAnonId(confession.id)

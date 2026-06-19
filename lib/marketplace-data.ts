@@ -13,6 +13,7 @@ export async function getListings(filters: ListingFilters = {}): Promise<Listing
       .from('marketplace_listings')
       .select('*')
       .eq('status', 'approved')
+      .eq('community_scope', filters.scope ?? 'community')
 
     if (filters.category && filters.category !== 'all') query = query.eq('category', filters.category)
     if (filters.type) query = query.eq('listing_type', filters.type)
@@ -125,7 +126,11 @@ export async function getSellerRatingSummary(sellerId: string): Promise<{ averag
   }
 }
 
-export async function getRelatedListings(category: string, excludeId: string): Promise<Listing[]> {
+export async function getRelatedListings(
+  category: string,
+  excludeId: string,
+  scope: import('@/lib/access').Scope = 'community',
+): Promise<Listing[]> {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return []
   try {
     const { createClient } = await import('@/lib/supabase/server')
@@ -134,6 +139,7 @@ export async function getRelatedListings(category: string, excludeId: string): P
       .from('marketplace_listings')
       .select('*')
       .eq('status', 'approved')
+      .eq('community_scope', scope)
       .eq('category', category)
       .neq('id', excludeId)
       .order('created_at', { ascending: false })

@@ -11,6 +11,7 @@ type Props = {
   type: string
   condition: string
   sort: string
+  scope?: string
 }
 
 export default function MarketplaceFilters(current: Props) {
@@ -21,6 +22,7 @@ export default function MarketplaceFilters(current: Props) {
   function apply(patch: Partial<Props>) {
     const next = { ...current, q, ...patch }
     const params = new URLSearchParams()
+    if (next.scope === 'fko_internal') params.set('scope', 'fko_internal')
     if (next.q) params.set('q', next.q)
     if (next.category && next.category !== 'all') params.set('category', next.category)
     if (next.type) params.set('type', next.type)

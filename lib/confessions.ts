@@ -1,9 +1,12 @@
+import type { Scope } from '@/lib/access'
+
 export interface Confession {
   id: string
   title: string
   content: string
   is_anonymous: boolean
   status: string
+  community_scope: Scope
   created_at: string
   approved_at: string | null
   comment_count: number
@@ -29,6 +32,7 @@ export function isUuid(id: string) { return UUID_RE.test(id) }
 
 export async function getApprovedConfessions(
   sort: 'latest' | 'most_commented' = 'latest',
+  scope: Scope = 'community',
 ): Promise<Confession[]> {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return []
   try {
@@ -38,6 +42,7 @@ export async function getApprovedConfessions(
       .from('confessions_public')
       .select('*')
       .eq('status', 'approved')
+      .eq('community_scope', scope)
     query = sort === 'most_commented'
       ? query.order('comment_count', { ascending: false })
       : query.order('created_at', { ascending: false })

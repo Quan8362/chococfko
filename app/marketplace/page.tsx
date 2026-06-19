@@ -2,22 +2,37 @@ import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
 import { type ListingType, type ListingCondition, type SortKey } from '@/lib/marketplace'
 import { getListings } from '@/lib/marketplace-data'
+import { getCurrentUserAccess } from '@/lib/access-server'
+import { validateRequestedScope, canAccessScope } from '@/lib/access'
+import ScopeTabs from '@/components/access/ScopeTabs'
+import InternalNotice from '@/components/access/InternalNotice'
 import ListingCard from '@/components/marketplace/ListingCard'
 import MarketplaceFilters from './MarketplaceFilters'
 
 export const dynamic = 'force-dynamic'
 
-export async function generateMetadata() {
+export async function generateMetadata({ searchParams }: { searchParams: { scope?: string } }) {
   const t = await getTranslations('marketplace')
-  return { title: `${t('page_title')} · Chợ Cóc FKO` }
+  const internal = searchParams.scope === 'fko_internal'
+  return {
+    title: `${t('page_title')} · Chợ Cóc FKO`,
+    ...(internal ? { robots: { index: false, follow: false } } : {}),
+  }
 }
 
 export default async function MarketplacePage({
   searchParams,
 }: {
-  searchParams: { q?: string; category?: string; type?: string; condition?: string; sort?: string }
+  searchParams: { q?: string; category?: string; type?: string; condition?: string; sort?: string; scope?: string }
 }) {
-  const t = await getTranslations('marketplace')
+  const [t, tAccess] = await Promise.all([
+    getTranslations('marketplace'),
+    getTranslations('access'),
+  ])
+
+  const access = await getCurrentUserAccess()
+  const scope = validateRequestedScope(searchParams.scope, access)
+  const canInternal = canAccessScope(access, 'fko_internal')
 
   const type = (['sell', 'free', 'auction'].includes(searchParams.type ?? '')) ? searchParams.type as ListingType : undefined
   const condition = (searchParams.condition === 'new' || searchParams.condition === 'used') ? searchParams.condition as ListingCondition : undefined
@@ -29,7 +44,10 @@ export default async function MarketplacePage({
     type,
     condition,
     sort,
+    scope,
   })
+
+  const scopeQs = scope === 'fko_internal' ? '?scope=fko_internal' : ''
 
   return (
     <div className="pb-20">
@@ -52,7 +70,7 @@ export default async function MarketplacePage({
                 {t('my_listings')}
               </Link>
               <Link
-                href="/marketplace/new"
+                href={`/marketplace/new${scopeQs}`}
                 className="inline-flex items-center gap-2 font-semibold text-[14px] px-6 py-2.5 rounded-full bg-rose text-white hover:bg-rose-deep hover:-translate-y-px transition-all shadow-[0_4px_16px_-4px_rgba(194,24,91,0.5)]"
               >
                 ＋ {t('post_listing')}
@@ -60,6 +78,19 @@ export default async function MarketplacePage({
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Scope tabs (Chợ cộng đồng | 🔒 Chợ nội bộ FKO) */}
+      <div className="max-w-[1180px] mx-auto px-5 sm:px-6 pt-6">
+        <ScopeTabs
+          scope={scope}
+          canInternal={canInternal}
+          communityHref="/marketplace?scope=community"
+          internalHref="/marketplace?scope=fko_internal"
+          communityLabel={tAccess('marketplace_community')}
+          internalLabel={tAccess('marketplace_internal')}
+        />
+        {scope === 'fko_internal' && <InternalNotice text={tAccess('internal_area_notice')} />}
       </div>
 
       {/* Filters */}
@@ -71,6 +102,7 @@ export default async function MarketplacePage({
             type={searchParams.type ?? ''}
             condition={searchParams.condition ?? ''}
             sort={sort}
+            scope={scope}
           />
         </div>
       </div>
@@ -82,7 +114,7 @@ export default async function MarketplacePage({
             <div className="w-14 h-14 rounded-2xl bg-cream border border-line grid place-items-center text-2xl mx-auto mb-4">🛒</div>
             <p className="text-[15px] text-ink font-medium mb-1">{t('empty_title')}</p>
             <p className="text-[13.5px] text-muted mb-5">{t('empty_subtitle')}</p>
-            <Link href="/marketplace/new" className="inline-flex items-center gap-2 font-semibold text-[13.5px] px-6 py-2.5 rounded-full bg-rose text-white hover:bg-rose-deep transition-all">
+            <Link href={`/marketplace/new${scopeQs}`} className="inline-flex items-center gap-2 font-semibold text-[13.5px] px-6 py-2.5 rounded-full bg-rose text-white hover:bg-rose-deep transition-all">
               ＋ {t('post_listing')}
             </Link>
           </div>

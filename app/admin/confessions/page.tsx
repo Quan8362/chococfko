@@ -18,6 +18,7 @@ type RawConfession = {
   author_id: string | null
   is_anonymous: boolean
   status: string
+  community_scope: string
   created_at: string
   approved_at: string | null
   rejected_reason: string | null
@@ -62,16 +63,17 @@ export default async function AdminConfessionsPage({
 }) {
   if (!(await checkIsAdmin())) redirect('/')
 
-  const [t, admin_t] = await Promise.all([
+  const [t, admin_t, tAccess] = await Promise.all([
     getTranslations('confessions'),
     getTranslations('admin'),
+    getTranslations('access'),
   ])
   const admin = createAdminClient()
 
   // ── 1. Fetch confessions — NO embedded relation (author_id → auth.users, not profiles)
   const { data: rawConfessions, error: confErr } = await admin
     .from('confessions')
-    .select('id, title, content, author_id, is_anonymous, status, created_at, approved_at, rejected_reason')
+    .select('id, title, content, author_id, is_anonymous, status, community_scope, created_at, approved_at, rejected_reason')
     .neq('status', 'deleted')
     .order('created_at', { ascending: false })
 
@@ -306,6 +308,9 @@ export default async function AdminConfessionsPage({
                   <div className="flex items-center gap-2 flex-wrap mb-2">
                     <span className={`text-[11px] font-semibold px-2.5 py-[5px] rounded-full ${STATUS_BADGE[confession.status] ?? STATUS_BADGE.pending}`}>
                       {t(`status.${confession.status}` as Parameters<typeof t>[0])}
+                    </span>
+                    <span className={`text-[11px] font-semibold px-2.5 py-[5px] rounded-full ${confession.community_scope === 'fko_internal' ? 'bg-rose/10 text-rose border border-rose/20' : 'bg-teal-soft text-teal border border-teal/20'}`}>
+                      {confession.community_scope === 'fko_internal' ? tAccess('badge_internal') : tAccess('badge_community')}
                     </span>
                     {confession.comment_count > 0 && (
                       <span className="text-[11px] font-medium px-2 py-[4px] rounded-full bg-line text-muted">

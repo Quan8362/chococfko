@@ -1,12 +1,23 @@
 import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
 import { getApprovedConfessions, relativeConfessionDate, type Confession } from '@/lib/confessions'
+import { getCurrentUserAccess } from '@/lib/access-server'
+import { validateRequestedScope, canAccessScope } from '@/lib/access'
+import ScopeTabs from '@/components/access/ScopeTabs'
+import InternalNotice from '@/components/access/InternalNotice'
 import AnonAvatar from '@/components/AnonAvatar'
 import { generateAnonId } from '@/lib/anon'
 import { stripHtml } from '@/lib/sanitize'
 
-export const metadata = { title: 'FKO Confessions · Chợ Cóc FKO' }
 export const dynamic = 'force-dynamic'
+
+export function generateMetadata({ searchParams }: { searchParams: { scope?: string } }) {
+  const internal = searchParams.scope === 'fko_internal'
+  return {
+    title: 'FKO Confessions · Chợ Cóc FKO',
+    ...(internal ? { robots: { index: false, follow: false } } : {}),
+  }
+}
 
 type Sort = 'latest' | 'most_commented'
 
@@ -130,13 +141,20 @@ function InfoCards({ t }: { t: (key: string) => string }) {
 export default async function ConfessionsPage({
   searchParams,
 }: {
-  searchParams: { sort?: string }
+  searchParams: { sort?: string; scope?: string }
 }) {
   const sort = (searchParams.sort === 'most_commented' ? 'most_commented' : 'latest') as Sort
-  const [t, confessions] = await Promise.all([
+  const access = await getCurrentUserAccess()
+  const scope = validateRequestedScope(searchParams.scope, access)
+  const canInternal = canAccessScope(access, 'fko_internal')
+
+  const [t, tAccess, confessions] = await Promise.all([
     getTranslations('confessions'),
-    getApprovedConfessions(sort),
+    getTranslations('access'),
+    getApprovedConfessions(sort, scope),
   ])
+
+  const writeHref = `/confessions/write?scope=${scope}`
 
   const TABS = [
     { key: 'latest',         label: t('latest'),        icon: '🆕' },
@@ -164,7 +182,7 @@ export default async function ConfessionsPage({
             </p>
             <div className="flex gap-3 flex-wrap">
               <Link
-                href="/confessions/write"
+                href={writeHref}
                 className="inline-flex items-center gap-2 font-semibold text-[14px] px-7 py-3 rounded-full bg-rose text-white shadow-[0_4px_18px_-4px_rgba(194,24,91,0.5)] hover:bg-rose-deep hover:-translate-y-px transition-all"
               >
                 ✍️ {t('writeButton')}
@@ -181,12 +199,24 @@ export default async function ConfessionsPage({
           {/* ── 3 INFO CARDS ─────────────────────────────────────────────── */}
           <InfoCards t={t} />
 
+          {/* ── SCOPE TABS (Cộng đồng | 🔒 Nội bộ FKO) ───────────────────── */}
+          <ScopeTabs
+            scope={scope}
+            canInternal={canInternal}
+            communityHref={`/confessions?scope=community&sort=${sort}`}
+            internalHref={`/confessions?scope=fko_internal&sort=${sort}`}
+            communityLabel={tAccess('confessions_community')}
+            internalLabel={tAccess('confessions_internal')}
+          />
+
+          {scope === 'fko_internal' && <InternalNotice text={tAccess('internal_area_notice')} />}
+
           {/* ── TABS ─────────────────────────────────────────────────────── */}
           <div className="flex items-center gap-2 mb-6 overflow-x-auto pb-1">
             {TABS.map((tab) => (
               <Link
                 key={tab.key}
-                href={`/confessions?sort=${tab.key}`}
+                href={`/confessions?scope=${scope}&sort=${tab.key}`}
                 className={`inline-flex items-center gap-1.5 text-[13px] font-medium px-4 py-2.5 rounded-full border transition-all whitespace-nowrap flex-none ${
                   sort === tab.key
                     ? 'bg-rose text-white border-rose shadow-[0_2px_12px_rgba(194,24,91,0.3)]'
@@ -215,7 +245,7 @@ export default async function ConfessionsPage({
                 {t('emptySubtitle' as Parameters<typeof t>[0])}
               </p>
               <Link
-                href="/confessions/write"
+                href={writeHref}
                 className="inline-flex items-center gap-2 font-semibold text-[14px] px-7 py-3 rounded-full bg-rose text-white shadow-[0_4px_14px_-4px_rgba(194,24,91,0.45)] hover:bg-rose-deep hover:-translate-y-px transition-all"
               >
                 ✍️ {t('writeButton')}

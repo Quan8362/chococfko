@@ -221,7 +221,7 @@ export default async function AdminEditPlace({ params }: { params: { slug: strin
               <select
                 name="status"
                 defaultValue={p.status ?? 'pending'}
-                className="w-full text-[14px] px-3.5 py-3 border-[1.5px] border-line rounded-xl bg-white focus:outline-none focus:border-rose"
+                className="w-full appearance-none text-[14px] pl-3.5 pr-10 py-3 border-[1.5px] border-line rounded-xl bg-white focus:outline-none focus:border-rose"
               >
                 <option value="pending">⏳ {admin_t('status_pending_option')}</option>
                 <option value="approved">✅ {admin_t('status_approved_option')}</option>

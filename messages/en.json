@@ -352,7 +352,13 @@
     "isec_safety": "Safety",
     "isec_button_title": "Insert section heading",
     "isec_search_placeholder": "Search icons...",
-    "isec_no_results": "No results"
+    "isec_no_results": "No results",
+    "isec_cat_recommendation": "Suggestions / Suitability",
+    "isec_cat_article_structure": "Article structure",
+    "isec_conclusion": "Conclusion",
+    "isec_suitable_after_work": "Good after work / outings",
+    "isec_suitable_after_work_full": "A great stop after work or after a day out",
+    "isec_suitable_for_who": "Who is it for?"
   },
   "comments": {
     "title": "Comments",

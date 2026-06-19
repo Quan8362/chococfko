@@ -352,7 +352,13 @@
     "isec_safety": "An toàn",
     "isec_button_title": "Chèn mục có icon",
     "isec_search_placeholder": "Tìm icon...",
-    "isec_no_results": "Không tìm thấy"
+    "isec_no_results": "Không tìm thấy",
+    "isec_cat_recommendation": "Gợi ý / Phù hợp",
+    "isec_cat_article_structure": "Bố cục bài viết",
+    "isec_conclusion": "Kết luận",
+    "isec_suitable_after_work": "Phù hợp sau giờ làm / đi chơi",
+    "isec_suitable_after_work_full": "Phù hợp để ghé sau giờ làm hoặc sau khi đi chơi",
+    "isec_suitable_for_who": "Phù hợp với ai?"
   },
   "comments": {
     "title": "Bình luận",

@@ -5,8 +5,14 @@
 
 export interface IconSectionItem {
   icon: string
-  /** i18n key under `post_form` for the label. */
+  /** i18n key under `post_form` for the dropdown label. */
   key: string
+  /**
+   * Optional i18n key for the text actually inserted, when it should differ from
+   * the (shorter) dropdown label — e.g. label "Phù hợp sau giờ làm / đi chơi"
+   * but inserts the full "Phù hợp để ghé sau giờ làm hoặc sau khi đi chơi".
+   */
+  insertKey?: string
 }
 
 export interface IconSectionGroup {
@@ -79,6 +85,20 @@ export const ARTICLE_ICON_SECTIONS: IconSectionGroup[] = [
       { icon: '📶', key: 'isec_wifi' },
       { icon: '👥', key: 'isec_crowd' },
       { icon: '🔒', key: 'isec_safety' },
+    ],
+  },
+  {
+    categoryKey: 'isec_cat_recommendation',
+    items: [
+      // 🎯 = recommended target/fit (NOT ⭐, which is reserved for "Điểm nổi bật").
+      { icon: '🎯', key: 'isec_suitable_after_work', insertKey: 'isec_suitable_after_work_full' },
+      { icon: '🎯', key: 'isec_suitable_for_who' },
+    ],
+  },
+  {
+    categoryKey: 'isec_cat_article_structure',
+    items: [
+      { icon: '📌', key: 'isec_conclusion' },
     ],
   },
 ]

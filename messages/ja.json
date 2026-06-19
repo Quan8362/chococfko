@@ -352,7 +352,13 @@
     "isec_safety": "安全",
     "isec_button_title": "見出しを挿入",
     "isec_search_placeholder": "アイコンを検索...",
-    "isec_no_results": "見つかりません"
+    "isec_no_results": "見つかりません",
+    "isec_cat_recommendation": "おすすめ・向いている人",
+    "isec_cat_article_structure": "記事の構成",
+    "isec_conclusion": "まとめ",
+    "isec_suitable_after_work": "仕事帰り・お出かけ後に",
+    "isec_suitable_after_work_full": "仕事帰りやお出かけの後に立ち寄るのにぴったり",
+    "isec_suitable_for_who": "どんな人におすすめ？"
   },
   "comments": {
     "title": "コメント",

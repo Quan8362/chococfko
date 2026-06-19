@@ -352,7 +352,13 @@
     "isec_safety": "安全",
     "isec_button_title": "插入栏目标题",
     "isec_search_placeholder": "搜索图标...",
-    "isec_no_results": "没有结果"
+    "isec_no_results": "没有结果",
+    "isec_cat_recommendation": "推荐 / 适合",
+    "isec_cat_article_structure": "文章结构",
+    "isec_conclusion": "总结",
+    "isec_suitable_after_work": "适合下班 / 出游后",
+    "isec_suitable_after_work_full": "适合下班后或出游后顺道一去",
+    "isec_suitable_for_who": "适合谁？"
   },
   "comments": {
     "title": "评论",

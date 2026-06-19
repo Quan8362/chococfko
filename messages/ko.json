@@ -352,7 +352,13 @@
     "isec_safety": "안전",
     "isec_button_title": "섹션 제목 삽입",
     "isec_search_placeholder": "아이콘 검색...",
-    "isec_no_results": "결과 없음"
+    "isec_no_results": "결과 없음",
+    "isec_cat_recommendation": "추천 / 적합",
+    "isec_cat_article_structure": "글 구성",
+    "isec_conclusion": "결론",
+    "isec_suitable_after_work": "퇴근 후 / 나들이 후 적합",
+    "isec_suitable_after_work_full": "퇴근 후나 나들이 후에 들르기 좋아요",
+    "isec_suitable_for_who": "누구에게 적합할까요?"
   },
   "comments": {
     "title": "댓글",

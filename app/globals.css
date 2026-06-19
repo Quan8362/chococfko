@@ -98,6 +98,15 @@ body::before {
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { scrollbar-width: none; }
 
+/* Explore category anchor: land the section heading just below the sticky
+   header/search/chips bar. JS keeps --explore-sticky-offset accurate (live
+   sticky height + 24px desktop / 16px mobile); these are sensible fallbacks for
+   native anchor jumps before/without JS. */
+.explore-section { scroll-margin-top: var(--explore-sticky-offset, 232px); }
+@media (max-width: 639px) {
+  .explore-section { scroll-margin-top: var(--explore-sticky-offset, 200px); }
+}
+
 /* === Tiptap editor (write mode) === */
 .tiptap h2 { font-family: var(--font-serif-display); font-size: 1.35rem; font-weight: 700; margin: 1.2em 0 0.4em; color: var(--ink); }
 .tiptap h3 { font-family: var(--font-serif-display); font-size: 1.12rem; font-weight: 700; margin: 1em 0 0.35em; color: var(--ink); }

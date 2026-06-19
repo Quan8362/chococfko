@@ -82,16 +82,39 @@ export default function ExploreSearch({
     [active, q, prefecture, places],
   );
 
+  // Total sticky height = top nav (68px) + this search/chips bar (measured live,
+  // since chips can wrap to 2+ rows). Sections carry their top spacing as a
+  // margin (outside the border box) so the border-box top IS the heading row —
+  // landing it just below the sticky area hides the previous section cleanly.
+  const stickyOffset = () => {
+    const bar = document.getElementById("categories");
+    const gap = typeof window !== "undefined" && window.innerWidth < 640 ? 16 : 24;
+    return 68 + (bar?.offsetHeight ?? 120) + gap;
+  };
+
   const scrollToSection = (code: string) => {
     const el = document.getElementById(`sec-${code}`);
     if (!el) return;
-    // Sticky bar = top nav (68px) + this search bar; offset so the section
-    // title clears it (chips may wrap to 2+ rows, so measure live height).
-    const bar = document.getElementById("categories");
-    const offset = 68 + (bar?.offsetHeight ?? 120) + 16;
-    const top = el.getBoundingClientRect().top + window.scrollY - offset;
+    const top = el.getBoundingClientRect().top + window.scrollY - stickyOffset();
     window.scrollTo({ top, behavior: "smooth" });
   };
+
+  // Keep --explore-sticky-offset in sync so the CSS scroll-margin-top fallback
+  // (e.g. the hero's #sec-landmark anchor link) lands at the same clean spot.
+  useEffect(() => {
+    const apply = () => {
+      document.documentElement.style.setProperty("--explore-sticky-offset", `${stickyOffset()}px`);
+    };
+    apply();
+    const bar = document.getElementById("categories");
+    const ro = bar ? new ResizeObserver(apply) : null;
+    if (bar && ro) ro.observe(bar);
+    window.addEventListener("resize", apply);
+    return () => {
+      window.removeEventListener("resize", apply);
+      ro?.disconnect();
+    };
+  }, []);
 
   // Click a chip → jump to that category section. If a search is active, exit
   // search first (so the sectioned layout renders) then scroll once it mounts.
@@ -262,7 +285,7 @@ export default function ExploreSearch({
             ? `/places?category=${c.code}&prefecture=${prefecture}`
             : `/places?category=${c.code}`;
           return (
-            <section key={c.code} id={`sec-${c.code}`} className="pt-14 pb-2 scroll-mt-[140px]">
+            <section key={c.code} id={`sec-${c.code}`} className="explore-section mt-14 pb-2">
               <div className="max-w-[1240px] mx-auto px-6">
                 <div className="flex items-center gap-3.5 mb-7">
                   <div className="w-10 h-10 flex-none rounded-xl bg-rose/10 text-[20px] grid place-items-center border border-rose/15">

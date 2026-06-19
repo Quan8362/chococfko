@@ -53,6 +53,7 @@ function Dropdown({
 }) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
+  const popRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
     if (!open) return
     const onDoc = (e: MouseEvent) => {
@@ -60,6 +61,20 @@ function Dropdown({
     }
     document.addEventListener('mousedown', onDoc)
     return () => document.removeEventListener('mousedown', onDoc)
+  }, [open])
+  // Keep the popover inside the viewport (the editor no longer clips overflow,
+  // so a menu opened from a right-edge button could otherwise spill off-screen
+  // on mobile). Shift it horizontally just enough to fit.
+  useEffect(() => {
+    if (!open || !popRef.current) return
+    const pop = popRef.current
+    pop.style.transform = ''
+    const rect = pop.getBoundingClientRect()
+    const pad = 8
+    let shift = 0
+    if (rect.right > window.innerWidth - pad) shift = window.innerWidth - pad - rect.right
+    if (rect.left + shift < pad) shift = pad - rect.left
+    if (shift) pop.style.transform = `translateX(${shift}px)`
   }, [open])
   return (
     <div ref={ref} className="relative flex-none">
@@ -78,7 +93,7 @@ function Dropdown({
         </svg>
       </button>
       {open && (
-        <div className="absolute z-30 top-full left-0 mt-1 bg-white border border-line rounded-lg shadow-lg p-2 min-w-[150px]">
+        <div ref={popRef} className="absolute z-40 top-full left-0 mt-1 bg-white border border-line rounded-lg shadow-lg p-2 min-w-[150px]">
           {children(() => setOpen(false))}
         </div>
       )}
@@ -88,7 +103,7 @@ function Dropdown({
 
 // ── Toolbar ───────────────────────────────────────────────────────────────────
 function Toolbar({
-  editor, onImageUpload, onPreview, onFullscreen, fullscreen, enableImages,
+  editor, onImageUpload, onPreview, onFullscreen, fullscreen, enableImages, stuck, roundedTop,
 }: {
   editor: Editor | null
   onImageUpload: () => void
@@ -96,10 +111,23 @@ function Toolbar({
   onFullscreen: () => void
   fullscreen: boolean
   enableImages: boolean
+  stuck: boolean
+  roundedTop: boolean
 }) {
   const t = useTranslations('post_form')
   if (!editor) return null
   const e = editor
+
+  // Sticky below the fixed site header (Nav is sticky top-0, h-[68px], z-100) so
+  // the tools stay reachable in long articles. In fullscreen the bar is a normal
+  // flex child (the content area scrolls under it). Opaque bg + blur so scrolling
+  // text never shows through; shadow only once stuck for a clean, premium feel.
+  const barClass = [
+    'flex flex-wrap items-center gap-x-0.5 gap-y-1 px-2.5 py-2 border-b border-line bg-cream/95 backdrop-blur-md',
+    fullscreen ? 'flex-none' : 'sticky top-[68px] z-30 transition-shadow',
+    !fullscreen && roundedTop ? 'rounded-t-xl' : '',
+    !fullscreen && stuck ? 'shadow-[0_6px_18px_-10px_rgba(36,26,23,0.35)]' : '',
+  ].filter(Boolean).join(' ')
 
   const currentColor = e.getAttributes('textStyle').color as string | undefined
   const currentHighlight = e.getAttributes('highlight').color as string | undefined
@@ -114,7 +142,7 @@ function Toolbar({
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-x-0.5 gap-y-1 px-2.5 py-2 border-b border-line bg-cream/60">
+    <div className={barClass}>
 
       {/* Text formatting */}
       <div className="flex items-center gap-0.5 flex-none">
@@ -458,6 +486,8 @@ export default function RichTextEditor({
   const [charCount, setCharCount] = useState(0)
   const [preview, setPreview] = useState(false)
   const [fullscreen, setFullscreen] = useState(false)
+  const [stuck, setStuck] = useState(false)
+  const stickySentinelRef = useRef<HTMLDivElement>(null)
   // Draft found in localStorage but NOT yet loaded — user must confirm
   const [pendingDraft, setPendingDraft] = useState<string | null>(() => {
     if (typeof window === 'undefined' || defaultValue || !draftKey) return null
@@ -565,6 +595,19 @@ export default function RichTextEditor({
     return () => { document.body.style.overflow = prev }
   }, [fullscreen])
 
+  // Toggle the toolbar shadow only once it sticks under the header. A 1px
+  // sentinel sits just above the toolbar; rootMargin matches the 68px header.
+  useEffect(() => {
+    const el = stickySentinelRef.current
+    if (!el || fullscreen) { setStuck(false); return }
+    const obs = new IntersectionObserver(
+      ([entry]) => setStuck(entry.intersectionRatio < 1),
+      { threshold: [1], rootMargin: '-69px 0px 0px 0px' },
+    )
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [fullscreen])
+
   // Cleanup draft timer on unmount
   useEffect(() => {
     return () => {
@@ -578,8 +621,11 @@ export default function RichTextEditor({
     <div
       className={`border border-line bg-white transition-all ${
         fullscreen
-          ? 'fixed inset-0 z-[60] rounded-none flex flex-col overflow-hidden'
-          : 'rounded-xl overflow-hidden focus-within:border-rose focus-within:ring-2 focus-within:ring-rose/15'
+          // z above the site header (z-100) so fullscreen truly covers it.
+          ? 'fixed inset-0 z-[120] rounded-none flex flex-col overflow-hidden'
+          // No overflow-hidden here: it would create a scroll container and break
+          // the toolbar's position:sticky. Corners are rounded on the children.
+          : 'rounded-xl focus-within:border-rose focus-within:ring-2 focus-within:ring-rose/15'
       }`}
     >
       <input type="hidden" name={name} value={html} />
@@ -597,7 +643,7 @@ export default function RichTextEditor({
 
       {/* Draft restore banner — shown only when a saved draft exists */}
       {pendingDraft && (
-        <div className="flex items-center gap-3 px-4 py-2.5 bg-amber-50 border-b border-amber-200 text-[13px]">
+        <div className={`flex items-center gap-3 px-4 py-2.5 bg-amber-50 border-b border-amber-200 text-[13px] ${fullscreen ? '' : 'rounded-t-xl'}`}>
           <svg className="w-4 h-4 text-amber-600 flex-none" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
           </svg>
@@ -619,6 +665,9 @@ export default function RichTextEditor({
         </div>
       )}
 
+      {/* Sentinel: marks the toolbar's resting top so we can detect "stuck". */}
+      <div ref={stickySentinelRef} aria-hidden="true" className="h-px" />
+
       {/* Toolbar */}
       <Toolbar
         editor={editor}
@@ -627,6 +676,8 @@ export default function RichTextEditor({
         onFullscreen={() => setFullscreen((v) => !v)}
         fullscreen={fullscreen}
         enableImages={enableImages}
+        stuck={stuck}
+        roundedTop={!pendingDraft}
       />
 
       {/* Upload indicator */}
@@ -664,7 +715,7 @@ export default function RichTextEditor({
       </div>
 
       {/* Footer: counts + draft indicator */}
-      <div className="flex items-center justify-between px-4 py-2 border-t border-line/60 bg-cream/40 gap-3">
+      <div className={`flex items-center justify-between px-4 py-2 border-t border-line/60 bg-cream/40 gap-3 ${fullscreen ? '' : 'rounded-b-xl'}`}>
         <span className="text-[11.5px] text-muted/70 flex items-center gap-2 flex-wrap">
           {charCount > 0 && (
             <>

@@ -153,7 +153,7 @@ export default function PostFeed({ posts }: Props) {
 
                   {/* Excerpt */}
                   <p
-                    className={`text-muted leading-[1.65] flex-1 line-clamp-2 ${
+                    className={`text-muted leading-[1.65] line-clamp-2 ${
                       p.big ? "text-[14.5px]" : "text-[13px]"
                     }`}
                   >

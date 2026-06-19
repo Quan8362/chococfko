@@ -78,12 +78,12 @@ export default async function PlacePostCard({ post }: { post: Post }) {
           </h3>
         </Link>
 
-        <p className="text-[13px] text-muted leading-[1.6] flex-1 line-clamp-2">
+        <p className="text-[13px] text-muted leading-[1.6] line-clamp-2">
           {post.excerpt}
         </p>
 
         {/* Buttons */}
-        <div className="flex gap-2 mt-2">
+        <div className="flex gap-2 mt-auto pt-1">
           {post.mapUrl ? (
             <a
               href={post.mapUrl}

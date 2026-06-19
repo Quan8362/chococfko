@@ -94,10 +94,10 @@ export default async function HomePosts() {
                 <h3 className="font-serif font-bold text-[17px] leading-snug text-ink group-hover:text-rose transition-colors line-clamp-2">
                   {post.title}
                 </h3>
-                <p className="text-[13px] text-muted leading-[1.6] line-clamp-2 flex-1">
+                <p className="text-[13px] text-muted leading-[1.6] line-clamp-2">
                   {post.excerpt}
                 </p>
-                <div className="flex items-center gap-2 pt-1.5 border-t border-line mt-1">
+                <div className="flex items-center gap-2 pt-1.5 border-t border-line mt-auto">
                   <UserAvatar src={post.authorAvatar} name={post.author} size={24} />
                   <span className="text-[12px] text-muted truncate">{post.author}</span>
                   <span className="text-[11px] text-muted/70 ml-auto whitespace-nowrap">{post.date}</span>

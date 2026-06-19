@@ -93,7 +93,10 @@ export default async function PlaceCard({
           </h3>
         </Link>
 
-        <p className="text-[13px] text-muted leading-[1.6] flex-1 line-clamp-2">
+        {/* line-clamp-2 must NOT share an element with flex-1: flex-grow stretches
+            the -webkit-box so the clamp leaks (ellipsis mid-word + overflow rows
+            still visible). Keep clamp on its own height; mt-auto pins the buttons. */}
+        <p className="text-[13px] text-muted leading-[1.6] line-clamp-2">
           {place.desc}
         </p>
 
@@ -103,7 +106,7 @@ export default async function PlaceCard({
         )}
 
         {/* Buttons */}
-        <div className="flex gap-2 mt-2">
+        <div className="flex gap-2 mt-auto pt-1">
           <a
             href={place.mapUrl}
             target="_blank"

@@ -358,7 +358,11 @@
     "isec_conclusion": "总结",
     "isec_suitable_after_work": "适合下班 / 出游后",
     "isec_suitable_after_work_full": "适合下班后或出游后顺道一去",
-    "isec_suitable_for_who": "适合谁？"
+    "isec_suitable_for_who": "适合谁？",
+    "isec_freshly_cooked_hot_food": "现做现卖的热食",
+    "isec_freshly_cooked_hot_food_full": "在你眼前现做的热腾腾菜肴",
+    "isec_small_cozy": "小而温馨的空间",
+    "isec_small_cozy_full": "空间不大却很亲切温馨"
   },
   "comments": {
     "title": "评论",

@@ -30,7 +30,7 @@ export default function IconSectionMenu({
         // Search both the label and the full insert text so keywords only in the
         // long form (e.g. "đi chơi", "sau giờ làm") still match.
         items: g.items.filter((it) =>
-          norm(`${t(it.key)} ${it.insertKey ? t(it.insertKey) : ''}`).includes(query),
+          norm(`${t(it.key)} ${it.insertKey ? t(it.insertKey) : ''} ${(it.keywords ?? []).join(' ')}`).includes(query),
         ),
       }))
       .filter((g) => g.items.length > 0)

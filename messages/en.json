@@ -358,7 +358,11 @@
     "isec_conclusion": "Conclusion",
     "isec_suitable_after_work": "Good after work / outings",
     "isec_suitable_after_work_full": "A great stop after work or after a day out",
-    "isec_suitable_for_who": "Who is it for?"
+    "isec_suitable_for_who": "Who is it for?",
+    "isec_freshly_cooked_hot_food": "Hot food cooked on the spot",
+    "isec_freshly_cooked_hot_food_full": "Hot dishes cooked right in front of you",
+    "isec_small_cozy": "Small, cozy space",
+    "isec_small_cozy_full": "A small but cozy, intimate space"
   },
   "comments": {
     "title": "Comments",

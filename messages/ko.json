@@ -358,7 +358,11 @@
     "isec_conclusion": "결론",
     "isec_suitable_after_work": "퇴근 후 / 나들이 후 적합",
     "isec_suitable_after_work_full": "퇴근 후나 나들이 후에 들르기 좋아요",
-    "isec_suitable_for_who": "누구에게 적합할까요?"
+    "isec_suitable_for_who": "누구에게 적합할까요?",
+    "isec_freshly_cooked_hot_food": "즉석에서 만드는 따끈한 음식",
+    "isec_freshly_cooked_hot_food_full": "눈앞에서 바로 조리되는 따끈한 요리",
+    "isec_small_cozy": "작고 아늑한 공간",
+    "isec_small_cozy_full": "작지만 정겨운 공간"
   },
   "comments": {
     "title": "댓글",

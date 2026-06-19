@@ -13,6 +13,11 @@ export interface IconSectionItem {
    * but inserts the full "Phù hợp để ghé sau giờ làm hoặc sau khi đi chơi".
    */
   insertKey?: string
+  /**
+   * Optional extra search terms (non-localized) so the menu can be found by
+   * words not in the visible label/insert text — e.g. "yatai", "ấm cúng".
+   */
+  keywords?: string[]
 }
 
 export interface IconSectionGroup {
@@ -48,6 +53,13 @@ export const ARTICLE_ICON_SECTIONS: IconSectionGroup[] = [
       { icon: '✅', key: 'isec_should_try' },
       { icon: '⚠️', key: 'isec_note' },
       { icon: '💡', key: 'isec_tip' },
+      // 🏮 = small, intimate Japanese/yatai atmosphere (distinct from ⭐ highlight).
+      {
+        icon: '🏮',
+        key: 'isec_small_cozy',
+        insertKey: 'isec_small_cozy_full',
+        keywords: ['không gian', 'nhỏ', 'gần gũi', 'ấm cúng', 'quán nhỏ', 'yatai'],
+      },
     ],
   },
   {
@@ -55,6 +67,13 @@ export const ARTICLE_ICON_SECTIONS: IconSectionGroup[] = [
     items: [
       { icon: '🍜', key: 'isec_food' },
       { icon: '🍣', key: 'isec_signature' },
+      // 🔥 = food cooked hot / prepared right in front of the customer.
+      {
+        icon: '🔥',
+        key: 'isec_freshly_cooked_hot_food',
+        insertKey: 'isec_freshly_cooked_hot_food_full',
+        keywords: ['món nóng', 'chế biến', 'chế biến tại chỗ', 'nấu trước mặt', 'ẩm thực', 'đồ ăn nóng'],
+      },
       { icon: '🍻', key: 'isec_drink' },
       { icon: '☕', key: 'isec_cafe' },
       { icon: '💰', key: 'isec_cost' },

@@ -358,7 +358,11 @@
     "isec_conclusion": "まとめ",
     "isec_suitable_after_work": "仕事帰り・お出かけ後に",
     "isec_suitable_after_work_full": "仕事帰りやお出かけの後に立ち寄るのにぴったり",
-    "isec_suitable_for_who": "どんな人におすすめ？"
+    "isec_suitable_for_who": "どんな人におすすめ？",
+    "isec_freshly_cooked_hot_food": "目の前で作る熱々料理",
+    "isec_freshly_cooked_hot_food_full": "目の前で調理される熱々の料理",
+    "isec_small_cozy": "小さくてアットホームな空間",
+    "isec_small_cozy_full": "小さいながらもアットホームな空間"
   },
   "comments": {
     "title": "コメント",

@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { useTranslations, useLocale } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
@@ -338,20 +337,21 @@ export default function ChatClient({
 }) {
   const t = useTranslations('community_chat')
   const locale = useLocale()
-  const router = useRouter()
-
   // Scope tabs (Cộng đồng | 🔒 Nội bộ FKO) only for active internal members /
   // admins. Community users never see the internal tab or a one-item tab bar.
   const showScopeTabs = isInternal || isAdmin
   const isInternalScope = scope === 'fko_internal'
 
-  // Switch scope via navigation: the server re-fetches scope-correct rooms +
-  // messages and all stale (possibly internal) client state is dropped on
-  // remount — no cross-scope data lingers in the client cache.
+  // Switch scope via a FULL navigation (not router.push): the App Router caches
+  // page segments by pathname, so a query-param-only push to the same
+  // /community/chat path can reuse the previous scope's cached render and show
+  // stale rooms. A full document load guarantees a fresh server render with the
+  // correct scope and drops all stale (possibly internal) client state — exactly
+  // the isolation the scope separation requires.
   const switchScope = useCallback((next: 'community' | 'fko_internal') => {
     if (next === scope) return
-    router.push(`/community/chat?scope=${next}`)
-  }, [scope, router])
+    window.location.assign(`/community/chat?scope=${next}`)
+  }, [scope])
 
   // Public rooms have a fixed key → show the localized name; private rooms keep their custom name.
   const roomLabel = (room: Room) =>
@@ -2286,9 +2286,11 @@ export default function ChatClient({
       return
     }
     setShowCreateRoom(false); setCreateRoomName(''); setCreateRoomDesc(''); setRoomModalError(null)
-    // If the new room lives in the other tab, navigate there so it shows up.
+    // If the new room lives in the other tab, do a full navigation there (same
+    // reason as switchScope: avoid the App Router serving a stale same-pathname
+    // segment for the other scope).
     if (targetScope !== scope) {
-      router.push(`/community/chat?scope=${targetScope}&room=${result.roomId}`)
+      window.location.assign(`/community/chat?scope=${targetScope}&room=${result.roomId}`)
       return
     }
     const newRoom: Room = {

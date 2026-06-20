@@ -24,8 +24,9 @@ const DATA: Place[] = [
   place({ slug: 'uminonakamichi-saitozaki', name: 'Uminonakamichi / Saitozaki', category: 'sea', categoryLabel: 'Biển', fee: 'free', desc: 'Bãi Saitozaki free; công viên có phí' }),
   // A paid sea place — must be excluded from "free" searches.
   place({ slug: 'paid-beach', name: 'Paid Beach Club', category: 'sea', categoryLabel: 'Biển', fee: 'paid' }),
-  // A landmark that happens to mention BBQ in text (legit text match, not category).
-  place({ slug: 'umi-park', name: 'Uminonakamichi Seaside Park', category: 'landmark', categoryLabel: 'Du lịch', fee: 'paid', desc: 'Công viên rộng' }),
+  // A landmark whose ONLY BBQ signal is a passing mention in its long description.
+  // It must still match, but rank BELOW the dedicated Biển & BBQ places.
+  place({ slug: 'bbq-landmark', name: 'Uminonakamichi Seaside Park', category: 'landmark', categoryLabel: 'Du lịch', fee: 'paid', desc: 'Công viên rộng lớn, có khu BBQ và picnic gia đình' }),
   place({ slug: 'camp-aburayama', name: 'Aburayama', category: 'camp', categoryLabel: 'Camping', fee: 'free', desc: 'Picnic, BBQ, đi bộ thiên nhiên' }),
   place({ slug: 'onsen-1', name: 'Some Onsen', category: 'onsen', categoryLabel: 'Onsen', fee: 'paid', desc: 'Tắm nước nóng' }),
 ]
@@ -35,6 +36,10 @@ function slugs(rows: Place[]): string[] {
 }
 function run(q: string, extra: Partial<PlaceCriteria> = {}): string[] {
   return slugs(filterPlaces(DATA, { q, ...extra }))
+}
+/** Ranked order as returned (NOT sorted) — for relevance assertions. */
+function ordered(q: string, extra: Partial<PlaceCriteria> = {}): string[] {
+  return filterPlaces(DATA, { q, ...extra }).map((r) => r.slug)
 }
 
 test('extractFeeIntent detects free/paid across locales and strips the phrase', () => {
@@ -87,7 +92,17 @@ test('"miễn phí" returns all structurally-free places, regardless of text', (
 
 test('"có phí" returns only paid places', () => {
   const r = run('có phí')
-  assert.deepEqual(r, ['onsen-1', 'paid-beach', 'umi-park'])
+  assert.deepEqual(r, ['bbq-landmark', 'onsen-1', 'paid-beach'])
+})
+
+test('relevance: Biển & BBQ / Camping rank ABOVE a description-only landmark match', () => {
+  const r = ordered('BBQ')
+  assert.ok(r.includes('bbq-landmark'))            // still matched (BBQ in its desc)
+  assert.equal(r[r.length - 1], 'bbq-landmark')    // …but ranked last (weak signal)
+  const landmarkPos = r.indexOf('bbq-landmark')
+  for (const s of ['momochi', 'keya', 'nogita', 'uminonakamichi-saitozaki', 'paid-beach', 'camp-aburayama']) {
+    assert.ok(r.indexOf(s) < landmarkPos, `${s} should rank before bbq-landmark`)
+  }
 })
 
 test('"Biển" and "Biển & BBQ" both match the sea category', () => {

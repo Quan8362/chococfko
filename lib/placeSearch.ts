@@ -88,34 +88,60 @@ export function tokenize(normalizedRest: string): string[] {
   return normalizedRest.split(/[^a-z0-9\u0080-\uffff]+/).filter(Boolean);
 }
 
-/** Tài liệu tìm kiếm đã chuẩn hóa của một place. */
-function buildDoc(p: Place): string {
-  const tagText = (p.tags ?? [])
+function tagText(p: Place): string {
+  return (p.tags ?? [])
     .map((tg) =>
       [tg.name, tg.display_name_vi, tg.display_name_en, tg.display_name_ja, tg.display_name_ko, tg.display_name_zh]
         .filter(Boolean)
         .join(' '),
     )
     .join(' ');
-  return normalizeText(
-    [
-      p.name,
-      p.area,
-      p.categoryLabel,
-      p.desc,
-      p.city ?? '',
-      p.prefecture ?? '',
-      tagText,
-      CATEGORY_SYNONYMS[p.category] ?? '',
-    ].join(' '),
-  );
+}
+
+// Trọng số trường theo độ liên quan. Khớp ĐÚNG CHỦ ĐỀ (synonym của category) là tín
+// hiệu mạnh nhất cho truy vấn khái niệm như "BBQ"; khớp chỉ trong MÔ TẢ dài là yếu
+// nhất (dễ là nhắc thoáng qua) nên bị đẩy xuống cuối.
+const W_SYNONYM = 10;
+const W_NAME = 8;
+const W_TAG = 6;
+const W_LABEL = 5;
+const W_AREA = 3;
+const W_DESC = 1;
+
+/**
+ * Điểm liên quan của một place với danh sách token. Trả về null nếu CÓ token không
+ * khớp ở bất kỳ trường nào (AND fail). Mỗi token lấy trường khớp MẠNH nhất.
+ */
+function relevanceScore(p: Place, tokens: string[]): number | null {
+  const name = normalizeText(p.name);
+  const tags = normalizeText(tagText(p));
+  const label = normalizeText(p.categoryLabel);
+  const area = normalizeText([p.area, p.city ?? '', p.prefecture ?? ''].join(' '));
+  const syn = normalizeText(CATEGORY_SYNONYMS[p.category] ?? '');
+  const desc = normalizeText(p.desc);
+
+  let score = 0;
+  for (const tok of tokens) {
+    let best = 0;
+    if (syn.includes(tok)) best = W_SYNONYM;
+    if (best < W_NAME && name.includes(tok)) best = W_NAME;
+    if (best < W_TAG && tags.includes(tok)) best = W_TAG;
+    if (best < W_LABEL && label.includes(tok)) best = W_LABEL;
+    if (best < W_AREA && area.includes(tok)) best = W_AREA;
+    if (best < W_DESC && desc.includes(tok)) best = W_DESC;
+    if (best === 0) return null; // token không khớp ở đâu cả → loại place
+    score += best;
+  }
+  return score;
 }
 
 /**
- * Lọc mảng địa điểm theo tiêu chí. Hàm thuần, dùng được cả ở client lẫn server.
+ * Lọc + XẾP HẠNG địa điểm theo tiêu chí. Hàm thuần, dùng được cả ở client lẫn server.
  * Đây là chỗ DUY NHẤT chứa logic so khớp — khi chuyển sang SQL chỉ cần tái hiện.
  *
- * Ngữ nghĩa:  (category/tag/text concept) AND (cấu trúc fee nếu truy vấn nhắc tới giá)
+ * Ngữ nghĩa: (category/tag/text concept) AND (cấu trúc fee nếu truy vấn nhắc tới giá),
+ * rồi sắp xếp theo độ liên quan — khớp đúng chủ đề (vd "BBQ" ↦ "Biển & BBQ") đứng
+ * TRƯỚC, khớp chỉ-trong-mô-tả đứng CUỐI. Không tìm kiếm/đồng điểm → giữ thứ tự gốc.
  */
 export function filterPlaces(places: Place[], criteria: PlaceCriteria): Place[] {
   const normalizedQ = criteria.q ? normalizeText(criteria.q) : '';
@@ -124,15 +150,21 @@ export function filterPlaces(places: Place[], criteria: PlaceCriteria): Place[] 
   const cats = criteria.categories?.length ? new Set(criteria.categories) : null;
   const pref = criteria.prefecture ?? null;
 
-  return places.filter((p) => {
-    if (cats && !cats.has(p.category)) return false;
-    if (pref && (p.prefecture ?? 'fukuoka') !== pref) return false;
-    // Khái niệm giá → khớp trường có cấu trúc (AND với phần còn lại).
-    if (feeFilter && p.fee !== feeFilter) return false;
+  const scored: { p: Place; idx: number; score: number }[] = [];
+  places.forEach((p, idx) => {
+    if (cats && !cats.has(p.category)) return;
+    if (pref && (p.prefecture ?? 'fukuoka') !== pref) return;
+    if (feeFilter && p.fee !== feeFilter) return; // giá khớp trường có cấu trúc
     if (tokens.length) {
-      const doc = buildDoc(p);
-      for (const tok of tokens) if (!doc.includes(tok)) return false; // AND across tokens
+      const score = relevanceScore(p, tokens);
+      if (score === null) return; // AND across tokens failed
+      scored.push({ p, idx, score });
+    } else {
+      scored.push({ p, idx, score: 0 });
     }
-    return true;
   });
+
+  // Điểm cao trước; đồng điểm giữ nguyên thứ tự gốc (sort_order từ DB).
+  scored.sort((a, b) => b.score - a.score || a.idx - b.idx);
+  return scored.map((r) => r.p);
 }

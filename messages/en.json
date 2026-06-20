@@ -1651,7 +1651,18 @@
       "admin_match_results": "Match results",
       "admin_knockout_heading": "🏆 Knockout round",
       "admin_matches_heading": "Matches",
-      "admin_round_label": "Round {n}"
+      "admin_round_label": "Round {n}",
+      "reconnecting": "Reconnecting…",
+      "caro_error": {
+        "heading": "This room hit a problem",
+        "body": "This match ran into a temporary error. Your game is still saved — try reconnecting to continue.",
+        "updating": "Updating the app",
+        "updating_body": "A new version is available. Reloading to update…",
+        "retry": "Try reconnecting",
+        "reload_room": "Reload room",
+        "back_lobby": "← Back to Caro lobby",
+        "incident": "Incident ID"
+      }
     },
     "chinese_chess": {
       "badge": "🎮 Chinese Chess",
@@ -1793,7 +1804,18 @@
       "lobby_empty": "No Chinese Chess rooms are waiting. Create a new room or enter a room code.",
       "lobby_login_to_join": "Log in",
       "lobby_login_required": "Please log in to join a room.",
-      "just_created": "Just now"
+      "just_created": "Just now",
+      "reconnecting": "Reconnecting…",
+      "chess_error": {
+        "heading": "This room hit a problem",
+        "body": "This match ran into a temporary error. Your result is still saved on the server — try reconnecting to continue.",
+        "updating": "Updating the app",
+        "updating_body": "A new version is available. Reloading to update…",
+        "retry": "Try reconnecting",
+        "reload_room": "Reload room",
+        "back_lobby": "← Back to Chinese Chess lobby",
+        "incident": "Incident ID"
+      }
     },
     "minesweeper": {
       "badge": "💣 Minesweeper",

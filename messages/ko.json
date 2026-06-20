@@ -1651,7 +1651,18 @@
       "admin_match_results": "경기 결과",
       "admin_knockout_heading": "🏆 토너먼트전",
       "admin_matches_heading": "경기",
-      "admin_round_label": "{n}라운드"
+      "admin_round_label": "{n}라운드",
+      "reconnecting": "다시 연결하는 중…",
+      "caro_error": {
+        "heading": "방에서 문제가 발생했습니다",
+        "body": "이 대국에서 일시적인 오류가 발생했습니다. 게임은 저장되어 있습니다. 다시 연결하여 계속하세요.",
+        "updating": "앱 업데이트 중",
+        "updating_body": "새 버전이 있습니다. 업데이트를 위해 새로고침합니다…",
+        "retry": "다시 연결 시도",
+        "reload_room": "방 새로고침",
+        "back_lobby": "← 오목 로비로 돌아가기",
+        "incident": "사고 ID"
+      }
     },
     "chinese_chess": {
       "badge": "🎮 장기",
@@ -1793,7 +1804,18 @@
       "lobby_empty": "대기 중인 장기 방이 없습니다. 새 방을 만들거나 방 코드를 입력하세요.",
       "lobby_login_to_join": "로그인",
       "lobby_login_required": "방에 입장하려면 로그인하세요.",
-      "just_created": "방금"
+      "just_created": "방금",
+      "reconnecting": "다시 연결하는 중…",
+      "chess_error": {
+        "heading": "방에서 문제가 발생했습니다",
+        "body": "이 대국에서 일시적인 오류가 발생했습니다. 결과는 서버에 저장되어 있습니다. 다시 연결하여 계속하세요.",
+        "updating": "앱 업데이트 중",
+        "updating_body": "새 버전이 있습니다. 업데이트를 위해 새로고침합니다…",
+        "retry": "다시 연결 시도",
+        "reload_room": "방 새로고침",
+        "back_lobby": "← 장기 로비로 돌아가기",
+        "incident": "사고 ID"
+      }
     },
     "minesweeper": {
       "badge": "💣 지뢰 찾기",

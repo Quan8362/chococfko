@@ -4,6 +4,8 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { handleMatchFinished } from '@/app/admin/caro/actions'
+import { decideMoveOutcome, forfeitWinner, type Mark, type Cell } from '@/lib/caro/winner'
+import { parseBoard } from '@/lib/caro/realtimePayload'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 export type CaroRoom = {
@@ -38,33 +40,22 @@ function genCode(): string {
   return Array.from({ length: 5 }, () => CHARS[Math.floor(Math.random() * CHARS.length)]).join('')
 }
 
-const SIZE = 15
-
-function checkWinner(
-  board: (string | null)[],
-  lastIdx: number,
-): { cells: number[] } | null {
-  const player = board[lastIdx]
-  if (!player) return null
-  const row = Math.floor(lastIdx / SIZE)
-  const col = lastIdx % SIZE
-  const dirs: [number, number][] = [[0, 1], [1, 0], [1, 1], [1, -1]]
-
-  for (const [dr, dc] of dirs) {
-    const cells = [lastIdx]
-    for (let i = 1; i < 5; i++) {
-      const r = row + dr * i, c = col + dc * i
-      if (r < 0 || r >= SIZE || c < 0 || c >= SIZE || board[r * SIZE + c] !== player) break
-      cells.push(r * SIZE + c)
-    }
-    for (let i = 1; i < 5; i++) {
-      const r = row - dr * i, c = col - dc * i
-      if (r < 0 || r >= SIZE || c < 0 || c >= SIZE || board[r * SIZE + c] !== player) break
-      cells.unshift(r * SIZE + c)
-    }
-    if (cells.length >= 5) return { cells }
-  }
-  return null
+// Structured, non-PII diagnostic for a failed result-writing operation. Logged
+// server-side (captured by Vercel runtime logs) and surfaced to the client as an
+// incident id so a failed history/result write is never silently treated as success.
+function logResultError(op: string, roomId: string, status: string, err: unknown): string {
+  const incidentId = `CARO-SRV-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`.toUpperCase()
+  // eslint-disable-next-line no-console
+  console.error('[caro-result-error]', JSON.stringify({
+    incidentId,
+    op,
+    roomId,
+    status,
+    buildId: process.env.NEXT_PUBLIC_BUILD_ID ?? null,
+    message: err instanceof Error ? err.message : String(err),
+    timestamp: new Date().toISOString(),
+  }))
+  return incidentId
 }
 
 // ── createRoom ────────────────────────────────────────────────────────────────
@@ -133,6 +124,21 @@ export async function joinRoom(
   redirect(`/games/caro/${code}`)
 }
 
+// ── refetchRoom ───────────────────────────────────────────────────────────────
+// Returns the authoritative room row by id. The client calls this after the
+// realtime channel (re)subscribes to reconcile any events missed between the
+// initial server render and the subscription being established, or during a
+// dropped/restored connection. Returns null if the room no longer exists.
+export async function refetchRoom(roomId: string): Promise<CaroRoom | null> {
+  const admin = createAdminClient()
+  const { data } = await admin
+    .from('caro_rooms')
+    .select('*')
+    .eq('id', roomId)
+    .maybeSingle()
+  return (data as CaroRoom | null) ?? null
+}
+
 // ── makeMove ──────────────────────────────────────────────────────────────────
 export async function makeMove(
   roomId: string,
@@ -152,35 +158,50 @@ export async function makeMove(
   if (!room) return { error: 'room_not_found' }
   if (room.status !== 'playing') return { error: 'game_not_active' }
 
-  const mySymbol = room.player_x === user.id ? 'X' : room.player_o === user.id ? 'O' : null
+  const mySymbol: Mark | null = room.player_x === user.id ? 'X' : room.player_o === user.id ? 'O' : null
   if (!mySymbol) return { error: 'not_a_player' }
   if (room.current_turn !== mySymbol) return { error: 'not_your_turn' }
 
-  const board: (string | null)[] = [...(room.board as (string | null)[])]
-  if (board[cellIndex]) return { error: 'cell_occupied' }
+  // Resolve the authoritative outcome from a normalized board (guards a malformed
+  // / partially-stored board) and reject occupied/out-of-range cells.
+  const outcome = decideMoveOutcome(parseBoard(room.board) as Cell[], cellIndex, mySymbol)
+  if (!outcome.ok) return { error: outcome.reason }
 
-  board[cellIndex] = mySymbol
-  const winResult = checkWinner(board, cellIndex)
-  const isDraw = !winResult && board.every((c) => c !== null)
-  const isFinished = !!winResult || isDraw
+  // Atomic, idempotent write: the conditional `current_turn`/`status` guards mean a
+  // concurrent move or a duplicate submit (e.g. double click, two tabs) cannot be
+  // applied twice — once the turn advances, the second write matches 0 rows.
+  const { data: updated, error } = await admin.from('caro_rooms').update({
+    board: outcome.board,
+    current_turn: outcome.nextTurn,
+    winner: outcome.winner,
+    winning_cells: outcome.winningCells,
+    status: outcome.status,
+    finished_at: outcome.isFinished ? new Date().toISOString() : null,
+  })
+    .eq('id', roomId)
+    .eq('current_turn', mySymbol)
+    .eq('status', 'playing')
+    .select('id')
 
-  const { error } = await admin.from('caro_rooms').update({
-    board,
-    current_turn: mySymbol === 'X' ? 'O' : 'X',
-    winner: winResult ? mySymbol : isDraw ? 'draw' : null,
-    winning_cells: winResult ? winResult.cells : [],
-    status: isFinished ? 'finished' : 'playing',
-    finished_at: isFinished ? new Date().toISOString() : null,
-  }).eq('id', roomId)
+  if (error) {
+    const incidentId = logResultError('makeMove', roomId, room.status, error)
+    return { error: `write_failed:${incidentId}` }
+  }
+  // 0 rows → another move already advanced the turn; benign, realtime will resync.
+  if (!updated || updated.length === 0) return { error: 'move_superseded' }
 
-  if (error) return { error: error.message }
-
-  // If this room belongs to a tournament match and the game just finished, record the result
-  if (isFinished) {
-    const winnerId = winResult ? (mySymbol === 'X' ? room.player_x : room.player_o) : null
-    const loserId = winResult ? (mySymbol === 'X' ? room.player_o : room.player_x) : null
-    // Always call — recordTournamentResult handles draws for group stage matches
-    await recordTournamentResult(admin, room.room_code, winnerId, loserId)
+  // If this room belongs to a tournament match and the game just finished, record the
+  // result. Best-effort: the room is already finalized in the DB, so a tournament
+  // linkage failure must NOT roll it back or report the move as failed.
+  if (outcome.isFinished) {
+    const won = outcome.winner === 'X' || outcome.winner === 'O'
+    const winnerId = won ? (mySymbol === 'X' ? room.player_x : room.player_o) : null
+    const loserId = won ? (mySymbol === 'X' ? room.player_o : room.player_x) : null
+    try {
+      await recordTournamentResult(admin, room.room_code, winnerId, loserId)
+    } catch (e) {
+      logResultError('makeMove.tournament', roomId, 'finished', e)
+    }
   }
 
   return null
@@ -239,16 +260,80 @@ export async function surrenderGame(roomId: string): Promise<ActionResult> {
   if (!mySymbol) return { error: 'not_a_player' }
 
   const opponentSymbol = mySymbol === 'X' ? 'O' : 'X'
-  await admin.from('caro_rooms').update({
+  // Idempotent: only finalize if the game is still 'playing'.
+  const { error } = await admin.from('caro_rooms').update({
     status: 'finished',
     winner: opponentSymbol,
     finished_at: new Date().toISOString(),
-  }).eq('id', roomId)
+  }).eq('id', roomId).eq('status', 'playing')
+
+  if (error) {
+    const incidentId = logResultError('surrenderGame', roomId, room.status, error)
+    return { error: `write_failed:${incidentId}` }
+  }
 
   const winnerId = mySymbol === 'X' ? room.player_o : room.player_x
-  await recordTournamentResult(admin, room.room_code, winnerId, user.id)
+  try {
+    await recordTournamentResult(admin, room.room_code, winnerId, user.id)
+  } catch (e) {
+    logResultError('surrenderGame.tournament', roomId, 'finished', e)
+  }
 
   return null
+}
+
+// ── finalizeStaleGames ─────────────────────────────────────────────────────────
+// SERVER-AUTHORITATIVE completion safety net. A 'playing' room becomes finished
+// ONLY when a player completes five-in-a-row or surrenders — both of which require
+// a live browser to submit the action. If a client crashes, disconnects, or the
+// user simply closes the tab, the game is stranded in 'playing' forever and never
+// enters the history view (caro_games_history filters status IN finished/cancelled).
+//
+// This finalizes abandoned games independently of any browser: a 'playing' room
+// whose updated_at (== last move time, since heartbeats only run while 'waiting')
+// is older than the abandon window is forfeited to the player NOT on the clock.
+// Single conditional statement per room → atomic & idempotent (a concurrent call
+// matches 0 rows once finalized). Bounded per call. Cheap to run on lobby load;
+// can also be scheduled via pg_cron for full browser-independence.
+const PLAYING_ABANDON_MS = 3 * 60 * 1000
+
+export async function finalizeStaleGames(): Promise<{ finalized: number }> {
+  const admin = createAdminClient()
+  const cutoff = new Date(Date.now() - PLAYING_ABANDON_MS).toISOString()
+
+  const { data: stale, error: readErr } = await admin
+    .from('caro_rooms')
+    .select('id, room_code, current_turn, player_x, player_o')
+    .eq('status', 'playing')
+    .lt('updated_at', cutoff)
+    .limit(50)
+
+  if (readErr || !stale || stale.length === 0) return { finalized: 0 }
+
+  let finalized = 0
+  for (const room of stale) {
+    const winnerSym = forfeitWinner(room.current_turn as Mark)
+    const { data: updated, error } = await admin
+      .from('caro_rooms')
+      .update({ status: 'finished', winner: winnerSym, finished_at: new Date().toISOString() })
+      .eq('id', room.id)
+      .eq('status', 'playing') // idempotency guard
+      .select('id')
+
+    if (error) { logResultError('finalizeStaleGames', room.id, 'playing', error); continue }
+    if (!updated || updated.length === 0) continue // already finalized by a concurrent call
+
+    finalized++
+    const winnerId = winnerSym === 'X' ? room.player_x : room.player_o
+    const loserId = winnerSym === 'X' ? room.player_o : room.player_x
+    try {
+      await recordTournamentResult(admin, room.room_code, winnerId, loserId)
+    } catch (e) {
+      logResultError('finalizeStaleGames.tournament', room.id, 'finished', e)
+    }
+  }
+
+  return { finalized }
 }
 
 // Rooms are considered active if updated_at is within this window.

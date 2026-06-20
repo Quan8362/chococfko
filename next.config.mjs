@@ -81,8 +81,21 @@ const LEGACY_REDIRECTS = [
   { source: '/admin/dia-diem/:path*',            destination: '/admin/places/:path*' },
 ].map(r => ({ ...r, permanent: true }))
 
+// Stable build identifier, baked into the client bundle (NEXT_PUBLIC_BUILD_ID)
+// and used as Next's own build id so `_next/static/<BUILD_ID>/…` matches. Lets
+// client error reports be correlated with a specific deploy, which is how we
+// tell a stale-build/chunk error apart from a genuine runtime bug.
+const BUILD_ID =
+  process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 12) ||
+  process.env.VERCEL_DEPLOYMENT_ID ||
+  `dev-${Date.now()}`
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  env: {
+    NEXT_PUBLIC_BUILD_ID: BUILD_ID,
+  },
+  generateBuildId: async () => BUILD_ID,
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'loremflickr.com' },

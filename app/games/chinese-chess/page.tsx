@@ -5,7 +5,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import ChineseChessLobby from './ChineseChessLobby'
 import ChineseChessWaitingRooms from './ChineseChessWaitingRooms'
 import ChineseChessHistoryClient, { type ChessHistoryRow } from './ChineseChessHistoryClient'
-import { fetchWaitingChessRooms } from './actions'
+import { fetchWaitingChessRooms, finalizeExpiredChessGames } from './actions'
 
 export const dynamic = 'force-dynamic'
 
@@ -43,6 +43,13 @@ export default async function ChineseChessPage() {
     Promise.resolve(createClient()),
     Promise.resolve(createAdminClient()),
   ])
+
+  // Server-authoritative safety net: finalize games whose per-turn deadline expired
+  // while BOTH clients were offline (nobody claimed the timeout) BEFORE reading
+  // history, so completed-but-stranded matches surface immediately. Fair (uses the
+  // authoritative deadline), idempotent, browser-independent. Requires the
+  // finalize_expired_chinese_chess_games RPC (migration_chinese_chess_finalize_timeout.sql).
+  await finalizeExpiredChessGames().catch(() => { /* never block the lobby on this */ })
 
   const [{ data: { user } }, { data: history }, waitingRooms] = await Promise.all([
     supabase.auth.getUser(),

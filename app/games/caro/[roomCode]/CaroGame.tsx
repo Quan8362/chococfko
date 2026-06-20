@@ -3,7 +3,9 @@
 import { useEffect, useRef, useState, useCallback, useTransition } from 'react'
 import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
-import { makeMove, surrenderGame, heartbeatWaitingRoom, type CaroRoom } from '../actions'
+import { makeMove, surrenderGame, heartbeatWaitingRoom, refetchRoom, type CaroRoom } from '../actions'
+import { mergeRoomUpdate, parseBoard, parseWinningCells } from '@/lib/caro/realtimePayload'
+import { setCaroRuntime } from '@/lib/caro/runtimeState'
 import CaroChat from './CaroChat'
 
 const SIZE = 15
@@ -15,11 +17,6 @@ type Props = {
   myName: string
   playerXName: string
   playerOName: string | null
-}
-
-function parseBoard(raw: unknown): (string | null)[] {
-  const arr = Array.isArray(raw) ? raw : []
-  return arr.length === 225 ? arr : Array(225).fill(null)
 }
 
 export default function CaroGame({ initialRoom, userId, myName, playerXName, playerOName }: Props) {
@@ -34,9 +31,12 @@ export default function CaroGame({ initialRoom, userId, myName, playerXName, pla
   const opponentJoinedNotifiedRef = useRef(initialRoom.player_o !== null)
   const opponentToastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [showOpponentToast, setShowOpponentToast] = useState(false)
+  // 'connected' once subscribed; 'reconnecting' if the channel drops mid-match.
+  const [connState, setConnState] = useState<'connecting' | 'connected' | 'reconnecting'>('connecting')
+  const mountedRef = useRef(true)
 
   const board = parseBoard(room.board)
-  const winCells = new Set<number>(room.winning_cells ?? [])
+  const winCells = new Set<number>(parseWinningCells(room.winning_cells))
 
   const mySymbol: 'X' | 'O' | null =
     userId === room.player_x ? 'X' : userId === room.player_o ? 'O' : null
@@ -65,42 +65,91 @@ export default function CaroGame({ initialRoom, userId, myName, playerXName, pla
     } catch {}
   }
 
-  // Cleanup toast timer on unmount
+  // Track mount status so async realtime / refetch callbacks never set state
+  // after unmount. Also publish a diagnostics snapshot for the error boundary.
   useEffect(() => {
-    return () => { if (opponentToastTimerRef.current) clearTimeout(opponentToastTimerRef.current) }
-  }, [])
+    mountedRef.current = true
+    setCaroRuntime({
+      roomCode: initialRoom.room_code,
+      matchStatus: initialRoom.status,
+      loaded: { room: true, player: initialRoom.player_o !== null, game: true },
+    })
+    return () => {
+      mountedRef.current = false
+      if (opponentToastTimerRef.current) clearTimeout(opponentToastTimerRef.current)
+    }
+  }, [initialRoom.room_code, initialRoom.status, initialRoom.player_o])
 
   // ── Realtime subscription ──────────────────────────────────────────────────
+  // A single channel per room.id. Payloads are MERGED onto the last known state
+  // (mergeRoomUpdate) so a partial/empty/TOAST UPDATE can never wipe the board or
+  // players mid-match. On every (re)subscribe we refetch the authoritative row to
+  // reconcile any events missed between the initial server render and the channel
+  // being established, or after a dropped connection.
   useEffect(() => {
+    const roomId = room.id
     const supabase = createClient()
+
+    const reconcile = () => {
+      refetchRoom(roomId)
+        .then((fresh) => {
+          if (!fresh || !mountedRef.current) return
+          setRoom((prev) => {
+            const next = mergeRoomUpdate(prev, fresh)
+            setCaroRuntime({ matchStatus: next.status })
+            return next
+          })
+        })
+        .catch(() => { /* transient — next reconnect will retry */ })
+    }
+
     const channel = supabase
-      .channel(`caro:${room.id}`)
+      .channel(`caro:${roomId}`)
       .on(
         'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'caro_rooms', filter: `id=eq.${room.id}` },
+        { event: 'UPDATE', schema: 'public', table: 'caro_rooms', filter: `id=eq.${roomId}` },
         (payload) => {
-          const newRoom = payload.new as CaroRoom
-          setRoom(newRoom)
+          if (!mountedRef.current) return
+          setCaroRuntime({ lastRealtimeEvent: payload.eventType ?? 'UPDATE' })
+          setRoom((prev) => {
+            const next = mergeRoomUpdate(prev, payload.new)
+            setCaroRuntime({ matchStatus: next.status })
+            // Host-only: notify once when the first opponent actually joins.
+            if (
+              userId &&
+              userId === next.player_x &&
+              !opponentJoinedNotifiedRef.current &&
+              prev.player_o === null &&
+              next.player_o !== null
+            ) {
+              opponentJoinedNotifiedRef.current = true
+              queueMicrotask(() => {
+                if (!mountedRef.current) return
+                setShowOpponentToast(true)
+                playJoinSound()
+                if (opponentToastTimerRef.current) clearTimeout(opponentToastTimerRef.current)
+                opponentToastTimerRef.current = setTimeout(() => setShowOpponentToast(false), 4000)
+              })
+            }
+            return next
+          })
           setPendingCell(null)
           setError(null)
-          // Notify host once when the first opponent joins
-          if (
-            userId &&
-            userId === newRoom.player_x &&
-            !opponentJoinedNotifiedRef.current &&
-            newRoom.player_o !== null
-          ) {
-            opponentJoinedNotifiedRef.current = true
-            setShowOpponentToast(true)
-            playJoinSound()
-            if (opponentToastTimerRef.current) clearTimeout(opponentToastTimerRef.current)
-            opponentToastTimerRef.current = setTimeout(() => setShowOpponentToast(false), 4000)
-          }
         },
       )
-      .subscribe()
+      .subscribe((status) => {
+        setCaroRuntime({ channelStatus: status })
+        if (!mountedRef.current) return
+        if (status === 'SUBSCRIBED') {
+          setConnState('connected')
+          reconcile()
+        } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+          setConnState('reconnecting')
+        }
+      })
+
     return () => { supabase.removeChannel(channel) }
-  }, [room.id])
+  }, [room.id, userId])
 
   // ── Heartbeat: keep waiting room alive in lobby ───────────────────────────
   // Fires every 25s while room is 'waiting' and current user is host (player X).
@@ -294,6 +343,13 @@ export default function CaroGame({ initialRoom, userId, myName, playerXName, pla
           <div className="w-full bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3 text-[13px] text-amber-800 text-center">
             {t('waiting_hint', { code: room.room_code })}
           </div>
+        )}
+
+        {connState === 'reconnecting' && room.status === 'playing' && (
+          <p className="text-[13px] text-amber-700 bg-amber-50 px-4 py-2 rounded-xl border border-amber-200 w-full text-center flex items-center justify-center gap-2">
+            <span className="inline-block w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+            {t('reconnecting')}
+          </p>
         )}
 
         {error && (

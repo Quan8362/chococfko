@@ -1651,7 +1651,18 @@
       "admin_match_results": "試合結果",
       "admin_knockout_heading": "🏆 ノックアウト戦",
       "admin_matches_heading": "試合",
-      "admin_round_label": "ラウンド{n}"
+      "admin_round_label": "ラウンド{n}",
+      "reconnecting": "再接続しています…",
+      "caro_error": {
+        "heading": "ルームで問題が発生しました",
+        "body": "この対局で一時的なエラーが発生しました。対局は保存されています。再接続して続行してください。",
+        "updating": "アプリを更新しています",
+        "updating_body": "新しいバージョンがあります。更新のため再読み込みします…",
+        "retry": "再接続する",
+        "reload_room": "ルームを再読み込み",
+        "back_lobby": "← 五目並べロビーへ戻る",
+        "incident": "インシデントID"
+      }
     },
     "chinese_chess": {
       "badge": "🎮 象棋",
@@ -1793,7 +1804,18 @@
       "lobby_empty": "待機中の将棋部屋はありません。新しい部屋を作るか、部屋コードを入力してください。",
       "lobby_login_to_join": "ログイン",
       "lobby_login_required": "部屋に入るにはログインしてください。",
-      "just_created": "たった今"
+      "just_created": "たった今",
+      "reconnecting": "再接続しています…",
+      "chess_error": {
+        "heading": "ルームで問題が発生しました",
+        "body": "この対局で一時的なエラーが発生しました。結果はサーバーに保存されています。再接続して続行してください。",
+        "updating": "アプリを更新しています",
+        "updating_body": "新しいバージョンがあります。更新のため再読み込みします…",
+        "retry": "再接続する",
+        "reload_room": "ルームを再読み込み",
+        "back_lobby": "← シャンチーのロビーへ戻る",
+        "incident": "インシデントID"
+      }
     },
     "minesweeper": {
       "badge": "💣 マインスイーパー",

@@ -12,6 +12,7 @@ import {
   type Board,
   type Side,
 } from '@/lib/games/chineseChess/rules'
+import { logServerResultError } from '@/lib/diagnostics/serverReport'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -289,10 +290,47 @@ export async function makeChessMove(
     p_reason:    isFinished ? (generalCaptured ? 'general_captured' : 'checkmate') : null,
   })
 
-  if (error) return { error: error.message }
+  if (error) {
+    const incidentId = logServerResultError(
+      { op: 'make_chinese_chess_move', roomCode, status: room.status, endReason: isFinished ? (generalCaptured ? 'general_captured' : 'checkmate') : null },
+      error,
+      'XIANGQI',
+    )
+    return { error: `write_failed:${incidentId}` }
+  }
   const res = data as { ok?: boolean; error?: string } | null
   if (res?.error) return { error: res.error }
   return null
+}
+
+// ── refetchChessRoom ──────────────────────────────────────────────────────────
+// Authoritative room row by id. The client calls this after the realtime channel
+// (re)subscribes to reconcile any events missed between the initial server render
+// and the subscription, or during a dropped/restored connection. Null if gone.
+export async function refetchChessRoom(roomId: string): Promise<ChessRoom | null> {
+  const admin = createAdminClient()
+  const { data } = await admin
+    .from('chinese_chess_rooms')
+    .select('*')
+    .eq('id', roomId)
+    .maybeSingle()
+  return (data as ChessRoom | null) ?? null
+}
+
+// ── finalizeExpiredChessGames ──────────────────────────────────────────────────
+// Server-authoritative timeout safety net. Calls the finalize RPC, which finalizes
+// every 'playing' room whose AUTHORITATIVE per-turn deadline (turn_started_at +
+// turn_timeout_seconds, plus a grace margin) has objectively expired — forfeiting
+// to the player NOT on the clock, the same rule as claim_chinese_chess_timeout.
+// Idempotent and browser-independent. Cheap to call on lobby load.
+export async function finalizeExpiredChessGames(): Promise<{ finalized: number }> {
+  const admin = createAdminClient()
+  const { data, error } = await admin.rpc('finalize_expired_chinese_chess_games', { p_grace_seconds: 30 })
+  if (error) {
+    logServerResultError({ op: 'finalize_expired_chinese_chess_games' }, error, 'XIANGQI')
+    return { finalized: 0 }
+  }
+  return { finalized: typeof data === 'number' ? data : 0 }
 }
 
 // ── resignGame ────────────────────────────────────────────────────────────────
@@ -305,7 +343,10 @@ export async function resignGame(roomCode: string): Promise<ActionResult> {
     p_room_code: roomCode.toUpperCase(),
   })
 
-  if (error) return { error: error.message }
+  if (error) {
+    const incidentId = logServerResultError({ op: 'resign_chinese_chess_game', roomCode, endReason: 'resign' }, error, 'XIANGQI')
+    return { error: `write_failed:${incidentId}` }
+  }
   const res = data as { ok?: boolean; error?: string } | null
   if (res?.error) return { error: res.error }
   return null
@@ -321,7 +362,10 @@ export async function claimTimeout(roomCode: string): Promise<ActionResult> {
     p_room_code: roomCode.toUpperCase(),
   })
 
-  if (error) return { error: error.message }
+  if (error) {
+    const incidentId = logServerResultError({ op: 'claim_chinese_chess_timeout', roomCode, endReason: 'timeout' }, error, 'XIANGQI')
+    return { error: `write_failed:${incidentId}` }
+  }
   const res = data as { ok?: boolean; error?: string } | null
   if (res?.error && res.error !== 'not_timed_out') return { error: res.error }
   return null
@@ -337,7 +381,10 @@ export async function offerDraw(roomCode: string): Promise<ActionResult> {
     p_room_code: roomCode.toUpperCase(),
   })
 
-  if (error) return { error: error.message }
+  if (error) {
+    const incidentId = logServerResultError({ op: 'offer_chinese_chess_draw', roomCode, endReason: 'draw' }, error, 'XIANGQI')
+    return { error: `write_failed:${incidentId}` }
+  }
   const res = data as { ok?: boolean; error?: string } | null
   if (res?.error) return { error: res.error }
   return null
@@ -354,7 +401,10 @@ export async function respondDraw(roomCode: string, accepted: boolean): Promise<
     p_accepted:  accepted,
   })
 
-  if (error) return { error: error.message }
+  if (error) {
+    const incidentId = logServerResultError({ op: 'respond_chinese_chess_draw', roomCode, endReason: accepted ? 'draw' : null }, error, 'XIANGQI')
+    return { error: `write_failed:${incidentId}` }
+  }
   const res = data as { ok?: boolean; error?: string } | null
   if (res?.error) return { error: res.error }
   return null

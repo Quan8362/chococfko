@@ -1651,7 +1651,18 @@
       "admin_match_results": "对局结果",
       "admin_knockout_heading": "🏆 淘汰赛",
       "admin_matches_heading": "对局",
-      "admin_round_label": "第 {n} 轮"
+      "admin_round_label": "第 {n} 轮",
+      "reconnecting": "正在重新连接…",
+      "caro_error": {
+        "heading": "房间出现问题",
+        "body": "本局对战遇到临时错误。您的对局已保存——请尝试重新连接以继续。",
+        "updating": "正在更新应用",
+        "updating_body": "有新版本可用。正在重新加载以更新…",
+        "retry": "尝试重新连接",
+        "reload_room": "重新加载房间",
+        "back_lobby": "← 返回五子棋大厅",
+        "incident": "事件编号"
+      }
     },
     "chinese_chess": {
       "badge": "🎮 中国象棋",
@@ -1793,7 +1804,18 @@
       "lobby_empty": "暂无等待中的象棋房间。请创建新房间或输入房间码。",
       "lobby_login_to_join": "登录",
       "lobby_login_required": "请登录后再进入房间。",
-      "just_created": "刚刚"
+      "just_created": "刚刚",
+      "reconnecting": "正在重新连接…",
+      "chess_error": {
+        "heading": "房间出现问题",
+        "body": "本局对战遇到临时错误。您的结果已保存在服务器上——请尝试重新连接以继续。",
+        "updating": "正在更新应用",
+        "updating_body": "有新版本可用。正在重新加载以更新…",
+        "retry": "尝试重新连接",
+        "reload_room": "重新加载房间",
+        "back_lobby": "← 返回中国象棋大厅",
+        "incident": "事件编号"
+      }
     },
     "minesweeper": {
       "badge": "💣 扫雷",

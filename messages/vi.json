@@ -1651,7 +1651,18 @@
       "admin_match_results": "Kết quả trận",
       "admin_knockout_heading": "🏆 Vòng knock-out",
       "admin_matches_heading": "Trận đấu",
-      "admin_round_label": "Vòng {n}"
+      "admin_round_label": "Vòng {n}",
+      "reconnecting": "Đang kết nối lại…",
+      "caro_error": {
+        "heading": "Phòng chơi gặp sự cố",
+        "body": "Ván cờ này gặp lỗi tạm thời. Ván đấu của bạn vẫn được lưu — hãy thử kết nối lại để tiếp tục.",
+        "updating": "Đang cập nhật ứng dụng",
+        "updating_body": "Có phiên bản mới. Đang tải lại để cập nhật…",
+        "retry": "Thử kết nối lại",
+        "reload_room": "Tải lại phòng",
+        "back_lobby": "← Về sảnh Cờ caro",
+        "incident": "Mã sự cố"
+      }
     },
     "chinese_chess": {
       "badge": "🎮 Cờ Tướng",
@@ -1793,7 +1804,18 @@
       "lobby_empty": "Hiện chưa có phòng Cờ Tướng nào đang chờ. Hãy tạo phòng mới hoặc nhập mã phòng.",
       "lobby_login_to_join": "Đăng nhập",
       "lobby_login_required": "Hãy đăng nhập để vào phòng.",
-      "just_created": "Vừa tạo"
+      "just_created": "Vừa tạo",
+      "reconnecting": "Đang kết nối lại…",
+      "chess_error": {
+        "heading": "Phòng cờ gặp sự cố",
+        "body": "Ván cờ này gặp lỗi tạm thời. Kết quả của bạn vẫn được lưu trên máy chủ — hãy thử kết nối lại để tiếp tục.",
+        "updating": "Đang cập nhật ứng dụng",
+        "updating_body": "Có phiên bản mới. Đang tải lại để cập nhật…",
+        "retry": "Thử kết nối lại",
+        "reload_room": "Tải lại phòng",
+        "back_lobby": "← Về sảnh Cờ Tướng",
+        "incident": "Mã sự cố"
+      }
     },
     "minesweeper": {
       "badge": "💣 Dò mìn",

@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import {
   makeChessMove, resignGame, offerDraw, respondDraw, claimTimeout,
-  heartbeatWaitingChessRoom,
+  heartbeatWaitingChessRoom, refetchChessRoom,
   type ChessRoom, type MoveEntry,
 } from '../actions'
 import {
@@ -14,6 +14,7 @@ import {
   createInitialChineseChessBoard,
   type Board, type Side, type Pos,
 } from '@/lib/games/chineseChess/rules'
+import { mergeChessRoomUpdate, type ChessRoomState } from '@/lib/games/chineseChess/realtimePayload'
 import ChineseChessChat from './ChineseChessChat'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
@@ -74,6 +75,8 @@ export default function ChineseChessGame({
   const flipLsKey = `chess-flip-${initialRoom.room_code}-${userId ?? 'anon'}`
   const [flipped, setFlipped]       = useState(myRole === 'black')
   const [timeLeft, setTimeLeft]     = useState(TURN_TIMEOUT_SECS)
+  const [connState, setConnState]   = useState<'connecting' | 'connected' | 'reconnecting'>('connecting')
+  const mountedRef                  = useRef(true)
 
   // ── Refs ───────────────────────────────────────────────────────────────────
   const resignTimer    = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -140,50 +143,86 @@ export default function ChineseChessGame({
     } catch {}
   }
 
-  // Cleanup toast timer on unmount
+  // Cleanup toast timer on unmount + track mount status for async callbacks
   useEffect(() => {
-    return () => { if (opponentToastTimerRef.current) clearTimeout(opponentToastTimerRef.current) }
+    mountedRef.current = true
+    return () => {
+      mountedRef.current = false
+      if (opponentToastTimerRef.current) clearTimeout(opponentToastTimerRef.current)
+    }
   }, [])
 
   // ── Realtime: rooms + moves ────────────────────────────────────────────────
+  // Payloads are MERGED onto the last known state (mergeChessRoomUpdate) so a
+  // stale/partial/out-of-order event can never un-finish a completed game, roll the
+  // board back, or wipe players. On every (re)subscribe we refetch the authoritative
+  // row to reconcile events missed between the server render and the subscription,
+  // or after a dropped connection.
   useEffect(() => {
+    const roomId = room.id
     const sb = createClient()
+
+    const reconcile = () => {
+      refetchChessRoom(roomId)
+        .then(fresh => {
+          if (!fresh || !mountedRef.current) return
+          setRoom(prev => mergeChessRoomUpdate(prev as ChessRoomState, fresh) as ChessRoom)
+        })
+        .catch(() => { /* transient — next reconnect retries */ })
+    }
+
     const ch = sb
-      .channel(`chess:${room.id}`)
+      .channel(`chess:${roomId}`)
       .on('postgres_changes', {
         event: 'UPDATE', schema: 'public',
-        table: 'chinese_chess_rooms', filter: `id=eq.${room.id}`,
+        table: 'chinese_chess_rooms', filter: `id=eq.${roomId}`,
       }, payload => {
-        const newRoom = payload.new as ChessRoom
-        setRoom(newRoom)
+        if (!mountedRef.current) return
+        setRoom(prev => {
+          const next = mergeChessRoomUpdate(prev as ChessRoomState, payload.new) as ChessRoom
+          // Notify host (red) once when opponent (black) first joins.
+          if (
+            myRole === 'red' &&
+            !opponentJoinedNotifiedRef.current &&
+            prev.player_black === null &&
+            next.player_black !== null
+          ) {
+            opponentJoinedNotifiedRef.current = true
+            queueMicrotask(() => {
+              if (!mountedRef.current) return
+              setShowOpponentToast(true)
+              playJoinSound()
+              if (opponentToastTimerRef.current) clearTimeout(opponentToastTimerRef.current)
+              opponentToastTimerRef.current = setTimeout(() => setShowOpponentToast(false), 4000)
+            })
+          }
+          return next
+        })
         setSelected(null); setValidMoves([])
         setError(null)
-        // Notify host (red) once when opponent (black) first joins
-        if (
-          myRole === 'red' &&
-          !opponentJoinedNotifiedRef.current &&
-          newRoom.player_black !== null
-        ) {
-          opponentJoinedNotifiedRef.current = true
-          setShowOpponentToast(true)
-          playJoinSound()
-          if (opponentToastTimerRef.current) clearTimeout(opponentToastTimerRef.current)
-          opponentToastTimerRef.current = setTimeout(() => setShowOpponentToast(false), 4000)
-        }
       })
       .on('postgres_changes', {
         event: 'INSERT', schema: 'public',
-        table: 'chinese_chess_moves', filter: `room_id=eq.${room.id}`,
+        table: 'chinese_chess_moves', filter: `room_id=eq.${roomId}`,
       }, payload => {
+        if (!mountedRef.current) return
         const entry = payload.new as MoveEntry
         setMoveLog(prev => {
           if (prev.some(m => m.id === entry.id)) return prev
           return [...prev, entry].sort((a, b) => a.move_number - b.move_number)
         })
       })
-      .subscribe()
+      .subscribe(status => {
+        if (!mountedRef.current) return
+        if (status === 'SUBSCRIBED') {
+          setConnState('connected')
+          reconcile()
+        } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+          setConnState('reconnecting')
+        }
+      })
     return () => { sb.removeChannel(ch) }
-  }, [room.id])
+  }, [room.id, myRole])
 
   // Heartbeat: keep waiting room alive while host is present
   useEffect(() => {
@@ -532,6 +571,14 @@ export default function ChineseChessGame({
             {statusInfo.sub && (
               <p className="text-[11.5px] mt-0.5 opacity-70 leading-snug">{statusInfo.sub}</p>
             )}
+          </div>
+        )}
+
+        {/* Reconnecting banner — transient realtime drop, not a fatal error */}
+        {connState === 'reconnecting' && room.status === 'playing' && (
+          <div className="rounded-xl px-4 py-2 text-center border bg-amber-50 border-amber-200 text-amber-800 text-[12px] font-medium flex items-center justify-center gap-2">
+            <span className="inline-block w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+            {t('reconnecting')}
           </div>
         )}
 

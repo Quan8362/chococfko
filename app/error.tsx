@@ -1,8 +1,10 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
+import { reportClientError } from '@/lib/diagnostics/report'
+import { isChunkLoadError, shouldReloadForChunk, normalizeError } from '@/lib/diagnostics/clientError'
 
 export default function Error({
   error,
@@ -12,15 +14,26 @@ export default function Error({
   reset: () => void
 }) {
   const t = useTranslations('error_page')
+  const [reloading, setReloading] = useState(false)
 
   useEffect(() => {
-    console.error('[Runtime error]', error)
+    const normalized = normalizeError(error)
+    reportClientError(error, {}, 'PAGE')
+
+    if (isChunkLoadError(normalized)) {
+      const storage = safeSessionStorage()
+      const key = typeof window !== 'undefined' ? window.location.pathname : 'page'
+      if (shouldReloadForChunk('chunk', key, storage)) {
+        setReloading(true)
+        try { window.location.reload() } catch { /* ignore */ }
+      }
+    }
   }, [error])
 
   return (
     <div className="min-h-[calc(100vh-160px)] flex items-center justify-center px-6 py-20">
       <div className="max-w-[480px] w-full text-center">
-        <div className="text-[56px] mb-5">⚠️</div>
+        <div className="text-[56px] mb-5">{reloading ? '⬇️' : '⚠️'}</div>
 
         <h1 className="font-serif font-black text-[26px] text-ink mb-3 leading-snug">
           {t('heading')}
@@ -29,21 +42,31 @@ export default function Error({
           {t('body')}
         </p>
 
-        <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <button
-            onClick={reset}
-            className="inline-flex items-center justify-center gap-2 font-semibold text-[14px] px-7 py-3 rounded-full bg-rose text-white shadow-[0_4px_14px_-4px_rgba(194,24,91,0.45)] hover:bg-rose-deep hover:-translate-y-0.5 transition-all"
-          >
-            🔄 {t('retry')}
-          </button>
-          <Link
-            href="/"
-            className="inline-flex items-center justify-center gap-2 font-semibold text-[14px] px-7 py-3 rounded-full bg-paper border border-line text-ink hover:border-rose/40 hover:text-rose transition-all"
-          >
-            {t('back')}
-          </Link>
-        </div>
+        {!reloading && (
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <button
+              onClick={reset}
+              className="inline-flex items-center justify-center gap-2 font-semibold text-[14px] px-7 py-3 rounded-full bg-rose text-white shadow-[0_4px_14px_-4px_rgba(194,24,91,0.45)] hover:bg-rose-deep hover:-translate-y-0.5 transition-all"
+            >
+              🔄 {t('retry')}
+            </button>
+            <Link
+              href="/"
+              className="inline-flex items-center justify-center gap-2 font-semibold text-[14px] px-7 py-3 rounded-full bg-paper border border-line text-ink hover:border-rose/40 hover:text-rose transition-all"
+            >
+              {t('back')}
+            </Link>
+          </div>
+        )}
       </div>
     </div>
   )
+}
+
+function safeSessionStorage(): Storage | null {
+  try {
+    return typeof window !== 'undefined' ? window.sessionStorage : null
+  } catch {
+    return null
+  }
 }

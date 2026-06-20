@@ -5,7 +5,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import CaroLobby from './CaroLobby'
 import CaroWaitingRooms from './CaroWaitingRooms'
 import CaroHistoryClient, { type CaroHistoryRow } from './CaroHistoryClient'
-import { fetchWaitingRooms } from './actions'
+import { fetchWaitingRooms, finalizeStaleGames } from './actions'
 
 export const dynamic = 'force-dynamic'
 
@@ -42,6 +42,11 @@ export default async function CaroPage() {
     Promise.resolve(createClient()),
     Promise.resolve(createAdminClient()),
   ])
+
+  // Server-authoritative safety net: finalize abandoned 'playing' rooms (crashed /
+  // closed tabs) BEFORE reading history, so completed-but-stranded matches surface
+  // immediately rather than being lost forever. Browser-independent and idempotent.
+  await finalizeStaleGames().catch(() => { /* never block the lobby on this */ })
 
   const [{ data: { user } }, { data: history }, waitingRooms] = await Promise.all([
     supabase.auth.getUser(),

@@ -2,7 +2,7 @@
 // Run with:  node --test lib/placeSearch.test.ts
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { filterPlaces, extractFeeIntent, normalizeText, bbqEvidenceScore, type PlaceCriteria } from './placeSearch.ts'
+import { filterPlaces, extractFeeIntent, extractFacets, normalizeText, bbqEvidenceScore, type PlaceCriteria } from './placeSearch.ts'
 import type { Place, Fee } from './places.ts'
 import type { LocalizedTag } from './tags.ts'
 
@@ -25,6 +25,14 @@ function bbqTag(): LocalizedTag {
   } as unknown as LocalizedTag
 }
 
+function campingTag(): LocalizedTag {
+  return {
+    id: 'camping', name: 'camping',
+    display_name_vi: 'Cắm trại', display_name_en: 'Camping',
+    display_name_ja: 'キャンプ', display_name_ko: '캠핑', display_name_zh: '露营',
+  } as unknown as LocalizedTag
+}
+
 // Mirrors the production "Biển & BBQ" (sea) set + camp/onsen, with explicit
 // item-level BBQ signals attached only where they genuinely exist. This is the
 // crux of the false-positive fix: most beaches under the combined "Biển & BBQ"
@@ -40,14 +48,21 @@ const DATA: Place[] = [
   place({ slug: 'shingu', name: 'Shingu Beach', category: 'sea', categoryLabel: 'Biển', fee: 'free', desc: 'Bãi rộng, đẹp, hợp tắm biển và BBQ' }),
   // Beach with an explicit item-level BBQ TAG (strongest signal).
   place({ slug: 'tagged-beach', name: 'Tagged Beach', category: 'sea', categoryLabel: 'Biển', fee: 'free', desc: 'Bãi biển có khu nướng', tags: [bbqTag()] }),
-  // Camp place that mentions BBQ in description → genuine BBQ match.
+  // ── "Camping & picnic" umbrella: camping vs picnic are SEPARATE facets ──
+  // Picnic-only camp place (also mentions BBQ) → matches picnic + BBQ, NOT camping.
   place({ slug: 'camp-aburayama', name: 'Aburayama', category: 'camp', categoryLabel: 'Camping', fee: 'free', desc: 'Picnic, BBQ, đi bộ thiên nhiên' }),
-  // Onsen — no BBQ at all.
+  // Camping-only camp place → matches camping (vi "cắm trại"), NOT picnic, NOT BBQ.
+  place({ slug: 'camp-cantrai', name: 'Khu cắm trại rừng', category: 'camp', categoryLabel: 'Camping', fee: 'free', desc: 'Khu cắm trại yên tĩnh giữa rừng, có suối' }),
+  // Camp place whose camping signal is an explicit TAG (strongest) — desc has no camp word.
+  place({ slug: 'camp-tagged', name: 'Tagged Camp', category: 'camp', categoryLabel: 'Camping', fee: 'paid', desc: 'Khu vực thiên nhiên rộng', tags: [campingTag()] }),
+  // Onsen — no BBQ / camping / picnic at all.
   place({ slug: 'onsen-1', name: 'Some Onsen', category: 'onsen', categoryLabel: 'Onsen', fee: 'paid', desc: 'Tắm nước nóng' }),
 ]
 
-const BBQ_MATCHES = ['camp-aburayama', 'shingu', 'tagged-beach'] // the only genuine BBQ places
-const BEACH_ONLY = ['keya', 'momochi', 'nogita', 'paid-beach']   // beaches with NO BBQ evidence
+const BBQ_MATCHES = ['camp-aburayama', 'shingu', 'tagged-beach']      // the only genuine BBQ places
+const CAMPING_MATCHES = ['camp-cantrai', 'camp-tagged']              // genuine camping evidence
+const PICNIC_MATCHES = ['camp-aburayama']                            // genuine picnic evidence
+const BEACH_ONLY = ['keya', 'momochi', 'nogita', 'paid-beach']       // beaches with NO BBQ evidence
 
 function slugs(rows: Place[]): string[] {
   return rows.map((r) => r.slug).sort()
@@ -118,7 +133,7 @@ test('(5) "BBQ miễn phí" requires BBQ evidence AND free price', () => {
 // (6) "miễn phí" still matches free beach-only locations, regardless of category.
 test('(6) "miễn phí" returns ALL structurally-free places (incl. beach-only)', () => {
   const r = run('miễn phí')
-  assert.deepEqual(r, ['camp-aburayama', 'keya', 'momochi', 'nogita', 'shingu', 'tagged-beach'])
+  assert.deepEqual(r, ['camp-aburayama', 'camp-cantrai', 'keya', 'momochi', 'nogita', 'shingu', 'tagged-beach'])
   assert.ok(r.includes('keya') && r.includes('momochi')) // beach-only free places included
   // free across locales (vi/en/ja/ko/zh) behaves identically — same structured semantics
   assert.deepEqual(run('free'), r)
@@ -174,8 +189,54 @@ test('"Biển" matches the sea category; "Biển & BBQ" applies AND (beach AND B
   for (const s of BEACH_ONLY) assert.ok(!both.includes(s), `${s} (no BBQ) must not match "Biển & BBQ"`)
 })
 
-test('"camping" and "onsen" still match their categories', () => {
-  assert.ok(run('camping').includes('camp-aburayama'))
+// ── "Camping & picnic" umbrella: camping & picnic are SEPARATE item-level facets ──
+
+test('camping & picnic are separate facets — neither implies the other via category', () => {
+  // camping matches ONLY camping-evidence places (not picnic-only camp-aburayama)
+  assert.deepEqual(run('camping'), CAMPING_MATCHES)
+  // picnic matches ONLY picnic-evidence places (not camping-only places)
+  assert.deepEqual(run('picnic'), PICNIC_MATCHES)
+  // the umbrella false positives are gone:
+  assert.ok(!run('camping').includes('camp-aburayama'), 'picnic-only place must NOT match camping')
+  assert.ok(!run('picnic').includes('camp-cantrai'), 'camping-only place must NOT match picnic')
+  assert.ok(!run('picnic').includes('camp-tagged'), 'camping-tagged place must NOT match picnic')
+})
+
+test('camping evidence: explicit tag (strong) and vi "cắm trại" in description both match', () => {
+  assert.ok(run('camping').includes('camp-tagged'))  // tag
+  assert.ok(run('camping').includes('camp-cantrai')) // "cắm trại" in desc
+  // tag (structured) ranks above a description-only camping mention
+  const r = ordered('camping')
+  assert.ok(r.indexOf('camp-tagged') < r.indexOf('camp-cantrai'))
+})
+
+test('camping facet resolves across vi/en/ja/ko/zh aliases', () => {
+  for (const alias of ['camping', 'cắm trại', 'キャンプ', '캠핑', '露营']) {
+    assert.ok(run(alias).includes('camp-tagged'), `alias "${alias}" should match the camping-tagged place`)
+  }
+})
+
+test('"camping miễn phí" = camping evidence AND free (excludes PAID camping place)', () => {
+  const r = run('camping miễn phí')
+  assert.ok(r.includes('camp-cantrai'))   // camping + free
+  assert.ok(!r.includes('camp-tagged'))   // camping but PAID → excluded
+  assert.ok(!r.includes('camp-aburayama'))// free but picnic-only (no camping)
+})
+
+test('extractFacets isolates facet intent (incl. multi-word) and keeps residual text', () => {
+  assert.deepEqual(extractFacets(normalizeText('cắm trại')).facets.map((f) => f.key), ['camping'])
+  const r2 = extractFacets(normalizeText('bbq itoshima'))
+  assert.deepEqual(r2.facets.map((f) => f.key), ['bbq'])
+  assert.equal(r2.rest, 'itoshima')
+  // "camp" alias must NOT be swallowed from inside "camping" (word boundary)
+  assert.deepEqual(extractFacets(normalizeText('camping')).facets.map((f) => f.key), ['camping'])
+  // a plain query with no facet leaves text untouched, no facets
+  const r3 = extractFacets(normalizeText('keya beach'))
+  assert.equal(r3.facets.length, 0)
+  assert.equal(r3.rest, 'keya beach')
+})
+
+test('non-facet category concepts still match their categories (onsen, sea)', () => {
   assert.ok(run('onsen').includes('onsen-1'))
   assert.ok(run('温泉').includes('onsen-1'))
   assert.ok(run('海').includes('keya'))

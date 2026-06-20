@@ -45,14 +45,15 @@ export function normalizeText(s: string): string {
 // Từ đồng nghĩa đa ngôn ngữ cho từng CATEGORY CODE (đã chuẩn hóa: thường, bỏ dấu
 // Việt; CJK giữ nguyên). Nhờ đó "beach"/"海" đều khớp category `sea` dù nhãn lưu
 // chỉ là "Biển". Khớp bằng substring sau normalizeText.
-// LƯU Ý: KHÔNG đưa BBQ vào synonym của `sea`/`camp` — BBQ là facet cấp-địa-điểm
-// (xem BBQ_QUERY_ALIASES / bbqEvidenceScore), không phải thuộc tính của cả category
-// gộp "Biển & BBQ". Trộn lẫn sẽ khiến MỌI bãi biển khớp "BBQ" (false positive).
+// LƯU Ý: synonym chỉ chứa khái niệm mà CATEGORY ĐẠI DIỆN CHÍNH XÁC. Với category GỘP
+// (nhiều khái niệm) — "Biển & BBQ", "Camping & picnic" — KHÔNG nhồi từng tính năng
+// (BBQ / camping / picnic) vào synonym, vì membership KHÔNG chứng minh địa điểm có
+// tính năng đó → false positive. Các tính năng đó là FEATURE_FACETS cấp item bên dưới.
 const CATEGORY_SYNONYMS: Record<string, string> = {
   landmark: 'du lich landmark sightseeing tham quan diem den 観光 観光地 ランドマーク 名所 관광 명소 观光 景点 地标',
   food: 'an dem an uong vui choi dem do an duong pho yatai street food 屋台 グルメ 夜食 야식 길거리 음식 포장마차 夜市 小吃',
   sea: 'bien beach sea seaside tam bien bai bien 海 ビーチ 海岸 海辺 바다 해변 해수욕장 海滩 海边 海滨',
-  camp: 'camping picnic cam trai cap trai da ngoai キャンプ ピクニック 野外 캠핑 피크닉 야영 露营 野餐',
+  camp: 'ngoai troi outdoor 野外 アウトドア 아웃도어 户外 戶外',
   mountain: 'leo nui nui hiking mountain trekking 山 登山 ハイキング 산 등산 하이킹 登山 爬山 徒步',
   park: 'cong vien park garden vuon 公園 公园 공원 花园 庭园',
   viet: 'quan viet do an viet vietnamese pho banh mi ベトナム料理 ベトナム 베트남 음식 越南菜 越南料理',
@@ -73,55 +74,107 @@ const CATEGORY_SYNONYMS: Record<string, string> = {
 const FREE_QUERY_TERMS = ['mien phi', 'free', 'gratis', 'mienphi', '無料', '무료', '免费', '免費'].map(normalizeText);
 const PAID_QUERY_TERMS = ['co phi', 'tinh phi', 'mat phi', 'paid', 'cophi', '有料', '유료', '收费', '收費', '付费', '付費'].map(normalizeText);
 
-// ── BBQ: facet cấp-địa-điểm (KHÔNG phải category) ───────────────────────────
-// Alias đa ngôn ngữ KÍCH HOẠT ý định BBQ trong TRUY VẤN (đã chuẩn hóa). Token nào
-// là alias BBQ sẽ khớp một địa điểm CHỈ khi địa điểm có BẰNG CHỨNG BBQ cấp item.
-// Chuẩn hóa qua normalizeText để token (đã chuẩn hóa, có thể bị NFD tách dakuten /
-// jamo) khớp được với hằng — nếu để dạng dựng sẵn sẽ KHÔNG khớp token đã tách.
-const BBQ_QUERY_ALIASES = new Set<string>(
-  ['bbq', 'barbecue', 'barbeque', 'kbbq', 'バーベキュー', 'バーベキュ', '바비큐', '바베큐', '烧烤', '烤肉'].map(normalizeText),
-);
-// Cụm BẰNG CHỨNG BBQ tìm trong DỮ LIỆU địa điểm (tên/mô tả/tag/amenity). Cố ý KHÔNG
-// gồm "nướng"/"grill" chung chung (lươn nướng, thịt nướng quán…) để tránh false positive.
-const BBQ_EVIDENCE_TERMS = ['bbq', 'barbecue', 'barbeque', 'バーベキュー', 'バーベキュ', '바비큐', '바베큐', '烧烤', '烤肉'].map(normalizeText);
-
-/** Token (đã chuẩn hóa) có phải là alias chỉ ý định BBQ không? */
-export function isBbqAlias(tok: string): boolean {
-  return BBQ_QUERY_ALIASES.has(tok);
+// ── FEATURE FACETS: tính-năng cấp-địa-điểm (KHÔNG phải thuộc tính category gộp) ──
+// Category gộp (Biển & BBQ, Camping & picnic) ghép NHIỀU khái niệm. Membership KHÔNG
+// chứng minh địa điểm có TỪNG tính năng → mỗi tính năng là 1 FACET: token truy vấn là
+// alias của facet khớp địa điểm CHỈ khi có BẰNG CHỨNG cấp item (structured field / tag /
+// tên / mô tả), KHÔNG rơi xuống category synonym.
+//
+// aliases  = cụm KÍCH HOẠT trong TRUY VẤN (đa ngôn ngữ; phần Latin khớp theo ranh giới
+//            từ — kể cả nhiều từ; CJK khớp substring). evidence = cụm tìm trong DỮ LIỆU.
+// Mọi cụm normalizeText để đồng bộ NFD (dakuten/jamo) với truy vấn đã chuẩn hóa.
+interface FeatureFacet {
+  key: string;
+  aliases: string[];
+  evidence: string[];
+  structuredFlags?: string[]; // tên trường boolean cấp item (khi schema bổ sung)
 }
 
-// Trọng số bằng chứng BBQ theo độ TIN CẬY của nguồn: trường có cấu trúc / tag rõ
-// ràng > tên > chỉ nhắc trong mô tả (yếu, dễ là nhắc thoáng qua).
-const W_BBQ_STRUCT = 10;
-const W_BBQ_NAME = 8;
-const W_BBQ_DESC = 1;
+// Trọng số bằng chứng facet theo độ TIN CẬY: structured field / tag rõ ràng > tên >
+// chỉ nhắc trong mô tả (yếu, dễ là nhắc thoáng qua) → đẩy xuống cuối khi xếp hạng.
+const W_FACET_STRUCT = 10;
+const W_FACET_NAME = 8;
+const W_FACET_DESC = 1;
+
+const FEATURE_FACETS: FeatureFacet[] = [
+  {
+    key: 'bbq',
+    // Cố ý KHÔNG gồm "nướng"/"grill" chung chung (lươn nướng…) để tránh false positive.
+    aliases: ['bbq', 'barbecue', 'barbeque', 'kbbq', 'バーベキュー', 'バーベキュ', '바비큐', '바베큐', '烧烤', '烤肉'],
+    evidence: ['bbq', 'barbecue', 'barbeque', 'バーベキュー', 'バーベキュ', '바비큐', '바베큐', '烧烤', '烤肉'],
+    structuredFlags: ['bbq_allowed', 'has_bbq'],
+  },
+  {
+    key: 'camping',
+    aliases: ['camping', 'camp', 'cam trai', 'cap trai', 'キャンプ', 'キャンプ場', '캠핑', '캠프', '露营', '露營', '野営'],
+    evidence: ['camping', 'cam trai', 'cap trai', 'キャンプ', '캠핑', '露营', '露營', '野営'],
+    structuredFlags: ['camping_allowed', 'has_camping', 'can_camp'],
+  },
+  {
+    key: 'picnic',
+    aliases: ['picnic', 'da ngoai', 'ピクニック', '피크닉', '소풍', '野餐'],
+    evidence: ['picnic', 'da ngoai', 'ピクニック', '피크닉', '소풍', '野餐'],
+    structuredFlags: ['picnic_allowed', 'has_picnic'],
+  },
+  // GHI CHÚ: facet "nightlife" cho category gộp "Ăn uống & vui chơi đêm" đang CHỜ DUYỆT
+  // — chưa bật để tránh đổi ngữ nghĩa "vui chơi đêm" trước review.
+];
+// Chuẩn hóa NFD một lần cho mọi alias/evidence.
+for (const f of FEATURE_FACETS) {
+  f.aliases = f.aliases.map(normalizeText);
+  f.evidence = f.evidence.map(normalizeText);
+}
 
 /**
- * Điểm bằng chứng BBQ CẤP ITEM của một place. 0 = không có bằng chứng → KHÔNG khớp
- * "BBQ". Thứ tự ưu tiên: trường có cấu trúc / amenity / tag BBQ > BBQ trong tên >
- * BBQ chỉ trong mô tả/nội dung. KHÔNG bao giờ suy ra từ category "Biển & BBQ".
+ * Điểm bằng chứng CẤP ITEM của một place cho 1 facet. 0 = không có bằng chứng → KHÔNG
+ * khớp facet đó. Ưu tiên: structured field / amenity / tag > tên > mô tả. KHÔNG bao giờ
+ * suy ra từ việc địa điểm thuộc category gộp (Biển & BBQ, Camping & picnic).
  */
-export function bbqEvidenceScore(p: Place): number {
-  // 1) Trường có cấu trúc (khi schema bổ sung): bbq_allowed / has_bbq / amenities[].
-  const struct = p as Place & {
-    bbq_allowed?: boolean | null; has_bbq?: boolean | null; amenities?: string[] | null;
-  };
-  if (struct.bbq_allowed === true || struct.has_bbq === true) return W_BBQ_STRUCT;
+export function facetEvidenceScore(p: Place, facet: FeatureFacet): number {
+  const struct = p as Place & Record<string, unknown> & { amenities?: string[] | null };
+  if (facet.structuredFlags?.some((k) => struct[k] === true)) return W_FACET_STRUCT;
   if (Array.isArray(struct.amenities)) {
     const am = normalizeText(struct.amenities.join(' '));
-    if (BBQ_EVIDENCE_TERMS.some((t) => am.includes(t))) return W_BBQ_STRUCT;
+    if (facet.evidence.some((t) => am.includes(t))) return W_FACET_STRUCT;
   }
-  // 2) Tag cấp-địa-điểm rõ ràng (tên tag hoặc nhãn dịch chứa BBQ).
   const tags = normalizeText(tagText(p));
-  if (BBQ_EVIDENCE_TERMS.some((t) => tags.includes(t))) return W_BBQ_STRUCT;
-  // 3) BBQ trong TÊN.
+  if (facet.evidence.some((t) => tags.includes(t))) return W_FACET_STRUCT;
   const name = normalizeText(p.name);
-  if (BBQ_EVIDENCE_TERMS.some((t) => name.includes(t))) return W_BBQ_NAME;
-  // 4) BBQ chỉ trong MÔ TẢ / nội dung — tín hiệu yếu nhất.
+  if (facet.evidence.some((t) => name.includes(t))) return W_FACET_NAME;
   const text = normalizeText(`${p.desc} ${p.body ?? ''}`);
-  if (BBQ_EVIDENCE_TERMS.some((t) => text.includes(t))) return W_BBQ_DESC;
+  if (facet.evidence.some((t) => text.includes(t))) return W_FACET_DESC;
   return 0;
 }
+
+/**
+ * Tách các facet được YÊU CẦU khỏi truy vấn (đã chuẩn hóa) & loại alias khỏi text còn
+ * lại. Alias có ký tự Latin khớp theo ranh giới từ (kể cả nhiều từ — tránh "camp" ⊂
+ * "camping"); alias CJK/kana/hangul khớp substring (không có khoảng trắng phân từ).
+ */
+export function extractFacets(rest: string): { facets: FeatureFacet[]; rest: string } {
+  let padded = ` ${rest} `;
+  const active: FeatureFacet[] = [];
+  for (const f of FEATURE_FACETS) {
+    let hit = false;
+    for (const a of f.aliases) {
+      if (/[a-z0-9]/.test(a)) {
+        const bounded = ` ${a} `;
+        if (padded.includes(bounded)) { hit = true; padded = padded.split(bounded).join('  '); }
+      } else if (padded.includes(a)) {
+        hit = true; padded = padded.split(a).join(' ');
+      }
+    }
+    if (hit) active.push(f);
+  }
+  return { facets: active, rest: padded.replace(/\s+/g, ' ').trim() };
+}
+
+// Tương thích ngược cho call-site / test cũ chỉ quan tâm BBQ.
+const BBQ_FACET = FEATURE_FACETS.find((f) => f.key === 'bbq')!;
+/** Token (đã chuẩn hóa) có phải alias BBQ không? */
+export function isBbqAlias(tok: string): boolean { return BBQ_FACET.aliases.includes(tok); }
+/** Điểm bằng chứng BBQ cấp item. */
+export function bbqEvidenceScore(p: Place): number { return facetEvidenceScore(p, BBQ_FACET); }
 
 /** Tách ý định giá (free/paid) khỏi truy vấn đã chuẩn hóa; trả về phần text còn lại. */
 export function extractFeeIntent(normalizedQ: string): { fee: Fee | null; rest: string } {
@@ -180,19 +233,8 @@ function relevanceScore(p: Place, tokens: string[]): number | null {
   const syn = normalizeText(CATEGORY_SYNONYMS[p.category] ?? '');
   const desc = normalizeText(p.desc);
 
-  // BBQ tính LƯỜI (chỉ khi truy vấn có token BBQ) & 1 lần/địa điểm.
-  let bbqScore = -1;
-
   let score = 0;
   for (const tok of tokens) {
-    // Token BBQ đi theo NGỮ NGHĨA FACET: chỉ khớp khi có bằng chứng BBQ cấp item,
-    // KHÔNG rơi xuống category synonym ("Biển & BBQ") hay match text chung chung.
-    if (isBbqAlias(tok)) {
-      if (bbqScore < 0) bbqScore = bbqEvidenceScore(p);
-      if (bbqScore === 0) return null; // có ý định BBQ nhưng địa điểm không có bằng chứng → loại
-      score += bbqScore;
-      continue;
-    }
     let best = 0;
     if (syn.includes(tok)) best = W_SYNONYM;
     if (best < W_NAME && name.includes(tok)) best = W_NAME;
@@ -210,13 +252,17 @@ function relevanceScore(p: Place, tokens: string[]): number | null {
  * Lọc + XẾP HẠNG địa điểm theo tiêu chí. Hàm thuần, dùng được cả ở client lẫn server.
  * Đây là chỗ DUY NHẤT chứa logic so khớp — khi chuyển sang SQL chỉ cần tái hiện.
  *
- * Ngữ nghĩa: (category/tag/text concept + facet BBQ cấp item) AND (cấu trúc fee nếu
- * truy vấn nhắc tới giá), rồi sắp xếp theo độ liên quan — khớp đúng chủ đề / có bằng
- * chứng BBQ rõ ràng đứng TRƯỚC, khớp chỉ-trong-mô-tả đứng CUỐI. Đồng điểm → giữ thứ tự gốc.
+ * Ngữ nghĩa: (FEATURE_FACETS cấp item) AND (category/tag/text concept) AND (cấu trúc
+ * fee nếu truy vấn nhắc tới giá) — TẤT CẢ phải thỏa. Rồi xếp theo độ liên quan: khớp
+ * đúng chủ đề / có bằng chứng facet rõ ràng đứng TRƯỚC, chỉ-trong-mô-tả đứng CUỐI.
+ * Đồng điểm → giữ thứ tự gốc (sort_order từ DB).
  */
 export function filterPlaces(places: Place[], criteria: PlaceCriteria): Place[] {
   const normalizedQ = criteria.q ? normalizeText(criteria.q) : '';
-  const { fee: feeFilter, rest } = normalizedQ ? extractFeeIntent(normalizedQ) : { fee: null, rest: '' };
+  const { fee: feeFilter, rest: feeRest } = normalizedQ ? extractFeeIntent(normalizedQ) : { fee: null, rest: '' };
+  // Tách facet (BBQ / camping / picnic…) TRƯỚC khi tokenize, để alias nhiều-từ ("cắm
+  // trại", "dã ngoại") không bị cắt rời và không double-match phần text chung chung.
+  const { facets, rest } = feeRest ? extractFacets(feeRest) : { facets: [], rest: '' };
   const tokens = rest ? tokenize(rest) : [];
   const cats = criteria.categories?.length ? new Set(criteria.categories) : null;
   const pref = criteria.prefecture ?? null;
@@ -226,13 +272,19 @@ export function filterPlaces(places: Place[], criteria: PlaceCriteria): Place[] 
     if (cats && !cats.has(p.category)) return;
     if (pref && (p.prefecture ?? 'fukuoka') !== pref) return;
     if (feeFilter && p.fee !== feeFilter) return; // giá khớp trường có cấu trúc
-    if (tokens.length) {
-      const score = relevanceScore(p, tokens);
-      if (score === null) return; // AND across tokens failed
-      scored.push({ p, idx, score });
-    } else {
-      scored.push({ p, idx, score: 0 });
+    let score = 0;
+    // Mỗi facet là điều kiện AND, khớp CHỈ qua bằng chứng cấp item.
+    for (const f of facets) {
+      const e = facetEvidenceScore(p, f);
+      if (e === 0) return; // có ý định facet nhưng địa điểm không có bằng chứng → loại
+      score += e;
     }
+    if (tokens.length) {
+      const s = relevanceScore(p, tokens);
+      if (s === null) return; // AND across tokens failed
+      score += s;
+    }
+    scored.push({ p, idx, score });
   });
 
   // Điểm cao trước; đồng điểm giữ nguyên thứ tự gốc (sort_order từ DB).

@@ -12,10 +12,14 @@ import type { Place, Fee } from './places';
 //   • Truy vấn được tách thành các "token khái niệm" theo khoảng trắng/dấu câu.
 //   • AND giữa các token, OR giữa các trường trong cùng một place.
 //   • Mỗi category code có bộ từ đồng nghĩa ĐA NGÔN NGỮ (vi/en/ja/ko/zh) nên
-//     "BBQ", "camping", "onsen", "海", "캠핑"… khớp đúng chủ đề dù nhãn lưu chỉ là
-//     tên ngắn tiếng Việt ("Biển").
+//     "camping", "onsen", "海", "캠핑"… khớp đúng chủ đề dù nhãn lưu chỉ là tên
+//     ngắn tiếng Việt ("Biển").
 //   • Khái niệm GIÁ ("miễn phí" / "free" / "無料" / "무료" / "免费", và phía trả phí)
 //     khớp theo TRƯỜNG CÓ CẤU TRÚC place.fee, không phụ thuộc text trong mô tả.
+//   • BBQ là FACET CẤP-ĐỊA-ĐIỂM, KHÔNG phải thuộc tính của cả category gộp
+//     "Biển & BBQ". Một địa điểm chỉ khớp "BBQ" khi CÓ BẰNG CHỨNG cấp item:
+//     trường có cấu trúc (bbq_allowed / has_bbq / amenities), tag BBQ rõ ràng,
+//     hoặc BBQ trong tên/mô tả/nội dung. KHÔNG suy ra BBQ chỉ vì đó là bãi biển.
 // ============================================================
 
 export interface PlaceCriteria {
@@ -39,13 +43,16 @@ export function normalizeText(s: string): string {
 }
 
 // Từ đồng nghĩa đa ngôn ngữ cho từng CATEGORY CODE (đã chuẩn hóa: thường, bỏ dấu
-// Việt; CJK giữ nguyên). Nhờ đó "BBQ"/"beach"/"海" đều khớp category `sea` dù nhãn
-// lưu chỉ là "Biển". Khớp bằng substring sau normalizeText.
+// Việt; CJK giữ nguyên). Nhờ đó "beach"/"海" đều khớp category `sea` dù nhãn lưu
+// chỉ là "Biển". Khớp bằng substring sau normalizeText.
+// LƯU Ý: KHÔNG đưa BBQ vào synonym của `sea`/`camp` — BBQ là facet cấp-địa-điểm
+// (xem BBQ_QUERY_ALIASES / bbqEvidenceScore), không phải thuộc tính của cả category
+// gộp "Biển & BBQ". Trộn lẫn sẽ khiến MỌI bãi biển khớp "BBQ" (false positive).
 const CATEGORY_SYNONYMS: Record<string, string> = {
   landmark: 'du lich landmark sightseeing tham quan diem den 観光 観光地 ランドマーク 名所 관광 명소 观光 景点 地标',
   food: 'an dem an uong vui choi dem do an duong pho yatai street food 屋台 グルメ 夜食 야식 길거리 음식 포장마차 夜市 小吃',
-  sea: 'bien bbq beach sea seaside barbecue tam bien bai bien 海 ビーチ 海岸 海辺 バーベキュー 바다 해변 해수욕장 바비큐 海滩 海边 海滨 烧烤 烤肉',
-  camp: 'camping picnic cam trai cap trai da ngoai bbq barbecue キャンプ ピクニック 野外 캠핑 피크닉 야영 露营 野餐',
+  sea: 'bien beach sea seaside tam bien bai bien 海 ビーチ 海岸 海辺 바다 해변 해수욕장 海滩 海边 海滨',
+  camp: 'camping picnic cam trai cap trai da ngoai キャンプ ピクニック 野外 캠핑 피크닉 야영 露营 野餐',
   mountain: 'leo nui nui hiking mountain trekking 山 登山 ハイキング 산 등산 하이킹 登山 爬山 徒步',
   park: 'cong vien park garden vuon 公園 公园 공원 花园 庭园',
   viet: 'quan viet do an viet vietnamese pho banh mi ベトナム料理 ベトナム 베트남 음식 越南菜 越南料理',
@@ -60,14 +67,67 @@ const CATEGORY_SYNONYMS: Record<string, string> = {
   onsen: 'onsen suoi nuoc nong hot spring spa 温泉 スパ 온천 스파 泡汤 泡温泉',
 };
 
-// Cụm từ chỉ ý định GIÁ trong TRUY VẤN (đã chuẩn hóa). Khi xuất hiện, ta lọc theo
-// trường có cấu trúc place.fee và loại cụm đó khỏi phần text còn lại.
-const FREE_QUERY_TERMS = ['mien phi', 'free', 'gratis', 'mienphi', '無料', '무료', '免费', '免費'];
-const PAID_QUERY_TERMS = ['co phi', 'tinh phi', 'mat phi', 'paid', 'cophi', '有料', '유료', '收费', '收費', '付费', '付費'];
+// Cụm từ chỉ ý định GIÁ trong TRUY VẤN. Chuẩn hóa qua normalizeText (đồng bộ với
+// truy vấn đã chuẩn hóa) để hangul/kana không bị lệch dạng dựng-sẵn vs NFD. Khi
+// xuất hiện, ta lọc theo trường có cấu trúc place.fee và loại cụm đó khỏi text còn lại.
+const FREE_QUERY_TERMS = ['mien phi', 'free', 'gratis', 'mienphi', '無料', '무료', '免费', '免費'].map(normalizeText);
+const PAID_QUERY_TERMS = ['co phi', 'tinh phi', 'mat phi', 'paid', 'cophi', '有料', '유료', '收费', '收費', '付费', '付費'].map(normalizeText);
+
+// ── BBQ: facet cấp-địa-điểm (KHÔNG phải category) ───────────────────────────
+// Alias đa ngôn ngữ KÍCH HOẠT ý định BBQ trong TRUY VẤN (đã chuẩn hóa). Token nào
+// là alias BBQ sẽ khớp một địa điểm CHỈ khi địa điểm có BẰNG CHỨNG BBQ cấp item.
+// Chuẩn hóa qua normalizeText để token (đã chuẩn hóa, có thể bị NFD tách dakuten /
+// jamo) khớp được với hằng — nếu để dạng dựng sẵn sẽ KHÔNG khớp token đã tách.
+const BBQ_QUERY_ALIASES = new Set<string>(
+  ['bbq', 'barbecue', 'barbeque', 'kbbq', 'バーベキュー', 'バーベキュ', '바비큐', '바베큐', '烧烤', '烤肉'].map(normalizeText),
+);
+// Cụm BẰNG CHỨNG BBQ tìm trong DỮ LIỆU địa điểm (tên/mô tả/tag/amenity). Cố ý KHÔNG
+// gồm "nướng"/"grill" chung chung (lươn nướng, thịt nướng quán…) để tránh false positive.
+const BBQ_EVIDENCE_TERMS = ['bbq', 'barbecue', 'barbeque', 'バーベキュー', 'バーベキュ', '바비큐', '바베큐', '烧烤', '烤肉'].map(normalizeText);
+
+/** Token (đã chuẩn hóa) có phải là alias chỉ ý định BBQ không? */
+export function isBbqAlias(tok: string): boolean {
+  return BBQ_QUERY_ALIASES.has(tok);
+}
+
+// Trọng số bằng chứng BBQ theo độ TIN CẬY của nguồn: trường có cấu trúc / tag rõ
+// ràng > tên > chỉ nhắc trong mô tả (yếu, dễ là nhắc thoáng qua).
+const W_BBQ_STRUCT = 10;
+const W_BBQ_NAME = 8;
+const W_BBQ_DESC = 1;
+
+/**
+ * Điểm bằng chứng BBQ CẤP ITEM của một place. 0 = không có bằng chứng → KHÔNG khớp
+ * "BBQ". Thứ tự ưu tiên: trường có cấu trúc / amenity / tag BBQ > BBQ trong tên >
+ * BBQ chỉ trong mô tả/nội dung. KHÔNG bao giờ suy ra từ category "Biển & BBQ".
+ */
+export function bbqEvidenceScore(p: Place): number {
+  // 1) Trường có cấu trúc (khi schema bổ sung): bbq_allowed / has_bbq / amenities[].
+  const struct = p as Place & {
+    bbq_allowed?: boolean | null; has_bbq?: boolean | null; amenities?: string[] | null;
+  };
+  if (struct.bbq_allowed === true || struct.has_bbq === true) return W_BBQ_STRUCT;
+  if (Array.isArray(struct.amenities)) {
+    const am = normalizeText(struct.amenities.join(' '));
+    if (BBQ_EVIDENCE_TERMS.some((t) => am.includes(t))) return W_BBQ_STRUCT;
+  }
+  // 2) Tag cấp-địa-điểm rõ ràng (tên tag hoặc nhãn dịch chứa BBQ).
+  const tags = normalizeText(tagText(p));
+  if (BBQ_EVIDENCE_TERMS.some((t) => tags.includes(t))) return W_BBQ_STRUCT;
+  // 3) BBQ trong TÊN.
+  const name = normalizeText(p.name);
+  if (BBQ_EVIDENCE_TERMS.some((t) => name.includes(t))) return W_BBQ_NAME;
+  // 4) BBQ chỉ trong MÔ TẢ / nội dung — tín hiệu yếu nhất.
+  const text = normalizeText(`${p.desc} ${p.body ?? ''}`);
+  if (BBQ_EVIDENCE_TERMS.some((t) => text.includes(t))) return W_BBQ_DESC;
+  return 0;
+}
 
 /** Tách ý định giá (free/paid) khỏi truy vấn đã chuẩn hóa; trả về phần text còn lại. */
 export function extractFeeIntent(normalizedQ: string): { fee: Fee | null; rest: string } {
-  let rest = ` ${normalizedQ} `;
+  // Chuẩn hóa lại (idempotent với chuỗi đã chuẩn hóa) để khớp đúng cả khi caller
+  // truyền vào dạng dựng-sẵn (vd "무료") — đồng bộ với FREE/PAID đã normalizeText.
+  let rest = ` ${normalizeText(normalizedQ)} `;
   let fee: Fee | null = null;
   for (const term of FREE_QUERY_TERMS) {
     if (rest.includes(term)) { fee = 'free'; rest = rest.split(term).join(' '); }
@@ -120,8 +180,19 @@ function relevanceScore(p: Place, tokens: string[]): number | null {
   const syn = normalizeText(CATEGORY_SYNONYMS[p.category] ?? '');
   const desc = normalizeText(p.desc);
 
+  // BBQ tính LƯỜI (chỉ khi truy vấn có token BBQ) & 1 lần/địa điểm.
+  let bbqScore = -1;
+
   let score = 0;
   for (const tok of tokens) {
+    // Token BBQ đi theo NGỮ NGHĨA FACET: chỉ khớp khi có bằng chứng BBQ cấp item,
+    // KHÔNG rơi xuống category synonym ("Biển & BBQ") hay match text chung chung.
+    if (isBbqAlias(tok)) {
+      if (bbqScore < 0) bbqScore = bbqEvidenceScore(p);
+      if (bbqScore === 0) return null; // có ý định BBQ nhưng địa điểm không có bằng chứng → loại
+      score += bbqScore;
+      continue;
+    }
     let best = 0;
     if (syn.includes(tok)) best = W_SYNONYM;
     if (best < W_NAME && name.includes(tok)) best = W_NAME;
@@ -139,9 +210,9 @@ function relevanceScore(p: Place, tokens: string[]): number | null {
  * Lọc + XẾP HẠNG địa điểm theo tiêu chí. Hàm thuần, dùng được cả ở client lẫn server.
  * Đây là chỗ DUY NHẤT chứa logic so khớp — khi chuyển sang SQL chỉ cần tái hiện.
  *
- * Ngữ nghĩa: (category/tag/text concept) AND (cấu trúc fee nếu truy vấn nhắc tới giá),
- * rồi sắp xếp theo độ liên quan — khớp đúng chủ đề (vd "BBQ" ↦ "Biển & BBQ") đứng
- * TRƯỚC, khớp chỉ-trong-mô-tả đứng CUỐI. Không tìm kiếm/đồng điểm → giữ thứ tự gốc.
+ * Ngữ nghĩa: (category/tag/text concept + facet BBQ cấp item) AND (cấu trúc fee nếu
+ * truy vấn nhắc tới giá), rồi sắp xếp theo độ liên quan — khớp đúng chủ đề / có bằng
+ * chứng BBQ rõ ràng đứng TRƯỚC, khớp chỉ-trong-mô-tả đứng CUỐI. Đồng điểm → giữ thứ tự gốc.
  */
 export function filterPlaces(places: Place[], criteria: PlaceCriteria): Place[] {
   const normalizedQ = criteria.q ? normalizeText(criteria.q) : '';

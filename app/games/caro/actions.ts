@@ -4,7 +4,9 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { handleMatchFinished } from '@/app/admin/caro/actions'
-import { decideMoveOutcome, forfeitWinner, type Mark, type Cell } from '@/lib/caro/winner'
+import { decideMoveOutcome, type Mark, type Cell } from '@/lib/caro/winner'
+import { getTranslations } from 'next-intl/server'
+import { type CaroHistoryRow } from './CaroHistoryClient'
 import { parseBoard } from '@/lib/caro/realtimePayload'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -291,10 +293,17 @@ export async function surrenderGame(roomId: string): Promise<ActionResult> {
 //
 // This finalizes abandoned games independently of any browser: a 'playing' room
 // whose updated_at (== last move time, since heartbeats only run while 'waiting')
-// is older than the abandon window is forfeited to the player NOT on the clock.
-// Single conditional statement per room → atomic & idempotent (a concurrent call
-// matches 0 rows once finalized). Bounded per call. Cheap to run on lobby load;
-// can also be scheduled via pg_cron for full browser-independence.
+// is older than the abandon window is closed out.
+//
+// IMPORTANT — no invented winners, no fake "just now":
+//  • Caro has NO authoritative per-turn deadline, so we cannot fairly prove who
+//    abandoned. We therefore mark the game 'cancelled' (a NO-CONTEST, winner NULL)
+//    rather than awarding a forfeit win. It still appears in history (the view
+//    includes 'cancelled') but is labelled as a no-contest, not a normal win.
+//  • finished_at is stamped with the LAST MOVE time (updated_at, read BEFORE this
+//    write) — NOT now() — so a long-stranded game shows its true historical time
+//    instead of appearing as "vừa xong".
+// Single conditional statement per room → atomic & idempotent. Bounded per call.
 const PLAYING_ABANDON_MS = 3 * 60 * 1000
 
 export async function finalizeStaleGames(): Promise<{ finalized: number }> {
@@ -303,7 +312,7 @@ export async function finalizeStaleGames(): Promise<{ finalized: number }> {
 
   const { data: stale, error: readErr } = await admin
     .from('caro_rooms')
-    .select('id, room_code, current_turn, player_x, player_o')
+    .select('id, updated_at')
     .eq('status', 'playing')
     .lt('updated_at', cutoff)
     .limit(50)
@@ -312,28 +321,71 @@ export async function finalizeStaleGames(): Promise<{ finalized: number }> {
 
   let finalized = 0
   for (const room of stale) {
-    const winnerSym = forfeitWinner(room.current_turn as Mark)
     const { data: updated, error } = await admin
       .from('caro_rooms')
-      .update({ status: 'finished', winner: winnerSym, finished_at: new Date().toISOString() })
+      .update({
+        status: 'cancelled',
+        winner: null,
+        winning_cells: [],
+        finished_at: room.updated_at, // last move time, not now()
+      })
       .eq('id', room.id)
       .eq('status', 'playing') // idempotency guard
       .select('id')
 
     if (error) { logResultError('finalizeStaleGames', room.id, 'playing', error); continue }
     if (!updated || updated.length === 0) continue // already finalized by a concurrent call
-
     finalized++
-    const winnerId = winnerSym === 'X' ? room.player_x : room.player_o
-    const loserId = winnerSym === 'X' ? room.player_o : room.player_x
-    try {
-      await recordTournamentResult(admin, room.room_code, winnerId, loserId)
-    } catch (e) {
-      logResultError('finalizeStaleGames.tournament', room.id, 'finished', e)
-    }
   }
 
   return { finalized }
+}
+
+// ── fetchCaroHistory ───────────────────────────────────────────────────────────
+// Authoritative, formatted history rows (same shape the lobby server component
+// builds). The history view joins auth.users, so it can only be read with the
+// admin client — hence a server action rather than a client-side query. Used to
+// live-refresh the lobby history list when a room reaches a terminal status,
+// without the client needing access to private tables.
+export async function fetchCaroHistory(): Promise<CaroHistoryRow[]> {
+  const [admin, tCommon] = await Promise.all([
+    Promise.resolve(createAdminClient()),
+    getTranslations('common'),
+  ])
+  const { data } = await admin
+    .from('caro_games_history')
+    .select('id,winner,player_x,player_o,player_x_name,player_o_name,finished_at')
+    .order('finished_at', { ascending: false })
+    .limit(100)
+
+  const justNow = tCommon('just_now')
+  const rows = (data ?? []) as Array<{
+    id: string
+    winner: 'X' | 'O' | 'draw' | null
+    player_x: string | null
+    player_o: string | null
+    player_x_name: string
+    player_o_name: string
+    finished_at: string | null
+  }>
+  return rows.map(r => ({
+    id: r.id,
+    winner: r.winner,
+    player_x: r.player_x,
+    player_o: r.player_o,
+    player_x_name: r.player_x_name,
+    player_o_name: r.player_o_name,
+    time_label: r.finished_at ? relativeCaroTime(r.finished_at, justNow) : '—',
+  }))
+}
+
+function relativeCaroTime(iso: string, justNow: string): string {
+  const diff = Math.floor((Date.now() - new Date(iso).getTime()) / 60000)
+  if (diff < 1) return justNow
+  if (diff < 60) return `${diff}m`
+  const hrs = Math.floor(diff / 60)
+  if (hrs < 24) return `${hrs}h`
+  return `${Math.floor(hrs / 24)}d`
 }
 
 // Rooms are considered active if updated_at is within this window.

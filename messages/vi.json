@@ -1662,7 +1662,8 @@
         "reload_room": "Tải lại phòng",
         "back_lobby": "← Về sảnh Cờ caro",
         "incident": "Mã sự cố"
-      }
+      },
+      "history_no_contest": "Không tính"
     },
     "chinese_chess": {
       "badge": "🎮 Cờ Tướng",

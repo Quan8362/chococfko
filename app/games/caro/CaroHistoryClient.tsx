@@ -1,7 +1,9 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import { useTranslations } from 'next-intl'
+import { createClient } from '@/lib/supabase/client'
+import { fetchCaroHistory } from './actions'
 
 export type CaroHistoryRow = {
   id: string
@@ -27,12 +29,51 @@ export default function CaroHistoryClient({
 
   const [pageSize, setPageSize] = useState(10)
   const [page, setPage] = useState(1)
+  // Live rows: seeded from the server, refreshed in place when a room reaches a
+  // terminal status via Realtime — without resetting `page` (pagination) below.
+  const [liveRows, setLiveRows] = useState<CaroHistoryRow[]>(rows)
+  const mountedRef = useRef(true)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const totalPages = Math.max(1, Math.ceil(rows.length / pageSize))
+  // Re-seed when the server sends fresh data (navigation / dynamic re-render).
+  useEffect(() => { setLiveRows(rows) }, [rows])
+
+  // ── Realtime: refresh history when any room transitions to a terminal status ──
+  // Two filtered subscriptions (finished / cancelled) so only completion events
+  // arrive — ordinary moves (status='playing') are never delivered here. A full
+  // authoritative refetch keeps the list deduped and correctly sorted; `page` is
+  // untouched so the user's current page is preserved.
+  useEffect(() => {
+    mountedRef.current = true
+    const supabase = createClient()
+
+    const refresh = () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current)
+      debounceRef.current = setTimeout(() => {
+        fetchCaroHistory()
+          .then(fresh => { if (mountedRef.current && fresh) setLiveRows(fresh) })
+          .catch(() => { /* transient — next event retries */ })
+      }, 600)
+    }
+
+    const channel = supabase
+      .channel('caro-history-lobby')
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'caro_rooms', filter: 'status=eq.finished' }, refresh)
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'caro_rooms', filter: 'status=eq.cancelled' }, refresh)
+      .subscribe()
+
+    return () => {
+      mountedRef.current = false
+      if (debounceRef.current) clearTimeout(debounceRef.current)
+      supabase.removeChannel(channel)
+    }
+  }, [])
+
+  const totalPages = Math.max(1, Math.ceil(liveRows.length / pageSize))
   const safePage = Math.min(page, totalPages)
   const pageItems = useMemo(
-    () => rows.slice((safePage - 1) * pageSize, safePage * pageSize),
-    [rows, safePage, pageSize],
+    () => liveRows.slice((safePage - 1) * pageSize, safePage * pageSize),
+    [liveRows, safePage, pageSize],
   )
 
   function handlePageSize(newSize: number) {
@@ -40,13 +81,13 @@ export default function CaroHistoryClient({
     setPage(1)
   }
 
-  if (rows.length === 0) return null
+  if (liveRows.length === 0) return null
 
   return (
     <div className="mt-12">
       <h2 className="font-serif font-bold text-[20px] text-ink mb-4 flex items-center gap-2">
         📜 {t('history_heading')}
-        <span className="text-[12px] font-normal text-muted/60 font-sans">({rows.length})</span>
+        <span className="text-[12px] font-normal text-muted/60 font-sans">({liveRows.length})</span>
       </h2>
       <div className="bg-paper border border-line rounded-2xl overflow-hidden">
         <div className="overflow-x-auto">
@@ -69,6 +110,9 @@ export default function CaroHistoryClient({
             const isXWin = row.winner === 'X'
             const isOWin = row.winner === 'O'
             const isDraw = row.winner === 'draw'
+            // winner === null on a terminal row means a NO-CONTEST (abandoned game
+            // closed out by the server). It must NOT be shown as a normal win.
+            const isNoContest = row.winner === null
             const myRow = userId && (row.player_x === userId || row.player_o === userId)
             return (
               <div
@@ -92,7 +136,9 @@ export default function CaroHistoryClient({
                   {isOWin && <span className="text-[13px] flex-none leading-none">🏆</span>}
                 </div>
                 <div className="flex justify-center">
-                  {isDraw ? (
+                  {isNoContest ? (
+                    <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-zinc-100 text-zinc-500 border border-zinc-200 whitespace-nowrap">{t('history_no_contest')}</span>
+                  ) : isDraw ? (
                     <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-amber-100 text-amber-700 border border-amber-200 whitespace-nowrap">{t('draw')}</span>
                   ) : isXWin ? (
                     <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-blue-100 text-blue-700 border border-blue-200 whitespace-nowrap">{t('win_x')}</span>

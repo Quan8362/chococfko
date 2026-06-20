@@ -1662,7 +1662,8 @@
         "reload_room": "방 새로고침",
         "back_lobby": "← 오목 로비로 돌아가기",
         "incident": "사고 ID"
-      }
+      },
+      "history_no_contest": "무효 처리"
     },
     "chinese_chess": {
       "badge": "🎮 장기",

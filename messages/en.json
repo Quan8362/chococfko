@@ -1662,7 +1662,8 @@
         "reload_room": "Reload room",
         "back_lobby": "← Back to Caro lobby",
         "incident": "Incident ID"
-      }
+      },
+      "history_no_contest": "No contest"
     },
     "chinese_chess": {
       "badge": "🎮 Chinese Chess",

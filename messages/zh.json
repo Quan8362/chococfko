@@ -1662,7 +1662,8 @@
         "reload_room": "重新加载房间",
         "back_lobby": "← 返回五子棋大厅",
         "incident": "事件编号"
-      }
+      },
+      "history_no_contest": "无效局"
     },
     "chinese_chess": {
       "badge": "🎮 中国象棋",

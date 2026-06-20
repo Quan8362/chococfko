@@ -1662,7 +1662,8 @@
         "reload_room": "ルームを再読み込み",
         "back_lobby": "← 五目並べロビーへ戻る",
         "incident": "インシデントID"
-      }
+      },
+      "history_no_contest": "無効試合"
     },
     "chinese_chess": {
       "badge": "🎮 象棋",

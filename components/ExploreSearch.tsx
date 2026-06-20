@@ -297,12 +297,12 @@ export default function ExploreSearch({
                   <Link
                     href={href}
                     aria-label={t("view_all_aria", { category: c.label })}
-                    className="group inline-flex items-center gap-1 flex-none text-[13px] font-semibold text-rose hover:text-rose-deep transition-colors whitespace-nowrap"
+                    className="group inline-flex items-center gap-1 flex-none text-[13px] font-medium text-muted hover:text-rose transition-colors whitespace-nowrap"
                   >
                     <span className="hidden sm:inline">{t("view_all_count", { count: items.length })}</span>
                     <span className="sm:hidden">{t("view_all")}</span>
-                    <svg className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                    <svg className="w-3.5 h-3.5 text-muted/60 group-hover:text-rose group-hover:translate-x-0.5 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M9 5l7 7-7 7" />
                     </svg>
                   </Link>
                 </div>

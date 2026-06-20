@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import { checkIsAdmin } from '@/lib/supabase/admin'
+import HomeLogo from './HomeLogo'
 import LanguageSwitcher from './LanguageSwitcher'
 import UserMenu from './UserMenu'
 import MobileMenu from './MobileMenu'
@@ -39,15 +40,8 @@ export default async function Nav() {
     <header className="sticky top-0 z-[100] bg-[rgba(250,244,234,0.985)] backdrop-blur-md border-b border-line">
       <div className="max-w-[1240px] mx-auto px-4 sm:px-6 h-[68px] flex items-center">
 
-        {/* Logo — bên trái */}
-        <Link href="/" className="flex items-center shrink-0">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/logo-nav.png"
-            alt="Chợ Cóc FKO"
-            className="h-8 sm:h-9 w-auto max-w-[150px] sm:max-w-[180px] object-contain"
-          />
-        </Link>
+        {/* Logo — bên trái. Always "return to homepage/default state" (see HomeLogo). */}
+        <HomeLogo label={t('logo_home')} />
 
         {/* Desktop nav — absolute center */}
         <nav className="hidden md:flex flex-1 justify-center items-center gap-0.5 text-[13.5px] font-medium text-[#6b5b50]">

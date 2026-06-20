@@ -221,11 +221,16 @@ export function normalizeConfig(config: SearchConfig): SearchConfig {
 
 /** Bản ghi 1 khái niệm tìm kiếm (1 hàng bảng search_concepts). */
 export interface ConceptRow {
+  id?: string | null;
   key: string;
   type: 'category' | 'facet' | 'tag' | 'amenity' | 'price' | 'general';
   enabled: boolean;
   weight?: number | null;
   category_code?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+  /** {vi:'',en:'',…} — tên hiển thị (Admin), không ảnh hưởng matching. */
+  display_names?: Record<string, string> | null;
   /** {vi:[],en:[],ja:[],ko:[],zh:[]} */
   aliases?: Record<string, string[]> | null;
   /** {strong:{vi:[],en:[],…}, structured_flags:[]} */
@@ -279,6 +284,96 @@ export function buildConfigFromRows(rows: ConceptRow[], base: SearchConfig = DEF
     // 'tag'/'amenity'/'price'/'general': bằng chứng cấp item đến từ place.tags/place.fee.
   }
   return normalizeConfig({ ...base, facets, categories });
+}
+
+// ── Validation + merge-status (THUẦN, dùng ở Admin + test) ───────────────────
+
+export const CONCEPT_TYPES = ['category', 'facet', 'tag', 'amenity', 'price', 'general'] as const;
+export type ConceptType = (typeof CONCEPT_TYPES)[number];
+export const MATCHING_MODES = ['boundary', 'substring', 'exact'] as const;
+
+export interface ConceptInput {
+  key: string;
+  type: string;
+  weight?: number | null;
+  matching_mode?: string | null;
+  category_code?: string | null;
+  aliases?: Record<string, string[]> | null;
+  evidence?: { strong?: Record<string, string[]> | null; structured_flags?: string[] | null } | null;
+}
+
+/**
+ * Kiểm tra 1 khái niệm (THUẦN). Trả mã lỗi (i18n key gốc) để UI dịch sang tiếng Việt.
+ * KHÔNG kiểm trùng key / xung đột alias liên-khái-niệm ở đây (cần toàn tập → action).
+ */
+export function validateConceptInput(input: ConceptInput): { ok: boolean; errors: string[] } {
+  const errors: string[] = [];
+  const key = (input.key ?? '').trim();
+  if (!key) errors.push('key_required');
+  else if (!/^[a-z][a-z0-9_-]{1,48}$/.test(key)) errors.push('key_format');
+
+  if (!(CONCEPT_TYPES as readonly string[]).includes(input.type)) errors.push('type_invalid');
+
+  if (input.weight != null && !Number.isInteger(input.weight)) errors.push('weight_invalid');
+  if (input.matching_mode && !(MATCHING_MODES as readonly string[]).includes(input.matching_mode)) errors.push('mode_invalid');
+
+  // Aliases: duyệt mảng THÔ (chưa dedupe) để phát hiện trùng; không rỗng/whitespace;
+  // không Latin quá ngắn (1 ký tự). CJK 1 ký tự được phép.
+  const seen = new Set<string>();
+  for (const arr of Object.values(input.aliases ?? {})) {
+    for (const raw of arr ?? []) {
+      if (!raw || !raw.trim()) { errors.push('alias_blank'); continue; }
+      const norm = normalizeText(raw);
+      if (/^[a-z0-9]+$/.test(norm) && norm.length < 2) errors.push('alias_too_short');
+      if (seen.has(norm)) errors.push('alias_duplicate');
+      seen.add(norm);
+    }
+  }
+
+  if (input.type === 'facet') {
+    const ev = flattenLang(input.evidence?.strong ?? {});
+    const flags = input.evidence?.structured_flags ?? [];
+    if (ev.length === 0 && flags.length === 0) errors.push('facet_no_evidence');
+  }
+  if (input.type === 'category' && !(input.category_code ?? '').trim()) errors.push('category_no_code');
+
+  return { ok: errors.length === 0, errors: Array.from(new Set(errors)) };
+}
+
+/** Tìm các khái niệm ĐANG BẬT khác chia sẻ alias (đã chuẩn hóa) với input → xung đột. */
+export function aliasConflicts(
+  input: ConceptInput,
+  others: { key: string; enabled: boolean; aliases?: Record<string, string[]> | null }[],
+): string[] {
+  const mine = new Set(flattenLang(input.aliases ?? {}).map(normalizeText));
+  const hits: string[] = [];
+  for (const o of others) {
+    if (o.key === input.key || o.enabled === false) continue;
+    if (flattenLang(o.aliases ?? {}).map(normalizeText).some((a) => mine.has(a))) hits.push(o.key);
+  }
+  return Array.from(new Set(hits));
+}
+
+export type MergeStatus = 'db' | 'default' | 'override' | 'db-disabled';
+
+/** Khóa khái niệm mặc định (facet keys + category codes) từ 1 config. */
+export function defaultConceptKeys(config: SearchConfig = DEFAULT_SEARCH_CONFIG): { facetKeys: Set<string>; categoryCodes: Set<string> } {
+  return {
+    facetKeys: new Set(config.facets.map((f) => f.key)),
+    categoryCodes: new Set(Object.keys(config.categories)),
+  };
+}
+
+/** Trạng thái merge của 1 hàng DB so với mặc định: db | override | db-disabled. */
+export function rowMergeStatus(
+  row: { key: string; type: string; enabled: boolean; category_code?: string | null },
+  keys: { facetKeys: Set<string>; categoryCodes: Set<string> } = defaultConceptKeys(),
+): MergeStatus {
+  const inDefault = row.type === 'category'
+    ? keys.categoryCodes.has((row.category_code ?? row.key))
+    : keys.facetKeys.has(row.key);
+  if (row.enabled === false) return 'db-disabled';
+  return inDefault ? 'override' : 'db';
 }
 
 // ── Trích ý định GIÁ / FACET khỏi truy vấn ──────────────────────────────────

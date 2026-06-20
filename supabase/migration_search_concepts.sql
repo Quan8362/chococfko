@@ -23,6 +23,8 @@ CREATE TABLE IF NOT EXISTS public.search_concepts (
   weight        integer NOT NULL DEFAULT 0,
   -- với type='category': mã category mà alias áp dụng (vd 'sea','camp').
   category_code text,
+  -- {vi:'',en:'',ja:'',ko:'',zh:''} — tên hiển thị (Admin); KHÔNG ảnh hưởng matching.
+  display_names jsonb NOT NULL DEFAULT '{}'::jsonb,
   -- {vi:[],en:[],ja:[],ko:[],zh:[]} — cụm KÍCH HOẠT khái niệm trong truy vấn.
   aliases       jsonb NOT NULL DEFAULT '{}'::jsonb,
   -- {strong:{vi:[],…}, structured_flags:[]} — BẰNG CHỨNG cấp item cho feature facet.
@@ -60,17 +62,21 @@ CREATE TRIGGER trg_touch_search_concepts
 
 -- ── SEED: 4 feature facet hiện hữu (để Admin xem/sửa; idempotent, khớp DEFAULT) ──
 -- Engine merge theo key nên seed trùng DEFAULT KHÔNG đổi hành vi; chỉ để hiển thị.
-INSERT INTO public.search_concepts (key, type, enabled, aliases, evidence) VALUES
+INSERT INTO public.search_concepts (key, type, enabled, display_names, aliases, evidence) VALUES
   ('bbq', 'facet', true,
+   '{"vi":"BBQ","en":"BBQ","ja":"バーベキュー","ko":"바비큐","zh":"烧烤"}'::jsonb,
    '{"vi":["bbq","barbecue"],"en":["bbq","barbecue","barbeque","kbbq"],"ja":["バーベキュー"],"ko":["바비큐","바베큐"],"zh":["烧烤","烤肉"]}'::jsonb,
    '{"strong":{"vi":["bbq","barbecue"],"en":["bbq","barbecue","barbeque"],"ja":["バーベキュー"],"ko":["바비큐","바베큐"],"zh":["烧烤","烤肉"]},"structured_flags":["bbq_allowed","has_bbq"]}'::jsonb),
   ('camping', 'facet', true,
+   '{"vi":"Cắm trại","en":"Camping","ja":"キャンプ","ko":"캠핑","zh":"露营"}'::jsonb,
    '{"vi":["camping","cam trai","cap trai"],"en":["camping","camp"],"ja":["キャンプ","キャンプ場"],"ko":["캠핑","캠프"],"zh":["露营","露營"]}'::jsonb,
    '{"strong":{"vi":["cam trai","cap trai"],"en":["camping"],"ja":["キャンプ"],"ko":["캠핑"],"zh":["露营","露營"]},"structured_flags":["camping_allowed","has_camping","can_camp"]}'::jsonb),
   ('picnic', 'facet', true,
+   '{"vi":"Dã ngoại","en":"Picnic","ja":"ピクニック","ko":"피크닉","zh":"野餐"}'::jsonb,
    '{"vi":["picnic","da ngoai"],"en":["picnic"],"ja":["ピクニック"],"ko":["피크닉","소풍"],"zh":["野餐"]}'::jsonb,
    '{"strong":{"vi":["picnic","da ngoai"],"en":["picnic"],"ja":["ピクニック"],"ko":["피크닉","소풍"],"zh":["野餐"]},"structured_flags":["picnic_allowed","has_picnic"]}'::jsonb),
   ('nightlife', 'facet', true,
+   '{"vi":"Vui chơi đêm","en":"Nightlife","ja":"ナイトライフ","ko":"나이트라이프","zh":"夜生活"}'::jsonb,
    '{"vi":["vui choi dem","di choi dem","choi dem"],"en":["nightlife","night life","bar","pub","club","nightclub"],"ja":["夜遊び","ナイトライフ","ナイトクラブ","クラブ"],"ko":["나이트라이프","나이트"],"zh":["夜生活","夜店","夜场","夜場","酒吧"]}'::jsonb,
    '{"strong":{"vi":["quan nhau","nhau"],"en":["nightlife","bar","pub","nightclub","izakaya","live house","livehouse"],"ja":["居酒屋","酒場","パブ","ナイトクラブ"],"ko":["술집"],"zh":["酒吧","夜店","夜场","夜場"]},"structured_flags":["nightlife","has_nightlife"]}'::jsonb)
 ON CONFLICT (key) DO NOTHING;

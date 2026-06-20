@@ -2,10 +2,12 @@
 
 import Link from "next/link";
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { filterPlaces } from "@/lib/placeSearch";
 import type { SearchConfig } from "@/lib/placeSearch";
 import type { Place } from "@/lib/places";
+import { HOME_RESET_EVENT, searchUrl, queryFromParams } from "@/lib/homeNav";
 
 interface CatProp {
   code: string;
@@ -50,11 +52,46 @@ export default function ExploreSearch({
   searchConfig?: SearchConfig;
 }) {
   const t = useTranslations("home");
-  const [q, setQ] = useState("");
-  const [prefecture, setPrefecture] = useState<string | null>(prefectures[0]?.code ?? null);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  // Search query is URL-driven (?q=) so refresh / Back-Forward / the header logo
+  // (which navigates to "/") all reliably reflect and reset the search state.
+  const urlQ = queryFromParams((k) => searchParams.get(k));
+  const [q, setQ] = useState(urlQ);
+  const defaultPref = prefectures[0]?.code ?? null;
+  const [prefecture, setPrefecture] = useState<string | null>(defaultPref);
   const [prefOpen, setPrefOpen] = useState(false);
   const [pendingScroll, setPendingScroll] = useState<string | null>(null);
   const prefRef = useRef<HTMLDivElement>(null);
+  const urlDebounce = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Keep the input in sync when the URL query changes externally (logo reset,
+  // browser Back/Forward, refresh). setQ to the same value is a no-op → no loop.
+  useEffect(() => {
+    setQ(queryFromParams((k) => searchParams.get(k)));
+  }, [searchParams]);
+
+  // Push query changes into the URL (debounced, replace → no per-keystroke history).
+  const setQuery = (v: string) => {
+    setQ(v);
+    if (urlDebounce.current) clearTimeout(urlDebounce.current);
+    urlDebounce.current = setTimeout(() => {
+      router.replace(searchUrl(pathname, v), { scroll: false });
+    }, 300);
+  };
+
+  // Header logo dispatches HOME_RESET_EVENT — clear query + restore default area.
+  useEffect(() => {
+    const onReset = () => {
+      if (urlDebounce.current) clearTimeout(urlDebounce.current);
+      setQ("");
+      setPrefecture(defaultPref);
+      setPrefOpen(false);
+    };
+    window.addEventListener(HOME_RESET_EVENT, onReset);
+    return () => window.removeEventListener(HOME_RESET_EVENT, onReset);
+  }, [defaultPref]);
 
   // Close prefecture dropdown on outside click / Escape
   useEffect(() => {
@@ -124,7 +161,7 @@ export default function ExploreSearch({
   // search first (so the sectioned layout renders) then scroll once it mounts.
   const goToSection = (code: string) => {
     if (active) {
-      setQ("");
+      setQuery("");
       setPendingScroll(code);
     } else {
       scrollToSection(code);
@@ -221,7 +258,7 @@ export default function ExploreSearch({
               <input
                 type="text"
                 value={q}
-                onChange={(e) => setQ(e.target.value)}
+                onChange={(e) => setQuery(e.target.value)}
                 placeholder={t("search_placeholder")}
                 aria-label={t("search_placeholder")}
                 className="w-full pl-10 pr-9 py-2.5 text-[14px] rounded-full sm:rounded-l-none sm:rounded-r-full border border-line sm:border-0 bg-paper text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-rose/15 sm:focus:ring-0 transition-all"
@@ -229,7 +266,7 @@ export default function ExploreSearch({
               {q && (
                 <button
                   type="button"
-                  onClick={() => setQ("")}
+                  onClick={() => setQuery("")}
                   aria-label={t("search_clear")}
                   className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 grid place-items-center rounded-full text-muted hover:text-rose hover:bg-rose-soft transition-all"
                 >

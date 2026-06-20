@@ -2,7 +2,7 @@
 // Run with:  node --test lib/placeSearch.test.ts
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { filterPlaces, extractFeeIntent, extractFacets, normalizeText, bbqEvidenceScore, type PlaceCriteria } from './placeSearch.ts'
+import { filterPlaces, extractFeeIntent, extractFacets, normalizeText, normalizeConfig, bbqEvidenceScore, explainMatch, DEFAULT_SEARCH_CONFIG, type SearchConfig, type FeatureFacet, type PlaceCriteria } from './placeSearch.ts'
 import type { Place, Fee } from './places.ts'
 import type { LocalizedTag } from './tags.ts'
 
@@ -33,6 +33,14 @@ function campingTag(): LocalizedTag {
   } as unknown as LocalizedTag
 }
 
+function nightlifeTag(): LocalizedTag {
+  return {
+    id: 'nightlife', name: 'nightlife',
+    display_name_vi: 'Vui chơi đêm', display_name_en: 'Nightlife',
+    display_name_ja: 'ナイトライフ', display_name_ko: '나이트라이프', display_name_zh: '夜生活',
+  } as unknown as LocalizedTag
+}
+
 // Mirrors the production "Biển & BBQ" (sea) set + camp/onsen, with explicit
 // item-level BBQ signals attached only where they genuinely exist. This is the
 // crux of the false-positive fix: most beaches under the combined "Biển & BBQ"
@@ -55,9 +63,23 @@ const DATA: Place[] = [
   place({ slug: 'camp-cantrai', name: 'Khu cắm trại rừng', category: 'camp', categoryLabel: 'Camping', fee: 'free', desc: 'Khu cắm trại yên tĩnh giữa rừng, có suối' }),
   // Camp place whose camping signal is an explicit TAG (strongest) — desc has no camp word.
   place({ slug: 'camp-tagged', name: 'Tagged Camp', category: 'camp', categoryLabel: 'Camping', fee: 'paid', desc: 'Khu vực thiên nhiên rộng', tags: [campingTag()] }),
+  // ── "Ăn uống & vui chơi đêm" umbrella: nightlife is a SEPARATE facet ──
+  // Strong nightlife evidence (izakaya + bar) in description.
+  place({ slug: 'izakaya-bar', name: 'Yokocho Alley', category: 'food', categoryLabel: 'Ăn đêm', fee: null, desc: 'Izakaya, bar, nhậu khuya' }),
+  // Nightlife via explicit TAG (strongest).
+  place({ slug: 'club-tagged', name: 'Tagged Club', category: 'food', categoryLabel: 'Ăn đêm', fee: null, desc: 'Quán về khuya', tags: [nightlifeTag()] }),
+  // Daytime restaurant — NO nightlife evidence (lunch/breakfast only).
+  place({ slug: 'day-diner', name: 'Sunrise Diner', category: 'food', categoryLabel: 'Ăn đêm', fee: null, desc: 'Cơm trưa, ăn sáng, gia đình' }),
+  // ONLY a weak alcohol mention ("rượu") — must NOT establish nightlife by itself.
+  place({ slug: 'wine-only', name: 'Góc Nhỏ', category: 'food', categoryLabel: 'Ăn đêm', fee: null, desc: 'Quán rượu, cà phê, bia' }),
+  // Substring-precision fixture: a shrine whose name contains "Tenmangu" (has the
+  // substring "an") but whose text has NO standalone "an"/"uong" word.
+  place({ slug: 'tenmangu-shrine', name: 'Dazaifu Tenmangu', category: 'landmark', categoryLabel: 'Du lịch', fee: null, desc: 'Den tho co kinh, cau may hoc hanh' }),
   // Onsen — no BBQ / camping / picnic at all.
   place({ slug: 'onsen-1', name: 'Some Onsen', category: 'onsen', categoryLabel: 'Onsen', fee: 'paid', desc: 'Tắm nước nóng' }),
 ]
+
+const NIGHTLIFE_MATCHES = ['club-tagged', 'izakaya-bar'] // genuine strong nightlife evidence
 
 const BBQ_MATCHES = ['camp-aburayama', 'shingu', 'tagged-beach']      // the only genuine BBQ places
 const CAMPING_MATCHES = ['camp-cantrai', 'camp-tagged']              // genuine camping evidence
@@ -250,4 +272,102 @@ test('multi-word place names match order-independently (AND of tokens)', () => {
 test('prefecture filter still applies alongside BBQ search', () => {
   assert.deepEqual(run('BBQ', { prefecture: 'osaka' }), []) // none in osaka
   assert.ok(run('BBQ', { prefecture: 'fukuoka' }).length > 0)
+})
+
+// ── Nightlife facet ("Ăn uống & vui chơi đêm" umbrella) ──────────────────────
+
+test('nightlife: explicit tag + izakaya/bar evidence match; daytime & weak-alcohol do NOT', () => {
+  const r = run('vui chơi đêm')
+  assert.deepEqual(r, NIGHTLIFE_MATCHES)
+  assert.ok(r.includes('izakaya-bar'))  // izakaya + bar in summary
+  assert.ok(r.includes('club-tagged'))  // explicit nightlife tag
+  assert.ok(!r.includes('day-diner'))   // daytime restaurant, no nightlife evidence
+  assert.ok(!r.includes('wine-only'))   // only weak "rượu"/"bia" → not nightlife
+})
+
+test('nightlife: food-category membership does NOT prove nightlife for all food places', () => {
+  const food = filterPlaces(DATA, { categories: ['food'] }).map((p) => p.slug)
+  assert.ok(food.includes('day-diner') && food.includes('wine-only')) // both ARE food
+  const nl = run('vui chơi đêm')
+  assert.ok(!nl.includes('day-diner') && !nl.includes('wine-only'))   // but NOT nightlife
+})
+
+test('nightlife: a bare alcohol mention alone never matches (strong evidence required)', () => {
+  assert.ok(!run('nightlife').includes('wine-only'))
+  assert.ok(run('bar').includes('izakaya-bar'))   // en alias "bar" → bar/izakaya evidence
+  assert.ok(!run('bar').includes('day-diner'))
+})
+
+test('nightlife resolves across vi/en/ja/ko/zh aliases', () => {
+  for (const alias of ['vui chơi đêm', 'nightlife', '夜遊び', '나이트라이프', '夜生活'])
+    assert.ok(run(alias).includes('club-tagged'), `alias "${alias}"`)
+})
+
+test('"quán nhậu Nhật" still returns the izakaya CATEGORY (nightlife alias did not hijack it)', () => {
+  // izakaya/quán nhậu are NOT nightlife aliases → category concept preserved
+  const r = extractFacets(normalizeText('quan nhau nhat'))
+  assert.equal(r.facets.length, 0)            // no facet triggered
+  assert.equal(r.rest, 'quan nhau nhat')      // text left for category matching
+})
+
+// ── Substring precision (Class B fix) ───────────────────────────────────────
+
+test('short Latin tokens do not match inside unrelated words', () => {
+  assert.ok(!run('an').includes('tenmangu-shrine'))      // "an" ⊄ "tenmangu"
+  assert.ok(!run('ăn uống').includes('tenmangu-shrine')) // neither token matches the shrine
+})
+
+test('meaningful whole words & phrases still match', () => {
+  assert.deepEqual(run('Keya Beach'), ['keya'])  // exact multi-word
+  assert.ok(run('beach').includes('keya'))        // whole word
+  assert.ok(run('seaside').includes('momochi'))   // "Momochi Seaside Park" name word
+})
+
+test('English plural handled narrowly (parks↔park), not as a broad prefix', () => {
+  assert.ok(run('parks').includes('momochi'))     // plural query → singular name word "park"
+  // but a 3-letter Vietnamese syllable must NOT prefix-match a different word
+  assert.ok(!run('nhậu').includes('day-diner'))   // "nhau" ⊄ "nha"-words; day-diner has no nhậu
+})
+
+// ── Normalization (NFKD / width / case / accents / connectors / whitespace) ──
+
+test('normalization: full-width, case, accents, dakuten, jamo, connectors, whitespace', () => {
+  assert.deepEqual(run('ＢＢＱ'), run('BBQ'))              // full-width → NFKD fold
+  assert.ok(run('BIỂN').includes('keya'))                 // uppercase + accents
+  assert.ok(run('バーベキュー').includes('tagged-beach'))  // JA dakuten alias
+  assert.ok(run('캠핑').includes('camp-tagged'))           // KO jamo alias
+  assert.ok(run('biển và bbq').includes('shingu'))        // "và" connector ignored
+  assert.ok(run('biển and bbq').includes('shingu'))       // "and" connector ignored
+  assert.deepEqual(run('  keya   beach  '), ['keya'])     // collapse whitespace
+})
+
+// ── Config-driven extensibility (no code change for new concepts) ───────────
+
+test('engine is config-driven: a NEW facet adds multilingual aliases without code change', () => {
+  const kayak: FeatureFacet = {
+    key: 'kayak',
+    aliases: ['kayak', 'cheo kayak', 'カヤック', '카약', '皮划艇'],
+    evidence: ['kayak', 'カヤック', '카약', '皮划艇'],
+  }
+  const cfg: SearchConfig = normalizeConfig({ ...DEFAULT_SEARCH_CONFIG, facets: [...DEFAULT_SEARCH_CONFIG.facets, kayak] })
+  const data = [
+    place({ slug: 'kayak-cove', name: 'Bãi Chèo', category: 'sea', categoryLabel: 'Biển', fee: 'free', desc: 'Cho thuê kayak, ngắm biển' }),
+    ...DATA,
+  ]
+  const has = (q: string, c?: SearchConfig) => filterPlaces(data, { q }, c).some((p) => p.slug === 'kayak-cove')
+  // The Japanese alias only resolves to the place's "kayak" evidence WHEN configured.
+  assert.equal(has('カヤック'), false)        // no config → JA alias unknown
+  assert.equal(has('カヤック', cfg), true)     // configured → searchable, no code change
+  assert.equal(has('kayak', cfg), true)
+  // a beach with NO kayak evidence is excluded (feature claim needs item evidence)
+  assert.equal(filterPlaces(data, { q: 'kayak' }, cfg).some((p) => p.slug === 'keya'), false)
+})
+
+test('explainMatch reports why a place matched (dev diagnostics)', () => {
+  const tagged = DATA.find((p) => p.slug === 'tagged-beach')!
+  const ex = explainMatch(tagged, 'BBQ')
+  assert.equal(ex.matched, true)
+  assert.ok(ex.reasons.some((r) => r.concept === 'facet:bbq' && r.weight >= 12)) // structured/tag
+  const miss = explainMatch(DATA.find((p) => p.slug === 'keya')!, 'BBQ')
+  assert.equal(miss.matched, false) // beach-only, no BBQ evidence
 })

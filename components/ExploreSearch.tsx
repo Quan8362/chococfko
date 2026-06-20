@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { filterPlaces } from "@/lib/placeSearch";
+import type { SearchConfig } from "@/lib/placeSearch";
 import type { Place } from "@/lib/places";
 
 interface CatProp {
@@ -39,11 +40,14 @@ export default function ExploreSearch({
   categories,
   prefectures,
   cards,
+  searchConfig,
 }: {
   places: Place[];
   categories: CatProp[];
   prefectures: PrefProp[];
   cards: Record<string, React.ReactNode>;
+  /** Data-driven search taxonomy from the server; falls back to engine default. */
+  searchConfig?: SearchConfig;
 }) {
   const t = useTranslations("home");
   const [q, setQ] = useState("");
@@ -78,8 +82,8 @@ export default function ExploreSearch({
   const active = q.trim() !== "";
 
   const results = useMemo(
-    () => (active ? filterPlaces(places, { q, prefecture }) : []),
-    [active, q, prefecture, places],
+    () => (active ? filterPlaces(places, { q, prefecture }, searchConfig) : []),
+    [active, q, prefecture, places, searchConfig],
   );
 
   // Total sticky height = top nav (68px) + this search/chips bar (measured live,

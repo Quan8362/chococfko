@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getTranslations, getLocale } from "next-intl/server";
 import { categories, places as staticPlaces, getAllPlacesFromDb, attachPlaceTags } from "@/lib/places";
 import type { Place } from "@/lib/places";
+import { loadSearchConfig } from "@/lib/searchConcepts";
 import PlaceCard from "@/components/PlaceCard";
 import ExploreSearch from "@/components/ExploreSearch";
 import HomePosts from "@/components/HomePosts";
@@ -41,6 +42,9 @@ export default async function Home() {
   const basePlaces: Place[] = dbPlaces ?? staticPlaces;
   // Attach tags so cards show chips and search matches tag names. Best-effort.
   const allPlaces: Place[] = await attachPlaceTags(basePlaces);
+  // Data-driven search taxonomy (DB-configured concepts merged over built-in
+  // defaults). Falls back to DEFAULT_SEARCH_CONFIG if the table is absent.
+  const searchConfig = await loadSearchConfig();
 
   // Only render categories that have at least 1 place
   const visibleCategories = categories
@@ -128,6 +132,7 @@ export default async function Home() {
           browse when idle). filterPlaces is the seam that moves server-side later. */}
       <ExploreSearch
         places={allPlaces}
+        searchConfig={searchConfig}
         prefectures={prefectures}
         categories={visibleCategories.map((c) => ({
           code: c.code,

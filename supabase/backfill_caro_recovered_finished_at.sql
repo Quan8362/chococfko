@@ -55,6 +55,10 @@ WHERE status = 'finished'
 ORDER BY finished_at DESC;
 
 -- ── STEP B — APPLY (mutating). Uncomment ONLY after approving Step A. ──────────
+-- ✅ ALREADY EXECUTED on 2026-06-20: converted exactly 8 stranded forfeit-wins
+--    into no-contest rows (status='cancelled', winner=NULL, finished_at=created_at).
+--    Re-commented (preview-only) so it cannot be run again by accident — the WHERE
+--    no longer matches those rows (now 'cancelled'), but keep it disabled regardless.
 -- Converts the recovered forfeit-wins into no-contest rows with an accurate
 -- historical time. Keep the WHERE identical to Step A.
 --
@@ -73,7 +77,7 @@ ORDER BY finished_at DESC;
 --     jsonb_typeof(board) <> 'array'
 --     OR (SELECT count(*) FROM jsonb_array_elements(board) e WHERE e <> 'null'::jsonb) < 225
 --   )
--- RETURNING id, room_code, status, finished_at;
+-- RETURNING id, room_code, status, winner, finished_at;
 -- -- Review RETURNING, then COMMIT;  (otherwise ROLLBACK;)
 --
 -- NOTE: the caro_rooms_updated_at trigger will bump updated_at on this UPDATE —

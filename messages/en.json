@@ -230,7 +230,19 @@
     "err_password_min": "Password must be at least 6 characters.",
     "err_password_empty": "Password cannot be empty.",
     "err_login_required_place": "You need to log in to post a place",
-    "err_login_required_post": "You need to log in to write a post"
+    "err_login_required_post": "You need to log in to write a post",
+    "oauth_err_access_denied": "You cancelled the sign-in or didn't grant access. Please try again.",
+    "oauth_err_provider": "The sign-in provider ran into a problem. Please try again later.",
+    "oauth_err_state": "Your sign-in session was invalid for security reasons. Please sign in again.",
+    "oauth_err_code_exchange": "We couldn't complete your sign-in. Please try again.",
+    "oauth_err_session": "We couldn't create your session. Please try signing in again.",
+    "oauth_err_cancelled": "Sign-in was cancelled. Please try again if you'd like to continue.",
+    "oauth_err_callback": "Sign-in failed. Please try again in a moment.",
+    "oauth_err_link_expired": "This link has expired or is invalid. Please request a new one.",
+    "oauth_err_already_confirmed": "This email was already confirmed. You can sign in now.",
+    "oauth_err_confirm_invalid": "This confirmation link is invalid. Please register again.",
+    "oauth_err_confirm_failed": "Email confirmation failed. Please try again or request a new email.",
+    "oauth_err_unknown": "Something went wrong during sign-in. Please try again."
   },
   "image_upload": {
     "drag_drop": "Drag & drop image here",

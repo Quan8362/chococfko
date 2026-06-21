@@ -3,6 +3,7 @@ import { getTranslations } from 'next-intl/server'
 import { signIn, resendConfirmation } from '@/app/auth/actions'
 import SocialLoginButtons from '@/components/SocialLoginButtons'
 import PasswordInput from '@/components/PasswordInput'
+import { resolveAuthErrorKey } from '@/lib/auth/oauthErrors'
 
 export async function generateMetadata() {
   const t = await getTranslations('auth')
@@ -12,10 +13,13 @@ export async function generateMetadata() {
 export default async function DangNhap({
   searchParams,
 }: {
-  searchParams: { error?: string; confirmed?: string; unconfirmed?: string; email?: string; resent?: string; reset?: string }
+  searchParams: { error?: string; authError?: string; confirmed?: string; unconfirmed?: string; email?: string; resent?: string; reset?: string }
 }) {
   const t = await getTranslations('auth')
   const email = searchParams.email ? decodeURIComponent(searchParams.email) : ''
+  // OAuth / email-callback failures arrive as a stable code (?authError=...) that
+  // is translated here in the active locale. Unknown codes fall back safely.
+  const authErrorKey = searchParams.authError ? resolveAuthErrorKey(searchParams.authError) : null
 
   return (
     <section className="min-h-[calc(100vh-160px)] flex items-center justify-center py-12">
@@ -71,8 +75,15 @@ export default async function DangNhap({
           </div>
         )}
 
-        {/* Generic error */}
-        {searchParams.error && (
+        {/* OAuth / email-callback error — stable code translated in the active locale */}
+        {authErrorKey && (
+          <div className="bg-[#fff4f6] border border-[#f3cdd9] rounded-xl p-3.5 text-[13.5px] text-rose-deep mb-5">
+            {t(authErrorKey)}
+          </div>
+        )}
+
+        {/* Generic error — already-localized text from server actions */}
+        {!authErrorKey && searchParams.error && (
           <div className="bg-[#fff4f6] border border-[#f3cdd9] rounded-xl p-3.5 text-[13.5px] text-rose-deep mb-5">
             {decodeURIComponent(searchParams.error)}
           </div>

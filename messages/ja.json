@@ -230,7 +230,19 @@
     "err_password_min": "パスワードは6文字以上で入力してください。",
     "err_password_empty": "パスワードを入力してください。",
     "err_login_required_place": "場所を投稿するにはログインが必要です",
-    "err_login_required_post": "投稿するにはログインが必要です"
+    "err_login_required_post": "投稿するにはログインが必要です",
+    "oauth_err_access_denied": "ログインがキャンセルされたか、アクセスが許可されませんでした。もう一度お試しください。",
+    "oauth_err_provider": "ログインプロバイダーで問題が発生しました。しばらくしてからもう一度お試しください。",
+    "oauth_err_state": "セキュリティ上の理由でログインセッションが無効でした。もう一度ログインしてください。",
+    "oauth_err_code_exchange": "ログインを完了できませんでした。もう一度お試しください。",
+    "oauth_err_session": "セッションを作成できませんでした。もう一度ログインしてください。",
+    "oauth_err_cancelled": "ログインがキャンセルされました。続行する場合はもう一度お試しください。",
+    "oauth_err_callback": "ログインに失敗しました。しばらくしてからもう一度お試しください。",
+    "oauth_err_link_expired": "リンクの有効期限が切れているか、無効です。新しいリンクをリクエストしてください。",
+    "oauth_err_already_confirmed": "このメールはすでに確認済みです。そのままログインできます。",
+    "oauth_err_confirm_invalid": "確認リンクが無効です。もう一度登録してください。",
+    "oauth_err_confirm_failed": "メールの確認に失敗しました。もう一度お試しいただくか、メールの再送をリクエストしてください。",
+    "oauth_err_unknown": "ログイン中にエラーが発生しました。もう一度お試しください。"
   },
   "image_upload": {
     "drag_drop": "ここに画像をドラッグ＆ドロップ",

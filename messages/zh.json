@@ -230,7 +230,19 @@
     "err_password_min": "密码至少需要 6 个字符。",
     "err_password_empty": "密码不能为空。",
     "err_login_required_place": "您需要登录才能发布地点",
-    "err_login_required_post": "您需要登录才能发表文章"
+    "err_login_required_post": "您需要登录才能发表文章",
+    "oauth_err_access_denied": "您取消了登录或未授予权限。请重试。",
+    "oauth_err_provider": "登录服务商出现问题。请稍后重试。",
+    "oauth_err_state": "出于安全原因，登录会话无效。请重新登录。",
+    "oauth_err_code_exchange": "无法完成登录。请重试。",
+    "oauth_err_session": "无法创建会话。请重新登录。",
+    "oauth_err_cancelled": "登录已取消。如需继续，请重试。",
+    "oauth_err_callback": "登录失败。请稍后重试。",
+    "oauth_err_link_expired": "链接已过期或无效。请重新获取。",
+    "oauth_err_already_confirmed": "该邮箱已确认。您现在可以登录。",
+    "oauth_err_confirm_invalid": "确认链接无效。请重新注册。",
+    "oauth_err_confirm_failed": "邮箱确认失败。请重试或申请重新发送邮件。",
+    "oauth_err_unknown": "登录时发生错误。请重试。"
   },
   "image_upload": {
     "drag_drop": "将图片拖放到此处",

@@ -230,7 +230,19 @@
     "err_password_min": "Mật khẩu phải có ít nhất 6 ký tự.",
     "err_password_empty": "Mật khẩu không được để trống.",
     "err_login_required_place": "Bạn cần đăng nhập để đăng địa điểm",
-    "err_login_required_post": "Bạn cần đăng nhập để viết bài"
+    "err_login_required_post": "Bạn cần đăng nhập để viết bài",
+    "oauth_err_access_denied": "Bạn đã hủy đăng nhập hoặc chưa cấp quyền. Vui lòng thử lại.",
+    "oauth_err_provider": "Nhà cung cấp đăng nhập gặp sự cố. Vui lòng thử lại sau.",
+    "oauth_err_state": "Phiên đăng nhập không hợp lệ vì lý do bảo mật. Vui lòng đăng nhập lại.",
+    "oauth_err_code_exchange": "Không thể hoàn tất đăng nhập. Vui lòng thử lại.",
+    "oauth_err_session": "Không tạo được phiên đăng nhập. Vui lòng thử lại.",
+    "oauth_err_cancelled": "Đăng nhập đã bị hủy. Vui lòng thử lại nếu bạn muốn tiếp tục.",
+    "oauth_err_callback": "Đăng nhập thất bại. Vui lòng thử lại sau giây lát.",
+    "oauth_err_link_expired": "Liên kết đã hết hạn hoặc không hợp lệ. Vui lòng yêu cầu gửi lại.",
+    "oauth_err_already_confirmed": "Email đã được xác nhận trước đó. Bạn có thể đăng nhập ngay.",
+    "oauth_err_confirm_invalid": "Liên kết xác nhận không hợp lệ. Vui lòng đăng ký lại.",
+    "oauth_err_confirm_failed": "Xác nhận email thất bại. Vui lòng thử lại hoặc yêu cầu gửi lại email.",
+    "oauth_err_unknown": "Đã xảy ra lỗi khi đăng nhập. Vui lòng thử lại."
   },
   "image_upload": {
     "drag_drop": "Kéo thả ảnh vào đây",

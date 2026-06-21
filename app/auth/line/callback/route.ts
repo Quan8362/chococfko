@@ -9,17 +9,13 @@ export async function GET(request: Request) {
   const oauthError = searchParams.get('error')
 
   if (oauthError || !code || !state) {
-    return NextResponse.redirect(
-      `${origin}/login?error=${encodeURIComponent('LINE đăng nhập bị huỷ')}`
-    )
+    return NextResponse.redirect(`${origin}/login?authError=oauth_provider_cancelled`)
   }
 
   const cookieStore = cookies()
   const savedState = cookieStore.get('line_oauth_state')?.value
   if (state !== savedState) {
-    return NextResponse.redirect(
-      `${origin}/login?error=${encodeURIComponent('Lỗi bảo mật, thử lại')}`
-    )
+    return NextResponse.redirect(`${origin}/login?authError=oauth_invalid_state`)
   }
 
   try {
@@ -36,7 +32,8 @@ export async function GET(request: Request) {
       }),
     })
     const tokenData: { access_token?: string } = await tokenRes.json()
-    if (!tokenData.access_token) throw new Error('Không lấy được token từ LINE')
+    // Server-side diagnostic only (never shown to the user).
+    if (!tokenData.access_token) throw new Error('LINE token exchange returned no access_token')
 
     // 2. Lấy profile LINE
     const profileRes = await fetch('https://api.line.me/v2/profile', {
@@ -75,8 +72,6 @@ export async function GET(request: Request) {
     return NextResponse.redirect(linkData.properties.action_link)
   } catch (err) {
     console.error('[LINE callback]', err)
-    return NextResponse.redirect(
-      `${origin}/login?error=${encodeURIComponent('LINE đăng nhập thất bại, thử lại sau')}`
-    )
+    return NextResponse.redirect(`${origin}/login?authError=oauth_callback_failed`)
   }
 }

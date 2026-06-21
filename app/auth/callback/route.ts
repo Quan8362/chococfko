@@ -1,14 +1,17 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { syncProfileFromAuth } from '@/lib/syncProfile'
+import {
+  mapOAuthProviderError,
+  mapCodeExchangeError,
+  safeNextPath,
+  type AuthErrorCode,
+} from '@/lib/auth/oauthErrors'
 
-function mapCallbackError(err: string | null, desc: string | null): string {
-  const msg = (desc || err || '').toLowerCase()
-  if (msg.includes('expired') || msg.includes('invalid') || msg.includes('otp'))
-    return 'Link xác nhận đã hết hạn hoặc không hợp lệ. Vui lòng yêu cầu gửi lại email xác nhận.'
-  if (msg.includes('already confirmed'))
-    return 'Email đã được xác nhận trước đó. Bạn có thể đăng nhập.'
-  return desc || err || 'Xác nhận email thất bại. Vui lòng thử lại.'
+// Redirect to the login page carrying a STABLE error code. The login page maps
+// the code to a localized message — we never put raw provider text in the URL.
+function loginError(origin: string, code: AuthErrorCode): NextResponse {
+  return NextResponse.redirect(`${origin}/login?authError=${code}`)
 }
 
 export async function GET(request: Request) {
@@ -16,24 +19,26 @@ export async function GET(request: Request) {
   const code = searchParams.get('code')
   const callbackError = searchParams.get('error')
   const callbackErrorDesc = searchParams.get('error_description')
-  const next = searchParams.get('next') ?? '/'
+  const next = safeNextPath(searchParams.get('next'))
 
+  // Provider-side failure (e.g. the user cancelled the Google/Facebook consent).
   if (callbackError) {
-    const msg = mapCallbackError(callbackError, callbackErrorDesc)
-    return NextResponse.redirect(`${origin}/login?error=${encodeURIComponent(msg)}`)
+    return loginError(origin, mapOAuthProviderError(callbackError, callbackErrorDesc))
   }
 
   if (code) {
     const supabase = createClient()
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code)
     if (error) {
-      const msg = mapCallbackError(error.message, null)
-      return NextResponse.redirect(`${origin}/login?error=${encodeURIComponent(msg)}`)
+      // Raw Supabase message stays server-side; only a stable code reaches the user.
+      return loginError(origin, mapCodeExchangeError(error.message))
     }
-    // Sync provider name/avatar into profiles so it shows correctly everywhere
+    if (!data?.session) {
+      return loginError(origin, 'oauth_session_not_created')
+    }
+    // Sync provider name/avatar into profiles so it shows correctly everywhere.
     await syncProfileFromAuth(supabase)
   }
 
-  const redirectTo = next.startsWith('/') ? `${origin}${next}` : origin
-  return NextResponse.redirect(redirectTo)
+  return NextResponse.redirect(`${origin}${next}`)
 }

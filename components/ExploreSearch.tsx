@@ -8,6 +8,7 @@ import { filterPlaces } from "@/lib/placeSearch";
 import type { SearchConfig } from "@/lib/placeSearch";
 import type { Place } from "@/lib/places";
 import { HOME_RESET_EVENT, searchUrl, queryFromParams } from "@/lib/homeNav";
+import TopicFilter from "@/components/TopicFilter";
 
 interface CatProp {
   code: string;
@@ -63,6 +64,10 @@ export default function ExploreSearch({
   const [prefecture, setPrefecture] = useState<string | null>(defaultPref);
   const [prefOpen, setPrefOpen] = useState(false);
   const [pendingScroll, setPendingScroll] = useState<string | null>(null);
+  // Last topic the user jumped to — drives the highlighted/priority chip in the
+  // compact TopicFilter. Purely presentational: chips still navigate to sections;
+  // this does not add a second filter flow.
+  const [activeCat, setActiveCat] = useState<string | null>(null);
   const prefRef = useRef<HTMLDivElement>(null);
   const urlDebounce = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -88,6 +93,7 @@ export default function ExploreSearch({
       setQ("");
       setPrefecture(defaultPref);
       setPrefOpen(false);
+      setActiveCat(null);
     };
     window.addEventListener(HOME_RESET_EVENT, onReset);
     return () => window.removeEventListener(HOME_RESET_EVENT, onReset);
@@ -160,6 +166,7 @@ export default function ExploreSearch({
   // Click a chip → jump to that category section. If a search is active, exit
   // search first (so the sectioned layout renders) then scroll once it mounts.
   const goToSection = (code: string) => {
+    setActiveCat(code);
     if (active) {
       setQuery("");
       setPendingScroll(code);
@@ -182,7 +189,7 @@ export default function ExploreSearch({
         id="categories"
         className="sticky top-[68px] z-[90] bg-[rgba(250,244,234,0.985)] backdrop-blur-md border-b border-line"
       >
-        <div className="max-w-[1240px] mx-auto px-6 py-3.5 flex flex-col gap-3">
+        <div className="max-w-[1240px] mx-auto px-6 py-2.5 sm:py-3.5 flex flex-col gap-2.5 sm:gap-3">
           {/* Unified search bar: [ prefecture ▾ | search input ] */}
           <div className="flex flex-col sm:flex-row sm:items-stretch gap-2 sm:gap-0 sm:rounded-full sm:border sm:border-line sm:bg-paper sm:shadow-sm sm:overflow-visible max-w-[640px] w-full">
             {/* Prefecture selector */}
@@ -278,20 +285,14 @@ export default function ExploreSearch({
             </div>
           </div>
 
-          {/* Category chips — click to jump to that category section */}
-          <div className="flex flex-wrap gap-1.5">
-            {categories.map((c) => (
-              <button
-                key={c.code}
-                type="button"
-                onClick={() => goToSection(c.code)}
-                className="inline-flex items-center gap-1.5 whitespace-nowrap text-[12.5px] font-medium text-muted border border-line bg-paper px-3.5 py-[6px] rounded-full hover:bg-rose-soft hover:border-rose/40 hover:text-rose transition-all"
-              >
-                <span className="text-[13px] leading-none">{c.emoji}</span>
-                {c.label}
-              </button>
-            ))}
-          </div>
+          {/* Topic chips — content-aware compact bar (quick chips + "All topics"
+              sheet on overflow). Chips jump to the matching category section. */}
+          <TopicFilter
+            topics={categories}
+            selected={active ? null : activeCat}
+            onSelect={goToSection}
+            onClear={() => setActiveCat(null)}
+          />
         </div>
       </div>
 

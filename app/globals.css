@@ -85,6 +85,19 @@ body::before {
 .animate-fadein   { animation: fadeIn 0.15s ease both; }
 .animate-slidedown { animation: slideDown 0.2s ease both; }
 
+/* Topic bottom-sheet: slide up from the bottom edge on phones. */
+@keyframes sheetUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: none; }
+}
+.animate-sheetup { animation: sheetUp 0.22s cubic-bezier(.22,.68,0,1.2) both; }
+
+/* Belt-and-braces for the topic sheet (the component also gates these behind
+   Tailwind's motion-safe: variant). */
+@media (prefers-reduced-motion: reduce) {
+  .animate-sheetup { animation: none !important; }
+}
+
 @keyframes mentionShrink {
   from { transform: scaleX(1); }
   to   { transform: scaleX(0); }

@@ -62,7 +62,11 @@ export default function CommunityNotificationProvider() {
 
   useEffect(() => {
     const supabase = createClient()
-    supabase.auth.getUser().then(({ data: { user } }) => setUserId(user?.id ?? null))
+    // getSession() (local + lock-serialized refresh) instead of getUser() (a forced
+    // /user network call): we only need the id to scope the realtime subscription —
+    // RLS still enforces access — and this avoids an extra refresh racing the
+    // middleware refresh on the shared refresh token during a tab resume.
+    supabase.auth.getSession().then(({ data: { session } }) => setUserId(session?.user?.id ?? null))
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
       setUserId(session?.user?.id ?? null)
     })

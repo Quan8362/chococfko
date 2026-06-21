@@ -13,3 +13,7 @@ next-env.d.ts
 # JMdict raw source files (too large for git)
 data/source/JMdict_e
 data/source/JMdict_e.gz
+
+# Python bytecode cache
+__pycache__/
+*.pyc

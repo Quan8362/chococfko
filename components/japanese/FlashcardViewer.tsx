@@ -225,20 +225,30 @@ export default function FlashcardViewer({ words, isLoggedIn, onSave, loginMessag
                 )}
               </div>
             )}
-            {current.examples?.[0] && (
-              <div className="pt-3 border-t border-line/60">
-                <p className="text-[13px] text-ink" lang="ja">{current.examples[0].ja}</p>
+            {current.examples?.[0]?.ja && (
+              <section aria-label={t('example_label')} className="pt-3 border-t border-line/60">
+                <p className="text-[10.5px] font-bold uppercase tracking-wide text-rose/70 mb-1">
+                  {t('example_label')}
+                </p>
+                <p className="text-[13px] text-ink leading-snug break-words" lang="ja">
+                  {current.examples[0].ja}
+                </p>
+                {current.examples[0].reading && current.examples[0].reading !== current.examples[0].ja && (
+                  <p className="text-[11px] text-muted mt-0.5 break-words" lang="ja">
+                    {current.examples[0].reading}
+                  </p>
+                )}
                 {(locale === 'en'
                   ? (current.examples[0].en || current.examples[0].vi)
                   : (current.examples[0].vi || current.examples[0].en)
                 ) && (
-                  <p className="text-[12px] text-muted italic mt-0.5">
+                  <p className="text-[12px] text-muted italic mt-0.5 break-words">
                     {locale === 'en'
                       ? (current.examples[0].en || current.examples[0].vi)
                       : (current.examples[0].vi || current.examples[0].en)}
                   </p>
                 )}
-              </div>
+              </section>
             )}
           </div>
         </div>

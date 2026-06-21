@@ -1,0 +1,30 @@
+{
+  "N3": {
+    "total": 3007,
+    "valid": 94,
+    "missing": 2913,
+    "invalid": 0,
+    "details": {
+      "ja_no_vi": 0,
+      "ja_no_en": 0,
+      "malformed": 0,
+      "target_absent": 0,
+      "duplicate_ja": 0,
+      "invalid_jlpt_level": 0
+    }
+  },
+  "ALL": {
+    "total": 3007,
+    "valid": 94,
+    "missing": 2913,
+    "invalid": 0,
+    "details": {
+      "ja_no_vi": 0,
+      "ja_no_en": 0,
+      "malformed": 0,
+      "target_absent": 0,
+      "duplicate_ja": 0,
+      "invalid_jlpt_level": 0
+    }
+  }
+}

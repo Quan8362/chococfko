@@ -1,0 +1,743 @@
+[
+ {
+  "id": "5dca914a-c425-461a-a133-fd6afafadd4d",
+  "word": "改める",
+  "reading": "あらためる",
+  "examples": [
+   {
+    "ja": "悪い習慣を改めることにした。",
+    "reading": "わるいしゅうかんをあらためることにした。",
+    "vi": "Tôi quyết định sửa đổi thói quen xấu.",
+    "en": "I decided to correct my bad habits."
+   },
+   {
+    "ja": "日を改めてお伺いします。",
+    "reading": "ひをあらためておうかがいします。",
+    "vi": "Tôi sẽ chọn ngày khác đến thăm.",
+    "en": "I will visit again another day."
+   }
+  ]
+ },
+ {
+  "id": "629afed1-2c9e-4ed2-8482-ae1ae632dfbb",
+  "word": "海草",
+  "reading": "かいそう",
+  "examples": [
+   {
+    "ja": "海草はサラダにして食べられる。",
+    "reading": "かいそうはサラダにしてたべられる。",
+    "vi": "Rong biển có thể ăn dưới dạng salad.",
+    "en": "Seaweed can be eaten as a salad."
+   },
+   {
+    "ja": "浜辺に海草が打ち上げられていた。",
+    "reading": "はまべにかいそうがうちあげられていた。",
+    "vi": "Rong biển dạt lên bãi cát.",
+    "en": "Seaweed had washed up on the beach."
+   }
+  ]
+ },
+ {
+  "id": "68eae67c-e06a-465f-8daf-6b5086359165",
+  "word": "警備",
+  "reading": "けいび",
+  "examples": [
+   {
+    "ja": "銀行の前で警備員が立っている。",
+    "reading": "ぎんこうのまえでけいびいんがたっている。",
+    "vi": "Nhân viên bảo vệ đứng trước ngân hàng.",
+    "en": "A security guard stands in front of the bank."
+   },
+   {
+    "ja": "会場の警備はとても厳しかった。",
+    "reading": "かいじょうのけいびはとてもきびしかった。",
+    "vi": "An ninh tại hội trường rất nghiêm ngặt.",
+    "en": "Security at the venue was very tight."
+   }
+  ]
+ },
+ {
+  "id": "6a3a59a1-5a0a-4838-8bcf-1cc5d7879354",
+  "word": "形式",
+  "reading": "けいしき",
+  "examples": [
+   {
+    "ja": "報告書は決まった形式で書く。",
+    "reading": "ほうこくしょはきまったけいしきでかく。",
+    "vi": "Báo cáo phải viết theo hình thức quy định.",
+    "en": "Reports are written in a fixed format."
+   },
+   {
+    "ja": "形式より中身が大切だ。",
+    "reading": "けいしきよりなかみがたいせつだ。",
+    "vi": "Nội dung quan trọng hơn hình thức.",
+    "en": "Substance matters more than form."
+   }
+  ]
+ },
+ {
+  "id": "6e3a289d-96ee-4a41-ad01-37f298aa8bfb",
+  "word": "貝殻",
+  "reading": "かいがら",
+  "examples": [
+   {
+    "ja": "浜辺できれいな貝殻を拾った。",
+    "reading": "はまべできれいなかいがらをひろった。",
+    "vi": "Tôi nhặt được vỏ sò đẹp trên bãi biển.",
+    "en": "I picked up a pretty seashell on the beach."
+   },
+   {
+    "ja": "貝殻を耳に当てると海の音がする。",
+    "reading": "かいがらをみみにあてるとうみのおとがする。",
+    "vi": "Áp vỏ sò vào tai sẽ nghe được tiếng biển.",
+    "en": "Hold a shell to your ear and you hear the sea."
+   }
+  ]
+ },
+ {
+  "id": "6f94fe64-e77c-498b-b121-b60344957c78",
+  "word": "怪訝",
+  "reading": "けげん",
+  "examples": [
+   {
+    "ja": "彼は怪訝な顔で私を見た。",
+    "reading": "かれはけげんなかおでわたしをみた。",
+    "vi": "Anh ấy nhìn tôi với vẻ mặt ngờ vực.",
+    "en": "He looked at me with a puzzled face."
+   },
+   {
+    "ja": "突然の質問に怪訝そうな表情をした。",
+    "reading": "とつぜんのしつもんにけげんそうなひょうじょうをした。",
+    "vi": "Trước câu hỏi bất ngờ, cô ấy lộ vẻ khó hiểu.",
+    "en": "She looked puzzled at the sudden question."
+   }
+  ]
+ },
+ {
+  "id": "7b13da34-e7f1-496d-b9eb-7e68847c0f75",
+  "word": "繋ぐ",
+  "reading": "つなぐ",
+  "examples": [
+   {
+    "ja": "子供と手を繋いで歩いた。",
+    "reading": "こどもとてをつないであるいた。",
+    "vi": "Tôi nắm tay con và đi bộ.",
+    "en": "I walked holding hands with my child."
+   },
+   {
+    "ja": "犬をひもで木に繋いだ。",
+    "reading": "いぬをひもできにつないだ。",
+    "vi": "Tôi buộc con chó vào cây bằng dây.",
+    "en": "I tied the dog to the tree with a rope."
+   }
+  ]
+ },
+ {
+  "id": "7c5414c0-37e9-4e3d-8964-98e8c171a6d5",
+  "word": "携える",
+  "reading": "たずさえる",
+  "examples": [
+   {
+    "ja": "彼は資料を携えて会議に出た。",
+    "reading": "かれはしりょうをたずさえてかいぎにでた。",
+    "vi": "Anh ấy mang theo tài liệu đến cuộc họp.",
+    "en": "He attended the meeting carrying documents."
+   },
+   {
+    "ja": "お土産を携えて故郷へ帰った。",
+    "reading": "おみやげをたずさえてふるさとへかえった。",
+    "vi": "Tôi mang quà về quê.",
+    "en": "I returned home carrying souvenirs."
+   }
+  ]
+ },
+ {
+  "id": "7c6eb676-1cb2-4b30-9d54-348ecd79ed11",
+  "word": "海苔",
+  "reading": "のり",
+  "examples": [
+   {
+    "ja": "おにぎりを海苔で包んだ。",
+    "reading": "おにぎりをのりでつつんだ。",
+    "vi": "Tôi gói cơm nắm bằng rong biển.",
+    "en": "I wrapped the rice ball in nori."
+   },
+   {
+    "ja": "この海苔はとても香りがいい。",
+    "reading": "こののりはとてもかおりがいい。",
+    "vi": "Loại nori này rất thơm.",
+    "en": "This nori smells wonderful."
+   }
+  ]
+ },
+ {
+  "id": "7f992e77-d868-4d90-b9ef-3c7bc5eef8ff",
+  "word": "絵の具",
+  "reading": "えのぐ",
+  "examples": [
+   {
+    "ja": "絵の具で空を青く塗った。",
+    "reading": "えのぐでそらをあおくぬった。",
+    "vi": "Tôi tô bầu trời màu xanh bằng màu vẽ.",
+    "en": "I painted the sky blue with paints."
+   },
+   {
+    "ja": "子供が絵の具で手を汚した。",
+    "reading": "こどもがえのぐでてをよごした。",
+    "vi": "Đứa trẻ làm bẩn tay vì màu vẽ.",
+    "en": "The child got paint on their hands."
+   }
+  ]
+ },
+ {
+  "id": "82ba2c74-2791-4015-86db-4124ff8d7f00",
+  "word": "継続",
+  "reading": "けいぞく",
+  "examples": [
+   {
+    "ja": "練習を継続することが大切だ。",
+    "reading": "れんしゅうをけいぞくすることがたいせつだ。",
+    "vi": "Việc duy trì luyện tập là quan trọng.",
+    "en": "Continuing to practice is important."
+   },
+   {
+    "ja": "話し合いは来週も継続される。",
+    "reading": "はなしあいはらいしゅうもけいぞくされる。",
+    "vi": "Cuộc thảo luận sẽ tiếp tục vào tuần sau.",
+    "en": "The discussion will continue next week."
+   }
+  ]
+ },
+ {
+  "id": "84197068-2342-4ea5-bd52-78e405786967",
+  "word": "海水浴",
+  "reading": "かいすいよく",
+  "examples": [
+   {
+    "ja": "夏休みに海水浴に行った。",
+    "reading": "なつやすみにかいすいよくにいった。",
+    "vi": "Kỳ nghỉ hè tôi đi tắm biển.",
+    "en": "I went swimming at the beach during summer break."
+   },
+   {
+    "ja": "ここは海水浴に人気の場所だ。",
+    "reading": "ここはかいすいよくににんきのばしょだ。",
+    "vi": "Đây là nơi tắm biển nổi tiếng.",
+    "en": "This is a popular spot for sea bathing."
+   }
+  ]
+ },
+ {
+  "id": "8482712c-937b-45cf-9bfb-4221382c96bd",
+  "word": "皆様",
+  "reading": "みなさま",
+  "examples": [
+   {
+    "ja": "皆様、本日はありがとうございます。",
+    "reading": "みなさま、ほんじつはありがとうございます。",
+    "vi": "Kính thưa quý vị, cảm ơn đã đến hôm nay.",
+    "en": "Everyone, thank you for coming today."
+   },
+   {
+    "ja": "皆様のご協力に感謝します。",
+    "reading": "みなさまのごきょうりょくにかんしゃします。",
+    "vi": "Tôi cảm ơn sự hợp tác của mọi người.",
+    "en": "I thank you all for your cooperation."
+   }
+  ]
+ },
+ {
+  "id": "8a586910-ac71-4b57-9950-fd1ba5dbd0aa",
+  "word": "恵み",
+  "reading": "めぐみ",
+  "examples": [
+   {
+    "ja": "雨は自然の恵みだ。",
+    "reading": "あめはしぜんのめぐみだ。",
+    "vi": "Mưa là ơn lành của thiên nhiên.",
+    "en": "Rain is a blessing of nature."
+   },
+   {
+    "ja": "太陽の恵みで作物が育つ。",
+    "reading": "たいようのめぐみでさくもつがそだつ。",
+    "vi": "Cây trồng lớn lên nhờ ân huệ của mặt trời.",
+    "en": "Crops grow thanks to the blessing of the sun."
+   }
+  ]
+ },
+ {
+  "id": "8a695149-7ad6-47af-bce2-85ecf84ecb41",
+  "word": "開花",
+  "reading": "かいか",
+  "examples": [
+   {
+    "ja": "桜の開花が待ち遠しい。",
+    "reading": "さくらのかいかがまちどおしい。",
+    "vi": "Tôi mong chờ hoa anh đào nở.",
+    "en": "I can't wait for the cherry blossoms to bloom."
+   },
+   {
+    "ja": "今年は開花が例年より早い。",
+    "reading": "ことしはかいかがれいねんよりはやい。",
+    "vi": "Năm nay hoa nở sớm hơn mọi năm.",
+    "en": "This year the blooming is earlier than usual."
+   }
+  ]
+ },
+ {
+  "id": "92b1150c-1e25-4ff0-a121-1e2b5f8590b8",
+  "word": "悔やむ",
+  "reading": "くやむ",
+  "examples": [
+   {
+    "ja": "過ぎたことを悔やんでも仕方がない。",
+    "reading": "すぎたことをくやんでもしかたがない。",
+    "vi": "Hối tiếc chuyện đã qua cũng vô ích.",
+    "en": "There's no use regretting what's past."
+   },
+   {
+    "ja": "彼は自分の失敗をひどく悔やんだ。",
+    "reading": "かれはじぶんのしっぱいをひどくくやんだ。",
+    "vi": "Anh ấy hối hận sâu sắc về thất bại của mình.",
+    "en": "He deeply regretted his mistake."
+   }
+  ]
+ },
+ {
+  "id": "93812508-a318-4a16-b776-5372f137c5b6",
+  "word": "茎",
+  "reading": "くき",
+  "examples": [
+   {
+    "ja": "この花の茎は長くて丈夫だ。",
+    "reading": "このはなのくきはながくてじょうぶだ。",
+    "vi": "Cuống của bông hoa này dài và chắc.",
+    "en": "This flower's stem is long and sturdy."
+   },
+   {
+    "ja": "野菜の茎の部分も料理に使う。",
+    "reading": "やさいのくきのぶぶんもりょうりにつかう。",
+    "vi": "Phần thân rau cũng được dùng để nấu ăn.",
+    "en": "The stalk part of vegetables is also used in cooking."
+   }
+  ]
+ },
+ {
+  "id": "962807aa-3b98-4ede-93f4-bc0c660264bf",
+  "word": "掲示",
+  "reading": "けいじ",
+  "examples": [
+   {
+    "ja": "休講の掲示が出ていた。",
+    "reading": "きゅうこうのけいじがでていた。",
+    "vi": "Có thông báo nghỉ học.",
+    "en": "A notice of the cancelled class was posted."
+   },
+   {
+    "ja": "新しいルールが掲示された。",
+    "reading": "あたらしいルールがけいじされた。",
+    "vi": "Quy định mới đã được niêm yết.",
+    "en": "The new rules were posted."
+   }
+  ]
+ },
+ {
+  "id": "985bdd30-9920-42ac-a38b-996764fa4ead",
+  "word": "皆無",
+  "reading": "かいむ",
+  "examples": [
+   {
+    "ja": "そんな例は皆無だ。",
+    "reading": "そんなれいはかいむだ。",
+    "vi": "Hoàn toàn không có ví dụ nào như vậy.",
+    "en": "There are no such examples at all."
+   },
+   {
+    "ja": "彼に勝つ可能性は皆無に近い。",
+    "reading": "かれにかつかのうせいはかいむにちかい。",
+    "vi": "Khả năng thắng anh ấy gần như bằng không.",
+    "en": "The chance of beating him is almost nil."
+   }
+  ]
+ },
+ {
+  "id": "9b1a6c73-dcf5-4cda-bfc7-db0375a4bcc0",
+  "word": "改心",
+  "reading": "かいしん",
+  "examples": [
+   {
+    "ja": "彼は改心して真面目に働き始めた。",
+    "reading": "かれはかいしんしてまじめにはたらきはじめた。",
+    "vi": "Anh ấy hối cải và bắt đầu làm việc nghiêm túc.",
+    "en": "He reformed himself and began working seriously."
+   },
+   {
+    "ja": "過ちを認め、改心することにした。",
+    "reading": "あやまちをみとめ、かいしんすることにした。",
+    "vi": "Tôi thừa nhận lỗi lầm và quyết tâm sửa mình.",
+    "en": "I admitted my fault and decided to reform."
+   }
+  ]
+ },
+ {
+  "id": "9c37c1c9-0896-4181-8a94-f0e795f5ec14",
+  "word": "快適",
+  "reading": "かいてき",
+  "examples": [
+   {
+    "ja": "新しい部屋はとても快適だ。",
+    "reading": "あたらしいへやはとてもかいてきだ。",
+    "vi": "Căn phòng mới rất dễ chịu.",
+    "en": "The new room is very comfortable."
+   },
+   {
+    "ja": "エアコンのおかげで快適に過ごせる。",
+    "reading": "エアコンのおかげでかいてきにすごせる。",
+    "vi": "Nhờ điều hòa nên sống thoải mái.",
+    "en": "Thanks to the air conditioner, I can stay comfortable."
+   }
+  ]
+ },
+ {
+  "id": "9e952017-9af2-4db1-ad1b-296cdb960f72",
+  "word": "警戒",
+  "reading": "けいかい",
+  "examples": [
+   {
+    "ja": "強い地震に警戒してください。",
+    "reading": "つよいじしんにけいかいしてください。",
+    "vi": "Hãy cảnh giác với động đất mạnh.",
+    "en": "Please be on guard against strong earthquakes."
+   },
+   {
+    "ja": "警察は周辺を警戒している。",
+    "reading": "けいさつはしゅうへんをけいかいしている。",
+    "vi": "Cảnh sát đang canh phòng khu vực xung quanh.",
+    "en": "The police are keeping watch over the area."
+   }
+  ]
+ },
+ {
+  "id": "a1eb3b46-6042-4f62-aa9a-180a2313a19f",
+  "word": "懐く",
+  "reading": "なつく",
+  "examples": [
+   {
+    "ja": "この犬はすぐに人に懐く。",
+    "reading": "このいぬはすぐにひとになつく。",
+    "vi": "Con chó này nhanh chóng quấn người.",
+    "en": "This dog quickly becomes attached to people."
+   },
+   {
+    "ja": "子供が新しい先生に懐いた。",
+    "reading": "こどもがあたらしいせんせいになついた。",
+    "vi": "Đứa trẻ đã quấn quýt với cô giáo mới.",
+    "en": "The child grew attached to the new teacher."
+   }
+  ]
+ },
+ {
+  "id": "a3433d75-0c4a-41b3-b95d-6b6d65a5d658",
+  "word": "経歴",
+  "reading": "けいれき",
+  "examples": [
+   {
+    "ja": "彼の経歴はとても立派だ。",
+    "reading": "かれのけいれきはとてもりっぱだ。",
+    "vi": "Lý lịch của anh ấy rất ấn tượng.",
+    "en": "His career record is impressive."
+   },
+   {
+    "ja": "履歴書に経歴を詳しく書いた。",
+    "reading": "りれきしょにけいれきをくわしくかいた。",
+    "vi": "Tôi ghi chi tiết quá trình làm việc vào sơ yếu lý lịch.",
+    "en": "I wrote my career history in detail on my résumé."
+   }
+  ]
+ },
+ {
+  "id": "a72fadd4-63e7-4e67-a175-2e9bc468409d",
+  "word": "経過",
+  "reading": "けいか",
+  "examples": [
+   {
+    "ja": "手術後の経過は順調です。",
+    "reading": "しゅじゅつごのけいかはじゅんちょうです。",
+    "vi": "Tiến triển sau ca mổ rất tốt.",
+    "en": "The recovery after surgery is going well."
+   },
+   {
+    "ja": "三十分が経過した。",
+    "reading": "さんじゅっぷんがけいかした。",
+    "vi": "Ba mươi phút đã trôi qua.",
+    "en": "Thirty minutes have passed."
+   }
+  ]
+ },
+ {
+  "id": "a9b1ec62-548f-4e1e-a9b7-ac519c1a64d0",
+  "word": "形成",
+  "reading": "けいせい",
+  "examples": [
+   {
+    "ja": "経験が人の性格を形成する。",
+    "reading": "けいけんがひとのせいかくをけいせいする。",
+    "vi": "Trải nghiệm hình thành tính cách con người.",
+    "en": "Experience shapes a person's character."
+   },
+   {
+    "ja": "子供の人格はこの時期に形成される。",
+    "reading": "こどものじんかくはこのじきにけいせいされる。",
+    "vi": "Nhân cách trẻ được hình thành trong giai đoạn này.",
+    "en": "A child's character is formed during this period."
+   }
+  ]
+ },
+ {
+  "id": "ab6d7d4b-7d5f-4253-bb37-9f4fe673cb3f",
+  "word": "経路",
+  "reading": "けいろ",
+  "examples": [
+   {
+    "ja": "目的地までの経路を調べた。",
+    "reading": "もくてきちまでのけいろをしらべた。",
+    "vi": "Tôi tra lộ trình đến điểm đến.",
+    "en": "I looked up the route to the destination."
+   },
+   {
+    "ja": "別の経路で帰ることにした。",
+    "reading": "べつのけいろでかえることにした。",
+    "vi": "Tôi quyết định về bằng đường khác.",
+    "en": "I decided to go home by a different route."
+   }
+  ]
+ },
+ {
+  "id": "ad18fae9-bf44-4fa4-96ae-98261659bdd8",
+  "word": "開業",
+  "reading": "かいぎょう",
+  "examples": [
+   {
+    "ja": "来月、駅前に新しい店が開業する。",
+    "reading": "らいげつ、えきまえにあたらしいみせがかいぎょうする。",
+    "vi": "Tháng sau, một cửa hàng mới khai trương trước ga.",
+    "en": "A new shop will open in front of the station next month."
+   },
+   {
+    "ja": "彼は医者として開業した。",
+    "reading": "かれはいしゃとしてかいぎょうした。",
+    "vi": "Anh ấy mở phòng khám với tư cách bác sĩ.",
+    "en": "He started his own practice as a doctor."
+   }
+  ]
+ },
+ {
+  "id": "ad96a82c-1f08-41d0-a80e-9e1723f9d4f9",
+  "word": "悔しさ",
+  "reading": "くやしさ",
+  "examples": [
+   {
+    "ja": "試合に負けた悔しさで涙が出た。",
+    "reading": "しあいにまけたくやしさでなみだがでた。",
+    "vi": "Tôi rơi nước mắt vì cay cú khi thua trận.",
+    "en": "I cried out of frustration from losing the match."
+   },
+   {
+    "ja": "悔しさをばねにして練習した。",
+    "reading": "くやしさをばねにしてれんしゅうした。",
+    "vi": "Tôi lấy sự tức tối làm động lực để tập luyện.",
+    "en": "I used my frustration as motivation to practice."
+   }
+  ]
+ },
+ {
+  "id": "b3360598-ec5b-4adc-8b69-8fcaa01a7e2b",
+  "word": "改良",
+  "reading": "かいりょう",
+  "examples": [
+   {
+    "ja": "品質を改良して新製品を作った。",
+    "reading": "ひんしつをかいりょうしてしんせいひんをつくった。",
+    "vi": "Cải tiến chất lượng và làm ra sản phẩm mới.",
+    "en": "We improved the quality and made a new product."
+   },
+   {
+    "ja": "この品種は改良されて甘くなった。",
+    "reading": "このひんしゅはかいりょうされてあまくなった。",
+    "vi": "Giống này được cải tiến nên ngọt hơn.",
+    "en": "This variety was improved and became sweeter."
+   }
+  ]
+ },
+ {
+  "id": "b60e9eb9-5516-4473-a7e2-2c46532f1ce4",
+  "word": "絵本",
+  "reading": "えほん",
+  "examples": [
+   {
+    "ja": "毎晩、母が絵本を読んでくれた。",
+    "reading": "まいばん、ははがえほんをよんでくれた。",
+    "vi": "Mỗi tối mẹ đọc sách tranh cho tôi.",
+    "en": "Every night my mother read me picture books."
+   },
+   {
+    "ja": "子供は絵本を見るのが好きだ。",
+    "reading": "こどもはえほんをみるのがすきだ。",
+    "vi": "Trẻ con thích xem sách tranh.",
+    "en": "Children like looking at picture books."
+   }
+  ]
+ },
+ {
+  "id": "bb330719-f833-496b-b2ca-02d1b1d3c2d9",
+  "word": "警察署",
+  "reading": "けいさつしょ",
+  "examples": [
+   {
+    "ja": "落とし物を警察署に届けた。",
+    "reading": "おとしものをけいさつしょにとどけた。",
+    "vi": "Tôi mang đồ nhặt được đến đồn cảnh sát.",
+    "en": "I took the lost item to the police station."
+   },
+   {
+    "ja": "警察署は駅の近くにある。",
+    "reading": "けいさつしょはえきのちかくにある。",
+    "vi": "Đồn cảnh sát ở gần ga.",
+    "en": "The police station is near the station."
+   }
+  ]
+ },
+ {
+  "id": "bfcf0b60-28d0-4546-8b90-8f3b37b0a188",
+  "word": "改善",
+  "reading": "かいぜん",
+  "examples": [
+   {
+    "ja": "生活習慣を改善したい。",
+    "reading": "せいかつしゅうかんをかいぜんしたい。",
+    "vi": "Tôi muốn cải thiện thói quen sinh hoạt.",
+    "en": "I want to improve my lifestyle habits."
+   },
+   {
+    "ja": "サービスの改善に努めています。",
+    "reading": "サービスのかいぜんにつとめています。",
+    "vi": "Chúng tôi nỗ lực cải thiện dịch vụ.",
+    "en": "We are working to improve our service."
+   }
+  ]
+ },
+ {
+  "id": "c0340fa1-1df6-4e31-a64c-500297b86c85",
+  "word": "辛子",
+  "reading": "からし",
+  "examples": [
+   {
+    "ja": "おでんに辛子をつけて食べる。",
+    "reading": "おでんにからしをつけてたべる。",
+    "vi": "Tôi chấm oden với mù tạt để ăn.",
+    "en": "I eat oden with mustard."
+   },
+   {
+    "ja": "辛子が効いて涙が出た。",
+    "reading": "からしがきいてなみだがでた。",
+    "vi": "Mù tạt cay đến chảy nước mắt.",
+    "en": "The mustard was so strong it made me cry."
+   }
+  ]
+ },
+ {
+  "id": "c1e8bc24-19c3-4b29-a0da-915d1e7f84ad",
+  "word": "経営者",
+  "reading": "けいえいしゃ",
+  "examples": [
+   {
+    "ja": "彼は若い経営者として有名だ。",
+    "reading": "かれはわかいけいえいしゃとしてゆうめいだ。",
+    "vi": "Anh ấy nổi tiếng là một nhà quản lý trẻ.",
+    "en": "He is famous as a young business owner."
+   },
+   {
+    "ja": "経営者は社員の意見を聞くべきだ。",
+    "reading": "けいえいしゃはしゃいんのいけんをきくべきだ。",
+    "vi": "Người quản lý nên lắng nghe ý kiến nhân viên.",
+    "en": "Managers should listen to employees' opinions."
+   }
+  ]
+ },
+ {
+  "id": "c3e2c1b2-7533-4cc0-9612-78ef0877e947",
+  "word": "海辺",
+  "reading": "うみべ",
+  "examples": [
+   {
+    "ja": "海辺を散歩するのが好きだ。",
+    "reading": "うみべをさんぽするのがすきだ。",
+    "vi": "Tôi thích đi dạo bên bờ biển.",
+    "en": "I like taking walks by the seaside."
+   },
+   {
+    "ja": "海辺の小さな町に住んでいる。",
+    "reading": "うみべのちいさなまちにすんでいる。",
+    "vi": "Tôi sống ở một thị trấn nhỏ ven biển.",
+    "en": "I live in a small seaside town."
+   }
+  ]
+ },
+ {
+  "id": "c43b0de4-65be-4612-8482-3ce205bbcc0b",
+  "word": "計算",
+  "reading": "けいさん",
+  "examples": [
+   {
+    "ja": "子供のころから計算が得意だ。",
+    "reading": "こどものころからけいさんがとくいだ。",
+    "vi": "Từ nhỏ tôi đã giỏi tính toán.",
+    "en": "I've been good at calculation since childhood."
+   },
+   {
+    "ja": "旅行の費用を計算してみた。",
+    "reading": "りょこうのひようをけいさんしてみた。",
+    "vi": "Tôi thử tính chi phí chuyến đi.",
+    "en": "I tried calculating the travel costs."
+   }
+  ]
+ },
+ {
+  "id": "c53ab377-de6f-4e3e-9ece-0a701e39f3b0",
+  "word": "怪談",
+  "reading": "かいだん",
+  "examples": [
+   {
+    "ja": "夏になると怪談が聞きたくなる。",
+    "reading": "なつになるとかいだんがききたくなる。",
+    "vi": "Cứ đến hè là muốn nghe chuyện ma.",
+    "en": "In summer, I want to hear ghost stories."
+   },
+   {
+    "ja": "友達と怪談をして盛り上がった。",
+    "reading": "ともだちとかいだんをしてもりあがった。",
+    "vi": "Tôi kể chuyện ma với bạn và rất hào hứng.",
+    "en": "We had fun telling ghost stories with friends."
+   }
+  ]
+ },
+ {
+  "id": "c83c3587-6a4a-4254-87cb-84d59d3aa5a7",
+  "word": "経つ",
+  "reading": "たつ",
+  "examples": [
+   {
+    "ja": "あれから十年が経った。",
+    "reading": "あれからじゅうねんがたった。",
+    "vi": "Từ đó đã mười năm trôi qua.",
+    "en": "Ten years have passed since then."
+   },
+   {
+    "ja": "時間が経つのは早い。",
+    "reading": "じかんがたつのははやい。",
+    "vi": "Thời gian trôi qua thật nhanh.",
+    "en": "Time passes quickly."
+   }
+  ]
+ }
+]

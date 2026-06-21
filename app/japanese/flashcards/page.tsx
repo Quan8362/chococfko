@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { dbLevel } from '@/components/japanese/LevelPicker'
 import { JLPT_LEVELS } from '@/components/japanese/LevelPicker'
 import { fetchUserProgress, type ProgressMap } from '@/app/japanese/actions'
-import { getWordsForDeck, FLASHCARD_DECK_SIZE } from '@/lib/japanese/words'
+import { getWordsForDeck, FLASHCARD_DECK_SIZE, FLASHCARD_EXCLUDE_TAG } from '@/lib/japanese/words'
 import type { JapaneseWord } from '@/components/japanese/WordCard'
 import FlashcardClient from './FlashcardClient'
 
@@ -25,6 +25,7 @@ async function getLevelCounts(): Promise<Record<string, number>> {
         .select('id', { count: 'exact', head: true })
         .eq('jlpt_level', level)
         .eq('is_published', true)
+        .or(`tags.is.null,tags.not.cs.{${FLASHCARD_EXCLUDE_TAG}}`)
       counts[level] = count ?? 0
     })
   )

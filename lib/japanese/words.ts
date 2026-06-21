@@ -8,6 +8,14 @@ const FETCH_BATCH = 1000
 export const FLASHCARD_DECK_SIZE = 50
 
 /**
+ * Tag marking JMdict reading/sense artifacts that have no example and cannot
+ * safely receive one (obscure secondary readings mis-tagged to a level). These
+ * are hidden from Flashcard decks so a learner never sees a misleading card.
+ * Keep this in sync with the deck-count query in app/japanese/flashcards/page.tsx.
+ */
+export const FLASHCARD_EXCLUDE_TAG = 'flashcard_exclude'
+
+/**
  * Fetch every published word for a JLPT level (ordered by frequency desc).
  * Pages through in batches so the PostgREST row cap never truncates the result.
  */
@@ -21,7 +29,9 @@ export async function getAllWordsForLevel(level: string): Promise<JapaneseWord[]
       .select(WORD_COLUMNS)
       .eq('jlpt_level', level)
       .eq('is_published', true)
+      .or(`tags.is.null,tags.not.cs.{${FLASHCARD_EXCLUDE_TAG}}`)
       .order('frequency', { ascending: false })
+      .order('id', { ascending: true })
       .range(from, from + FETCH_BATCH - 1)
 
     if (error || !data || data.length === 0) break
@@ -46,7 +56,9 @@ export async function getWordsForDeck(level: string, deck: number): Promise<Japa
     .select(WORD_COLUMNS)
     .eq('jlpt_level', level)
     .eq('is_published', true)
+    .or(`tags.is.null,tags.not.cs.{${FLASHCARD_EXCLUDE_TAG}}`)
     .order('frequency', { ascending: false })
+    .order('id', { ascending: true })
     .range(from, to)
 
   return (data as JapaneseWord[]) ?? []

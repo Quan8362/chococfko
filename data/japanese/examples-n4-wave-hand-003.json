@@ -1,0 +1,572 @@
+[
+ {
+  "id": "c8e9bbff-8939-454f-885c-73ecb1fc5bc8",
+  "word": "海水",
+  "reading": "かいすい",
+  "examples": [
+   {
+    "ja": "海水をなめたらとても塩辛かった。",
+    "reading": "かいすいをなめたらとてもしおからかった。",
+    "vi": "Nếm nước biển thì rất mặn.",
+    "en": "When I tasted the seawater, it was very salty."
+   },
+   {
+    "ja": "海水から塩を作る。",
+    "reading": "かいすいからしおをつくる。",
+    "vi": "Người ta làm muối từ nước biển.",
+    "en": "Salt is made from seawater."
+   }
+  ]
+ },
+ {
+  "id": "c9aab758-c818-4522-9499-5319f32f9ca9",
+  "word": "開放",
+  "reading": "かいほう",
+  "examples": [
+   {
+    "ja": "校庭を地域の人に開放している。",
+    "reading": "こうていをちいきのひとにかいほうしている。",
+    "vi": "Sân trường được mở cho người dân địa phương.",
+    "en": "The schoolyard is open to local residents."
+   },
+   {
+    "ja": "窓を開放して空気を入れ替えた。",
+    "reading": "まどをかいほうしてくうきをいれかえた。",
+    "vi": "Tôi mở toang cửa sổ để thay không khí.",
+    "en": "I opened the windows wide to let in fresh air."
+   }
+  ]
+ },
+ {
+  "id": "cfabdc05-c26a-4f36-8700-605e98d6847f",
+  "word": "軽蔑",
+  "reading": "けいべつ",
+  "examples": [
+   {
+    "ja": "うそをつく人を軽蔑する。",
+    "reading": "うそをつくひとをけいべつする。",
+    "vi": "Tôi khinh những người nói dối.",
+    "en": "I despise people who lie."
+   },
+   {
+    "ja": "軽蔑のまなざしで見られた。",
+    "reading": "けいべつのまなざしでみられた。",
+    "vi": "Tôi bị nhìn với ánh mắt khinh bỉ.",
+    "en": "I was looked at with contempt."
+   }
+  ]
+ },
+ {
+  "id": "d0a18128-ef32-4b88-b760-6ec4fd7432c7",
+  "word": "軽快",
+  "reading": "けいかい",
+  "examples": [
+   {
+    "ja": "彼女は軽快な足取りで歩いた。",
+    "reading": "かのじょはけいかいなあしどりであるいた。",
+    "vi": "Cô ấy bước đi với những bước chân nhẹ nhàng.",
+    "en": "She walked with a light step."
+   },
+   {
+    "ja": "軽快な音楽が流れている。",
+    "reading": "けいかいなおんがくがながれている。",
+    "vi": "Một bản nhạc vui tươi đang vang lên.",
+    "en": "Light, upbeat music is playing."
+   }
+  ]
+ },
+ {
+  "id": "d2bc0b50-15f5-471d-bac9-60cf7887ea70",
+  "word": "継父",
+  "reading": "けいふ",
+  "examples": [
+   {
+    "ja": "彼女の継父はとても優しい。",
+    "reading": "かのじょのけいふはとてもやさしい。",
+    "vi": "Bố dượng của cô ấy rất hiền.",
+    "en": "Her stepfather is very kind."
+   },
+   {
+    "ja": "継父と一緒に釣りに行った。",
+    "reading": "けいふといっしょにつりにいった。",
+    "vi": "Tôi đi câu cá cùng bố dượng.",
+    "en": "I went fishing with my stepfather."
+   }
+  ]
+ },
+ {
+  "id": "d37edad8-675d-4ce2-add7-ae159ebedd70",
+  "word": "繋げる",
+  "reading": "つなげる",
+  "examples": [
+   {
+    "ja": "パソコンをプリンターに繋げた。",
+    "reading": "パソコンをプリンターにつなげた。",
+    "vi": "Tôi kết nối máy tính với máy in.",
+    "en": "I connected the computer to the printer."
+   },
+   {
+    "ja": "小さな努力を成功に繋げたい。",
+    "reading": "ちいさなどりょくをせいこうにつなげたい。",
+    "vi": "Tôi muốn biến những nỗ lực nhỏ thành thành công.",
+    "en": "I want to turn small efforts into success."
+   }
+  ]
+ },
+ {
+  "id": "d4dfb554-3d94-40a6-ac6d-17b45f7e3e20",
+  "word": "継子",
+  "reading": "ままこ",
+  "examples": [
+   {
+    "ja": "物語では継子がいじめられる。",
+    "reading": "ものがたりではままこがいじめられる。",
+    "vi": "Trong truyện, đứa con riêng bị bắt nạt.",
+    "en": "In the story, the stepchild is bullied."
+   },
+   {
+    "ja": "彼は継子を実の子のように育てた。",
+    "reading": "かれはままこをじつのこのようにそだてた。",
+    "vi": "Anh ấy nuôi con riêng như con ruột.",
+    "en": "He raised his stepchild like his own."
+   }
+  ]
+ },
+ {
+  "id": "d8334b49-9512-4f01-9989-64a3b1458b95",
+  "word": "形見",
+  "reading": "かたみ",
+  "examples": [
+   {
+    "ja": "この時計は祖父の形見だ。",
+    "reading": "このとけいはそふのかたみだ。",
+    "vi": "Chiếc đồng hồ này là kỷ vật của ông tôi.",
+    "en": "This watch is a memento of my grandfather."
+   },
+   {
+    "ja": "母の形見の指輪を大切にしている。",
+    "reading": "ははのかたみのゆびわをたいせつにしている。",
+    "vi": "Tôi trân trọng chiếc nhẫn kỷ vật của mẹ.",
+    "en": "I treasure the ring my mother left me."
+   }
+  ]
+ },
+ {
+  "id": "dcee5773-9ca7-4281-a814-eae6d1ea86d3",
+  "word": "開店",
+  "reading": "かいてん",
+  "examples": [
+   {
+    "ja": "その店は朝十時に開店する。",
+    "reading": "そのみせはあさじゅうじにかいてんする。",
+    "vi": "Cửa hàng đó mở cửa lúc mười giờ sáng.",
+    "en": "That shop opens at ten in the morning."
+   },
+   {
+    "ja": "開店と同時に客が入ってきた。",
+    "reading": "かいてんとどうじにきゃくがはいってきた。",
+    "vi": "Vừa mở cửa là khách vào ngay.",
+    "en": "Customers came in the moment the shop opened."
+   }
+  ]
+ },
+ {
+  "id": "deb342c6-d8c2-46f8-9c42-6e63233cc867",
+  "word": "継承",
+  "reading": "けいしょう",
+  "examples": [
+   {
+    "ja": "彼は父の事業を継承した。",
+    "reading": "かれはちちのじぎょうをけいしょうした。",
+    "vi": "Anh ấy kế thừa sự nghiệp của cha.",
+    "en": "He inherited his father's business."
+   },
+   {
+    "ja": "伝統を次の世代に継承する。",
+    "reading": "でんとうをつぎのせだいにけいしょうする。",
+    "vi": "Truyền lại truyền thống cho thế hệ sau.",
+    "en": "We pass traditions on to the next generation."
+   }
+  ]
+ },
+ {
+  "id": "df7c157b-92c3-4070-997b-338eea39f59c",
+  "word": "軽減",
+  "reading": "けいげん",
+  "examples": [
+   {
+    "ja": "税の負担を軽減してほしい。",
+    "reading": "ぜいのふたんをけいげんしてほしい。",
+    "vi": "Tôi mong gánh nặng thuế được giảm bớt.",
+    "en": "I hope the tax burden will be reduced."
+   },
+   {
+    "ja": "痛みを軽減する薬を飲んだ。",
+    "reading": "いたみをけいげんするくすりをのんだ。",
+    "vi": "Tôi uống thuốc giảm đau.",
+    "en": "I took medicine to ease the pain."
+   }
+  ]
+ },
+ {
+  "id": "e280f046-12d8-4ab9-b81f-7210d5344cdb",
+  "word": "蟹",
+  "reading": "かに",
+  "examples": [
+   {
+    "ja": "北海道で新鮮な蟹を食べた。",
+    "reading": "ほっかいどうでしんせんなかにをたべた。",
+    "vi": "Tôi ăn cua tươi ở Hokkaido.",
+    "en": "I ate fresh crab in Hokkaido."
+   },
+   {
+    "ja": "蟹は横に歩く。",
+    "reading": "かにはよこにあるく。",
+    "vi": "Cua đi ngang.",
+    "en": "Crabs walk sideways."
+   }
+  ]
+ },
+ {
+  "id": "e5c928d6-4dec-4beb-9ca6-db365a7d026f",
+  "word": "警護",
+  "reading": "けいご",
+  "examples": [
+   {
+    "ja": "大臣は厳重に警護されている。",
+    "reading": "だいじんはげんじゅうにけいごされている。",
+    "vi": "Bộ trưởng được bảo vệ nghiêm ngặt.",
+    "en": "The minister is heavily guarded."
+   },
+   {
+    "ja": "警護のため警官が同行した。",
+    "reading": "けいごのためけいかんがどうこうした。",
+    "vi": "Cảnh sát đi theo để hộ vệ.",
+    "en": "Police accompanied him for protection."
+   }
+  ]
+ },
+ {
+  "id": "e6648038-da5a-4c22-9bd8-5aa7382851b0",
+  "word": "開催",
+  "reading": "かいさい",
+  "examples": [
+   {
+    "ja": "来月、市で音楽祭が開催される。",
+    "reading": "らいげつ、しでおんがくさいがかいさいされる。",
+    "vi": "Tháng sau thành phố tổ chức lễ hội âm nhạc.",
+    "en": "A music festival will be held in the city next month."
+   },
+   {
+    "ja": "会議はオンラインで開催された。",
+    "reading": "かいぎはオンラインでかいさいされた。",
+    "vi": "Cuộc họp được tổ chức trực tuyến.",
+    "en": "The meeting was held online."
+   }
+  ]
+ },
+ {
+  "id": "e6e17691-c8c9-444e-b93f-66ac190e7d6a",
+  "word": "階級",
+  "reading": "かいきゅう",
+  "examples": [
+   {
+    "ja": "昔は厳しい階級の差があった。",
+    "reading": "むかしはきびしいかいきゅうのさがあった。",
+    "vi": "Ngày xưa có sự phân biệt giai cấp khắc nghiệt.",
+    "en": "In the past, there were strict class divisions."
+   },
+   {
+    "ja": "彼は軍隊で高い階級に就いた。",
+    "reading": "かれはぐんたいでたかいかいきゅうについた。",
+    "vi": "Anh ấy đạt cấp bậc cao trong quân đội.",
+    "en": "He attained a high rank in the army."
+   }
+  ]
+ },
+ {
+  "id": "ed24fbaa-feab-445b-95cf-b6a1370606e0",
+  "word": "快感",
+  "reading": "かいかん",
+  "examples": [
+   {
+    "ja": "試合に勝った時の快感は忘れられない。",
+    "reading": "しあいにかったときのかいかんはわすれられない。",
+    "vi": "Cảm giác sảng khoái khi thắng trận thật khó quên.",
+    "en": "The thrill of winning the match is unforgettable."
+   },
+   {
+    "ja": "冷たい水を飲むと快感がある。",
+    "reading": "つめたいみずをのむとかいかんがある。",
+    "vi": "Uống nước lạnh thấy thật đã.",
+    "en": "Drinking cold water feels great."
+   }
+  ]
+ },
+ {
+  "id": "eeeca4c7-6287-45fd-b1ba-a502c94dfe5b",
+  "word": "携わる",
+  "reading": "たずさわる",
+  "examples": [
+   {
+    "ja": "彼は長年教育に携わってきた。",
+    "reading": "かれはながねんきょういくにたずさわってきた。",
+    "vi": "Anh ấy đã gắn bó với giáo dục nhiều năm.",
+    "en": "He has been engaged in education for many years."
+   },
+   {
+    "ja": "このプロジェクトに携われて光栄だ。",
+    "reading": "このプロジェクトにたずさわれてこうえいだ。",
+    "vi": "Tôi vinh dự được tham gia dự án này.",
+    "en": "I'm honored to be involved in this project."
+   }
+  ]
+ },
+ {
+  "id": "ef22b266-638b-4f28-bc12-5ec2f7cd225c",
+  "word": "海峡",
+  "reading": "かいきょう",
+  "examples": [
+   {
+    "ja": "船が海峡をゆっくり通った。",
+    "reading": "ふねがかいきょうをゆっくりとおった。",
+    "vi": "Con tàu chậm rãi qua eo biển.",
+    "en": "The ship slowly passed through the strait."
+   },
+   {
+    "ja": "この海峡は流れが速い。",
+    "reading": "このかいきょうはながれがはやい。",
+    "vi": "Eo biển này có dòng chảy xiết.",
+    "en": "This strait has a fast current."
+   }
+  ]
+ },
+ {
+  "id": "f06c19a5-0f94-45b3-850f-98b3470bf166",
+  "word": "皆勤",
+  "reading": "かいきん",
+  "examples": [
+   {
+    "ja": "彼は一年間皆勤で表彰された。",
+    "reading": "かれはいちねんかんかいきんでひょうしょうされた。",
+    "vi": "Anh ấy được khen thưởng vì đi học chuyên cần cả năm.",
+    "en": "He was honored for perfect attendance for a year."
+   },
+   {
+    "ja": "皆勤を目指して毎日学校に通った。",
+    "reading": "かいきんをめざしてまいにちがっこうにかよった。",
+    "vi": "Tôi đến trường mỗi ngày để đạt chuyên cần tuyệt đối.",
+    "en": "I went to school every day aiming for perfect attendance."
+   }
+  ]
+ },
+ {
+  "id": "f0f6ddef-287e-48f8-912b-5311f867afae",
+  "word": "敬礼",
+  "reading": "けいれい",
+  "examples": [
+   {
+    "ja": "兵士は将軍に敬礼した。",
+    "reading": "へいしはしょうぐんにけいれいした。",
+    "vi": "Người lính chào kính vị tướng.",
+    "en": "The soldier saluted the general."
+   },
+   {
+    "ja": "国旗に向かって敬礼する。",
+    "reading": "こっきにむかってけいれいする。",
+    "vi": "Chào kính trước quốc kỳ.",
+    "en": "They salute the national flag."
+   }
+  ]
+ },
+ {
+  "id": "f4d4b790-1481-4c11-83ca-f33aa385714f",
+  "word": "形跡",
+  "reading": "けいせき",
+  "examples": [
+   {
+    "ja": "部屋には誰かがいた形跡があった。",
+    "reading": "へやにはだれかがいたけいせきがあった。",
+    "vi": "Trong phòng có dấu vết ai đó từng ở.",
+    "en": "There were traces that someone had been in the room."
+   },
+   {
+    "ja": "争った形跡は見つからなかった。",
+    "reading": "あらそったけいせきはみつからなかった。",
+    "vi": "Không tìm thấy dấu vết của vụ ẩu đả.",
+    "en": "No signs of a struggle were found."
+   }
+  ]
+ },
+ {
+  "id": "f4e3ed8b-1a1c-4091-b51e-abd2cb659ac0",
+  "word": "軽傷",
+  "reading": "けいしょう",
+  "examples": [
+   {
+    "ja": "事故で軽傷を負ったが、命に別状はない。",
+    "reading": "じこでけいしょうをおったが、いのちにべつじょうはない。",
+    "vi": "Tôi bị thương nhẹ trong tai nạn nhưng không nguy hiểm tính mạng.",
+    "en": "I suffered a minor injury in the accident but my life isn't in danger."
+   },
+   {
+    "ja": "幸い、けが人は全員軽傷だった。",
+    "reading": "さいわい、けがにんはぜんいんけいしょうだった。",
+    "vi": "May mắn là tất cả người bị thương đều nhẹ.",
+    "en": "Fortunately, all the injured had only minor wounds."
+   }
+  ]
+ },
+ {
+  "id": "f5209778-631c-4092-a0fd-be5c4c5f084c",
+  "word": "警察",
+  "reading": "けいさつ",
+  "examples": [
+   {
+    "ja": "事故を見て、すぐに警察を呼んだ。",
+    "reading": "じこをみて、すぐにけいさつをよんだ。",
+    "vi": "Thấy tai nạn, tôi gọi cảnh sát ngay.",
+    "en": "Seeing the accident, I called the police right away."
+   },
+   {
+    "ja": "警察が事件を調べている。",
+    "reading": "けいさつがじけんをしらべている。",
+    "vi": "Cảnh sát đang điều tra vụ việc.",
+    "en": "The police are investigating the case."
+   }
+  ]
+ },
+ {
+  "id": "f52d7a9d-3327-4c7f-84c1-b9c478f31a54",
+  "word": "継ぐ",
+  "reading": "つぐ",
+  "examples": [
+   {
+    "ja": "彼は父の店を継ぐことにした。",
+    "reading": "かれはちちのみせをつぐことにした。",
+    "vi": "Anh ấy quyết định nối nghiệp cửa hàng của cha.",
+    "en": "He decided to take over his father's shop."
+   },
+   {
+    "ja": "伝統の技を継ぐ若者が減っている。",
+    "reading": "でんとうのわざをつぐわかものがへっている。",
+    "vi": "Số người trẻ kế thừa nghề truyền thống đang giảm.",
+    "en": "Fewer young people are inheriting traditional skills."
+   }
+  ]
+ },
+ {
+  "id": "f73d6aaf-af70-485c-8413-1752e7e5d056",
+  "word": "繋がり",
+  "reading": "つながり",
+  "examples": [
+   {
+    "ja": "人との繋がりを大切にしている。",
+    "reading": "ひととのつながりをたいせつにしている。",
+    "vi": "Tôi trân trọng mối quan hệ với mọi người.",
+    "en": "I value my connections with people."
+   },
+   {
+    "ja": "二つの事件には繋がりがある。",
+    "reading": "ふたつのじけんにはつながりがある。",
+    "vi": "Hai vụ việc có liên hệ với nhau.",
+    "en": "The two cases have a connection."
+   }
+  ]
+ },
+ {
+  "id": "f8286046-436d-413c-81f6-158575a7f34e",
+  "word": "快速",
+  "reading": "かいそく",
+  "examples": [
+   {
+    "ja": "快速電車に乗れば三十分で着く。",
+    "reading": "かいそくでんしゃにのればさんじゅっぷんでつく。",
+    "vi": "Đi tàu nhanh thì ba mươi phút là tới.",
+    "en": "If you take the rapid train, you'll arrive in thirty minutes."
+   },
+   {
+    "ja": "この駅に快速は止まらない。",
+    "reading": "このえきにかいそくはとまらない。",
+    "vi": "Tàu nhanh không dừng ở ga này.",
+    "en": "The rapid train doesn't stop at this station."
+   }
+  ]
+ },
+ {
+  "id": "fb374430-c0ad-4c26-a9da-e43fe9a4548e",
+  "word": "快眠",
+  "reading": "かいみん",
+  "examples": [
+   {
+    "ja": "適度な運動は快眠につながる。",
+    "reading": "てきどなうんどうはかいみんにつながる。",
+    "vi": "Vận động vừa phải giúp ngủ ngon.",
+    "en": "Moderate exercise leads to good sleep."
+   },
+   {
+    "ja": "静かな部屋で快眠できた。",
+    "reading": "しずかなへやでかいみんできた。",
+    "vi": "Tôi ngủ ngon trong phòng yên tĩnh.",
+    "en": "I slept well in the quiet room."
+   }
+  ]
+ },
+ {
+  "id": "fb96de56-d7e0-4399-913c-8156c53e8a25",
+  "word": "悔い",
+  "reading": "くい",
+  "examples": [
+   {
+    "ja": "全力を尽くしたので悔いはない。",
+    "reading": "ぜんりょくをつくしたのでくいはない。",
+    "vi": "Tôi đã dốc hết sức nên không hối tiếc.",
+    "en": "I gave it my all, so I have no regrets."
+   },
+   {
+    "ja": "悔いの残らない選択をしたい。",
+    "reading": "くいののこらないせんたくをしたい。",
+    "vi": "Tôi muốn đưa ra lựa chọn không để lại hối tiếc.",
+    "en": "I want to make a choice I won't regret."
+   }
+  ]
+ },
+ {
+  "id": "fc4981b8-99a2-4258-8cd1-030ce6a35e11",
+  "word": "系列",
+  "reading": "けいれつ",
+  "examples": [
+   {
+    "ja": "このスーパーは大手の系列だ。",
+    "reading": "このスーパーはおおてのけいれつだ。",
+    "vi": "Siêu thị này thuộc chuỗi của tập đoàn lớn.",
+    "en": "This supermarket belongs to a major chain."
+   },
+   {
+    "ja": "系列の会社で働いている。",
+    "reading": "けいれつのかいしゃではたらいている。",
+    "vi": "Tôi làm ở một công ty trong cùng tập đoàn.",
+    "en": "I work at an affiliated company."
+   }
+  ]
+ },
+ {
+  "id": "fe70dec4-805d-455f-bb71-3b1c97ff63e6",
+  "word": "経理",
+  "reading": "けいり",
+  "examples": [
+   {
+    "ja": "彼女は会社の経理を担当している。",
+    "reading": "かのじょはかいしゃのけいりをたんとうしている。",
+    "vi": "Cô ấy phụ trách kế toán của công ty.",
+    "en": "She is in charge of the company's accounting."
+   },
+   {
+    "ja": "経理の仕事は正確さが大切だ。",
+    "reading": "けいりのしごとはせいかくさがたいせつだ。",
+    "vi": "Công việc kế toán cần sự chính xác.",
+    "en": "Accuracy is important in accounting work."
+   }
+  ]
+ }
+]

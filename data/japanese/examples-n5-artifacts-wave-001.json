@@ -1,0 +1,20 @@
+[
+ {"id":"5f48e8be-95dc-4ab6-9bde-33dfce11c37b","word":"万","reading":"まん","examples":[
+   {"ja":"このパソコンは八万円でした。","reading":"このパソコンははちまんえんでした。","vi":"Chiếc máy tính này giá tám mươi nghìn yên.","en":"This computer cost eighty thousand yen."},
+   {"ja":"スタジアムに五万人が集まった。","reading":"スタジアムにごまんにんがあつまった。","vi":"Năm mươi nghìn người đã tụ tập ở sân vận động.","en":"Fifty thousand people gathered at the stadium."}]},
+ {"id":"cab69012-350d-4da7-8a31-a64314738162","word":"日","reading":"ひ","examples":[
+   {"ja":"暑い日が続いています。","reading":"あついひがつづいています。","vi":"Những ngày nóng cứ tiếp diễn.","en":"Hot days keep continuing."},
+   {"ja":"東の空から日が昇る。","reading":"ひがしのそらからひがのぼる。","vi":"Mặt trời mọc lên từ bầu trời phía đông.","en":"The sun rises from the eastern sky."}]},
+ {"id":"719be467-fa73-4cb1-9c90-0ca4ed235222","word":"空","reading":"から","examples":[
+   {"ja":"箱の中は空でした。","reading":"はこのなかはからでした。","vi":"Bên trong chiếc hộp trống rỗng.","en":"The inside of the box was empty."},
+   {"ja":"空のペットボトルをごみ箱に捨てた。","reading":"からのペットボトルをごみばこにすてた。","vi":"Tôi vứt chai nhựa rỗng vào thùng rác.","en":"I threw the empty plastic bottle into the trash."}]},
+ {"id":"535f4110-6564-4b8d-9d74-b7b361f17386","word":"方","reading":"かた","examples":[
+   {"ja":"あの方は私の日本語の先生です。","reading":"あのかたはわたしのにほんごのせんせいです。","vi":"Vị kia là thầy dạy tiếng Nhật của tôi.","en":"That person is my Japanese teacher."},
+   {"ja":"この漢字の書き方を教えてください。","reading":"このかんじのかきかたをおしえてください。","vi":"Hãy chỉ cho tôi cách viết chữ Hán này.","en":"Please teach me how to write this kanji."}]},
+ {"id":"d8dc3f70-6a9d-485e-8d37-fc3fa491ece3","word":"好き","reading":"ずき","examples":[
+   {"ja":"妹は大の犬好きです。","reading":"いもうとはだいのいぬずきです。","vi":"Em gái tôi rất mê chó.","en":"My little sister is a big dog lover."},
+   {"ja":"彼は映画好きで、毎週映画館へ行く。","reading":"かれはえいがずきで、まいしゅうえいがかんへいく。","vi":"Anh ấy mê phim, tuần nào cũng ra rạp.","en":"He is a movie buff and goes to the cinema every week."}]},
+ {"id":"e1d4035d-8865-46af-91ce-11962a1ddcc6","word":"方","reading":"がた","examples":[
+   {"ja":"先生方が会議室に集まっています。","reading":"せんせいがたがかいぎしつにあつまっています。","vi":"Các thầy cô đang tập trung ở phòng họp.","en":"The teachers are gathering in the meeting room."},
+   {"ja":"あなた方のご意見を聞かせてください。","reading":"あなたがたのごいけんをきかせてください。","vi":"Xin hãy cho chúng tôi nghe ý kiến của quý vị.","en":"Please let us hear your opinions."}]}
+]

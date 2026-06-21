@@ -44,16 +44,20 @@ def has_render(examples):
 
 # Page through level by frequency desc, collecting words without a renderable example.
 worklist = []
+seen = set()
 offset = 0
 PAGE = 1000
 while len(worklist) < LIMIT:
     url = (BASE + "?select=id,word,reading,romaji,jlpt_level,pos,meanings,examples"
            "&jlpt_level=eq." + LEVEL + "&is_published=eq.true"
-           "&order=frequency.desc&limit=" + str(PAGE) + "&offset=" + str(offset))
+           "&order=frequency.desc,id.asc&limit=" + str(PAGE) + "&offset=" + str(offset))
     rows = json.loads(urllib.request.urlopen(urllib.request.Request(url, headers=H)).read())
     if not rows:
         break
     for r in rows:
+        if r["id"] in seen:
+            continue
+        seen.add(r["id"])
         if not has_render(r.get("examples")):
             worklist.append({
                 "id": r["id"], "word": r["word"], "reading": r.get("reading"),

@@ -1,0 +1,122 @@
+[
+ {"id":"2a80d9cf-70ff-4046-8394-3acf6a6e7575","word":"太鼓","reading":"たいこ","examples":[
+   {"ja":"祭りで大きな太鼓を叩きました。","reading":"まつりでおおきなたいこをたたきました。","vi":"Tôi đã đánh chiếc trống lớn trong lễ hội.","en":"I beat the big drum at the festival."},
+   {"ja":"子供たちは太鼓のリズムに合わせて踊った。","reading":"こどもたちはたいこのリズムにあわせておどった。","vi":"Bọn trẻ nhảy theo nhịp trống.","en":"The children danced to the rhythm of the drum."}]},
+ {"id":"00a68975-e2a0-4dac-b355-10d6c3ec01b9","word":"地球","reading":"ちきゅう","examples":[
+   {"ja":"地球は太陽の周りを回っています。","reading":"ちきゅうはたいようのまわりをまわっています。","vi":"Trái Đất quay quanh Mặt Trời.","en":"The Earth revolves around the Sun."},
+   {"ja":"私たちは地球の環境を守らなければなりません。","reading":"わたしたちはちきゅうのかんきょうをまもらなければなりません。","vi":"Chúng ta phải bảo vệ môi trường Trái Đất.","en":"We must protect the Earth's environment."}]},
+ {"id":"3a2a2c32-efcf-4ed1-a188-3521974918c8","word":"受諾","reading":"じゅだく","examples":[
+   {"ja":"会社は彼の提案を受諾した。","reading":"かいしゃはかれのていあんをじゅだくした。","vi":"Công ty đã chấp nhận đề xuất của anh ấy.","en":"The company accepted his proposal."},
+   {"ja":"両国は和平条件の受諾を発表した。","reading":"りょうこくはわへいじょうけんのじゅだくをはっぴょうした。","vi":"Hai nước tuyên bố chấp nhận các điều kiện hòa bình.","en":"The two countries announced their acceptance of the peace terms."}]},
+ {"id":"67e61997-3318-4209-a9d1-6a564d9329d9","word":"地名","reading":"ちめい","examples":[
+   {"ja":"この地名は読み方が難しい。","reading":"このちめいはよみかたがむずかしい。","vi":"Địa danh này có cách đọc khó.","en":"This place name is hard to read."},
+   {"ja":"古い地名にはその土地の歴史が残っている。","reading":"ふるいちめいにはそのとちのれきしがのこっている。","vi":"Những địa danh cổ còn lưu giữ lịch sử của vùng đất đó.","en":"Old place names preserve the history of the land."}]},
+ {"id":"0586f443-9727-472e-8108-e96bfacd6c6a","word":"包み","reading":"つつみ","examples":[
+   {"ja":"母から届いた包みを開けた。","reading":"ははからとどいたつつみをあけた。","vi":"Tôi mở gói đồ mẹ gửi đến.","en":"I opened the package that arrived from my mother."},
+   {"ja":"彼女は小さな包みを大事そうに抱えていた。","reading":"かのじょはちいさなつつみをだいじそうにかかえていた。","vi":"Cô ấy ôm gói nhỏ một cách trân trọng.","en":"She held the small bundle carefully."}]},
+ {"id":"8a51a256-824b-4529-b033-43f0ded4dcc1","word":"企てる","reading":"くわだてる","examples":[
+   {"ja":"彼らは新しい事業を企てている。","reading":"かれらはあたらしいじぎょうをくわだてている。","vi":"Họ đang lên kế hoạch cho một dự án mới.","en":"They are planning a new business venture."},
+   {"ja":"犯人は逃亡を企てたが失敗した。","reading":"はんにんはとうぼうをくわだてたがしっぱいした。","vi":"Kẻ phạm tội mưu tính bỏ trốn nhưng thất bại.","en":"The criminal attempted to escape but failed."}]},
+ {"id":"00caaa4e-5293-49a6-b90b-49b32cc290a6","word":"筆跡","reading":"ひっせき","examples":[
+   {"ja":"この手紙の筆跡は父のものだ。","reading":"このてがみのひっせきはちちのものだ。","vi":"Nét chữ trong lá thư này là của bố tôi.","en":"The handwriting in this letter is my father's."},
+   {"ja":"警察は筆跡から犯人を特定した。","reading":"けいさつはひっせきからはんにんをとくていした。","vi":"Cảnh sát xác định thủ phạm qua nét chữ.","en":"The police identified the culprit from the handwriting."}]},
+ {"id":"37783111-3090-4315-a487-bf871e3ff7c6","word":"育む","reading":"はぐくむ","examples":[
+   {"ja":"自然は多くの命を育んでいる。","reading":"しぜんはおおくのいのちをはぐくんでいる。","vi":"Thiên nhiên nuôi dưỡng nhiều sinh mệnh.","en":"Nature nurtures many lives."},
+   {"ja":"二人は長い年月をかけて愛を育んできた。","reading":"ふたりはながいねんげつをかけてあいをはぐくんできた。","vi":"Hai người đã vun đắp tình yêu qua nhiều năm tháng.","en":"The two nurtured their love over many years."}]},
+ {"id":"d2f8c842-557f-45e2-8286-c22e42659c45","word":"豊富","reading":"ほうふ","examples":[
+   {"ja":"この地域は水資源が豊富だ。","reading":"このちいきはみずしげんがほうふだ。","vi":"Khu vực này có nguồn nước dồi dào.","en":"This region has abundant water resources."},
+   {"ja":"彼は経験が豊富なので頼りになる。","reading":"かれはけいけんがほうふなのでたよりになる。","vi":"Anh ấy giàu kinh nghiệm nên rất đáng tin cậy.","en":"He is reliable because he has rich experience."}]},
+ {"id":"3d94bc3e-8293-4328-912d-00178f7d518d","word":"過密","reading":"かみつ","examples":[
+   {"ja":"都市の人口が過密になっている。","reading":"としのじんこうがかみつになっている。","vi":"Dân số đô thị đang trở nên quá tải.","en":"The city's population is becoming overcrowded."},
+   {"ja":"過密なスケジュールで休む暇もない。","reading":"かみつなスケジュールでやすむひまもない。","vi":"Lịch trình dày đặc đến mức không có thời gian nghỉ.","en":"With such a packed schedule, there's no time to rest."}]},
+ {"id":"200053b0-9587-4445-9130-e8ce75257ca3","word":"堕落","reading":"だらく","examples":[
+   {"ja":"権力は人を堕落させることがある。","reading":"けんりょくはひとをだらくさせることがある。","vi":"Quyền lực đôi khi làm con người sa ngã.","en":"Power can corrupt people."},
+   {"ja":"彼は怠けた生活で堕落していった。","reading":"かれはなまけたせいかつでだらくしていった。","vi":"Anh ta dần sa đọa vì lối sống lười biếng.","en":"He gradually fell into depravity through a lazy life."}]},
+ {"id":"adf173f0-a618-4cba-880a-4bf6a473663e","word":"脱退","reading":"だったい","examples":[
+   {"ja":"彼はチームから脱退することを決めた。","reading":"かれはチームからだったいすることをきめた。","vi":"Anh ấy quyết định rút khỏi đội.","en":"He decided to withdraw from the team."},
+   {"ja":"その国は国際組織を脱退した。","reading":"そのくにはこくさいそしきをだったいした。","vi":"Quốc gia đó đã rút khỏi tổ chức quốc tế.","en":"That country withdrew from the international organization."}]},
+ {"id":"6e7e7c0d-8321-4854-a57d-b725d2e58747","word":"内情","reading":"ないじょう","examples":[
+   {"ja":"会社の内情は外からは分からない。","reading":"かいしゃのないじょうはそとからはわからない。","vi":"Tình hình nội bộ công ty thì người ngoài không biết được.","en":"The company's internal situation cannot be seen from outside."},
+   {"ja":"彼は業界の内情に詳しい。","reading":"かれはぎょうかいのないじょうにくわしい。","vi":"Anh ấy rất rành nội tình của ngành.","en":"He is well versed in the inner workings of the industry."}]},
+ {"id":"7005abb6-4db7-442f-9e29-57723fda5089","word":"謎々","reading":"なぞなぞ","examples":[
+   {"ja":"子供たちは謎々を出し合って遊んだ。","reading":"こどもたちはなぞなぞをだしあってあそんだ。","vi":"Bọn trẻ chơi đố nhau những câu đố.","en":"The children played by asking each other riddles."},
+   {"ja":"この謎々の答えが分かりますか。","reading":"このなぞなぞのこたえがわかりますか。","vi":"Bạn có biết đáp án của câu đố này không?","en":"Do you know the answer to this riddle?"}]},
+ {"id":"f66a1627-54c4-4c47-ad19-932559e0c615","word":"何となく","reading":"なんとなく","examples":[
+   {"ja":"何となく今日はいいことが起きそうな気がする。","reading":"なんとなくきょうはいいことがおきそうなきがする。","vi":"Không hiểu sao tôi có cảm giác hôm nay sẽ có chuyện tốt.","en":"Somehow I feel something good will happen today."},
+   {"ja":"理由はないが、何となくあの店に入った。","reading":"りゆうはないが、なんとなくあのみせにはいった。","vi":"Chẳng có lý do gì, nhưng tự nhiên tôi bước vào quán đó.","en":"For no particular reason, I somehow went into that shop."}]},
+ {"id":"1b113361-d023-446d-b17a-7a4994903ee6","word":"寸前","reading":"すんぜん","examples":[
+   {"ja":"電車が出る寸前に駆け込んだ。","reading":"でんしゃがでるすんぜんにかけこんだ。","vi":"Tôi lao vào ngay trước khi tàu chạy.","en":"I rushed in just before the train left."},
+   {"ja":"彼は倒産寸前の会社を立て直した。","reading":"かれはとうさんすんぜんのかいしゃをたてなおした。","vi":"Anh ấy đã vực dậy công ty bên bờ phá sản.","en":"He turned around a company on the verge of bankruptcy."}]},
+ {"id":"e6292b57-dce7-434a-93e7-15403b1214d8","word":"担う","reading":"になう","examples":[
+   {"ja":"若者が次の時代を担っていく。","reading":"わかものがつぎのじだいをになっていく。","vi":"Người trẻ sẽ gánh vác thời đại tiếp theo.","en":"Young people will carry the next era."},
+   {"ja":"彼女は重要な役割を担っている。","reading":"かのじょはじゅうようなやくわりをになっている。","vi":"Cô ấy đảm nhận một vai trò quan trọng.","en":"She bears an important role."}]},
+ {"id":"87e3903b-a9ac-48ad-b22c-f497e375f4e4","word":"にわか雨","reading":"にわかあめ","examples":[
+   {"ja":"帰り道でにわか雨に降られた。","reading":"かえりみちでにわかあめにふられた。","vi":"Trên đường về tôi bị mưa rào.","en":"I got caught in a sudden shower on the way home."},
+   {"ja":"にわか雨が過ぎると空が晴れた。","reading":"にわかあめがすぎるとそらがはれた。","vi":"Sau cơn mưa rào, bầu trời quang đãng.","en":"After the shower passed, the sky cleared up."}]},
+ {"id":"72a14d0c-5bab-4203-842a-a631ebe6ae86","word":"値上げ","reading":"ねあげ","examples":[
+   {"ja":"来月から電気料金が値上げされる。","reading":"らいげつからでんきりょうきんがねあげされる。","vi":"Từ tháng sau tiền điện sẽ tăng giá.","en":"Electricity rates will be raised starting next month."},
+   {"ja":"急な値上げに客が不満を漏らした。","reading":"きゅうなねあげにきゃくがふまんをもらした。","vi":"Khách hàng tỏ ra bất mãn vì việc tăng giá đột ngột.","en":"Customers complained about the sudden price increase."}]},
+ {"id":"93e98b54-db38-4075-8db7-3e80a45134fe","word":"精密","reading":"せいみつ","examples":[
+   {"ja":"この工場では精密な機械を作っている。","reading":"このこうじょうではせいみつなきかいをつくっている。","vi":"Nhà máy này sản xuất những cỗ máy tinh vi.","en":"This factory makes precision machines."},
+   {"ja":"医者は精密な検査を勧めた。","reading":"いしゃはせいみつなけんさをすすめた。","vi":"Bác sĩ khuyên làm xét nghiệm chi tiết.","en":"The doctor recommended a detailed examination."}]},
+ {"id":"1f0b7bdf-bd5a-464e-95f1-cd05f5502c6b","word":"筆記","reading":"ひっき","examples":[
+   {"ja":"試験には筆記用具を持ってきてください。","reading":"しけんにはひっきようぐをもってきてください。","vi":"Hãy mang dụng cụ viết đến kỳ thi.","en":"Please bring writing materials to the exam."},
+   {"ja":"講義の内容を筆記するのが大変だった。","reading":"こうぎのないようをひっきするのがたいへんだった。","vi":"Việc ghi chép nội dung bài giảng khá vất vả.","en":"Taking notes on the lecture was tough."}]},
+ {"id":"ddaedb6a-fbb7-475c-bd78-5568561471c8","word":"呑気","reading":"のんき","examples":[
+   {"ja":"締め切りが近いのに彼は呑気だ。","reading":"しめきりがちかいのにかれはのんきだ。","vi":"Hạn chót đến gần mà anh ấy vẫn thong dong.","en":"The deadline is near, yet he's so carefree."},
+   {"ja":"休日は呑気に過ごすのが一番だ。","reading":"きゅうじつはのんきにすごすのがいちばんだ。","vi":"Ngày nghỉ thì thoải mái tận hưởng là nhất.","en":"On days off, spending time leisurely is the best."}]},
+ {"id":"1f0ddef8-9911-42ab-9181-0cb2bf72aead","word":"割り当てる","reading":"わりあてる","examples":[
+   {"ja":"部長は各社員に仕事を割り当てた。","reading":"ぶちょうはかくしゃいんにしごとをわりあてた。","vi":"Trưởng phòng phân công công việc cho từng nhân viên.","en":"The manager assigned work to each employee."},
+   {"ja":"限られた予算を各部門に割り当てる。","reading":"かぎられたよさんをかくぶもんにわりあてる。","vi":"Phân bổ ngân sách hạn chế cho từng bộ phận.","en":"We allocate the limited budget to each department."}]},
+ {"id":"8b325157-aecd-48b3-8aea-06b99112ddb0","word":"騒ぎ","reading":"さわぎ","examples":[
+   {"ja":"夜中の騒ぎで近所の人が起きてしまった。","reading":"よなかのさわぎできんじょのひとがおきてしまった。","vi":"Tiếng ồn lúc nửa đêm làm hàng xóm thức giấc.","en":"The late-night commotion woke up the neighbors."},
+   {"ja":"大した問題でもないのに騒ぎが大きくなった。","reading":"たいしたもんだいでもないのにさわぎがおおきくなった。","vi":"Chẳng phải chuyện to tát mà sự ồn ào lại lớn lên.","en":"The fuss grew big over nothing serious."}]},
+ {"id":"e7d88ec9-7583-49d3-bc31-42ee0abfe567","word":"騒音","reading":"そうおん","examples":[
+   {"ja":"工事の騒音で勉強に集中できない。","reading":"こうじのそうおんでべんきょうにしゅうちゅうできない。","vi":"Tiếng ồn công trường khiến tôi không tập trung học được.","en":"The construction noise keeps me from concentrating on my studies."},
+   {"ja":"この辺りは交通の騒音がひどい。","reading":"このあたりはこうつうのそうおんがひどい。","vi":"Khu này tiếng ồn giao thông rất tệ.","en":"The traffic noise around here is terrible."}]},
+ {"id":"80a60adc-657f-4ce0-a03a-72b03ab729d6","word":"胃腸","reading":"いちょう","examples":[
+   {"ja":"冷たい物を飲みすぎて胃腸の調子が悪い。","reading":"つめたいものをのみすぎていちょうのちょうしがわるい。","vi":"Uống quá nhiều đồ lạnh nên hệ tiêu hóa của tôi không ổn.","en":"I drank too many cold things, so my stomach is upset."},
+   {"ja":"規則正しい食事は胃腸に良い。","reading":"きそくただしいしょくじはいちょうによい。","vi":"Ăn uống điều độ tốt cho dạ dày và ruột.","en":"Regular meals are good for the digestive system."}]},
+ {"id":"779ed3df-afa2-4c38-a29f-4cc7751924f4","word":"増強","reading":"ぞうきょう","examples":[
+   {"ja":"政府は防衛力の増強を進めている。","reading":"せいふはぼうえいりょくのぞうきょうをすすめている。","vi":"Chính phủ đang đẩy mạnh tăng cường năng lực phòng vệ.","en":"The government is reinforcing its defense capabilities."},
+   {"ja":"連休に向けて電車の本数を増強する。","reading":"れんきゅうにむけてでんしゃのほんすうをぞうきょうする。","vi":"Tăng cường số chuyến tàu cho kỳ nghỉ lễ.","en":"They will increase the number of trains for the holidays."}]},
+ {"id":"5ad3a54e-f3c0-4c03-9850-ba49f420c35c","word":"増大","reading":"ぞうだい","examples":[
+   {"ja":"高齢化で医療費が増大している。","reading":"こうれいかでいりょうひがぞうだいしている。","vi":"Chi phí y tế tăng lên do già hóa dân số.","en":"Medical costs are increasing due to an aging population."},
+   {"ja":"需要の増大に生産が追いつかない。","reading":"じゅようのぞうだいにせいさんがおいつかない。","vi":"Sản xuất không theo kịp nhu cầu tăng cao.","en":"Production can't keep up with the growing demand."}]},
+ {"id":"0ba5a3b8-4fb7-4655-a58e-e2e3a85789d4","word":"綿密","reading":"めんみつ","examples":[
+   {"ja":"綿密な計画を立ててから行動する。","reading":"めんみつなけいかくをたててからこうどうする。","vi":"Lập kế hoạch kỹ lưỡng rồi mới hành động.","en":"We act only after making a detailed plan."},
+   {"ja":"彼は綿密に資料を調べた。","reading":"かれはめんみつにしりょうをしらべた。","vi":"Anh ấy nghiên cứu tài liệu một cách tỉ mỉ.","en":"He examined the materials meticulously."}]},
+ {"id":"c8695f66-1ad3-4c59-ad1f-4715a7760ab2","word":"厳密","reading":"げんみつ","examples":[
+   {"ja":"厳密に言うと、その答えは正しくない。","reading":"げんみつにいうと、そのこたえはただしくない。","vi":"Nói một cách chính xác thì câu trả lời đó không đúng.","en":"Strictly speaking, that answer is not correct."},
+   {"ja":"この実験では厳密な測定が求められる。","reading":"このじっけんではげんみつなそくていがもとめられる。","vi":"Thí nghiệm này đòi hỏi phép đo chính xác.","en":"This experiment requires precise measurement."}]},
+ {"id":"74f19574-1c34-4b49-8e7f-272c739bbcbb","word":"左右","reading":"さゆう","examples":[
+   {"ja":"道を渡る前に左右をよく見なさい。","reading":"みちをわたるまえにさゆうをよくみなさい。","vi":"Hãy nhìn kỹ hai bên trước khi qua đường.","en":"Look carefully left and right before crossing the road."},
+   {"ja":"彼の一言が会議の結果を左右した。","reading":"かれのひとことがかいぎのけっかをさゆうした。","vi":"Một lời của anh ấy đã chi phối kết quả cuộc họp.","en":"His single remark influenced the outcome of the meeting."}]},
+ {"id":"3d70be1c-bab7-483b-8db9-a3c30806c0ed","word":"増税","reading":"ぞうぜい","examples":[
+   {"ja":"消費税の増税は家計に影響する。","reading":"しょうひぜいのぞうぜいはかけいにえいきょうする。","vi":"Việc tăng thuế tiêu dùng ảnh hưởng đến chi tiêu gia đình.","en":"The consumption tax increase affects household budgets."},
+   {"ja":"政府は増税の計画を発表した。","reading":"せいふはぞうぜいのけいかくをはっぴょうした。","vi":"Chính phủ công bố kế hoạch tăng thuế.","en":"The government announced a plan to raise taxes."}]},
+ {"id":"a1e5c1b3-b08c-43ba-96f2-69d147e2aa08","word":"憎しみ","reading":"にくしみ","examples":[
+   {"ja":"憎しみからは何も生まれない。","reading":"にくしみからはなにもうまれない。","vi":"Từ lòng thù hận chẳng sinh ra điều gì.","en":"Nothing is born from hatred."},
+   {"ja":"彼の目には憎しみが浮かんでいた。","reading":"かれのめにはにくしみがうかんでいた。","vi":"Trong mắt anh ta hiện lên sự căm ghét.","en":"Hatred showed in his eyes."}]},
+ {"id":"d9060209-c1da-49e6-a5d4-119a41aae5bc","word":"憎悪","reading":"ぞうお","examples":[
+   {"ja":"戦争は人々の間に憎悪を生んだ。","reading":"せんそうはひとびとのあいだにぞうおをうんだ。","vi":"Chiến tranh đã gieo lòng thù hận giữa con người.","en":"The war bred hatred among people."},
+   {"ja":"二人の間には長年の憎悪があった。","reading":"ふたりのあいだにはながねんのぞうおがあった。","vi":"Giữa hai người có mối thù hận lâu năm.","en":"There was long-standing hatred between the two."}]},
+ {"id":"9ef2c9ae-61d9-4e24-aeaf-6991d185740c","word":"臓器","reading":"ぞうき","examples":[
+   {"ja":"臓器を健康に保つことが大切だ。","reading":"ぞうきをけんこうにたもつことがたいせつだ。","vi":"Giữ cho nội tạng khỏe mạnh là điều quan trọng.","en":"Keeping your internal organs healthy is important."},
+   {"ja":"臓器移植には提供者が必要だ。","reading":"ぞうきいしょくにはていきょうしゃがひつようだ。","vi":"Việc ghép tạng cần có người hiến.","en":"Organ transplants require donors."}]},
+ {"id":"bbf86137-2d07-469d-8dcf-2e56a28896dc","word":"贈呈","reading":"ぞうてい","examples":[
+   {"ja":"優勝者にトロフィーが贈呈された。","reading":"ゆうしょうしゃにトロフィーがぞうていされた。","vi":"Cúp đã được trao tặng cho nhà vô địch.","en":"A trophy was presented to the winner."},
+   {"ja":"記念品を来賓に贈呈します。","reading":"きねんひんをらいひんにぞうていします。","vi":"Chúng tôi sẽ tặng quà lưu niệm cho các vị khách quý.","en":"We will present souvenirs to the guests."}]},
+ {"id":"e7328711-9d94-460f-8130-b933dc36437d","word":"表裏","reading":"ひょうり","examples":[
+   {"ja":"コインの表裏で順番を決めよう。","reading":"コインのひょうりでじゅんばんをきめよう。","vi":"Hãy quyết định thứ tự bằng mặt sấp ngửa của đồng xu.","en":"Let's decide the order by the heads or tails of the coin."},
+   {"ja":"彼の態度には表裏がない。","reading":"かれのたいどにはひょうりがない。","vi":"Thái độ của anh ấy không hai mặt.","en":"He has no duplicity in his attitude."}]},
+ {"id":"471e64b5-b7d9-4b96-948a-dc628ec133d7","word":"造船","reading":"ぞうせん","examples":[
+   {"ja":"この町は造船で栄えてきた。","reading":"このまちはぞうせんでさかえてきた。","vi":"Thị trấn này phát triển nhờ ngành đóng tàu.","en":"This town has prospered through shipbuilding."},
+   {"ja":"造船所では大きな船が造られている。","reading":"ぞうせんじょではおおきなふねがつくられている。","vi":"Ở xưởng đóng tàu, những con tàu lớn đang được chế tạo.","en":"Large ships are being built at the shipyard."}]},
+ {"id":"bfb40fa1-143a-4c60-b85c-ca394775d1dc","word":"建前","reading":"たてまえ","examples":[
+   {"ja":"日本では建前と本音を使い分ける。","reading":"にほんではたてまえとほんねをつかいわける。","vi":"Ở Nhật, người ta phân biệt giữa lời nói ngoài mặt và suy nghĩ thật.","en":"In Japan, people distinguish between their public stance and true feelings."},
+   {"ja":"それは建前で、彼の本心は違う。","reading":"それはたてまえで、かれのほんしんはちがう。","vi":"Đó chỉ là lời ngoài mặt, lòng anh ấy nghĩ khác.","en":"That's just his official line; his real intention is different."}]},
+ {"id":"dab6782b-26b7-4320-9e89-256642950abc","word":"促進","reading":"そくしん","examples":[
+   {"ja":"運動は血行を促進する。","reading":"うんどうはけっこうをそくしんする。","vi":"Vận động thúc đẩy tuần hoàn máu.","en":"Exercise promotes blood circulation."},
+   {"ja":"政府は輸出の促進に力を入れている。","reading":"せいふはゆしゅつのそくしんにちからをいれている。","vi":"Chính phủ đang nỗ lực thúc đẩy xuất khẩu.","en":"The government is focusing on promoting exports."}]}
+]

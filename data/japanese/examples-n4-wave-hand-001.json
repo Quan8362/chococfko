@@ -1,0 +1,705 @@
+[
+ {
+  "id": "020f807b-aa57-4cbb-a68b-4232b2254a3e",
+  "word": "軽視",
+  "reading": "けいし",
+  "examples": [
+   {
+    "ja": "健康を軽視してはいけない。",
+    "reading": "けんこうをけいししてはいけない。",
+    "vi": "Đừng coi nhẹ sức khỏe.",
+    "en": "You shouldn't make light of your health."
+   },
+   {
+    "ja": "彼は安全規則を軽視しがちだ。",
+    "reading": "かれはあんぜんきそくをけいししがちだ。",
+    "vi": "Anh ấy hay xem nhẹ các quy tắc an toàn.",
+    "en": "He tends to disregard safety rules."
+   }
+  ]
+ },
+ {
+  "id": "02eabe3f-c5bf-47f0-9b56-1d2d2eaa8a8a",
+  "word": "改まる",
+  "reading": "あらたまる",
+  "examples": [
+   {
+    "ja": "年が改まると、新しい目標を立てる。",
+    "reading": "としがあらたまると、あたらしいもくひょうをたてる。",
+    "vi": "Khi sang năm mới, tôi đặt ra mục tiêu mới.",
+    "en": "When the year turns over, I set new goals."
+   },
+   {
+    "ja": "彼の態度が急に改まった。",
+    "reading": "かれのたいどがきゅうにあらたまった。",
+    "vi": "Thái độ của anh ấy đột nhiên trở nên nghiêm túc.",
+    "en": "His attitude suddenly became formal."
+   }
+  ]
+ },
+ {
+  "id": "043f5096-f036-484d-a048-a8714e897a54",
+  "word": "警告",
+  "reading": "けいこく",
+  "examples": [
+   {
+    "ja": "医者は彼にたばこをやめるよう警告した。",
+    "reading": "いしゃはかれにたばこをやめるようけいこくした。",
+    "vi": "Bác sĩ cảnh báo anh ấy bỏ thuốc lá.",
+    "en": "The doctor warned him to quit smoking."
+   },
+   {
+    "ja": "画面に警告のメッセージが表示された。",
+    "reading": "がめんにけいこくのメッセージがひょうじされた。",
+    "vi": "Một thông báo cảnh báo hiện ra trên màn hình.",
+    "en": "A warning message appeared on the screen."
+   }
+  ]
+ },
+ {
+  "id": "0598d9fc-28d4-469d-aad7-367a2908de2b",
+  "word": "改正",
+  "reading": "かいせい",
+  "examples": [
+   {
+    "ja": "法律が来年改正される。",
+    "reading": "ほうりつがらいねんかいせいされる。",
+    "vi": "Luật sẽ được sửa đổi vào năm sau.",
+    "en": "The law will be revised next year."
+   },
+   {
+    "ja": "規則の改正について話し合った。",
+    "reading": "きそくのかいせいについてはなしあった。",
+    "vi": "Chúng tôi đã bàn về việc sửa đổi quy định.",
+    "en": "We discussed the revision of the rules."
+   }
+  ]
+ },
+ {
+  "id": "05b0eea8-80b5-405e-888a-f20710d58f42",
+  "word": "経る",
+  "reading": "へる",
+  "examples": [
+   {
+    "ja": "三年を経て、彼はやっと夢を実現した。",
+    "reading": "さんねんをへて、かれはやっとゆめをじつげんした。",
+    "vi": "Trải qua ba năm, cuối cùng anh ấy đã thực hiện được ước mơ.",
+    "en": "After three years, he finally realized his dream."
+   },
+   {
+    "ja": "この製品は厳しい検査を経て出荷される。",
+    "reading": "このせいひんはきびしいけんさをへてしゅっかされる。",
+    "vi": "Sản phẩm này được xuất xưởng sau khi qua kiểm tra nghiêm ngặt.",
+    "en": "This product is shipped after passing strict inspection."
+   }
+  ]
+ },
+ {
+  "id": "07d9856c-701f-4a5b-ad50-d08577e4e17e",
+  "word": "海軍",
+  "reading": "かいぐん",
+  "examples": [
+   {
+    "ja": "兄は海軍で働いています。",
+    "reading": "あにはかいぐんではたらいています。",
+    "vi": "Anh trai tôi làm việc trong hải quân.",
+    "en": "My older brother works in the navy."
+   },
+   {
+    "ja": "その国は強い海軍を持っている。",
+    "reading": "そのくにはつよいかいぐんをもっている。",
+    "vi": "Quốc gia đó có một lực lượng hải quân hùng mạnh.",
+    "en": "That country has a strong navy."
+   }
+  ]
+ },
+ {
+  "id": "0a2fc376-0693-4547-b041-16f320959172",
+  "word": "海上",
+  "reading": "かいじょう",
+  "examples": [
+   {
+    "ja": "海上を大きな船が進んでいる。",
+    "reading": "かいじょうをおおきなふねがすすんでいる。",
+    "vi": "Một con tàu lớn đang tiến trên biển.",
+    "en": "A large ship is moving across the sea."
+   },
+   {
+    "ja": "台風のため海上は荒れている。",
+    "reading": "たいふうのためかいじょうはあれている。",
+    "vi": "Vì bão nên biển động.",
+    "en": "The sea is rough because of the typhoon."
+   }
+  ]
+ },
+ {
+  "id": "0adbd184-546e-4b5e-a710-bfbd8aacb951",
+  "word": "掲げる",
+  "reading": "かかげる",
+  "examples": [
+   {
+    "ja": "店の前に新しい看板を掲げた。",
+    "reading": "みせのまえにあたらしいかんばんをかかげた。",
+    "vi": "Tôi đã treo tấm biển mới trước cửa hàng.",
+    "en": "I put up a new sign in front of the shop."
+   },
+   {
+    "ja": "チームは優勝を目標に掲げている。",
+    "reading": "チームはゆうしょうをもくひょうにかかげている。",
+    "vi": "Đội đặt mục tiêu vô địch.",
+    "en": "The team has set the championship as its goal."
+   }
+  ]
+ },
+ {
+  "id": "0f04e499-ff06-4938-b4ae-5a2110fff8db",
+  "word": "景色",
+  "reading": "けしき",
+  "examples": [
+   {
+    "ja": "山の上から見る景色は最高だ。",
+    "reading": "やまのうえからみるけしきはさいこうだ。",
+    "vi": "Cảnh nhìn từ trên núi đẹp tuyệt.",
+    "en": "The scenery seen from the mountaintop is the best."
+   },
+   {
+    "ja": "窓から美しい海の景色が見える。",
+    "reading": "まどからうつくしいうみのけしきがみえる。",
+    "vi": "Từ cửa sổ có thể thấy cảnh biển tuyệt đẹp.",
+    "en": "A beautiful sea view is visible from the window."
+   }
+  ]
+ },
+ {
+  "id": "107b7936-3ce1-4c69-9254-fc932948d32f",
+  "word": "改装",
+  "reading": "かいそう",
+  "examples": [
+   {
+    "ja": "そのレストランは改装のため休業中だ。",
+    "reading": "そのレストランはかいそうのためきゅうぎょうちゅうだ。",
+    "vi": "Nhà hàng đó đang đóng cửa để sửa sang.",
+    "en": "That restaurant is closed for remodeling."
+   },
+   {
+    "ja": "店内を改装して明るくした。",
+    "reading": "てんないをかいそうしてあかるくした。",
+    "vi": "Họ cải tạo bên trong cửa hàng cho sáng sủa hơn.",
+    "en": "They remodeled the interior to make it brighter."
+   }
+  ]
+ },
+ {
+  "id": "116f300f-f45d-414d-afb1-489f1473b7be",
+  "word": "経営",
+  "reading": "けいえい",
+  "examples": [
+   {
+    "ja": "父は小さな会社を経営している。",
+    "reading": "ちちはちいさなかいしゃをけいえいしている。",
+    "vi": "Bố tôi điều hành một công ty nhỏ.",
+    "en": "My father runs a small company."
+   },
+   {
+    "ja": "店の経営はなかなか難しい。",
+    "reading": "みせのけいえいはなかなかむずかしい。",
+    "vi": "Việc kinh doanh cửa hàng khá khó khăn.",
+    "en": "Running the shop is quite difficult."
+   }
+  ]
+ },
+ {
+  "id": "13c36ea1-4323-47d3-b088-bc26ab2188d7",
+  "word": "怪力",
+  "reading": "かいりき",
+  "examples": [
+   {
+    "ja": "彼は怪力で重い岩を持ち上げた。",
+    "reading": "かれはかいりきでおもいいわをもちあげた。",
+    "vi": "Anh ấy nhấc tảng đá nặng bằng sức mạnh phi thường.",
+    "en": "He lifted the heavy rock with superhuman strength."
+   },
+   {
+    "ja": "あの力士は怪力の持ち主だ。",
+    "reading": "あのりきしはかいりきのもちぬしだ。",
+    "vi": "Đô vật sumo kia sở hữu sức mạnh phi thường.",
+    "en": "That sumo wrestler possesses incredible strength."
+   }
+  ]
+ },
+ {
+  "id": "1473e672-f127-4b85-8138-af6018ec8679",
+  "word": "稽古",
+  "reading": "けいこ",
+  "examples": [
+   {
+    "ja": "毎朝、柔道の稽古をしている。",
+    "reading": "まいあさ、じゅうどうのけいこをしている。",
+    "vi": "Mỗi sáng tôi luyện tập judo.",
+    "en": "I practice judo every morning."
+   },
+   {
+    "ja": "厳しい稽古に耐えて強くなった。",
+    "reading": "きびしいけいこにたえてつよくなった。",
+    "vi": "Tôi đã mạnh lên nhờ chịu đựng luyện tập khắc nghiệt.",
+    "en": "I grew stronger by enduring hard practice."
+   }
+  ]
+ },
+ {
+  "id": "1629528a-67d3-474c-a0c1-5f935d64c80d",
+  "word": "掲載",
+  "reading": "けいさい",
+  "examples": [
+   {
+    "ja": "私の写真が雑誌に掲載された。",
+    "reading": "わたしのしゃしんがざっしにけいさいされた。",
+    "vi": "Ảnh của tôi được đăng trên tạp chí.",
+    "en": "My photo was published in a magazine."
+   },
+   {
+    "ja": "その記事はウェブサイトに掲載されている。",
+    "reading": "そのきじはウェブサイトにけいさいされている。",
+    "vi": "Bài báo đó được đăng trên trang web.",
+    "en": "That article is posted on the website."
+   }
+  ]
+ },
+ {
+  "id": "1a806bb5-4381-4350-90ea-8ec247838cf7",
+  "word": "繋がる",
+  "reading": "つながる",
+  "examples": [
+   {
+    "ja": "この道は駅まで繋がっている。",
+    "reading": "このみちはえきまでつながっている。",
+    "vi": "Con đường này nối tới ga.",
+    "en": "This road connects to the station."
+   },
+   {
+    "ja": "やっと電話が繋がった。",
+    "reading": "やっとでんわがつながった。",
+    "vi": "Cuối cùng cuộc gọi cũng kết nối được.",
+    "en": "The call finally connected."
+   }
+  ]
+ },
+ {
+  "id": "25de73c1-120d-481f-a86d-c732a84d148d",
+  "word": "怪獣",
+  "reading": "かいじゅう",
+  "examples": [
+   {
+    "ja": "映画に大きな怪獣が出てきた。",
+    "reading": "えいがにおおきなかいじゅうがでてきた。",
+    "vi": "Một con quái vật khổng lồ xuất hiện trong phim.",
+    "en": "A huge monster appeared in the movie."
+   },
+   {
+    "ja": "子供は怪獣のおもちゃが大好きだ。",
+    "reading": "こどもはかいじゅうのおもちゃがだいすきだ。",
+    "vi": "Đứa trẻ rất thích đồ chơi quái vật.",
+    "en": "The child loves monster toys."
+   }
+  ]
+ },
+ {
+  "id": "2618de73-2131-4186-8d2f-281899d3b60b",
+  "word": "開演",
+  "reading": "かいえん",
+  "examples": [
+   {
+    "ja": "コンサートは七時に開演します。",
+    "reading": "コンサートはしちじにかいえんします。",
+    "vi": "Buổi hòa nhạc bắt đầu lúc bảy giờ.",
+    "en": "The concert starts at seven."
+   },
+   {
+    "ja": "開演前に席に着いてください。",
+    "reading": "かいえんまえにせきについてください。",
+    "vi": "Hãy ngồi vào chỗ trước khi mở màn.",
+    "en": "Please take your seat before the show begins."
+   }
+  ]
+ },
+ {
+  "id": "296e75d9-f671-4b68-89b5-0950af1d9d64",
+  "word": "灰皿",
+  "reading": "はいざら",
+  "examples": [
+   {
+    "ja": "テーブルの上に灰皿を置いた。",
+    "reading": "テーブルのうえにはいざらをおいた。",
+    "vi": "Tôi đặt cái gạt tàn lên bàn.",
+    "en": "I placed an ashtray on the table."
+   },
+   {
+    "ja": "この店には灰皿がありません。",
+    "reading": "このみせにははいざらがありません。",
+    "vi": "Quán này không có gạt tàn.",
+    "en": "There are no ashtrays in this shop."
+   }
+  ]
+ },
+ {
+  "id": "2cf26adb-eaa6-4c2e-a84f-dbcc68353c99",
+  "word": "警官",
+  "reading": "けいかん",
+  "examples": [
+   {
+    "ja": "警官が道で交通整理をしている。",
+    "reading": "けいかんがみちでこうつうせいりをしている。",
+    "vi": "Cảnh sát đang điều tiết giao thông trên đường.",
+    "en": "A police officer is directing traffic on the road."
+   },
+   {
+    "ja": "困ったとき、警官に道を聞いた。",
+    "reading": "こまったとき、けいかんにみちをきいた。",
+    "vi": "Khi bối rối, tôi hỏi đường một cảnh sát.",
+    "en": "When I was lost, I asked a police officer for directions."
+   }
+  ]
+ },
+ {
+  "id": "2f00a728-9b82-4f32-b186-e35f12dbc4cc",
+  "word": "改革",
+  "reading": "かいかく",
+  "examples": [
+   {
+    "ja": "政府は教育の改革を進めている。",
+    "reading": "せいふはきょういくのかいかくをすすめている。",
+    "vi": "Chính phủ đang tiến hành cải cách giáo dục.",
+    "en": "The government is pushing education reform."
+   },
+   {
+    "ja": "会社には大きな改革が必要だ。",
+    "reading": "かいしゃにはおおきなかいかくがひつようだ。",
+    "vi": "Công ty cần một cuộc cải cách lớn.",
+    "en": "The company needs major reform."
+   }
+  ]
+ },
+ {
+  "id": "2f2ce0ab-c105-4fa4-a26e-c11fafcc8578",
+  "word": "快調",
+  "reading": "かいちょう",
+  "examples": [
+   {
+    "ja": "今日は体が快調だ。",
+    "reading": "きょうはからだがかいちょうだ。",
+    "vi": "Hôm nay cơ thể tôi rất khỏe khoắn.",
+    "en": "My body is in great shape today."
+   },
+   {
+    "ja": "エンジンは快調に動いている。",
+    "reading": "エンジンはかいちょうにうごいている。",
+    "vi": "Động cơ đang chạy rất tốt.",
+    "en": "The engine is running smoothly."
+   }
+  ]
+ },
+ {
+  "id": "2f52403e-e5be-4564-9007-7db9c320a2dd",
+  "word": "開発",
+  "reading": "かいはつ",
+  "examples": [
+   {
+    "ja": "新しいアプリの開発に取り組んでいる。",
+    "reading": "あたらしいアプリのかいはつにとりくんでいる。",
+    "vi": "Tôi đang phát triển một ứng dụng mới.",
+    "en": "I'm working on developing a new app."
+   },
+   {
+    "ja": "この地域の開発が進んでいる。",
+    "reading": "このちいきのかいはつがすすんでいる。",
+    "vi": "Việc phát triển khu vực này đang tiến triển.",
+    "en": "Development of this area is progressing."
+   }
+  ]
+ },
+ {
+  "id": "31fa5212-2995-41f0-aee1-1e01732d6919",
+  "word": "警報",
+  "reading": "けいほう",
+  "examples": [
+   {
+    "ja": "大雨警報が出ています。",
+    "reading": "おおあめけいほうがでています。",
+    "vi": "Đang có cảnh báo mưa lớn.",
+    "en": "A heavy rain warning is in effect."
+   },
+   {
+    "ja": "火災警報が鳴って、みんな外に出た。",
+    "reading": "かさいけいほうがなって、みんなそとにでた。",
+    "vi": "Chuông báo cháy reo, mọi người ra ngoài.",
+    "en": "The fire alarm rang and everyone went outside."
+   }
+  ]
+ },
+ {
+  "id": "3367f983-ddd5-4f62-97f9-c87546fc6039",
+  "word": "改定",
+  "reading": "かいてい",
+  "examples": [
+   {
+    "ja": "来月から料金が改定される。",
+    "reading": "らいげつからりょうきんがかいていされる。",
+    "vi": "Từ tháng sau giá cước sẽ được điều chỉnh.",
+    "en": "The fees will be revised starting next month."
+   },
+   {
+    "ja": "規則の改定をお知らせします。",
+    "reading": "きそくのかいていをおしらせします。",
+    "vi": "Chúng tôi xin thông báo việc sửa đổi quy định.",
+    "en": "We will announce the revision of the rules."
+   }
+  ]
+ },
+ {
+  "id": "34b7b931-6803-4cbe-b2ef-6ffeee46402c",
+  "word": "計略",
+  "reading": "けいりゃく",
+  "examples": [
+   {
+    "ja": "敵の計略に気づいて逃げた。",
+    "reading": "てきのけいりゃくにきづいてにげた。",
+    "vi": "Tôi nhận ra mưu kế của địch và bỏ chạy.",
+    "en": "I noticed the enemy's scheme and fled."
+   },
+   {
+    "ja": "彼の計略はすぐに見破られた。",
+    "reading": "かれのけいりゃくはすぐにみやぶられた。",
+    "vi": "Mưu kế của anh ta bị phát hiện ngay.",
+    "en": "His scheme was seen through right away."
+   }
+  ]
+ },
+ {
+  "id": "364b7b74-fec7-46a7-938d-bf9d2906b769",
+  "word": "継母",
+  "reading": "ままはは",
+  "examples": [
+   {
+    "ja": "彼女は継母に大切に育てられた。",
+    "reading": "かのじょはままははにたいせつにそだてられた。",
+    "vi": "Cô ấy được mẹ kế nuôi nấng chu đáo.",
+    "en": "She was raised lovingly by her stepmother."
+   },
+   {
+    "ja": "物語の継母はとても優しかった。",
+    "reading": "ものがたりのままははまとてもやさしかった。",
+    "vi": "Người mẹ kế trong truyện rất hiền.",
+    "en": "The stepmother in the story was very kind."
+   }
+  ]
+ },
+ {
+  "id": "36fd0cac-43db-443c-934c-630cc17e297d",
+  "word": "契機",
+  "reading": "けいき",
+  "examples": [
+   {
+    "ja": "留学を契機に視野が広がった。",
+    "reading": "りゅうがくをけいきにしやがひろがった。",
+    "vi": "Việc du học là bước ngoặt mở rộng tầm nhìn của tôi.",
+    "en": "Studying abroad broadened my horizons."
+   },
+   {
+    "ja": "この事件が改革の契機となった。",
+    "reading": "このじけんがかいかくのけいきとなった。",
+    "vi": "Sự kiện này trở thành bước ngoặt cho cải cách.",
+    "en": "This incident became the trigger for reform."
+   }
+  ]
+ },
+ {
+  "id": "406c157d-ad56-4912-9884-106051db0d66",
+  "word": "経費",
+  "reading": "けいひ",
+  "examples": [
+   {
+    "ja": "出張の経費は会社が払う。",
+    "reading": "しゅっちょうのけいひはかいしゃがはらう。",
+    "vi": "Chi phí công tác do công ty trả.",
+    "en": "The company covers business trip expenses."
+   },
+   {
+    "ja": "経費を減らす方法を考えている。",
+    "reading": "けいひをへらすほうほうをかんがえている。",
+    "vi": "Tôi đang nghĩ cách giảm chi phí.",
+    "en": "I'm thinking of ways to cut expenses."
+   }
+  ]
+ },
+ {
+  "id": "489c93db-db95-401b-b417-74e8a678db5e",
+  "word": "計器",
+  "reading": "けいき",
+  "examples": [
+   {
+    "ja": "パイロットは計器を確認した。",
+    "reading": "パイロットはけいきをかくにんした。",
+    "vi": "Phi công kiểm tra các đồng hồ đo.",
+    "en": "The pilot checked the instruments."
+   },
+   {
+    "ja": "この計器は温度を正確に測る。",
+    "reading": "このけいきはおんどをせいかくにはかる。",
+    "vi": "Thiết bị đo này đo nhiệt độ chính xác.",
+    "en": "This gauge measures temperature accurately."
+   }
+  ]
+ },
+ {
+  "id": "4909d351-796d-41b0-ae33-209c0f7fcb7f",
+  "word": "携帯",
+  "reading": "けいたい",
+  "examples": [
+   {
+    "ja": "身分証を携帯してください。",
+    "reading": "みぶんしょうをけいたいしてください。",
+    "vi": "Hãy mang theo giấy tờ tùy thân.",
+    "en": "Please carry your ID with you."
+   },
+   {
+    "ja": "携帯で写真をたくさん撮った。",
+    "reading": "けいたいでしゃしんをたくさんとった。",
+    "vi": "Tôi chụp nhiều ảnh bằng điện thoại di động.",
+    "en": "I took many photos with my mobile phone."
+   }
+  ]
+ },
+ {
+  "id": "4ee95fc4-d5fc-4094-a261-a1cefbd65110",
+  "word": "海賊",
+  "reading": "かいぞく",
+  "examples": [
+   {
+    "ja": "昔、この海には海賊がいた。",
+    "reading": "むかし、このうみにはかいぞくがいた。",
+    "vi": "Ngày xưa, vùng biển này có cướp biển.",
+    "en": "Long ago, there were pirates in this sea."
+   },
+   {
+    "ja": "海賊の映画が大人気だ。",
+    "reading": "かいぞくのえいががだいにんきだ。",
+    "vi": "Phim về cướp biển rất nổi tiếng.",
+    "en": "Pirate movies are very popular."
+   }
+  ]
+ },
+ {
+  "id": "564510e1-89cc-4b8e-8391-83863afa6c9d",
+  "word": "系統",
+  "reading": "けいとう",
+  "examples": [
+   {
+    "ja": "このバスは別の系統だ。",
+    "reading": "このバスはべつのけいとうだ。",
+    "vi": "Xe buýt này thuộc tuyến khác.",
+    "en": "This bus is on a different line."
+   },
+   {
+    "ja": "彼は学者の系統の家に生まれた。",
+    "reading": "かれはがくしゃのけいとうのいえにうまれた。",
+    "vi": "Anh ấy sinh ra trong gia đình dòng dõi học giả.",
+    "en": "He was born into a family of scholarly lineage."
+   }
+  ]
+ },
+ {
+  "id": "56740ce6-9969-44ea-a240-4e915a1895da",
+  "word": "計測",
+  "reading": "けいそく",
+  "examples": [
+   {
+    "ja": "機械で部屋の広さを計測した。",
+    "reading": "きかいでへやのひろさをけいそくした。",
+    "vi": "Tôi đo diện tích phòng bằng máy.",
+    "en": "I measured the room's size with a device."
+   },
+   {
+    "ja": "風速を計測して記録する。",
+    "reading": "ふうそくをけいそくしてきろくする。",
+    "vi": "Đo và ghi lại tốc độ gió.",
+    "en": "We measure and record the wind speed."
+   }
+  ]
+ },
+ {
+  "id": "57d7a65f-f878-4b6f-9d80-4af4cbd876ec",
+  "word": "懐中電灯",
+  "reading": "かいちゅうでんとう",
+  "examples": [
+   {
+    "ja": "停電のとき懐中電灯を使った。",
+    "reading": "ていでんのときかいちゅうでんとうをつかった。",
+    "vi": "Khi mất điện tôi dùng đèn pin.",
+    "en": "I used a flashlight during the blackout."
+   },
+   {
+    "ja": "かばんに懐中電灯を入れておこう。",
+    "reading": "かばんにかいちゅうでんとうをいれておこう。",
+    "vi": "Hãy bỏ sẵn đèn pin vào túi.",
+    "en": "Let's keep a flashlight in the bag."
+   }
+  ]
+ },
+ {
+  "id": "5897f20f-80a3-4dcc-ad88-21d7e5757c62",
+  "word": "掲示板",
+  "reading": "けいじばん",
+  "examples": [
+   {
+    "ja": "試験の結果が掲示板に貼られた。",
+    "reading": "しけんのけっかがけいじばんにはられた。",
+    "vi": "Kết quả thi được dán lên bảng tin.",
+    "en": "The exam results were posted on the bulletin board."
+   },
+   {
+    "ja": "掲示板でアルバイトを探した。",
+    "reading": "けいじばんでアルバイトをさがした。",
+    "vi": "Tôi tìm việc làm thêm trên bảng tin.",
+    "en": "I looked for a part-time job on the bulletin board."
+   }
+  ]
+ },
+ {
+  "id": "5b160cd8-a07c-4c86-b968-13d2e95d754a",
+  "word": "海豚",
+  "reading": "いるか",
+  "examples": [
+   {
+    "ja": "水族館で海豚のショーを見た。",
+    "reading": "すいぞくかんでいるかのショーをみた。",
+    "vi": "Tôi xem màn biểu diễn cá heo ở thủy cung.",
+    "en": "I watched a dolphin show at the aquarium."
+   },
+   {
+    "ja": "海豚はとても賢い動物だ。",
+    "reading": "いるかはとてもかしこいどうぶつだ。",
+    "vi": "Cá heo là loài vật rất thông minh.",
+    "en": "Dolphins are very intelligent animals."
+   }
+  ]
+ },
+ {
+  "id": "5c9e8888-1169-4014-aa63-b9c6174ebdfc",
+  "word": "軽装",
+  "reading": "けいそう",
+  "examples": [
+   {
+    "ja": "夏なので軽装で出かけた。",
+    "reading": "なつなのでけいそうででかけた。",
+    "vi": "Vì là mùa hè nên tôi ăn mặc gọn nhẹ ra ngoài.",
+    "en": "Since it's summer, I went out in light clothing."
+   },
+   {
+    "ja": "山は寒いので軽装は危険だ。",
+    "reading": "やまはさむいのでけいそうはきけんだ。",
+    "vi": "Núi lạnh nên ăn mặc phong phanh thì nguy hiểm.",
+    "en": "The mountain is cold, so light clothing is dangerous."
+   }
+  ]
+ }
+]

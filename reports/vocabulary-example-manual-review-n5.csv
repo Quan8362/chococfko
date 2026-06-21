@@ -1,0 +1,63 @@
+id,word,reading,pos,vi,en,reason
+00c66a29-456e-45f4-b67d-1d273a69f59b,歯,し,n,răng,tooth,obscure/archaic secondary reading or sense mis-tagged as N5 — JMdict artifact; faithful standalone example not feasible
+01c0fbcf-22cf-4ae5-8700-cbb0463449f1,道,タオ,n,Đạo,Tao,non-Japanese phonetic reading (Chinese/foreign numeral or loan reading) mis-tagged N5 — JMdict artifact
+029d3950-438b-4ace-b21b-4d56edaef503,物,ぶつ,n|n-suf,hàng tồn kho,stock,"bound suffix/prefix/counter fragment, not a standalone headword — JMdict artifact"
+041ab248-86d4-4c55-8bac-33da8d796b56,外,がい,suf,ngoài ...,outside ...,"bound suffix/prefix/counter fragment, not a standalone headword — JMdict artifact"
+048f7633-7231-4e51-94ca-89806332d758,西,せい,n,Tây Ban Nha,Spain,obscure/archaic secondary reading or sense mis-tagged as N5 — JMdict artifact; faithful standalone example not feasible
+04c3a5a2-6d1e-4d2c-a3cf-c6b3df158f2e,声,しょう,n,giọng nói,voice,obscure/archaic secondary reading or sense mis-tagged as N5 — JMdict artifact; faithful standalone example not feasible
+0594ad33-4b23-4acd-9201-e94857e21cf4,時,どき,n-suf,thời điểm để ...,time for ...,"bound suffix/prefix/counter fragment, not a standalone headword — JMdict artifact"
+07112305-9d84-4873-bb8b-bcdc1d545ff9,半分,はんぷん,n,nửa phút,half minute,obscure/archaic secondary reading or sense mis-tagged as N5 — JMdict artifact; faithful standalone example not feasible
+0a18c5a0-c846-464c-89cb-039829952135,所,しょ,suf|ctr,"đếm nơi chốn (văn phòng, cơ sở, trạm)","counter for places (offices, facilities, stations)","bound suffix/prefix/counter fragment, not a standalone headword — JMdict artifact"
+0c81039b-6f0d-4572-8650-8b649d2ffc6e,車,しゃ,suf|ctr,xe,car,"bound suffix/prefix/counter fragment, not a standalone headword — JMdict artifact"
+1452b579-9ebb-4bb9-8b08-32430dff22a4,六,リュー,num,sáu,six,non-Japanese phonetic reading (Chinese/foreign numeral or loan reading) mis-tagged N5 — JMdict artifact
+14ead7d1-1cc1-47bb-9403-729117762549,三,サン,num,ba,three,non-Japanese phonetic reading (Chinese/foreign numeral or loan reading) mis-tagged N5 — JMdict artifact
+18535350-145a-496e-b4d4-e7e54fb5b1a6,日,んち,suf|ctr,ngày thứ n (trong tháng),nth day (of the month),"bound suffix/prefix/counter fragment, not a standalone headword — JMdict artifact"
+1de5a315-87f6-4bb1-a4f3-191bd51a1d6d,なる,なる,suf|adj-f|int,đó là (ở),that is in,obscure/archaic secondary reading or sense mis-tagged as N5 — JMdict artifact; faithful standalone example not feasible
+2476bc53-c684-4ae4-ae20-7ac2b0cb4aa5,家,ち,suf,nhà của ...,'s house,"bound suffix/prefix/counter fragment, not a standalone headword — JMdict artifact"
+2637670d-b533-4b3b-b8d3-96efb016cf8f,丈夫,じょうふ,n,anh hùng,hero,obscure/archaic secondary reading or sense mis-tagged as N5 — JMdict artifact; faithful standalone example not feasible
+2aacaefc-f561-418a-9d8e-2ca0556cfc76,姉,し,suf,hậu tố kính ngữ dùng sau tên phụ nữ có địa vị ngang hoặc cao hơn,honorific suffix used after the name of a woman of equal or higher status,"bound suffix/prefix/counter fragment, not a standalone headword — JMdict artifact"
+2b01784d-cb0d-49e5-8796-d7aa49bd7bef,女の子,めのこ,n,phụ nữ,woman,obscure/archaic secondary reading or sense mis-tagged as N5 — JMdict artifact; faithful standalone example not feasible
+2cb357c7-7ae7-4f52-a99c-f9f4b1a3503b,年,とせ,ctr,đếm năm,counter for years,"bound suffix/prefix/counter fragment, not a standalone headword — JMdict artifact"
+3b56ad8b-6809-445f-90fa-bc5d2aee6c8b,一番,ひとつがい,n,cặp,pair,obscure/archaic secondary reading or sense mis-tagged as N5 — JMdict artifact; faithful standalone example not feasible
+3f576784-0255-4be1-8da5-344f0e4e9c63,山,むれ,n,núi,mountain,obscure/archaic secondary reading or sense mis-tagged as N5 — JMdict artifact; faithful standalone example not feasible
+48328f8c-61c2-4b4a-9847-e299fe95f070,四,スー,num,bốn,four,non-Japanese phonetic reading (Chinese/foreign numeral or loan reading) mis-tagged N5 — JMdict artifact
+4ce29b97-c9d6-4f59-8fef-a689b65a43f9,日,か,n-suf|ctr,ngày (của tháng),day of month,"bound suffix/prefix/counter fragment, not a standalone headword — JMdict artifact"
+4d36a5a7-d15d-45db-93ad-9fddc594e3de,八,パー,num,tám,eight,non-Japanese phonetic reading (Chinese/foreign numeral or loan reading) mis-tagged N5 — JMdict artifact
+500deacc-f0eb-4f6c-a9aa-140c12daebbb,夫,ふ,n-suf,(người) lao động,(working) man,"bound suffix/prefix/counter fragment, not a standalone headword — JMdict artifact"
+5220ac09-89eb-48fa-b6ca-89696308dd5e,夜,や,ctr,đơn vị đếm cho đêm,counter for nights,"bound suffix/prefix/counter fragment, not a standalone headword — JMdict artifact"
+56f8646c-09d5-411e-9039-72ae604a8651,目,もく,n|ctr,thứ tự,order,"bound suffix/prefix/counter fragment, not a standalone headword — JMdict artifact"
+5c6f421b-55c3-4164-81dc-b4917ac8654f,五月,さつき,n,tháng 5 âm lịch,fifth month of the lunar calendar,obscure/archaic secondary reading or sense mis-tagged as N5 — JMdict artifact; faithful standalone example not feasible
+5efe5a3e-bd9f-4d05-a2cf-bbad48d25e04,服,ぶく,n,quần áo tang,mourning clothes,obscure/archaic secondary reading or sense mis-tagged as N5 — JMdict artifact; faithful standalone example not feasible
+652b80d7-232b-4773-ab61-05bdffc25b4b,兄,けい,pn|suf|n,bạn,you,"bound suffix/prefix/counter fragment, not a standalone headword — JMdict artifact"
+69ca07f0-62e3-4786-adc8-5b916a62aec6,橋,きょう,n,cầu não,pons,obscure/archaic secondary reading or sense mis-tagged as N5 — JMdict artifact; faithful standalone example not feasible
+6aec681b-cf98-411f-b766-75b258ad0ff2,二,アル,num,hai,two,non-Japanese phonetic reading (Chinese/foreign numeral or loan reading) mis-tagged N5 — JMdict artifact
+6e6cfee3-12fe-4be0-8c87-45236a31841b,学生,がくしょう,n,học sinh hành chính thời Heian,Heian-period student of government administration,obscure/archaic secondary reading or sense mis-tagged as N5 — JMdict artifact; faithful standalone example not feasible
+71b915d7-4574-45fd-ad6b-575f8e8a64cf,四月,よつき,n,bốn tháng,four months,obscure/archaic secondary reading or sense mis-tagged as N5 — JMdict artifact; faithful standalone example not feasible
+74ea818b-ab51-491f-912c-826c98a966e7,髪,はつ,n,(một) sợi tóc,(a) hair,obscure/archaic secondary reading or sense mis-tagged as N5 — JMdict artifact; faithful standalone example not feasible
+757a8c66-af3a-42db-86b1-79efac6b2804,三月,みつき,n,ba tháng,three months,obscure/archaic secondary reading or sense mis-tagged as N5 — JMdict artifact; faithful standalone example not feasible
+7fdb12c9-992e-41b7-b7e0-50165ab1f473,夏,か,n,nhà Hạ (triều đại Trung Quốc; khoảng 2070-1600 TCN),Xia dynasty (of China; ca. 2070-1600 BCE; possibly mythological),obscure/archaic secondary reading or sense mis-tagged as N5 — JMdict artifact; faithful standalone example not feasible
+82ccd560-9acb-4486-a25b-6726594a974b,星,せい,n,"chòm sao ""sao"" Trung Quốc (một trong 28 tú)","Chinese ""star"" constellation (one of the 28 mansions)",obscure/archaic secondary reading or sense mis-tagged as N5 — JMdict artifact; faithful standalone example not feasible
+84f4b971-1c2d-40e3-853e-4ade317ca0ce,強い,こわい,adj-i,cứng,tough,obscure/archaic secondary reading or sense mis-tagged as N5 — JMdict artifact; faithful standalone example not feasible
+8693a91a-837f-4235-8979-9f7c11ae284f,妻,つま,n,người yêu dấu,my dear,obscure/archaic secondary reading or sense mis-tagged as N5 — JMdict artifact; faithful standalone example not feasible
+873b2010-9646-45b1-90e7-6890f28057c2,朝,あした,n,buổi sáng,morning,obscure/archaic secondary reading or sense mis-tagged as N5 — JMdict artifact; faithful standalone example not feasible
+8f15048d-98d9-47ae-8aac-7b7e4b4d2ff1,九,チュー,num,chín,nine,non-Japanese phonetic reading (Chinese/foreign numeral or loan reading) mis-tagged N5 — JMdict artifact
+8f860900-2bdd-4643-aeb8-6afc8ebc6fab,点,ちょぼ,n,chấm,dot,obscure/archaic secondary reading or sense mis-tagged as N5 — JMdict artifact; faithful standalone example not feasible
+94421ce7-f7a2-4cc3-9549-abd6ed11b70a,彼,あれ,pn|n,cái đó,that,obscure/archaic secondary reading or sense mis-tagged as N5 — JMdict artifact; faithful standalone example not feasible
+94cb8687-b1a4-44c1-ab4b-1d1f58b5f8de,左,さ,n|adj-no,trái (đặc biệt trong chữ viết dọc tiếng Nhật),left (esp. in vertical Japanese writing),obscure/archaic secondary reading or sense mis-tagged as N5 — JMdict artifact; faithful standalone example not feasible
+9e35b07b-b247-4b04-a560-cf03e1dc2251,別,わけ,n,lãnh chúa (danh hiệu cha truyền con nối cho con cháu hoàng gia ở các vùng xa),lord (hereditary title for imperial descendants in outlying regions),obscure/archaic secondary reading or sense mis-tagged as N5 — JMdict artifact; faithful standalone example not feasible
+a3aad40b-7134-4585-8c9b-db7363e7ef53,肉,しし,n,thịt (đặc biệt là thịt động vật),flesh (esp. of an animal),obscure/archaic secondary reading or sense mis-tagged as N5 — JMdict artifact; faithful standalone example not feasible
+aa7c3d0d-c4f4-43b8-9591-b1fab15df37a,夏,げ,n,mùa hè (trong lịch âm: từ ngày 16 tháng 4 đến ngày 15 tháng 7),summer (on the lunisolar calendar: 16th day of the 4th month to the 15th day of the 7th month),obscure/archaic secondary reading or sense mis-tagged as N5 — JMdict artifact; faithful standalone example not feasible
+aad945b0-9b16-4cfd-99dc-1f57259b381e,妹,いも,n,người yêu (phụ nữ),darling (woman),obscure/archaic secondary reading or sense mis-tagged as N5 — JMdict artifact; faithful standalone example not feasible
+b0a1ba36-f5b1-4736-801e-323cfccbfd46,見える,まみえる,v1|vi,được tiếp kiến,to have an audience,obscure/archaic secondary reading or sense mis-tagged as N5 — JMdict artifact; faithful standalone example not feasible
+b3633958-2da3-4299-b717-b7bdd991b92e,万,ばん,adv,hoàn toàn,completely,obscure/archaic secondary reading or sense mis-tagged as N5 — JMdict artifact; faithful standalone example not feasible
+cf328af9-6367-4c98-829f-4151e5fc46df,二月,ふたつき,n,hai tháng,two months,obscure/archaic secondary reading or sense mis-tagged as N5 — JMdict artifact; faithful standalone example not feasible
+d01c2fcf-c49a-468c-9914-3c52a569bd5b,口,く,n|suf|ctr,miệng,mouth,"bound suffix/prefix/counter fragment, not a standalone headword — JMdict artifact"
+d05270ed-b08a-4d0c-a2da-73822e9bfccd,草,そう,n,bản thảo,draft,obscure/archaic secondary reading or sense mis-tagged as N5 — JMdict artifact; faithful standalone example not feasible
+d5b32a58-5725-428c-a3cd-dcee0480593e,回る,もとおる,v5r|vi,đi vòng quanh,to wander around,obscure/archaic secondary reading or sense mis-tagged as N5 — JMdict artifact; faithful standalone example not feasible
+daf01c0c-fad8-4e51-88d8-c9206703182a,十,シー,num,mười,ten,non-Japanese phonetic reading (Chinese/foreign numeral or loan reading) mis-tagged N5 — JMdict artifact
+f0b9926c-7755-47fb-95fc-d4389c19957b,五,ウー,num,năm,five,non-Japanese phonetic reading (Chinese/foreign numeral or loan reading) mis-tagged N5 — JMdict artifact
+f94c5edc-6dd3-434d-8d14-7e67c41e5f4a,先生,シーサン,n,đàn ông,man,non-Japanese phonetic reading (Chinese/foreign numeral or loan reading) mis-tagged N5 — JMdict artifact
+fae853a9-617e-44a8-8147-a259d8b85953,大丈夫,だいじょうふ,n,người đàn ông vĩ đại,great man,obscure/archaic secondary reading or sense mis-tagged as N5 — JMdict artifact; faithful standalone example not feasible
+fbe2c476-62d7-4597-86ff-ae9ab409314e,二,リャン,num,hai,two,non-Japanese phonetic reading (Chinese/foreign numeral or loan reading) mis-tagged N5 — JMdict artifact
+fe09b700-0ba7-42ae-8ac5-78951f7c6746,次,じ,pref|ctr,tiếp theo,next,"bound suffix/prefix/counter fragment, not a standalone headword — JMdict artifact"
+ffbca8c2-8df3-463c-891c-dc7b41ee451b,塩,えん,n,"muối (ví dụ natri clorua, canxi sunfat)","salt (e.g. sodium chloride, calcium sulfate, etc.)",obscure/archaic secondary reading or sense mis-tagged as N5 — JMdict artifact; faithful standalone example not feasible

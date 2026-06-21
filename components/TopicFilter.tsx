@@ -9,6 +9,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { createPortal } from "react-dom";
 import { useTranslations } from "next-intl";
 import { buildTopicOrder, planVisibleTopics, type VisiblePlan } from "@/lib/topicFilter";
 
@@ -137,8 +138,11 @@ export default function TopicFilter({ topics, selected, onSelect, onClear }: Pro
 
   const pick = useCallback(
     (code: string) => {
-      onSelect(code);
       setSheetOpen(false);
+      // Defer the jump-to-section until after the sheet unmounts and its scroll
+      // lock releases (which restores scrollY); otherwise that restore would
+      // override the section scroll and snap back to the original position.
+      requestAnimationFrame(() => onSelect(code));
     },
     [onSelect],
   );
@@ -247,18 +251,54 @@ function TopicSheet({
   const panelRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const titleId = useId();
+  const [mounted, setMounted] = useState(false);
 
-  // Lock background scroll (compensating for the scrollbar so desktop layout
-  // doesn't shift), trap focus, close on Escape, restore focus on unmount.
+  // Portal target only exists on the client; gate the first render so SSR and
+  // hydration agree (nothing is rendered server-side for the open sheet).
+  useEffect(() => setMounted(true), []);
+
+  // iOS-safe background scroll lock: `overflow:hidden` on <body> does NOT stop
+  // scrolling in iOS Safari, so we pin the body with position:fixed at the
+  // current offset and restore the exact scroll position on close. paddingRight
+  // compensates for the now-removed scrollbar to avoid a horizontal shift.
   useEffect(() => {
     const body = document.body;
-    const prevOverflow = body.style.overflow;
-    const prevPad = body.style.paddingRight;
+    const scrollY = window.scrollY;
     const sbw = window.innerWidth - document.documentElement.clientWidth;
+    const prev = {
+      position: body.style.position,
+      top: body.style.top,
+      left: body.style.left,
+      right: body.style.right,
+      width: body.style.width,
+      overflow: body.style.overflow,
+      paddingRight: body.style.paddingRight,
+    };
+    body.style.position = "fixed";
+    body.style.top = `-${scrollY}px`;
+    body.style.left = "0";
+    body.style.right = "0";
+    body.style.width = "100%";
     body.style.overflow = "hidden";
     if (sbw > 0) body.style.paddingRight = `${sbw}px`;
 
-    closeRef.current?.focus();
+    return () => {
+      body.style.position = prev.position;
+      body.style.top = prev.top;
+      body.style.left = prev.left;
+      body.style.right = prev.right;
+      body.style.width = prev.width;
+      body.style.overflow = prev.overflow;
+      body.style.paddingRight = prev.paddingRight;
+      // Jump straight to the saved offset (no smooth scroll) to feel seamless.
+      window.scrollTo(0, scrollY);
+    };
+  }, []);
+
+  // Focus the close button (a non-input control, so iOS won't pop the keyboard),
+  // trap focus, and close on Escape. Restore focus to the trigger on unmount.
+  useEffect(() => {
+    closeRef.current?.focus({ preventScroll: true });
 
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -287,53 +327,63 @@ function TopicSheet({
 
     return () => {
       document.removeEventListener("keydown", onKey, true);
-      body.style.overflow = prevOverflow;
-      body.style.paddingRight = prevPad;
-      restoreFocusRef.current?.focus();
+      restoreFocusRef.current?.focus({ preventScroll: true });
     };
   }, [onClose, restoreFocusRef]);
 
-  return (
+  if (!mounted) return null;
+
+  // Rendered through a portal into <body> so it escapes the sticky search bar's
+  // backdrop-filter containing block (which otherwise traps position:fixed and
+  // pins the sheet inside the ~120px header box). z-[200] sits above the nav
+  // header (z-100) and the sticky chips bar (z-90).
+  return createPortal(
     <div
-      className="fixed inset-0 z-[120] flex items-end justify-center sm:items-center motion-safe:animate-fadein"
+      className="fixed inset-0 z-[200] flex items-end justify-center sm:items-center motion-safe:animate-fadein"
       role="dialog"
       aria-modal="true"
       aria-labelledby={titleId}
       onClick={onClose}
     >
-      {/* Backdrop */}
+      {/* Backdrop — covers the entire viewport including the header. */}
       <div className="absolute inset-0 bg-ink/40 backdrop-blur-[2px]" />
 
       <div
         ref={panelRef}
         onClick={(e) => e.stopPropagation()}
-        className="relative w-full max-w-[560px] rounded-t-2xl bg-paper shadow-card-hover sm:mx-4 sm:rounded-2xl motion-safe:animate-sheetup
-                   max-h-[85svh] sm:max-h-[80svh] flex flex-col
-                   pb-[max(env(safe-area-inset-bottom),12px)]"
+        style={{ maxHeight: "min(85svh, calc(100dvh - env(safe-area-inset-top) - 24px))" }}
+        className="relative flex w-full max-w-[560px] flex-col overflow-hidden rounded-t-2xl bg-paper shadow-card-hover motion-safe:animate-sheetup sm:mx-4 sm:rounded-2xl"
       >
-        {/* Grab handle (phones) */}
-        <div className="pt-2 sm:hidden" aria-hidden="true">
-          <div className="mx-auto h-1 w-9 rounded-full bg-line" />
+        {/* Non-scrolling header (handle + title + close) stays pinned. */}
+        <div className="flex-none">
+          {/* Grab handle (phones) */}
+          <div className="pt-2 sm:hidden" aria-hidden="true">
+            <div className="mx-auto h-1 w-9 rounded-full bg-line" />
+          </div>
+
+          <div className="flex items-center justify-between gap-3 px-5 pb-3 pt-3 sm:pt-4">
+            <h2 id={titleId} className="font-serif text-[17px] font-bold text-ink">
+              {t("select_topic")}
+            </h2>
+            <button
+              ref={closeRef}
+              type="button"
+              onClick={onClose}
+              aria-label={t("topic_close")}
+              className="grid h-9 w-9 flex-none place-items-center rounded-lg text-muted transition-colors hover:bg-line hover:text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/40"
+            >
+              <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
         </div>
 
-        <div className="flex items-center justify-between gap-3 px-5 pb-3 pt-3 sm:pt-4">
-          <h2 id={titleId} className="font-serif text-[17px] font-bold text-ink">
-            {t("select_topic")}
-          </h2>
-          <button
-            ref={closeRef}
-            type="button"
-            onClick={onClose}
-            aria-label={t("topic_close")}
-            className="grid h-9 w-9 flex-none place-items-center rounded-lg text-muted transition-colors hover:bg-line hover:text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/40"
-          >
-            <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-
-        <div className="overflow-y-auto px-5 pt-1">
+        {/* Scrollable topic list — the only scroller. min-h-0 lets it shrink
+            inside the flex column; touch-action/overscroll keep iOS swipes in. */}
+        <div
+          className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pt-1 [touch-action:pan-y] [-webkit-overflow-scrolling:touch] pb-[max(env(safe-area-inset-bottom),16px)]"
+        >
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
             {topics.map((tp) => {
               const on = selected === tp.code;
@@ -370,7 +420,8 @@ function TopicSheet({
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 

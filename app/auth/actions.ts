@@ -9,7 +9,7 @@ import { createAdminNotification } from '@/lib/admin/notifications'
 import { setContentTags } from '@/lib/tags'
 import { PREFECTURE_NAME, PREFECTURES } from '@/lib/japan'
 import { sanitizeUserName } from '@/lib/sanitize'
-import { neutralAreaString, RELATION_TYPES, type RelationType } from '@/lib/places'
+import { parseStructuredArea } from '@/lib/places'
 
 const CATEGORY_LABEL: Record<string, string> = {
   food: 'Ăn uống',
@@ -209,23 +209,12 @@ export async function submitPlace(formData: FormData) {
   const address = (formData.get('address') as string)?.trim() || null
 
   // Khu vực có cấu trúc — chỉ relation_type được dịch, tên địa danh giữ nguyên.
-  const areaMain = (formData.get('area_main') as string)?.trim() || ''
-  const nearbyPlace = (formData.get('nearby_place') as string)?.trim() || null
-  const cityOrPrefecture = (formData.get('city_or_prefecture') as string)?.trim() || null
-  const relRaw = (formData.get('relation_type') as string) || 'near'
-  const relationType: RelationType = RELATION_TYPES.includes(relRaw as RelationType)
-    ? (relRaw as RelationType) : 'near'
-  // `area` cũ = chuỗi trung tính (chỉ tên địa danh) cho tìm kiếm & fallback.
-  const area = neutralAreaString({ areaMain, nearbyPlace, cityOrPrefecture })
+  const structuredArea = parseStructuredArea(formData)
 
   const { data: inserted, error } = await supabase.from('places').insert({
     slug,
     name,
-    area,
-    area_main: areaMain,
-    nearby_place: nearbyPlace,
-    city_or_prefecture: cityOrPrefecture,
-    relation_type: relationType,
+    ...structuredArea,
     category,
     category_label: CATEGORY_LABEL[category] ?? category,
     description: (formData.get('desc') as string)?.trim() || null,

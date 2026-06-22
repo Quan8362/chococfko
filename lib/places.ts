@@ -166,6 +166,41 @@ export function neutralAreaString(parts: {
     .filter(Boolean)
     .join(', ');
 }
+// Snake_case columns written for the structured-area group.
+export interface StructuredAreaColumns {
+  area: string;
+  area_main: string;
+  nearby_place: string | null;
+  city_or_prefecture: string | null;
+  relation_type: RelationType;
+}
+
+/**
+ * Parse the structured-area inputs from a submitted form into the DB columns.
+ * Shared by the admin edit action and the user place-submission action so both
+ * paths persist identical shapes.
+ *
+ * `relation_type` falls back to 'near' (the neutral "gần") only when no valid
+ * value was submitted — for existing records the form always submits the saved
+ * value, so this default applies only to genuinely new/empty records.
+ */
+export function parseStructuredArea(form: Pick<FormData, 'get'>): StructuredAreaColumns {
+  const areaMain = (form.get('area_main') as string | null)?.trim() || '';
+  const nearbyPlace = (form.get('nearby_place') as string | null)?.trim() || null;
+  const cityOrPrefecture = (form.get('city_or_prefecture') as string | null)?.trim() || null;
+  const relRaw = (form.get('relation_type') as string | null) || 'near';
+  const relationType: RelationType = RELATION_TYPES.includes(relRaw as RelationType)
+    ? (relRaw as RelationType) : 'near';
+  return {
+    // `area` cũ = chuỗi trung tính (chỉ tên địa danh) cho tìm kiếm & fallback.
+    area: neutralAreaString({ areaMain, nearbyPlace, cityOrPrefecture }),
+    area_main: areaMain,
+    nearby_place: nearbyPlace,
+    city_or_prefecture: cityOrPrefecture,
+    relation_type: relationType,
+  };
+}
+
 export interface Category { code: string; short: string; full: string; }
 
 // Single source of truth for category emoji (also mirrored in PlaceCard /

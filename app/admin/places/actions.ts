@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { checkIsAdmin, createAdminClient } from '@/lib/supabase/admin'
-import { places, neutralAreaString, RELATION_TYPES, type RelationType } from '@/lib/places'
+import { places, parseStructuredArea } from '@/lib/places'
 import { setContentTags } from '@/lib/tags'
 import { PREFECTURE_NAME, PREFECTURES } from '@/lib/japan'
 import { getLocale } from 'next-intl/server'
@@ -179,22 +179,8 @@ export async function updatePlace(formData: FormData) {
   const slug = formData.get('slug') as string
   const statusValue = (formData.get('status') as string) || undefined
 
-  // Khu vực có cấu trúc — chỉ relation_type được dịch, tên địa danh giữ nguyên.
-  const areaMain = (formData.get('area_main') as string)?.trim() || ''
-  const nearbyPlace = (formData.get('nearby_place') as string)?.trim() || null
-  const cityOrPrefecture = (formData.get('city_or_prefecture') as string)?.trim() || null
-  const relRaw = (formData.get('relation_type') as string) || 'near'
-  const relationType: RelationType = RELATION_TYPES.includes(relRaw as RelationType)
-    ? (relRaw as RelationType) : 'near'
-
   const updatePayload: Record<string, unknown> = {
     name: (formData.get('name') as string).trim(),
-    // `area` cũ = chuỗi trung tính (chỉ tên địa danh) cho tìm kiếm & fallback.
-    area: neutralAreaString({ areaMain, nearbyPlace, cityOrPrefecture }),
-    area_main: areaMain,
-    nearby_place: nearbyPlace,
-    city_or_prefecture: cityOrPrefecture,
-    relation_type: relationType,
     description: (formData.get('desc') as string).trim(),
     body: (formData.get('body') as string) || null,
     fee: (formData.get('fee') as string) || null,
@@ -203,6 +189,13 @@ export async function updatePlace(formData: FormData) {
     img: (formData.get('img') as string) || null,
   }
   if (statusValue) updatePayload.status = statusValue
+
+  // Khu vực có cấu trúc — chỉ ghi khi fieldset thực sự được gửi lên (formData có
+  // `area_main`). Tránh việc một form cũ / một field không mount ghi đè giá trị
+  // đang có thành rỗng/NULL. `area_main` là required nên luôn có khi fieldset hiện.
+  if (formData.has('area_main')) {
+    Object.assign(updatePayload, parseStructuredArea(formData))
+  }
 
   // Prefecture/city are optional on the form; only update when provided so older
   // forms (or partial edits) never wipe existing location data.
@@ -289,6 +282,10 @@ export async function updatePlace(formData: FormData) {
     if (placeId) await setContentTags(admin, 'place', placeId, formData.get('tags'), await getLocale())
   }
 
+  // Revalidate the edit route itself so the App Router client cache does not serve
+  // a stale pre-edit RSC payload when the admin re-opens this place (otherwise
+  // freshly-saved fields appear empty on reopen). Mirrors upsertPlaceTranslation.
+  revalidatePath(`/admin/places/${slug}`)
   revalidatePath('/admin/places')
   revalidatePath(`/places/${slug}`)
   revalidatePath('/')
@@ -300,6 +297,7 @@ export async function approvePlace(formData: FormData) {
   const slug = formData.get('slug') as string
   const admin = createAdminClient()
   await admin.from('places').update({ status: 'approved' }).eq('slug', slug)
+  revalidatePath(`/admin/places/${slug}`)
   revalidatePath('/admin/places')
   revalidatePath('/admin')
   revalidatePath('/')
@@ -311,6 +309,7 @@ export async function rejectPlace(formData: FormData) {
   const slug = formData.get('slug') as string
   const admin = createAdminClient()
   await admin.from('places').update({ status: 'rejected' }).eq('slug', slug)
+  revalidatePath(`/admin/places/${slug}`)
   revalidatePath('/admin/places')
   revalidatePath('/admin')
   revalidatePath('/')

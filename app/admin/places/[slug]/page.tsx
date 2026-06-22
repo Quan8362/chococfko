@@ -90,7 +90,10 @@ export default async function AdminEditPlace({ params }: { params: { slug: strin
           {admin_t('view_page_link')} →
         </Link>
       </p>
-      <form action={updatePlace} className="space-y-5">
+      {/* key={slug}: remount the form (and its uncontrolled inputs) only when the
+          place changes, so navigating between slugs re-hydrates defaultValue from
+          fresh server data — while unrelated re-renders keep in-progress edits. */}
+      <form key={params.slug} action={updatePlace} className="space-y-5">
         <input type="hidden" name="slug" value={params.slug} />
 
         <Field label={admin_t('field_name')} name="name" defaultValue={p.name} required />

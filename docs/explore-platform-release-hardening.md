@@ -123,7 +123,12 @@ is documented as the next manual step. Do **not** report RLS as live-verified ye
 
 ## §10 — Cron & notification dedup
 
-- `vercel.json` adds a conservative schedule for `/api/cron/return-user`.
+- `vercel.json` schedules `/api/cron/return-user` **daily at `0 0 * * *` (00:00 UTC = 09:00 JST)**.
+  NOTE: the Vercel **Hobby** plan only permits **daily** crons (an hourly `0 * * * *`
+  schedule is rejected at deploy time). Plan reminders (once per JST day) work fully on
+  this cadence. `event_soon` uses a 3h start window, so on a once-daily run it only
+  catches events starting ~09:00–12:00 JST — widen the window or upgrade to Pro (hourly)
+  if broader event coverage is needed. Dedup is per-JST-day either way.
 - `migration_notification_delivery_log.sql` adds an idempotent delivery-log table keyed
   by `(user_id, type, entity_key, window_key)` with a unique constraint, so the same
   reminder window can never be delivered twice even across instances/retries.

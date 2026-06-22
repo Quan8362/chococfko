@@ -8,9 +8,12 @@ on:
 
 # No production secrets are exposed to PRs. The build uses placeholder public
 # env values so it never depends on real Supabase credentials.
-# NOTE: the git repository root IS the Next.js app (no `web/` subdirectory in the
-# repo), so all steps run at the checkout root. The package-lock.json was created
-# with npm 11, so the runner pins npm 11 to keep `npm ci` lockfile-sync identical.
+# NOTES:
+#  - The git repository root IS the Next.js app (no `web/` subdirectory), so all
+#    steps run at the checkout root.
+#  - Node 24: the test script runs TypeScript files directly via `node --test`,
+#    which relies on native type-stripping (stable on Node 23.6+/24). Node 20
+#    cannot execute .ts tests. Node 24 also ships npm 11, matching the lockfile.
 env:
   NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
   NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder-anon-key
@@ -25,11 +28,8 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
-
-      - name: Pin npm to match the lockfile
-        run: npm install -g npm@11
 
       - name: Install (locked)
         run: |
@@ -67,9 +67,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
-      - run: npm install -g npm@11
       - run: npm ci
       - name: Install Playwright + axe
         run: npm i -D @playwright/test @axe-core/playwright && npx playwright install --with-deps chromium webkit firefox

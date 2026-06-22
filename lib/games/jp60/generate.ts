@@ -8,7 +8,7 @@
 // NOT a client module — it reads the DB via the service-role client passed in.
 
 import { buildMCQ, pickMeaning, splitMixed, type PracticeQuestion } from '@/lib/japanese/practice'
-import { formatGloss, primarySense } from '@/lib/japanese/gloss'
+import { formatGloss, primarySense, isPresentableText } from '@/lib/japanese/gloss'
 import { classifyDifficulty } from './difficulty'
 import { mulberry32, hashSeed, seededPick } from './daily'
 import { questionSignature } from './presentation'
@@ -194,6 +194,10 @@ function buildFrom<R extends { id: string }>(
     const rng = seed == null ? Math.random : mulberry32(hashSeed(`${seed}:${r.id}`))
     const q = make(r, others, rng)
     if (!q) continue
+    // Safeguard: never surface a malformed prompt/choice (empty, truncated to
+    // metadata, replacement/control chars, leftover annotations, HTML/JSON).
+    if (!isPresentableText(q.prompt)) continue
+    if (!q.options.every((o) => isPresentableText(o.text))) continue
     const sig = questionSignature(q)
     if (sigs.has(sig)) continue
     sigs.add(sig)

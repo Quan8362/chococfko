@@ -11,11 +11,13 @@ export function PreviewPanel() {
   const tg = useTranslations('games.jp60')
   const [level, setLevel] = useState('N5')
   const [questions, setQuestions] = useState<PreviewQuestion[]>([])
+  const [version, setVersion] = useState<number | null>(null)
   const [pending, start] = useTransition()
 
   const load = (lv: string) => start(async () => {
     const res = await previewJp60Questions(lv, 8)
     setQuestions(res.ok ? res.questions ?? [] : [])
+    setVersion(res.formatterVersion ?? null)
   })
 
   useEffect(() => { load(level) }, [level])
@@ -27,6 +29,7 @@ export function PreviewPanel() {
           {LEVELS.map((l) => <option key={l} value={l}>{l}</option>)}
         </select>
         <button onClick={() => load(level)} disabled={pending} className="text-[13px] px-3 py-2 rounded-lg bg-rose text-white disabled:opacity-50">{t('preview_generate')}</button>
+        {version != null && <span className="text-[11px] text-muted">fmt v{version}</span>}
       </div>
 
       {pending && questions.length === 0 ? (
@@ -40,6 +43,8 @@ export function PreviewPanel() {
                 <span className="text-muted">{t('q_type')}: {q.qType}</span>
                 <span className="text-muted">· {q.difficulty}</span>
                 <span className="text-muted">· {q.sourceType}</span>
+                {q.annotationRemoved && <span className="text-gold">· {t('raw_source')}✂</span>}
+                <span className={q.valid ? 'text-teal' : 'text-rose font-bold'}>· {q.valid ? '✓' : '✗'}</span>
               </div>
               <p className="text-[13px] text-muted mb-1">{tg(`q_instr_${instrOf(q.qType)}`)}</p>
               <p className="font-serif font-bold text-[18px] text-ink mb-2" lang="ja">{q.prompt}</p>

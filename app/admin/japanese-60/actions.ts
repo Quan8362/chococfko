@@ -67,14 +67,18 @@ export type PreviewQuestion = {
   correctKey: string
   difficulty: string
   rawSource: string | null // admin-only: raw gloss/source to verify cleaning
+  annotationRemoved: boolean // raw differs from cleaned (metadata stripped)
+  valid: boolean // passes the public-text validator
 }
+export type PreviewResult = { ok: boolean; questions?: PreviewQuestion[]; formatterVersion?: number }
 
 // Admin-only preview of freshly generated questions for a level. Includes the
 // correct answer + raw source value — this NEVER goes through the public game.
-export async function previewJp60Questions(level: string, count = 8): Promise<{ ok: boolean; questions?: PreviewQuestion[] }> {
+export async function previewJp60Questions(level: string, count = 8): Promise<PreviewResult> {
   if (!(await checkIsAdmin())) return { ok: false }
   const admin = createAdminClient()
   const { generateQuestions } = await import('@/lib/games/jp60/generate')
+  const { isPresentableText, GLOSS_FORMATTER_VERSION, formatGloss } = await import('@/lib/japanese/gloss')
   const n = Math.min(20, Math.max(1, Math.floor(count)))
   let qs
   try {
@@ -103,17 +107,23 @@ export async function previewJp60Questions(level: string, count = 8): Promise<{ 
 
   return {
     ok: true,
-    questions: qs.map((q) => ({
-      qType: q.qType,
-      sourceType: q.sourceType,
-      sourceId: q.sourceId,
-      prompt: q.prompt,
-      promptSub: q.promptSub,
-      options: q.options,
-      correctKey: q.correctKey,
-      difficulty: q.difficulty,
-      rawSource: raw.get(`${q.sourceType}:${q.sourceId}`) ?? null,
-    })),
+    formatterVersion: GLOSS_FORMATTER_VERSION,
+    questions: qs.map((q) => {
+      const rawSource = raw.get(`${q.sourceType}:${q.sourceId}`) ?? null
+      return {
+        qType: q.qType,
+        sourceType: q.sourceType,
+        sourceId: q.sourceId,
+        prompt: q.prompt,
+        promptSub: q.promptSub,
+        options: q.options,
+        correctKey: q.correctKey,
+        difficulty: q.difficulty,
+        rawSource,
+        annotationRemoved: !!rawSource && formatGloss(rawSource) !== rawSource.trim(),
+        valid: isPresentableText(q.prompt) && q.options.every((o) => isPresentableText(o.text)),
+      }
+    }),
   }
 }
 

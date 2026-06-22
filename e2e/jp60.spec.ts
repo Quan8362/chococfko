@@ -54,6 +54,9 @@ test.describe('jp60 gameplay', () => {
     // No raw dictionary markers anywhere in the visible question area.
     const body = await page.locator('body').innerText()
     expect(body).not.toMatch(/\[[a-zà-ỹ]/i) // e.g. "[bắc]"
+    // Regression: no Vietnamese word truncated to a leading diacritic (việc → ệc).
+    expect(body).not.toMatch(/(^|\s)ệc(\s|,|\.|$)/) // the exact reported corruption
+    expect(body).not.toMatch(/(^|\s)(ệ|ế|ạm|ết)\b/) // generic leading-char-loss shapes
 
     // No horizontal overflow.
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1)

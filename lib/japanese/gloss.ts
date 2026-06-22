@@ -11,14 +11,23 @@
 // invent a translation — an empty/garbage source yields ''.
 //
 // Self-contained (no imports) so node --test can load it directly. Mirrors
-// cleanMeaningText() from @/lib/sanitize for the leading language-code strip.
+// stripLocalePrefix()/cleanMeaningText() from @/lib/sanitize.
+
+// Bump when the cleaning rules change so stored/generated questions can be
+// traced to the rules that produced them (surfaced in the admin preview).
+export const GLOSS_FORMATTER_VERSION = 2
+
+const LOCALE_CODES = 'vi|vn|en|gb|ja|jp|ko|zh'
+// A language code is metadata ONLY in an explicit bracketed/delimited form — we
+// must never strip a bare code that is the start of a real word ("việc",
+// "viết", "vi phạm", "enjoy", …). See lib/sanitize.ts for the canonical copy.
+const LOCALE_BRACKET = new RegExp(`^\\[(?:${LOCALE_CODES})\\]\\s*`, 'i')
+const LOCALE_DELIM = new RegExp(`^(?:${LOCALE_CODES})\\s*[:：|｜]\\s*`, 'i')
+const LOCALE_DASH = new RegExp(`^(?:${LOCALE_CODES})\\s+[-–—]\\s+`, 'i')
 
 function cleanMeaningText(value?: string | null): string {
   if (!value) return ''
-  return value
-    .trim()
-    .replace(/^(vn|vi|en|gb|jp|ja)\s*[:：\-–—]?\s*/i, '')
-    .trim()
+  return value.trim().replace(LOCALE_BRACKET, '').replace(LOCALE_DELIM, '').replace(LOCALE_DASH, '').trim()
 }
 
 // A bracket group is treated as a display annotation (reading label / domain tag)
@@ -93,4 +102,25 @@ export function hasRawMarkers(raw?: string | null): boolean {
   if (!raw) return false
   const s = cleanMeaningText(raw)
   return ANNOTATION_BRACKET_TEST.test(s) || /[<>{}]|&[a-z]+;|・{2,}/.test(s)
+}
+
+// Final gate for any string shown publicly in a question (prompt or option).
+// Rejects empty/whitespace, the Unicode replacement char, control chars,
+// leftover locale/bracket metadata, and raw HTML/JSON fragments. Returns true
+// when the text is safe to present to a learner.
+export function isPresentableText(s: string | null | undefined): boolean {
+  if (!s) return false
+  const t = s.trim()
+  if (!t) return false
+  if (t.includes('�')) return false // replacement char
+  // control chars except tab (9) / newline (10) / carriage-return (13)
+  for (let i = 0; i < t.length; i++) {
+    const c = t.charCodeAt(i)
+    if ((c < 0x20 && c !== 9 && c !== 10 && c !== 13) || c === 0x7f) return false
+  }
+  if (ANNOTATION_BRACKET_TEST.test(t)) return false // leftover [vi]/[b'a'c]-style annotation
+  if (/[<>{}]|&[a-z]+;/.test(t)) return false // raw HTML / JSON fragment
+  // a single explicit locale-code token left dangling (e.g. "vi:" with no text)
+  if (/^(?:vi|vn|en|gb|ja|jp|ko|zh)\s*[:：|｜]?\s*$/i.test(t)) return false
+  return true
 }

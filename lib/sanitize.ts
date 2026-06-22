@@ -2,17 +2,42 @@
 // module `@/lib/sanitizeHtml` so its Node-only `sanitize-html` dependency never
 // reaches a client bundle. This file holds only client-safe string utilities.
 
+// Recognised language/locale codes that imports sometimes prepend as metadata.
+const LOCALE_CODES = 'vi|vn|en|gb|ja|jp|ko|zh'
+// A code is metadata ONLY in an explicit, delimited/bracketed form. We must NOT
+// strip a bare leading code, because that also matches the start of legitimate
+// words ("việc", "viết", "vi phạm", "enjoy", …). Each pattern is anchored and
+// requires a real boundary:
+//   [vi] …        bracketed
+//   vi: …  vi｜ …  colon / fullwidth-colon / pipe (optional surrounding spaces)
+//   vi - …        dash with whitespace on BOTH sides (so "vi-X" and "vi phạm" are safe)
+const LOCALE_BRACKET = new RegExp(`^\\[(?:${LOCALE_CODES})\\]\\s*`, 'i')
+const LOCALE_DELIM = new RegExp(`^(?:${LOCALE_CODES})\\s*[:：|｜]\\s*`, 'i')
+const LOCALE_DASH = new RegExp(`^(?:${LOCALE_CODES})\\s+[-–—]\\s+`, 'i')
+
 /**
- * Remove accidental language-code prefixes (e.g. "vn", "GB") from vocabulary
- * meaning text that may have been baked in during dictionary imports.
- * Also safe to call on clean data — has no effect if no prefix is present.
+ * Remove a language-code metadata prefix ONLY when it appears in an explicit
+ * bracketed/delimited form. Never removes the letters of a normal word that
+ * merely begins with a code-like sequence. Returns the input otherwise unchanged.
+ */
+export function stripLocalePrefix(value: string): string {
+  let s = value
+  // A single pass is enough: each regex is ^-anchored and, after one strip, a
+  // normal word will not match again. Apply each known form once.
+  s = s.replace(LOCALE_BRACKET, '')
+  s = s.replace(LOCALE_DELIM, '')
+  s = s.replace(LOCALE_DASH, '')
+  return s
+}
+
+/**
+ * Clean a vocabulary meaning for display: trims and strips an explicit
+ * language-code metadata prefix. Safe on already-clean data and on legitimate
+ * Vietnamese words such as "việc"/"vi phạm" (which are left intact).
  */
 export function cleanMeaningText(value?: string | null): string {
   if (!value) return ''
-  return value
-    .trim()
-    .replace(/^(vn|vi|en|gb|jp|ja)\s*[:：\-–—]?\s*/i, '')
-    .trim()
+  return stripLocalePrefix(value.trim()).trim()
 }
 
 /**

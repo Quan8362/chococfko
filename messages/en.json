@@ -2212,7 +2212,10 @@
       "q_instr_kanji_reading": "What is the correct reading of this kanji?",
       "q_instr_grammar_meaning": "What does this grammar pattern mean?",
       "q_instr_grammar_pattern": "Choose the most appropriate grammar pattern:",
-      "q_instr_sentence": "Choose the option that best completes the sentence:"
+      "q_instr_sentence": "Choose the option that best completes the sentence:",
+      "lb_player_level": "Player level",
+      "lb_level_value": "Lv. {n}",
+      "lb_avatar_alt": "{name} avatar"
     }
   },
   "notifications": {

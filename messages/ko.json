@@ -2212,7 +2212,10 @@
       "q_instr_kanji_reading": "이 한자의 올바른 읽기는?",
       "q_instr_grammar_meaning": "이 문법의 뜻은?",
       "q_instr_grammar_pattern": "가장 적절한 문법을 고르세요:",
-      "q_instr_sentence": "문장을 완성할 답을 고르세요:"
+      "q_instr_sentence": "문장을 완성할 답을 고르세요:",
+      "lb_player_level": "플레이어 레벨",
+      "lb_level_value": "Lv. {n}",
+      "lb_avatar_alt": "{name}의 아바타"
     }
   },
   "notifications": {

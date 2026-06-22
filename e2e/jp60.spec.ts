@@ -77,6 +77,22 @@ test.describe('jp60 gameplay', () => {
   })
 })
 
+test.describe('jp60 leaderboard', () => {
+  test('avatars never render as a broken image; player level shows "Lv." not "Cấp5"', async ({ page }) => {
+    await page.goto('/games/japanese-60/leaderboard')
+    // Wait for either rows or the empty-state to settle.
+    await page.waitForTimeout(1500)
+    // No broken images: every rendered <img> must have loaded (naturalWidth > 0)
+    // — failed avatars are replaced by an initials <span>, never a broken <img>.
+    const broken = await page.evaluate(() =>
+      Array.from(document.images).filter((im) => im.complete && im.naturalWidth === 0).length
+    )
+    expect(broken).toBe(0)
+    const body = await page.locator('body').innerText()
+    expect(body).not.toMatch(/Cấp\d/) // never glued player level
+  })
+})
+
 test.describe('jp60 locales', () => {
   for (const locale of LOCALES) {
     test(`landing renders in ${locale} without raw i18n keys`, async ({ page }) => {

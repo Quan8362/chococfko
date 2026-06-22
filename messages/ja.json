@@ -2212,7 +2212,10 @@
       "q_instr_kanji_reading": "この漢字の正しい読み方は？",
       "q_instr_grammar_meaning": "この文法の意味は？",
       "q_instr_grammar_pattern": "最も適切な文法を選んでください：",
-      "q_instr_sentence": "文を完成させる答えを選んでください："
+      "q_instr_sentence": "文を完成させる答えを選んでください：",
+      "lb_player_level": "プレイヤーレベル",
+      "lb_level_value": "Lv. {n}",
+      "lb_avatar_alt": "{name}のアバター"
     }
   },
   "notifications": {

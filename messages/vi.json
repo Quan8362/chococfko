@@ -2212,7 +2212,10 @@
       "q_instr_kanji_reading": "Cách đọc đúng của chữ Kanji sau là gì?",
       "q_instr_grammar_meaning": "Mẫu ngữ pháp sau có nghĩa là gì?",
       "q_instr_grammar_pattern": "Chọn mẫu ngữ pháp phù hợp nhất:",
-      "q_instr_sentence": "Chọn đáp án phù hợp để hoàn thành câu:"
+      "q_instr_sentence": "Chọn đáp án phù hợp để hoàn thành câu:",
+      "lb_player_level": "Cấp người chơi",
+      "lb_level_value": "Lv. {n}",
+      "lb_avatar_alt": "Ảnh đại diện của {name}"
     }
   },
   "notifications": {

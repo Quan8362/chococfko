@@ -5,6 +5,7 @@ import { checkIsAdmin, createAdminClient } from '@/lib/supabase/admin'
 import { getJp60Settings } from '@/app/games/japanese-60/actions'
 import { SettingsForm } from './SettingsForm'
 import { ReportRow, type ReportDTO } from './ReportRow'
+import { PreviewPanel } from './PreviewPanel'
 
 export const dynamic = 'force-dynamic'
 
@@ -70,7 +71,10 @@ export default async function Jp60AdminPage() {
         ))}
       </div>
 
-      <h2 className="font-serif font-bold text-[18px] text-ink mb-3">{t('reports')} ({reports.length})</h2>
+      <h2 className="font-serif font-bold text-[18px] text-ink mt-8 mb-3">{t('preview')}</h2>
+      <PreviewPanel />
+
+      <h2 className="font-serif font-bold text-[18px] text-ink mt-8 mb-3">{t('reports')} ({reports.length})</h2>
       {reports.length === 0 ? (
         <p className="text-muted text-[14px]">{t('no_reports')}</p>
       ) : (

@@ -17,6 +17,8 @@ import {
 } from './actions'
 import { reportJp60Question } from './social-actions'
 import { ChallengeButton } from './ChallengeButton'
+import { Switch } from './Switch'
+import { questionPresentation } from '@/lib/games/jp60/presentation'
 import type { ClientQuestion } from '@/lib/games/jp60/generate'
 
 type Screen = 'mode' | 'level' | 'loading' | 'play' | 'result' | 'review' | 'error'
@@ -61,6 +63,7 @@ export function Jp60Game({
   const [answered, setAnswered] = useState(0)
   const [correctCount, setCorrectCount] = useState(0)
   const [timeLeft, setTimeLeft] = useState(60)
+  const [durationSec, setDurationSec] = useState(60)
 
   const [summary, setSummary] = useState<FinishSummary | null>(null)
   const [exitOpen, setExitOpen] = useState(false)
@@ -95,6 +98,7 @@ export function Jp60Game({
       setScore(0); setCombo(0); setBestCombo(0); setAnswered(0); setCorrectCount(0)
       setPicked(null); setRevealed(null)
       setTimed(res.timed)
+      setDurationSec(res.durationSec || 60)
       setTimeLeft(res.durationSec || 0)
       deadlineRef.current = res.timed ? Date.now() + res.durationSec * 1000 : 0
       shownAtRef.current = Date.now()
@@ -234,6 +238,7 @@ export function Jp60Game({
         combo={combo}
         timed={timed}
         timeLeft={timeLeft}
+        durationSec={durationSec}
         answered={answered}
         total={total}
         ranked={ranked}
@@ -385,13 +390,14 @@ function SetupScreen(p: any) {
               </button>
             ))}
           </div>
-          <label className="flex items-center justify-between bg-paper border border-line rounded-xl px-4 py-3 mb-6 cursor-pointer">
-            <span className="text-[14px] text-ink font-medium">{t('timer_label')}</span>
-            <button type="button" role="switch" aria-checked={timed} onClick={p.onToggleTimer}
-              className={`w-11 h-6 rounded-full transition-colors relative ${timed ? 'bg-rose' : 'bg-line'}`}>
-              <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full transition-transform ${timed ? 'translate-x-5' : 'translate-x-0.5'}`} />
-            </button>
-          </label>
+          <div className="flex items-center justify-between bg-paper border border-line rounded-xl px-4 py-3 mb-2 min-h-[52px]">
+            <div>
+              <span className="text-[14px] text-ink font-medium block">{t('timer_label')}</span>
+              <span className="text-[12px] text-muted">{timed ? t('timer_limit_on_hint', { sec: settings.duration_sec }) : t('timer_limit_off_hint')}</span>
+            </div>
+            <Switch checked={timed} onChange={p.onToggleTimer} label={t('timer_label')} stateOnText={t('timer_on')} stateOffText={t('timer_off')} />
+          </div>
+          <div className="mb-6" />
         </>
       )}
 
@@ -404,45 +410,49 @@ function SetupScreen(p: any) {
 }
 
 function PlayScreen(p: any) {
-  const { t, question, picked, revealed, score, combo, timed, timeLeft, answered, total, reduceMotion } = p
+  const { t, question, picked, revealed, score, combo, timed, timeLeft, durationSec, answered, total, reduceMotion } = p
   const q: ClientQuestion = question
-  const pct = timed ? Math.max(0, Math.min(100, (timeLeft / 60) * 100)) : 100
+  const dur = durationSec || 60
+  const pct = timed ? Math.max(0, Math.min(100, (timeLeft / dur) * 100)) : 100
   const danger = timed && timeLeft <= 10
+  const pres = questionPresentation(q.qType)
+  // Long prompts (cleaned glosses, sentences) shrink; short prompts (kanji/word) stay large.
+  const promptSize = q.prompt.length > 28 ? 'clamp(18px, 4.5vw, 26px)' : 'clamp(26px, 7vw, 40px)'
 
   return (
-    <div className="fixed inset-0 z-50 bg-cream flex flex-col" style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
-      {/* top bar */}
-      <div className="shrink-0 px-4 pt-3 pb-2">
-        <div className="flex items-center justify-between mb-2">
-          <button onClick={p.onExit} aria-label={t('back')} className="w-9 h-9 rounded-full bg-paper border border-line flex items-center justify-center text-ink hover:border-rose/40">✕</button>
-          <div className="flex items-center gap-3">
-            <Stat label={t('score')} value={score} />
+    <div className="fixed inset-0 z-[130] bg-cream flex flex-col" style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
+      {/* top status bar */}
+      <div className="shrink-0 px-4 pt-3 pb-2 border-b border-line/60">
+        <div className="flex items-center justify-between gap-3 mb-2">
+          <button onClick={p.onExit} aria-label={t('back')} className="w-10 h-10 -ml-1 rounded-full flex items-center justify-center text-ink hover:bg-ink/5">✕</button>
+          <div className="flex items-center gap-3 sm:gap-4">
             {combo >= 2 && (
               <span className={`text-[13px] font-bold text-gold ${reduceMotion ? '' : 'animate-pulse'}`} aria-label={`${t('combo')} ${combo}`}>×{(1 + Math.min(1, (combo - 1) * 0.1)).toFixed(1)} 🔥</span>
             )}
-            {total > 0 && <span className="text-[13px] text-muted tabular-nums">{answered}/{total}</span>}
+            {total > 0 && <span className="text-[13px] text-muted tabular-nums" aria-label={`${answered}/${total}`}>{answered}/{total}</span>}
+            <span className="text-[15px] font-bold text-rose tabular-nums" aria-label={`${t('score')} ${score}`}>{score}</span>
+            {timed && <span className={`text-[15px] font-bold tabular-nums w-8 text-right ${danger ? 'text-rose' : 'text-ink'}`} role="timer" aria-label={`${t('time_left')} ${timeLeft}`}>{timeLeft}</span>}
           </div>
         </div>
-        {timed ? (
-          <div className="h-2 rounded-full bg-line overflow-hidden" role="timer" aria-label={`${t('time_left')} ${timeLeft}`}>
-            <div className={`h-full rounded-full transition-[width] duration-300 ease-linear ${danger ? 'bg-rose' : 'bg-teal'}`} style={{ width: `${pct}%` }} />
-          </div>
-        ) : (
-          <div className="h-2 rounded-full bg-line overflow-hidden">
-            <div className="h-full bg-teal transition-[width]" style={{ width: total ? `${(answered / total) * 100}%` : '0%' }} />
-          </div>
-        )}
+        <div className="h-1.5 rounded-full bg-line overflow-hidden">
+          <div className={`h-full rounded-full transition-[width] duration-300 ease-linear ${timed ? (danger ? 'bg-rose' : 'bg-teal') : 'bg-teal'}`}
+            style={{ width: timed ? `${pct}%` : total ? `${(answered / total) * 100}%` : '0%' }} />
+        </div>
       </div>
 
-      {/* question */}
-      <div className="flex-1 flex flex-col justify-center px-5 min-h-0 overflow-y-auto">
-        <div className="text-center mb-6">
-          <p className="text-[11px] uppercase tracking-wide text-muted mb-3">{t('question_n', { n: answered + 1 })}</p>
-          <p className="font-serif font-bold text-ink leading-snug" style={{ fontSize: 'clamp(24px, 7vw, 40px)' }}>{q.prompt}</p>
-          {q.promptSub && <p className="text-[15px] text-muted mt-2">{q.promptSub}</p>}
-        </div>
+      {/* question + answers — centered in a compact card, not floating in a void */}
+      <div className="flex-1 flex flex-col justify-center px-4 py-4 min-h-0 overflow-y-auto">
+        <div className="w-full max-w-[480px] mx-auto">
+          <div className="bg-paper border border-line rounded-2xl shadow-card px-5 py-6 text-center mb-4">
+            <div className="flex items-center justify-center gap-2 mb-3">
+              <span className="text-[10px] font-bold uppercase tracking-[1.5px] text-rose bg-rose/10 px-2.5 py-1 rounded-full">{t(pres.labelKey)}</span>
+            </div>
+            <p className="text-[13px] text-muted mb-3 leading-snug">{t(pres.instrKey)}</p>
+            <p className="font-serif font-bold text-ink leading-snug break-words" lang={isJapanesePrompt(q.qType) ? 'ja' : undefined} style={{ fontSize: promptSize }}>{q.prompt}</p>
+            {q.promptSub && <p className="text-[15px] text-muted mt-2" lang="ja">{q.promptSub}</p>}
+          </div>
 
-        <div className="grid grid-cols-1 gap-2.5 max-w-[460px] w-full mx-auto" role="group">
+          <div className="grid grid-cols-1 gap-2.5" role="group" aria-label={t(pres.instrKey)}>
           {q.options.map((o) => {
             const isPicked = picked === o.key
             const isCorrectKey = revealed?.correctKey === o.key
@@ -466,11 +476,12 @@ function PlayScreen(p: any) {
               </button>
             )
           })}
+          </div>
         </div>
       </div>
 
-      <div className="shrink-0 px-5 py-3 text-center">
-        <button onClick={() => p.onAnswer(null)} disabled={!!revealed} className="text-[13px] text-muted hover:text-ink disabled:opacity-40">{t('skip')}</button>
+      <div className="shrink-0 px-5 py-3 text-center" style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}>
+        <button onClick={() => p.onAnswer(null)} disabled={!!revealed} className="text-[13px] text-muted hover:text-ink disabled:opacity-40 min-h-[44px] px-4">{t('skip')}</button>
       </div>
 
       {p.exitOpen && (
@@ -691,6 +702,13 @@ function usePrefersReducedMotion() {
     return () => m.removeEventListener('change', h)
   }, [])
   return reduce
+}
+
+// Prompts that display Japanese script (so we can tag lang="ja" for correct font).
+function isJapanesePrompt(qType: string): boolean {
+  return qType === 'vocab_ja_to_meaning' || qType === 'vocab_reading' ||
+    qType === 'kanji_to_meaning' || qType === 'kanji_reading' || qType === 'grammar_blank' ||
+    qType === 'grammar_pattern_to_meaning'
 }
 
 function mapError(err?: string): string {

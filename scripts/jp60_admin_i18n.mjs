@@ -15,6 +15,7 @@ const T = {
     reports: 'Question reports', no_reports: 'No open reports', reason: 'Reason', note: 'Note',
     mark_reviewed: 'Mark reviewed', dismiss: 'Dismiss', disable_item: 'Disable from game',
     disabled_items: 'Disabled items', invalidate: 'Invalidate session', enable: 'Enabled', disable: 'Disabled',
+    preview: 'Question preview', preview_generate: 'Generate another', raw_source: 'Raw source', expected: 'Expected', q_type: 'Type', preview_level: 'Level',
   },
   vi: {
     title: 'Thử thách 60 giây', breadcrumb: 'Game JP 60s', back: 'Về trang admin',
@@ -25,6 +26,7 @@ const T = {
     reports: 'Báo lỗi câu hỏi', no_reports: 'Không có báo lỗi', reason: 'Lý do', note: 'Ghi chú',
     mark_reviewed: 'Đã xử lý', dismiss: 'Bỏ qua', disable_item: 'Loại khỏi game',
     disabled_items: 'Mục đã loại', invalidate: 'Vô hiệu phiên', enable: 'Bật', disable: 'Tắt',
+    preview: 'Xem trước câu hỏi', preview_generate: 'Tạo bộ khác', raw_source: 'Nguồn gốc', expected: 'Đáp án', q_type: 'Loại', preview_level: 'Cấp độ',
   },
   ja: {
     title: '60秒チャレンジ', breadcrumb: 'JP 60sゲーム', back: '管理に戻る',
@@ -35,6 +37,7 @@ const T = {
     reports: '問題の報告', no_reports: '未対応の報告なし', reason: '理由', note: 'メモ',
     mark_reviewed: '対応済みにする', dismiss: '却下', disable_item: 'ゲームから除外',
     disabled_items: '除外項目', invalidate: 'セッション無効化', enable: '有効', disable: '無効',
+    preview: '問題プレビュー', preview_generate: '別のセットを生成', raw_source: '元データ', expected: '正解', q_type: '種類', preview_level: 'レベル',
   },
   ko: {
     title: '60초 챌린지', breadcrumb: 'JP 60s 게임', back: '관리로 돌아가기',
@@ -45,6 +48,7 @@ const T = {
     reports: '문제 신고', no_reports: '대기 중인 신고 없음', reason: '사유', note: '메모',
     mark_reviewed: '검토 완료', dismiss: '무시', disable_item: '게임에서 제외',
     disabled_items: '제외 항목', invalidate: '세션 무효화', enable: '활성', disable: '비활성',
+    preview: '문제 미리보기', preview_generate: '다른 세트 생성', raw_source: '원본 데이터', expected: '정답', q_type: '유형', preview_level: '레벨',
   },
   zh: {
     title: '60秒挑战', breadcrumb: 'JP 60s游戏', back: '返回管理',
@@ -55,6 +59,7 @@ const T = {
     reports: '问题报告', no_reports: '没有待处理报告', reason: '原因', note: '备注',
     mark_reviewed: '标记已处理', dismiss: '忽略', disable_item: '从游戏中禁用',
     disabled_items: '已禁用项', invalidate: '作废场次', enable: '启用', disable: '禁用',
+    preview: '题目预览', preview_generate: '生成另一组', raw_source: '原始数据', expected: '答案', q_type: '类型', preview_level: '级别',
   },
 }
 

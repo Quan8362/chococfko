@@ -1985,7 +1985,7 @@
       "level_all": "Tất cả cấp độ",
       "practice_count_title": "Bao nhiêu câu hỏi?",
       "count_questions": "{count} câu hỏi",
-      "timer_label": "Hẹn giờ",
+      "timer_label": "Giới hạn thời gian",
       "timer_on": "Bật",
       "timer_off": "Tắt",
       "start_btn": "Bắt đầu",
@@ -2196,7 +2196,23 @@
           "title": "Nhà vô địch",
           "desc": "Thắng một trận thách đấu bạn bè"
         }
-      }
+      },
+      "timer_limit_on_hint": "Đếm ngược {sec} giây",
+      "timer_limit_off_hint": "Không giới hạn thời gian — trả lời tùy nhịp của bạn",
+      "q_label_meaning": "Từ vựng",
+      "q_label_reading": "Cách đọc",
+      "q_label_kanji": "Kanji",
+      "q_label_sentence": "Hoàn thành câu",
+      "q_label_grammar": "Ngữ pháp",
+      "q_instr_ja_to_meaning": "Từ sau có nghĩa là gì?",
+      "q_instr_meaning_to_ja": "Chọn từ phù hợp với nghĩa sau:",
+      "q_instr_reading": "Cách đọc đúng của từ sau là gì?",
+      "q_instr_kanji_meaning": "Chữ Kanji sau có nghĩa chính là gì?",
+      "q_instr_meaning_to_kanji": "Chọn chữ Kanji phù hợp với nghĩa sau:",
+      "q_instr_kanji_reading": "Cách đọc đúng của chữ Kanji sau là gì?",
+      "q_instr_grammar_meaning": "Mẫu ngữ pháp sau có nghĩa là gì?",
+      "q_instr_grammar_pattern": "Chọn mẫu ngữ pháp phù hợp nhất:",
+      "q_instr_sentence": "Chọn đáp án phù hợp để hoàn thành câu:"
     }
   },
   "notifications": {
@@ -3249,6 +3265,12 @@
     "disabled_items": "Mục đã loại",
     "invalidate": "Vô hiệu phiên",
     "enable": "Bật",
-    "disable": "Tắt"
+    "disable": "Tắt",
+    "preview": "Xem trước câu hỏi",
+    "preview_generate": "Tạo bộ khác",
+    "raw_source": "Nguồn gốc",
+    "expected": "Đáp án",
+    "q_type": "Loại",
+    "preview_level": "Cấp độ"
   }
 }

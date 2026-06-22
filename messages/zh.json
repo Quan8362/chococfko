@@ -1985,7 +1985,7 @@
       "level_all": "全部级别",
       "practice_count_title": "多少题？",
       "count_questions": "{count}题",
-      "timer_label": "计时",
+      "timer_label": "时间限制",
       "timer_on": "开",
       "timer_off": "关",
       "start_btn": "开始",
@@ -2196,7 +2196,23 @@
           "title": "冠军",
           "desc": "赢得好友挑战"
         }
-      }
+      },
+      "timer_limit_on_hint": "倒计时{sec}秒",
+      "timer_limit_off_hint": "不限时间 — 按自己的节奏作答",
+      "q_label_meaning": "词汇",
+      "q_label_reading": "读音",
+      "q_label_kanji": "汉字",
+      "q_label_sentence": "完成句子",
+      "q_label_grammar": "语法",
+      "q_instr_ja_to_meaning": "这个词是什么意思？",
+      "q_instr_meaning_to_ja": "选择与此意思相符的词：",
+      "q_instr_reading": "这个词的正确读音是？",
+      "q_instr_kanji_meaning": "这个汉字的主要意思是？",
+      "q_instr_meaning_to_kanji": "选择与此意思相符的汉字：",
+      "q_instr_kanji_reading": "这个汉字的正确读音是？",
+      "q_instr_grammar_meaning": "这个语法的意思是？",
+      "q_instr_grammar_pattern": "选择最合适的语法：",
+      "q_instr_sentence": "选择能完成句子的答案："
     }
   },
   "notifications": {
@@ -3249,6 +3265,12 @@
     "disabled_items": "已禁用项",
     "invalidate": "作废场次",
     "enable": "启用",
-    "disable": "禁用"
+    "disable": "禁用",
+    "preview": "题目预览",
+    "preview_generate": "生成另一组",
+    "raw_source": "原始数据",
+    "expected": "答案",
+    "q_type": "类型",
+    "preview_level": "级别"
   }
 }

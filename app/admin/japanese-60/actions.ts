@@ -57,6 +57,66 @@ export async function disableJp60Item(sourceType: string, sourceId: string, reas
   return { ok: true }
 }
 
+export type PreviewQuestion = {
+  qType: string
+  sourceType: string
+  sourceId: string
+  prompt: string
+  promptSub: string | null
+  options: { key: string; text: string }[]
+  correctKey: string
+  difficulty: string
+  rawSource: string | null // admin-only: raw gloss/source to verify cleaning
+}
+
+// Admin-only preview of freshly generated questions for a level. Includes the
+// correct answer + raw source value — this NEVER goes through the public game.
+export async function previewJp60Questions(level: string, count = 8): Promise<{ ok: boolean; questions?: PreviewQuestion[] }> {
+  if (!(await checkIsAdmin())) return { ok: false }
+  const admin = createAdminClient()
+  const { generateQuestions } = await import('@/lib/games/jp60/generate')
+  const n = Math.min(20, Math.max(1, Math.floor(count)))
+  let qs
+  try {
+    qs = await generateQuestions(admin, { level: level as any, count: n, locale: 'vi' })
+  } catch {
+    return { ok: false }
+  }
+
+  // Fetch raw source values (admin-only) so the cleaning can be visually verified.
+  const raw = new Map<string, string>()
+  const byType: Record<string, string[]> = { vocabulary: [], kanji: [], grammar: [] }
+  for (const q of qs) if (byType[q.sourceType]) byType[q.sourceType].push(q.sourceId)
+  const fetchRaw = async (type: string, table: string, col: string) => {
+    if (!byType[type]?.length) return
+    const { data } = await admin.from(table).select(`id,${col}`).in('id', byType[type])
+    for (const r of (data ?? []) as any[]) {
+      const v = type === 'grammar' ? (r.meaning_vi ?? r.meaning_en) : (Array.isArray(r[col]) ? (r[col][0]?.vi ?? r[col][0]?.en ?? '') : '')
+      raw.set(`${type}:${r.id}`, String(v ?? ''))
+    }
+  }
+  await Promise.all([
+    fetchRaw('vocabulary', 'japanese_words', 'meanings'),
+    fetchRaw('kanji', 'japanese_kanji', 'meanings'),
+    fetchRaw('grammar', 'japanese_grammar', 'meaning_vi'),
+  ])
+
+  return {
+    ok: true,
+    questions: qs.map((q) => ({
+      qType: q.qType,
+      sourceType: q.sourceType,
+      sourceId: q.sourceId,
+      prompt: q.prompt,
+      promptSub: q.promptSub,
+      options: q.options,
+      correctKey: q.correctKey,
+      difficulty: q.difficulty,
+      rawSource: raw.get(`${q.sourceType}:${q.sourceId}`) ?? null,
+    })),
+  }
+}
+
 export async function invalidateJp60Session(sessionId: string): Promise<{ ok: boolean }> {
   if (!(await checkIsAdmin())) return { ok: false }
   const admin = createAdminClient()

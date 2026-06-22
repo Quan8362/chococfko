@@ -1985,7 +1985,7 @@
       "level_all": "全レベル",
       "practice_count_title": "問題数は？",
       "count_questions": "{count}問",
-      "timer_label": "タイマー",
+      "timer_label": "制限時間",
       "timer_on": "オン",
       "timer_off": "オフ",
       "start_btn": "スタート",
@@ -2196,7 +2196,23 @@
           "title": "チャンピオン",
           "desc": "フレンドチャレンジに勝利"
         }
-      }
+      },
+      "timer_limit_on_hint": "{sec}秒のカウントダウン",
+      "timer_limit_off_hint": "時間制限なし — 自分のペースで解答",
+      "q_label_meaning": "語彙",
+      "q_label_reading": "読み方",
+      "q_label_kanji": "漢字",
+      "q_label_sentence": "文を完成",
+      "q_label_grammar": "文法",
+      "q_instr_ja_to_meaning": "この単語の意味は？",
+      "q_instr_meaning_to_ja": "この意味に合う単語を選んでください：",
+      "q_instr_reading": "この単語の正しい読み方は？",
+      "q_instr_kanji_meaning": "この漢字の主な意味は？",
+      "q_instr_meaning_to_kanji": "この意味に合う漢字を選んでください：",
+      "q_instr_kanji_reading": "この漢字の正しい読み方は？",
+      "q_instr_grammar_meaning": "この文法の意味は？",
+      "q_instr_grammar_pattern": "最も適切な文法を選んでください：",
+      "q_instr_sentence": "文を完成させる答えを選んでください："
     }
   },
   "notifications": {
@@ -3249,6 +3265,12 @@
     "disabled_items": "除外項目",
     "invalidate": "セッション無効化",
     "enable": "有効",
-    "disable": "無効"
+    "disable": "無効",
+    "preview": "問題プレビュー",
+    "preview_generate": "別のセットを生成",
+    "raw_source": "元データ",
+    "expected": "正解",
+    "q_type": "種類",
+    "preview_level": "レベル"
   }
 }

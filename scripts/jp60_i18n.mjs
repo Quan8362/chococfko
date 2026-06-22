@@ -460,11 +460,87 @@ const BASE = {
   },
 }
 
+// Question-type labels + per-type instructions + clearer timer wording.
+// Merged over BASE (overrides timer_label) so the prompt always tells the user
+// what to do (fixes the "CÂU 5 with no instruction" defect).
+const QKEYS = {
+  en: {
+    timer_label: 'Time limit',
+    timer_limit_on_hint: 'Counts down {sec}s', timer_limit_off_hint: 'No time limit — answer at your own pace',
+    q_label_meaning: 'Vocabulary', q_label_reading: 'Reading', q_label_kanji: 'Kanji', q_label_sentence: 'Complete the sentence', q_label_grammar: 'Grammar',
+    q_instr_ja_to_meaning: 'What does this word mean?',
+    q_instr_meaning_to_ja: 'Choose the word that matches this meaning:',
+    q_instr_reading: 'What is the correct reading of this word?',
+    q_instr_kanji_meaning: 'What is the main meaning of this kanji?',
+    q_instr_meaning_to_kanji: 'Choose the kanji that matches this meaning:',
+    q_instr_kanji_reading: 'What is the correct reading of this kanji?',
+    q_instr_grammar_meaning: 'What does this grammar pattern mean?',
+    q_instr_grammar_pattern: 'Choose the most appropriate grammar pattern:',
+    q_instr_sentence: 'Choose the option that best completes the sentence:',
+  },
+  vi: {
+    timer_label: 'Giới hạn thời gian',
+    timer_limit_on_hint: 'Đếm ngược {sec} giây', timer_limit_off_hint: 'Không giới hạn thời gian — trả lời tùy nhịp của bạn',
+    q_label_meaning: 'Từ vựng', q_label_reading: 'Cách đọc', q_label_kanji: 'Kanji', q_label_sentence: 'Hoàn thành câu', q_label_grammar: 'Ngữ pháp',
+    q_instr_ja_to_meaning: 'Từ sau có nghĩa là gì?',
+    q_instr_meaning_to_ja: 'Chọn từ phù hợp với nghĩa sau:',
+    q_instr_reading: 'Cách đọc đúng của từ sau là gì?',
+    q_instr_kanji_meaning: 'Chữ Kanji sau có nghĩa chính là gì?',
+    q_instr_meaning_to_kanji: 'Chọn chữ Kanji phù hợp với nghĩa sau:',
+    q_instr_kanji_reading: 'Cách đọc đúng của chữ Kanji sau là gì?',
+    q_instr_grammar_meaning: 'Mẫu ngữ pháp sau có nghĩa là gì?',
+    q_instr_grammar_pattern: 'Chọn mẫu ngữ pháp phù hợp nhất:',
+    q_instr_sentence: 'Chọn đáp án phù hợp để hoàn thành câu:',
+  },
+  ja: {
+    timer_label: '制限時間',
+    timer_limit_on_hint: '{sec}秒のカウントダウン', timer_limit_off_hint: '時間制限なし — 自分のペースで解答',
+    q_label_meaning: '語彙', q_label_reading: '読み方', q_label_kanji: '漢字', q_label_sentence: '文を完成', q_label_grammar: '文法',
+    q_instr_ja_to_meaning: 'この単語の意味は？',
+    q_instr_meaning_to_ja: 'この意味に合う単語を選んでください：',
+    q_instr_reading: 'この単語の正しい読み方は？',
+    q_instr_kanji_meaning: 'この漢字の主な意味は？',
+    q_instr_meaning_to_kanji: 'この意味に合う漢字を選んでください：',
+    q_instr_kanji_reading: 'この漢字の正しい読み方は？',
+    q_instr_grammar_meaning: 'この文法の意味は？',
+    q_instr_grammar_pattern: '最も適切な文法を選んでください：',
+    q_instr_sentence: '文を完成させる答えを選んでください：',
+  },
+  ko: {
+    timer_label: '시간 제한',
+    timer_limit_on_hint: '{sec}초 카운트다운', timer_limit_off_hint: '시간 제한 없음 — 자신의 속도로 답하기',
+    q_label_meaning: '어휘', q_label_reading: '읽기', q_label_kanji: '한자', q_label_sentence: '문장 완성', q_label_grammar: '문법',
+    q_instr_ja_to_meaning: '이 단어의 뜻은?',
+    q_instr_meaning_to_ja: '이 뜻에 맞는 단어를 고르세요:',
+    q_instr_reading: '이 단어의 올바른 읽기는?',
+    q_instr_kanji_meaning: '이 한자의 주요 뜻은?',
+    q_instr_meaning_to_kanji: '이 뜻에 맞는 한자를 고르세요:',
+    q_instr_kanji_reading: '이 한자의 올바른 읽기는?',
+    q_instr_grammar_meaning: '이 문법의 뜻은?',
+    q_instr_grammar_pattern: '가장 적절한 문법을 고르세요:',
+    q_instr_sentence: '문장을 완성할 답을 고르세요:',
+  },
+  zh: {
+    timer_label: '时间限制',
+    timer_limit_on_hint: '倒计时{sec}秒', timer_limit_off_hint: '不限时间 — 按自己的节奏作答',
+    q_label_meaning: '词汇', q_label_reading: '读音', q_label_kanji: '汉字', q_label_sentence: '完成句子', q_label_grammar: '语法',
+    q_instr_ja_to_meaning: '这个词是什么意思？',
+    q_instr_meaning_to_ja: '选择与此意思相符的词：',
+    q_instr_reading: '这个词的正确读音是？',
+    q_instr_kanji_meaning: '这个汉字的主要意思是？',
+    q_instr_meaning_to_kanji: '选择与此意思相符的汉字：',
+    q_instr_kanji_reading: '这个汉字的正确读音是？',
+    q_instr_grammar_meaning: '这个语法的意思是？',
+    q_instr_grammar_pattern: '选择最合适的语法：',
+    q_instr_sentence: '选择能完成句子的答案：',
+  },
+}
+
 for (const locale of ['vi', 'en', 'ja', 'ko', 'zh']) {
   const file = join(root, `${locale}.json`)
   const json = JSON.parse(readFileSync(file, 'utf8'))
   json.games = json.games || {}
-  json.games.jp60 = BASE[locale]
+  json.games.jp60 = { ...BASE[locale], ...QKEYS[locale] }
   writeFileSync(file, JSON.stringify(json, null, 2) + '\n', 'utf8')
-  console.log(`updated ${locale}.json (games.jp60: ${Object.keys(BASE[locale]).length} keys)`)
+  console.log(`updated ${locale}.json (games.jp60: ${Object.keys(json.games.jp60).length} keys)`)
 }

@@ -1985,7 +1985,7 @@
       "level_all": "전체 레벨",
       "practice_count_title": "문제 수는?",
       "count_questions": "{count}문제",
-      "timer_label": "타이머",
+      "timer_label": "시간 제한",
       "timer_on": "켜기",
       "timer_off": "끄기",
       "start_btn": "시작",
@@ -2196,7 +2196,23 @@
           "title": "챔피언",
           "desc": "친구 챌린지 승리"
         }
-      }
+      },
+      "timer_limit_on_hint": "{sec}초 카운트다운",
+      "timer_limit_off_hint": "시간 제한 없음 — 자신의 속도로 답하기",
+      "q_label_meaning": "어휘",
+      "q_label_reading": "읽기",
+      "q_label_kanji": "한자",
+      "q_label_sentence": "문장 완성",
+      "q_label_grammar": "문법",
+      "q_instr_ja_to_meaning": "이 단어의 뜻은?",
+      "q_instr_meaning_to_ja": "이 뜻에 맞는 단어를 고르세요:",
+      "q_instr_reading": "이 단어의 올바른 읽기는?",
+      "q_instr_kanji_meaning": "이 한자의 주요 뜻은?",
+      "q_instr_meaning_to_kanji": "이 뜻에 맞는 한자를 고르세요:",
+      "q_instr_kanji_reading": "이 한자의 올바른 읽기는?",
+      "q_instr_grammar_meaning": "이 문법의 뜻은?",
+      "q_instr_grammar_pattern": "가장 적절한 문법을 고르세요:",
+      "q_instr_sentence": "문장을 완성할 답을 고르세요:"
     }
   },
   "notifications": {
@@ -3249,6 +3265,12 @@
     "disabled_items": "제외 항목",
     "invalidate": "세션 무효화",
     "enable": "활성",
-    "disable": "비활성"
+    "disable": "비활성",
+    "preview": "문제 미리보기",
+    "preview_generate": "다른 세트 생성",
+    "raw_source": "원본 데이터",
+    "expected": "정답",
+    "q_type": "유형",
+    "preview_level": "레벨"
   }
 }

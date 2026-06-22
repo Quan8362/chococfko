@@ -1985,7 +1985,7 @@
       "level_all": "All levels",
       "practice_count_title": "How many questions?",
       "count_questions": "{count} questions",
-      "timer_label": "Timer",
+      "timer_label": "Time limit",
       "timer_on": "On",
       "timer_off": "Off",
       "start_btn": "Start",
@@ -2196,7 +2196,23 @@
           "title": "Champion",
           "desc": "Win a friend challenge"
         }
-      }
+      },
+      "timer_limit_on_hint": "Counts down {sec}s",
+      "timer_limit_off_hint": "No time limit — answer at your own pace",
+      "q_label_meaning": "Vocabulary",
+      "q_label_reading": "Reading",
+      "q_label_kanji": "Kanji",
+      "q_label_sentence": "Complete the sentence",
+      "q_label_grammar": "Grammar",
+      "q_instr_ja_to_meaning": "What does this word mean?",
+      "q_instr_meaning_to_ja": "Choose the word that matches this meaning:",
+      "q_instr_reading": "What is the correct reading of this word?",
+      "q_instr_kanji_meaning": "What is the main meaning of this kanji?",
+      "q_instr_meaning_to_kanji": "Choose the kanji that matches this meaning:",
+      "q_instr_kanji_reading": "What is the correct reading of this kanji?",
+      "q_instr_grammar_meaning": "What does this grammar pattern mean?",
+      "q_instr_grammar_pattern": "Choose the most appropriate grammar pattern:",
+      "q_instr_sentence": "Choose the option that best completes the sentence:"
     }
   },
   "notifications": {
@@ -3249,6 +3265,12 @@
     "disabled_items": "Disabled items",
     "invalidate": "Invalidate session",
     "enable": "Enabled",
-    "disable": "Disabled"
+    "disable": "Disabled",
+    "preview": "Question preview",
+    "preview_generate": "Generate another",
+    "raw_source": "Raw source",
+    "expected": "Expected",
+    "q_type": "Type",
+    "preview_level": "Level"
   }
 }

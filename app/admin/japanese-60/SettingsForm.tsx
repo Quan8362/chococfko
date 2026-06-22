@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { saveJp60Settings } from './actions'
+import { Switch } from '@/app/games/japanese-60/Switch'
 import type { Jp60Settings } from '@/app/games/japanese-60/actions'
 
 export function SettingsForm({ initial }: { initial: Jp60Settings }) {
@@ -20,13 +21,10 @@ export function SettingsForm({ initial }: { initial: Jp60Settings }) {
   }
 
   const Toggle = ({ on, onClick, label }: { on: boolean; onClick: () => void; label: string }) => (
-    <label className="flex items-center justify-between gap-3 py-1.5">
+    <div className="flex items-center justify-between gap-3 py-1.5 min-h-[44px]">
       <span className="text-[14px] text-ink">{label}</span>
-      <button type="button" role="switch" aria-checked={on} onClick={onClick}
-        className={`w-11 h-6 rounded-full relative transition-colors ${on ? 'bg-rose' : 'bg-line'}`}>
-        <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full transition-transform ${on ? 'translate-x-5' : 'translate-x-0.5'}`} />
-      </button>
-    </label>
+      <Switch checked={on} onChange={onClick} label={label} stateOnText={t('enable')} stateOffText={t('disable')} />
+    </div>
   )
 
   return (

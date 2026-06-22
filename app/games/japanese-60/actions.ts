@@ -155,9 +155,25 @@ export async function startJp60Session(input: StartInput): Promise<StartResult> 
     if (existing) ranked = false // replay allowed but unranked
   }
 
+  // Recent-exposure: for logged-in, non-deterministic sessions, down-weight the
+  // source items this user has seen most recently (deterministic daily/challenge
+  // sets are intentionally NOT filtered — everyone must get the same questions).
+  let excludeSourceIds: Set<string> | undefined
+  if (user && seed == null) {
+    try {
+      const { data: recent } = await admin
+        .from('jp60_answers')
+        .select('source_type,source_id')
+        .eq('user_id', user.id)
+        .order('answered_at', { ascending: false })
+        .limit(150)
+      excludeSourceIds = new Set((recent ?? []).map((r: { source_type: string; source_id: string }) => `${r.source_type}:${r.source_id}`))
+    } catch { /* migration may be pending — fall back to no exclusion */ }
+  }
+
   let generated: ServerQuestion[]
   try {
-    generated = await generateQuestions(admin, { level: effLevel, count, locale, seed })
+    generated = await generateQuestions(admin, { level: effLevel, count, locale, seed, excludeSourceIds })
   } catch {
     return { ok: false, error: 'generation_failed' }
   }

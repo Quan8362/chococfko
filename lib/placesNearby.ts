@@ -3,7 +3,13 @@
 // not by shipping every coordinate to the browser. Falls back to a server-side
 // haversine over the catalog when the function isn't present yet (pre-migration).
 import { haversineKm } from './geo.ts';
+import { hasValidCoordinates } from './coordinates.ts';
+import { pointInViewport } from './placeLocation.ts';
+import { normalizeText } from './placeSearch.ts';
 import { getAllPlacesFromDb, places as staticPlaces, type Place } from './places.ts';
+
+export interface ViewportBounds { north: number; south: number; east: number; west: number }
+export interface InBoundsQuery { category?: string | null; q?: string | null; limit?: number }
 
 export interface NearbyPlace {
   slug: string;
@@ -72,9 +78,11 @@ async function nearbyFallback(center: { lat: number; lng: number }, radiusKm: nu
   const all = (await getAllPlacesFromDb()) ?? staticPlaces;
   const out: NearbyPlace[] = [];
   for (const p of all) {
-    if (typeof p.lat !== 'number' || typeof p.lng !== 'number') continue;
+    // Exclude rows without a VALID coordinate pair (NULL/NaN/out-of-range). The
+    // server RPC applies the same rule via `lat/lng IS NOT NULL` + range CHECK.
+    if (!hasValidCoordinates(p)) continue;
     if (p.searchEligible === false) continue;
-    const d = haversineKm(center, { lat: p.lat, lng: p.lng });
+    const d = haversineKm(center, { lat: p.lat as number, lng: p.lng as number });
     if (d <= radiusKm) out.push(placeToNearby(p, d));
   }
   out.sort((a, b) => a.distanceKm - b.distanceKm);
@@ -94,4 +102,49 @@ export async function getNearbyPlaces(center: { lat: number; lng: number }, radi
     /* fall through to server-side fallback */
   }
   return nearbyFallback(center, radiusKm, maxResults);
+}
+
+/** Pure: filter+rank a catalog to a viewport (shared by the fallback & tests). */
+export function placesWithinBounds(all: Place[], bounds: ViewportBounds, query: InBoundsQuery = {}): NearbyPlace[] {
+  const cat = (query.category ?? '').trim();
+  const qNorm = query.q ? normalizeText(query.q) : '';
+  const center = { lat: (bounds.north + bounds.south) / 2, lng: (bounds.east + bounds.west) / 2 };
+  const out: NearbyPlace[] = [];
+  for (const p of all) {
+    if (!hasValidCoordinates(p)) continue;
+    if (p.searchEligible === false) continue;
+    if (!pointInViewport(bounds, { lat: p.lat as number, lng: p.lng as number })) continue;
+    if (cat && p.category !== cat) continue;
+    if (qNorm && !normalizeText(`${p.name} ${p.area} ${p.categoryLabel}`).includes(qNorm)) continue;
+    out.push(placeToNearby(p, haversineKm(center, { lat: p.lat as number, lng: p.lng as number })));
+  }
+  // Closest to the viewport centre first (stable, sensible default ordering).
+  out.sort((a, b) => a.distanceKm - b.distanceKm);
+  return out.slice(0, Math.min(Math.max(query.limit ?? 200, 1), 500));
+}
+
+/**
+ * Places inside a viewport rectangle. Tries the DB function `places_in_bbox`
+ * (indexed, scalable); falls back to a server-side filter over the catalog when
+ * the function isn't present (pre-migration). Coordinates never reach the client
+ * for places outside the box. Published + search-eligible only.
+ */
+export async function getPlacesInBounds(bounds: ViewportBounds, query: InBoundsQuery = {}): Promise<NearbyPlace[]> {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return [];
+  const limit = Math.min(Math.max(query.limit ?? 200, 1), 500);
+  try {
+    const { createPublicClient } = await import('@/lib/supabase/public');
+    const sb = createPublicClient();
+    const { data, error } = await sb.rpc('places_in_bbox', {
+      min_lat: bounds.south, max_lat: bounds.north, min_lng: bounds.west, max_lng: bounds.east,
+      filter_category: (query.category ?? '').trim() || null,
+      search_query: (query.q ?? '').trim() || null,
+      max_results: limit,
+    });
+    if (!error && Array.isArray(data)) return (data as DbRow[]).map(mapRow);
+  } catch {
+    /* fall through to server-side fallback */
+  }
+  const all = (await getAllPlacesFromDb()) ?? staticPlaces;
+  return placesWithinBounds(all, bounds, { ...query, limit });
 }

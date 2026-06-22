@@ -80,20 +80,11 @@ export function normalizePhone(raw: string | null | undefined): { display: strin
 }
 
 // ── Coordinate validation ───────────────────────────────────────────
-export function isValidCoordinate(lat: unknown, lng: unknown): boolean {
-  return (
-    typeof lat === 'number' && typeof lng === 'number' &&
-    Number.isFinite(lat) && Number.isFinite(lng) &&
-    lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180
-  );
-}
-
-/** Rough bounding box of Japan — flags coordinates likely entered wrong. */
-export function isInJapanBounds(lat: unknown, lng: unknown): boolean {
-  return isValidCoordinate(lat, lng) &&
-    (lat as number) >= 20 && (lat as number) <= 46 &&
-    (lng as number) >= 122 && (lng as number) <= 154;
-}
+// Canonical coordinate model lives in ./coordinates. Re-exported here so the
+// many existing importers (admin action, dataQuality, tests) keep working while
+// there is ONE source of truth for what a valid lat/lng is.
+export { isValidCoordinate, isInJapanBounds, coordinateWarnings } from './coordinates.ts';
+import { coordinateWarnings } from './coordinates.ts';
 
 // ── Price range validation ──────────────────────────────────────────
 export interface PriceInput {
@@ -254,12 +245,16 @@ export interface CompletenessInput {
  * but useful information. NEVER blocks publishing — purely advisory.
  */
 export function placeCompletenessWarnings(p: CompletenessInput): string[] {
-  const warnings: string[] = [];
   const rel = categoryFieldRelevance(p.category);
-  const hasCoords = isValidCoordinate(p.lat ?? undefined, p.lng ?? undefined);
 
-  if (!p.mapUrl && !hasCoords && !p.address?.trim()) warnings.push('missing_location');
-  if (!hasCoords) warnings.push('missing_coordinates');
+  // Coordinate-related warnings come from the canonical helper (shared with the
+  // live Admin field so they can never disagree).
+  const warnings: string[] = coordinateWarnings({
+    lat: p.lat ?? null,
+    lng: p.lng ?? null,
+    hasMapUrl: !!p.mapUrl,
+    hasAddress: !!p.address?.trim(),
+  });
 
   if (rel.hours) {
     const hasHours =

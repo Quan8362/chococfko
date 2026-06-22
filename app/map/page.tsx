@@ -1,11 +1,16 @@
 import loadDynamic from 'next/dynamic'
 import { getTranslations } from 'next-intl/server'
 import { getAllPlacesFromDb, places as staticPlaces, categoryEmoji, categories, type Place } from '@/lib/places'
+import { isValidLat, isValidLng } from '@/lib/coordinates'
+import { getMapConfig } from '@/lib/maps/config'
+import { decodeMapView, boundsFromCenter } from '@/lib/maps/mapView'
+import { getPlacesInBounds } from '@/lib/placesNearby'
 
 export const dynamic = 'force-dynamic'
 
 // Map is client-only (Leaflet needs the DOM) — render shell on the server only.
 const MapExplorer = loadDynamic(() => import('./MapExplorer'), { ssr: false })
+const MapExplorerV2 = loadDynamic(() => import('./MapExplorerV2'), { ssr: false })
 
 const DEFAULT_CENTER = { lat: 33.5902, lng: 130.4017 } // Fukuoka / Hakata
 
@@ -18,7 +23,7 @@ export async function generateMetadata() {
 function centersBy(places: Place[], key: (p: Place) => string | null | undefined) {
   const acc = new Map<string, { lat: number; lng: number; n: number }>()
   for (const p of places) {
-    if (typeof p.lat !== 'number' || typeof p.lng !== 'number') continue
+    if (!isValidLat(p.lat) || !isValidLng(p.lng)) continue
     const name = key(p)?.trim()
     if (!name) continue
     const cur = acc.get(name) ?? { lat: 0, lng: 0, n: 0 }
@@ -30,14 +35,40 @@ function centersBy(places: Place[], key: (p: Place) => string | null | undefined
     .sort((a, b) => a.name.localeCompare(b.name))
 }
 
-export default async function MapPage() {
+type SearchParams = Record<string, string | undefined>
+
+export default async function MapPage({ searchParams }: { searchParams: SearchParams }) {
   const [t, tc] = await Promise.all([
     getTranslations('map_explore'),
     getTranslations('categories'),
   ])
-
-  const all = (await getAllPlacesFromDb()) ?? staticPlaces
   const cats = categories.map((c) => ({ code: c.code, label: tc(c.code as Parameters<typeof tc>[0]), emoji: categoryEmoji[c.code] ?? '📍' }))
+  const config = getMapConfig()
+
+  // ── Map V2 (flag-gated). The existing map below stays the default. ──
+  if (config.v2Enabled) {
+    const initialState = decodeMapView((k) => searchParams[k] ?? null)
+    const center = initialState.center ?? DEFAULT_CENTER
+    // SSR an initial viewport so the list has content without JS (and as a
+    // list-only fallback). Empty today (no places have coordinates yet).
+    const initialPlaces = await getPlacesInBounds(boundsFromCenter(center, 0.25), {
+      category: initialState.category, q: initialState.q, limit: 200,
+    })
+    return (
+      <div className="px-3 sm:px-4 py-3">
+        <h1 className="sr-only">{t('title')}</h1>
+        <MapExplorerV2
+          defaultCenter={DEFAULT_CENTER}
+          categories={cats}
+          initialPlaces={initialPlaces}
+          initialState={initialState}
+        />
+      </div>
+    )
+  }
+
+  // ── Existing map (production default) — unchanged ──
+  const all = (await getAllPlacesFromDb()) ?? staticPlaces
   const areaCenters = centersBy(all, (p) => p.area).slice(0, 60)
   const stationCenters = centersBy(all, (p) => p.nearestStation).slice(0, 60)
 

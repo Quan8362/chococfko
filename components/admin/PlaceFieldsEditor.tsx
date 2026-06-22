@@ -6,6 +6,9 @@ import {
   PET_OPTIONS, CROWD_LEVELS, TEMPORARY_STATUSES, VERIFICATION_STATUSES,
   PAYMENT_METHODS, PLACE_LANGUAGES, WEEKDAYS,
 } from '@/lib/placeFields'
+import { parseCoordinate } from '@/lib/coordinates'
+import { getMapConfig, adminGoogleAvailable } from '@/lib/maps/config'
+import PlacePicker from '@/components/admin/PlacePicker'
 
 const RichTextEditor = loadDynamic(() => import('@/components/RichTextEditor'), { ssr: false })
 
@@ -15,6 +18,10 @@ export interface PlaceFieldsRow {
   map_url?: string | null
   address?: string | null
   lat?: number | null; lng?: number | null
+  // Phase 5 location provenance (optional; null on old/pre-migration rows)
+  location_provider?: string | null; provider_place_id?: string | null
+  provider_formatted_address?: string | null; country_code?: string | null
+  location_source?: string | null; location_manually_adjusted?: boolean | null
   postal_code?: string | null; nearest_station?: string | null; station_walk_minutes?: number | null
   subcategories?: string[] | null
   fee?: string | null
@@ -45,6 +52,7 @@ function jsonStr(v: unknown): string {
 
 export default async function PlaceFieldsEditor({ p }: { p: PlaceFieldsRow }) {
   const t = await getTranslations('place_fields')
+  const mapConfig = getMapConfig()
   const rel = categoryFieldRelevance(p.category ?? '')
   const warnings = placeCompletenessWarnings({
     category: p.category ?? '',
@@ -52,6 +60,10 @@ export default async function PlaceFieldsEditor({ p }: { p: PlaceFieldsRow }) {
     openingHours: p.opening_hours, closedDays: p.closed_days ?? null,
     priceType: p.price_type, fee: p.fee, priceMin: p.price_min, priceMax: p.price_max,
   })
+  // Coordinate warnings are rendered LIVE inside <CoordinateFields>; keep only the
+  // non-coordinate advisories (hours/price) in this server-rendered top box so the
+  // two never show a stale, contradictory state.
+  const otherWarnings = warnings.filter((w) => w !== 'missing_coordinates' && w !== 'missing_location')
 
   const tri = (v: boolean | null | undefined) => (v === true ? 'true' : v === false ? 'false' : '')
   const triOptions = [
@@ -70,12 +82,13 @@ export default async function PlaceFieldsEditor({ p }: { p: PlaceFieldsRow }) {
 
   return (
     <div className="space-y-3">
-      {/* Incomplete-info warnings (advisory; never blocks publishing) */}
-      {warnings.length > 0 && (
+      {/* Incomplete-info warnings (advisory; never blocks publishing). Coordinate
+          warnings are shown live inside the Address & map section below. */}
+      {otherWarnings.length > 0 && (
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
           <p className="text-[13px] font-semibold text-amber-800 mb-1.5">⚠️ {t('warn_title')}</p>
           <ul className="list-disc pl-5 space-y-0.5">
-            {warnings.map((w) => (
+            {otherWarnings.map((w) => (
               <li key={w} className="text-[12.5px] text-amber-700">{t(`warn_${w}` as 'warn_missing_location')}</li>
             ))}
           </ul>
@@ -84,9 +97,26 @@ export default async function PlaceFieldsEditor({ p }: { p: PlaceFieldsRow }) {
 
       {/* ── ADDRESS & MAP ── */}
       <Section title={t('sec_address_map')} defaultOpen>
-        <div className="grid sm:grid-cols-2 gap-4">
-          <Inp label={t('lat')} name="lat" type="number" step="any" defaultValue={p.lat ?? ''} placeholder="33.5902" />
-          <Inp label={t('lng')} name="lng" type="number" step="any" defaultValue={p.lng ?? ''} placeholder="130.4017" />
+        {/* Phase 5: search-driven place picker (degrades to manual coords when
+            Google is not configured). Lat/lng live in its advanced section. */}
+        <PlacePicker
+          initial={{
+            lat: parseCoordinate(p.lat),
+            lng: parseCoordinate(p.lng),
+            address: p.address ?? null,
+            mapUrl: p.map_url ?? null,
+            provider: p.location_provider ?? null,
+            providerPlaceId: p.provider_place_id ?? null,
+            formattedAddress: p.provider_formatted_address ?? null,
+            countryCode: p.country_code ?? null,
+            source: p.location_source ?? null,
+            manuallyAdjusted: p.location_manually_adjusted === true,
+          }}
+          googleAvailable={adminGoogleAvailable(mapConfig)}
+          apiKey={mapConfig.browserKey}
+          mapId={mapConfig.mapId}
+        />
+        <div className="grid sm:grid-cols-2 gap-4 mt-4">
           <Inp label={t('postal_code')} name="postal_code" defaultValue={p.postal_code ?? ''} placeholder="812-0011" />
           <Inp label={t('nearest_station')} name="nearest_station" defaultValue={p.nearest_station ?? ''} />
           <Inp label={t('station_walk_minutes')} name="station_walk_minutes" type="number" min="0" defaultValue={p.station_walk_minutes ?? ''} />

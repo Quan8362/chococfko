@@ -16,6 +16,17 @@ export interface Place {
   region?: string | null; prefecture?: string | null; city?: string | null;
   address?: string | null;
   lat?: number | null; lng?: number | null;
+  // ── Map UX Phase 4: provider provenance + coordinate audit (optional) ──
+  locationProvider?: string | null;
+  providerPlaceId?: string | null;
+  providerFormattedAddress?: string | null;
+  providerMapsUrl?: string | null;
+  providerDataUpdatedAt?: string | null;
+  countryCode?: string | null;
+  locationSource?: string | null;
+  locationManuallyAdjusted?: boolean | null;
+  locationConfirmedAt?: string | null;
+  locationConfirmedBy?: string | null;
   // Khu vực có cấu trúc — render text cuối qua i18n thay vì lưu text trộn ngôn ngữ.
   areaMain?: string | null;        // VD "Sasaguri"
   nearbyPlace?: string | null;     // VD "Hakata" (tuỳ chọn)
@@ -1244,6 +1255,13 @@ interface DbPlace {
   region?: string | null; prefecture?: string | null; city?: string | null;
   address?: string | null;
   lat?: number | null; lng?: number | null;
+  // ── Map UX Phase 4: provider provenance + coordinate audit (all optional;
+  //    missing column → undefined → null, so old/pre-migration rows are fine) ──
+  location_provider?: string | null; provider_place_id?: string | null;
+  provider_formatted_address?: string | null; provider_maps_url?: string | null;
+  provider_data_updated_at?: string | null; country_code?: string | null;
+  location_source?: string | null; location_manually_adjusted?: boolean | null;
+  location_confirmed_at?: string | null; location_confirmed_by?: string | null;
   area_main?: string | null; nearby_place?: string | null;
   city_or_prefecture?: string | null; relation_type?: string | null;
   // Explore Phase 1 (all optional; missing column → undefined → null)
@@ -1286,6 +1304,17 @@ function mapDbPlace(row: DbPlace): Place {
     address: row.address ?? null,
     lat: row.lat ?? null,
     lng: row.lng ?? null,
+    // ── Phase 4 location provenance/audit (null when column absent) ──
+    locationProvider: row.location_provider ?? null,
+    providerPlaceId: row.provider_place_id ?? null,
+    providerFormattedAddress: row.provider_formatted_address ?? null,
+    providerMapsUrl: row.provider_maps_url ?? null,
+    providerDataUpdatedAt: row.provider_data_updated_at ?? null,
+    countryCode: row.country_code ?? null,
+    locationSource: row.location_source ?? null,
+    locationManuallyAdjusted: row.location_manually_adjusted ?? null,
+    locationConfirmedAt: row.location_confirmed_at ?? null,
+    locationConfirmedBy: row.location_confirmed_by ?? null,
     areaMain: row.area_main ?? null,
     nearbyPlace: row.nearby_place ?? null,
     cityOrPrefecture: row.city_or_prefecture ?? null,

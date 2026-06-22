@@ -7,9 +7,11 @@ import { places, neutralAreaString, RELATION_TYPES, type RelationType } from '@/
 import { setContentTags } from '@/lib/tags'
 import { PREFECTURE_NAME, PREFECTURES } from '@/lib/japan'
 import { getLocale } from 'next-intl/server'
+import { validateCoordinateInput } from '@/lib/coordinates'
+import { LOCATION_PROVIDERS, LOCATION_SOURCES } from '@/lib/placeLocation'
 import {
   normalizeUrl, normalizePhone, validatePriceRange, validateOpeningHours,
-  validateJapanesePhrases, isValidCoordinate,
+  validateJapanesePhrases,
   parseIntOrNull, parseTriState, parseList, parseEnum, parseEnumList,
   PRICE_TYPES, TEMPORARY_STATUSES, PARKING_OPTIONS, INDOOR_OUTDOOR_OPTIONS,
   SMOKING_OPTIONS, TATTOO_OPTIONS, PET_OPTIONS, CROWD_LEVELS,
@@ -34,20 +36,12 @@ function buildExtendedPlacePayload(formData: FormData): Record<string, unknown> 
     return n
   }
 
-  // Coordinates
-  const latRaw = (formData.get('lat') as string | null)?.trim() || ''
-  const lngRaw = (formData.get('lng') as string | null)?.trim() || ''
-  let lat: number | null = null
-  let lng: number | null = null
-  if (latRaw || lngRaw) {
-    lat = latRaw ? Number.parseFloat(latRaw) : null
-    lng = lngRaw ? Number.parseFloat(lngRaw) : null
-    if (lat !== null && lng !== null) {
-      if (!isValidCoordinate(lat, lng)) errors.push('invalid_coordinates')
-    } else if (lat !== null || lng !== null) {
-      errors.push('incomplete_coordinates') // one without the other
-    }
-  }
+  // Coordinates — canonical normalization (empty → null, string → finite number,
+  // 0 is valid, range-checked, one-without-the-other rejected).
+  const coord = validateCoordinateInput(formData.get('lat'), formData.get('lng'))
+  const lat = coord.lat
+  const lng = coord.lng
+  if (coord.errors.length) errors.push(...coord.errors)
 
   // Price
   const priceType = parseEnum(formData.get('price_type'), PRICE_TYPES)
@@ -64,6 +58,20 @@ function buildExtendedPlacePayload(formData: FormData): Record<string, unknown> 
 
   // Phone — keep display, derive E.164
   const { display: phone, e164: phoneE164 } = normalizePhone(formData.get('phone') as string | null)
+
+  // ── Phase 5: location provenance from the Admin place picker ──
+  const locationProvider = parseEnum(formData.get('location_provider'), LOCATION_PROVIDERS)
+  const providerPlaceId = (formData.get('provider_place_id') as string | null)?.trim() || null
+  const locationSource = parseEnum(formData.get('location_source'), LOCATION_SOURCES)
+  const countryCodeRaw = (formData.get('country_code') as string | null)?.trim().toUpperCase() || null
+  const countryCode = countryCodeRaw && /^[A-Z]{2}$/.test(countryCodeRaw) ? countryCodeRaw : null
+  // A provider place_id must name its provider (mirrors the DB CHECK). Default to
+  // 'google' when an id is present but the provider field was omitted.
+  const effectiveProvider = providerPlaceId && !locationProvider ? 'google' : locationProvider
+  // Freshness for the 30-day cache TTL — stamp when provider data is present.
+  const providerDataUpdatedAt = effectiveProvider === 'google' && providerPlaceId
+    ? new Date().toISOString()
+    : null
 
   if (errors.length) throw new Error(`place_validation:${Array.from(new Set(errors)).join(',')}`)
 
@@ -114,6 +122,16 @@ function buildExtendedPlacePayload(formData: FormData): Record<string, unknown> 
     verification_status: parseEnum(formData.get('verification_status'), VERIFICATION_STATUSES) ?? 'unverified',
     search_eligible: parseTriState(formData.get('search_eligible')) ?? true,
     recommend_eligible: parseTriState(formData.get('recommend_eligible')) ?? true,
+    // ── Phase 5 location provenance (persisted once the Phase-4 migration is applied;
+    //    silently dropped by the tiered fallback in updatePlace until then) ──
+    location_provider: effectiveProvider,
+    provider_place_id: providerPlaceId,
+    provider_formatted_address: (formData.get('provider_formatted_address') as string | null)?.trim() || null,
+    provider_maps_url: url('provider_maps_url'),
+    provider_data_updated_at: providerDataUpdatedAt,
+    country_code: countryCode,
+    location_source: locationSource,
+    location_manually_adjusted: parseTriState(formData.get('location_manually_adjusted')) ?? false,
   }
 }
 
@@ -210,13 +228,39 @@ export async function updatePlace(formData: FormData) {
     if (data) prev = data as unknown as PrevSnap
   } catch { /* table/columns may be pre-migration */ }
 
-  // ── Explore Phase 1 extended fields (validated). Attempt the full update; if
-  // the migration is not yet applied (unknown column), fall back to the legacy
-  // payload so core editing keeps working. Validation errors still throw. ──
+  // ── Explore Phase 1 extended fields (validated). Validation errors still throw. ──
   const extended = buildExtendedPlacePayload(formData)
-  let { error } = await admin.from('places').update({ ...updatePayload, ...extended }).eq('slug', slug)
+
+  // Phase 5 confirmation metadata: stamp who/when confirmed the location, but only
+  // when the picker says it was confirmed AND a valid coordinate is present.
+  const confirmed = ['1', 'true', 'on'].includes(((formData.get('location_confirmed') as string) || '').toLowerCase())
+  if (confirmed && extended.lat != null && extended.lng != null) {
+    try {
+      const { createClient } = await import('@/lib/supabase/server')
+      const { data: { user } } = await createClient().auth.getUser()
+      extended.location_confirmed_at = new Date().toISOString()
+      extended.location_confirmed_by = user?.id ?? null
+    } catch { /* best-effort; confirmation metadata is non-critical */ }
+  }
+
+  // Tiered fallback so a NOT-YET-APPLIED migration never blocks editing or drops
+  // coordinates: full payload → drop only the Phase-4 location columns (keeps
+  // lat/lng + Phase-1 fields) → legacy core payload. Re-run only on a missing
+  // -column error; real errors throw.
+  const PHASE4_KEYS = [
+    'location_provider', 'provider_place_id', 'provider_formatted_address', 'provider_maps_url',
+    'provider_data_updated_at', 'country_code', 'location_source', 'location_manually_adjusted',
+    'location_confirmed_at', 'location_confirmed_by',
+  ] as const
+  const full = { ...updatePayload, ...extended }
+  let { error } = await admin.from('places').update(full).eq('slug', slug)
   if (error && isMissingColumnError(error)) {
-    ({ error } = await admin.from('places').update(updatePayload).eq('slug', slug))
+    const withoutP4: Record<string, unknown> = { ...full }
+    for (const k of PHASE4_KEYS) delete withoutP4[k]
+    ;({ error } = await admin.from('places').update(withoutP4).eq('slug', slug))
+    if (error && isMissingColumnError(error)) {
+      ({ error } = await admin.from('places').update(updatePayload).eq('slug', slug))
+    }
   }
 
   if (error) throw new Error(error.message)

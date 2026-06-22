@@ -2,7 +2,7 @@
 // Run with:  node --test lib/maps/config.test.ts
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { resolveMapConfig, shouldLoadGoogleMaps, parseFlag, adminGoogleAvailable, externalSearchAvailable, routePreviewAvailable } from './config.ts'
+import { resolveMapConfig, shouldLoadGoogleMaps, parseFlag, adminGoogleAvailable, externalSearchAvailable, routePreviewAvailable, canSeeMapV2 } from './config.ts'
 
 const KEY = 'AIza-browser-key'
 
@@ -147,6 +147,38 @@ test('routePreviewAvailable: needs master switch + route flag (not provider)', (
   assert.equal(ok.routePreviewEnabled, false)
   // master switch off → unavailable even with the flag
   assert.equal(routePreviewAvailable(resolveMapConfig({ NEXT_PUBLIC_GOOGLE_ROUTE_PREVIEW_ENABLED: 'true' })), false)
+})
+
+// Map V2 internal-only gate — server-evaluable authorization (Phase: gate fix).
+const ANON = { isAdmin: false, isInternal: false }
+const NORMAL = { isAdmin: false, isInternal: false } // authenticated but not internal/admin
+const INTERNAL = { isAdmin: false, isInternal: true }
+const ADMIN = { isAdmin: true, isInternal: false }
+
+test('canSeeMapV2: V2 disabled → everyone gets the legacy map', () => {
+  const c = resolveMapConfig({}) // v2Enabled false
+  for (const a of [ANON, NORMAL, INTERNAL, ADMIN]) assert.equal(canSeeMapV2(c, a), false)
+})
+
+test('canSeeMapV2: V2 on + internal-only OFF → Map V2 for everyone', () => {
+  const c = resolveMapConfig({ NEXT_PUBLIC_MAP_V2_ENABLED: 'true', NEXT_PUBLIC_MAP_INTERNAL_ONLY: 'false' })
+  for (const a of [ANON, NORMAL, INTERNAL, ADMIN]) assert.equal(canSeeMapV2(c, a), true)
+})
+
+test('canSeeMapV2: V2 on + internal-only ON → only Admin/internal; others legacy', () => {
+  // internalOnly defaults to TRUE when unset, so V2-enabled alone is internal-only.
+  const c = resolveMapConfig({ NEXT_PUBLIC_MAP_V2_ENABLED: 'true' })
+  assert.equal(c.internalOnly, true)
+  assert.equal(canSeeMapV2(c, ANON), false)     // anonymous → legacy
+  assert.equal(canSeeMapV2(c, NORMAL), false)   // normal user → legacy
+  assert.equal(canSeeMapV2(c, INTERNAL), true)  // internal member → V2
+  assert.equal(canSeeMapV2(c, ADMIN), true)     // admin → V2
+})
+
+test('canSeeMapV2: explicit internal-only=true matches default behavior', () => {
+  const c = resolveMapConfig({ NEXT_PUBLIC_MAP_V2_ENABLED: 'true', NEXT_PUBLIC_MAP_INTERNAL_ONLY: 'true' })
+  assert.equal(canSeeMapV2(c, ANON), false)
+  assert.equal(canSeeMapV2(c, ADMIN), true)
 })
 
 // Flag parsing accepts common truthy spellings; everything else is false.

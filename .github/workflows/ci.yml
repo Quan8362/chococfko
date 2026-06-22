@@ -9,7 +9,8 @@ on:
 # No production secrets are exposed to PRs. The build uses placeholder public
 # env values so it never depends on real Supabase credentials.
 # NOTE: the git repository root IS the Next.js app (no `web/` subdirectory in the
-# repo), so all steps run at the checkout root.
+# repo), so all steps run at the checkout root. The package-lock.json was created
+# with npm 11, so the runner pins npm 11 to keep `npm ci` lockfile-sync identical.
 env:
   NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
   NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder-anon-key
@@ -27,8 +28,18 @@ jobs:
           node-version: 20
           cache: npm
 
+      - name: Pin npm to match the lockfile
+        run: npm install -g npm@11
+
       - name: Install (locked)
-        run: npm ci
+        run: |
+          node -v && npm -v
+          set -o pipefail
+          npm ci 2>&1 | tee /tmp/npmci.log || {
+            echo "::error::npm ci failed — last lines below"
+            tail -n 40 /tmp/npmci.log | while IFS= read -r l; do echo "::error::$l"; done
+            exit 1
+          }
 
       - name: Unit tests
         run: npm test
@@ -58,6 +69,7 @@ jobs:
         with:
           node-version: 20
           cache: npm
+      - run: npm install -g npm@11
       - run: npm ci
       - name: Install Playwright + axe
         run: npm i -D @playwright/test @axe-core/playwright && npx playwright install --with-deps chromium webkit firefox

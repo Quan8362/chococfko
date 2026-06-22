@@ -2215,7 +2215,8 @@
       "q_instr_sentence": "Chọn đáp án phù hợp để hoàn thành câu:",
       "lb_player_level": "Cấp người chơi",
       "lb_level_value": "Lv. {n}",
-      "lb_avatar_alt": "Ảnh đại diện của {name}"
+      "lb_avatar_alt": "Ảnh đại diện của {name}",
+      "lb_level_short": "Cấp"
     }
   },
   "notifications": {

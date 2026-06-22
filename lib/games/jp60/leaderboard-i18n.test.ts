@@ -11,9 +11,19 @@ const load = (l: string) => JSON.parse(readFileSync(join(root, `${l}.json`), 'ut
 test('every locale has the player-level + avatar-alt leaderboard keys', () => {
   for (const l of LOCALES) {
     const j = load(l)
-    for (const k of ['lb_player_level', 'lb_level_value', 'lb_avatar_alt']) {
+    for (const k of ['lb_level_short', 'lb_player_level', 'lb_level_value', 'lb_avatar_alt']) {
       assert.ok(j[k] && j[k].length > 0, `${l} missing ${k}`)
     }
+  }
+})
+
+test('lb_level_short is a compact single-token header (no wrap, distinct from full)', () => {
+  for (const l of LOCALES) {
+    const j = load(l)
+    const short = j.lb_level_short as string
+    assert.ok(short.length <= 6, `${l}: short label "${short}" too long for one line`)
+    assert.ok(!short.includes(' '), `${l}: short label "${short}" should be one word`)
+    assert.notEqual(short, j.lb_player_level, `${l}: short label must differ from the full label`)
   }
 })
 

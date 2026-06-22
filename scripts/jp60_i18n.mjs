@@ -478,6 +478,7 @@ const QKEYS = {
     q_instr_grammar_pattern: 'Choose the most appropriate grammar pattern:',
     q_instr_sentence: 'Choose the option that best completes the sentence:',
     lb_player_level: 'Player level', lb_level_value: 'Lv. {n}', lb_avatar_alt: '{name} avatar',
+    lb_level_short: 'Level',
   },
   vi: {
     timer_label: 'Giới hạn thời gian',
@@ -493,6 +494,7 @@ const QKEYS = {
     q_instr_grammar_pattern: 'Chọn mẫu ngữ pháp phù hợp nhất:',
     q_instr_sentence: 'Chọn đáp án phù hợp để hoàn thành câu:',
     lb_player_level: 'Cấp người chơi', lb_level_value: 'Lv. {n}', lb_avatar_alt: 'Ảnh đại diện của {name}',
+    lb_level_short: 'Cấp',
   },
   ja: {
     timer_label: '制限時間',
@@ -508,6 +510,7 @@ const QKEYS = {
     q_instr_grammar_pattern: '最も適切な文法を選んでください：',
     q_instr_sentence: '文を完成させる答えを選んでください：',
     lb_player_level: 'プレイヤーレベル', lb_level_value: 'Lv. {n}', lb_avatar_alt: '{name}のアバター',
+    lb_level_short: 'レベル',
   },
   ko: {
     timer_label: '시간 제한',
@@ -523,6 +526,7 @@ const QKEYS = {
     q_instr_grammar_pattern: '가장 적절한 문법을 고르세요:',
     q_instr_sentence: '문장을 완성할 답을 고르세요:',
     lb_player_level: '플레이어 레벨', lb_level_value: 'Lv. {n}', lb_avatar_alt: '{name}의 아바타',
+    lb_level_short: '레벨',
   },
   zh: {
     timer_label: '时间限制',
@@ -538,6 +542,7 @@ const QKEYS = {
     q_instr_grammar_pattern: '选择最合适的语法：',
     q_instr_sentence: '选择能完成句子的答案：',
     lb_player_level: '玩家等级', lb_level_value: 'Lv. {n}', lb_avatar_alt: '{name}的头像',
+    lb_level_short: '等级',
   },
 }
 

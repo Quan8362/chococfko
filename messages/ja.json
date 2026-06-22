@@ -2215,7 +2215,8 @@
       "q_instr_sentence": "文を完成させる答えを選んでください：",
       "lb_player_level": "プレイヤーレベル",
       "lb_level_value": "Lv. {n}",
-      "lb_avatar_alt": "{name}のアバター"
+      "lb_avatar_alt": "{name}のアバター",
+      "lb_level_short": "レベル"
     }
   },
   "notifications": {

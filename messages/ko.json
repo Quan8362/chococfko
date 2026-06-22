@@ -2215,7 +2215,8 @@
       "q_instr_sentence": "문장을 완성할 답을 고르세요:",
       "lb_player_level": "플레이어 레벨",
       "lb_level_value": "Lv. {n}",
-      "lb_avatar_alt": "{name}의 아바타"
+      "lb_avatar_alt": "{name}의 아바타",
+      "lb_level_short": "레벨"
     }
   },
   "notifications": {

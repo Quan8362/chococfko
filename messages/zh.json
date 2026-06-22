@@ -2215,7 +2215,8 @@
       "q_instr_sentence": "选择能完成句子的答案：",
       "lb_player_level": "玩家等级",
       "lb_level_value": "Lv. {n}",
-      "lb_avatar_alt": "{name}的头像"
+      "lb_avatar_alt": "{name}的头像",
+      "lb_level_short": "等级"
     }
   },
   "notifications": {

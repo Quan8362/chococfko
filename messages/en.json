@@ -2215,7 +2215,8 @@
       "q_instr_sentence": "Choose the option that best completes the sentence:",
       "lb_player_level": "Player level",
       "lb_level_value": "Lv. {n}",
-      "lb_avatar_alt": "{name} avatar"
+      "lb_avatar_alt": "{name} avatar",
+      "lb_level_short": "Level"
     }
   },
   "notifications": {

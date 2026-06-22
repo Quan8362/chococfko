@@ -8,6 +8,11 @@ import { getJp60Leaderboard, type LeaderboardResult, type LeaderboardScope } fro
 
 const LEVELS = ['all', 'N5', 'N4', 'N3', 'N2', 'N1', 'MIXED']
 
+// Single column definition shared by the header AND every row so they stay
+// aligned. Name takes the flexible space; rank/level/score have stable widths
+// sized for "Cấp"/"Lv. 5" and 4-digit scores (one line each, no header wrap).
+const GRID = 'grid-cols-[40px_minmax(0,1fr)_64px_72px]'
+
 export function LeaderboardClient() {
   const t = useTranslations('games.jp60')
   const [scope, setScope] = useState<LeaderboardScope>('today')
@@ -56,8 +61,12 @@ export function LeaderboardClient() {
         <p className="text-center text-muted py-12">{t('lb_empty')}</p>
       ) : (
         <div className="bg-paper border border-line rounded-2xl overflow-hidden">
-          <div className="grid grid-cols-[36px_1fr_56px_64px] gap-2 px-4 py-2 text-[11px] font-bold uppercase tracking-wide text-muted border-b border-line">
-            <span>{t('lb_rank')}</span><span>{t('lb_player')}</span><span className="text-right">{t('lb_player_level')}</span><span className="text-right">{t('lb_score')}</span>
+          <div className={`grid ${GRID} gap-2 px-4 py-2 text-[11px] font-bold uppercase tracking-wide text-muted border-b border-line`}>
+            <span className="whitespace-nowrap">{t('lb_rank')}</span>
+            <span className="whitespace-nowrap">{t('lb_player')}</span>
+            {/* Short visible label; full meaning kept accessible via aria-label/title. */}
+            <span className="text-right whitespace-nowrap" aria-label={t('lb_player_level')} title={t('lb_player_level')}>{t('lb_level_short')}</span>
+            <span className="text-right whitespace-nowrap">{t('lb_score')}</span>
           </div>
           {data.rows.map((r) => <Row key={r.rank} r={r} t={t} />)}
           {data.me && (
@@ -74,7 +83,7 @@ export function LeaderboardClient() {
 
 function Row({ r, t }: { r: any; t: any }) {
   return (
-    <div className={`grid grid-cols-[36px_1fr_56px_64px] gap-2 px-4 py-2.5 items-center border-b border-line/50 last:border-0 ${r.isCurrentUser ? 'bg-rose/5' : ''}`}>
+    <div className={`grid ${GRID} gap-2 px-4 py-2.5 items-center border-b border-line/50 last:border-0 ${r.isCurrentUser ? 'bg-rose/5' : ''}`}>
       <span className="text-[14px] font-bold text-ink tabular-nums">{medal(r.rank)}</span>
       <span className="flex items-center gap-2 min-w-0">
         {/* Same canonical resolver as the header — proxies OAuth/Supabase avatars

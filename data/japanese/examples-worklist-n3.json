@@ -1,756 +1,67 @@
 [
  {
-  "id": "03e6709d-24a5-41d4-872d-0aeb5e06ad8d",
-  "word": "有給",
-  "reading": "ゆうきゅう",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "adj-no",
-   "n"
-  ],
-  "meanings": [
-   {
-    "en": "salaried",
-    "vi": "có lương"
-   },
-   {
-    "en": "paid",
-    "vi": "nghỉ phép có lương"
-   },
-   {
-    "en": "paid vacation",
-    "vi": ""
-   }
-  ]
- },
- {
-  "id": "03efa8b2-c15c-4507-8611-6fa69f524199",
-  "word": "項目",
-  "reading": "こうもく",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n"
-  ],
-  "meanings": [
-   {
-    "en": "item",
-    "vi": "hạng mục"
-   },
-   {
-    "en": "heading",
-    "vi": "mục"
-   },
-   {
-    "en": "category",
-    "vi": "khoản"
-   },
-   {
-    "en": "entry",
-    "vi": ""
-   }
-  ]
- },
- {
-  "id": "03efe281-ce49-4470-a730-9299d4022e5e",
-  "word": "火山",
-  "reading": "かざん",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n"
-  ],
-  "meanings": [
-   {
-    "en": "volcano",
-    "vi": "núi lửa"
-   }
-  ]
- },
- {
-  "id": "03fe882f-3c98-44e1-9de7-2cddd0718b37",
-  "word": "根本",
-  "reading": "こんぽん",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n"
-  ],
-  "meanings": [
-   {
-    "en": "root",
-    "vi": "căn bản"
-   },
-   {
-    "en": "source",
-    "vi": "gốc rễ"
-   },
-   {
-    "en": "origin",
-    "vi": "nền tảng"
-   },
-   {
-    "en": "foundation",
-    "vi": ""
-   },
-   {
-    "en": "basis",
-    "vi": ""
-   }
-  ]
- },
- {
-  "id": "045cc8d4-18e3-4dce-aab9-3d2d6e2c365e",
-  "word": "請求",
-  "reading": "せいきゅう",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n",
-   "vs",
-   "vt"
-  ],
-  "meanings": [
-   {
-    "en": "claim",
-    "vi": "yêu cầu"
-   },
-   {
-    "en": "demand",
-    "vi": "đòi (thanh toán)"
-   },
-   {
-    "en": "billing",
-    "vi": "thỉnh cầu"
-   },
-   {
-    "en": "request",
-    "vi": ""
-   }
-  ]
- },
- {
-  "id": "0475fdf4-d2f6-4d6e-94d6-817295b6da8e",
-  "word": "妥当",
-  "reading": "だとう",
+  "id": "0ddfa358-ce5c-471b-a501-4825ebd465a1",
+  "word": "無理",
+  "reading": "むり",
   "romaji": null,
   "jlpt_level": "N3",
   "pos": [
    "adj-na",
-   "n"
-  ],
-  "meanings": [
-   {
-    "en": "valid",
-    "vi": "hợp lý"
-   },
-   {
-    "en": "proper",
-    "vi": "phù hợp"
-   },
-   {
-    "en": "right",
-    "vi": "chính đáng"
-   },
-   {
-    "en": "appropriate",
-    "vi": "thích hợp"
-   },
-   {
-    "en": "reasonable",
-    "vi": ""
-   }
-  ]
- },
- {
-  "id": "049a9d93-e14d-466b-891f-7b10a288c08e",
-  "word": "賑わう",
-  "reading": "にぎわう",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "v5u",
-   "vi"
-  ],
-  "meanings": [
-   {
-    "en": "to be crowded with people",
-    "vi": "đông đúc"
-   },
-   {
-    "en": "to be bustling",
-    "vi": "nhộn nhịp"
-   },
-   {
-    "en": "to prosper",
-    "vi": "phồn thịnh"
-   }
-  ]
- },
- {
-  "id": "04a7de4a-4e68-4ea0-bd97-b6e49c5a466e",
-  "word": "慈悲",
-  "reading": "じひ",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
    "n",
-   "adj-no"
+   "vs"
   ],
   "meanings": [
    {
-    "en": "mercy",
-    "vi": "từ bi"
+    "en": "unreasonable",
+    "vi": "vô lý"
    },
    {
-    "en": "compassion",
-    "vi": "lòng thương"
+    "en": "impossible",
+    "vi": "không thể"
    },
    {
-    "en": "clemency",
-    "vi": "khoan dung"
+    "en": "forced",
+    "vi": "gượng ép"
    },
    {
-    "en": "benevolence",
-    "vi": ""
+    "en": "excessive",
+    "vi": "quá sức"
    }
   ]
  },
  {
-  "id": "04b0a579-9ac1-4758-b45b-2220431d0490",
-  "word": "探し出す",
-  "reading": "さがしだす",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "v5s",
-   "vt"
-  ],
-  "meanings": [
-   {
-    "en": "to track down",
-    "vi": "tìm ra"
-   },
-   {
-    "en": "to locate",
-    "vi": "lần ra"
-   },
-   {
-    "en": "to find out",
-    "vi": "truy tìm"
-   }
-  ]
- },
- {
-  "id": "04d6a0da-0f7b-4182-a02b-069ad7bb3766",
-  "word": "家電",
-  "reading": "かでん",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n"
-  ],
-  "meanings": [
-   {
-    "en": "household (electrical) appliances",
-    "vi": "đồ điện gia dụng"
-   },
-   {
-    "en": "",
-    "vi": "điện máy"
-   }
-  ]
- },
- {
-  "id": "04dc78d6-d874-49ec-af2e-f01ca22431c3",
-  "word": "段ボール",
-  "reading": "ダンボール",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n"
-  ],
-  "meanings": [
-   {
-    "en": "(corrugated) cardboard",
-    "vi": "bìa carton"
-   },
-   {
-    "en": "cardboard box",
-    "vi": "thùng carton"
-   },
-   {
-    "en": "carton",
-    "vi": ""
-   }
-  ]
- },
- {
-  "id": "04fa8dae-0dca-4f68-8ca7-a67424380b90",
-  "word": "残虐",
-  "reading": "ざんぎゃく",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "adj-na",
-   "n"
-  ],
-  "meanings": [
-   {
-    "en": "cruel",
-    "vi": "tàn nhẫn"
-   },
-   {
-    "en": "brutal",
-    "vi": "tàn bạo"
-   },
-   {
-    "en": "savage",
-    "vi": "hung tàn"
-   },
-   {
-    "en": "barbarous",
-    "vi": "man rợ"
-   }
-  ]
- },
- {
-  "id": "051f4549-9c52-4f30-a834-f63c8888e48f",
-  "word": "卓球",
-  "reading": "たっきゅう",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n"
-  ],
-  "meanings": [
-   {
-    "en": "table tennis",
-    "vi": "bóng bàn"
-   },
-   {
-    "en": "ping-pong",
-    "vi": "ping-pong"
-   }
-  ]
- },
- {
-  "id": "0530bed3-30e0-4bd3-ae61-433aba06bcf5",
-  "word": "塊",
-  "reading": "かたまり",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n"
-  ],
-  "meanings": [
-   {
-    "en": "lump",
-    "vi": "cục"
-   },
-   {
-    "en": "mass",
-    "vi": "khối"
-   },
-   {
-    "en": "clump",
-    "vi": "đám"
-   },
-   {
-    "en": "cluster",
-    "vi": "hiện thân (của tính chất)"
-   },
-   {
-    "en": "embodiment",
-    "vi": ""
-   }
-  ]
- },
- {
-  "id": "053216e8-accf-4f44-9b3e-854185b4a3d0",
-  "word": "送信",
-  "reading": "そうしん",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n",
-   "vs",
-   "vt"
-  ],
-  "meanings": [
-   {
-    "en": "transmission",
-    "vi": "gửi đi"
-   },
-   {
-    "en": "sending",
-    "vi": "truyền đi"
-   }
-  ]
- },
- {
-  "id": "053a53e1-5be7-4f6b-99ac-c20efd639317",
-  "word": "誤解",
-  "reading": "ごかい",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n",
-   "vs",
-   "vt",
-   "vi"
-  ],
-  "meanings": [
-   {
-    "en": "misunderstanding",
-    "vi": "hiểu lầm"
-   }
-  ]
- },
- {
-  "id": "0541fe86-6e1c-47e0-beb8-c3ed867a8ed8",
-  "word": "多勢",
-  "reading": "たぜい",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n"
-  ],
-  "meanings": [
-   {
-    "en": "great numbers",
-    "vi": "đông người"
-   },
-   {
-    "en": "numerical superiority",
-    "vi": "ưu thế về số đông"
-   }
-  ]
- },
- {
-  "id": "054aad7f-f8ec-4447-a3f1-0568cb018d95",
-  "word": "惚れる",
-  "reading": "ほれる",
+  "id": "0de316fc-4692-4674-b1bb-a914ae5dedb7",
+  "word": "突き止める",
+  "reading": "つきとめる",
   "romaji": null,
   "jlpt_level": "N3",
   "pos": [
    "v1",
-   "vi"
+   "vt"
   ],
   "meanings": [
    {
-    "en": "to fall in love (with)",
-    "vi": "phải lòng"
+    "en": "to determine",
+    "vi": "truy ra"
    },
    {
-    "en": "to be captivated (by)",
-    "vi": "say mê"
+    "en": "to pin down",
+    "vi": "xác định"
    },
    {
-    "en": "to admire",
-    "vi": "mê mẩn"
-   }
-  ]
- },
- {
-  "id": "05a1ad81-f77b-4c8f-91ee-117bb1f60cf8",
-  "word": "精巧",
-  "reading": "せいこう",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "adj-na",
-   "n"
-  ],
-  "meanings": [
-   {
-    "en": "elaborate",
-    "vi": "tinh xảo"
+    "en": "to ascertain",
+    "vi": "tìm ra (thủ phạm, nguyên nhân)"
    },
    {
-    "en": "delicate",
-    "vi": "tinh vi"
-   },
-   {
-    "en": "exquisite",
-    "vi": "tinh tế"
-   }
-  ]
- },
- {
-  "id": "05ce40b1-2a87-4089-b0f2-ddc041539d36",
-  "word": "傲然",
-  "reading": "ごうぜん",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "adj-t",
-   "adv-to"
-  ],
-  "meanings": [
-   {
-    "en": "proud",
-    "vi": "ngạo nghễ"
-   },
-   {
-    "en": "arrogant",
-    "vi": "kiêu căng"
-   },
-   {
-    "en": "haughty",
-    "vi": "hống hách"
-   }
-  ]
- },
- {
-  "id": "05d92bdb-7af4-4cd6-ba58-26466755ea5b",
-  "word": "如何",
-  "reading": "いかん",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n",
-   "adv"
-  ],
-  "meanings": [
-   {
-    "en": "(depending on) how",
-    "vi": "tùy theo"
-   },
-   {
-    "en": "(depending on) what",
-    "vi": "tùy thuộc vào"
-   },
-   {
-    "en": "nature (of)",
-    "vi": "tính chất"
-   },
-   {
-    "en": "what is ...?",
-    "vi": "kết quả là gì"
-   },
-   {
-    "en": "how is ...?",
+    "en": "to locate",
     "vi": ""
    }
   ]
  },
  {
-  "id": "06c0f496-649a-4a49-8baa-5d296ca6cd8c",
-  "word": "共鳴",
-  "reading": "きょうめい",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n",
-   "vs",
-   "vi"
-  ],
-  "meanings": [
-   {
-    "en": "resonance",
-    "vi": "cộng hưởng"
-   },
-   {
-    "en": "sympathy (with an idea)",
-    "vi": "đồng cảm"
-   }
-  ]
- },
- {
-  "id": "06d04963-ab3e-4d37-ad63-afe7f6c9c881",
-  "word": "些細",
-  "reading": "ささい",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "adj-na"
-  ],
-  "meanings": [
-   {
-    "en": "trivial",
-    "vi": "nhỏ nhặt"
-   },
-   {
-    "en": "trifling",
-    "vi": "vụn vặt"
-   },
-   {
-    "en": "slight",
-    "vi": "không đáng kể"
-   },
-   {
-    "en": "insignificant",
-    "vi": ""
-   }
-  ]
- },
- {
-  "id": "06d4823b-47e4-4e62-aa90-5869cae0d14e",
-  "word": "割高",
-  "reading": "わりだか",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "adj-na",
-   "n"
-  ],
-  "meanings": [
-   {
-    "en": "comparatively high",
-    "vi": "đắt tương đối"
-   },
-   {
-    "en": "fairly expensive",
-    "vi": "hơi đắt"
-   }
-  ]
- },
- {
-  "id": "06dbb9c8-f0c9-4247-ae91-398453715cbc",
-  "word": "簿記",
-  "reading": "ぼき",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n"
-  ],
-  "meanings": [
-   {
-    "en": "bookkeeping",
-    "vi": "kế toán sổ sách"
-   },
-   {
-    "en": "",
-    "vi": "ghi sổ"
-   }
-  ]
- },
- {
-  "id": "06e7b920-76e7-4c4e-8ca0-b08384834ef4",
-  "word": "賞与",
-  "reading": "しょうよ",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n"
-  ],
-  "meanings": [
-   {
-    "en": "bonus",
-    "vi": "tiền thưởng"
-   },
-   {
-    "en": "reward",
-    "vi": "phần thưởng"
-   },
-   {
-    "en": "prize",
-    "vi": ""
-   }
-  ]
- },
- {
-  "id": "06f8bdce-8a1f-40b0-a391-490e195e90d8",
-  "word": "中南米",
-  "reading": "ちゅうなんべい",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n"
-  ],
-  "meanings": [
-   {
-    "en": "Central and South America",
-    "vi": "Trung và Nam Mỹ"
-   },
-   {
-    "en": "",
-    "vi": "Châu Mỹ Latinh"
-   }
-  ]
- },
- {
-  "id": "0710c18d-9551-40a9-83c0-16365cd90d62",
-  "word": "縞",
-  "reading": "しま",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n"
-  ],
-  "meanings": [
-   {
-    "en": "stripe",
-    "vi": "sọc"
-   },
-   {
-    "en": "bar",
-    "vi": "vằn"
-   },
-   {
-    "en": "stripe pattern",
-    "vi": "họa tiết kẻ sọc"
-   }
-  ]
- },
- {
-  "id": "0728c93c-5078-49d5-98b6-cd9915f11719",
-  "word": "地点",
-  "reading": "ちてん",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n"
-  ],
-  "meanings": [
-   {
-    "en": "spot",
-    "vi": "địa điểm"
-   },
-   {
-    "en": "point",
-    "vi": "vị trí"
-   },
-   {
-    "en": "place",
-    "vi": "điểm"
-   },
-   {
-    "en": "position",
-    "vi": ""
-   }
-  ]
- },
- {
-  "id": "0732349b-08bb-41d5-94e7-ee5bfdb82570",
-  "word": "煩悩",
-  "reading": "ぼんのう",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n"
-  ],
-  "meanings": [
-   {
-    "en": "worldly desires",
-    "vi": "phiền não"
-   },
-   {
-    "en": "evil passions",
-    "vi": "dục vọng trần thế"
-   },
-   {
-    "en": "klesha",
-    "vi": "tham sân si"
-   }
-  ]
- },
- {
-  "id": "073a80a2-2f19-42d2-a79b-ff98157bfeb6",
-  "word": "委託",
-  "reading": "いたく",
+  "id": "0df07ad7-6540-4254-95cc-52e09db17e42",
+  "word": "把握",
+  "reading": "はあく",
   "romaji": null,
   "jlpt_level": "N3",
   "pos": [
@@ -760,121 +71,23 @@
   ],
   "meanings": [
    {
-    "en": "entrusting",
-    "vi": "ủy thác"
+    "en": "grasp (of a situation)",
+    "vi": "nắm bắt"
    },
    {
-    "en": "consignment",
-    "vi": "giao phó"
+    "en": "understanding",
+    "vi": "thấu hiểu"
    },
    {
-    "en": "commission",
-    "vi": "ký gửi"
+    "en": "control",
+    "vi": "nắm rõ"
    }
   ]
  },
  {
-  "id": "0755ac00-05ba-4820-bd9b-48f05f2bde8c",
-  "word": "重厚",
-  "reading": "じゅうこう",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "adj-na",
-   "n"
-  ],
-  "meanings": [
-   {
-    "en": "profound",
-    "vi": "sâu sắc"
-   },
-   {
-    "en": "grave",
-    "vi": "bề thế"
-   },
-   {
-    "en": "dignified",
-    "vi": "trang trọng"
-   },
-   {
-    "en": "stately",
-    "vi": "vững chãi"
-   },
-   {
-    "en": "substantial",
-    "vi": ""
-   }
-  ]
- },
- {
-  "id": "077e8491-a803-46a2-8b51-6f294ef24d25",
-  "word": "欠航",
-  "reading": "けっこう",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n",
-   "vs",
-   "vi"
-  ],
-  "meanings": [
-   {
-    "en": "cancellation (of a flight or sea voyage)",
-    "vi": "hủy chuyến (bay hoặc tàu thủy)"
-   }
-  ]
- },
- {
-  "id": "07852596-3be5-43fe-8f05-c7fd994914ca",
-  "word": "資本",
-  "reading": "しほん",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n"
-  ],
-  "meanings": [
-   {
-    "en": "funds",
-    "vi": "tư bản"
-   },
-   {
-    "en": "capital",
-    "vi": "vốn"
-   }
-  ]
- },
- {
-  "id": "078e6589-bbe1-4765-81fe-6e3be498f6ec",
-  "word": "送金",
-  "reading": "そうきん",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n",
-   "vs",
-   "vt",
-   "vi"
-  ],
-  "meanings": [
-   {
-    "en": "remittance",
-    "vi": "chuyển tiền"
-   },
-   {
-    "en": "sending money",
-    "vi": "gửi tiền"
-   },
-   {
-    "en": "transferring money",
-    "vi": ""
-   }
-  ]
- },
- {
-  "id": "07c523a3-6ad1-4035-9719-88eb3020acc5",
-  "word": "借入",
-  "reading": "しゃくにゅう",
+  "id": "0df9a03c-bde7-4dd3-8c44-31a0601820b5",
+  "word": "再利用",
+  "reading": "さいりよう",
   "romaji": null,
   "jlpt_level": "N3",
   "pos": [
@@ -883,313 +96,48 @@
   ],
   "meanings": [
    {
-    "en": "loan",
-    "vi": "vay"
+    "en": "reuse",
+    "vi": "tái sử dụng"
    },
    {
-    "en": "borrowing",
-    "vi": "khoản vay"
-   },
-   {
-    "en": "",
-    "vi": "mượn"
+    "en": "recycling",
+    "vi": "tái chế"
    }
   ]
  },
  {
-  "id": "07cef5df-ddbb-4cf0-aeb1-bcdd29b77b42",
-  "word": "代表的",
-  "reading": "だいひょうてき",
+  "id": "0e08319a-b116-48a9-b7dd-af025c6d5c3a",
+  "word": "見捨てる",
+  "reading": "みすてる",
   "romaji": null,
   "jlpt_level": "N3",
   "pos": [
-   "adj-na"
-  ],
-  "meanings": [
-   {
-    "en": "representative",
-    "vi": "tiêu biểu"
-   },
-   {
-    "en": "exemplary",
-    "vi": "đại diện"
-   },
-   {
-    "en": "model",
-    "vi": "điển hình"
-   }
-  ]
- },
- {
-  "id": "07d55a9b-0c32-4a96-8318-c52e3b257c38",
-  "word": "透明度",
-  "reading": "とうめいど",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n"
-  ],
-  "meanings": [
-   {
-    "en": "transparency",
-    "vi": "độ trong suốt"
-   },
-   {
-    "en": "degree of clearness",
-    "vi": ""
-   }
-  ]
- },
- {
-  "id": "07efb1d4-9630-4746-ae98-55e4ba3166b6",
-  "word": "発行",
-  "reading": "はっこう",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n",
-   "vs",
+   "v1",
    "vt"
   ],
   "meanings": [
    {
-    "en": "publication",
-    "vi": "phát hành"
+    "en": "to abandon",
+    "vi": "từ bỏ"
    },
    {
-    "en": "issue (of banknotes, passport, etc.)",
-    "vi": "xuất bản"
+    "en": "to fail",
+    "vi": "bỏ mặc"
    },
    {
-    "en": "",
-    "vi": "cấp (giấy tờ)"
+    "en": "to desert",
+    "vi": "phụ bạc"
+   },
+   {
+    "en": "to forsake",
+    "vi": "bỏ rơi"
    }
   ]
  },
  {
-  "id": "07f1c3ea-754b-4782-91d0-89d17bdfe6f6",
-  "word": "交差",
-  "reading": "こうさ",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n",
-   "vs",
-   "vi"
-  ],
-  "meanings": [
-   {
-    "en": "crossing",
-    "vi": "giao nhau"
-   },
-   {
-    "en": "intersection",
-    "vi": "giao cắt"
-   },
-   {
-    "en": "crossing over",
-    "vi": "bắt chéo"
-   }
-  ]
- },
- {
-  "id": "080239bd-1f41-4672-b0f1-50f39ed43bde",
-  "word": "当番",
-  "reading": "とうばん",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n",
-   "adj-no"
-  ],
-  "meanings": [
-   {
-    "en": "being on duty",
-    "vi": "trực ban"
-   },
-   {
-    "en": "person on duty",
-    "vi": "phiên trực"
-   },
-   {
-    "en": "one's turn",
-    "vi": "người trực"
-   }
-  ]
- },
- {
-  "id": "081985b5-3230-4641-9d86-df8523f8552d",
-  "word": "督促",
-  "reading": "とくそく",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n",
-   "vs",
-   "vt"
-  ],
-  "meanings": [
-   {
-    "en": "urge",
-    "vi": "đốc thúc"
-   },
-   {
-    "en": "demand",
-    "vi": "hối thúc"
-   },
-   {
-    "en": "importunity",
-    "vi": "giục"
-   }
-  ]
- },
- {
-  "id": "084871a5-0519-4120-b353-10649ce236f3",
-  "word": "尊ぶ",
-  "reading": "とうとぶ",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "v5b",
-   "vt"
-  ],
-  "meanings": [
-   {
-    "en": "to value",
-    "vi": "tôn trọng"
-   },
-   {
-    "en": "to esteem",
-    "vi": "coi trọng"
-   },
-   {
-    "en": "to respect",
-    "vi": "kính trọng"
-   },
-   {
-    "en": "to revere",
-    "vi": ""
-   }
-  ]
- },
- {
-  "id": "08520b28-ab0b-487a-96e5-33135da65d80",
-  "word": "外向き",
-  "reading": "そとむき",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n"
-  ],
-  "meanings": [
-   {
-    "en": "facing outward",
-    "vi": "hướng ra ngoài"
-   },
-   {
-    "en": "",
-    "vi": "quay ra ngoài"
-   },
-   {
-    "en": "",
-    "vi": "hướng ngoại"
-   }
-  ]
- },
- {
-  "id": "08831e67-b4de-438b-9852-930da40f1aa3",
-  "word": "文学",
-  "reading": "ぶんがく",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n"
-  ],
-  "meanings": [
-   {
-    "en": "literature",
-    "vi": "văn học"
-   }
-  ]
- },
- {
-  "id": "0899b408-8c68-4df9-9907-1e7c7c983ec0",
-  "word": "可憐",
-  "reading": "かれん",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "adj-na"
-  ],
-  "meanings": [
-   {
-    "en": "sweet (e.g. young girls, flowers blooming)",
-    "vi": "dịu dàng"
-   },
-   {
-    "en": "touchingly lovely",
-    "vi": "đáng thương"
-   },
-   {
-    "en": "cute",
-    "vi": "dễ thương"
-   },
-   {
-    "en": "pitiful",
-    "vi": "đáng tội nghiệp"
-   }
-  ]
- },
- {
-  "id": "08a49e50-383e-44b1-8ba1-c54f429d8d75",
-  "word": "呻く",
-  "reading": "うめく",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "v5k",
-   "vi"
-  ],
-  "meanings": [
-   {
-    "en": "to moan",
-    "vi": "rên rỉ"
-   },
-   {
-    "en": "to groan",
-    "vi": "rên la"
-   }
-  ]
- },
- {
-  "id": "08a4bc33-13c3-49d3-b161-a6bc8b88f358",
-  "word": "恵む",
-  "reading": "めぐむ",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "v5m",
-   "vt"
-  ],
-  "meanings": [
-   {
-    "en": "to bless",
-    "vi": "ban phước"
-   },
-   {
-    "en": "to show mercy to",
-    "vi": "bố thí"
-   },
-   {
-    "en": "to give (alms)",
-    "vi": "thương xót"
-   }
-  ]
- },
- {
-  "id": "08e98708-cec7-4794-9c43-4ee97e63202f",
-  "word": "隔たる",
-  "reading": "へだたる",
+  "id": "0e0e54ea-b8e8-46b7-a4de-d75d6aaeddea",
+  "word": "濁る",
+  "reading": "にごる",
   "romaji": null,
   "jlpt_level": "N3",
   "pos": [
@@ -1198,19 +146,105 @@
   ],
   "meanings": [
    {
-    "en": "to be distant",
-    "vi": "cách xa"
+    "en": "to become muddy",
+    "vi": "đục"
    },
    {
-    "en": "",
-    "vi": "xa cách"
+    "en": "to become cloudy",
+    "vi": "vẩn đục"
+   },
+   {
+    "en": "to become impure",
+    "vi": "(âm) đục"
+   },
+   {
+    "en": "(sound) to become voiced",
+    "vi": ""
    }
   ]
  },
  {
-  "id": "08ea87f7-b295-4331-96ad-4b553108dd84",
-  "word": "遠隔",
-  "reading": "えんかく",
+  "id": "0e1dd332-32b5-40b3-9f10-607df9bd1110",
+  "word": "取り分け",
+  "reading": "とりわけ",
+  "romaji": null,
+  "jlpt_level": "N3",
+  "pos": [
+   "adv",
+   "n"
+  ],
+  "meanings": [
+   {
+    "en": "especially",
+    "vi": "đặc biệt"
+   },
+   {
+    "en": "particularly",
+    "vi": "nhất là"
+   },
+   {
+    "en": "above all",
+    "vi": "trên hết"
+   },
+   {
+    "en": "portioning out (servings of food)",
+    "vi": ""
+   }
+  ]
+ },
+ {
+  "id": "0e299b14-fc36-484c-aab4-a01f059ef5a4",
+  "word": "平均的",
+  "reading": "へいきんてき",
+  "romaji": null,
+  "jlpt_level": "N3",
+  "pos": [
+   "adj-na"
+  ],
+  "meanings": [
+   {
+    "en": "average",
+    "vi": "trung bình"
+   },
+   {
+    "en": "ordinary",
+    "vi": "bình thường"
+   },
+   {
+    "en": "normal",
+    "vi": ""
+   }
+  ]
+ },
+ {
+  "id": "0e5eeaf4-c546-4495-8780-aea7ecc84e0e",
+  "word": "基づく",
+  "reading": "もとづく",
+  "romaji": null,
+  "jlpt_level": "N3",
+  "pos": [
+   "v5k",
+   "vi"
+  ],
+  "meanings": [
+   {
+    "en": "to be based on",
+    "vi": "dựa trên"
+   },
+   {
+    "en": "to be grounded on",
+    "vi": "căn cứ vào"
+   },
+   {
+    "en": "to originate in",
+    "vi": "bắt nguồn từ"
+   }
+  ]
+ },
+ {
+  "id": "0eaa0917-9a00-4914-ba5b-5c4765587846",
+  "word": "中間",
+  "reading": "ちゅうかん",
   "romaji": null,
   "jlpt_level": "N3",
   "pos": [
@@ -1219,53 +253,104 @@
   ],
   "meanings": [
    {
-    "en": "distant",
-    "vi": "từ xa"
+    "en": "middle",
+    "vi": "trung gian"
    },
    {
-    "en": "remote",
-    "vi": "cách xa"
+    "en": "midway",
+    "vi": "ở giữa"
    },
    {
-    "en": "isolated",
-    "vi": "điều khiển xa"
+    "en": "intermediate",
+    "vi": "nửa chừng"
+   },
+   {
+    "en": "interim",
+    "vi": "tạm thời"
    }
   ]
  },
  {
-  "id": "08ee8173-88c8-4872-951c-6d82024ee303",
-  "word": "控える",
-  "reading": "ひかえる",
+  "id": "0eb184ea-2fe2-4d6b-a2ff-1d4fbeda3490",
+  "word": "可愛らしい",
+  "reading": "かわいらしい",
   "romaji": null,
   "jlpt_level": "N3",
   "pos": [
-   "v1",
-   "vt",
-   "vi"
+   "adj-i"
   ],
   "meanings": [
    {
-    "en": "to refrain",
-    "vi": "hạn chế"
+    "en": "lovely",
+    "vi": "dễ thương"
    },
    {
-    "en": "to abstain",
-    "vi": "kiêng"
+    "en": "sweet",
+    "vi": "xinh xắn"
    },
    {
-    "en": "to jot down",
-    "vi": "ghi chú lại"
+    "en": "pretty",
+    "vi": "đáng yêu"
    },
    {
-    "en": "to be in waiting",
-    "vi": "chờ sẵn"
+    "en": "cute",
+    "vi": "đáng mến"
+   },
+   {
+    "en": "adorable",
+    "vi": ""
    }
   ]
  },
  {
-  "id": "091849e2-fec3-4e07-9406-b79f9f0da921",
-  "word": "屈服",
-  "reading": "くっぷく",
+  "id": "0eb56f01-6dae-4f0e-9ed8-d05f5504ec63",
+  "word": "辿る",
+  "reading": "たどる",
+  "romaji": null,
+  "jlpt_level": "N3",
+  "pos": [
+   "v5r",
+   "vt"
+  ],
+  "meanings": [
+   {
+    "en": "to follow (a path)",
+    "vi": "lần theo"
+   },
+   {
+    "en": "to trace",
+    "vi": "dò theo"
+   },
+   {
+    "en": "to pursue (a course)",
+    "vi": "đi theo (con đường)"
+   }
+  ]
+ },
+ {
+  "id": "0eca6bae-a5fa-40ab-a8cd-ea3d7dfb57b0",
+  "word": "日没",
+  "reading": "にちぼつ",
+  "romaji": null,
+  "jlpt_level": "N3",
+  "pos": [
+   "n"
+  ],
+  "meanings": [
+   {
+    "en": "sunset",
+    "vi": "hoàng hôn"
+   },
+   {
+    "en": "",
+    "vi": "mặt trời lặn"
+   }
+  ]
+ },
+ {
+  "id": "0ee1ad72-088a-422a-a827-456fe32f1b7e",
+  "word": "収縮",
+  "reading": "しゅうしゅく",
   "romaji": null,
   "jlpt_level": "N3",
   "pos": [
@@ -1275,59 +360,218 @@
   ],
   "meanings": [
    {
-    "en": "yielding",
-    "vi": "đầu hàng"
+    "en": "contraction",
+    "vi": "co lại"
    },
    {
-    "en": "submission",
-    "vi": "khuất phục"
+    "en": "shrinking",
+    "vi": "co rút"
    },
    {
-    "en": "surrender",
-    "vi": "chịu thua"
-   },
-   {
-    "en": "giving way",
-    "vi": "phục tùng"
-   },
-   {
-    "en": "succumbing",
-    "vi": ""
+    "en": "constriction",
+    "vi": "thu nhỏ"
    }
   ]
  },
  {
-  "id": "0925ac64-5e24-4f29-a613-9e56a06e5d67",
-  "word": "分厚い",
-  "reading": "ぶあつい",
+  "id": "0eed2ac4-aae8-4d2f-97f4-ae860945c4aa",
+  "word": "現状",
+  "reading": "げんじょう",
   "romaji": null,
   "jlpt_level": "N3",
   "pos": [
-   "adj-i"
+   "n"
   ],
   "meanings": [
    {
-    "en": "thick",
-    "vi": "dày"
+    "en": "present condition",
+    "vi": "tình trạng hiện tại"
    },
    {
-    "en": "bulky",
-    "vi": "dày cộp"
+    "en": "existing state",
+    "vi": "hiện trạng"
    },
    {
-    "en": "massive",
-    "vi": "đồ sộ"
+    "en": "status quo",
+    "vi": "nguyên trạng"
    },
    {
-    "en": "heavy",
+    "en": "current state",
     "vi": ""
    }
   ]
  },
  {
-  "id": "0940adeb-d7fb-4ddf-8ca4-0a9d293a98de",
-  "word": "悲観的",
-  "reading": "ひかんてき",
+  "id": "0f24bd01-5ff9-4fbf-a95f-438d1a34241d",
+  "word": "脱却",
+  "reading": "だっきゃく",
+  "romaji": null,
+  "jlpt_level": "N3",
+  "pos": [
+   "n",
+   "vs",
+   "vt",
+   "vi"
+  ],
+  "meanings": [
+   {
+    "en": "ridding oneself",
+    "vi": "thoát khỏi"
+   },
+   {
+    "en": "freeing oneself of",
+    "vi": "vượt qua"
+   },
+   {
+    "en": "growing out of",
+    "vi": "từ bỏ"
+   },
+   {
+    "en": "overcoming",
+    "vi": "thoát ra"
+   },
+   {
+    "en": "outgrowing",
+    "vi": ""
+   }
+  ]
+ },
+ {
+  "id": "0f28b5ef-d40f-4b4f-8a5f-d0c33a5296a9",
+  "word": "有様",
+  "reading": "ありさま",
+  "romaji": null,
+  "jlpt_level": "N3",
+  "pos": [
+   "n"
+  ],
+  "meanings": [
+   {
+    "en": "state",
+    "vi": "tình trạng"
+   },
+   {
+    "en": "condition",
+    "vi": "cảnh tượng"
+   },
+   {
+    "en": "sight",
+    "vi": "bộ dạng"
+   },
+   {
+    "en": "spectacle",
+    "vi": ""
+   }
+  ]
+ },
+ {
+  "id": "0f39f247-c934-44f1-949e-654203b34980",
+  "word": "すり替える",
+  "reading": "すりかえる",
+  "romaji": null,
+  "jlpt_level": "N3",
+  "pos": [
+   "v1",
+   "vt"
+  ],
+  "meanings": [
+   {
+    "en": "to switch (secretly)",
+    "vi": "tráo"
+   },
+   {
+    "en": "to substitute",
+    "vi": "đánh tráo"
+   },
+   {
+    "en": "to sidestep (an issue)",
+    "vi": "thay lén"
+   },
+   {
+    "en": "",
+    "vi": "lảng tránh (vấn đề)"
+   }
+  ]
+ },
+ {
+  "id": "0f3c326b-a79a-4e98-90df-7a38bc32a1be",
+  "word": "資金",
+  "reading": "しきん",
+  "romaji": null,
+  "jlpt_level": "N3",
+  "pos": [
+   "n"
+  ],
+  "meanings": [
+   {
+    "en": "funds",
+    "vi": "vốn"
+   },
+   {
+    "en": "capital",
+    "vi": "quỹ"
+   },
+   {
+    "en": "",
+    "vi": "nguồn vốn"
+   }
+  ]
+ },
+ {
+  "id": "0f3c725f-29ca-438c-98ba-c3b17eb6d0a1",
+  "word": "下降",
+  "reading": "かこう",
+  "romaji": null,
+  "jlpt_level": "N3",
+  "pos": [
+   "n",
+   "vs",
+   "vi"
+  ],
+  "meanings": [
+   {
+    "en": "descent",
+    "vi": "đi xuống"
+   },
+   {
+    "en": "fall",
+    "vi": "giảm"
+   },
+   {
+    "en": "drop",
+    "vi": "hạ xuống"
+   },
+   {
+    "en": "decline",
+    "vi": ""
+   }
+  ]
+ },
+ {
+  "id": "0f456827-e0bb-4b5b-8d80-076cdc57b5ae",
+  "word": "逃れる",
+  "reading": "のがれる",
+  "romaji": null,
+  "jlpt_level": "N3",
+  "pos": [
+   "v1",
+   "vi"
+  ],
+  "meanings": [
+   {
+    "en": "to escape",
+    "vi": "trốn thoát"
+   },
+   {
+    "en": "",
+    "vi": "thoát khỏi"
+   }
+  ]
+ },
+ {
+  "id": "0f5cdded-12e1-4f4d-a67d-42f13953a4b5",
+  "word": "決定的",
+  "reading": "けっていてき",
   "romaji": null,
   "jlpt_level": "N3",
   "pos": [
@@ -1335,19 +579,204 @@
   ],
   "meanings": [
    {
-    "en": "pessimistic",
-    "vi": "bi quan"
+    "en": "definite",
+    "vi": "dứt khoát"
    },
    {
-    "en": "gloomy",
-    "vi": "ảm đạm"
+    "en": "final",
+    "vi": "cuối cùng"
+   },
+   {
+    "en": "decisive",
+    "vi": "quyết định"
+   },
+   {
+    "en": "conclusive",
+    "vi": "có tính kết luận"
    }
   ]
  },
  {
-  "id": "0971f053-b544-4b0d-93fc-87c999fa80e4",
-  "word": "味わう",
-  "reading": "あじわう",
+  "id": "0f85df57-fbd0-4ef2-8336-120e6fa709a4",
+  "word": "発足",
+  "reading": "ほっそく",
+  "romaji": null,
+  "jlpt_level": "N3",
+  "pos": [
+   "n",
+   "vs",
+   "vi"
+  ],
+  "meanings": [
+   {
+    "en": "starting",
+    "vi": "thành lập"
+   },
+   {
+    "en": "inauguration",
+    "vi": "khai mạc"
+   },
+   {
+    "en": "launch",
+    "vi": "ra mắt"
+   },
+   {
+    "en": "founding",
+    "vi": "khởi động"
+   },
+   {
+    "en": "establishment",
+    "vi": ""
+   },
+   {
+    "en": "start-up",
+    "vi": ""
+   }
+  ]
+ },
+ {
+  "id": "0f8cb6ad-d29d-4da6-a604-224c16cc3650",
+  "word": "自白",
+  "reading": "じはく",
+  "romaji": null,
+  "jlpt_level": "N3",
+  "pos": [
+   "n",
+   "vs",
+   "vt"
+  ],
+  "meanings": [
+   {
+    "en": "confession",
+    "vi": "thú tội"
+   },
+   {
+    "en": "admission",
+    "vi": "tự thú"
+   },
+   {
+    "en": "",
+    "vi": "khai nhận"
+   }
+  ]
+ },
+ {
+  "id": "0fe9062c-3027-43fe-b42d-a83ccfb3291a",
+  "word": "直ちに",
+  "reading": "ただちに",
+  "romaji": null,
+  "jlpt_level": "N3",
+  "pos": [
+   "adv"
+  ],
+  "meanings": [
+   {
+    "en": "at once",
+    "vi": "ngay lập tức"
+   },
+   {
+    "en": "immediately",
+    "vi": "tức khắc"
+   },
+   {
+    "en": "right away",
+    "vi": "trực tiếp"
+   },
+   {
+    "en": "directly",
+    "vi": ""
+   }
+  ]
+ },
+ {
+  "id": "10125277-1238-4099-951a-1d48501f59a8",
+  "word": "管",
+  "reading": "くだ",
+  "romaji": null,
+  "jlpt_level": "N3",
+  "pos": [
+   "n"
+  ],
+  "meanings": [
+   {
+    "en": "pipe",
+    "vi": "ống"
+   },
+   {
+    "en": "tube",
+    "vi": "ống dẫn"
+   },
+   {
+    "en": "bobbin",
+    "vi": "suốt chỉ"
+   }
+  ]
+ },
+ {
+  "id": "1029af59-a7e7-4a3b-ae8b-eecf2d98b3b3",
+  "word": "見上げる",
+  "reading": "みあげる",
+  "romaji": null,
+  "jlpt_level": "N3",
+  "pos": [
+   "v1",
+   "vt"
+  ],
+  "meanings": [
+   {
+    "en": "to look up at",
+    "vi": "ngước nhìn"
+   },
+   {
+    "en": "to look up to",
+    "vi": "ngẩng nhìn"
+   },
+   {
+    "en": "to admire",
+    "vi": "kính nể"
+   }
+  ]
+ },
+ {
+  "id": "10329529-2313-45c2-a146-d02cd45da7d2",
+  "word": "体制",
+  "reading": "たいせい",
+  "romaji": null,
+  "jlpt_level": "N3",
+  "pos": [
+   "n"
+  ],
+  "meanings": [
+   {
+    "en": "order",
+    "vi": "hệ thống"
+   },
+   {
+    "en": "system",
+    "vi": "chế độ"
+   },
+   {
+    "en": "structure",
+    "vi": "cơ cấu tổ chức"
+   },
+   {
+    "en": "set-up",
+    "vi": "cơ chế"
+   },
+   {
+    "en": "organization",
+    "vi": ""
+   },
+   {
+    "en": "regime",
+    "vi": ""
+   }
+  ]
+ },
+ {
+  "id": "1057438a-df00-41f9-a51c-cb81739090eb",
+  "word": "食らう",
+  "reading": "くらう",
   "romaji": null,
   "jlpt_level": "N3",
   "pos": [
@@ -1356,1022 +785,56 @@
   ],
   "meanings": [
    {
-    "en": "to taste",
-    "vi": "nếm"
+    "en": "to eat",
+    "vi": "đớp"
    },
    {
-    "en": "to savor",
-    "vi": "thưởng thức"
+    "en": "to wolf",
+    "vi": "tọng"
    },
    {
-    "en": "to appreciate",
-    "vi": "trải nghiệm"
+    "en": "to receive (a blow)",
+    "vi": "hứng (đòn)"
    },
    {
-    "en": "to experience",
-    "vi": ""
+    "en": "to undergo (trouble)",
+    "vi": "gặp (rắc rối)"
    }
   ]
  },
  {
-  "id": "09aebfb0-efab-4d5d-820a-935f425b00c3",
-  "word": "密集",
-  "reading": "みっしゅう",
+  "id": "10a8793d-db6d-422d-9187-22999723837f",
+  "word": "可哀想",
+  "reading": "かわいそう",
   "romaji": null,
   "jlpt_level": "N3",
   "pos": [
-   "n",
-   "vs",
-   "vi"
-  ],
-  "meanings": [
-   {
-    "en": "crowding together",
-    "vi": "tụ tập dày đặc"
-   },
-   {
-    "en": "clustering",
-    "vi": "quây quần"
-   },
-   {
-    "en": "close formation",
-    "vi": "san sát"
-   }
-  ]
- },
- {
-  "id": "09c3f3e5-eabd-43ea-a1b1-04ff5f99b84d",
-  "word": "剥がれる",
-  "reading": "はがれる",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "v1",
-   "vi"
-  ],
-  "meanings": [
-   {
-    "en": "to come unstuck",
-    "vi": "bong ra"
-   },
-   {
-    "en": "to peel off",
-    "vi": "tróc ra"
-   },
-   {
-    "en": "to come off",
-    "vi": "bong tróc"
-   }
-  ]
- },
- {
-  "id": "09cd6ec9-6454-475e-87f0-5ffdb55aee86",
-  "word": "息切れ",
-  "reading": "いきぎれ",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n",
-   "vs",
-   "vi"
-  ],
-  "meanings": [
-   {
-    "en": "shortness of breath",
-    "vi": "hụt hơi"
-   },
-   {
-    "en": "panting",
-    "vi": "thở hổn hển"
-   },
-   {
-    "en": "puffing",
-    "vi": "kiệt sức"
-   },
-   {
-    "en": "running out of steam",
-    "vi": "hết hơi"
-   }
-  ]
- },
- {
-  "id": "09e6b087-2c8f-430f-be8e-4fa02d216027",
-  "word": "既に",
-  "reading": "すでに",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "adv"
-  ],
-  "meanings": [
-   {
-    "en": "already",
-    "vi": "đã (làm)"
-   },
-   {
-    "en": "previously",
-    "vi": "trước đó"
-   },
-   {
-    "en": "before",
-    "vi": "rõ ràng là"
-   },
-   {
-    "en": "undeniably",
-    "vi": ""
-   },
-   {
-    "en": "unmistakably",
-    "vi": ""
-   }
-  ]
- },
- {
-  "id": "0a07fc7a-674d-4358-90bf-a4bb52d5cfb7",
-  "word": "第一印象",
-  "reading": "だいいちいんしょう",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n"
-  ],
-  "meanings": [
-   {
-    "en": "first impression",
-    "vi": "ấn tượng đầu tiên"
-   }
-  ]
- },
- {
-  "id": "0a220279-739f-44eb-9283-1e0d76c160d1",
-  "word": "左隣",
-  "reading": "ひだりどなり",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n",
-   "adj-no"
-  ],
-  "meanings": [
-   {
-    "en": "neighbour to the left",
-    "vi": "bên trái"
-   },
-   {
-    "en": "",
-    "vi": "nhà/người kế bên trái"
-   }
-  ]
- },
- {
-  "id": "0a2c787e-2a21-431f-8f4e-fc698772c5d8",
-  "word": "苦労",
-  "reading": "くろう",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n",
-   "vs",
-   "vt",
-   "vi"
-  ],
-  "meanings": [
-   {
-    "en": "trouble",
-    "vi": "vất vả"
-   },
-   {
-    "en": "hardship",
-    "vi": "gian khổ"
-   },
-   {
-    "en": "difficulty",
-    "vi": "nhọc nhằn"
-   },
-   {
-    "en": "toil",
-    "vi": "lo lắng"
-   },
-   {
-    "en": "worry",
-    "vi": ""
-   }
-  ]
- },
- {
-  "id": "0a69b51b-b94c-4d13-8552-fae1e5f0601e",
-  "word": "理屈",
-  "reading": "りくつ",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n"
-  ],
-  "meanings": [
-   {
-    "en": "theory",
-    "vi": "lý lẽ"
-   },
-   {
-    "en": "reason",
-    "vi": "lý sự"
-   },
-   {
-    "en": "(unreasonable) argument",
-    "vi": "ngụy biện"
-   },
-   {
-    "en": "excuse",
-    "vi": "cái cớ"
-   }
-  ]
- },
- {
-  "id": "0a6fce00-72e5-487b-a11a-1056ff07ca1a",
-  "word": "透ける",
-  "reading": "すける",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "v1",
-   "vi"
-  ],
-  "meanings": [
-   {
-    "en": "to be transparent",
-    "vi": "trong suốt"
-   },
-   {
-    "en": "to show through",
-    "vi": "nhìn xuyên qua"
-   },
-   {
-    "en": "",
-    "vi": "lộ ra"
-   }
-  ]
- },
- {
-  "id": "0a9f372a-0bae-4517-be79-86207eb2195c",
-  "word": "業界",
-  "reading": "ぎょうかい",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n"
-  ],
-  "meanings": [
-   {
-    "en": "business world",
-    "vi": "thế giới kinh doanh"
-   },
-   {
-    "en": "business circles",
-    "vi": "giới kinh doanh"
-   },
-   {
-    "en": "(the) industry",
-    "vi": "ngành công nghiệp"
-   }
-  ]
- },
- {
-  "id": "0aa94953-215e-4206-b313-2db24241fe63",
-  "word": "中心的",
-  "reading": "ちゅうしんてき",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "adj-na"
-  ],
-  "meanings": [
-   {
-    "en": "central",
-    "vi": "trung tâm"
-   },
-   {
-    "en": "mainline",
-    "vi": "chủ chốt"
-   },
-   {
-    "en": "",
-    "vi": "cốt lõi"
-   }
-  ]
- },
- {
-  "id": "0af04d17-3e34-4188-9aec-79b99b0f4dd0",
-  "word": "一斉に",
-  "reading": "いっせいに",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "adv"
-  ],
-  "meanings": [
-   {
-    "en": "simultaneously",
-    "vi": "đồng loạt"
-   },
-   {
-    "en": "all at once",
-    "vi": "cùng một lúc"
-   },
-   {
-    "en": "in unison",
-    "vi": "nhất tề"
-   }
-  ]
- },
- {
-  "id": "0aff786c-aa4a-4913-b83b-93a82d42baf8",
-  "word": "旗揚げ",
-  "reading": "はたあげ",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n",
-   "vs"
-  ],
-  "meanings": [
-   {
-    "en": "raising an army",
-    "vi": "khởi nghiệp"
-   },
-   {
-    "en": "raising a banner",
-    "vi": "khai trương"
-   },
-   {
-    "en": "launching a new group",
-    "vi": "thành lập (doanh nghiệp)"
-   },
-   {
-    "en": "launching a business",
-    "vi": ""
-   }
-  ]
- },
- {
-  "id": "0b081d4c-1139-4588-b0b3-0ff18ed0ac0a",
-  "word": "保護",
-  "reading": "ほご",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n",
-   "vs",
-   "vt"
-  ],
-  "meanings": [
-   {
-    "en": "protection",
-    "vi": "bảo vệ"
-   },
-   {
-    "en": "safeguard",
-    "vi": "che chở"
-   },
-   {
-    "en": "preservation",
-    "vi": "bảo tồn"
-   },
-   {
-    "en": "conservation",
-    "vi": ""
-   }
-  ]
- },
- {
-  "id": "0b19e6ff-a35d-4904-a9be-43c9e7466708",
-  "word": "大筋",
-  "reading": "おおすじ",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n"
-  ],
-  "meanings": [
-   {
-    "en": "outline",
-    "vi": "ý chính"
-   },
-   {
-    "en": "summary",
-    "vi": "đại cương"
-   },
-   {
-    "en": "gist",
-    "vi": "nội dung chủ yếu"
-   },
-   {
-    "en": "basic points",
-    "vi": ""
-   }
-  ]
- },
- {
-  "id": "0b341097-7a84-4e32-953c-325c5b579fa0",
-  "word": "羅列",
-  "reading": "られつ",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n",
-   "vs",
-   "vt",
-   "vi"
-  ],
-  "meanings": [
-   {
-    "en": "enumeration",
-    "vi": "liệt kê"
-   },
-   {
-    "en": "citation",
-    "vi": "dàn trải"
-   },
-   {
-    "en": "listing",
-    "vi": "xếp hàng loạt"
-   }
-  ]
- },
- {
-  "id": "0b43004b-f4a6-4ec2-a3a4-67d594abbcf5",
-  "word": "自覚",
-  "reading": "じかく",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n",
-   "vs",
-   "vt"
-  ],
-  "meanings": [
-   {
-    "en": "self-consciousness",
-    "vi": "tự giác"
-   },
-   {
-    "en": "self-awareness",
-    "vi": "tự ý thức"
-   },
-   {
-    "en": "",
-    "vi": "tự nhận thức"
-   }
-  ]
- },
- {
-  "id": "0b439ad0-1a4f-4c1f-abe4-e858c18d4db6",
-  "word": "産業",
-  "reading": "さんぎょう",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n"
-  ],
-  "meanings": [
-   {
-    "en": "industry",
-    "vi": "công nghiệp"
-   },
-   {
-    "en": "livelihood",
-    "vi": "nghề nghiệp"
-   },
-   {
-    "en": "occupation",
-    "vi": "sinh kế"
-   }
-  ]
- },
- {
-  "id": "0b5d5a76-284c-420c-a3cb-04db63e8c895",
-  "word": "瑞々しい",
-  "reading": "みずみずしい",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "adj-i"
-  ],
-  "meanings": [
-   {
-    "en": "fresh and youthful",
-    "vi": "tươi tắn"
-   },
-   {
-    "en": "vibrant",
-    "vi": "mơn mởn"
-   },
-   {
-    "en": "juicy",
-    "vi": "mọng nước"
-   }
-  ]
- },
- {
-  "id": "0b64c476-b765-4d2b-9254-250f9336980a",
-  "word": "頻度",
-  "reading": "ひんど",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n"
-  ],
-  "meanings": [
-   {
-    "en": "frequency (of occurrence)",
-    "vi": "tần suất"
-   },
-   {
-    "en": "",
-    "vi": "tần số xuất hiện"
-   }
-  ]
- },
- {
-  "id": "0b834ac5-aa27-4a63-9209-5339bd03eab8",
-  "word": "科学的",
-  "reading": "かがくてき",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "adj-na"
-  ],
-  "meanings": [
-   {
-    "en": "scientific",
-    "vi": "mang tính khoa học"
-   },
-   {
-    "en": "",
-    "vi": "khoa học"
-   }
-  ]
- },
- {
-  "id": "0b9419a5-a359-47b4-84d2-8ada9d7965e5",
-  "word": "施行",
-  "reading": "しこう",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n",
-   "vs",
-   "vt"
-  ],
-  "meanings": [
-   {
-    "en": "putting in force (a law)",
-    "vi": "thi hành (luật)"
-   },
-   {
-    "en": "enforcement",
-    "vi": "thực thi"
-   },
-   {
-    "en": "carrying out",
-    "vi": "áp dụng"
-   }
-  ]
- },
- {
-  "id": "0ba2d66c-24d6-4551-b68d-1f0d0d7c4a1e",
-  "word": "すり抜ける",
-  "reading": "すりぬける",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "v1",
-   "vi"
-  ],
-  "meanings": [
-   {
-    "en": "to slip through",
-    "vi": "lách qua"
-   },
-   {
-    "en": "to weave through",
-    "vi": "luồn lách"
-   },
-   {
-    "en": "to elude",
-    "vi": "né tránh"
-   }
-  ]
- },
- {
-  "id": "0bb0f2bd-e09c-4b9c-b709-eb28d5c278cb",
-  "word": "侵攻",
-  "reading": "しんこう",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n",
-   "vs",
-   "vt",
-   "vi"
-  ],
-  "meanings": [
-   {
-    "en": "invasion",
-    "vi": "xâm lược"
-   },
-   {
-    "en": "",
-    "vi": "tấn công xâm chiếm"
-   }
-  ]
- },
- {
-  "id": "0bf066e2-ee8e-4922-a4d0-6b9da31dd0ee",
-  "word": "押収",
-  "reading": "おうしゅう",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n",
-   "vs",
-   "vt"
-  ],
-  "meanings": [
-   {
-    "en": "seizure",
-    "vi": "tịch thu"
-   },
-   {
-    "en": "confiscation",
-    "vi": "thu giữ"
-   }
-  ]
- },
- {
-  "id": "0c5930dd-5933-4f02-9a44-5d9486f0af06",
-  "word": "実習",
-  "reading": "じっしゅう",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n",
-   "vs",
-   "vt"
-  ],
-  "meanings": [
-   {
-    "en": "practice (in the field)",
-    "vi": "thực tập"
-   },
-   {
-    "en": "training",
-    "vi": "thực hành"
-   },
-   {
-    "en": "practical exercise",
-    "vi": ""
-   }
-  ]
- },
- {
-  "id": "0c5e6829-b9ed-4fa9-b478-0e9d7c348fbf",
-  "word": "活気",
-  "reading": "かっき",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n"
-  ],
-  "meanings": [
-   {
-    "en": "energy",
-    "vi": "sức sống"
-   },
-   {
-    "en": "vigour",
-    "vi": "sinh khí"
-   },
-   {
-    "en": "liveliness",
-    "vi": "sự sôi nổi"
-   },
-   {
-    "en": "animation",
-    "vi": ""
-   }
-  ]
- },
- {
-  "id": "0ca05012-e8b3-4142-9dca-93de689c2779",
-  "word": "仕切り",
-  "reading": "しきり",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n"
-  ],
-  "meanings": [
-   {
-    "en": "partition",
-    "vi": "vách ngăn"
-   },
-   {
-    "en": "division",
-    "vi": "sự phân chia"
-   },
-   {
-    "en": "settlement of accounts",
-    "vi": "quyết toán"
-   },
-   {
-    "en": "managing",
-    "vi": "điều hành"
-   }
-  ]
- },
- {
-  "id": "0cb4c420-226e-4c26-a8c1-a0f16495512e",
-  "word": "充実感",
-  "reading": "じゅうじつかん",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n"
-  ],
-  "meanings": [
-   {
-    "en": "sense of fulfillment",
-    "vi": "cảm giác viên mãn"
-   },
-   {
-    "en": "sense of accomplishment",
-    "vi": "sự trọn vẹn"
-   }
-  ]
- },
- {
-  "id": "0ccc8ed5-7c9a-4067-b120-754b1d0ebf7c",
-  "word": "核兵器",
-  "reading": "かくへいき",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n"
-  ],
-  "meanings": [
-   {
-    "en": "nuclear weapon",
-    "vi": "vũ khí hạt nhân"
-   }
-  ]
- },
- {
-  "id": "0ce5df10-7713-4da9-b903-2712cc9e3a4c",
-  "word": "視力",
-  "reading": "しりょく",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n"
-  ],
-  "meanings": [
-   {
-    "en": "eyesight",
-    "vi": "thị lực"
-   },
-   {
-    "en": "vision",
-    "vi": "tầm nhìn"
-   },
-   {
-    "en": "visual acuity",
-    "vi": ""
-   }
-  ]
- },
- {
-  "id": "0d17776d-4da3-4994-a343-cb612f433854",
-  "word": "運勢",
-  "reading": "うんせい",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n"
-  ],
-  "meanings": [
-   {
-    "en": "fortune",
-    "vi": "vận"
-   },
-   {
-    "en": "luck",
-    "vi": "số mệnh"
-   },
-   {
-    "en": "",
-    "vi": "vận may"
-   }
-  ]
- },
- {
-  "id": "0d1c3adc-35a4-4735-acd5-0568ceb33610",
-  "word": "微笑む",
-  "reading": "ほほえむ",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "v5m",
-   "vi"
-  ],
-  "meanings": [
-   {
-    "en": "to smile",
-    "vi": "mỉm cười"
-   }
-  ]
- },
- {
-  "id": "0d3208bb-a087-455b-b3c3-f5ca2f8fcde2",
-  "word": "栓",
-  "reading": "せん",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n"
-  ],
-  "meanings": [
-   {
-    "en": "stopper",
-    "vi": "nút"
-   },
-   {
-    "en": "cork",
-    "vi": "nắp"
-   },
-   {
-    "en": "plug",
-    "vi": "vòi"
-   },
-   {
-    "en": "tap",
-    "vi": "van"
-   }
-  ]
- },
- {
-  "id": "0d40052e-07bb-4041-911c-24644b0906e4",
-  "word": "奉仕",
-  "reading": "ほうし",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n",
-   "vs",
-   "vi"
-  ],
-  "meanings": [
-   {
-    "en": "service",
-    "vi": "phục vụ"
-   },
-   {
-    "en": "ministry",
-    "vi": "cống hiến"
-   },
-   {
-    "en": "offering at a reduced price",
-    "vi": "bán giá ưu đãi"
-   }
-  ]
- },
- {
-  "id": "0d4e24cf-1f8c-4473-b43b-eaf9c44a72cd",
-  "word": "枯れる",
-  "reading": "かれる",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "v1",
-   "vi"
-  ],
-  "meanings": [
-   {
-    "en": "to wither",
-    "vi": "khô héo"
-   },
-   {
-    "en": "to die (of a plant)",
-    "vi": "tàn lụi"
-   },
-   {
-    "en": "to mature (of character)",
-    "vi": "(cây) chết"
-   }
-  ]
- },
- {
-  "id": "0d671c58-5901-453a-8aa6-8bc3a102010b",
-  "word": "不良",
-  "reading": "ふりょう",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "adj-no",
    "adj-na",
    "n"
   ],
   "meanings": [
    {
-    "en": "bad",
-    "vi": "kém"
-   },
-   {
     "en": "poor",
-    "vi": "hỏng"
+    "vi": "đáng thương"
    },
    {
-    "en": "defective",
-    "vi": "lỗi"
+    "en": "pitiable",
+    "vi": "tội nghiệp"
    },
    {
-    "en": "delinquent",
-    "vi": "hư hỏng (người)"
+    "en": "pathetic",
+    "vi": "đáng tội"
    },
    {
-    "en": "hooligan",
+    "en": "pitiful",
     "vi": ""
    }
   ]
  },
  {
-  "id": "0d69e451-8409-4359-9102-2a79981558f1",
-  "word": "即日",
-  "reading": "そくじつ",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n",
-   "adv"
-  ],
-  "meanings": [
-   {
-    "en": "(on) the same day",
-    "vi": "ngay trong ngày"
-   },
-   {
-    "en": "",
-    "vi": "cùng ngày"
-   }
-  ]
- },
- {
-  "id": "0d71a52b-53e0-4aff-b991-3ee43b6c47ad",
-  "word": "甘味",
-  "reading": "あまみ",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n"
-  ],
-  "meanings": [
-   {
-    "en": "sweetness",
-    "vi": "vị ngọt"
-   },
-   {
-    "en": "sugary taste",
-    "vi": "đồ ngọt"
-   },
-   {
-    "en": "sweets",
-    "vi": ""
-   }
-  ]
- },
- {
-  "id": "0d75b784-6baf-429c-a3cf-87c10226c206",
-  "word": "修正案",
-  "reading": "しゅうせいあん",
-  "romaji": null,
-  "jlpt_level": "N3",
-  "pos": [
-   "n"
-  ],
-  "meanings": [
-   {
-    "en": "proposed amendment",
-    "vi": "dự thảo sửa đổi"
-   },
-   {
-    "en": "",
-    "vi": "bản đề xuất chỉnh sửa"
-   }
-  ]
- },
- {
-  "id": "0d845584-70ea-4490-9c01-2a9719e8de51",
-  "word": "弟子",
-  "reading": "でし",
+  "id": "10b98c6e-fdd7-43d9-8b17-fdbc8bcb53a0",
+  "word": "話題",
+  "reading": "わだい",
   "romaji": null,
   "jlpt_level": "N3",
   "pos": [
@@ -2380,31 +843,60 @@
   ],
   "meanings": [
    {
-    "en": "pupil",
-    "vi": "học trò"
+    "en": "topic",
+    "vi": "chủ đề"
    },
    {
-    "en": "disciple",
-    "vi": "đệ tử"
+    "en": "subject",
+    "vi": "chủ đề đang bàn"
    },
    {
-    "en": "adherent",
-    "vi": "môn đồ"
+    "en": "much talked about",
+    "vi": "đang được chú ý"
    },
    {
-    "en": "follower",
-    "vi": "người học việc"
+    "en": "topical",
+    "vi": "nóng hổi"
    },
    {
-    "en": "apprentice",
+    "en": "in the news",
+    "vi": ""
+   },
+   {
+    "en": "hot",
     "vi": ""
    }
   ]
  },
  {
-  "id": "0da0ec66-0a3d-4575-a833-268c819bfff8",
-  "word": "及ぼす",
-  "reading": "およぼす",
+  "id": "10d6bfc4-ded7-4019-8334-aa577b657a77",
+  "word": "不快",
+  "reading": "ふかい",
+  "romaji": null,
+  "jlpt_level": "N3",
+  "pos": [
+   "n",
+   "adj-na"
+  ],
+  "meanings": [
+   {
+    "en": "displeasure",
+    "vi": "khó chịu"
+   },
+   {
+    "en": "discomfort",
+    "vi": "bất an"
+   },
+   {
+    "en": "unpleasantness",
+    "vi": "không thoải mái"
+   }
+  ]
+ },
+ {
+  "id": "10f07ab5-e2e0-4c49-b88c-7ae89cfa478a",
+  "word": "託す",
+  "reading": "たくす",
   "romaji": null,
   "jlpt_level": "N3",
   "pos": [
@@ -2413,23 +905,23 @@
   ],
   "meanings": [
    {
-    "en": "to exert (influence)",
-    "vi": "gây ra"
+    "en": "to entrust with",
+    "vi": "ủy thác"
    },
    {
-    "en": "to cause (damage)",
-    "vi": "tác động đến"
+    "en": "to leave with",
+    "vi": "gửi gắm"
    },
    {
-    "en": "to bring about",
-    "vi": "đem lại (ảnh hưởng)"
+    "en": "to have someone deliver",
+    "vi": "nhờ chuyển"
    }
   ]
  },
  {
-  "id": "0db26167-9561-422a-9e92-c14d1e79afbf",
-  "word": "執筆",
-  "reading": "しっぴつ",
+  "id": "11055510-e26b-4e6f-83ef-ae1f1e17216b",
+  "word": "購読",
+  "reading": "こうどく",
   "romaji": null,
   "jlpt_level": "N3",
   "pos": [
@@ -2439,23 +931,295 @@
   ],
   "meanings": [
    {
-    "en": "writing",
-    "vi": "viết (bài)"
+    "en": "subscribing",
+    "vi": "đặt mua (báo)"
    },
    {
-    "en": "authoring",
-    "vi": "chấp bút"
+    "en": "buying and reading",
+    "vi": "đăng ký đọc"
+   },
+   {
+    "en": "taking (a newspaper)",
+    "vi": "mua đọc"
+   }
+  ]
+ },
+ {
+  "id": "110dc50e-8593-41eb-8817-dc86fbe3a780",
+  "word": "私服",
+  "reading": "しふく",
+  "romaji": null,
+  "jlpt_level": "N3",
+  "pos": [
+   "n"
+  ],
+  "meanings": [
+   {
+    "en": "plain clothes",
+    "vi": "thường phục"
+   },
+   {
+    "en": "civilian clothes",
+    "vi": "đồ thường (không đồng phục)"
+   },
+   {
+    "en": "casual wear",
+    "vi": ""
+   }
+  ]
+ },
+ {
+  "id": "1119da71-cc1d-42be-9f06-cc98016f2048",
+  "word": "適量",
+  "reading": "てきりょう",
+  "romaji": null,
+  "jlpt_level": "N3",
+  "pos": [
+   "n"
+  ],
+  "meanings": [
+   {
+    "en": "proper quantity",
+    "vi": "lượng vừa đủ"
+   },
+   {
+    "en": "suitable amount",
+    "vi": "liều thích hợp"
+   },
+   {
+    "en": "proper dose",
+    "vi": ""
+   }
+  ]
+ },
+ {
+  "id": "111f60f1-91eb-4557-bea6-b008e4f4fdb3",
+  "word": "具体性",
+  "reading": "ぐたいせい",
+  "romaji": null,
+  "jlpt_level": "N3",
+  "pos": [
+   "n"
+  ],
+  "meanings": [
+   {
+    "en": "concreteness",
+    "vi": "tính cụ thể"
+   },
+   {
+    "en": "feasibility",
+    "vi": "tính khả thi"
+   }
+  ]
+ },
+ {
+  "id": "1171f5af-d326-4bbe-a83a-688624b48a99",
+  "word": "薬味",
+  "reading": "やくみ",
+  "romaji": null,
+  "jlpt_level": "N3",
+  "pos": [
+   "n"
+  ],
+  "meanings": [
+   {
+    "en": "condiment",
+    "vi": "gia vị ăn kèm (gừng, wasabi, hành...)"
+   },
+   {
+    "en": "spice (grated/chopped topping)",
+    "vi": ""
+   }
+  ]
+ },
+ {
+  "id": "1174d79a-682f-45dc-b629-ff9fa0b91747",
+  "word": "仲間入り",
+  "reading": "なかまいり",
+  "romaji": null,
+  "jlpt_level": "N3",
+  "pos": [
+   "n",
+   "vs",
+   "vi"
+  ],
+  "meanings": [
+   {
+    "en": "joining (a group)",
+    "vi": "gia nhập nhóm"
+   },
+   {
+    "en": "becoming a member (of)",
+    "vi": "trở thành thành viên"
+   },
+   {
+    "en": "joining the ranks (of)",
+    "vi": "vào hàng"
+   }
+  ]
+ },
+ {
+  "id": "11d7a40a-9cae-4a7c-9fec-e233be94c613",
+  "word": "隠す",
+  "reading": "かくす",
+  "romaji": null,
+  "jlpt_level": "N3",
+  "pos": [
+   "v5s",
+   "vt"
+  ],
+  "meanings": [
+   {
+    "en": "to hide",
+    "vi": "giấu"
+   },
+   {
+    "en": "to conceal",
+    "vi": "che giấu"
    },
    {
     "en": "",
-    "vi": "sáng tác"
+    "vi": "giấu giếm"
    }
   ]
  },
  {
-  "id": "0db98c89-ccbc-4306-837c-384ab9fc6da7",
-  "word": "個性",
-  "reading": "こせい",
+  "id": "11dbe41f-741c-430c-873a-e2cfbad3c677",
+  "word": "強いて",
+  "reading": "しいて",
+  "romaji": null,
+  "jlpt_level": "N3",
+  "pos": [
+   "adv"
+  ],
+  "meanings": [
+   {
+    "en": "by force",
+    "vi": "cố ép"
+   },
+   {
+    "en": "if forced (to say)",
+    "vi": "gượng ép"
+   },
+   {
+    "en": "",
+    "vi": "nếu buộc phải"
+   }
+  ]
+ },
+ {
+  "id": "12068d23-2fec-429a-b88c-035205d03541",
+  "word": "凍える",
+  "reading": "こごえる",
+  "romaji": null,
+  "jlpt_level": "N3",
+  "pos": [
+   "v1",
+   "vi"
+  ],
+  "meanings": [
+   {
+    "en": "to freeze (of one's body)",
+    "vi": "cóng"
+   },
+   {
+    "en": "to become numb with cold",
+    "vi": "tê cóng"
+   },
+   {
+    "en": "",
+    "vi": "lạnh buốt"
+   }
+  ]
+ },
+ {
+  "id": "1218d2d6-05c3-4c02-9fb9-3733b51351bf",
+  "word": "献身",
+  "reading": "けんしん",
+  "romaji": null,
+  "jlpt_level": "N3",
+  "pos": [
+   "n",
+   "vs",
+   "vi"
+  ],
+  "meanings": [
+   {
+    "en": "devotion",
+    "vi": "cống hiến"
+   },
+   {
+    "en": "dedication",
+    "vi": "hy sinh"
+   },
+   {
+    "en": "self-sacrifice",
+    "vi": "tận tụy"
+   }
+  ]
+ },
+ {
+  "id": "1223f9e9-06bd-4e7d-a4db-a3a08e0c3fff",
+  "word": "冷却",
+  "reading": "れいきゃく",
+  "romaji": null,
+  "jlpt_level": "N3",
+  "pos": [
+   "n",
+   "vs",
+   "vt",
+   "vi"
+  ],
+  "meanings": [
+   {
+    "en": "cooling",
+    "vi": "làm mát"
+   },
+   {
+    "en": "refrigeration",
+    "vi": "làm lạnh"
+   },
+   {
+    "en": "cooling down (of a political conflict, etc.)",
+    "vi": "hạ nhiệt"
+   },
+   {
+    "en": "calming down",
+    "vi": "nguội bớt"
+   }
+  ]
+ },
+ {
+  "id": "123247d6-6c1f-4f27-81dc-69031ac95675",
+  "word": "逸脱",
+  "reading": "いつだつ",
+  "romaji": null,
+  "jlpt_level": "N3",
+  "pos": [
+   "n",
+   "vs",
+   "vi",
+   "vt"
+  ],
+  "meanings": [
+   {
+    "en": "deviation",
+    "vi": "đi chệch"
+   },
+   {
+    "en": "departure",
+    "vi": "lệch khỏi"
+   },
+   {
+    "en": "omission",
+    "vi": "bỏ sót"
+   }
+  ]
+ },
+ {
+  "id": "1281e098-4add-43f1-9f99-88f6a9d1e04b",
+  "word": "ほうれん草",
+  "reading": "ほうれんそう",
   "romaji": null,
   "jlpt_level": "N3",
   "pos": [
@@ -2463,40 +1227,340 @@
   ],
   "meanings": [
    {
-    "en": "individuality",
-    "vi": "cá tính"
+    "en": "spinach (Spinacia oleracea)",
+    "vi": "rau bina"
    },
    {
-    "en": "personality",
-    "vi": "nét riêng"
-   },
-   {
-    "en": "character",
-    "vi": "đặc trưng cá nhân"
+    "en": "",
+    "vi": "cây rau chân vịt"
    }
   ]
  },
  {
-  "id": "0dc70393-b7e3-4e35-8b85-6e273f97ebd0",
-  "word": "託児所",
-  "reading": "たくじしょ",
+  "id": "1296e948-5a0d-4843-8ad0-108a0e7b0e09",
+  "word": "介護",
+  "reading": "かいご",
   "romaji": null,
   "jlpt_level": "N3",
   "pos": [
-   "n"
+   "n",
+   "vs",
+   "vt"
   ],
   "meanings": [
    {
-    "en": "creche",
-    "vi": "nhà trẻ"
+    "en": "nursing",
+    "vi": "chăm sóc"
    },
    {
-    "en": "day nursery",
-    "vi": "nhà giữ trẻ"
+    "en": "care",
+    "vi": "điều dưỡng (người bệnh, già)"
    },
    {
-    "en": "day-care center",
+    "en": "caregiving",
     "vi": ""
+   }
+  ]
+ },
+ {
+  "id": "12b271b5-c673-4695-b4a7-67082dfe1518",
+  "word": "火炎",
+  "reading": "かえん",
+  "romaji": null,
+  "jlpt_level": "N3",
+  "pos": [
+   "n"
+  ],
+  "meanings": [
+   {
+    "en": "flame",
+    "vi": "ngọn lửa"
+   },
+   {
+    "en": "blaze",
+    "vi": "ngọn lửa bùng cháy"
+   }
+  ]
+ },
+ {
+  "id": "12b4212c-cde8-4698-8b14-ff01e3524ce8",
+  "word": "下旬",
+  "reading": "げじゅん",
+  "romaji": null,
+  "jlpt_level": "N3",
+  "pos": [
+   "n"
+  ],
+  "meanings": [
+   {
+    "en": "last third of a month",
+    "vi": "hạ tuần"
+   },
+   {
+    "en": "",
+    "vi": "10 ngày cuối tháng"
+   }
+  ]
+ },
+ {
+  "id": "12b94ec8-983f-4275-bc7a-482eb2566b8e",
+  "word": "宅地",
+  "reading": "たくち",
+  "romaji": null,
+  "jlpt_level": "N3",
+  "pos": [
+   "n"
+  ],
+  "meanings": [
+   {
+    "en": "building lot",
+    "vi": "đất thổ cư"
+   },
+   {
+    "en": "residential land",
+    "vi": "đất ở"
+   },
+   {
+    "en": "",
+    "vi": "lô đất xây dựng"
+   }
+  ]
+ },
+ {
+  "id": "12bcc47f-e323-4538-834a-115e5efd70b9",
+  "word": "歩み寄る",
+  "reading": "あゆみよる",
+  "romaji": null,
+  "jlpt_level": "N3",
+  "pos": [
+   "v5r",
+   "vi"
+  ],
+  "meanings": [
+   {
+    "en": "to compromise",
+    "vi": "nhượng bộ"
+   },
+   {
+    "en": "to meet halfway",
+    "vi": "gặp nhau ở giữa"
+   },
+   {
+    "en": "to approach",
+    "vi": "bước lại gần"
+   }
+  ]
+ },
+ {
+  "id": "12d20f85-1e7e-4b3f-8dcd-2d77de234ba8",
+  "word": "馴染む",
+  "reading": "なじむ",
+  "romaji": null,
+  "jlpt_level": "N3",
+  "pos": [
+   "v5m",
+   "vi"
+  ],
+  "meanings": [
+   {
+    "en": "to get used to",
+    "vi": "quen"
+   },
+   {
+    "en": "to adapt to",
+    "vi": "thích nghi"
+   },
+   {
+    "en": "to become attached",
+    "vi": "hòa hợp"
+   },
+   {
+    "en": "to go well with",
+    "vi": "ăn nhập"
+   }
+  ]
+ },
+ {
+  "id": "12d4d5fc-d94d-4bd5-b914-a9e568c817b7",
+  "word": "内装",
+  "reading": "ないそう",
+  "romaji": null,
+  "jlpt_level": "N3",
+  "pos": [
+   "n",
+   "vs",
+   "vt"
+  ],
+  "meanings": [
+   {
+    "en": "interior design",
+    "vi": "nội thất"
+   },
+   {
+    "en": "interior",
+    "vi": "trang trí bên trong"
+   },
+   {
+    "en": "upholstery",
+    "vi": ""
+   }
+  ]
+ },
+ {
+  "id": "12efcce0-9e2a-4057-90f9-9785186ac013",
+  "word": "丹念",
+  "reading": "たんねん",
+  "romaji": null,
+  "jlpt_level": "N3",
+  "pos": [
+   "adj-na",
+   "n"
+  ],
+  "meanings": [
+   {
+    "en": "painstaking",
+    "vi": "cẩn thận"
+   },
+   {
+    "en": "careful",
+    "vi": "tỉ mỉ"
+   },
+   {
+    "en": "meticulous",
+    "vi": "công phu"
+   },
+   {
+    "en": "elaborate",
+    "vi": "kỹ lưỡng"
+   }
+  ]
+ },
+ {
+  "id": "12f1b552-f18a-4631-88b8-5054e19bf00c",
+  "word": "文房具",
+  "reading": "ぶんぼうぐ",
+  "romaji": null,
+  "jlpt_level": "N3",
+  "pos": [
+   "n"
+  ],
+  "meanings": [
+   {
+    "en": "stationery",
+    "vi": "văn phòng phẩm"
+   },
+   {
+    "en": "",
+    "vi": "đồ dùng học tập"
+   }
+  ]
+ },
+ {
+  "id": "12f6cf83-a7bd-4ee0-9b06-2b11624ba04a",
+  "word": "処罰",
+  "reading": "しょばつ",
+  "romaji": null,
+  "jlpt_level": "N3",
+  "pos": [
+   "n",
+   "vs",
+   "vt"
+  ],
+  "meanings": [
+   {
+    "en": "punishment",
+    "vi": "xử phạt"
+   },
+   {
+    "en": "penalty",
+    "vi": "trừng phạt"
+   }
+  ]
+ },
+ {
+  "id": "130c84a7-af59-4bca-979f-bc6018705b48",
+  "word": "雑草",
+  "reading": "ざっそう",
+  "romaji": null,
+  "jlpt_level": "N3",
+  "pos": [
+   "n"
+  ],
+  "meanings": [
+   {
+    "en": "weed",
+    "vi": "cỏ dại"
+   }
+  ]
+ },
+ {
+  "id": "13281eb5-3b42-44cb-8ec5-9190df9cbed9",
+  "word": "神聖",
+  "reading": "しんせい",
+  "romaji": null,
+  "jlpt_level": "N3",
+  "pos": [
+   "n",
+   "adj-na"
+  ],
+  "meanings": [
+   {
+    "en": "holiness",
+    "vi": "thiêng liêng"
+   },
+   {
+    "en": "sacredness",
+    "vi": "thần thánh"
+   },
+   {
+    "en": "sanctity",
+    "vi": "tôn nghiêm"
+   }
+  ]
+ },
+ {
+  "id": "137750c1-f710-4b21-b284-91b8f18957af",
+  "word": "枝分かれ",
+  "reading": "えだわかれ",
+  "romaji": null,
+  "jlpt_level": "N3",
+  "pos": [
+   "n",
+   "vs",
+   "vi"
+  ],
+  "meanings": [
+   {
+    "en": "ramification",
+    "vi": "phân nhánh"
+   },
+   {
+    "en": "branching off",
+    "vi": "rẽ nhánh"
+   },
+   {
+    "en": "",
+    "vi": "chia nhánh"
+   }
+  ]
+ },
+ {
+  "id": "1381ec49-c096-4654-b7d0-50a3df22eff0",
+  "word": "葬儀",
+  "reading": "そうぎ",
+  "romaji": null,
+  "jlpt_level": "N3",
+  "pos": [
+   "n"
+  ],
+  "meanings": [
+   {
+    "en": "funeral",
+    "vi": "lễ tang"
+   },
+   {
+    "en": "funeral service",
+    "vi": "tang lễ"
    }
   ]
  }

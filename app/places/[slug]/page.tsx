@@ -11,11 +11,35 @@ import { SITE_URL, SITE_NAME, DEFAULT_OG_IMAGE, OG_LOCALE, breadcrumbJsonLd, jso
 import SmartImg from "@/components/SmartImg";
 import StarsDisplay from "@/components/marketplace/StarsDisplay";
 import PlaceCard from "@/components/PlaceCard";
+import PlaceActions from "@/components/places/PlaceActions";
+import PlacePractical from "@/components/places/PlacePractical";
+import PlacePhrases from "@/components/places/PlacePhrases";
+import PlaceActionBar from "@/components/places/PlaceActionBar";
+import PlaceSaveShare from "@/components/places/PlaceSaveShare";
+import AddToCollection from "@/components/places/AddToCollection";
+import RecentViewRecorder from "@/components/places/RecentViewRecorder";
+import PlaceQuestions from "@/components/places/PlaceQuestions";
+import PlaceReport from "@/components/places/PlaceReport";
+import VisitedButton from "@/components/places/VisitedButton";
+import { getPlaceQuestions, getVisitInfo } from "../qa-actions";
 import TagList from "@/components/tags/TagList";
 import { getTagsForContent, type Tag } from "@/lib/tags";
 import { prefectureName } from "@/lib/japan";
+import { openStatus } from "@/lib/placeOpenNow";
+import { phrasesForCategory } from "@/lib/japanesePhrases";
+import { availableActions, directionsUrl, telHref } from "@/lib/placeActions";
 import PlaceRating from "./PlaceRating";
 import PlaceComments from "./PlaceComments";
+
+// Hero open-status badge colors per state (hours_unknown is hidden).
+const OPEN_BADGE: Record<string, string> = {
+  open: "bg-[#e7f6e0] text-[#3f8f1f]",
+  closing_soon: "bg-[#fbeee0] text-[#a8671d]",
+  closed: "bg-[rgba(255,253,248,0.94)] text-[#6b5d54]",
+  opens_later: "bg-[#e8f3f6] text-teal",
+  temporarily_closed: "bg-[#fbe0e0] text-[#a8261d]",
+  hours_unknown: "",
+};
 
 async function getPlaceTagsBySlug(slug: string): Promise<Tag[]> {
   try {
@@ -108,13 +132,15 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 export default async function PlaceDetail({ params }: { params: { slug: string } }) {
   const locale = await getLocale()
   const currentUser = await getCurrentUser();
-  const [dbPlace, isAdmin, dbAllPlaces, comments, rating, tags] = await Promise.all([
+  const [dbPlace, isAdmin, dbAllPlaces, comments, rating, tags, questions, visitInfo] = await Promise.all([
     getPlaceFromDb(params.slug, locale),
     checkIsAdmin(),
     getAllPlacesFromDb(locale),
     getPlaceComments(params.slug),
     getPlaceRating(params.slug, currentUser?.id),
     getPlaceTagsBySlug(params.slug),
+    getPlaceQuestions(params.slug),
+    getVisitInfo(params.slug),
   ]);
 
   const place = dbPlace ?? getPlace(params.slug);
@@ -123,9 +149,28 @@ export default async function PlaceDetail({ params }: { params: { slug: string }
   const t = await getTranslations("common");
   const tCat = await getTranslations("categories");
   const tMeta = await getTranslations("meta");
+  const tp = await getTranslations("place_fields");
+  const tmap = await getTranslations("map_explore");
+  const td = await getTranslations("place_detail");
 
   const displayArea = formatArea(place, (k, v) => t(k as never, v as never));
   const displayCategory = tCat(place.category as Parameters<typeof tCat>[0]);
+
+  // Open-now status (Asia/Tokyo) for the hero badge.
+  const openState = openStatus(place.openingHours, place.closedDays, { temporaryStatus: place.temporaryStatus });
+
+  // Action availability + targets (never render an action without a valid target).
+  const acts = availableActions(place);
+  const shareUrl = `${SITE_URL}/places/${place.slug}`;
+  const dirUrl = directionsUrl(place);
+  const tel = telHref(place);
+
+  // Useful Japanese: per-place (admin) + category templates, de-duplicated by ja.
+  const phraseSeen = new Set<string>();
+  const phrases = [
+    ...(place.japanesePhrases ?? []),
+    ...phrasesForCategory(place.category).map((p) => ({ ja: p.ja, romaji: p.romaji, vi: p.vi })),
+  ].filter((p) => (p.ja && !phraseSeen.has(p.ja) ? (phraseSeen.add(p.ja), true) : false));
 
   const allPlaces = dbAllPlaces ?? places;
   const related = await attachPlaceTags(
@@ -169,8 +214,9 @@ export default async function PlaceDetail({ params }: { params: { slug: string }
   };
 
   return (
-    <article className="pb-16">
+    <article className="pb-28 lg:pb-16">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdString(jsonLd) }} />
+      <RecentViewRecorder slug={place.slug} />
       {/* ── HERO ─────────────────────────────────────────────── */}
       <div className="relative h-[45vh] min-h-[340px] max-h-[540px] overflow-hidden bg-gradient-to-br from-[#f3e1d2] to-[#e9cdb6]">
         <SmartImg
@@ -193,6 +239,11 @@ export default async function PlaceDetail({ params }: { params: { slug: string }
               {place.fee === "free" && (
                 <span className="text-[11.5px] font-bold px-3 py-[5px] rounded-full bg-[#e7f6e0] text-[#3f8f1f]">{t("fee_free")}</span>
               )}
+              {openState !== "hours_unknown" && (
+                <span className={`text-[11.5px] font-bold px-3 py-[5px] rounded-full ${OPEN_BADGE[openState]}`}>
+                  {tmap(`state_${openState}` as "state_open")}
+                </span>
+              )}
               {place.fee === "paid" && (
                 <span className="text-[11.5px] font-bold px-3 py-[5px] rounded-full bg-[#fbeee0] text-[#a8671d]">{t("fee_paid")}</span>
               )}
@@ -210,6 +261,15 @@ export default async function PlaceDetail({ params }: { params: { slug: string }
           </div>
         </div>
       </div>
+
+      {/* Temporary closure banner */}
+      {(place.temporaryStatus === "temporarily_closed" || place.temporaryStatus === "permanently_closed") && (
+        <div className="max-w-[1100px] mx-auto px-6 mt-6">
+          <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-[13.5px] font-semibold text-amber-800">
+            ⚠️ {place.temporaryStatus === "permanently_closed" ? tp("pub_perm_closed") : tp("pub_temp_closed")}
+          </div>
+        </div>
+      )}
 
       {/* ── BODY — 2-column desktop ───────────────────────────── */}
       <div className="max-w-[1100px] mx-auto px-6 mt-10 grid lg:grid-cols-[1fr_268px] gap-10 items-start">
@@ -243,13 +303,89 @@ export default async function PlaceDetail({ params }: { params: { slug: string }
               <TagList tags={tags} />
             </div>
           )}
+
+          {/* "I visited this place" — self-reported, private */}
+          <div className="mb-8">
+            <VisitedButton slug={place.slug} initialCount={visitInfo.count} initialVisited={visitInfo.visited} />
+          </div>
+
+          {/* Practical info (price, hours, station, reservation, suitability, facilities) */}
+          <PlacePractical place={place} />
+
+          {/* Know before you go */}
+          {place.knowBeforeYouGo && (
+            <section className="mb-8">
+              <h3 className="font-serif font-bold text-[18px] mb-3 text-ink">ℹ️ {tp("pub_kbyg")}</h3>
+              <div className="rich-content text-[#3a2d22]" dangerouslySetInnerHTML={{ __html: proxyStorageImages(place.knowBeforeYouGo) }} />
+            </section>
+          )}
+
+          {/* Tips for Vietnamese visitors */}
+          {place.viTips && (
+            <section className="mb-8 bg-rose-soft/40 border border-rose/15 rounded-2xl p-5">
+              <h3 className="font-serif font-bold text-[18px] mb-3 text-rose-deep">🇻🇳 {tp("pub_vi_tips")}</h3>
+              <div className="rich-content text-[#3a2d22]" dangerouslySetInnerHTML={{ __html: proxyStorageImages(place.viTips) }} />
+            </section>
+          )}
+
+          {/* Editorial extras: items to bring / duration / best time */}
+          {(place.itemsToBring?.length || place.recommendedDurationMinutes != null || place.bestVisitTime) && (
+            <section className="mb-8 text-[13.5px] text-[#3a2d22] space-y-2">
+              {place.itemsToBring && place.itemsToBring.length > 0 && (
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="font-semibold text-[#5c4d44]">🎒 {tp("pub_bring")}:</span>
+                  {place.itemsToBring.map((it) => (
+                    <span key={it} className="inline-flex text-[12px] font-medium px-2.5 py-1 rounded-full bg-cream border border-line">{it}</span>
+                  ))}
+                </div>
+              )}
+              {place.recommendedDurationMinutes != null && (
+                <p><span className="font-semibold text-[#5c4d44]">⏱️ </span>{tp("pub_duration", { min: place.recommendedDurationMinutes })}</p>
+              )}
+              {place.bestVisitTime && (
+                <p><span className="font-semibold text-[#5c4d44]">🌤️ {tp("pub_best_time")}: </span>{place.bestVisitTime}</p>
+              )}
+            </section>
+          )}
+
+          {/* Useful Japanese phrases (per-place + category templates, copy/speak) */}
+          {phrases.length > 0 && (
+            <section className="mb-8">
+              <h3 className="font-serif font-bold text-[18px] mb-3 text-ink">🗣️ {td("phrases_title")}</h3>
+              <PlacePhrases phrases={phrases} />
+            </section>
+          )}
+
+          {/* Source & verification */}
+          {(place.sourceUrl || place.lastVerifiedAt || (place.verificationStatus && place.verificationStatus !== "unverified")) && (
+            <footer className="mb-2 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[12.5px] text-muted border-t border-line pt-4">
+              {place.verificationStatus && place.verificationStatus !== "unverified" && (
+                <span className="inline-flex items-center gap-1 font-semibold text-emerald-700">
+                  ✓ {tp(`vs_${place.verificationStatus}` as "vs_verified")}
+                </span>
+              )}
+              {place.lastVerifiedAt && <span>{tp("pub_verified_on", { date: place.lastVerifiedAt })}</span>}
+              {place.sourceUrl && (
+                <a href={place.sourceUrl} target="_blank" rel="noopener nofollow" className="text-teal hover:underline">
+                  {tp("pub_source")} ↗
+                </a>
+              )}
+              <PlaceReport slug={place.slug} variant="button" />
+            </footer>
+          )}
+          {!(place.sourceUrl || place.lastVerifiedAt || (place.verificationStatus && place.verificationStatus !== "unverified")) && (
+            <div className="mb-2 border-t border-line pt-4"><PlaceReport slug={place.slug} variant="button" /></div>
+          )}
         </div>
 
         {/* ── RIGHT — sticky sidebar ────────────────────────── */}
         <aside className="lg:sticky lg:top-[88px] h-fit space-y-3">
+          {/* Save + Share (desktop) */}
+          <PlaceSaveShare slug={place.slug} name={place.name} shareUrl={shareUrl} />
+
           {/* Primary action */}
           <a
-            href={place.mapUrl}
+            href={dirUrl}
             target="_blank"
             rel="noopener"
             className="flex items-center justify-center gap-2 font-semibold text-[14px] px-5 py-3.5 rounded-2xl bg-rose text-white shadow-[0_8px_20px_-6px_rgba(200,30,91,0.55)] hover:bg-rose-deep hover:-translate-y-px transition-all"
@@ -266,6 +402,12 @@ export default async function PlaceDetail({ params }: { params: { slug: string }
           >
             {t("view_photos")}
           </a>
+
+          {/* Structured actions: reserve / website / call / social (only if present) */}
+          <PlaceActions place={place} />
+
+          {/* Add to a custom list or trip plan */}
+          <AddToCollection slug={place.slug} variant="button" />
 
           {/* Quick info card */}
           <div className="bg-paper border border-line rounded-2xl p-5">
@@ -322,6 +464,13 @@ export default async function PlaceDetail({ params }: { params: { slug: string }
             currentUser={currentUser}
             isAdmin={isAdmin}
           />
+          {/* Place Q&A (reuses place_comments via kind question/answer) */}
+          <PlaceQuestions
+            slug={place.slug}
+            questions={questions}
+            currentUserId={currentUser?.id ?? null}
+            isAdmin={!!isAdmin}
+          />
         </div>
       </div>
 
@@ -334,6 +483,19 @@ export default async function PlaceDetail({ params }: { params: { slug: string }
           </div>
         </div>
       )}
+
+      {/* Sticky mobile action bar (desktop uses the sidebar) */}
+      <PlaceActionBar
+        slug={place.slug}
+        name={place.name}
+        directionsUrl={dirUrl}
+        tel={tel}
+        reservationUrl={acts.reserve ? place.reservationUrl ?? null : null}
+        reservationProvider={place.reservationProvider ?? null}
+        website={acts.website ? place.officialWebsite ?? null : null}
+        shareUrl={shareUrl}
+        askUrl="/community"
+      />
     </article>
   );
 }

@@ -1,93 +1,35 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
-
-const STORAGE_KEY = 'chococfko_saved_places'
-const META_KEY = 'chococfko_saved_places_meta'
-
-interface SavedEntry {
-  slug: string
-  name: string
-  area: string
-  category: string
-  img: string
-}
-
-function getSaved(): string[] {
-  if (typeof window === 'undefined') return []
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]')
-  } catch {
-    return []
-  }
-}
-
-function setSaved(slugs: string[]) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(slugs))
-}
-
-function getMetaCache(): Record<string, SavedEntry> {
-  if (typeof window === 'undefined') return {}
-  try {
-    return JSON.parse(localStorage.getItem(META_KEY) ?? '{}')
-  } catch {
-    return {}
-  }
-}
-
-function setMetaCache(meta: Record<string, SavedEntry>) {
-  localStorage.setItem(META_KEY, JSON.stringify(meta))
-}
+import { useSavedPlaces } from '@/components/SavedPlacesProvider'
 
 interface Props {
   slug: string
   name: string
+  // kept for call-site compatibility (cards pass these); not needed for DB saves.
   area?: string
   img?: string
   categoryLabel?: string
   size?: 'sm' | 'md'
 }
 
-export default function SavePlaceButton({ slug, name, area = '', img = '', categoryLabel = '', size = 'sm' }: Props) {
-  const [saved, setSavedState] = useState(false)
+/**
+ * Save/unsave toggle. State comes from SavedPlacesProvider so it stays in sync
+ * across cards, map previews, and the detail page (DB for logged-in users,
+ * localStorage for guests).
+ */
+export default function SavePlaceButton({ slug, name, size = 'sm' }: Props) {
   const t = useTranslations('common')
+  const { isSaved, toggle } = useSavedPlaces()
+  const saved = isSaved(slug)
 
-  useEffect(() => {
-    setSavedState(getSaved().includes(slug))
-  }, [slug])
-
-  function toggle(e: React.MouseEvent) {
-    e.preventDefault()
-    e.stopPropagation()
-    const current = getSaved()
-    let next: string[]
-    if (current.includes(slug)) {
-      next = current.filter((s) => s !== slug)
-      // Remove from meta too
-      const meta = getMetaCache()
-      delete meta[slug]
-      setMetaCache(meta)
-    } else {
-      next = [...current, slug]
-      // Save meta so saved-places page can render full card
-      const meta = getMetaCache()
-      meta[slug] = { slug, name, area, category: categoryLabel, img }
-      setMetaCache(meta)
-    }
-    setSaved(next)
-    setSavedState(next.includes(slug))
-    window.dispatchEvent(new CustomEvent('savedPlacesChanged'))
-  }
-
-  const sz = size === 'md'
-    ? 'w-9 h-9 text-[18px]'
-    : 'w-7 h-7 text-[14px]'
+  const sz = size === 'md' ? 'w-9 h-9 text-[18px]' : 'w-7 h-7 text-[14px]'
 
   return (
     <button
-      onClick={toggle}
+      onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggle(slug) }}
       aria-label={saved ? t('unsave_place', { name }) : t('save_place', { name })}
+      aria-pressed={saved}
       title={saved ? t('unsave_place', { name }) : t('save_place', { name })}
       className={`${sz} flex items-center justify-center rounded-full transition-all duration-200 ${
         saved
@@ -98,18 +40,4 @@ export default function SavePlaceButton({ slug, name, area = '', img = '', categ
       {saved ? '♥' : '♡'}
     </button>
   )
-}
-
-// Hook for reading saved slugs (used in saved places page)
-export function useSavedPlaces() {
-  const [slugs, setSlugs] = useState<string[]>([])
-
-  useEffect(() => {
-    setSlugs(getSaved())
-    const handler = () => setSlugs(getSaved())
-    window.addEventListener('savedPlacesChanged', handler)
-    return () => window.removeEventListener('savedPlacesChanged', handler)
-  }, [])
-
-  return slugs
 }

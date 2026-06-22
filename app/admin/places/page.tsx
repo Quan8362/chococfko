@@ -38,9 +38,10 @@ export default async function AdminDiaDiem({
 }) {
   if (!(await checkIsAdmin())) redirect('/')
 
-  const [tCat, admin_t] = await Promise.all([
+  const [tCat, admin_t, tqa] = await Promise.all([
     getTranslations('categories'),
     getTranslations('admin'),
+    getTranslations('place_qa'),
   ])
 
   const admin = createAdminClient()
@@ -90,6 +91,9 @@ export default async function AdminDiaDiem({
                 </span>
               )}
             </p>
+            <Link href="/admin/places/reports" className="inline-block mt-2 text-[13px] font-semibold text-teal hover:underline">
+              {tqa('admin_title')} →
+            </Link>
           </div>
           {isSeeded && (
             <form action={seedPlaces}>

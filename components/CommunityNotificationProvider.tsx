@@ -20,6 +20,7 @@ const MAX_NOTIFS = 3
 
 const TYPE_ICON: Record<string, string> = {
   dm: '✉️', mention: '@', new_listing: '🛒', new_comment: '💬', new_reply: '↩️', auction_outbid: '🔨', auction_won: '🏆',
+  place_answer: '💬', place_answer_helpful: '👍', place_report_reviewed: '🛠️',
 }
 
 export default function CommunityNotificationProvider() {
@@ -37,6 +38,9 @@ export default function CommunityNotificationProvider() {
       case 'new_reply':   return t('community_notif_badge_new_reply')
       case 'auction_outbid': return t('community_notif_badge_auction_outbid')
       case 'auction_won':    return t('community_notif_badge_auction_won')
+      case 'place_answer':   return t('community_notif_badge_place_answer')
+      case 'place_answer_helpful': return t('community_notif_badge_place_answer_helpful')
+      case 'place_report_reviewed': return t('community_notif_badge_place_report_reviewed')
       default:            return t('dropdown_title')
     }
   }
@@ -49,6 +53,9 @@ export default function CommunityNotificationProvider() {
       case 'new_reply':   return t('community_notif_title_new_reply')
       case 'auction_outbid': return t('community_notif_title_auction_outbid')
       case 'auction_won':    return t('community_notif_title_auction_won')
+      case 'place_answer':   return t('community_notif_title_place_answer')
+      case 'place_answer_helpful': return t('community_notif_title_place_answer_helpful')
+      case 'place_report_reviewed': return t('community_notif_title_place_report_reviewed')
       default:            return ''
     }
   }

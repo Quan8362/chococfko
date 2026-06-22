@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { checkIsAdmin } from '@/lib/supabase/admin'
 import { DEFAULT_SEARCH_CONFIG } from '@/lib/placeSearch'
+import Link from 'next/link'
 import { fetchConcepts } from './actions'
 import SearchConceptsAdmin from './SearchConceptsAdmin'
 
@@ -11,7 +12,10 @@ export default async function SearchConceptsPage() {
   // Defense-in-depth (admin layout also gates) — never render config to non-admins.
   if (!(await checkIsAdmin())) redirect('/')
 
-  const t = await getTranslations('searchConceptsAdmin')
+  const [t, te] = await Promise.all([
+    getTranslations('searchConceptsAdmin'),
+    getTranslations('explore_search'),
+  ])
   const { rows, tableMissing, error } = await fetchConcepts()
 
   // Built-in fallback facet keys — shown as "default" so an admin never thinks a
@@ -24,6 +28,9 @@ export default async function SearchConceptsPage() {
         <a href="/admin" className="text-[13px] text-muted hover:text-rose transition-colors">← {t('back_to_admin')}</a>
         <h1 className="font-serif font-black text-[26px] sm:text-[30px] text-ink mt-2">{t('title')}</h1>
         <p className="text-[14px] text-muted mt-1 max-w-[680px]">{t('subtitle')}</p>
+        <Link href="/admin/search-concepts/insights" className="inline-block mt-3 text-[13px] font-semibold text-teal hover:underline">
+          {te('insights_title')} →
+        </Link>
       </div>
 
       <SearchConceptsAdmin

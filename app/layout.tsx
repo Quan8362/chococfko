@@ -13,6 +13,7 @@ import NotificationPermissionBanner from '@/components/NotificationPermissionBan
 import CommunityNotificationProvider from '@/components/CommunityNotificationProvider'
 import ImageProtection from '@/components/ImageProtection'
 import AuthSync from '@/components/AuthSync'
+import SavedPlacesProvider from '@/components/SavedPlacesProvider'
 
 // Run server functions in Tokyo (hnd1) — same region as the Supabase DB and
 // closest to our Fukuoka users. Default was iad1 (US East), which forced every
@@ -96,6 +97,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </head>
       <body className="font-sans leading-relaxed">
         <NextIntlClientProvider messages={messages}>
+          <SavedPlacesProvider>
           <div className="flex flex-col min-h-screen">
             <AuthSync />
             <Nav />
@@ -109,6 +111,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <AdminNotificationPopup />
             <NotificationPermissionBanner />
           </div>
+          </SavedPlacesProvider>
         </NextIntlClientProvider>
       </body>
     </html>

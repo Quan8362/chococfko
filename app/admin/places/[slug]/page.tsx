@@ -10,6 +10,7 @@ import { PREFECTURES } from '@/lib/japan'
 import { updatePlace, approvePlace, upsertPlaceTranslation } from '../actions'
 import ImageUpload from '@/components/ImageUpload'
 import TagInput from '@/components/tags/TagInput'
+import PlaceFieldsEditor, { type PlaceFieldsRow } from '@/components/admin/PlaceFieldsEditor'
 
 const RichTextEditor = loadDynamic(() => import('@/components/RichTextEditor'), { ssr: false })
 
@@ -210,6 +211,9 @@ export default async function AdminEditPlace({ params }: { params: { slug: strin
           popularTags={popularTags}
           suggestFields={{ title: 'name', area: 'area_main', description: 'desc' }}
         />
+
+        {/* ── Explore Phase 1: structured, searchable, actionable fields ── */}
+        <PlaceFieldsEditor p={data as unknown as PlaceFieldsRow} />
 
         {/* Status field — only for user-submitted places (status is not null) */}
         {p.status !== null && (

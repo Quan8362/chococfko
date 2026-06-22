@@ -1,4 +1,6 @@
 import type { Place, Fee } from './places';
+import { haversineKm } from './geo.ts';
+import { isOpenNow } from './placeOpenNow.ts';
 
 // ============================================================
 // Lớp trừu tượng tìm kiếm địa điểm (config-driven, boundary-aware).
@@ -24,6 +26,8 @@ import type { Place, Fee } from './places';
 // (không có khoảng trắng phân từ). Giá khớp theo trường có cấu trúc place.fee.
 // ============================================================
 
+export type SortKey = 'recommended' | 'nearest' | 'recently_verified' | 'price_low' | 'community' | 'newest';
+
 export interface PlaceCriteria {
   /** Từ khóa tự do — khớp tên, khu vực, chủ đề, mô tả, giá (không phân biệt dấu) */
   q?: string;
@@ -31,6 +35,45 @@ export interface PlaceCriteria {
   categories?: string[];
   /** Lọc theo tỉnh (mở rộng toàn quốc). Bỏ trống = mọi tỉnh */
   prefecture?: string | null;
+
+  // ── Phase 2 structured filters (all optional; undefined = ignored) ──
+  area?: string | null;
+  station?: string | null;
+  /** Explicit fee filter (in addition to any fee intent parsed from q). */
+  fee?: Fee;
+  /** Budget bounds in the place currency (overlap semantics; free places always pass priceMax). */
+  priceMin?: number | null;
+  priceMax?: number | null;
+  /** Open now in Asia/Tokyo (excludes places with unknown hours or temporary closure). */
+  openNow?: boolean;
+  now?: Date;
+  /** Distance: when lat/lng given, distances are computed; radiusKm (if set) also filters. */
+  nearby?: { lat: number; lng: number; radiusKm?: number } | null;
+  reservationAvailable?: boolean;
+  reservationRequired?: boolean;
+  parking?: boolean;
+  children?: boolean;
+  solo?: boolean;
+  group?: boolean;
+  rainy?: boolean;
+  indoor?: boolean;
+  outdoor?: boolean;
+  wheelchair?: boolean;
+  bbq?: boolean;
+  camping?: boolean;
+  smoking?: string | null;
+  tattoo?: string | null;
+  /** Place must accept at least one of these payment methods. */
+  paymentMethods?: string[];
+  /** Place must support at least one of these languages. */
+  languages?: string[];
+  /** Only verification_status = 'verified'. */
+  verifiedOnly?: boolean;
+  /** Updated within the last N days. */
+  recentlyUpdatedDays?: number | null;
+  /** Include places with search_eligible = false (default: exclude them). */
+  includeIneligible?: boolean;
+  sort?: SortKey;
 }
 
 /**
@@ -509,6 +552,104 @@ function relevanceScore(p: Place, tokens: string[], config: SearchConfig): numbe
  *   phải thỏa. Trong 1 khái niệm: OR giữa các nguồn bằng chứng. Xếp hạng: structured/
  *   tag > tên > alias/category > summary > body. Đồng điểm → giữ thứ tự gốc.
  */
+// ── Phase 2 structured-filter helpers (pure) ────────────────────────────────
+
+/** Do ALL tokens of `phrase` appear in the joined fields (boundary/CJK aware)? */
+function matchesPhrase(fieldsJoined: string, phrase: string): boolean {
+  const fi = fieldIndex(normalizeText(fieldsJoined));
+  const toks = tokenize(normalizeText(phrase));
+  if (!toks.length) return true;
+  return toks.every((t) => fieldHasToken(fi, t));
+}
+
+/** Effective lowest price for the price_low sort (free = 0, unknown = Infinity). */
+function effectiveMinPrice(p: Place): number {
+  if (p.priceType === 'free' || p.fee === 'free') return 0;
+  if (p.priceMin != null) return p.priceMin;
+  if (p.priceMax != null) return p.priceMax;
+  return Number.POSITIVE_INFINITY;
+}
+
+/** Budget overlap: free always satisfies an upper bound; unknown price fails. */
+function priceMatches(p: Place, min: number | null | undefined, max: number | null | undefined): boolean {
+  const fMin = min ?? 0;
+  const fMax = max ?? Number.POSITIVE_INFINITY;
+  let pMin: number;
+  let pMax: number;
+  if (p.priceType === 'free' || p.fee === 'free') { pMin = 0; pMax = 0; }
+  else if (p.priceMin != null || p.priceMax != null) {
+    pMin = p.priceMin ?? (p.priceMax as number);
+    pMax = p.priceMax ?? (p.priceMin as number);
+  } else {
+    return false; // unknown price → cannot confirm it fits the budget
+  }
+  return pMin <= fMax && pMax >= fMin;
+}
+
+function withinDays(dateStr: string | null | undefined, days: number, now: Date): boolean {
+  if (!dateStr) return false;
+  const t = Date.parse(dateStr);
+  if (Number.isNaN(t)) return false;
+  return now.getTime() - t <= days * 86_400_000;
+}
+
+/** Apply all structured (non-text) filters. Returns false to drop the place. */
+function passesStructuredFilters(p: Place, c: PlaceCriteria, now: Date): boolean {
+  if (!c.includeIneligible && p.searchEligible === false) return false;
+  if (c.fee && p.fee !== c.fee) return false;
+  if (c.area && !matchesPhrase([p.area, p.city, p.prefecture, p.areaMain, p.nearbyPlace, p.cityOrPrefecture, p.name].filter(Boolean).join(' '), c.area)) return false;
+  if (c.station && !matchesPhrase([p.nearestStation, p.area, p.areaMain, p.nearbyPlace, p.city, p.name].filter(Boolean).join(' '), c.station)) return false;
+  if ((c.priceMin != null || c.priceMax != null) && !priceMatches(p, c.priceMin, c.priceMax)) return false;
+  if (c.openNow) {
+    if (p.temporaryStatus === 'temporarily_closed' || p.temporaryStatus === 'permanently_closed') return false;
+    if (isOpenNow(p.openingHours, p.closedDays, now) !== true) return false;
+  }
+  if (c.reservationAvailable && !(p.reservationRequired === true || p.reservationRecommended === true)) return false;
+  if (c.reservationRequired && p.reservationRequired !== true) return false;
+  if (c.parking && !(p.parking && p.parking !== 'none')) return false;
+  if (c.children && p.goodForChildren !== true) return false;
+  if (c.solo && p.goodForSolo !== true) return false;
+  if (c.group && p.goodForGroups !== true) return false;
+  if (c.rainy && p.rainyDayOk !== true) return false;
+  if (c.indoor && !(p.indoorOutdoor === 'indoor' || p.indoorOutdoor === 'both')) return false;
+  if (c.outdoor && !(p.indoorOutdoor === 'outdoor' || p.indoorOutdoor === 'both')) return false;
+  if (c.wheelchair && p.wheelchairAccessible !== true) return false;
+  if (c.bbq && p.bbqAvailable !== true) return false;
+  if (c.camping && p.campingAvailable !== true) return false;
+  if (c.smoking && p.smokingPolicy !== c.smoking) return false;
+  if (c.tattoo && p.tattooPolicy !== c.tattoo) return false;
+  if (c.paymentMethods?.length && !c.paymentMethods.some((m) => p.paymentMethods?.includes(m))) return false;
+  if (c.languages?.length && !c.languages.some((l) => p.supportedLanguages?.includes(l))) return false;
+  if (c.verifiedOnly && p.verificationStatus !== 'verified') return false;
+  if (c.recentlyUpdatedDays != null && !withinDays(p.updatedAt, c.recentlyUpdatedDays, now)) return false;
+  return true;
+}
+
+interface Scored { p: Place; idx: number; score: number; dist: number | null }
+
+function sortScored(scored: Scored[], sort: SortKey): void {
+  const byScore = (a: Scored, b: Scored) => b.score - a.score || a.idx - b.idx;
+  switch (sort) {
+    case 'nearest':
+      scored.sort((a, b) => (a.dist ?? Infinity) - (b.dist ?? Infinity) || byScore(a, b));
+      break;
+    case 'price_low':
+      scored.sort((a, b) => effectiveMinPrice(a.p) - effectiveMinPrice(b.p) || byScore(a, b));
+      break;
+    case 'recently_verified':
+      scored.sort((a, b) => (Date.parse(b.p.lastVerifiedAt ?? '') || -Infinity) - (Date.parse(a.p.lastVerifiedAt ?? '') || -Infinity) || byScore(a, b));
+      break;
+    case 'newest':
+      scored.sort((a, b) => (Date.parse(b.p.createdAt ?? '') || -Infinity) - (Date.parse(a.p.createdAt ?? '') || -Infinity) || byScore(a, b));
+      break;
+    case 'community':
+      scored.sort((a, b) => (b.p.communityActivity ?? 0) - (a.p.communityActivity ?? 0) || byScore(a, b));
+      break;
+    default:
+      scored.sort(byScore);
+  }
+}
+
 export function filterPlaces(
   places: Place[],
   criteria: PlaceCriteria,
@@ -525,12 +666,24 @@ export function filterPlaces(
   const tokens = rest ? tokenize(rest).filter((t) => !connectors.has(t)) : [];
   const cats = criteria.categories?.length ? new Set(criteria.categories) : null;
   const pref = criteria.prefecture ?? null;
+  const now = criteria.now ?? new Date();
+  const loc = criteria.nearby ?? null;
+  const radius = loc?.radiusKm ?? null;
 
-  const scored: { p: Place; idx: number; score: number }[] = [];
+  const scored: Scored[] = [];
   places.forEach((p, idx) => {
     if (cats && !cats.has(p.category)) return;
     if (pref && (p.prefecture ?? 'fukuoka') !== pref) return;
     if (feeFilter && p.fee !== feeFilter) return; // giá khớp trường có cấu trúc
+    if (!passesStructuredFilters(p, criteria, now)) return;
+
+    // Distance (when a user location is supplied). radiusKm also filters.
+    let dist: number | null = null;
+    if (loc && typeof p.lat === 'number' && typeof p.lng === 'number') {
+      dist = haversineKm({ lat: loc.lat, lng: loc.lng }, { lat: p.lat, lng: p.lng });
+    }
+    if (radius != null && (dist == null || dist > radius)) return;
+
     let score = 0;
     for (const f of facets) {
       const e = facetEvidenceScore(p, f);
@@ -542,11 +695,49 @@ export function filterPlaces(
       if (s === null) return; // AND across tokens failed
       score += s;
     }
-    scored.push({ p, idx, score });
+    scored.push({ p, idx, score, dist });
   });
 
-  scored.sort((a, b) => b.score - a.score || a.idx - b.idx);
-  return scored.map((r) => r.p);
+  sortScored(scored, criteria.sort ?? 'recommended');
+  // Attach transient distance without mutating the shared place objects.
+  return scored.map((r) => (r.dist != null ? { ...r.p, distanceKm: r.dist } : r.p));
+}
+
+// ── Zero-result relaxation suggestions (which filter to drop) ────────────────
+
+export interface RelaxationSuggestion {
+  /** The PlaceCriteria key to remove (e.g. 'openNow', 'priceMax', 'children'). */
+  filter: keyof PlaceCriteria;
+  /** How many results dropping ONLY this filter would yield. */
+  count: number;
+}
+
+/**
+ * When a search returns nothing, find single filters whose removal yields
+ * results, ranked by how many they'd recover. Pure & deterministic.
+ */
+export function suggestRelaxation(
+  places: Place[],
+  criteria: PlaceCriteria,
+  config: SearchConfig = DEFAULT_SEARCH_CONFIG,
+): RelaxationSuggestion[] {
+  const removable: (keyof PlaceCriteria)[] = [
+    'openNow', 'priceMax', 'priceMin', 'fee', 'nearby', 'station', 'area',
+    'reservationAvailable', 'reservationRequired', 'parking', 'children', 'solo',
+    'group', 'rainy', 'indoor', 'outdoor', 'wheelchair', 'bbq', 'camping',
+    'smoking', 'tattoo', 'paymentMethods', 'languages', 'verifiedOnly',
+    'recentlyUpdatedDays', 'prefecture',
+  ];
+  const out: RelaxationSuggestion[] = [];
+  for (const f of removable) {
+    const v = criteria[f];
+    const active = Array.isArray(v) ? v.length > 0 : v != null && v !== false && v !== '';
+    if (!active) continue;
+    const relaxed = { ...criteria, [f]: undefined } as PlaceCriteria;
+    const count = filterPlaces(places, relaxed, config).length;
+    if (count > 0) out.push({ filter: f, count });
+  }
+  return out.sort((a, b) => b.count - a.count);
 }
 
 // ── Match explainability (DEV-only; KHÔNG render ở UI production) ────────────

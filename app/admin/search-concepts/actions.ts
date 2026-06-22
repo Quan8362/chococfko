@@ -17,6 +17,7 @@ import {
   normalizeText,
   explainMatch,
 } from '@/lib/placeSearch'
+import { extractIntent } from '@/lib/placeIntent'
 import { getAllPlacesFromDb, attachPlaceTags, places as staticPlaces } from '@/lib/places'
 
 const UNDEFINED_TABLE = '42P01'
@@ -32,6 +33,8 @@ export interface ConceptFormInput {
   display_names: Record<string, string>
   aliases: Record<string, string[]>
   evidence: { strong: Record<string, string[]>; structured_flags: string[] }
+  /** Optional concept→filter/attribute mapping (e.g. {filter:'parking'}). */
+  maps_to?: Record<string, unknown> | null
 }
 
 export interface ActionResult {
@@ -74,7 +77,7 @@ export async function saveConcept(input: ConceptFormInput): Promise<ActionResult
 
   const conflicts = aliasConflicts(input as ConceptInput, others.filter((o) => o.id !== input.id))
 
-  const row = {
+  const row: Record<string, unknown> = {
     key: input.key.trim(),
     type: input.type,
     enabled: input.enabled,
@@ -85,6 +88,9 @@ export async function saveConcept(input: ConceptFormInput): Promise<ActionResult
     aliases: input.aliases ?? {},
     evidence: input.evidence ?? {},
   }
+  // Only send maps_to when provided, so the action still works before the
+  // Phase 2 migration (which adds the column) is applied.
+  if (input.maps_to !== undefined) row.maps_to = input.maps_to
 
   const res = input.id
     ? await admin.from('search_concepts').update(row).eq('id', input.id)
@@ -121,6 +127,8 @@ export interface PreviewResult {
   tokens: string[]
   fee: string | null
   facets: string[]
+  /** Structured intent detected by the deterministic parser (price/open-now/…). */
+  intent: string[]
   matches: { slug: string; name: string; category: string; reasons: { concept: string; source: string; weight: number }[] }[]
 }
 
@@ -131,10 +139,17 @@ export async function previewSearch(query: string): Promise<PreviewResult | { er
   const basePlaces = (await getAllPlacesFromDb('vi')) ?? staticPlaces
   const places = await attachPlaceTags(basePlaces)
 
-  const norm = normalizeText(query)
+  // Show what the deterministic intent parser extracts (price/open-now/station…).
+  const parsed = extractIntent(query)
+  const norm = normalizeText(parsed.rest)
   const { fee, rest } = extractFeeIntent(norm, config)
   const { facets, rest: rest2 } = extractFacets(rest, config)
   const tokens = rest2 ? tokenize(rest2) : []
+  const intentList = [...parsed.matched]
+  if (parsed.station) intentList.push(`station:${parsed.station}`)
+  if (parsed.area) intentList.push(`area:${parsed.area}`)
+  if (parsed.priceMax) intentList.push(`max:${parsed.priceMax}`)
+  if (parsed.priceMin) intentList.push(`min:${parsed.priceMin}`)
 
   const matched = filterPlaces(places, { q: query }, config).slice(0, 40)
   const matches = matched.map((p) => ({
@@ -143,7 +158,7 @@ export async function previewSearch(query: string): Promise<PreviewResult | { er
     category: p.category,
     reasons: explainMatch(p, query, config).reasons.map((r) => ({ concept: r.concept, source: r.source, weight: r.weight })),
   }))
-  return { tokens, fee, facets: facets.map((f) => f.key), matches }
+  return { tokens, fee, facets: facets.map((f) => f.key), intent: Array.from(new Set(intentList)), matches }
 }
 
 /** Read all concepts for the admin list (service role; bypasses RLS). */

@@ -1,0 +1,456 @@
+'use client'
+
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import Link from 'next/link'
+import { usePathname, useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
+import type { Place } from '@/lib/places'
+import { filterPlaces, suggestRelaxation, normalizeText, type PlaceCriteria, type SearchConfig } from '@/lib/placeSearch'
+import { extractIntent } from '@/lib/placeIntent'
+import { formatDistanceKm } from '@/lib/geo'
+import { relevantFilterKeys } from '@/lib/placeFields'
+import {
+  encodeFilters, CHIP_KEYS, SORT_KEYS, activeFilterCount,
+  type ExploreFilters, type SortKey,
+} from '@/lib/exploreParams'
+import { SEARCH_EVENTS, trackSearchEvent, logSearchQuery, markSearchClicked } from '@/lib/searchAnalytics'
+import PlaceFilters from './PlaceFilters'
+
+const PAGE = 12
+const RECENT_KEY = 'chococfko_recent_searches'
+
+interface Props {
+  places: Place[]
+  cards: Record<string, React.ReactNode>
+  categories: { code: string; label: string }[]
+  prefectures: { code: string; name: string }[]
+  searchConfig: SearchConfig
+  popular: string[]
+  initial: ExploreFilters
+  locale: string
+}
+
+export default function PlacesExplorer({ places, cards, categories, prefectures, searchConfig, popular, initial, locale }: Props) {
+  const t = useTranslations('explore_search')
+  const tp = useTranslations('place_fields')
+  const router = useRouter()
+  const pathname = usePathname()
+
+  const [state, setState] = useState<ExploreFilters>(initial)
+  const [userLoc, setUserLoc] = useState<{ lat: number; lng: number } | null>(null)
+  const [geoStatus, setGeoStatus] = useState<'' | 'locating' | 'denied' | 'error' | 'unsupported'>('')
+  const [drawer, setDrawer] = useState(false)
+  const [visible, setVisible] = useState(PAGE)
+  const [focused, setFocused] = useState(false)
+  const [recent, setRecent] = useState<string[]>([])
+
+  const urlTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const logTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const lastSearchId = useRef<string | null>(null)
+  const openedSinceSearch = useRef(true)
+
+  useEffect(() => { try { setRecent(JSON.parse(localStorage.getItem(RECENT_KEY) ?? '[]')) } catch { /* ignore */ } }, [])
+
+  // ── derive criteria + results (deterministic) ──
+  const intent = useMemo(() => extractIntent(state.q ?? ''), [state.q])
+  const criteria = useMemo<PlaceCriteria>(() => {
+    const wantNearby = !!(state.nearby || intent.nearby)
+    return {
+      q: intent.rest,
+      categories: state.category ? [state.category] : undefined,
+      prefecture: state.prefecture ?? null,
+      area: state.area ?? intent.area ?? null,
+      station: state.station ?? intent.station ?? null,
+      fee: state.fee,
+      priceMin: state.priceMin ?? intent.priceMin ?? null,
+      priceMax: state.priceMax ?? intent.priceMax ?? null,
+      openNow: state.openNow || intent.openNow || undefined,
+      now: new Date(),
+      nearby: userLoc ? { lat: userLoc.lat, lng: userLoc.lng, radiusKm: wantNearby ? 10 : undefined } : null,
+      reservationAvailable: state.reservationAvailable || intent.reservationAvailable || undefined,
+      reservationRequired: state.reservationRequired || undefined,
+      parking: state.parking || intent.parking || undefined,
+      children: state.children || intent.children || undefined,
+      solo: state.solo || intent.solo || undefined,
+      group: state.group || intent.group || undefined,
+      rainy: state.rainy || intent.rainy || undefined,
+      indoor: state.indoor || intent.indoor || undefined,
+      outdoor: state.outdoor || intent.outdoor || undefined,
+      wheelchair: state.wheelchair || intent.wheelchair || undefined,
+      bbq: state.bbq || undefined,
+      camping: state.camping || undefined,
+      smoking: state.smoking ?? null,
+      tattoo: state.tattoo ?? null,
+      paymentMethods: state.payment,
+      languages: state.lang,
+      verifiedOnly: state.verified || undefined,
+      recentlyUpdatedDays: state.recentlyUpdated ? 30 : null,
+      sort: (state.sort ?? (wantNearby && userLoc ? 'nearest' : 'recommended')) as SortKey,
+    }
+  }, [state, intent, userLoc])
+
+  const results = useMemo(() => filterPlaces(places, criteria, searchConfig), [places, criteria, searchConfig])
+
+  // reset pagination whenever the result set changes
+  useEffect(() => { setVisible(PAGE) }, [criteria])
+
+  // ── URL sync (debounced, replace) ──
+  useEffect(() => {
+    if (urlTimer.current) clearTimeout(urlTimer.current)
+    urlTimer.current = setTimeout(() => {
+      const sp = encodeFilters(state)
+      const qs = sp.toString()
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false })
+    }, 350)
+    return () => { if (urlTimer.current) clearTimeout(urlTimer.current) }
+  }, [state, pathname, router])
+
+  // ── analytics: log committed searches (debounced) ──
+  useEffect(() => {
+    const q = (state.q ?? '').trim()
+    if (logTimer.current) clearTimeout(logTimer.current)
+    if (!q) return
+    logTimer.current = setTimeout(() => {
+      // abandoned: previous search produced results but nothing was opened
+      if (!openedSinceSearch.current) trackSearchEvent(SEARCH_EVENTS.abandoned)
+      openedSinceSearch.current = false
+      trackSearchEvent(SEARCH_EVENTS.submitted, { q })
+      trackSearchEvent(results.length ? SEARCH_EVENTS.results : SEARCH_EVENTS.zeroResults, { q, count: results.length })
+      addRecent(q)
+      // privacy-safe payloads: no coordinates (nearby is a boolean only)
+      const { nearby, ...intentSafe } = intent as unknown as Record<string, unknown>
+      logSearchQuery({
+        rawQuery: q, normalizedQuery: normalizeText(q), locale,
+        resultCount: results.length,
+        filters: { ...state, q: undefined },
+        intent: { ...intentSafe, nearby: !!nearby },
+      }).then((id) => { lastSearchId.current = id })
+    }, 700)
+    return () => { if (logTimer.current) clearTimeout(logTimer.current) }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.q, results.length])
+
+  const addRecent = (q: string) => {
+    setRecent((prev) => {
+      const next = [q, ...prev.filter((x) => x !== q)].slice(0, 8)
+      try { localStorage.setItem(RECENT_KEY, JSON.stringify(next)) } catch { /* ignore */ }
+      return next
+    })
+  }
+
+  const set = useCallback((patch: Partial<ExploreFilters>) => {
+    setState((prev) => {
+      for (const [k, v] of Object.entries(patch)) {
+        if (k === 'q' || k === 'sort') continue
+        const added = Array.isArray(v) ? v.length > 0 : !!v
+        trackSearchEvent(added ? SEARCH_EVENTS.filterAdded : SEARCH_EVENTS.filterRemoved, { key: k })
+      }
+      return { ...prev, ...patch }
+    })
+  }, [])
+
+  const relevant = useMemo(() => relevantFilterKeys(state.category ?? ''), [state.category])
+
+  // ── geolocation ──
+  const useMyLocation = () => {
+    if (!('geolocation' in navigator)) { setGeoStatus('unsupported'); return }
+    setGeoStatus('locating')
+    navigator.geolocation.getCurrentPosition(
+      (pos) => { setUserLoc({ lat: pos.coords.latitude, lng: pos.coords.longitude }); setGeoStatus(''); set({ nearby: true }); setState((p) => ({ ...p, sort: 'nearest' })) },
+      (err) => setGeoStatus(err.code === err.PERMISSION_DENIED ? 'denied' : 'error'),
+      { enableHighAccuracy: false, timeout: 8000, maximumAge: 300000 },
+    )
+  }
+
+  // ── chip labels ──
+  const chipLabel = useCallback((key: keyof ExploreFilters): string | null => {
+    const v = state[key]
+    if (v == null || v === false || (Array.isArray(v) && !v.length)) return null
+    switch (key) {
+      case 'category': return categories.find((c) => c.code === v)?.label ?? String(v)
+      case 'prefecture': return prefectures.find((p) => p.code === v)?.name ?? String(v)
+      case 'area': case 'station': return String(v)
+      case 'fee': return v === 'free' ? t('f_free') : t('f_paid')
+      case 'priceMin': return `≥ ¥${v}`
+      case 'priceMax': return `≤ ¥${v}`
+      case 'openNow': return t('f_open_now')
+      case 'nearby': return t('f_near_me')
+      case 'reservationAvailable': return t('f_takes_reservation')
+      case 'reservationRequired': return tp('reservation_required')
+      case 'parking': return tp('parking')
+      case 'children': return tp('good_for_children')
+      case 'solo': return tp('good_for_solo')
+      case 'group': return tp('good_for_groups')
+      case 'rainy': return tp('rainy_day_ok')
+      case 'indoor': return tp('io_indoor')
+      case 'outdoor': return tp('io_outdoor')
+      case 'wheelchair': return tp('wheelchair_accessible')
+      case 'bbq': return tp('bbq_available')
+      case 'camping': return tp('camping_available')
+      case 'verified': return t('f_verified')
+      case 'recentlyUpdated': return t('f_recently_updated')
+      case 'smoking': return tp(`smk_${v}` as 'smk_no_smoking')
+      case 'tattoo': return tp(`tat_${v}` as 'tat_allowed')
+      case 'payment': return (v as string[]).map((m) => tp(`pm_${m}` as 'pm_cash')).join(', ')
+      case 'lang': return (v as string[]).map((l) => tp(`lang_${l}` as 'lang_ja')).join(', ')
+      default: return null
+    }
+  }, [state, categories, prefectures, t, tp])
+
+  const activeCount = activeFilterCount(state)
+  const shown = results.slice(0, visible)
+
+  // zero-result helpers
+  const relax = useMemo(() => (results.length === 0 ? suggestRelaxation(places, criteria, searchConfig).slice(0, 3) : []), [results.length, places, criteria, searchConfig])
+  const relatedCats = useMemo(() => {
+    if (results.length > 0 || !state.category) return []
+    return categories
+      .map((c) => ({ c, n: filterPlaces(places, { ...criteria, categories: [c.code] }, searchConfig).length }))
+      .filter((x) => x.n > 0 && x.c.code !== state.category)
+      .slice(0, 4)
+  }, [results.length, places, criteria, searchConfig, categories, state.category])
+
+  // analytics: intercept card clicks within the grid
+  const onGridClick = (e: React.MouseEvent) => {
+    const a = (e.target as HTMLElement).closest('a')
+    if (!a) return
+    const href = a.getAttribute('href') ?? ''
+    openedSinceSearch.current = true
+    if (lastSearchId.current) void markSearchClicked(lastSearchId.current)
+    if (/google\.[^/]*\/maps|maps\.app|maps\?/.test(href)) trackSearchEvent(SEARCH_EVENTS.directionsClicked, { href })
+    else if (href.startsWith('/places/')) trackSearchEvent(SEARCH_EVENTS.resultOpened, { href })
+  }
+
+  // intent-derived "detected" chips (read-only — clear by editing the query)
+  const detected: string[] = []
+  if (intent.openNow) detected.push(t('f_open_now'))
+  if (intent.nearby) detected.push(t('f_near_me'))
+  if (intent.station) detected.push(`${tp('pub_station')}: ${intent.station}`)
+  if (intent.area) detected.push(intent.area)
+  if (intent.priceMax) detected.push(`≤ ¥${intent.priceMax}`)
+  if (intent.priceMin) detected.push(`≥ ¥${intent.priceMin}`)
+
+  const sortKeys = SORT_KEYS.filter((s) => s !== 'nearest' || userLoc)
+
+  return (
+    <div>
+      {/* ── Search bar + sort + filters button ── */}
+      <div className="flex flex-col sm:flex-row gap-2.5 mb-3">
+        <div className="relative flex-1">
+          <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z" />
+          </svg>
+          <input
+            value={state.q ?? ''}
+            onChange={(e) => setState((p) => ({ ...p, q: e.target.value }))}
+            onFocus={() => setFocused(true)}
+            onBlur={() => setTimeout(() => setFocused(false), 150)}
+            placeholder={t('search_placeholder')}
+            aria-label={t('search_placeholder')}
+            className="w-full pl-10 pr-9 py-2.5 text-[14px] rounded-full border border-line bg-paper text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-rose/15"
+          />
+          {state.q && (
+            <button type="button" onClick={() => setState((p) => ({ ...p, q: '' }))} aria-label={t('search_clear')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 grid place-items-center rounded-full text-muted hover:text-rose">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+          )}
+          {/* suggestions */}
+          {focused && (!state.q) && (recent.length > 0 || popular.length > 0) && (
+            <div className="absolute z-50 left-0 right-0 top-[calc(100%+6px)] bg-paper border border-line rounded-2xl shadow-card-hover p-3">
+              {recent.length > 0 && (
+                <div className="mb-2">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-[11px] font-semibold uppercase tracking-[1px] text-muted">{t('recent')}</span>
+                    <button type="button" className="text-[11.5px] text-rose hover:underline" onMouseDown={(e) => { e.preventDefault(); setRecent([]); try { localStorage.removeItem(RECENT_KEY) } catch { /* */ } }}>{t('clear_recent')}</button>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {recent.map((r) => (
+                      <button key={r} type="button" onMouseDown={(e) => { e.preventDefault(); setState((p) => ({ ...p, q: r })); trackSearchEvent(SEARCH_EVENTS.suggestionSelected, { q: r, kind: 'recent' }) }}
+                        className="text-[12.5px] px-3 py-1 rounded-full bg-cream border border-line hover:border-rose/40">{r}</button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {popular.length > 0 && (
+                <div>
+                  <span className="text-[11px] font-semibold uppercase tracking-[1px] text-muted block mb-1.5">{t('popular')}</span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {popular.map((r) => (
+                      <button key={r} type="button" onMouseDown={(e) => { e.preventDefault(); setState((p) => ({ ...p, q: r })); trackSearchEvent(SEARCH_EVENTS.suggestionSelected, { q: r, kind: 'popular' }) }}
+                        className="text-[12.5px] px-3 py-1 rounded-full bg-rose-soft text-rose border border-rose/15 hover:bg-rose hover:text-white">{r}</button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* sort */}
+        <select
+          value={state.sort ?? 'recommended'}
+          onChange={(e) => { setState((p) => ({ ...p, sort: e.target.value as SortKey })); trackSearchEvent(SEARCH_EVENTS.sortChanged, { sort: e.target.value }) }}
+          className="text-[13.5px] px-3.5 py-2.5 border border-line rounded-full bg-paper"
+          aria-label={t('sort')}
+        >
+          {sortKeys.map((s) => <option key={s} value={s}>{t(`sort_${s}` as 'sort_recommended')}</option>)}
+        </select>
+
+        {/* filters toggle (mobile drawer) */}
+        <button type="button" onClick={() => setDrawer(true)}
+          className="lg:hidden inline-flex items-center justify-center gap-2 text-[13.5px] font-semibold px-4 py-2.5 rounded-full border border-line bg-paper">
+          {activeCount > 0 ? t('filters_n', { n: activeCount }) : t('filters')}
+        </button>
+      </div>
+
+      {/* quick chips + category select */}
+      <div className="flex flex-wrap items-center gap-2 mb-3">
+        <select value={state.category ?? ''} onChange={(e) => set({ category: e.target.value || undefined })}
+          className="text-[13px] px-3 py-1.5 border border-line rounded-full bg-paper">
+          <option value="">{t('any_category')}</option>
+          {categories.map((c) => <option key={c.code} value={c.code}>{c.label}</option>)}
+        </select>
+        <QuickChip on={!!state.openNow} label={t('quick_open_now')} onClick={() => set({ openNow: !state.openNow || undefined })} />
+        <QuickChip on={state.fee === 'free'} label={t('quick_free')} onClick={() => set({ fee: state.fee === 'free' ? undefined : 'free' })} />
+        <QuickChip on={!!state.nearby} label={t('quick_nearby')} onClick={() => (userLoc ? set({ nearby: !state.nearby || undefined }) : useMyLocation())} />
+        {geoStatus === 'locating' && <span className="text-[12px] text-muted">{t('nearby_locating')}</span>}
+        {(geoStatus === 'denied' || geoStatus === 'error' || geoStatus === 'unsupported') && (
+          <span className="text-[12px] text-rose">{t(`nearby_${geoStatus}` as 'nearby_denied')}</span>
+        )}
+      </div>
+
+      {/* active filter chips + detected */}
+      {(activeCount > 0 || detected.length > 0) && (
+        <div className="flex flex-wrap items-center gap-1.5 mb-4">
+          {CHIP_KEYS.map((k) => {
+            const label = chipLabel(k)
+            if (!label) return null
+            return (
+              <button key={k} type="button" onClick={() => set({ [k]: Array.isArray(state[k]) ? [] : undefined } as Partial<ExploreFilters>)}
+                className="inline-flex items-center gap-1.5 text-[12.5px] font-medium px-3 py-1 rounded-full bg-rose-soft text-rose border border-rose/20 hover:bg-rose hover:text-white group">
+                {label}
+                <span className="opacity-60 group-hover:opacity-100">✕</span>
+              </button>
+            )
+          })}
+          {detected.map((d) => (
+            <span key={d} className="inline-flex items-center gap-1 text-[12px] px-2.5 py-1 rounded-full bg-cream border border-line text-muted" title={t('detected')}>
+              <span className="opacity-50">⌕</span>{d}
+            </span>
+          ))}
+          {activeCount > 0 && (
+            <button type="button" onClick={() => setState((p) => ({ q: p.q, sort: p.sort }))} className="text-[12.5px] text-muted hover:text-rose underline ml-1">
+              {t('clear_all')}
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* layout: desktop filter panel + results */}
+      <div className="grid lg:grid-cols-[260px_1fr] gap-6 items-start">
+        {/* desktop panel */}
+        <aside className="hidden lg:block sticky top-[88px] bg-paper border border-line rounded-2xl px-4 max-h-[calc(100vh-110px)] overflow-auto">
+          <PlaceFilters filters={state} set={set} relevant={relevant} categories={categories} prefectures={prefectures} />
+        </aside>
+
+        <div>
+          <p className="text-[13.5px] text-muted mb-4">{t('results_n', { count: results.length })}</p>
+
+          {results.length === 0 ? (
+            <div className="bg-paper border border-line rounded-2xl p-8 text-center">
+              <div className="text-[40px] mb-3">🔍</div>
+              <h3 className="font-serif font-bold text-[20px] text-ink mb-1.5">{t('empty_title')}</h3>
+              <p className="text-[14px] text-muted mb-5 max-w-[420px] mx-auto">{t('empty_sub')}</p>
+              <div className="flex flex-wrap justify-center gap-2 mb-5">
+                {relax.map((s) => {
+                  const lbl = chipLabel(s.filter as keyof ExploreFilters) ?? String(s.filter)
+                  return (
+                    <button key={String(s.filter)} type="button" onClick={() => set({ [s.filter]: Array.isArray(state[s.filter as keyof ExploreFilters]) ? [] : undefined } as Partial<ExploreFilters>)}
+                      className="text-[13px] font-semibold px-4 py-2 rounded-full bg-rose-soft text-rose border border-rose/20 hover:bg-rose hover:text-white">
+                      {t('try_removing', { filter: lbl })} ({s.count})
+                    </button>
+                  )
+                })}
+                {activeCount > 0 && (
+                  <button type="button" onClick={() => setState((p) => ({ q: p.q, sort: p.sort }))} className="text-[13px] font-semibold px-4 py-2 rounded-full border border-line text-muted hover:text-ink">
+                    {t('show_all')}
+                  </button>
+                )}
+              </div>
+              {relatedCats.length > 0 && (
+                <div className="mb-5">
+                  <p className="text-[12.5px] font-semibold text-muted mb-2">{t('related_categories')}</p>
+                  <div className="flex flex-wrap justify-center gap-2">
+                    {relatedCats.map(({ c, n }) => (
+                      <button key={c.code} type="button" onClick={() => set({ category: c.code })}
+                        className="text-[13px] px-3.5 py-1.5 rounded-full bg-cream border border-line hover:border-rose/40">{c.label} ({n})</button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <Link href="/community" className="inline-flex flex-col items-center gap-0.5 mt-1">
+                <span className="font-semibold text-[14px] px-6 py-2.5 rounded-full bg-teal text-white hover:bg-teal/90 transition-colors">{t('ask_community')}</span>
+                <span className="text-[12px] text-muted mt-1.5 max-w-[320px]">{t('ask_community_sub')}</span>
+              </Link>
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6" onClickCapture={onGridClick}>
+                {shown.map((p) => (
+                  <div key={p.slug} className="relative">
+                    {typeof p.distanceKm === 'number' && (
+                      <span className="absolute top-3 left-3 z-[3] text-[11px] font-semibold px-2 py-[3px] rounded-full bg-ink/85 text-white">
+                        {t('distance_away', { dist: formatDistanceKm(p.distanceKm) })}
+                      </span>
+                    )}
+                    {cards[p.slug] ?? null}
+                  </div>
+                ))}
+              </div>
+              {visible < results.length && (
+                <div className="text-center mt-8">
+                  <button type="button" onClick={() => setVisible((v) => v + PAGE)}
+                    className="font-semibold text-[14px] px-7 py-3 rounded-full border border-line bg-paper hover:border-rose/40 hover:text-rose transition-colors">
+                    {t('load_more')} · {t('showing_n_of_m', { shown: shown.length, total: results.length })}
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* mobile filter drawer */}
+      {drawer && (
+        <div className="fixed inset-0 z-[200] lg:hidden">
+          <div className="absolute inset-0 bg-black/40" onClick={() => setDrawer(false)} />
+          <div className="absolute right-0 top-0 bottom-0 w-[90%] max-w-[380px] bg-cream shadow-2xl flex flex-col">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-line">
+              <span className="font-semibold text-[15px]">{activeCount > 0 ? t('filters_n', { n: activeCount }) : t('filters')}</span>
+              <button type="button" onClick={() => setDrawer(false)} aria-label={t('done')} className="w-8 h-8 grid place-items-center rounded-full hover:bg-line">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+            <div className="flex-1 overflow-auto px-4">
+              <PlaceFilters filters={state} set={set} relevant={relevant} categories={categories} prefectures={prefectures} />
+            </div>
+            <div className="flex gap-2 px-4 py-3 border-t border-line">
+              <button type="button" onClick={() => setState((p) => ({ q: p.q, sort: p.sort }))} className="flex-1 py-2.5 rounded-full border border-line text-[14px] font-semibold text-muted">{t('reset_filters')}</button>
+              <button type="button" onClick={() => setDrawer(false)} className="flex-1 py-2.5 rounded-full bg-rose text-white text-[14px] font-semibold">{t('apply')}</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function QuickChip({ on, label, onClick }: { on: boolean; label: string; onClick: () => void }) {
+  return (
+    <button type="button" onClick={onClick}
+      className={`text-[13px] font-medium px-3.5 py-1.5 rounded-full border transition-colors ${on ? 'bg-rose text-white border-rose' : 'bg-paper border-line text-muted hover:border-rose/40 hover:text-rose'}`}>
+      {label}
+    </button>
+  )
+}

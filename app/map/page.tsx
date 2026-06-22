@@ -1,83 +1,59 @@
-import Link from 'next/link'
+import loadDynamic from 'next/dynamic'
 import { getTranslations } from 'next-intl/server'
-import { getAllPlacesFromDb, places as staticPlaces } from '@/lib/places'
-import type { Place } from '@/lib/places'
-import BanDoClient from './BanDoClient'
+import { getAllPlacesFromDb, places as staticPlaces, categoryEmoji, categories, type Place } from '@/lib/places'
 
 export const dynamic = 'force-dynamic'
 
+// Map is client-only (Leaflet needs the DOM) — render shell on the server only.
+const MapExplorer = loadDynamic(() => import('./MapExplorer'), { ssr: false })
+
+const DEFAULT_CENTER = { lat: 33.5902, lng: 130.4017 } // Fukuoka / Hakata
+
 export async function generateMetadata() {
-  const t = await getTranslations('map_page')
-  const description = t('sub')
-  return {
-    title: t('title'),
-    description,
-    openGraph: { title: t('title'), description },
-  }
+  const t = await getTranslations('map_explore')
+  return { title: t('title'), description: t('subtitle'), openGraph: { title: t('title'), description: t('subtitle') } }
 }
 
-export default async function BanDoPage() {
-  const t = await getTranslations('map_page')
-  const tc = await getTranslations('categories')
+/** Average coordinate of places sharing a name field (area or station). */
+function centersBy(places: Place[], key: (p: Place) => string | null | undefined) {
+  const acc = new Map<string, { lat: number; lng: number; n: number }>()
+  for (const p of places) {
+    if (typeof p.lat !== 'number' || typeof p.lng !== 'number') continue
+    const name = key(p)?.trim()
+    if (!name) continue
+    const cur = acc.get(name) ?? { lat: 0, lng: 0, n: 0 }
+    cur.lat += p.lat; cur.lng += p.lng; cur.n += 1
+    acc.set(name, cur)
+  }
+  return Array.from(acc.entries())
+    .map(([name, v]) => ({ name, lat: v.lat / v.n, lng: v.lng / v.n }))
+    .sort((a, b) => a.name.localeCompare(b.name))
+}
 
-  const dbPlaces = await getAllPlacesFromDb()
-  const allPlaces: Place[] = dbPlaces ?? staticPlaces
+export default async function MapPage() {
+  const [t, tc] = await Promise.all([
+    getTranslations('map_explore'),
+    getTranslations('categories'),
+  ])
 
-  // Collect unique areas
-  const areas = Array.from(new Set(allPlaces.map((p) => p.area).filter(Boolean))).sort()
-
-  // Collect unique categories that have at least 1 place
-  const cats = Array.from(new Set(allPlaces.map((p) => p.category))).sort()
-
-  const placesData = allPlaces.map((p) => ({
-    slug: p.slug,
-    name: p.name,
-    area: p.area,
-    category: p.category,
-    categoryLabel: tc(p.category as Parameters<typeof tc>[0]),
-    mapUrl: p.mapUrl,
-    img: p.img,
-    imgFallback: p.imgFallback,
-  }))
+  const all = (await getAllPlacesFromDb()) ?? staticPlaces
+  const cats = categories.map((c) => ({ code: c.code, label: tc(c.code as Parameters<typeof tc>[0]), emoji: categoryEmoji[c.code] ?? '📍' }))
+  const areaCenters = centersBy(all, (p) => p.area).slice(0, 60)
+  const stationCenters = centersBy(all, (p) => p.nearestStation).slice(0, 60)
 
   return (
-    <div className="min-h-[calc(100vh-160px)] py-14 px-6">
-      <div className="max-w-[1240px] mx-auto">
-
-        {/* Breadcrumb */}
-        <Link
-          href="/"
-          className="inline-flex items-center gap-1.5 text-[13px] text-muted hover:text-rose transition-colors mb-10"
-        >
-          {t('back')}
-        </Link>
-
-        {/* Header */}
-        <div className="mb-10">
-          <span className="inline-flex items-center gap-2 text-[11px] font-semibold tracking-[2.5px] uppercase text-rose mb-5 before:content-[''] before:w-5 before:h-px before:bg-rose/60 after:content-[''] after:w-5 after:h-px after:bg-rose/60">
-            {t('label')}
-          </span>
-          <h1 className="font-serif font-black text-[clamp(28px,4vw,48px)] leading-[1.1] tracking-[-0.5px] text-ink mb-3">
-            {t('heading')}{' '}
-            <em className="italic text-rose not-italic">{t('heading_accent')}</em>
-          </h1>
-          <p className="text-[15.5px] text-muted leading-[1.7]">{t('sub')}</p>
-        </div>
-
-        <BanDoClient
-          places={placesData}
-          areas={areas}
-          cats={cats}
-          filterAll={t('filter_all')}
-          filterTopic={t('filter_topic')}
-          filterArea={t('filter_area')}
-          openMaps={t('open_maps')}
-          detail={t('detail')}
-          count={t('count')}
-          noResults={t('no_results')}
-        />
-
-      </div>
+    <div className="max-w-[1280px] mx-auto px-5 sm:px-6 py-8 pb-16">
+      <header className="mb-5">
+        <h1 className="font-serif font-bold text-[clamp(26px,4vw,40px)] leading-tight tracking-[-0.4px] text-ink mb-2">{t('title')}</h1>
+        <p className="text-[15px] text-muted max-w-[680px] leading-relaxed">{t('subtitle')}</p>
+      </header>
+      <MapExplorer
+        defaultCenter={DEFAULT_CENTER}
+        defaultRadius={5}
+        categories={cats}
+        areaCenters={areaCenters}
+        stationCenters={stationCenters}
+      />
     </div>
   )
 }

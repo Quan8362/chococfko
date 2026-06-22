@@ -22,6 +22,68 @@ export interface Place {
   cityOrPrefecture?: string | null; // VD "Fukuoka"
   relationType?: RelationType | null; // VD "near"
   tags?: LocalizedTag[] | null; // attached for search/display (optional)
+
+  // ── Explore Phase 1: structured, searchable, actionable fields ──
+  // All optional; null/undefined = unknown (never a fake default).
+  subcategories?: string[] | null;
+  postalCode?: string | null;
+  nearestStation?: string | null;
+  stationWalkMinutes?: number | null;
+  // Price
+  priceType?: 'free' | 'paid' | 'varies' | null;
+  priceMin?: number | null;
+  priceMax?: number | null;
+  currency?: string | null;
+  // Hours & status
+  openingHours?: Record<string, unknown> | null;
+  closedDays?: string[] | null;
+  temporaryStatus?: 'open' | 'temporarily_closed' | 'permanently_closed' | null;
+  // Reservation / suitability / facilities (tri-state: null = unknown)
+  reservationRecommended?: boolean | null;
+  reservationRequired?: boolean | null;
+  walkInsAccepted?: boolean | null;
+  goodForChildren?: boolean | null;
+  goodForSolo?: boolean | null;
+  goodForGroups?: boolean | null;
+  parking?: string | null;
+  indoorOutdoor?: string | null;
+  rainyDayOk?: boolean | null;
+  wheelchairAccessible?: boolean | null;
+  smokingPolicy?: string | null;
+  paymentMethods?: string[] | null;
+  supportedLanguages?: string[] | null;
+  tattooPolicy?: string | null;
+  bbqAvailable?: boolean | null;
+  campingAvailable?: boolean | null;
+  petPolicy?: string | null;
+  // Action links
+  officialWebsite?: string | null;
+  reservationUrl?: string | null;
+  reservationProvider?: string | null;
+  phone?: string | null;
+  phoneE164?: string | null;
+  socialUrl?: string | null;
+  sourceUrl?: string | null;
+  lastVerifiedAt?: string | null;
+  // Editorial & trust
+  knowBeforeYouGo?: string | null;
+  viTips?: string | null;
+  itemsToBring?: string[] | null;
+  recommendedDurationMinutes?: number | null;
+  bestVisitTime?: string | null;
+  expectedCrowdLevel?: string | null;
+  japanesePhrases?: { ja: string; romaji: string; vi: string }[] | null;
+  verificationStatus?: string | null;
+  // Visibility / eligibility
+  searchEligible?: boolean | null;
+  recommendEligible?: boolean | null;
+  // Timestamps (for "newest" / "recently updated" sorts & filters)
+  createdAt?: string | null;
+  updatedAt?: string | null;
+  // Transient (attached at query time, not stored): distance for "nearby"/"nearest"
+  // sort, and a community-activity score (ratings+comments) for the "community" sort.
+  distanceKm?: number | null;
+  communityActivity?: number | null;
 }
 
 // Map các chuỗi "area" tiếng Việt cũ (free text) sang i18n key tương ứng.
@@ -1184,6 +1246,24 @@ interface DbPlace {
   lat?: number | null; lng?: number | null;
   area_main?: string | null; nearby_place?: string | null;
   city_or_prefecture?: string | null; relation_type?: string | null;
+  // Explore Phase 1 (all optional; missing column → undefined → null)
+  subcategories?: string[] | null; postal_code?: string | null;
+  nearest_station?: string | null; station_walk_minutes?: number | null;
+  price_type?: string | null; price_min?: number | null; price_max?: number | null; currency?: string | null;
+  opening_hours?: Record<string, unknown> | null; closed_days?: string[] | null; temporary_status?: string | null;
+  reservation_recommended?: boolean | null; reservation_required?: boolean | null; walk_ins_accepted?: boolean | null;
+  good_for_children?: boolean | null; good_for_solo?: boolean | null; good_for_groups?: boolean | null;
+  parking?: string | null; indoor_outdoor?: string | null; rainy_day_ok?: boolean | null;
+  wheelchair_accessible?: boolean | null; smoking_policy?: string | null;
+  payment_methods?: string[] | null; supported_languages?: string[] | null;
+  tattoo_policy?: string | null; bbq_available?: boolean | null; camping_available?: boolean | null; pet_policy?: string | null;
+  official_website?: string | null; reservation_url?: string | null; reservation_provider?: string | null;
+  phone?: string | null; phone_e164?: string | null; social_url?: string | null; source_url?: string | null; last_verified_at?: string | null;
+  know_before_you_go?: string | null; vi_tips?: string | null; items_to_bring?: string[] | null;
+  recommended_duration_minutes?: number | null; best_visit_time?: string | null; expected_crowd_level?: string | null;
+  japanese_phrases?: { ja: string; romaji: string; vi: string }[] | null; verification_status?: string | null;
+  search_eligible?: boolean | null; recommend_eligible?: boolean | null;
+  created_at?: string | null; updated_at?: string | null;
 }
 
 function mapDbPlace(row: DbPlace): Place {
@@ -1210,6 +1290,55 @@ function mapDbPlace(row: DbPlace): Place {
     nearbyPlace: row.nearby_place ?? null,
     cityOrPrefecture: row.city_or_prefecture ?? null,
     relationType: (row.relation_type as RelationType | null) ?? null,
+    // ── Explore Phase 1 structured fields ──
+    subcategories: row.subcategories ?? null,
+    postalCode: row.postal_code ?? null,
+    nearestStation: row.nearest_station ?? null,
+    stationWalkMinutes: row.station_walk_minutes ?? null,
+    priceType: (row.price_type as Place['priceType']) ?? null,
+    priceMin: row.price_min ?? null,
+    priceMax: row.price_max ?? null,
+    currency: row.currency ?? null,
+    openingHours: row.opening_hours ?? null,
+    closedDays: row.closed_days ?? null,
+    temporaryStatus: (row.temporary_status as Place['temporaryStatus']) ?? null,
+    reservationRecommended: row.reservation_recommended ?? null,
+    reservationRequired: row.reservation_required ?? null,
+    walkInsAccepted: row.walk_ins_accepted ?? null,
+    goodForChildren: row.good_for_children ?? null,
+    goodForSolo: row.good_for_solo ?? null,
+    goodForGroups: row.good_for_groups ?? null,
+    parking: row.parking ?? null,
+    indoorOutdoor: row.indoor_outdoor ?? null,
+    rainyDayOk: row.rainy_day_ok ?? null,
+    wheelchairAccessible: row.wheelchair_accessible ?? null,
+    smokingPolicy: row.smoking_policy ?? null,
+    paymentMethods: row.payment_methods ?? null,
+    supportedLanguages: row.supported_languages ?? null,
+    tattooPolicy: row.tattoo_policy ?? null,
+    bbqAvailable: row.bbq_available ?? null,
+    campingAvailable: row.camping_available ?? null,
+    petPolicy: row.pet_policy ?? null,
+    officialWebsite: row.official_website ?? null,
+    reservationUrl: row.reservation_url ?? null,
+    reservationProvider: row.reservation_provider ?? null,
+    phone: row.phone ?? null,
+    phoneE164: row.phone_e164 ?? null,
+    socialUrl: row.social_url ?? null,
+    sourceUrl: row.source_url ?? null,
+    lastVerifiedAt: row.last_verified_at ?? null,
+    knowBeforeYouGo: row.know_before_you_go ?? null,
+    viTips: row.vi_tips ?? null,
+    itemsToBring: row.items_to_bring ?? null,
+    recommendedDurationMinutes: row.recommended_duration_minutes ?? null,
+    bestVisitTime: row.best_visit_time ?? null,
+    expectedCrowdLevel: row.expected_crowd_level ?? null,
+    japanesePhrases: row.japanese_phrases ?? null,
+    verificationStatus: row.verification_status ?? null,
+    searchEligible: row.search_eligible ?? null,
+    recommendEligible: row.recommend_eligible ?? null,
+    createdAt: row.created_at ?? null,
+    updatedAt: row.updated_at ?? null,
   };
 }
 
@@ -1256,6 +1385,31 @@ export async function attachPlaceTags(list: Place[]): Promise<Place[]> {
     }
     if (!slugToTags.size) return list;
     return list.map((p) => (slugToTags.has(p.slug) ? { ...p, tags: slugToTags.get(p.slug) } : p));
+  } catch {
+    return list;
+  }
+}
+
+/**
+ * Attach a community-activity score (ratings + approved comments count) to each
+ * place — used by the "community activity" sort. Best-effort; returns the input
+ * unchanged on any error. Cache-safe public client.
+ */
+export async function attachCommunityActivity(list: Place[]): Promise<Place[]> {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !list.length) return list;
+  try {
+    const { createPublicClient } = await import('@/lib/supabase/public');
+    const sb = createPublicClient();
+    const slugs = list.map((p) => p.slug);
+    const counts = new Map<string, number>();
+    const [{ data: r }, { data: c }] = await Promise.all([
+      sb.from('place_ratings').select('place_slug').in('place_slug', slugs),
+      sb.from('place_comments').select('place_slug').eq('status', 'approved').in('place_slug', slugs),
+    ]);
+    for (const row of (r ?? []) as { place_slug: string }[]) counts.set(row.place_slug, (counts.get(row.place_slug) ?? 0) + 1);
+    for (const row of (c ?? []) as { place_slug: string }[]) counts.set(row.place_slug, (counts.get(row.place_slug) ?? 0) + 1);
+    if (!counts.size) return list;
+    return list.map((p) => (counts.has(p.slug) ? { ...p, communityActivity: counts.get(p.slug) } : p));
   } catch {
     return list;
   }
@@ -1327,14 +1481,23 @@ export async function getPlaceComments(slug: string): Promise<PlaceComment[]> {
   try {
     const { createAdminClient } = await import('@/lib/supabase/admin');
     const admin = createAdminClient();
-    const { data, error } = await admin
+    // Post-Phase-6: only plain comments (questions/answers render in PlaceQuestions).
+    const withKind = await admin
+      .from('place_comments_with_author')
+      .select('id, place_slug, user_id, content, created_at, author_name, author_avatar')
+      .eq('place_slug', slug)
+      .eq('status', 'approved')
+      .eq('kind', 'comment')
+      .order('created_at', { ascending: true });
+    if (!withKind.error && withKind.data) return withKind.data as PlaceComment[];
+    // Pre-migration fallback (no `kind` column yet) — preserve existing behavior.
+    const { data } = await admin
       .from('place_comments_with_author')
       .select('id, place_slug, user_id, content, created_at, author_name, author_avatar')
       .eq('place_slug', slug)
       .eq('status', 'approved')
       .order('created_at', { ascending: true });
-    if (error || !data) return [];
-    return data as PlaceComment[];
+    return (data ?? []) as PlaceComment[];
   } catch {
     return [];
   }

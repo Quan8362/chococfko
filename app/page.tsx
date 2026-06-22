@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { getTranslations, getLocale } from "next-intl/server";
 import { categories, places as staticPlaces, getAllPlacesFromDb, attachPlaceTags } from "@/lib/places";
 import type { Place } from "@/lib/places";
@@ -7,6 +8,11 @@ import PlaceCard from "@/components/PlaceCard";
 import ExploreSearch from "@/components/ExploreSearch";
 import HomePosts from "@/components/HomePosts";
 import { prefectureName } from "@/lib/japan";
+import IntentChips from "@/components/explore/IntentChips";
+import CollectionsRail from "@/components/explore/CollectionsRail";
+import EventsRail from "@/components/explore/EventsRail";
+import CommunityActivity from "@/components/explore/CommunityActivity";
+import PersonalizedHome from "@/components/explore/PersonalizedHome";
 
 export const dynamic = "force-dynamic";
 
@@ -60,6 +66,20 @@ export default async function Home() {
   const prefectures = Array.from(prefCounts.entries())
     .map(([code, count]) => ({ code, name: prefectureName(code), count }))
     .sort((a, b) => b.count - a.count);
+
+  // Pre-render every place card once; reused by ExploreSearch, the personalized
+  // island, and the community-activity section (no double fetch/render).
+  const cardsBySlug: Record<string, ReactNode> = Object.fromEntries(
+    allPlaces.map((p) => [p.slug, <PlaceCard key={p.slug} place={p} />]),
+  );
+  // Lightweight index for client-side personalization (no private data).
+  const placeIndex = allPlaces.map((p) => ({ slug: p.slug, category: p.category, prefecture: p.prefecture ?? null }));
+  // Recently updated/verified places (derived from already-loaded data).
+  const recentlyUpdatedSlugs = [...allPlaces]
+    .filter((p) => p.lastVerifiedAt || p.updatedAt)
+    .sort((a, b) => (new Date(b.lastVerifiedAt ?? b.updatedAt ?? 0).getTime()) - (new Date(a.lastVerifiedAt ?? a.updatedAt ?? 0).getTime()))
+    .slice(0, 8)
+    .map((p) => p.slug);
 
   return (
     <>
@@ -126,6 +146,9 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* ── WHAT DO YOU WANT TO DO TODAY? (intent shortcuts) ─── */}
+      <IntentChips />
+
       {/* ── SEARCH + CATEGORY FILTER + RESULTS ───────────────── */}
       {/* Cards are pre-rendered server-side (PlaceCard is async); ExploreSearch
           decides which to show (filtered flat grid when searching, sectioned
@@ -139,10 +162,24 @@ export default async function Home() {
           label: tc(`${c.code}_full` as Parameters<typeof tc>[0]),
           emoji: CAT_EMOJI[c.code],
         }))}
-        cards={Object.fromEntries(
-          allPlaces.map((p) => [p.slug, <PlaceCard key={p.slug} place={p} />]),
-        )}
+        cards={cardsBySlug}
       />
+
+      {/* ── PERSONALIZED (returning users; client-only, never cached cross-user) ── */}
+      <PersonalizedHome
+        cardsBySlug={cardsBySlug}
+        placeIndex={placeIndex}
+        prefectures={prefectures.map((p) => ({ code: p.code, name: p.name }))}
+      />
+
+      {/* ── USEFUL COLLECTIONS ───────────────────────────────── */}
+      <CollectionsRail />
+
+      {/* ── UPCOMING EVENTS ──────────────────────────────────── */}
+      <EventsRail />
+
+      {/* ── COMMUNITY ACTIVITY ───────────────────────────────── */}
+      <CommunityActivity cardsBySlug={cardsBySlug} recentlyUpdatedSlugs={recentlyUpdatedSlugs} />
 
       {/* ── LATEST COMMUNITY POSTS ───────────────────────────── */}
       <HomePosts />

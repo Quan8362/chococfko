@@ -201,6 +201,15 @@ export async function updatePlace(formData: FormData) {
     updatePayload.address = (formData.get('address') as string)?.trim() || null
   }
 
+  // Snapshot fields that drive return-user notifications BEFORE the update so we
+  // can fire only on a real transition (not on every edit). Best-effort.
+  type PrevSnap = { temporary_status: string | null; last_verified_at: string | null }
+  let prev: PrevSnap | null = null
+  try {
+    const { data } = await admin.from('places').select('temporary_status, last_verified_at').eq('slug', slug).maybeSingle()
+    if (data) prev = data as unknown as PrevSnap
+  } catch { /* table/columns may be pre-migration */ }
+
   // ── Explore Phase 1 extended fields (validated). Attempt the full update; if
   // the migration is not yet applied (unknown column), fall back to the legacy
   // payload so core editing keeps working. Validation errors still throw. ──
@@ -211,6 +220,21 @@ export async function updatePlace(formData: FormData) {
   }
 
   if (error) throw new Error(error.message)
+
+  // Notify users who saved this place when its info materially changed.
+  try {
+    const newStatus = (extended as Record<string, unknown>).temporary_status as string | null | undefined
+    const newVerified = (extended as Record<string, unknown>).last_verified_at as string | null | undefined
+    const name = updatePayload.name as string | undefined
+    const closedNow = newStatus === 'temporarily_closed' || newStatus === 'permanently_closed'
+    if (closedNow && prev?.temporary_status !== newStatus) {
+      const { notifySavedPlaceChange } = await import('@/lib/notifications/places')
+      await notifySavedPlaceChange(slug, 'place_closed', { placeName: name, pushTitle: name ?? 'Cập nhật địa điểm' })
+    } else if (newVerified && prev?.last_verified_at !== newVerified) {
+      const { notifySavedPlaceChange } = await import('@/lib/notifications/places')
+      await notifySavedPlaceChange(slug, 'place_updated', { placeName: name, pushTitle: name ?? 'Cập nhật địa điểm' })
+    }
+  } catch { /* best-effort */ }
 
   if (formData.has('tags')) {
     const { data: row } = await admin.from('places').select('id').eq('slug', slug).maybeSingle()

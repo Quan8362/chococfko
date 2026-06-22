@@ -28,6 +28,11 @@ const TYPE_ICON: Record<string, string> = {
   place_answer:   '💬',
   place_answer_helpful: '👍',
   place_report_reviewed: '🛠️',
+  place_closed:   '🚧',
+  place_updated:  '✏️',
+  plan_reminder:  '🗺️',
+  weekend_collection: '🎉',
+  event_soon:     '📅',
 }
 
 type Props = {
@@ -52,6 +57,11 @@ export default function UserNotificationBellClient({ userId, initialUnread, init
       case 'place_answer':   return t('community_notif_title_place_answer')
       case 'place_answer_helpful': return t('community_notif_title_place_answer_helpful')
       case 'place_report_reviewed': return t('community_notif_title_place_report_reviewed')
+      case 'place_closed':   return t('community_notif_title_place_closed')
+      case 'place_updated':  return t('community_notif_title_place_updated')
+      case 'plan_reminder':  return t('community_notif_title_plan_reminder')
+      case 'weekend_collection': return t('community_notif_title_weekend_collection')
+      case 'event_soon':     return t('community_notif_title_event_soon')
       default:            return t('dropdown_title')
     }
   }

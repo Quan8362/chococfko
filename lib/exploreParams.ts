@@ -72,6 +72,45 @@ export function decodeFilters(get: (key: string) => string | null | undefined): 
   return f;
 }
 
+/**
+ * Pure mapping of static ExploreFilters → a PlaceCriteria-shaped object (no
+ * runtime intent/geolocation merge — that stays in PlacesExplorer). Reused by
+ * collections to filter the same engine deterministically. Returns a plain
+ * object compatible with `filterPlaces`'s PlaceCriteria.
+ */
+export function filtersToCriteria(f: ExploreFilters): Record<string, unknown> {
+  return {
+    q: f.q,
+    categories: f.category ? [f.category] : undefined,
+    prefecture: f.prefecture ?? null,
+    area: f.area ?? null,
+    station: f.station ?? null,
+    fee: f.fee,
+    priceMin: f.priceMin ?? null,
+    priceMax: f.priceMax ?? null,
+    openNow: f.openNow || undefined,
+    reservationAvailable: f.reservationAvailable || undefined,
+    reservationRequired: f.reservationRequired || undefined,
+    parking: f.parking || undefined,
+    children: f.children || undefined,
+    solo: f.solo || undefined,
+    group: f.group || undefined,
+    rainy: f.rainy || undefined,
+    indoor: f.indoor || undefined,
+    outdoor: f.outdoor || undefined,
+    wheelchair: f.wheelchair || undefined,
+    bbq: f.bbq || undefined,
+    camping: f.camping || undefined,
+    smoking: f.smoking ?? null,
+    tattoo: f.tattoo ?? null,
+    paymentMethods: f.payment,
+    languages: f.lang,
+    verifiedOnly: f.verified || undefined,
+    recentlyUpdatedDays: f.recentlyUpdated ? 30 : null,
+    sort: f.sort,
+  };
+}
+
 /** Count of active filters (for the "Filters (N)" button + clear-all visibility). */
 export function activeFilterCount(f: ExploreFilters): number {
   let n = 0;

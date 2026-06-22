@@ -20,7 +20,7 @@ Status legend: ✅ done · 🚧 in progress · ⛔ blocked · ⬜ not started
 | 4 | Detail experience, saved places, recent history | ✅ done (migration pending manual apply) |
 | 5 | Lists, trip planning & sharing | ✅ done (migrations pending manual apply) |
 | 6 | Place community questions & info verification | ✅ done (migration pending manual apply) |
-| 7 | Personalized discovery, events, return-user | ⬜ not started |
+| 7 | Personalized discovery, events, return-user | ✅ done (migrations pending manual apply) |
 | 8 | Admin, analytics, quality audit, release | ⬜ not started |
 
 ---
@@ -491,9 +491,46 @@ not auto-fired (no change-diff pipeline yet) — admins apply updates manually.
 (Original plan below.)
 - **DB changes:** extended `place_comments` + `place_reports` + `place_visits`.
 
-### Phase 7 — Personalized discovery, events, return-user ⬜
+### Phase 7 — Personalized discovery, events, return-user ✅
+**Shipped (reuse-first, privacy-first).** **Migrations** (additive/idempotent,
+pending manual apply): `migration_place_events.sql` (`place_events`, public read
+of `status='published'`, service-role write — mirrors `places`),
+`migration_place_collections.sql` (`place_collections`, public read of published,
+service-role write), `migration_notification_prefs.sql`
+(`notification_preferences` PK(user,type), RLS own-rows). **Pure libs + tests
+(+25, 304 total):** `lib/events.ts` (JST today/weekend/upcoming bucketing,
+expired never "upcoming", cancelled flagged, `startsSoon`), `lib/collections.ts`
+(structured-filter collections + admin-row merge over defaults),
+`lib/personalization.ts` (coarse, explainable recs with category-diversity cap +
+new-user empty fallback), `lib/notifications/prefs.ts` (type catalog; return-user
+types default OFF). **Loaders:** `lib/eventsDb.ts`, `lib/collectionsDb.ts`,
+`lib/communityFeed.ts` — all cache-safe public reads (`unstable_cache` +
+cookie-free/service-role), degrade to empty pre-migration.
+**Explore landing** (`app/page.tsx`): added `IntentChips` ("What do you want to
+do today?" → reliable structured-filter links), `PersonalizedHome`
+(**client-only island** → never cached cross-user: saved/recent/region signals,
+"why am I seeing this?", a personalization on/off toggle, region selector,
+continue-planning), `CollectionsRail`, `EventsRail`, `CommunityActivity`
+(questions needing answers, popular-saved only when real data, recently updated).
+**Pages:** `/events` (today/weekend/upcoming/free tabs + prefecture, JST,
+expired-excluded, cancelled-labelled), `/collections` + `/collections/[slug]`
+(only shown when results exist), `/admin/events` (CRUD, publish, cancel,
+verified source/last-verified, JST↔UTC), `/notifications/preferences` (granular
+per-type switches). **Notifications:** `notifyUsers` now gates recipients by
+`notification_preferences` (return-user types opt-in); new types `place_closed`/
+`place_updated` (fired from admin `updatePlace` on real transition, to savers
+only), `plan_reminder`/`event_soon` via `/api/cron/return-user` (CRON_SECRET-
+guarded; event-soon targets savers of the linked place); bell renders all new
+types. i18n `explore_home`/`collections`/`events`/`notif_prefs` + 5 bell titles —
+**5-locale parity (3656 keys × 5, zero drift)**. **Privacy:** personalization is
+client-side localStorage + the user's own RLS-scoped saves (no profiling, no
+private data in any server cache), disable-able, with category diversity to avoid
+bubbles. tsc clean, 304 tests, build OK. **Known limitations:** cron is not yet
+wired to a Vercel Cron schedule (route + secret ready); `weekend_collection`
+notification type is defined + toggleable but not auto-fired (no scheduler entry
+yet); personalization runs over the loaded place set client-side.
 - **Goal:** recommendations from saves/history/ratings, events, return-user home.
-- **DB changes:** `place_events`; read models for recs.
+- **DB changes:** `place_events`, `place_collections`, `notification_preferences`.
 
 ### Phase 8 — Admin, analytics, quality audit, release ⬜
 - **Goal:** admin coverage for all new entities, place-event analytics

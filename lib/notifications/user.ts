@@ -31,9 +31,14 @@ export async function notifyUsers(opts: {
   push?: PushInfo            // omit to insert the bell row without an OS push
 }): Promise<void> {
   try {
-    const recipients = Array.from(new Set(
+    let recipients = Array.from(new Set(
       opts.recipientIds.filter(id => id && id !== opts.actorId),
     ))
+    if (recipients.length === 0) return
+
+    // Respect per-user notification preferences (return-user types default OFF).
+    const { filterRecipientsByPref } = await import('@/lib/notifications/prefs')
+    recipients = await filterRecipientsByPref(recipients, opts.type)
     if (recipients.length === 0) return
 
     const admin = createAdminClient()

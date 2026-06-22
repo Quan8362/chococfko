@@ -311,6 +311,7 @@ export default function PlacePicker({ initial, googleAvailable, apiKey, mapId }:
               <input
                 id="place-search" type="text" role="combobox" aria-expanded={suggestions.length > 0}
                 aria-controls="place-suggestions" aria-autocomplete="list"
+                aria-activedescendant={suggestions.length > 0 && activeIdx >= 0 ? `pp-opt-${activeIdx}` : undefined}
                 value={query} onChange={(e) => onQueryChange(e.target.value)} onKeyDown={onKeyDown}
                 placeholder={t('search_placeholder')} autoComplete="off"
                 className={I}
@@ -329,7 +330,7 @@ export default function PlacePicker({ initial, googleAvailable, apiKey, mapId }:
               <ul id="place-suggestions" role="listbox"
                 className="absolute z-[60] left-0 right-0 mt-1 bg-white border border-line rounded-xl shadow-lg overflow-hidden max-h-[300px] overflow-y-auto">
                 {suggestions.map((s, i) => (
-                  <li key={`${s.placeId ?? s.mainText}-${i}`} role="option" aria-selected={i === activeIdx}>
+                  <li key={`${s.placeId ?? s.mainText}-${i}`} id={`pp-opt-${i}`} role="option" aria-selected={i === activeIdx}>
                     <button type="button" onMouseDown={(e) => { e.preventDefault(); void selectSuggestion(s) }}
                       onMouseEnter={() => setActiveIdx(i)}
                       className={`w-full text-left px-3.5 py-2.5 ${i === activeIdx ? 'bg-rose-soft' : 'bg-white'} hover:bg-rose-soft`}>

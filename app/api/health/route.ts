@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createPublicClient } from '@/lib/supabase/public';
+import { mapEnvStatus, validateMapEnv } from '@/lib/maps/env';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -39,9 +40,19 @@ export async function GET() {
       !!process.env.NEXT_PUBLIC_SUPABASE_URL && !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   };
 
+  // Map stack: booleans + missing-var NAMES only — never any key value.
+  const mapEnv = mapEnvStatus();
+  const mapValidation = validateMapEnv();
+
   const healthy = Object.values(checks).every((v) => v === 'ok');
   return NextResponse.json(
-    { status: healthy ? 'healthy' : 'degraded', checks, config, ts: new Date().toISOString() },
+    {
+      status: healthy ? 'healthy' : 'degraded',
+      checks,
+      config,
+      map: { ...mapEnv, config_ok: mapValidation.ok, missing: mapValidation.missing, warnings: mapValidation.warnings },
+      ts: new Date().toISOString(),
+    },
     { status: healthy ? 200 : 503 },
   );
 }

@@ -6,6 +6,7 @@ import { categories } from '@/lib/places'
 import { seedPlaces } from './actions'
 import DeletePlaceButton from './DeletePlaceButton'
 import { imgProxy } from '@/lib/avatar'
+import { decodeExternalSeed, SEED_PARAM } from '@/lib/maps/adminSeed'
 
 export async function generateMetadata() {
   const t = await getTranslations('meta')
@@ -34,15 +35,20 @@ type Row = {
 export default async function AdminDiaDiem({
   searchParams,
 }: {
-  searchParams: { cat?: string; q?: string; seeded?: string }
+  searchParams: { cat?: string; q?: string; seeded?: string; seed_place?: string }
 }) {
   if (!(await checkIsAdmin())) redirect('/')
 
-  const [tCat, admin_t, tqa] = await Promise.all([
+  const [tCat, admin_t, tqa, tms] = await Promise.all([
     getTranslations('categories'),
     getTranslations('admin'),
     getTranslations('place_qa'),
+    getTranslations('map_search'),
   ])
+
+  // Seed candidate handed over by the public-map admin action (Phase 7).
+  // Provider-attributed, NOT published — the admin opens a place + uses the picker.
+  const seed = decodeExternalSeed(searchParams[SEED_PARAM])
 
   const admin = createAdminClient()
   const { data, error } = await admin
@@ -114,6 +120,23 @@ export default async function AdminDiaDiem({
         <div className="bg-emerald-50 border border-emerald-200 rounded-xl px-5 py-3.5 text-[13.5px] text-emerald-800 font-semibold mb-6 flex items-center gap-2">
           <span>✅</span>
           <span>{admin_t('seed_success_msg', { n: dbRows.length })}</span>
+        </div>
+      )}
+
+      {/* ── EXTERNAL SEED (from the public-map admin action) ─── */}
+      {seed && (
+        <div className="bg-slate-50 border border-slate-300 rounded-2xl p-5 mb-6">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="w-2 h-2 rounded-full bg-slate-400" aria-hidden />
+            <span className="text-[11px] font-bold uppercase tracking-[0.5px] text-slate-600">{tms('group_google')}</span>
+          </div>
+          <h2 className="font-serif font-bold text-slate-800 text-[16px] mb-1">{tms('admin_seed_title')}</h2>
+          <p className="text-[13.5px] text-slate-700">{seed.name ?? '—'}</p>
+          {seed.address && <p className="text-[12.5px] text-slate-500">{seed.address}</p>}
+          {seed.lat != null && seed.lng != null && <p className="text-[12px] text-slate-400">{seed.lat.toFixed(5)}, {seed.lng.toFixed(5)}</p>}
+          {seed.providerPlaceId && <p className="text-[11px] text-slate-400 mt-0.5 truncate">{seed.providerPlaceId}</p>}
+          <p className="text-[12.5px] text-slate-600 mt-2.5">{tms('admin_seed_desc')}</p>
+          <p className="text-[10.5px] text-slate-400 mt-1.5">{tms('ext_attribution')}</p>
         </div>
       )}
 

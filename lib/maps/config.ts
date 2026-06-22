@@ -27,10 +27,14 @@ export interface MapConfig {
   v2Enabled: boolean;
   /** Master switch: is Google Maps JS allowed to load at all? */
   googleMapsEnabled: boolean;
-  /** External Google POI previews (only meaningful when Google is active). */
+  /** External Google POI previews on the Google BASE MAP (requires provider=google). */
   externalPoiEnabled: boolean;
-  /** In-app Routes preview (only meaningful when Google is active). */
+  /** Raw external-POI flag (ungated) — drives external SEARCH, independent of the base-map provider. */
+  externalPoiFlag: boolean;
+  /** In-app Routes preview on the Google BASE MAP (requires provider=google). */
   routePreviewEnabled: boolean;
+  /** Raw route-preview flag (ungated) — drives in-site route preview over any base map. */
+  routePreviewFlag: boolean;
   /** Restrict V2 / Google surfaces to internal (admin) users during rollout. */
   internalOnly: boolean;
   /** Enable the Google-powered Admin place picker (search/map/marker). */
@@ -77,7 +81,9 @@ export function resolveMapConfig(env: EnvLike): MapConfig {
     v2Enabled: parseFlag(env.NEXT_PUBLIC_MAP_V2_ENABLED),
     googleMapsEnabled,
     externalPoiEnabled: googleActive && parseFlag(env.NEXT_PUBLIC_GOOGLE_EXTERNAL_POI_ENABLED),
+    externalPoiFlag: parseFlag(env.NEXT_PUBLIC_GOOGLE_EXTERNAL_POI_ENABLED),
     routePreviewEnabled: googleActive && parseFlag(env.NEXT_PUBLIC_GOOGLE_ROUTE_PREVIEW_ENABLED),
+    routePreviewFlag: parseFlag(env.NEXT_PUBLIC_GOOGLE_ROUTE_PREVIEW_ENABLED),
     internalOnly,
     adminPlaceSearchEnabled: parseFlag(env.NEXT_PUBLIC_ADMIN_PLACE_SEARCH_ENABLED),
     browserKey,
@@ -97,6 +103,27 @@ export function shouldLoadGoogleMaps(config: MapConfig): boolean {
  */
 export function adminGoogleAvailable(config: MapConfig): boolean {
   return config.googleMapsEnabled && !!config.browserKey && config.adminPlaceSearchEnabled;
+}
+
+/**
+ * May the PUBLIC unified search OFFER external Google results? Independent of the
+ * base-map provider (the search box works over our Leaflet map too): needs the
+ * master Google switch, a browser key, AND the external-POI flag. Missing any →
+ * internal-only search (today's default). External Google POI is OFF by default.
+ */
+export function externalSearchAvailable(config: MapConfig): boolean {
+  return config.googleMapsEnabled && !!config.browserKey && config.externalPoiFlag;
+}
+
+/**
+ * May the PUBLIC in-site route preview be OFFERED? Independent of the base-map
+ * provider (the directions panel works over our Leaflet map): needs the master
+ * Google switch AND the route-preview flag. (The server route additionally
+ * requires the server-only Routes key — see /api/maps/route.) Default OFF, so
+ * "Open in Google Maps" is the only directions action by default.
+ */
+export function routePreviewAvailable(config: MapConfig): boolean {
+  return config.googleMapsEnabled && config.routePreviewFlag;
 }
 
 /**

@@ -44,6 +44,7 @@ function parseWhenJst(v: string): Date | null {
 export default function MapExplorer({ defaultCenter, defaultRadius, categories, areaCenters, stationCenters }: Props) {
   const t = useTranslations('map_explore')
   const te = useTranslations('explore_search')
+  const tpd = useTranslations('place_detail')
   const emojiOf = useMemo(() => Object.fromEntries(categories.map((c) => [c.code, c.emoji])), [categories])
 
   const [view, setView] = useState<View>('map')
@@ -223,10 +224,14 @@ export default function MapExplorer({ defaultCenter, defaultRadius, categories, 
               </button>
             ))}
           </div>
-          <select value={category} onChange={(e) => setCategory(e.target.value)} className="text-[13px] px-3 py-1.5 border border-line rounded-full bg-paper">
-            <option value="">{te('any_category')}</option>
-            {categories.map((c) => <option key={c.code} value={c.code}>{c.emoji} {c.label}</option>)}
-          </select>
+          <div className="relative inline-flex">
+            <select value={category} onChange={(e) => setCategory(e.target.value)} aria-label={te('any_category')}
+              className="appearance-none text-[13px] pl-3 pr-8 py-1.5 border border-line rounded-full bg-paper">
+              <option value="">{te('any_category')}</option>
+              {categories.map((c) => <option key={c.code} value={c.code}>{c.emoji} {c.label}</option>)}
+            </select>
+            <svg className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+          </div>
           <label className="inline-flex items-center gap-1.5 text-[13px] px-3 py-1.5 rounded-full border border-line bg-paper cursor-pointer">
             <input type="checkbox" className="accent-rose" checked={openNowOnly} onChange={(e) => setOpenNowOnly(e.target.checked)} />
             {t('open_now')}
@@ -253,16 +258,24 @@ export default function MapExplorer({ defaultCenter, defaultRadius, categories, 
           )}
           <button type="button" onClick={recenter} className="text-[13px] px-3.5 py-1.5 rounded-full border border-line text-muted hover:text-rose">{t('recenter')}</button>
           {areaCenters.length > 0 && (
-            <select onChange={(e) => goTo(areaCenters[Number(e.target.value)] )} defaultValue="" className="text-[13px] px-3 py-1.5 border border-line rounded-full bg-paper">
-              <option value="" disabled>{t('select_area')}</option>
-              {areaCenters.map((a, i) => <option key={a.name} value={i}>{a.name}</option>)}
-            </select>
+            <div className="relative inline-flex">
+              <select onChange={(e) => goTo(areaCenters[Number(e.target.value)] )} defaultValue="" aria-label={t('select_area')}
+                className="appearance-none text-[13px] pl-3 pr-8 py-1.5 border border-line rounded-full bg-paper">
+                <option value="" disabled>{t('select_area')}</option>
+                {areaCenters.map((a, i) => <option key={a.name} value={i}>{a.name}</option>)}
+              </select>
+              <svg className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+            </div>
           )}
           {stationCenters.length > 0 && (
-            <select onChange={(e) => goTo(stationCenters[Number(e.target.value)])} defaultValue="" className="text-[13px] px-3 py-1.5 border border-line rounded-full bg-paper">
-              <option value="" disabled>{t('select_station')}</option>
-              {stationCenters.map((s, i) => <option key={s.name} value={i}>{s.name}</option>)}
-            </select>
+            <div className="relative inline-flex">
+              <select onChange={(e) => goTo(stationCenters[Number(e.target.value)])} defaultValue="" aria-label={t('select_station')}
+                className="appearance-none text-[13px] pl-3 pr-8 py-1.5 border border-line rounded-full bg-paper">
+                <option value="" disabled>{t('select_station')}</option>
+                {stationCenters.map((s, i) => <option key={s.name} value={i}>{s.name}</option>)}
+              </select>
+              <svg className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+            </div>
           )}
           <span className="text-[12px] text-muted">{loading ? te('loading') : t('results_n', { count: displayed.length })}</span>
           {geoStatus === 'locating' && <span className="text-[12px] text-muted">{te('nearby_locating')}</span>}
@@ -291,7 +304,7 @@ export default function MapExplorer({ defaultCenter, defaultRadius, categories, 
             {sel && (
               <div className="absolute z-[1100] inset-x-3 bottom-3 sm:inset-x-auto sm:right-3 sm:bottom-3 sm:w-[320px] max-h-[45%] overflow-auto">
                 <div className="relative">
-                  <button type="button" onClick={() => setSelected(null)} aria-label="close"
+                  <button type="button" onClick={() => setSelected(null)} aria-label={tpd('close')}
                     className="absolute -top-2 -right-2 z-[1] w-7 h-7 grid place-items-center rounded-full bg-ink text-white text-[13px] shadow">✕</button>
                   <Card m={sel} />
                 </div>

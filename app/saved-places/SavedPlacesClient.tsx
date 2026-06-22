@@ -41,7 +41,7 @@ export default function SavedPlacesClient({ cards, emptyTitle, emptySub, explore
   const recentToShow = recent.filter((s) => cards[s] && !saved.has(s)).slice(0, 12)
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-8 sm:space-y-12">
       {/* Guest hint: signing in is required for cross-device persistence */}
       {!loggedIn && (
         <div className="bg-cream border border-line rounded-2xl px-4 py-3 flex flex-wrap items-center justify-between gap-3">
@@ -52,11 +52,11 @@ export default function SavedPlacesClient({ cards, emptyTitle, emptySub, explore
 
       {/* Saved */}
       {savedSlugs.length === 0 ? (
-        <div className="bg-paper border border-line rounded-2xl p-12 text-center shadow-card">
-          <div className="text-[48px] mb-4">♡</div>
-          <h2 className="font-serif font-bold text-[20px] text-ink mb-2">{emptyTitle}</h2>
-          <p className="text-[14.5px] text-muted mb-7 max-w-[340px] mx-auto">{emptySub}</p>
-          <Link href="/places" className="inline-flex items-center gap-2 font-semibold text-[14px] px-7 py-3 rounded-full bg-rose text-white shadow-[0_4px_14px_-4px_rgba(194,24,91,0.45)] hover:bg-rose-deep hover:-translate-y-0.5 transition-all">
+        <div className="bg-paper border border-line rounded-2xl px-5 py-8 sm:p-12 text-center shadow-card">
+          <div className="text-[36px] sm:text-[48px] mb-3 sm:mb-4" aria-hidden="true">♡</div>
+          <h2 className="font-serif font-bold text-[18px] sm:text-[20px] text-ink mb-1.5 sm:mb-2">{emptyTitle}</h2>
+          <p className="text-[13.5px] sm:text-[14.5px] text-muted mb-5 sm:mb-7 max-w-[340px] mx-auto leading-relaxed">{emptySub}</p>
+          <Link href="/places" className="inline-flex items-center gap-2 font-semibold text-[14px] px-7 min-h-[44px] rounded-full bg-rose text-white shadow-[0_4px_14px_-4px_rgba(194,24,91,0.45)] hover:bg-rose-deep hover:-translate-y-0.5 transition-all">
             {exploreCta}
           </Link>
         </div>

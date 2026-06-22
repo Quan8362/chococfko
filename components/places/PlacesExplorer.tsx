@@ -15,6 +15,7 @@ import {
 } from '@/lib/exploreParams'
 import { SEARCH_EVENTS, trackSearchEvent, logSearchQuery, markSearchClicked } from '@/lib/searchAnalytics'
 import PlaceFilters from './PlaceFilters'
+import Select from '@/components/explore/Select'
 
 const PAGE = 12
 const RECENT_KEY = 'chococfko_recent_searches'
@@ -48,8 +49,34 @@ export default function PlacesExplorer({ places, cards, categories, prefectures,
   const logTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const lastSearchId = useRef<string | null>(null)
   const openedSinceSearch = useRef(true)
+  const drawerRef = useRef<HTMLDivElement | null>(null)
+  const drawerTriggerRef = useRef<HTMLButtonElement | null>(null)
 
   useEffect(() => { try { setRecent(JSON.parse(localStorage.getItem(RECENT_KEY) ?? '[]')) } catch { /* ignore */ } }, [])
+
+  // ── filter drawer a11y: body scroll lock + Escape + focus move/return ──
+  useEffect(() => {
+    if (!drawer) return
+    const prevOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    const node = drawerRef.current
+    const trigger = drawerTriggerRef.current
+    const focusable = node?.querySelectorAll<HTMLElement>('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')
+    focusable?.[0]?.focus()
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') { setDrawer(false); return }
+      if (e.key !== 'Tab' || !focusable || focusable.length === 0) return
+      const first = focusable[0], last = focusable[focusable.length - 1]
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus() }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus() }
+    }
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.body.style.overflow = prevOverflow
+      document.removeEventListener('keydown', onKey)
+      trigger?.focus()
+    }
+  }, [drawer])
 
   // ── derive criteria + results (deterministic) ──
   const intent = useMemo(() => extractIntent(state.q ?? ''), [state.q])
@@ -235,8 +262,8 @@ export default function PlacesExplorer({ places, cards, categories, prefectures,
   return (
     <div>
       {/* ── Search bar + sort + filters button ── */}
-      <div className="flex flex-col sm:flex-row gap-2.5 mb-3">
-        <div className="relative flex-1">
+      <div className="flex flex-col lg:flex-row lg:items-center gap-2.5 mb-2.5">
+        <div className="relative lg:flex-1">
           <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z" />
           </svg>
@@ -247,7 +274,7 @@ export default function PlacesExplorer({ places, cards, categories, prefectures,
             onBlur={() => setTimeout(() => setFocused(false), 150)}
             placeholder={t('search_placeholder')}
             aria-label={t('search_placeholder')}
-            className="w-full pl-10 pr-9 py-2.5 text-[14px] rounded-full border border-line bg-paper text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-rose/15"
+            className="w-full pl-10 pr-9 min-h-[44px] text-[14px] rounded-full border border-line bg-paper text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-rose/15"
           />
           {state.q && (
             <button type="button" onClick={() => setState((p) => ({ ...p, q: '' }))} aria-label={t('search_clear')}
@@ -287,50 +314,64 @@ export default function PlacesExplorer({ places, cards, categories, prefectures,
           )}
         </div>
 
-        {/* sort */}
-        <select
-          value={state.sort ?? 'recommended'}
-          onChange={(e) => { setState((p) => ({ ...p, sort: e.target.value as SortKey })); trackSearchEvent(SEARCH_EVENTS.sortChanged, { sort: e.target.value }) }}
-          className="text-[13.5px] px-3.5 py-2.5 border border-line rounded-full bg-paper"
-          aria-label={t('sort')}
-        >
-          {sortKeys.map((s) => <option key={s} value={s}>{t(`sort_${s}` as 'sort_recommended')}</option>)}
-        </select>
+        {/* sort + filters toggle (one row, balanced) */}
+        <div className="flex items-center gap-2">
+          <Select
+            wrapperClassName="flex-1 lg:flex-none lg:w-[190px]"
+            value={state.sort ?? 'recommended'}
+            onChange={(e) => { setState((p) => ({ ...p, sort: e.target.value as SortKey })); trackSearchEvent(SEARCH_EVENTS.sortChanged, { sort: e.target.value }) }}
+            aria-label={t('sort')}
+          >
+            {sortKeys.map((s) => <option key={s} value={s}>{t(`sort_${s}` as 'sort_recommended')}</option>)}
+          </Select>
 
-        {/* filters toggle (mobile drawer) */}
-        <button type="button" onClick={() => setDrawer(true)}
-          className="lg:hidden inline-flex items-center justify-center gap-2 text-[13.5px] font-semibold px-4 py-2.5 rounded-full border border-line bg-paper">
-          {activeCount > 0 ? t('filters_n', { n: activeCount }) : t('filters')}
-        </button>
+          {/* filters toggle (mobile/tablet drawer) */}
+          <button ref={drawerTriggerRef} type="button" onClick={() => setDrawer(true)}
+            aria-label={activeCount > 0 ? t('filters_n', { n: activeCount }) : t('filters')}
+            aria-haspopup="dialog"
+            className="lg:hidden inline-flex items-center gap-1.5 shrink-0 min-h-[44px] px-3.5 rounded-full border border-line bg-paper text-[13.5px] font-semibold text-ink">
+            <svg className="w-4 h-4 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h18M6 12h12M10 19h4" /></svg>
+            <span>{t('filters')}</span>
+            {activeCount > 0 && <span className="grid place-items-center min-w-[20px] h-5 px-1 rounded-full bg-rose text-white text-[11px] font-bold leading-none">{activeCount}</span>}
+          </button>
+        </div>
       </div>
 
-      {/* quick chips + category select */}
-      <div className="flex flex-wrap items-center gap-2 mb-3">
-        <select value={state.category ?? ''} onChange={(e) => set({ category: e.target.value || undefined })}
-          className="text-[13px] px-3 py-1.5 border border-line rounded-full bg-paper">
+      {/* category select + quick chips */}
+      <div className="flex flex-col gap-2.5 mb-3 lg:flex-row lg:flex-wrap lg:items-center">
+        <Select
+          wrapperClassName="w-full lg:w-[240px]"
+          value={state.category ?? ''}
+          onChange={(e) => set({ category: e.target.value || undefined })}
+          aria-label={t('any_category')}
+        >
           <option value="">{t('any_category')}</option>
           {categories.map((c) => <option key={c.code} value={c.code}>{c.label}</option>)}
-        </select>
-        <QuickChip on={!!state.openNow} label={t('quick_open_now')} onClick={() => set({ openNow: !state.openNow || undefined })} />
-        <QuickChip on={state.fee === 'free'} label={t('quick_free')} onClick={() => set({ fee: state.fee === 'free' ? undefined : 'free' })} />
-        <QuickChip on={!!state.nearby} label={t('quick_nearby')} onClick={() => (userLoc ? set({ nearby: !state.nearby || undefined }) : requestMyLocation())} />
-        {geoStatus === 'locating' && <span className="text-[12px] text-muted">{t('nearby_locating')}</span>}
-        {(geoStatus === 'denied' || geoStatus === 'error' || geoStatus === 'unsupported') && (
-          <span className="text-[12px] text-rose">{t(`nearby_${geoStatus}` as 'nearby_denied')}</span>
-        )}
+        </Select>
+        <div className="flex flex-wrap items-center gap-2">
+          <QuickChip on={!!state.openNow} label={t('quick_open_now')} onClick={() => set({ openNow: !state.openNow || undefined })} />
+          <QuickChip on={state.fee === 'free'} label={t('quick_free')} onClick={() => set({ fee: state.fee === 'free' ? undefined : 'free' })} />
+          <QuickChip on={!!state.nearby} label={t('quick_nearby')} onClick={() => (userLoc ? set({ nearby: !state.nearby || undefined }) : requestMyLocation())} />
+          {geoStatus === 'locating' && <span className="text-[12px] text-muted">{t('nearby_locating')}</span>}
+          {(geoStatus === 'denied' || geoStatus === 'error' || geoStatus === 'unsupported') && (
+            <span className="text-[12px] text-rose">{t(`nearby_${geoStatus}` as 'nearby_denied')}</span>
+          )}
+        </div>
       </div>
 
       {/* active filter chips + detected */}
       {(activeCount > 0 || detected.length > 0) && (
         <div className="flex flex-wrap items-center gap-1.5 mb-4">
+          {activeCount > 0 && <span className="text-[12px] font-semibold text-muted mr-0.5">{t('applied')}</span>}
           {CHIP_KEYS.map((k) => {
             const label = chipLabel(k)
             if (!label) return null
             return (
-              <button key={k} type="button" onClick={() => set({ [k]: Array.isArray(state[k]) ? [] : undefined } as Partial<ExploreFilters>)}
-                className="inline-flex items-center gap-1.5 text-[12.5px] font-medium px-3 py-1 rounded-full bg-rose-soft text-rose border border-rose/20 hover:bg-rose hover:text-white group">
-                {label}
-                <span className="opacity-60 group-hover:opacity-100">✕</span>
+              <button key={k} type="button" aria-label={t('remove_filter', { filter: label })}
+                onClick={() => set({ [k]: Array.isArray(state[k]) ? [] : undefined } as Partial<ExploreFilters>)}
+                className="inline-flex items-center gap-1.5 text-[12.5px] font-medium pl-3 pr-2.5 py-1.5 rounded-full bg-rose-soft text-rose border border-rose/20 hover:bg-rose hover:text-white group">
+                <span>{label}</span>
+                <span aria-hidden="true" className="opacity-60 group-hover:opacity-100">✕</span>
               </button>
             )
           })}
@@ -355,32 +396,32 @@ export default function PlacesExplorer({ places, cards, categories, prefectures,
         </aside>
 
         <div>
-          <p className="text-[13.5px] text-muted mb-4">{t('results_n', { count: results.length })}</p>
+          <p className="text-[13.5px] text-muted mb-4" aria-live="polite">{t('results_n', { count: results.length })}</p>
 
           {results.length === 0 ? (
-            <div className="bg-paper border border-line rounded-2xl p-8 text-center">
-              <div className="text-[40px] mb-3">🔍</div>
-              <h3 className="font-serif font-bold text-[20px] text-ink mb-1.5">{t('empty_title')}</h3>
-              <p className="text-[14px] text-muted mb-5 max-w-[420px] mx-auto">{t('empty_sub')}</p>
-              <div className="flex flex-wrap justify-center gap-2 mb-5">
+            <div className="bg-paper border border-line rounded-2xl px-5 py-7 text-center" role="status">
+              <div className="text-[30px] mb-2" aria-hidden="true">🔍</div>
+              <h3 className="font-serif font-bold text-[17px] text-ink mb-1">{t('empty_title')}</h3>
+              <p className="text-[13.5px] text-muted mb-4 max-w-[380px] mx-auto leading-relaxed">{t('empty_sub')}</p>
+              <div className="flex flex-wrap justify-center gap-2 mb-4">
                 {relax.map((s) => {
                   const lbl = chipLabel(s.filter as keyof ExploreFilters) ?? String(s.filter)
                   return (
                     <button key={String(s.filter)} type="button" onClick={() => set({ [s.filter]: Array.isArray(state[s.filter as keyof ExploreFilters]) ? [] : undefined } as Partial<ExploreFilters>)}
-                      className="text-[13px] font-semibold px-4 py-2 rounded-full bg-rose-soft text-rose border border-rose/20 hover:bg-rose hover:text-white">
-                      {t('try_removing', { filter: lbl })} ({s.count})
+                      className="text-[13px] font-semibold px-4 min-h-[40px] rounded-full bg-rose-soft text-rose border border-rose/20 hover:bg-rose hover:text-white">
+                      {t('try_removing', { filter: lbl, count: s.count })}
                     </button>
                   )
                 })}
                 {activeCount > 0 && (
-                  <button type="button" onClick={() => setState((p) => ({ q: p.q, sort: p.sort }))} className="text-[13px] font-semibold px-4 py-2 rounded-full border border-line text-muted hover:text-ink">
-                    {t('show_all')}
+                  <button type="button" onClick={() => setState((p) => ({ q: p.q, sort: p.sort }))} className="text-[13px] font-semibold px-4 min-h-[40px] rounded-full border border-line text-muted hover:text-ink hover:border-rose/40">
+                    {t('show_all_n', { count: places.length })}
                   </button>
                 )}
               </div>
               {relatedCats.length > 0 && (
-                <div className="mb-5">
-                  <p className="text-[12.5px] font-semibold text-muted mb-2">{t('related_categories')}</p>
+                <div className="mb-4">
+                  <p className="text-[12px] font-semibold text-muted mb-2">{t('related_categories')}</p>
                   <div className="flex flex-wrap justify-center gap-2">
                     {relatedCats.map(({ c, n }) => (
                       <button key={c.code} type="button" onClick={() => set({ category: c.code })}
@@ -389,8 +430,8 @@ export default function PlacesExplorer({ places, cards, categories, prefectures,
                   </div>
                 </div>
               )}
-              <Link href="/community" className="inline-flex flex-col items-center gap-0.5 mt-1">
-                <span className="font-semibold text-[14px] px-6 py-2.5 rounded-full bg-teal text-white hover:bg-teal/90 transition-colors">{t('ask_community')}</span>
+              <Link href="/community" className="inline-flex flex-col items-center gap-0.5">
+                <span className="font-semibold text-[13.5px] px-5 py-2.5 rounded-full bg-teal text-white hover:bg-teal/90 transition-colors">{t('ask_community')}</span>
                 <span className="text-[12px] text-muted mt-1.5 max-w-[320px]">{t('ask_community_sub')}</span>
               </Link>
             </div>
@@ -425,19 +466,20 @@ export default function PlacesExplorer({ places, cards, categories, prefectures,
       {drawer && (
         <div className="fixed inset-0 z-[200] lg:hidden">
           <div className="absolute inset-0 bg-black/40" onClick={() => setDrawer(false)} />
-          <div className="absolute right-0 top-0 bottom-0 w-[90%] max-w-[380px] bg-cream shadow-2xl flex flex-col">
+          <div ref={drawerRef} role="dialog" aria-modal="true" aria-labelledby="place-filters-title"
+            className="absolute right-0 top-0 bottom-0 w-[90%] max-w-[380px] bg-cream shadow-2xl flex flex-col">
             <div className="flex items-center justify-between px-4 py-3 border-b border-line">
-              <span className="font-semibold text-[15px]">{activeCount > 0 ? t('filters_n', { n: activeCount }) : t('filters')}</span>
-              <button type="button" onClick={() => setDrawer(false)} aria-label={t('done')} className="w-8 h-8 grid place-items-center rounded-full hover:bg-line">
+              <span id="place-filters-title" className="font-semibold text-[15px]">{activeCount > 0 ? t('filters_n', { n: activeCount }) : t('filters')}</span>
+              <button type="button" onClick={() => setDrawer(false)} aria-label={t('done')} className="w-9 h-9 grid place-items-center rounded-full hover:bg-line">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             </div>
-            <div className="flex-1 overflow-auto px-4">
+            <div className="flex-1 overflow-auto overscroll-contain px-4">
               <PlaceFilters filters={state} set={set} relevant={relevant} categories={categories} prefectures={prefectures} />
             </div>
-            <div className="flex gap-2 px-4 py-3 border-t border-line">
-              <button type="button" onClick={() => setState((p) => ({ q: p.q, sort: p.sort }))} className="flex-1 py-2.5 rounded-full border border-line text-[14px] font-semibold text-muted">{t('reset_filters')}</button>
-              <button type="button" onClick={() => setDrawer(false)} className="flex-1 py-2.5 rounded-full bg-rose text-white text-[14px] font-semibold">{t('apply')}</button>
+            <div className="flex gap-2 px-4 pt-3 border-t border-line" style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}>
+              <button type="button" onClick={() => setState((p) => ({ q: p.q, sort: p.sort }))} className="flex-1 min-h-[44px] rounded-full border border-line text-[14px] font-semibold text-muted">{t('reset_filters')}</button>
+              <button type="button" onClick={() => setDrawer(false)} className="flex-1 min-h-[44px] rounded-full bg-rose text-white text-[14px] font-semibold">{t('apply')}</button>
             </div>
           </div>
         </div>
@@ -448,8 +490,8 @@ export default function PlacesExplorer({ places, cards, categories, prefectures,
 
 function QuickChip({ on, label, onClick }: { on: boolean; label: string; onClick: () => void }) {
   return (
-    <button type="button" onClick={onClick}
-      className={`text-[13px] font-medium px-3.5 py-1.5 rounded-full border transition-colors ${on ? 'bg-rose text-white border-rose' : 'bg-paper border-line text-muted hover:border-rose/40 hover:text-rose'}`}>
+    <button type="button" onClick={onClick} aria-pressed={on}
+      className={`inline-flex items-center text-[13px] font-medium px-3.5 min-h-[36px] rounded-full border transition-colors focus:outline-none focus:ring-2 focus:ring-rose/30 ${on ? 'bg-rose text-white border-rose' : 'bg-paper border-line text-muted hover:border-rose/40 hover:text-rose'}`}>
       {label}
     </button>
   )

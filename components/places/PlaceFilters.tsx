@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl'
 import type { ExploreFilters } from '@/lib/exploreParams'
 import { PAYMENT_METHODS, PLACE_LANGUAGES, SMOKING_OPTIONS, TATTOO_OPTIONS } from '@/lib/placeFields'
+import Select from '@/components/explore/Select'
 
 interface Props {
   filters: ExploreFilters
@@ -40,26 +41,30 @@ export default function PlaceFilters({ filters, set, relevant, categories, prefe
         <div className="flex flex-col gap-2.5">
           <Toggle k="nearby" label={t('f_near_me')} />
           <div className="grid grid-cols-2 gap-2">
-            <select
+            <Select
+              variant="field"
+              className="bg-white"
               value={filters.prefecture ?? ''}
               onChange={(e) => set({ prefecture: e.target.value || undefined })}
-              className="text-[13.5px] px-3 py-2 border border-line rounded-xl bg-white"
+              aria-label={t('any_prefecture')}
             >
               <option value="">{t('any_prefecture')}</option>
               {prefectures.map((p) => <option key={p.code} value={p.code}>{p.name}</option>)}
-            </select>
+            </Select>
             <input
               value={filters.station ?? ''}
               onChange={(e) => set({ station: e.target.value || undefined })}
               placeholder={t('station_placeholder')}
-              className="text-[13.5px] px-3 py-2 border border-line rounded-xl bg-white"
+              aria-label={t('station_placeholder')}
+              className="text-[13.5px] min-h-[44px] px-3 border border-line rounded-xl bg-white"
             />
           </div>
           <input
             value={filters.area ?? ''}
             onChange={(e) => set({ area: e.target.value || undefined })}
             placeholder={t('area_placeholder')}
-            className="text-[13.5px] px-3 py-2 border border-line rounded-xl bg-white"
+            aria-label={t('area_placeholder')}
+            className="text-[13.5px] min-h-[44px] px-3 border border-line rounded-xl bg-white"
           />
         </div>
       </Group>
@@ -74,9 +79,9 @@ export default function PlaceFilters({ filters, set, relevant, categories, prefe
         </div>
         <div className="grid grid-cols-2 gap-2">
           <input type="number" min={0} value={filters.priceMin ?? ''} onChange={(e) => set({ priceMin: e.target.value ? Number(e.target.value) : undefined })}
-            placeholder={t('budget_min')} className="text-[13.5px] px-3 py-2 border border-line rounded-xl bg-white" />
+            placeholder={t('budget_min')} aria-label={t('budget_min')} className="text-[13.5px] min-h-[44px] px-3 border border-line rounded-xl bg-white" />
           <input type="number" min={0} value={filters.priceMax ?? ''} onChange={(e) => set({ priceMax: e.target.value ? Number(e.target.value) : undefined })}
-            placeholder={t('budget_max')} className="text-[13.5px] px-3 py-2 border border-line rounded-xl bg-white" />
+            placeholder={t('budget_max')} aria-label={t('budget_max')} className="text-[13.5px] min-h-[44px] px-3 border border-line rounded-xl bg-white" />
         </div>
       </Group>
 
@@ -115,18 +120,18 @@ export default function PlaceFilters({ filters, set, relevant, categories, prefe
         </div>
         <div className="grid grid-cols-2 gap-2">
           {show('smoking') && (
-            <select value={filters.smoking ?? ''} onChange={(e) => set({ smoking: (e.target.value || undefined) as ExploreFilters['smoking'] })}
-              className="text-[13.5px] px-3 py-2 border border-line rounded-xl bg-white">
+            <Select variant="field" className="bg-white" value={filters.smoking ?? ''} onChange={(e) => set({ smoking: (e.target.value || undefined) as ExploreFilters['smoking'] })}
+              aria-label={tp('smoking_policy')}>
               <option value="">{tp('smoking_policy')}</option>
               {SMOKING_OPTIONS.map((o) => <option key={o} value={o}>{tp(`smk_${o}` as 'smk_no_smoking')}</option>)}
-            </select>
+            </Select>
           )}
           {show('tattoo') && (
-            <select value={filters.tattoo ?? ''} onChange={(e) => set({ tattoo: (e.target.value || undefined) as ExploreFilters['tattoo'] })}
-              className="text-[13.5px] px-3 py-2 border border-line rounded-xl bg-white">
+            <Select variant="field" className="bg-white" value={filters.tattoo ?? ''} onChange={(e) => set({ tattoo: (e.target.value || undefined) as ExploreFilters['tattoo'] })}
+              aria-label={tp('tattoo_policy')}>
               <option value="">{tp('tattoo_policy')}</option>
               {TATTOO_OPTIONS.map((o) => <option key={o} value={o}>{tp(`tat_${o}` as 'tat_allowed')}</option>)}
-            </select>
+            </Select>
           )}
         </div>
       </Group>

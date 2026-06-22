@@ -1958,6 +1958,245 @@
       "person_label": "名",
       "remove_entry": "削除",
       "close": "閉じる"
+    },
+    "jp60": {
+      "tag": "JLPT",
+      "title": "60秒チャレンジ",
+      "short_desc": "JLPTの問題で時間と勝負",
+      "solo": "ひとり",
+      "meta_title": "日本語60秒チャレンジ",
+      "subtitle": "スピード勝負のJLPT問題。コンボを繋ぎ、ランキングを上り、連続記録を守ろう。",
+      "play_now": "今すぐプレイ",
+      "loading": "読み込み中…",
+      "retry": "もう一度",
+      "back": "戻る",
+      "mode_select_title": "モードを選択",
+      "mode_daily": "デイリーチャレンジ",
+      "mode_daily_desc": "レベルごとに1日1回のランク戦",
+      "mode_rush": "60秒ラッシュ",
+      "mode_rush_desc": "60秒でできるだけ多く解答",
+      "mode_practice": "練習",
+      "mode_practice_desc": "プレッシャーなし — 解説付きで復習",
+      "ranked_badge": "ランク",
+      "unranked_badge": "ランク外",
+      "daily_done_badge": "本日完了",
+      "level_select_title": "レベルを選択",
+      "level_mixed": "ミックス",
+      "level_all": "全レベル",
+      "practice_count_title": "問題数は？",
+      "count_questions": "{count}問",
+      "timer_label": "タイマー",
+      "timer_on": "オン",
+      "timer_off": "オフ",
+      "start_btn": "スタート",
+      "time_left": "残り時間",
+      "score": "スコア",
+      "combo": "コンボ",
+      "question_n": "第{n}問",
+      "skip": "スキップ",
+      "result_title": "結果",
+      "result_correct": "正解",
+      "result_wrong": "不正解",
+      "result_accuracy": "正答率",
+      "result_best_combo": "最高コンボ",
+      "result_avg_time": "平均時間",
+      "result_xp": "獲得XP",
+      "result_streak": "連続記録",
+      "result_personal_best": "自己ベスト更新！",
+      "result_level": "レベル",
+      "result_unranked_note": "このプレイはランク外です。",
+      "result_guest_note": "ログインするとXP・連続記録の保存とランキング参加ができます。",
+      "result_sign_in": "ログイン",
+      "result_days": "{n}日",
+      "play_again": "もう一度",
+      "change_level": "レベル変更",
+      "back_to_games": "ゲーム一覧へ",
+      "share": "シェア",
+      "challenge_friend": "友達に挑戦",
+      "view_review": "解答を確認",
+      "view_leaderboard": "ランキング",
+      "view_stats": "統計",
+      "share_copied": "コピーしました！",
+      "share_text": "日本語60秒チャレンジ（{level}）で{score}点！あなたは超えられる？",
+      "review_title": "解答の確認",
+      "review_your_answer": "あなたの解答",
+      "review_correct_answer": "正解",
+      "review_no_answer": "未解答",
+      "review_all_correct": "完璧 — すべて正解！",
+      "report_question": "問題を報告",
+      "report_title": "この問題を報告",
+      "report_reason": "理由",
+      "report_note": "メモ（任意）",
+      "report_note_ph": "何が問題か教えてください…",
+      "report_submit": "報告を送信",
+      "report_thanks": "報告ありがとうございます！",
+      "reason_wrong_answer": "答えが間違っている",
+      "reason_multiple_answers": "複数の正解がある",
+      "reason_unnatural": "不自然な日本語",
+      "reason_wrong_reading": "読みが間違っている",
+      "reason_wrong_furigana": "ふりがなが間違っている",
+      "reason_wrong_translation": "訳が間違っている",
+      "reason_typo": "誤字",
+      "reason_inappropriate": "不適切な内容",
+      "reason_other": "その他",
+      "lb_title": "ランキング",
+      "lb_today": "今日",
+      "lb_week": "今週",
+      "lb_alltime": "全期間",
+      "lb_rank": "順位",
+      "lb_player": "プレイヤー",
+      "lb_level": "Lv",
+      "lb_score": "スコア",
+      "lb_accuracy": "正答率",
+      "lb_you": "あなた",
+      "lb_empty": "まだランク戦がありません — 最初の一人に！",
+      "lb_filter_mode": "モード",
+      "lb_filter_level": "レベル",
+      "lb_mode_all": "すべて",
+      "lb_mode_daily": "デイリー",
+      "lb_mode_rush": "ラッシュ",
+      "stats_title": "マイ統計",
+      "stats_games": "ゲーム数",
+      "stats_questions": "問題数",
+      "stats_accuracy": "正答率",
+      "stats_best_score": "最高スコア",
+      "stats_best_combo": "最高コンボ",
+      "stats_streak": "現在の連続",
+      "stats_longest_streak": "最長連続",
+      "stats_level": "レベル",
+      "stats_xp": "XP",
+      "stats_by_category": "カテゴリ別正答率",
+      "stats_recent": "最近のゲーム",
+      "stats_records": "自己記録",
+      "stats_weak": "よく間違える",
+      "stats_achievements": "実績",
+      "stats_locked": "未獲得",
+      "stats_unlocked_on": "{date}に獲得",
+      "stats_empty": "データがありません — プレイしてみよう！",
+      "stats_sign_in": "ログインして進捗を記録しましょう。",
+      "stats_next_level_in": "次のレベルまで{xp}XP",
+      "cat_vocabulary": "語彙",
+      "cat_kanji": "漢字",
+      "cat_grammar": "文法",
+      "exit_title": "ゲームを終了しますか？",
+      "exit_desc": "現在の進捗は失われます。",
+      "exit_confirm": "終了",
+      "exit_cancel": "続ける",
+      "err_game_disabled": "現在このゲームは利用できません。",
+      "err_mode_disabled": "このモードは現在無効です。",
+      "err_level_disabled": "このレベルは現在無効です。",
+      "err_no_questions": "このレベルの問題がまだ足りません。",
+      "err_rate_limited": "試行回数が多すぎます。少し待ってください。",
+      "err_session_expired": "時間切れ！",
+      "err_daily_done": "このレベルの本日のランク戦はすでにプレイ済みです。",
+      "err_network": "接続に問題があります。もう一度お試しください。",
+      "err_generic": "エラーが発生しました。",
+      "err_challenge_not_found": "チャレンジが見つかりません。",
+      "err_challenge_expired": "このチャレンジは期限切れです。",
+      "err_not_authenticated": "続けるにはログインしてください。",
+      "err_migration": "ゲームを準備中です。後でもう一度お試しください。",
+      "challenge_title": "フレンドチャレンジ",
+      "challenge_created": "チャレンジを作成しました！",
+      "challenge_copy_link": "リンクをコピー",
+      "challenge_play": "チャレンジを受ける",
+      "challenge_vs": "vs",
+      "challenge_waiting": "相手を待っています…",
+      "challenge_winner": "{name}の勝ち！",
+      "challenge_tie": "引き分け！",
+      "challenge_expired_msg": "このチャレンジリンクは期限切れです。",
+      "challenge_creator": "{name}が作成",
+      "challenge_you": "あなた",
+      "challenge_share_intro": "私のスコアを超えてみて！",
+      "ach": {
+        "first_game": {
+          "title": "初プレイ",
+          "desc": "最初のチャレンジを完了"
+        },
+        "first_perfect": {
+          "title": "全問正解",
+          "desc": "ミスなしでゲームを完了"
+        },
+        "combo_5": {
+          "title": "絶好調",
+          "desc": "5問連続正解"
+        },
+        "combo_10": {
+          "title": "無敵",
+          "desc": "10問連続正解"
+        },
+        "score_1000": {
+          "title": "得点王",
+          "desc": "1ゲームで1,000点を獲得"
+        },
+        "score_2000": {
+          "title": "ハイスコア",
+          "desc": "1ゲームで2,000点を獲得"
+        },
+        "level_n5": {
+          "title": "N5チャレンジャー",
+          "desc": "N5のゲームを完了"
+        },
+        "level_n4": {
+          "title": "N4チャレンジャー",
+          "desc": "N4のゲームを完了"
+        },
+        "level_n3": {
+          "title": "N3チャレンジャー",
+          "desc": "N3のゲームを完了"
+        },
+        "level_n2": {
+          "title": "N2チャレンジャー",
+          "desc": "N2のゲームを完了"
+        },
+        "level_n1": {
+          "title": "N1チャレンジャー",
+          "desc": "N1のゲームを完了"
+        },
+        "streak_3": {
+          "title": "3日連続",
+          "desc": "3日連続でプレイ"
+        },
+        "streak_7": {
+          "title": "7日連続",
+          "desc": "7日連続でプレイ"
+        },
+        "streak_30": {
+          "title": "30日連続",
+          "desc": "30日連続でプレイ"
+        },
+        "daily_winner": {
+          "title": "デイリー王者",
+          "desc": "デイリーチャレンジで1位"
+        },
+        "questions_100": {
+          "title": "100問",
+          "desc": "100問に解答"
+        },
+        "questions_1000": {
+          "title": "学者",
+          "desc": "1,000問に解答"
+        },
+        "master_vocab": {
+          "title": "語彙マスター",
+          "desc": "語彙を200問正解"
+        },
+        "kanji_explorer": {
+          "title": "漢字探検家",
+          "desc": "漢字を100問正解"
+        },
+        "grammar_explorer": {
+          "title": "文法探検家",
+          "desc": "文法を100問正解"
+        },
+        "challenge_friend": {
+          "title": "挑戦者",
+          "desc": "フレンドチャレンジを作成"
+        },
+        "win_challenge": {
+          "title": "チャンピオン",
+          "desc": "フレンドチャレンジに勝利"
+        }
+      }
     }
   },
   "notifications": {
@@ -2981,5 +3220,35 @@
     "err_alias_duplicate": "コンセプト内でエイリアスが重複。",
     "err_facet_no_evidence": "ファセットには証拠か構造化フィールドが必要です。",
     "err_category_no_code": "カテゴリにはcategory_codeが必要です。"
+  },
+  "admin_jp60": {
+    "title": "60秒チャレンジ",
+    "breadcrumb": "JP 60sゲーム",
+    "back": "管理に戻る",
+    "game_enabled": "ゲーム有効",
+    "modes": "モード",
+    "levels": "レベル",
+    "duration": "制限時間（秒）",
+    "daily_questions": "デイリー問題数",
+    "save": "設定を保存",
+    "saved": "保存しました",
+    "mode_daily": "デイリーチャレンジ",
+    "mode_rush": "60秒ラッシュ",
+    "mode_practice": "練習",
+    "stats": "対象（公開済み）",
+    "sessions": "セッション",
+    "completed": "完了",
+    "suspicious": "不審",
+    "reports": "問題の報告",
+    "no_reports": "未対応の報告なし",
+    "reason": "理由",
+    "note": "メモ",
+    "mark_reviewed": "対応済みにする",
+    "dismiss": "却下",
+    "disable_item": "ゲームから除外",
+    "disabled_items": "除外項目",
+    "invalidate": "セッション無効化",
+    "enable": "有効",
+    "disable": "無効"
   }
 }

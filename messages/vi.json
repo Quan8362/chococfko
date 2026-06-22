@@ -1958,6 +1958,245 @@
       "person_label": "người",
       "remove_entry": "Xóa",
       "close": "Đóng"
+    },
+    "jp60": {
+      "tag": "JLPT",
+      "title": "Thử thách 60 giây",
+      "short_desc": "Đua với thời gian bằng câu hỏi JLPT nhanh",
+      "solo": "Một mình",
+      "meta_title": "Thử thách tiếng Nhật 60 giây",
+      "subtitle": "Câu hỏi JLPT tốc độ. Tạo combo, leo bảng xếp hạng, giữ chuỗi ngày.",
+      "play_now": "Chơi ngay",
+      "loading": "Đang tải…",
+      "retry": "Thử lại",
+      "back": "Quay lại",
+      "mode_select_title": "Chọn chế độ",
+      "mode_daily": "Thử thách hằng ngày",
+      "mode_daily_desc": "Mỗi cấp một lượt xếp hạng mỗi ngày",
+      "mode_rush": "Tăng tốc 60 giây",
+      "mode_rush_desc": "Trả lời nhiều nhất có thể trong 60 giây",
+      "mode_practice": "Luyện tập",
+      "mode_practice_desc": "Thoải mái — ôn tập kèm giải thích",
+      "ranked_badge": "Xếp hạng",
+      "unranked_badge": "Không xếp hạng",
+      "daily_done_badge": "Đã chơi hôm nay",
+      "level_select_title": "Chọn cấp độ",
+      "level_mixed": "Tổng hợp",
+      "level_all": "Tất cả cấp độ",
+      "practice_count_title": "Bao nhiêu câu hỏi?",
+      "count_questions": "{count} câu hỏi",
+      "timer_label": "Hẹn giờ",
+      "timer_on": "Bật",
+      "timer_off": "Tắt",
+      "start_btn": "Bắt đầu",
+      "time_left": "Thời gian",
+      "score": "Điểm",
+      "combo": "Combo",
+      "question_n": "Câu {n}",
+      "skip": "Bỏ qua",
+      "result_title": "Kết quả",
+      "result_correct": "Đúng",
+      "result_wrong": "Sai",
+      "result_accuracy": "Độ chính xác",
+      "result_best_combo": "Combo cao nhất",
+      "result_avg_time": "Thời gian TB",
+      "result_xp": "XP nhận được",
+      "result_streak": "Chuỗi ngày",
+      "result_personal_best": "Kỷ lục mới!",
+      "result_level": "Cấp",
+      "result_unranked_note": "Lượt chơi này không được xếp hạng.",
+      "result_guest_note": "Đăng nhập để lưu XP, chuỗi ngày và tham gia bảng xếp hạng.",
+      "result_sign_in": "Đăng nhập",
+      "result_days": "{n} ngày",
+      "play_again": "Chơi lại",
+      "change_level": "Đổi cấp độ",
+      "back_to_games": "Về trang game",
+      "share": "Chia sẻ",
+      "challenge_friend": "Thách đấu bạn bè",
+      "view_review": "Xem lại đáp án",
+      "view_leaderboard": "Bảng xếp hạng",
+      "view_stats": "Thống kê",
+      "share_copied": "Đã sao chép!",
+      "share_text": "Mình được {score} điểm ở Thử thách tiếng Nhật 60 giây ({level})! Bạn vượt qua được không?",
+      "review_title": "Xem lại đáp án",
+      "review_your_answer": "Bạn chọn",
+      "review_correct_answer": "Đáp án đúng",
+      "review_no_answer": "Chưa trả lời",
+      "review_all_correct": "Tuyệt vời — tất cả đều đúng!",
+      "report_question": "Báo lỗi câu hỏi",
+      "report_title": "Báo lỗi câu hỏi này",
+      "report_reason": "Lý do",
+      "report_note": "Ghi chú (tùy chọn)",
+      "report_note_ph": "Cho chúng tôi biết lỗi gì…",
+      "report_submit": "Gửi báo lỗi",
+      "report_thanks": "Cảm ơn bạn đã báo lỗi!",
+      "reason_wrong_answer": "Đáp án sai",
+      "reason_multiple_answers": "Có nhiều đáp án đúng",
+      "reason_unnatural": "Tiếng Nhật không tự nhiên",
+      "reason_wrong_reading": "Cách đọc sai",
+      "reason_wrong_furigana": "Furigana sai",
+      "reason_wrong_translation": "Dịch sai",
+      "reason_typo": "Lỗi chính tả",
+      "reason_inappropriate": "Nội dung không phù hợp",
+      "reason_other": "Khác",
+      "lb_title": "Bảng xếp hạng",
+      "lb_today": "Hôm nay",
+      "lb_week": "Tuần này",
+      "lb_alltime": "Mọi lúc",
+      "lb_rank": "Hạng",
+      "lb_player": "Người chơi",
+      "lb_level": "Cấp",
+      "lb_score": "Điểm",
+      "lb_accuracy": "Chính xác",
+      "lb_you": "Bạn",
+      "lb_empty": "Chưa có ván xếp hạng nào — hãy là người đầu tiên!",
+      "lb_filter_mode": "Chế độ",
+      "lb_filter_level": "Cấp độ",
+      "lb_mode_all": "Tất cả",
+      "lb_mode_daily": "Hằng ngày",
+      "lb_mode_rush": "Tăng tốc",
+      "stats_title": "Thống kê của tôi",
+      "stats_games": "Số ván",
+      "stats_questions": "Số câu",
+      "stats_accuracy": "Độ chính xác",
+      "stats_best_score": "Điểm cao nhất",
+      "stats_best_combo": "Combo cao nhất",
+      "stats_streak": "Chuỗi hiện tại",
+      "stats_longest_streak": "Chuỗi dài nhất",
+      "stats_level": "Cấp",
+      "stats_xp": "XP",
+      "stats_by_category": "Độ chính xác theo loại",
+      "stats_recent": "Ván gần đây",
+      "stats_records": "Kỷ lục cá nhân",
+      "stats_weak": "Hay sai",
+      "stats_achievements": "Thành tựu",
+      "stats_locked": "Chưa mở",
+      "stats_unlocked_on": "Mở khóa {date}",
+      "stats_empty": "Chưa có dữ liệu — hãy chơi một ván!",
+      "stats_sign_in": "Đăng nhập để theo dõi tiến độ.",
+      "stats_next_level_in": "Còn {xp} XP lên cấp",
+      "cat_vocabulary": "Từ vựng",
+      "cat_kanji": "Kanji",
+      "cat_grammar": "Ngữ pháp",
+      "exit_title": "Rời khỏi trò chơi?",
+      "exit_desc": "Tiến trình hiện tại sẽ bị mất.",
+      "exit_confirm": "Rời đi",
+      "exit_cancel": "Tiếp tục chơi",
+      "err_game_disabled": "Trò chơi hiện không khả dụng.",
+      "err_mode_disabled": "Chế độ này hiện đang tắt.",
+      "err_level_disabled": "Cấp độ này hiện đang tắt.",
+      "err_no_questions": "Chưa đủ câu hỏi cho cấp độ này.",
+      "err_rate_limited": "Quá nhiều lượt thử. Vui lòng đợi một lát.",
+      "err_session_expired": "Hết giờ!",
+      "err_daily_done": "Bạn đã chơi lượt xếp hạng hằng ngày cho cấp độ này rồi.",
+      "err_network": "Sự cố kết nối. Vui lòng thử lại.",
+      "err_generic": "Đã có lỗi xảy ra.",
+      "err_challenge_not_found": "Không tìm thấy lời thách đấu.",
+      "err_challenge_expired": "Lời thách đấu đã hết hạn.",
+      "err_not_authenticated": "Vui lòng đăng nhập để tiếp tục.",
+      "err_migration": "Trò chơi đang được thiết lập. Vui lòng thử lại sau.",
+      "challenge_title": "Thách đấu bạn bè",
+      "challenge_created": "Đã tạo lời thách đấu!",
+      "challenge_copy_link": "Sao chép liên kết",
+      "challenge_play": "Nhận thách đấu",
+      "challenge_vs": "đấu với",
+      "challenge_waiting": "Đang chờ đối thủ…",
+      "challenge_winner": "{name} thắng!",
+      "challenge_tie": "Hòa!",
+      "challenge_expired_msg": "Liên kết thách đấu đã hết hạn.",
+      "challenge_creator": "Tạo bởi {name}",
+      "challenge_you": "Bạn",
+      "challenge_share_intro": "Vượt qua điểm của mình đi!",
+      "ach": {
+        "first_game": {
+          "title": "Ván đầu tiên",
+          "desc": "Hoàn thành thử thách đầu tiên"
+        },
+        "first_perfect": {
+          "title": "Hoàn hảo",
+          "desc": "Hoàn thành một ván không sai câu nào"
+        },
+        "combo_5": {
+          "title": "Bùng nổ",
+          "desc": "Trả lời đúng 5 câu liên tiếp"
+        },
+        "combo_10": {
+          "title": "Không thể cản",
+          "desc": "Trả lời đúng 10 câu liên tiếp"
+        },
+        "score_1000": {
+          "title": "Ghi điểm",
+          "desc": "Đạt 1.000 điểm trong một ván"
+        },
+        "score_2000": {
+          "title": "Điểm cao",
+          "desc": "Đạt 2.000 điểm trong một ván"
+        },
+        "level_n5": {
+          "title": "Thử thách N5",
+          "desc": "Hoàn thành một ván N5"
+        },
+        "level_n4": {
+          "title": "Thử thách N4",
+          "desc": "Hoàn thành một ván N4"
+        },
+        "level_n3": {
+          "title": "Thử thách N3",
+          "desc": "Hoàn thành một ván N3"
+        },
+        "level_n2": {
+          "title": "Thử thách N2",
+          "desc": "Hoàn thành một ván N2"
+        },
+        "level_n1": {
+          "title": "Thử thách N1",
+          "desc": "Hoàn thành một ván N1"
+        },
+        "streak_3": {
+          "title": "Chuỗi 3 ngày",
+          "desc": "Chơi 3 ngày liên tiếp"
+        },
+        "streak_7": {
+          "title": "Chuỗi 7 ngày",
+          "desc": "Chơi 7 ngày liên tiếp"
+        },
+        "streak_30": {
+          "title": "Chuỗi 30 ngày",
+          "desc": "Chơi 30 ngày liên tiếp"
+        },
+        "daily_winner": {
+          "title": "Quán quân ngày",
+          "desc": "Đứng đầu bảng Thử thách hằng ngày"
+        },
+        "questions_100": {
+          "title": "Trăm câu",
+          "desc": "Trả lời 100 câu hỏi"
+        },
+        "questions_1000": {
+          "title": "Học giả",
+          "desc": "Trả lời 1.000 câu hỏi"
+        },
+        "master_vocab": {
+          "title": "Bậc thầy từ vựng",
+          "desc": "200 câu từ vựng đúng"
+        },
+        "kanji_explorer": {
+          "title": "Nhà thám hiểm Kanji",
+          "desc": "100 câu Kanji đúng"
+        },
+        "grammar_explorer": {
+          "title": "Nhà thám hiểm Ngữ pháp",
+          "desc": "100 câu ngữ pháp đúng"
+        },
+        "challenge_friend": {
+          "title": "Người thách đấu",
+          "desc": "Tạo một lời thách đấu bạn bè"
+        },
+        "win_challenge": {
+          "title": "Nhà vô địch",
+          "desc": "Thắng một trận thách đấu bạn bè"
+        }
+      }
     }
   },
   "notifications": {
@@ -2981,5 +3220,35 @@
     "err_alias_duplicate": "Alias trùng nhau trong khái niệm.",
     "err_facet_no_evidence": "Facet phải có ít nhất 1 bằng chứng hoặc trường có cấu trúc.",
     "err_category_no_code": "Category cần mã category_code."
+  },
+  "admin_jp60": {
+    "title": "Thử thách 60 giây",
+    "breadcrumb": "Game JP 60s",
+    "back": "Về trang admin",
+    "game_enabled": "Bật trò chơi",
+    "modes": "Chế độ",
+    "levels": "Cấp độ",
+    "duration": "Thời lượng (giây)",
+    "daily_questions": "Số câu hằng ngày",
+    "save": "Lưu cài đặt",
+    "saved": "Đã lưu",
+    "mode_daily": "Thử thách hằng ngày",
+    "mode_rush": "Tăng tốc 60 giây",
+    "mode_practice": "Luyện tập",
+    "stats": "Đủ điều kiện (đã xuất bản)",
+    "sessions": "Phiên",
+    "completed": "Hoàn thành",
+    "suspicious": "Đáng ngờ",
+    "reports": "Báo lỗi câu hỏi",
+    "no_reports": "Không có báo lỗi",
+    "reason": "Lý do",
+    "note": "Ghi chú",
+    "mark_reviewed": "Đã xử lý",
+    "dismiss": "Bỏ qua",
+    "disable_item": "Loại khỏi game",
+    "disabled_items": "Mục đã loại",
+    "invalidate": "Vô hiệu phiên",
+    "enable": "Bật",
+    "disable": "Tắt"
   }
 }

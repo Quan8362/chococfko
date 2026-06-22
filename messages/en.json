@@ -1958,6 +1958,245 @@
       "person_label": "entries",
       "remove_entry": "Remove",
       "close": "Close"
+    },
+    "jp60": {
+      "tag": "JLPT",
+      "title": "60-Second Challenge",
+      "short_desc": "Race the clock with quick JLPT questions",
+      "solo": "Solo",
+      "meta_title": "Japanese 60-Second Challenge",
+      "subtitle": "Quick-fire JLPT questions. Build combos, climb the leaderboard, keep your streak.",
+      "play_now": "Play now",
+      "loading": "Loading…",
+      "retry": "Try again",
+      "back": "Back",
+      "mode_select_title": "Choose a mode",
+      "mode_daily": "Daily Challenge",
+      "mode_daily_desc": "One ranked set per level, every day",
+      "mode_rush": "60-Second Rush",
+      "mode_rush_desc": "Answer as many as you can in 60 seconds",
+      "mode_practice": "Practice",
+      "mode_practice_desc": "No pressure — review with explanations",
+      "ranked_badge": "Ranked",
+      "unranked_badge": "Unranked",
+      "daily_done_badge": "Today's done",
+      "level_select_title": "Choose a level",
+      "level_mixed": "Mixed",
+      "level_all": "All levels",
+      "practice_count_title": "How many questions?",
+      "count_questions": "{count} questions",
+      "timer_label": "Timer",
+      "timer_on": "On",
+      "timer_off": "Off",
+      "start_btn": "Start",
+      "time_left": "Time",
+      "score": "Score",
+      "combo": "Combo",
+      "question_n": "Q{n}",
+      "skip": "Skip",
+      "result_title": "Result",
+      "result_correct": "Correct",
+      "result_wrong": "Wrong",
+      "result_accuracy": "Accuracy",
+      "result_best_combo": "Best combo",
+      "result_avg_time": "Avg time",
+      "result_xp": "XP earned",
+      "result_streak": "Streak",
+      "result_personal_best": "New personal best!",
+      "result_level": "Level",
+      "result_unranked_note": "This attempt is unranked.",
+      "result_guest_note": "Sign in to save XP, streaks and join the leaderboard.",
+      "result_sign_in": "Sign in",
+      "result_days": "{n} days",
+      "play_again": "Play again",
+      "change_level": "Change level",
+      "back_to_games": "Back to games",
+      "share": "Share",
+      "challenge_friend": "Challenge a friend",
+      "view_review": "Review answers",
+      "view_leaderboard": "Leaderboard",
+      "view_stats": "My stats",
+      "share_copied": "Copied!",
+      "share_text": "I scored {score} on the Japanese 60-Second Challenge ({level})! Can you beat me?",
+      "review_title": "Answer review",
+      "review_your_answer": "Your answer",
+      "review_correct_answer": "Correct answer",
+      "review_no_answer": "No answer",
+      "review_all_correct": "Perfect — every answer was correct!",
+      "report_question": "Report question",
+      "report_title": "Report this question",
+      "report_reason": "Reason",
+      "report_note": "Note (optional)",
+      "report_note_ph": "Tell us what is wrong…",
+      "report_submit": "Submit report",
+      "report_thanks": "Thanks for the report!",
+      "reason_wrong_answer": "The answer is wrong",
+      "reason_multiple_answers": "Multiple answers are correct",
+      "reason_unnatural": "Unnatural Japanese",
+      "reason_wrong_reading": "Wrong reading",
+      "reason_wrong_furigana": "Wrong furigana",
+      "reason_wrong_translation": "Wrong translation",
+      "reason_typo": "Typo",
+      "reason_inappropriate": "Inappropriate content",
+      "reason_other": "Other",
+      "lb_title": "Leaderboard",
+      "lb_today": "Today",
+      "lb_week": "This week",
+      "lb_alltime": "All time",
+      "lb_rank": "Rank",
+      "lb_player": "Player",
+      "lb_level": "Lv",
+      "lb_score": "Score",
+      "lb_accuracy": "Acc",
+      "lb_you": "You",
+      "lb_empty": "No ranked games yet — be the first!",
+      "lb_filter_mode": "Mode",
+      "lb_filter_level": "Level",
+      "lb_mode_all": "All modes",
+      "lb_mode_daily": "Daily",
+      "lb_mode_rush": "Rush",
+      "stats_title": "My statistics",
+      "stats_games": "Games",
+      "stats_questions": "Questions",
+      "stats_accuracy": "Accuracy",
+      "stats_best_score": "Best score",
+      "stats_best_combo": "Best combo",
+      "stats_streak": "Current streak",
+      "stats_longest_streak": "Longest streak",
+      "stats_level": "Level",
+      "stats_xp": "XP",
+      "stats_by_category": "Accuracy by category",
+      "stats_recent": "Recent games",
+      "stats_records": "Personal records",
+      "stats_weak": "Often missed",
+      "stats_achievements": "Achievements",
+      "stats_locked": "Locked",
+      "stats_unlocked_on": "Unlocked {date}",
+      "stats_empty": "No data yet — play a game!",
+      "stats_sign_in": "Sign in to track your progress.",
+      "stats_next_level_in": "{xp} XP to next level",
+      "cat_vocabulary": "Vocabulary",
+      "cat_kanji": "Kanji",
+      "cat_grammar": "Grammar",
+      "exit_title": "Leave the game?",
+      "exit_desc": "Your current progress will be lost.",
+      "exit_confirm": "Leave",
+      "exit_cancel": "Keep playing",
+      "err_game_disabled": "The game is currently unavailable.",
+      "err_mode_disabled": "This mode is currently disabled.",
+      "err_level_disabled": "This level is currently disabled.",
+      "err_no_questions": "Not enough questions for this level yet.",
+      "err_rate_limited": "Too many attempts. Please wait a moment.",
+      "err_session_expired": "Time's up!",
+      "err_daily_done": "You've already played today's ranked challenge for this level.",
+      "err_network": "Connection problem. Please try again.",
+      "err_generic": "Something went wrong.",
+      "err_challenge_not_found": "Challenge not found.",
+      "err_challenge_expired": "This challenge has expired.",
+      "err_not_authenticated": "Please sign in to continue.",
+      "err_migration": "The game is being set up. Please try again later.",
+      "challenge_title": "Friend Challenge",
+      "challenge_created": "Challenge created!",
+      "challenge_copy_link": "Copy link",
+      "challenge_play": "Accept challenge",
+      "challenge_vs": "vs",
+      "challenge_waiting": "Waiting for opponent…",
+      "challenge_winner": "{name} wins!",
+      "challenge_tie": "It's a tie!",
+      "challenge_expired_msg": "This challenge link has expired.",
+      "challenge_creator": "Created by {name}",
+      "challenge_you": "You",
+      "challenge_share_intro": "Beat my score!",
+      "ach": {
+        "first_game": {
+          "title": "First Game",
+          "desc": "Complete your first challenge"
+        },
+        "first_perfect": {
+          "title": "Flawless",
+          "desc": "Finish a game with no mistakes"
+        },
+        "combo_5": {
+          "title": "On Fire",
+          "desc": "5 correct answers in a row"
+        },
+        "combo_10": {
+          "title": "Unstoppable",
+          "desc": "10 correct answers in a row"
+        },
+        "score_1000": {
+          "title": "Scorer",
+          "desc": "Score 1,000 points in one game"
+        },
+        "score_2000": {
+          "title": "High Scorer",
+          "desc": "Score 2,000 points in one game"
+        },
+        "level_n5": {
+          "title": "N5 Challenger",
+          "desc": "Complete an N5 game"
+        },
+        "level_n4": {
+          "title": "N4 Challenger",
+          "desc": "Complete an N4 game"
+        },
+        "level_n3": {
+          "title": "N3 Challenger",
+          "desc": "Complete an N3 game"
+        },
+        "level_n2": {
+          "title": "N2 Challenger",
+          "desc": "Complete an N2 game"
+        },
+        "level_n1": {
+          "title": "N1 Challenger",
+          "desc": "Complete an N1 game"
+        },
+        "streak_3": {
+          "title": "3-Day Streak",
+          "desc": "Play 3 days in a row"
+        },
+        "streak_7": {
+          "title": "7-Day Streak",
+          "desc": "Play 7 days in a row"
+        },
+        "streak_30": {
+          "title": "30-Day Streak",
+          "desc": "Play 30 days in a row"
+        },
+        "daily_winner": {
+          "title": "Daily Winner",
+          "desc": "Top a Daily Challenge leaderboard"
+        },
+        "questions_100": {
+          "title": "Century",
+          "desc": "Answer 100 questions"
+        },
+        "questions_1000": {
+          "title": "Scholar",
+          "desc": "Answer 1,000 questions"
+        },
+        "master_vocab": {
+          "title": "Vocabulary Master",
+          "desc": "200 correct vocabulary answers"
+        },
+        "kanji_explorer": {
+          "title": "Kanji Explorer",
+          "desc": "100 correct kanji answers"
+        },
+        "grammar_explorer": {
+          "title": "Grammar Explorer",
+          "desc": "100 correct grammar answers"
+        },
+        "challenge_friend": {
+          "title": "Challenger",
+          "desc": "Create a friend challenge"
+        },
+        "win_challenge": {
+          "title": "Champion",
+          "desc": "Win a friend challenge"
+        }
+      }
     }
   },
   "notifications": {
@@ -2981,5 +3220,35 @@
     "err_alias_duplicate": "Duplicate aliases in concept.",
     "err_facet_no_evidence": "A facet needs at least one evidence term or structured field.",
     "err_category_no_code": "Category needs a category_code."
+  },
+  "admin_jp60": {
+    "title": "60-Second Challenge",
+    "breadcrumb": "JP 60s Game",
+    "back": "Back to admin",
+    "game_enabled": "Game enabled",
+    "modes": "Modes",
+    "levels": "Levels",
+    "duration": "Duration (sec)",
+    "daily_questions": "Daily questions",
+    "save": "Save settings",
+    "saved": "Saved",
+    "mode_daily": "Daily Challenge",
+    "mode_rush": "60-Second Rush",
+    "mode_practice": "Practice",
+    "stats": "Eligibility (published items)",
+    "sessions": "Sessions",
+    "completed": "Completed",
+    "suspicious": "Suspicious",
+    "reports": "Question reports",
+    "no_reports": "No open reports",
+    "reason": "Reason",
+    "note": "Note",
+    "mark_reviewed": "Mark reviewed",
+    "dismiss": "Dismiss",
+    "disable_item": "Disable from game",
+    "disabled_items": "Disabled items",
+    "invalidate": "Invalidate session",
+    "enable": "Enabled",
+    "disable": "Disabled"
   }
 }

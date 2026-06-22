@@ -1958,6 +1958,245 @@
       "person_label": "人",
       "remove_entry": "删除",
       "close": "关闭"
+    },
+    "jp60": {
+      "tag": "JLPT",
+      "title": "60秒挑战",
+      "short_desc": "用JLPT快问快答与时间赛跑",
+      "solo": "单人",
+      "meta_title": "日语60秒挑战",
+      "subtitle": "快节奏JLPT问答。连击、登榜、保持连续天数。",
+      "play_now": "立即开始",
+      "loading": "加载中…",
+      "retry": "重试",
+      "back": "返回",
+      "mode_select_title": "选择模式",
+      "mode_daily": "每日挑战",
+      "mode_daily_desc": "每个级别每天一次排名赛",
+      "mode_rush": "60秒冲刺",
+      "mode_rush_desc": "60秒内尽量多答",
+      "mode_practice": "练习",
+      "mode_practice_desc": "无压力 — 带解析复习",
+      "ranked_badge": "排名",
+      "unranked_badge": "不计排名",
+      "daily_done_badge": "今日已完成",
+      "level_select_title": "选择级别",
+      "level_mixed": "混合",
+      "level_all": "全部级别",
+      "practice_count_title": "多少题？",
+      "count_questions": "{count}题",
+      "timer_label": "计时",
+      "timer_on": "开",
+      "timer_off": "关",
+      "start_btn": "开始",
+      "time_left": "剩余时间",
+      "score": "得分",
+      "combo": "连击",
+      "question_n": "第{n}题",
+      "skip": "跳过",
+      "result_title": "结果",
+      "result_correct": "正确",
+      "result_wrong": "错误",
+      "result_accuracy": "准确率",
+      "result_best_combo": "最高连击",
+      "result_avg_time": "平均用时",
+      "result_xp": "获得XP",
+      "result_streak": "连续天数",
+      "result_personal_best": "个人新纪录！",
+      "result_level": "等级",
+      "result_unranked_note": "本次游戏不计排名。",
+      "result_guest_note": "登录以保存XP、连续天数并参与排行榜。",
+      "result_sign_in": "登录",
+      "result_days": "{n}天",
+      "play_again": "再玩一次",
+      "change_level": "更换级别",
+      "back_to_games": "返回游戏",
+      "share": "分享",
+      "challenge_friend": "挑战好友",
+      "view_review": "查看答案",
+      "view_leaderboard": "排行榜",
+      "view_stats": "我的统计",
+      "share_copied": "已复制！",
+      "share_text": "我在日语60秒挑战（{level}）得了{score}分！你能超过我吗？",
+      "review_title": "答案回顾",
+      "review_your_answer": "你的答案",
+      "review_correct_answer": "正确答案",
+      "review_no_answer": "未作答",
+      "review_all_correct": "完美 — 全部正确！",
+      "report_question": "报告问题",
+      "report_title": "报告此题",
+      "report_reason": "原因",
+      "report_note": "备注（可选）",
+      "report_note_ph": "告诉我们哪里有问题…",
+      "report_submit": "提交报告",
+      "report_thanks": "感谢你的反馈！",
+      "reason_wrong_answer": "答案错误",
+      "reason_multiple_answers": "有多个正确答案",
+      "reason_unnatural": "日语不自然",
+      "reason_wrong_reading": "读音错误",
+      "reason_wrong_furigana": "振假名错误",
+      "reason_wrong_translation": "翻译错误",
+      "reason_typo": "错别字",
+      "reason_inappropriate": "内容不当",
+      "reason_other": "其他",
+      "lb_title": "排行榜",
+      "lb_today": "今天",
+      "lb_week": "本周",
+      "lb_alltime": "全部时间",
+      "lb_rank": "名次",
+      "lb_player": "玩家",
+      "lb_level": "Lv",
+      "lb_score": "得分",
+      "lb_accuracy": "准确率",
+      "lb_you": "你",
+      "lb_empty": "还没有排名游戏 — 来当第一名！",
+      "lb_filter_mode": "模式",
+      "lb_filter_level": "级别",
+      "lb_mode_all": "全部",
+      "lb_mode_daily": "每日",
+      "lb_mode_rush": "冲刺",
+      "stats_title": "我的统计",
+      "stats_games": "游戏数",
+      "stats_questions": "题目数",
+      "stats_accuracy": "准确率",
+      "stats_best_score": "最高分",
+      "stats_best_combo": "最高连击",
+      "stats_streak": "当前连续",
+      "stats_longest_streak": "最长连续",
+      "stats_level": "等级",
+      "stats_xp": "XP",
+      "stats_by_category": "分类准确率",
+      "stats_recent": "最近游戏",
+      "stats_records": "个人纪录",
+      "stats_weak": "常错",
+      "stats_achievements": "成就",
+      "stats_locked": "未解锁",
+      "stats_unlocked_on": "{date}解锁",
+      "stats_empty": "暂无数据 — 来玩一局！",
+      "stats_sign_in": "登录以记录你的进度。",
+      "stats_next_level_in": "距下一等级还差{xp} XP",
+      "cat_vocabulary": "词汇",
+      "cat_kanji": "汉字",
+      "cat_grammar": "语法",
+      "exit_title": "离开游戏？",
+      "exit_desc": "当前进度将会丢失。",
+      "exit_confirm": "离开",
+      "exit_cancel": "继续游戏",
+      "err_game_disabled": "游戏当前不可用。",
+      "err_mode_disabled": "该模式当前已停用。",
+      "err_level_disabled": "该级别当前已停用。",
+      "err_no_questions": "该级别的题目还不够。",
+      "err_rate_limited": "尝试过于频繁，请稍候。",
+      "err_session_expired": "时间到！",
+      "err_daily_done": "你今天已玩过该级别的排名挑战。",
+      "err_network": "连接出现问题，请重试。",
+      "err_generic": "出错了。",
+      "err_challenge_not_found": "未找到挑战。",
+      "err_challenge_expired": "该挑战已过期。",
+      "err_not_authenticated": "请登录以继续。",
+      "err_migration": "游戏正在设置中，请稍后再试。",
+      "challenge_title": "好友挑战",
+      "challenge_created": "挑战已创建！",
+      "challenge_copy_link": "复制链接",
+      "challenge_play": "接受挑战",
+      "challenge_vs": "vs",
+      "challenge_waiting": "等待对手…",
+      "challenge_winner": "{name}获胜！",
+      "challenge_tie": "平局！",
+      "challenge_expired_msg": "该挑战链接已过期。",
+      "challenge_creator": "由{name}创建",
+      "challenge_you": "你",
+      "challenge_share_intro": "来超过我的分数！",
+      "ach": {
+        "first_game": {
+          "title": "首次游戏",
+          "desc": "完成第一次挑战"
+        },
+        "first_perfect": {
+          "title": "完美",
+          "desc": "无错误完成一局"
+        },
+        "combo_5": {
+          "title": "火力全开",
+          "desc": "连续答对5题"
+        },
+        "combo_10": {
+          "title": "势不可挡",
+          "desc": "连续答对10题"
+        },
+        "score_1000": {
+          "title": "得分手",
+          "desc": "单局获得1,000分"
+        },
+        "score_2000": {
+          "title": "高分",
+          "desc": "单局获得2,000分"
+        },
+        "level_n5": {
+          "title": "N5挑战者",
+          "desc": "完成一局N5"
+        },
+        "level_n4": {
+          "title": "N4挑战者",
+          "desc": "完成一局N4"
+        },
+        "level_n3": {
+          "title": "N3挑战者",
+          "desc": "完成一局N3"
+        },
+        "level_n2": {
+          "title": "N2挑战者",
+          "desc": "完成一局N2"
+        },
+        "level_n1": {
+          "title": "N1挑战者",
+          "desc": "完成一局N1"
+        },
+        "streak_3": {
+          "title": "连续3天",
+          "desc": "连续3天游戏"
+        },
+        "streak_7": {
+          "title": "连续7天",
+          "desc": "连续7天游戏"
+        },
+        "streak_30": {
+          "title": "连续30天",
+          "desc": "连续30天游戏"
+        },
+        "daily_winner": {
+          "title": "每日冠军",
+          "desc": "登顶每日挑战排行榜"
+        },
+        "questions_100": {
+          "title": "百题",
+          "desc": "回答100道题"
+        },
+        "questions_1000": {
+          "title": "学者",
+          "desc": "回答1,000道题"
+        },
+        "master_vocab": {
+          "title": "词汇大师",
+          "desc": "词汇答对200题"
+        },
+        "kanji_explorer": {
+          "title": "汉字探索者",
+          "desc": "汉字答对100题"
+        },
+        "grammar_explorer": {
+          "title": "语法探索者",
+          "desc": "语法答对100题"
+        },
+        "challenge_friend": {
+          "title": "挑战者",
+          "desc": "创建好友挑战"
+        },
+        "win_challenge": {
+          "title": "冠军",
+          "desc": "赢得好友挑战"
+        }
+      }
     }
   },
   "notifications": {
@@ -2981,5 +3220,35 @@
     "err_alias_duplicate": "概念内别名重复。",
     "err_facet_no_evidence": "facet 需要至少一个证据或结构化字段。",
     "err_category_no_code": "分类需要 category_code。"
+  },
+  "admin_jp60": {
+    "title": "60秒挑战",
+    "breadcrumb": "JP 60s游戏",
+    "back": "返回管理",
+    "game_enabled": "启用游戏",
+    "modes": "模式",
+    "levels": "级别",
+    "duration": "时长（秒）",
+    "daily_questions": "每日题数",
+    "save": "保存设置",
+    "saved": "已保存",
+    "mode_daily": "每日挑战",
+    "mode_rush": "60秒冲刺",
+    "mode_practice": "练习",
+    "stats": "符合条件（已发布）",
+    "sessions": "场次",
+    "completed": "完成",
+    "suspicious": "可疑",
+    "reports": "问题报告",
+    "no_reports": "没有待处理报告",
+    "reason": "原因",
+    "note": "备注",
+    "mark_reviewed": "标记已处理",
+    "dismiss": "忽略",
+    "disable_item": "从游戏中禁用",
+    "disabled_items": "已禁用项",
+    "invalidate": "作废场次",
+    "enable": "启用",
+    "disable": "禁用"
   }
 }

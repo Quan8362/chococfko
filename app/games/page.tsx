@@ -21,6 +21,31 @@ export default async function GamesPage() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {/* Japanese 60-Second Challenge */}
+        <Link
+          href="/games/japanese-60"
+          className="group bg-paper border border-line rounded-2xl p-5 hover:border-rose/30 hover:shadow-[0_4px_24px_-6px_rgba(194,24,91,0.15)] transition-all hover:-translate-y-0.5"
+        >
+          <div className="flex items-start justify-between mb-4">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-rose/15 to-gold/10 flex items-center justify-center font-serif font-bold text-[24px] text-rose">
+              あ
+            </div>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-gold text-white">
+              {t('jp60.tag')}
+            </span>
+          </div>
+          <h2 className="font-serif font-bold text-[17px] text-ink mb-1.5 group-hover:text-rose transition-colors">
+            {t('jp60.title')}
+          </h2>
+          <p className="text-[13px] text-muted leading-relaxed mb-3">{t('jp60.short_desc')}</p>
+          <div className="flex items-center gap-1.5 text-[12px] text-muted/70">
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            {t('jp60.solo')}
+          </div>
+        </Link>
+
         {/* Random Wheel — hàng 1, slot 1 */}
         <Link
           href="/games/random-wheel"

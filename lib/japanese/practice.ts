@@ -58,10 +58,12 @@ export function pickMeaning(m: JsonMeaning, locale: string): string {
 
 /* ── randomness ── */
 
-export function shuffle<T>(arr: readonly T[]): T[] {
+// Optional `rng` (returns [0,1)) makes the shuffle deterministic — used by the
+// 60-Second daily challenge so every player gets the same set. Defaults to Math.random.
+export function shuffle<T>(arr: readonly T[], rng: () => number = Math.random): T[] {
   const a = [...arr]
   for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
+    const j = Math.floor(rng() * (i + 1))
     ;[a[i], a[j]] = [a[j], a[i]]
   }
   return a
@@ -83,14 +85,15 @@ type MCQBase = {
 export function buildMCQ(
   base: MCQBase,
   correctText: string,
-  distractorPool: string[]
+  distractorPool: string[],
+  rng: () => number = Math.random
 ): PracticeQuestion | null {
   const correct = correctText.trim()
   if (!correct) return null
 
   const seen = new Set<string>([correct.toLowerCase()])
   const distractors: string[] = []
-  for (const raw of shuffle(distractorPool)) {
+  for (const raw of shuffle(distractorPool, rng)) {
     const d = (raw ?? '').trim()
     if (!d) continue
     const key = d.toLowerCase()
@@ -101,7 +104,7 @@ export function buildMCQ(
   }
   if (distractors.length < 3) return null
 
-  const ordered = shuffle([correct, ...distractors])
+  const ordered = shuffle([correct, ...distractors], rng)
   const options: PracticeOption[] = ordered.map((text, i) => ({ key: LETTERS[i], text }))
   const correctKey = options.find(o => o.text === correct)!.key
 

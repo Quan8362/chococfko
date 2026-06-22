@@ -1958,6 +1958,245 @@
       "person_label": "명",
       "remove_entry": "삭제",
       "close": "닫기"
+    },
+    "jp60": {
+      "tag": "JLPT",
+      "title": "60초 챌린지",
+      "short_desc": "JLPT 빠른 문제로 시간과 대결",
+      "solo": "혼자",
+      "meta_title": "일본어 60초 챌린지",
+      "subtitle": "스피드 JLPT 문제. 콤보를 쌓고 순위를 올리고 연속 기록을 지키세요.",
+      "play_now": "지금 플레이",
+      "loading": "불러오는 중…",
+      "retry": "다시 시도",
+      "back": "뒤로",
+      "mode_select_title": "모드 선택",
+      "mode_daily": "데일리 챌린지",
+      "mode_daily_desc": "레벨별 하루 한 번 랭크전",
+      "mode_rush": "60초 러시",
+      "mode_rush_desc": "60초 동안 최대한 많이 풀기",
+      "mode_practice": "연습",
+      "mode_practice_desc": "부담 없이 — 해설과 함께 복습",
+      "ranked_badge": "랭크",
+      "unranked_badge": "랭크 외",
+      "daily_done_badge": "오늘 완료",
+      "level_select_title": "레벨 선택",
+      "level_mixed": "혼합",
+      "level_all": "전체 레벨",
+      "practice_count_title": "문제 수는?",
+      "count_questions": "{count}문제",
+      "timer_label": "타이머",
+      "timer_on": "켜기",
+      "timer_off": "끄기",
+      "start_btn": "시작",
+      "time_left": "남은 시간",
+      "score": "점수",
+      "combo": "콤보",
+      "question_n": "{n}번 문제",
+      "skip": "건너뛰기",
+      "result_title": "결과",
+      "result_correct": "정답",
+      "result_wrong": "오답",
+      "result_accuracy": "정확도",
+      "result_best_combo": "최고 콤보",
+      "result_avg_time": "평균 시간",
+      "result_xp": "획득 XP",
+      "result_streak": "연속 기록",
+      "result_personal_best": "개인 최고 기록!",
+      "result_level": "레벨",
+      "result_unranked_note": "이 플레이는 랭크에 반영되지 않습니다.",
+      "result_guest_note": "로그인하면 XP와 연속 기록 저장, 순위 참여가 가능합니다.",
+      "result_sign_in": "로그인",
+      "result_days": "{n}일",
+      "play_again": "다시 하기",
+      "change_level": "레벨 변경",
+      "back_to_games": "게임으로",
+      "share": "공유",
+      "challenge_friend": "친구에게 도전",
+      "view_review": "정답 확인",
+      "view_leaderboard": "순위표",
+      "view_stats": "내 통계",
+      "share_copied": "복사됨!",
+      "share_text": "일본어 60초 챌린지({level})에서 {score}점! 넘어볼래?",
+      "review_title": "정답 확인",
+      "review_your_answer": "내 답",
+      "review_correct_answer": "정답",
+      "review_no_answer": "미응답",
+      "review_all_correct": "완벽 — 모두 정답!",
+      "report_question": "문제 신고",
+      "report_title": "이 문제 신고",
+      "report_reason": "사유",
+      "report_note": "메모 (선택)",
+      "report_note_ph": "무엇이 잘못되었는지 알려주세요…",
+      "report_submit": "신고 보내기",
+      "report_thanks": "신고해 주셔서 감사합니다!",
+      "reason_wrong_answer": "답이 틀림",
+      "reason_multiple_answers": "정답이 여러 개",
+      "reason_unnatural": "부자연스러운 일본어",
+      "reason_wrong_reading": "읽기가 틀림",
+      "reason_wrong_furigana": "후리가나가 틀림",
+      "reason_wrong_translation": "번역이 틀림",
+      "reason_typo": "오타",
+      "reason_inappropriate": "부적절한 내용",
+      "reason_other": "기타",
+      "lb_title": "순위표",
+      "lb_today": "오늘",
+      "lb_week": "이번 주",
+      "lb_alltime": "전체",
+      "lb_rank": "순위",
+      "lb_player": "플레이어",
+      "lb_level": "Lv",
+      "lb_score": "점수",
+      "lb_accuracy": "정확도",
+      "lb_you": "나",
+      "lb_empty": "아직 랭크 게임이 없습니다 — 첫 주자가 되세요!",
+      "lb_filter_mode": "모드",
+      "lb_filter_level": "레벨",
+      "lb_mode_all": "전체",
+      "lb_mode_daily": "데일리",
+      "lb_mode_rush": "러시",
+      "stats_title": "내 통계",
+      "stats_games": "게임 수",
+      "stats_questions": "문제 수",
+      "stats_accuracy": "정확도",
+      "stats_best_score": "최고 점수",
+      "stats_best_combo": "최고 콤보",
+      "stats_streak": "현재 연속",
+      "stats_longest_streak": "최장 연속",
+      "stats_level": "레벨",
+      "stats_xp": "XP",
+      "stats_by_category": "분류별 정확도",
+      "stats_recent": "최근 게임",
+      "stats_records": "개인 기록",
+      "stats_weak": "자주 틀림",
+      "stats_achievements": "업적",
+      "stats_locked": "잠김",
+      "stats_unlocked_on": "{date} 달성",
+      "stats_empty": "데이터가 없습니다 — 한 판 해보세요!",
+      "stats_sign_in": "로그인하여 진행 상황을 기록하세요.",
+      "stats_next_level_in": "다음 레벨까지 {xp} XP",
+      "cat_vocabulary": "어휘",
+      "cat_kanji": "한자",
+      "cat_grammar": "문법",
+      "exit_title": "게임을 나갈까요?",
+      "exit_desc": "현재 진행 상황이 사라집니다.",
+      "exit_confirm": "나가기",
+      "exit_cancel": "계속하기",
+      "err_game_disabled": "현재 게임을 이용할 수 없습니다.",
+      "err_mode_disabled": "이 모드는 현재 비활성화되어 있습니다.",
+      "err_level_disabled": "이 레벨은 현재 비활성화되어 있습니다.",
+      "err_no_questions": "이 레벨의 문제가 아직 부족합니다.",
+      "err_rate_limited": "시도가 너무 많습니다. 잠시 기다려 주세요.",
+      "err_session_expired": "시간 종료!",
+      "err_daily_done": "이 레벨의 오늘 랭크 챌린지를 이미 플레이했습니다.",
+      "err_network": "연결 문제가 발생했습니다. 다시 시도해 주세요.",
+      "err_generic": "문제가 발생했습니다.",
+      "err_challenge_not_found": "챌린지를 찾을 수 없습니다.",
+      "err_challenge_expired": "이 챌린지는 만료되었습니다.",
+      "err_not_authenticated": "계속하려면 로그인하세요.",
+      "err_migration": "게임을 설정하는 중입니다. 나중에 다시 시도해 주세요.",
+      "challenge_title": "친구 챌린지",
+      "challenge_created": "챌린지를 만들었습니다!",
+      "challenge_copy_link": "링크 복사",
+      "challenge_play": "챌린지 수락",
+      "challenge_vs": "vs",
+      "challenge_waiting": "상대를 기다리는 중…",
+      "challenge_winner": "{name} 승리!",
+      "challenge_tie": "무승부!",
+      "challenge_expired_msg": "이 챌린지 링크는 만료되었습니다.",
+      "challenge_creator": "{name}님이 생성",
+      "challenge_you": "나",
+      "challenge_share_intro": "내 점수를 넘어봐!",
+      "ach": {
+        "first_game": {
+          "title": "첫 게임",
+          "desc": "첫 챌린지 완료"
+        },
+        "first_perfect": {
+          "title": "완벽",
+          "desc": "실수 없이 게임 완료"
+        },
+        "combo_5": {
+          "title": "불타오름",
+          "desc": "연속 5문제 정답"
+        },
+        "combo_10": {
+          "title": "멈출 수 없음",
+          "desc": "연속 10문제 정답"
+        },
+        "score_1000": {
+          "title": "득점왕",
+          "desc": "한 게임에서 1,000점 획득"
+        },
+        "score_2000": {
+          "title": "하이스코어",
+          "desc": "한 게임에서 2,000점 획득"
+        },
+        "level_n5": {
+          "title": "N5 도전자",
+          "desc": "N5 게임 완료"
+        },
+        "level_n4": {
+          "title": "N4 도전자",
+          "desc": "N4 게임 완료"
+        },
+        "level_n3": {
+          "title": "N3 도전자",
+          "desc": "N3 게임 완료"
+        },
+        "level_n2": {
+          "title": "N2 도전자",
+          "desc": "N2 게임 완료"
+        },
+        "level_n1": {
+          "title": "N1 도전자",
+          "desc": "N1 게임 완료"
+        },
+        "streak_3": {
+          "title": "3일 연속",
+          "desc": "3일 연속 플레이"
+        },
+        "streak_7": {
+          "title": "7일 연속",
+          "desc": "7일 연속 플레이"
+        },
+        "streak_30": {
+          "title": "30일 연속",
+          "desc": "30일 연속 플레이"
+        },
+        "daily_winner": {
+          "title": "데일리 우승자",
+          "desc": "데일리 챌린지 1위"
+        },
+        "questions_100": {
+          "title": "100문제",
+          "desc": "100문제 풀기"
+        },
+        "questions_1000": {
+          "title": "학자",
+          "desc": "1,000문제 풀기"
+        },
+        "master_vocab": {
+          "title": "어휘 마스터",
+          "desc": "어휘 200문제 정답"
+        },
+        "kanji_explorer": {
+          "title": "한자 탐험가",
+          "desc": "한자 100문제 정답"
+        },
+        "grammar_explorer": {
+          "title": "문법 탐험가",
+          "desc": "문법 100문제 정답"
+        },
+        "challenge_friend": {
+          "title": "도전자",
+          "desc": "친구 챌린지 생성"
+        },
+        "win_challenge": {
+          "title": "챔피언",
+          "desc": "친구 챌린지 승리"
+        }
+      }
     }
   },
   "notifications": {
@@ -2981,5 +3220,35 @@
     "err_alias_duplicate": "개념 내 별칭 중복.",
     "err_facet_no_evidence": "패싯에는 증거 또는 구조화 필드가 필요합니다.",
     "err_category_no_code": "카테고리에는 category_code가 필요합니다."
+  },
+  "admin_jp60": {
+    "title": "60초 챌린지",
+    "breadcrumb": "JP 60s 게임",
+    "back": "관리로 돌아가기",
+    "game_enabled": "게임 활성화",
+    "modes": "모드",
+    "levels": "레벨",
+    "duration": "제한 시간(초)",
+    "daily_questions": "데일리 문제 수",
+    "save": "설정 저장",
+    "saved": "저장됨",
+    "mode_daily": "데일리 챌린지",
+    "mode_rush": "60초 러시",
+    "mode_practice": "연습",
+    "stats": "대상(공개됨)",
+    "sessions": "세션",
+    "completed": "완료",
+    "suspicious": "의심",
+    "reports": "문제 신고",
+    "no_reports": "대기 중인 신고 없음",
+    "reason": "사유",
+    "note": "메모",
+    "mark_reviewed": "검토 완료",
+    "dismiss": "무시",
+    "disable_item": "게임에서 제외",
+    "disabled_items": "제외 항목",
+    "invalidate": "세션 무효화",
+    "enable": "활성",
+    "disable": "비활성"
   }
 }

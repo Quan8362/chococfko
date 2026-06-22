@@ -3886,5 +3886,8 @@
     "dq_missing_official_link": "공식 링크 없음",
     "dq_not_verified_recently": "최근 미확인",
     "dq_duplicate_slug": "중복 slug"
+  },
+  "rate_limit": {
+    "exceeded": "요청이 너무 많습니다. 잠시 후 다시 시도해 주세요."
   }
 }

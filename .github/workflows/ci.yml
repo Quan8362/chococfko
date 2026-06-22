@@ -1,0 +1,80 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# No production secrets are exposed to PRs. The build uses placeholder public
+# env values so it never depends on real Supabase credentials.
+env:
+  NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder-anon-key
+  NEXT_PUBLIC_SITE_URL: http://localhost:3000
+
+jobs:
+  quality:
+    name: Unit • Types • Lint • i18n • Build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install (locked)
+        run: npm ci
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: ESLint
+        run: npm run lint
+
+      - name: i18n parity
+        run: npm run i18n:check
+
+      - name: Production build
+        run: npm run build
+
+  # E2E + a11y require browsers + a running/preview target. Kept as a separate,
+  # opt-in job so PRs are not blocked on browser availability. Enable by setting
+  # the EXPLORE_BASE_URL repo/environment variable to a preview deployment.
+  e2e:
+    name: Playwright + a11y (optional)
+    runs-on: ubuntu-latest
+    if: ${{ vars.EXPLORE_BASE_URL != '' }}
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium webkit firefox
+      - name: Run critical E2E + a11y
+        env:
+          EXPLORE_BASE_URL: ${{ vars.EXPLORE_BASE_URL }}
+        run: npx playwright test --config e2e/playwright.config.ts explore.spec.ts a11y.spec.ts
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: web/playwright-report
+          retention-days: 7

@@ -3886,5 +3886,8 @@
     "dq_missing_official_link": "Thiếu liên kết chính thức",
     "dq_not_verified_recently": "Chưa xác minh gần đây",
     "dq_duplicate_slug": "Trùng slug"
+  },
+  "rate_limit": {
+    "exceeded": "Bạn thao tác quá nhanh. Vui lòng thử lại sau giây lát."
   }
 }

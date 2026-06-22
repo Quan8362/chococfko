@@ -3886,5 +3886,8 @@
     "dq_missing_official_link": "Missing official link",
     "dq_not_verified_recently": "Not verified recently",
     "dq_duplicate_slug": "Duplicate slug"
+  },
+  "rate_limit": {
+    "exceeded": "You're doing that too often. Please try again shortly."
   }
 }

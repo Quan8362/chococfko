@@ -152,7 +152,7 @@ export default function PlacesExplorer({ places, cards, categories, prefectures,
   const relevant = useMemo(() => relevantFilterKeys(state.category ?? ''), [state.category])
 
   // ── geolocation ──
-  const useMyLocation = () => {
+  const requestMyLocation = () => {
     if (!('geolocation' in navigator)) { setGeoStatus('unsupported'); return }
     setGeoStatus('locating')
     navigator.geolocation.getCurrentPosition(
@@ -313,7 +313,7 @@ export default function PlacesExplorer({ places, cards, categories, prefectures,
         </select>
         <QuickChip on={!!state.openNow} label={t('quick_open_now')} onClick={() => set({ openNow: !state.openNow || undefined })} />
         <QuickChip on={state.fee === 'free'} label={t('quick_free')} onClick={() => set({ fee: state.fee === 'free' ? undefined : 'free' })} />
-        <QuickChip on={!!state.nearby} label={t('quick_nearby')} onClick={() => (userLoc ? set({ nearby: !state.nearby || undefined }) : useMyLocation())} />
+        <QuickChip on={!!state.nearby} label={t('quick_nearby')} onClick={() => (userLoc ? set({ nearby: !state.nearby || undefined }) : requestMyLocation())} />
         {geoStatus === 'locating' && <span className="text-[12px] text-muted">{t('nearby_locating')}</span>}
         {(geoStatus === 'denied' || geoStatus === 'error' || geoStatus === 'unsupported') && (
           <span className="text-[12px] text-rose">{t(`nearby_${geoStatus}` as 'nearby_denied')}</span>

@@ -8,6 +8,7 @@ import { createClient } from '@/lib/supabase/server'
 import { checkIsAdmin, createAdminClient } from '@/lib/supabase/admin'
 import { notifyUsers } from '@/lib/notifications/user'
 import { stripHtml } from '@/lib/sanitize'
+import { checkRateLimit } from '@/lib/rateLimitDb'
 import { isReportKind, buildQuestionThreads, type QaQuestion, type QaRow } from '@/lib/placeQa'
 
 type Res = { ok?: boolean; error?: string }
@@ -31,6 +32,7 @@ export async function askQuestion(slug: string, content: string): Promise<Res> {
   if (!user) return { error: 'login_required' }
   const text = cleanText(content)
   if (!slug || !text) return { error: 'empty' }
+  if (!(await checkRateLimit('place_question', { userId: user.id })).ok) return { error: 'rate_limited' }
   const { error } = await sb.from('place_comments').insert({ place_slug: slug, user_id: user.id, content: text, status: 'approved', kind: 'question' })
   if (error) return { error: error.message }
   revalidatePath(`/places/${slug}`)
@@ -43,6 +45,7 @@ export async function answerQuestion(slug: string, questionId: string, content: 
   if (!user) return { error: 'login_required' }
   const text = cleanText(content)
   if (!slug || !questionId || !text) return { error: 'empty' }
+  if (!(await checkRateLimit('place_answer', { userId: user.id })).ok) return { error: 'rate_limited' }
   const { error } = await sb.from('place_comments').insert({ place_slug: slug, user_id: user.id, content: text, status: 'approved', kind: 'answer', parent_id: questionId })
   if (error) return { error: error.message }
 
@@ -80,6 +83,7 @@ export async function markHelpful(slug: string, answerId: string, helpful: boole
   const questionOwner = (q as { user_id: string } | null)?.user_id
   const isAdmin = await checkIsAdmin()
   if (user.id !== questionOwner && !isAdmin) return { error: 'forbidden' }
+  if (!isAdmin && !(await checkRateLimit('helpful_mark', { userId: user.id })).ok) return { error: 'rate_limited' }
 
   const { error } = await admin.from('place_comments').update({ helpful, helpful_marked_by: helpful ? user.id : null }).eq('id', answerId)
   if (error) return { error: error.message }
@@ -130,6 +134,7 @@ export async function submitReport(slug: string, kind: string, detail: string): 
   const { data: { user } } = await sb.auth.getUser()
   if (!user) return { error: 'login_required' }
   if (!slug || !isReportKind(kind)) return { error: 'invalid' }
+  if (!(await checkRateLimit('place_report', { userId: user.id })).ok) return { error: 'rate_limited' }
   const { error } = await sb.from('place_reports').insert({ place_slug: slug, user_id: user.id, kind, detail: cleanText(detail, 1000) || null, status: 'pending' })
   if (error) return { error: error.message }
   return { ok: true }

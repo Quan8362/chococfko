@@ -3886,5 +3886,8 @@
     "dq_missing_official_link": "缺少官方链接",
     "dq_not_verified_recently": "近期未核实",
     "dq_duplicate_slug": "slug 重复"
+  },
+  "rate_limit": {
+    "exceeded": "操作过于频繁，请稍后再试。"
   }
 }

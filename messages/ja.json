@@ -3886,5 +3886,8 @@
     "dq_missing_official_link": "公式リンクなし",
     "dq_not_verified_recently": "最近未確認",
     "dq_duplicate_slug": "slug重複"
+  },
+  "rate_limit": {
+    "exceeded": "操作が多すぎます。しばらくしてからもう一度お試しください。"
   }
 }

@@ -179,6 +179,19 @@ Any further confirmed high-severity items are listed in the final report.
 
 ---
 
+## Deployment record
+
+| Field | Value |
+|---|---|
+| Commit deployed | `5344206` (on `main`, pushed to origin) |
+| Vercel deployment | `dpl_9MS5RViif1RcbhtLTwPazEBQeZJt` — status **Ready**, target production |
+| Domain | https://chococfko.com → **200** |
+| `/api/health` | **200** `{ status: "healthy", checks: app/db_public_read/core_view all ok }` |
+| `/api/cron/return-user` (no secret) | **401** (auth working) |
+| Live partial schema check | `db_public_read: ok` (places readable) + `core_view: ok` (place_comments_with_author present) in production |
+| `cron_secret_configured` | **false** — add `CRON_SECRET` in Vercel, then redeploy |
+| Cron schedule | daily `0 0 * * *` (09:00 JST) — Hobby plan max cadence |
+
 ## Manual / blocked actions required to reach PRODUCTION VERIFIED
 
 1. Apply migrations (order in final report): `migration_rate_limits.sql`,

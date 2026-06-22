@@ -227,12 +227,15 @@ export async function updatePlace(formData: FormData) {
     const newVerified = (extended as Record<string, unknown>).last_verified_at as string | null | undefined
     const name = updatePayload.name as string | undefined
     const closedNow = newStatus === 'temporarily_closed' || newStatus === 'permanently_closed'
+    // Push title is a neutral place name (no hardcoded UI phrase); when the name
+    // is unknown we insert the in-app bell row only (bell localizes the title)
+    // and skip the OS push rather than send an un-localized string.
     if (closedNow && prev?.temporary_status !== newStatus) {
       const { notifySavedPlaceChange } = await import('@/lib/notifications/places')
-      await notifySavedPlaceChange(slug, 'place_closed', { placeName: name, pushTitle: name ?? 'Cập nhật địa điểm' })
+      await notifySavedPlaceChange(slug, 'place_closed', { placeName: name, pushTitle: name ?? undefined })
     } else if (newVerified && prev?.last_verified_at !== newVerified) {
       const { notifySavedPlaceChange } = await import('@/lib/notifications/places')
-      await notifySavedPlaceChange(slug, 'place_updated', { placeName: name, pushTitle: name ?? 'Cập nhật địa điểm' })
+      await notifySavedPlaceChange(slug, 'place_updated', { placeName: name, pushTitle: name ?? undefined })
     }
   } catch { /* best-effort */ }
 

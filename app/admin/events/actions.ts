@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { checkIsAdmin, createAdminClient } from '@/lib/supabase/admin';
 import { createClient } from '@/lib/supabase/server';
 import { revalidateEvents } from '@/lib/eventsDb';
+import { normalizeUrl } from '@/lib/placeFields';
 
 export interface EventInput {
   id?: string;
@@ -36,6 +37,13 @@ export async function saveEvent(input: EventInput): Promise<{ ok: boolean; error
   if (!(await checkIsAdmin())) return { ok: false, error: 'forbidden' };
   if (!input.title?.trim() || !input.startsAt) return { ok: false, error: 'invalid' };
 
+  // Security: external links must be http(s). Reject other schemes (javascript:,
+  // data:, etc.) rather than storing an unsafe URL that EventCard would render.
+  const safeSource = input.sourceUrl ? normalizeUrl(input.sourceUrl) : null;
+  const safeReg = input.registrationUrl ? normalizeUrl(input.registrationUrl) : null;
+  if (input.sourceUrl && !safeSource) return { ok: false, error: 'invalid_source_url' };
+  if (input.registrationUrl && !safeReg) return { ok: false, error: 'invalid_registration_url' };
+
   const { data: { user } } = await createClient().auth.getUser();
   const row = {
     slug: clean(input.slug),
@@ -51,8 +59,8 @@ export async function saveEvent(input: EventInput): Promise<{ ok: boolean; error
     price_min: input.priceMin ?? null,
     price_max: input.priceMax ?? null,
     currency: clean(input.currency)?.toUpperCase() ?? null,
-    source_url: clean(input.sourceUrl),
-    registration_url: clean(input.registrationUrl),
+    source_url: safeSource,
+    registration_url: safeReg,
     last_verified_at: clean(input.lastVerifiedAt),
     status: input.status === 'published' ? 'published' : 'draft',
     is_cancelled: !!input.isCancelled,

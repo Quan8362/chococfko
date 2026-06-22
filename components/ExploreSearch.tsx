@@ -9,6 +9,8 @@ import type { SearchConfig } from "@/lib/placeSearch";
 import type { Place } from "@/lib/places";
 import { HOME_RESET_EVENT, searchUrl, queryFromParams } from "@/lib/homeNav";
 import TopicFilter from "@/components/TopicFilter";
+import QuickIntents from "@/components/explore/QuickIntents";
+import { trackEvent } from "@/lib/analytics";
 
 interface CatProp {
   code: string;
@@ -53,6 +55,7 @@ export default function ExploreSearch({
   searchConfig?: SearchConfig;
 }) {
   const t = useTranslations("home");
+  const te = useTranslations("explore_home");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -83,6 +86,7 @@ export default function ExploreSearch({
     if (urlDebounce.current) clearTimeout(urlDebounce.current);
     urlDebounce.current = setTimeout(() => {
       router.replace(searchUrl(pathname, v), { scroll: false });
+      if (v.trim()) void trackEvent("explore_search_submitted", { path: "/" });
     }, 300);
   };
 
@@ -134,9 +138,11 @@ export default function ExploreSearch({
   // margin (outside the border box) so the border-box top IS the heading row —
   // landing it just below the sticky area hides the previous section cleanly.
   const stickyOffset = () => {
-    const bar = document.getElementById("categories");
+    // Only the [region | search] row is sticky now; section anchors land just
+    // below it (+ the top nav).
+    const bar = document.getElementById("explore-bar");
     const gap = typeof window !== "undefined" && window.innerWidth < 640 ? 16 : 24;
-    return 68 + (bar?.offsetHeight ?? 120) + gap;
+    return 68 + (bar?.offsetHeight ?? 60) + gap;
   };
 
   const scrollToSection = (code: string) => {
@@ -153,7 +159,7 @@ export default function ExploreSearch({
       document.documentElement.style.setProperty("--explore-sticky-offset", `${stickyOffset()}px`);
     };
     apply();
-    const bar = document.getElementById("categories");
+    const bar = document.getElementById("explore-bar");
     const ro = bar ? new ResizeObserver(apply) : null;
     if (bar && ro) ro.observe(bar);
     window.addEventListener("resize", apply);
@@ -167,6 +173,7 @@ export default function ExploreSearch({
   // search first (so the sectioned layout renders) then scroll once it mounts.
   const goToSection = (code: string) => {
     setActiveCat(code);
+    void trackEvent("explore_category_selected", { path: "/", metadata: { category: code } });
     if (active) {
       setQuery("");
       setPendingScroll(code);
@@ -184,12 +191,18 @@ export default function ExploreSearch({
 
   return (
     <>
-      {/* ── STICKY SEARCH BAR + CATEGORY CHIPS ──────────────── */}
+      {/* ── LAYER 1 — SECTION INTRO ─────────────────────────── */}
+      <div className="max-w-[1240px] mx-auto px-6 mt-8 sm:mt-10 mb-3">
+        <h2 className="font-serif font-bold text-[22px] sm:text-[26px] text-ink">{te("intent_heading")}</h2>
+        <p className="text-[13.5px] text-muted mt-1">{te("discover_sub")}</p>
+      </div>
+
+      {/* ── LAYER 2 — REGION + SEARCH (sticky, search-first) ─── */}
       <div
-        id="categories"
+        id="explore-bar"
         className="sticky top-[68px] z-[90] bg-[rgba(250,244,234,0.985)] backdrop-blur-md border-b border-line"
       >
-        <div className="max-w-[1240px] mx-auto px-6 py-2.5 sm:py-3.5 flex flex-col gap-2.5 sm:gap-3">
+        <div className="max-w-[1240px] mx-auto px-6 py-2.5 sm:py-3.5">
           {/* Unified search bar: [ prefecture ▾ | search input ] */}
           <div className="flex flex-col sm:flex-row sm:items-stretch gap-2 sm:gap-0 sm:rounded-full sm:border sm:border-line sm:bg-paper sm:shadow-sm sm:overflow-visible max-w-[640px] w-full">
             {/* Prefecture selector */}
@@ -235,6 +248,7 @@ export default function ExploreSearch({
                           onClick={() => {
                             setPrefecture(p.code);
                             setPrefOpen(false);
+                            void trackEvent("explore_region_selected", { path: "/", metadata: { region: p.code } });
                           }}
                           className={
                             on
@@ -285,16 +299,26 @@ export default function ExploreSearch({
             </div>
           </div>
 
-          {/* Topic chips — content-aware compact bar (quick chips + "All topics"
-              sheet on overflow). Chips jump to the matching category section. */}
-          <TopicFilter
-            topics={categories}
-            selected={active ? null : activeCat}
-            onSelect={goToSection}
-            onClear={() => setActiveCat(null)}
-          />
         </div>
       </div>
+
+      {/* ── LAYER 3 — QUICK PRACTICAL NEEDS (situational shortcuts) ── */}
+      <QuickIntents />
+
+      {/* ── LAYER 4 — PLACE CATEGORIES (taxonomy navigation) ── */}
+      <section id="categories" aria-labelledby="categories-heading" className="max-w-[1240px] mx-auto px-6 mt-6">
+        <h3 id="categories-heading" className="text-[13px] font-bold uppercase tracking-[1px] text-muted mb-2.5">
+          {te("categories_browse_heading")}
+        </h3>
+        {/* Topic chips — content-aware compact bar (quick chips + "All topics"
+            sheet on overflow). Chips jump to the matching category section. */}
+        <TopicFilter
+          topics={categories}
+          selected={active ? null : activeCat}
+          onSelect={goToSection}
+          onClear={() => setActiveCat(null)}
+        />
+      </section>
 
       {/* ── RESULTS ────────────────────────────────────────── */}
       {active ? (

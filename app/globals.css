@@ -96,6 +96,14 @@ body::before {
    Tailwind's motion-safe: variant). */
 @media (prefers-reduced-motion: reduce) {
   .animate-sheetup { animation: none !important; }
+  /* Honour OS "reduce motion" site-wide: near-instant animations/transitions,
+     no smooth-scroll. Phase 8 a11y. */
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 @keyframes mentionShrink {

@@ -8,7 +8,6 @@ import PlaceCard from "@/components/PlaceCard";
 import ExploreSearch from "@/components/ExploreSearch";
 import HomePosts from "@/components/HomePosts";
 import { prefectureName } from "@/lib/japan";
-import IntentChips from "@/components/explore/IntentChips";
 import CollectionsRail from "@/components/explore/CollectionsRail";
 import EventsRail from "@/components/explore/EventsRail";
 import CommunityActivity from "@/components/explore/CommunityActivity";
@@ -42,15 +41,17 @@ export default async function Home() {
     getLocale(),
   ])
 
-  const dbPlaces = await getAllPlacesFromDb(locale);
+  // Fetch places + search taxonomy in parallel (independent). The taxonomy load
+  // overlaps the places query instead of running after it.
+  const [dbPlaces, searchConfig] = await Promise.all([
+    getAllPlacesFromDb(locale),
+    loadSearchConfig(),
+  ]);
   // getAllPlacesFromDb filters out pending places (status='pending')
   // so only approved/pre-existing places reach here
   const basePlaces: Place[] = dbPlaces ?? staticPlaces;
   // Attach tags so cards show chips and search matches tag names. Best-effort.
   const allPlaces: Place[] = await attachPlaceTags(basePlaces);
-  // Data-driven search taxonomy (DB-configured concepts merged over built-in
-  // defaults). Falls back to DEFAULT_SEARCH_CONFIG if the table is absent.
-  const searchConfig = await loadSearchConfig();
 
   // Only render categories that have at least 1 place
   const visibleCategories = categories
@@ -146,13 +147,11 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* ── WHAT DO YOU WANT TO DO TODAY? (intent shortcuts) ─── */}
-      <IntentChips />
-
-      {/* ── SEARCH + CATEGORY FILTER + RESULTS ───────────────── */}
-      {/* Cards are pre-rendered server-side (PlaceCard is async); ExploreSearch
-          decides which to show (filtered flat grid when searching, sectioned
-          browse when idle). filterPlaces is the seam that moves server-side later. */}
+      {/* ── DISCOVERY: intro → region+search → quick needs → categories → results.
+          ExploreSearch owns the four-layer hierarchy (Phase 8 UI refactor). Cards
+          are pre-rendered server-side (PlaceCard is async); ExploreSearch decides
+          which to show (filtered flat grid when searching, sectioned browse when
+          idle). filterPlaces is the seam that moves server-side later. */}
       <ExploreSearch
         places={allPlaces}
         searchConfig={searchConfig}

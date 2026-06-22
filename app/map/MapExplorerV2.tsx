@@ -7,12 +7,23 @@ import L from 'leaflet'
 import 'leaflet.markercluster'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import type { NearbyPlace } from '@/lib/placesNearby'
 import { openStatus, type OpenState } from '@/lib/placeOpenNow'
 import {
   type MapViewState, encodeMapView, shouldOfferSearchArea, markerAccent,
 } from '@/lib/maps/mapView'
+import type { InternalResultItem, StationAreaResultItem, TopicResultItem } from '@/lib/maps/unifiedSearch'
+import type { ExternalPlacePreview as ExternalPreview } from '@/lib/maps/externalPlace'
+import { findInternalDuplicate } from '@/lib/maps/duplicateDetection'
+import { encodeExternalSeed, SEED_PARAM } from '@/lib/maps/adminSeed'
+import { polylineBounds } from '@/lib/maps/polyline'
+import { prefersReducedMotion, motionOptions, scrollBehavior } from '@/lib/maps/motion'
+import { emitMapMetric, latencyBucket } from '@/lib/maps/metrics'
+import UnifiedSearchBox from '@/components/maps/UnifiedSearchBox'
+import ExternalPlacePreviewCard from '@/components/maps/ExternalPlacePreview'
+import DirectionsPanel, { type PreviewRoute } from '@/components/maps/DirectionsPanel'
 import SavePlaceButton from '@/components/SavePlaceButton'
 
 type SheetState = 'collapsed' | 'half' | 'full'
@@ -23,6 +34,17 @@ interface Props {
   categories: { code: string; label: string; emoji: string }[]
   initialPlaces: NearbyPlace[]
   initialState: MapViewState
+  /** Unified search: may external Google results be OFFERED (default false). */
+  externalEnabled: boolean
+  /** Browser Maps key (NEXT_PUBLIC) — only used when externalEnabled. */
+  apiKey: string | null
+  locale: string
+  /** Admin viewing → enables the gated "use external place for an article" action. */
+  isAdmin: boolean
+  /** Whether the Admin place picker (target of the admin action) is configured. */
+  adminSearchEnabled: boolean
+  /** In-site route preview available (Routes API flag) — default false. */
+  routePreviewAvailable: boolean
 }
 
 const STATUS_DOT: Record<OpenState, string> = {
@@ -31,10 +53,11 @@ const STATUS_DOT: Record<OpenState, string> = {
 }
 const SHEET_H: Record<SheetState, string> = { collapsed: 'h-[110px]', half: 'h-[46vh]', full: 'h-[85vh]' }
 
-export default function MapExplorerV2({ defaultCenter, categories, initialPlaces, initialState }: Props) {
+export default function MapExplorerV2({ defaultCenter, categories, initialPlaces, initialState, externalEnabled, apiKey, locale, isAdmin, adminSearchEnabled, routePreviewAvailable }: Props) {
   const t = useTranslations('map_v2')
   const te = useTranslations('explore_search')
   const tpd = useTranslations('place_detail')
+  const router = useRouter()
   const emojiOf = useMemo(() => Object.fromEntries(categories.map((c) => [c.code, c.emoji])), [categories])
 
   const [places, setPlaces] = useState<NearbyPlace[]>(initialPlaces)
@@ -48,15 +71,23 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
   const [panelOpen, setPanelOpen] = useState(true)
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [mapFailed, setMapFailed] = useState(false)
+  const [externalPreview, setExternalPreview] = useState<ExternalPreview | null>(null)
+  const [directionsFor, setDirectionsFor] = useState<NearbyPlace | null>(null)
+  const [routePreview, setRoutePreview] = useState<PreviewRoute | null>(null)
+  const [pickingOrigin, setPickingOrigin] = useState(false)
+  const [pickedOrigin, setPickedOrigin] = useState<{ lat: number; lng: number } | null>(null)
 
   const mapEl = useRef<HTMLDivElement>(null)
   const mapRef = useRef<L.Map | null>(null)
   const clusterRef = useRef<L.MarkerClusterGroup | null>(null)
   const markerBySlug = useRef<Map<string, L.Marker>>(new Map())
   const lastSearched = useRef<{ center: { lat: number; lng: number }; zoom: number } | null>(null)
+  const routeLayerRef = useRef<L.LayerGroup | null>(null)
+  const pickingOriginRef = useRef(false)
+  const prevViewRef = useRef<{ center: { lat: number; lng: number }; zoom: number } | null>(null)
+  const reducedRef = useRef(false)
   const reqId = useRef(0)
   const urlTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const qTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const listRefs = useRef<Map<string, HTMLLIElement>>(new Map())
 
   const stateOf = useCallback((m: NearbyPlace): OpenState =>
@@ -81,6 +112,7 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
     if (query.trim()) params.set('q', query.trim())
     const myId = ++reqId.current
     setFetchState('loading')
+    const t0 = typeof performance !== 'undefined' ? performance.now() : 0
     try {
       const res = await fetch(`/api/places/in-bounds?${params}`)
       const json = await res.json()
@@ -89,19 +121,35 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
       setFetchState('')
       setMoved(false)
       lastSearched.current = { center: { lat: map.getCenter().lat, lng: map.getCenter().lng }, zoom: map.getZoom() }
+      const ms = (typeof performance !== 'undefined' ? performance.now() : 0) - t0
+      emitMapMetric('viewport_query', { ok: true, latency_ms: Math.round(ms), latency_bucket: latencyBucket(ms) })
     } catch {
       if (myId !== reqId.current) return
       setFetchState('error')
+      emitMapMetric('viewport_query', { ok: false, status: 'error' })
+      emitMapMetric('map_api_unavailable', { status: 'in_bounds' })
     }
   }, [category, q])
+
+  // Track OS "reduce motion" so Leaflet pan/zoom/fit can honour it (CSS can't).
+  useEffect(() => {
+    reducedRef.current = prefersReducedMotion()
+    const mq = typeof window !== 'undefined' && window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null
+    if (!mq) return
+    const on = () => { reducedRef.current = mq.matches }
+    mq.addEventListener?.('change', on)
+    return () => mq.removeEventListener?.('change', on)
+  }, [])
 
   // ── Init map once ──
   useEffect(() => {
     if (!mapEl.current || mapRef.current) return
     let map: L.Map
     try {
-      map = L.map(mapEl.current, { zoomControl: true })
+      map = L.map(mapEl.current, { zoomControl: false })
         .setView([initialState.center?.lat ?? defaultCenter.lat, initialState.center?.lng ?? defaultCenter.lng], initialState.zoom ?? 12)
+      // Localized, accessibly-titled zoom control (Leaflet defaults are English).
+      L.control.zoom({ zoomInTitle: t('zoom_in'), zoomOutTitle: t('zoom_out') }).addTo(map)
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap', maxZoom: 19 }).addTo(map)
       const cluster = (L as unknown as { markerClusterGroup: (o?: unknown) => L.MarkerClusterGroup })
         .markerClusterGroup({ showCoverageOnHover: false, maxClusterRadius: 55 })
@@ -112,11 +160,21 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
         if (lastSearched.current && shouldOfferSearchArea(lastSearched.current, cur)) setMoved(true)
         scheduleUrlWrite()
       })
+      // Origin pick (directions): capture the next click ONLY when arming it.
+      map.on('click', (e: L.LeafletMouseEvent) => {
+        if (!pickingOriginRef.current) return
+        pickingOriginRef.current = false
+        setPickingOrigin(false)
+        setPickedOrigin({ lat: e.latlng.lat, lng: e.latlng.lng })
+      })
       mapRef.current = map
       clusterRef.current = cluster
+      emitMapMetric('map_loaded', { provider: 'leaflet' })
+      emitMapMetric('map_provider', { provider: 'leaflet' })
       void fetchBounds() // initial committed load aligned to the real viewport
     } catch {
       setMapFailed(true)
+      emitMapMetric('map_load_failed', { provider: 'leaflet' })
     }
     return () => { mapRef.current?.remove(); mapRef.current = null }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -156,15 +214,56 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
     const map = mapRef.current
     if (m && map) {
       // pan ONLY when the marker is outside the current view (respect user intent)
-      if (!map.getBounds().contains([m.lat, m.lng])) map.panTo([m.lat, m.lng])
+      if (!map.getBounds().contains([m.lat, m.lng])) map.panTo([m.lat, m.lng], motionOptions(reducedRef.current))
     }
     if (fromList) return
     // marker → scroll the matching list row into view (non-disruptive)
     requestAnimationFrame(() => {
-      listRefs.current.get(slug)?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+      listRefs.current.get(slug)?.scrollIntoView({ block: 'nearest', behavior: scrollBehavior(reducedRef.current) })
     })
     if (sheet === 'collapsed') setSheet('half')
   }, [places, sheet])
+
+  // ── Route preview rendering (origin/dest markers + polyline + fit bounds) ──
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map) return
+    routeLayerRef.current?.remove()
+    routeLayerRef.current = null
+    if (!routePreview) return
+    const layer = L.layerGroup()
+    if (routePreview.points.length) {
+      L.polyline(routePreview.points, { color: '#1d4ed8', weight: 5, opacity: 0.85 }).addTo(layer)
+    }
+    const pin = (color: string, glyph: string) => L.divIcon({
+      className: '',
+      html: `<div style="width:26px;height:26px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:${color};border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3);display:grid;place-items:center"><span style="transform:rotate(45deg);font-size:13px">${glyph}</span></div>`,
+      iconSize: [26, 26], iconAnchor: [13, 26],
+    })
+    L.marker([routePreview.origin.lat, routePreview.origin.lng], { icon: pin('#10b981', '🟢'), zIndexOffset: 1200 }).addTo(layer)
+    L.marker([routePreview.destination.lat, routePreview.destination.lng], { icon: pin('#1d4ed8', '📍'), zIndexOffset: 1200 }).addTo(layer)
+    layer.addTo(map)
+    routeLayerRef.current = layer
+    const b = polylineBounds(routePreview.points) ?? {
+      north: Math.max(routePreview.origin.lat, routePreview.destination.lat), south: Math.min(routePreview.origin.lat, routePreview.destination.lat),
+      east: Math.max(routePreview.origin.lng, routePreview.destination.lng), west: Math.min(routePreview.origin.lng, routePreview.destination.lng),
+    }
+    if (!prevViewRef.current) prevViewRef.current = { center: { lat: map.getCenter().lat, lng: map.getCenter().lng }, zoom: map.getZoom() }
+    map.fitBounds([[b.south, b.west], [b.north, b.east]], { padding: [60, 60], maxZoom: 16, ...motionOptions(reducedRef.current) })
+  }, [routePreview])
+
+  // Open / close the directions panel for a place.
+  const openDirections = useCallback((m: NearbyPlace) => {
+    setExternalPreview(null); setSelected(m.slug); setDirectionsFor(m)
+  }, [])
+  const closeDirections = useCallback(() => {
+    setDirectionsFor(null); setRoutePreview(null); setPickingOrigin(false); pickingOriginRef.current = false; setPickedOrigin(null)
+    const map = mapRef.current
+    if (map && prevViewRef.current) { map.setView([prevViewRef.current.center.lat, prevViewRef.current.center.lng], prevViewRef.current.zoom, motionOptions(reducedRef.current)) }
+    prevViewRef.current = null
+    // Restore focus to the map region (the trigger lived in a now-hidden preview).
+    mapEl.current?.focus()
+  }, [])
 
   // ── URL state (debounced; never on every move tick) ──
   const scheduleUrlWrite = useCallback(() => {
@@ -187,19 +286,67 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
     const h = (e: KeyboardEvent) => {
       if (e.key !== 'Escape') return
       if (filtersOpen) setFiltersOpen(false)
+      else if (directionsFor) closeDirections()
+      else if (externalPreview) setExternalPreview(null)
       else if (selected) setSelected(null)
       else if (sheet === 'full') setSheet('half')
     }
     window.addEventListener('keydown', h)
     return () => window.removeEventListener('keydown', h)
-  }, [filtersOpen, selected, sheet])
+  }, [filtersOpen, selected, sheet, externalPreview, directionsFor, closeDirections])
 
   const onCategory = (code: string) => { setCategory(code); setTimeout(() => void fetchBounds(code, q), 0) }
-  const onQueryChange = (v: string) => {
-    setQ(v)
-    if (qTimer.current) clearTimeout(qTimer.current)
-    qTimer.current = setTimeout(() => void fetchBounds(category, v), 450)
-  }
+
+  // ── Unified search selections (internal first; external kept separate) ──
+  const onSelectInternal = useCallback((item: InternalResultItem) => {
+    setExternalPreview(null)
+    emitMapMetric('result_selected', { source: 'internal' })
+    const map = mapRef.current
+    if (places.some((p) => p.slug === item.slug)) { selectPlace(item.slug, true); return }
+    if (item.hasCoordinates && item.lat != null && item.lng != null && map) {
+      map.setView([item.lat, item.lng], Math.max(map.getZoom(), 15), motionOptions(reducedRef.current))
+      void fetchBounds().then(() => setSelected(item.slug))
+      return
+    }
+    // No coordinates / not in this viewport → open the editorial article.
+    router.push(`/places/${item.slug}`)
+    // selectPlace/fetchBounds are stable enough; deps kept minimal intentionally.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [places, router])
+
+  const onSelectStationArea = useCallback((item: StationAreaResultItem) => {
+    setExternalPreview(null); emitMapMetric('result_selected', { source: 'station' }); setQ(item.label); void fetchBounds(category, item.label)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [category])
+
+  const onSelectTopic = useCallback((item: TopicResultItem) => {
+    setExternalPreview(null); emitMapMetric('result_selected', { source: 'topic' })
+    if (item.topicType === 'category') { setCategory(item.code); void fetchBounds(item.code, q) }
+    else { setQ(item.label); void fetchBounds(category, item.label) }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [category, q])
+
+  const onSelectExternal = useCallback((preview: ExternalPreview) => {
+    setSelected(null); setExternalPreview(preview); emitMapMetric('result_selected', { source: 'external' })
+  }, [])
+
+  // Duplicate detection: prefer an existing Chợ Cóc FKO article for this place.
+  const externalDuplicate = useMemo(() => {
+    if (!externalPreview) return null
+    return findInternalDuplicate(
+      { providerPlaceId: externalPreview.providerPlaceId, name: externalPreview.name, formattedAddress: externalPreview.formattedAddress, lat: externalPreview.lat, lng: externalPreview.lng },
+      places.map((p) => ({ slug: p.slug, name: p.name, address: p.area, lat: p.lat, lng: p.lng })),
+    )
+  }, [externalPreview, places])
+
+  const adminHref = useMemo(() => {
+    if (!externalPreview || !(isAdmin && adminSearchEnabled)) return null
+    const token = encodeExternalSeed({
+      providerPlaceId: externalPreview.providerPlaceId, name: externalPreview.name,
+      address: externalPreview.formattedAddress, lat: externalPreview.lat, lng: externalPreview.lng,
+    })
+    return `/admin/places?${SEED_PARAM}=${token}`
+  }, [externalPreview, isAdmin, adminSearchEnabled])
 
   // Drag handle for the mobile sheet (threshold snap; no body-scroll lock).
   const dragStart = useRef<number | null>(null)
@@ -258,7 +405,6 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
   )
 
   const Preview = ({ m }: { m: NearbyPlace }) => {
-    const dir = m.mapUrl || `https://www.google.com/maps/dir/?api=1&destination=${m.lat},${m.lng}`
     const share = async () => {
       const url = `${window.location.origin}/places/${m.slug}`
       try { if (navigator.share) await navigator.share({ title: m.name, url }); else await navigator.clipboard.writeText(url) } catch { /* cancelled */ }
@@ -275,13 +421,13 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
             </div>
             <div className="flex items-center gap-1.5">
               <SavePlaceButton slug={m.slug} name={m.name} />
-              <button type="button" onClick={() => setSelected(null)} aria-label={tpd('close')}
-                className="w-7 h-7 grid place-items-center rounded-full bg-cream text-ink text-[13px] border border-line">✕</button>
+              <button type="button" onClick={() => { setSelected(null); mapEl.current?.focus() }} aria-label={tpd('close')}
+                className="w-8 h-8 grid place-items-center rounded-full bg-cream text-ink text-[13px] border border-line">✕</button>
             </div>
           </div>
           <div className="flex gap-2 mt-3">
             <Link href={`/places/${m.slug}`} className="flex-1 text-center py-1.5 text-[12.5px] font-semibold rounded-xl bg-teal-soft text-teal border border-teal/20 hover:bg-teal hover:text-white transition-all">{t('view_article')}</Link>
-            <a href={dir} target="_blank" rel="noopener nofollow" className="flex-1 text-center py-1.5 text-[12.5px] font-semibold rounded-xl bg-rose-soft text-rose border border-rose/20 hover:bg-rose hover:text-white transition-all">{t('directions')}</a>
+            <button type="button" onClick={() => openDirections(m)} className="flex-1 text-center py-1.5 text-[12.5px] font-semibold rounded-xl bg-rose-soft text-rose border border-rose/20 hover:bg-rose hover:text-white transition-all">{t('directions')}</button>
             <button type="button" onClick={share} aria-label={t('share')} className="px-3 py-1.5 text-[12.5px] font-semibold rounded-xl bg-cream text-ink border border-line">↗</button>
           </div>
         </div>
@@ -312,24 +458,31 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
       <div className="max-w-[760px] mx-auto">
         <p className="text-[13px] text-amber-700 bg-amber-50 border border-amber-200 rounded-xl p-3 mb-3">{t('map_unavailable')}</p>
         <div className="mb-3">{FilterBar}</div>
-        <div className="border border-line rounded-2xl h-[70vh]"><List idPrefix="fb" /></div>
+        <div className="border border-line rounded-2xl h-[70vh]">{List({ idPrefix: 'fb' })}</div>
       </div>
     )
   }
 
   return (
     <div className="relative w-full h-[calc(100vh-var(--header-h,64px)-40px)] min-h-[520px] rounded-2xl overflow-hidden border border-line">
-      {/* Map fills the container */}
-      <div ref={mapEl} className="absolute inset-0 z-0" />
+      {/* Map fills the container. The results list is the non-map alternative. */}
+      <div ref={mapEl} aria-label={t('map_region_label')} className="absolute inset-0 z-0" />
 
       {/* Floating search + filters (top) */}
       <div className="absolute top-3 left-3 right-3 z-[500] flex flex-col gap-2 lg:left-[396px] pointer-events-none">
         <div className="flex gap-2 pointer-events-auto">
-          <input
-            type="search" value={q} onChange={(e) => onQueryChange(e.target.value)}
-            placeholder={t('search_placeholder')} aria-label={t('search_placeholder')}
-            className="flex-1 text-[14px] px-4 py-2.5 rounded-full border border-line bg-paper/95 backdrop-blur shadow-sm focus:outline-none focus:border-rose"
-          />
+          <div className="flex-1">
+            <UnifiedSearchBox
+              externalEnabled={externalEnabled}
+              apiKey={apiKey}
+              locale={locale}
+              placeholder={t('search_placeholder')}
+              onSelectInternal={onSelectInternal}
+              onSelectStationArea={onSelectStationArea}
+              onSelectTopic={onSelectTopic}
+              onSelectExternal={onSelectExternal}
+            />
+          </div>
           <button type="button" onClick={() => setFiltersOpen((v) => !v)} aria-expanded={filtersOpen}
             className="lg:hidden flex-none px-4 rounded-full bg-paper/95 border border-line text-[13px] font-semibold shadow-sm">{t('filters')}</button>
         </div>
@@ -347,8 +500,8 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
 
       {/* Desktop: collapsible left results panel */}
       <div className={`hidden lg:flex absolute top-0 bottom-0 left-0 z-[550] transition-transform ${panelOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        <div className="w-[380px] bg-paper/95 backdrop-blur border-r border-line flex flex-col">
-          <List idPrefix="d" />
+        <div role="region" aria-label={t('list_region_label')} className="w-[380px] bg-paper/95 backdrop-blur border-r border-line flex flex-col">
+          {List({ idPrefix: 'd' })}
         </div>
         <button type="button" onClick={() => setPanelOpen((v) => !v)} aria-label={panelOpen ? t('hide_list') : t('show_list')}
           className="self-center -ml-px h-16 w-6 grid place-items-center bg-paper border border-l-0 border-line rounded-r-lg text-muted">
@@ -357,19 +510,55 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
       </div>
 
       {/* Mobile/tablet: draggable bottom sheet */}
-      <div className={`lg:hidden absolute inset-x-0 bottom-0 z-[550] ${SHEET_H[sheet]} transition-[height] duration-200 bg-paper/97 backdrop-blur border-t border-line rounded-t-2xl shadow-[0_-4px_20px_-8px_rgba(0,0,0,0.25)] flex flex-col`}
+      <div role="region" aria-label={t('list_region_label')}
+        className={`lg:hidden absolute inset-x-0 bottom-0 z-[550] ${SHEET_H[sheet]} transition-[height] duration-200 bg-paper/97 backdrop-blur border-t border-line rounded-t-2xl shadow-[0_-4px_20px_-8px_rgba(0,0,0,0.25)] flex flex-col`}
         style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
         <button type="button" onPointerDown={onHandleDown} onPointerUp={onHandleUp}
-          aria-label={t('toggle_list')} className="flex-none py-2 grid place-items-center cursor-grab touch-none">
+          aria-label={t('toggle_list')} className="flex-none py-3 grid place-items-center cursor-grab touch-none">
           <span className="w-10 h-1.5 rounded-full bg-line" />
         </button>
-        <div className="flex-1 min-h-0"><List idPrefix="m" /></div>
+        <div className="flex-1 min-h-0">{List({ idPrefix: 'm' })}</div>
       </div>
 
-      {/* Selected-place preview */}
-      {sel && (
+      {/* Picking-origin hint (route mode) */}
+      {pickingOrigin && (
+        <div className="absolute top-16 left-1/2 -translate-x-1/2 z-[680] text-[12.5px] font-semibold px-4 py-2 rounded-full bg-blue-600 text-white shadow-lg">
+          {t('pick_origin_hint')}
+        </div>
+      )}
+
+      {/* Directions panel (takes precedence over previews; keeps selection) */}
+      {directionsFor && (
+        <div className="absolute z-[710] inset-x-3 bottom-[120px] lg:inset-x-auto lg:left-[396px] lg:bottom-3 lg:w-[360px]">
+          <DirectionsPanel
+            destination={{ name: directionsFor.name, lat: directionsFor.lat, lng: directionsFor.lng, placeId: null, mapUrl: directionsFor.mapUrl }}
+            routePreviewAvailable={routePreviewAvailable}
+            locale={locale}
+            pickedOrigin={pickedOrigin}
+            onRequestPickOrigin={() => { pickingOriginRef.current = true; setPickingOrigin(true) }}
+            onRoute={setRoutePreview}
+            onClose={closeDirections}
+          />
+        </div>
+      )}
+
+      {/* Selected-place preview (internal Chợ Cóc FKO editorial) */}
+      {sel && !externalPreview && !directionsFor && (
         <div className="absolute z-[700] inset-x-3 bottom-[120px] lg:inset-x-auto lg:left-[396px] lg:bottom-3 lg:w-[340px]">
-          <Preview m={sel} />
+          {Preview({ m: sel })}
+        </div>
+      )}
+
+      {/* External Google place preview (visually distinct; never editorial) */}
+      {externalPreview && !directionsFor && (
+        <div className="absolute z-[700] inset-x-3 bottom-[120px] lg:inset-x-auto lg:left-[396px] lg:bottom-3 lg:w-[340px]">
+          <ExternalPlacePreviewCard
+            preview={externalPreview}
+            duplicate={externalDuplicate}
+            showAdminAction={isAdmin && adminSearchEnabled}
+            adminHref={adminHref}
+            onClose={() => { setExternalPreview(null); mapEl.current?.focus() }}
+          />
         </div>
       )}
     </div>

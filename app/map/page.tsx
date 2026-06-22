@@ -1,10 +1,11 @@
 import loadDynamic from 'next/dynamic'
-import { getTranslations } from 'next-intl/server'
+import { getTranslations, getLocale } from 'next-intl/server'
 import { getAllPlacesFromDb, places as staticPlaces, categoryEmoji, categories, type Place } from '@/lib/places'
 import { isValidLat, isValidLng } from '@/lib/coordinates'
-import { getMapConfig } from '@/lib/maps/config'
+import { getMapConfig, externalSearchAvailable, routePreviewAvailable } from '@/lib/maps/config'
 import { decodeMapView, boundsFromCenter } from '@/lib/maps/mapView'
 import { getPlacesInBounds } from '@/lib/placesNearby'
+import { getCurrentUserAccess } from '@/lib/access-server'
 
 export const dynamic = 'force-dynamic'
 
@@ -51,9 +52,11 @@ export default async function MapPage({ searchParams }: { searchParams: SearchPa
     const center = initialState.center ?? DEFAULT_CENTER
     // SSR an initial viewport so the list has content without JS (and as a
     // list-only fallback). Empty today (no places have coordinates yet).
-    const initialPlaces = await getPlacesInBounds(boundsFromCenter(center, 0.25), {
-      category: initialState.category, q: initialState.q, limit: 200,
-    })
+    const [initialPlaces, locale, access] = await Promise.all([
+      getPlacesInBounds(boundsFromCenter(center, 0.25), { category: initialState.category, q: initialState.q, limit: 200 }),
+      getLocale(),
+      getCurrentUserAccess(),
+    ])
     return (
       <div className="px-3 sm:px-4 py-3">
         <h1 className="sr-only">{t('title')}</h1>
@@ -62,6 +65,12 @@ export default async function MapPage({ searchParams }: { searchParams: SearchPa
           categories={cats}
           initialPlaces={initialPlaces}
           initialState={initialState}
+          externalEnabled={externalSearchAvailable(config)}
+          apiKey={config.browserKey}
+          locale={locale}
+          isAdmin={access.isAdmin}
+          adminSearchEnabled={config.adminPlaceSearchEnabled}
+          routePreviewAvailable={routePreviewAvailable(config)}
         />
       </div>
     )

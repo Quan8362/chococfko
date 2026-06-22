@@ -173,6 +173,57 @@ export function isPublished(row: RawPlaceLocation): boolean {
   return s === null || s === 'approved';
 }
 
+// ── Manual-review list (Phase 11) ──────────────────────────────────────────
+/** Reasons a record needs a HUMAN decision (anomalies — NOT mere data entry). */
+export type ManualReviewReason =
+  | 'invalid_range'         // a coordinate value present but out of range
+  | 'incomplete_pair'       // lat XOR lng (the two disagree)
+  | 'suspicious_zero'       // (0,0) null island
+  | 'outside_japan'         // valid coords outside Japan bounds
+  | 'duplicate_provider_id' // shares a provider place id with another row
+  | 'duplicate_coordinates';// shares exact coordinates with another row
+
+export interface ManualReviewItem {
+  slug: string;
+  reasons: ManualReviewReason[];
+  lat: number | null;
+  lng: number | null;
+}
+
+/**
+ * Build the manual-review list: records with TRUE anomalies that a human must
+ * resolve (never auto-repaired). Missing coordinates is NOT an anomaly — that is
+ * expected data-entry backlog, surfaced separately by `auditPlaceLocations`.
+ * Pure & deterministic.
+ */
+export function buildManualReviewList<T extends RawPlaceLocation>(rows: T[]): ManualReviewItem[] {
+  const dupIdSlugs = new Set<string>();
+  for (const g of findDuplicateProviderPlaceIds(rows)) for (const r of g.rows) if (r.slug) dupIdSlugs.add(r.slug);
+  const dupCoordSlugs = new Set<string>();
+  for (const g of findDuplicateCoordinates(rows)) for (const r of g.rows) if (r.slug) dupCoordSlugs.add(r.slug);
+
+  const out: ManualReviewItem[] = [];
+  for (const r of rows) {
+    const loc = normalizePlaceLocation(r);
+    const reasons: ManualReviewReason[] = [];
+    const latNum = parseCoordinate(r.lat ?? null);
+    const lngNum = parseCoordinate(r.lng ?? null);
+    const anyNonBlank = !isBlankCoordinate(r.lat ?? null) || !isBlankCoordinate(r.lng ?? null);
+
+    if (hasIncompleteCoordinatePair(r)) reasons.push('incomplete_pair');
+    else if (anyNonBlank && !isValidCoordinate(latNum, lngNum)) reasons.push('invalid_range');
+    if (loc.hasValidCoordinates) {
+      if (isSuspiciousCoordinate(loc.lat, loc.lng)) reasons.push('suspicious_zero');
+      if (!isInJapanBounds(loc.lat, loc.lng)) reasons.push('outside_japan');
+    }
+    if (r.slug && dupIdSlugs.has(r.slug)) reasons.push('duplicate_provider_id');
+    if (r.slug && dupCoordSlugs.has(r.slug)) reasons.push('duplicate_coordinates');
+
+    if (reasons.length) out.push({ slug: r.slug ?? '(unknown)', reasons, lat: loc.lat, lng: loc.lng });
+  }
+  return out.sort((a, b) => a.slug.localeCompare(b.slug));
+}
+
 /** Compute the full audit tally over a set of rows. Pure & deterministic. */
 export function auditPlaceLocations(rows: RawPlaceLocation[]): LocationAuditCounts {
   const c: LocationAuditCounts = {

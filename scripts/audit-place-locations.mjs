@@ -13,7 +13,7 @@ import { readFileSync } from 'node:fs'
 import { createClient } from '@supabase/supabase-js'
 import {
   auditPlaceLocations, findDuplicateProviderPlaceIds, findDuplicateCoordinates,
-  normalizePlaceLocation, isSuspiciousCoordinate,
+  normalizePlaceLocation, isSuspiciousCoordinate, buildManualReviewList,
 } from '../lib/placeLocation.ts'
 import { isValidCoordinate, isInJapanBounds } from '../lib/coordinates.ts'
 
@@ -101,6 +101,23 @@ async function main() {
     console.log('\n  Out-of-range coordinate rows:')
     for (const r of badRange) console.log(`     - ${r.slug}: ${r.lat},${r.lng}`)
   }
+
+  // Manual-review list — TRUE anomalies needing a human decision (never auto-fixed).
+  const review = buildManualReviewList(rows)
+  console.log('\n  ── MANUAL-REVIEW LIST (anomalies, human decision required) ──')
+  if (!review.length) {
+    console.log('     none — no records require manual review ✓')
+  } else {
+    for (const r of review) console.log(`     - ${r.slug} [${r.reasons.join(', ')}] ${r.lat ?? '—'},${r.lng ?? '—'}`)
+  }
+
+  // Data-entry backlog (expected, NOT an anomaly): published rows lacking coords,
+  // address-bearing ones first (geocodable / quickest to place via the picker).
+  const needsCoords = rows.filter((r) => !normalizePlaceLocation(r).hasValidCoordinates && (r.status === null || r.status === 'approved'))
+  const addressReady = needsCoords.filter((r) => normalizePlaceLocation(r).hasAddress)
+  console.log('\n  ── DATA-ENTRY BACKLOG (needs coordinates; not an anomaly) ──')
+  console.log(`     published without coordinates: ${needsCoords.length} (address-ready first: ${addressReady.length})`)
+  for (const r of addressReady) console.log(`     • ${r.slug}`)
 
   console.log('\nDone (no data modified).')
 }

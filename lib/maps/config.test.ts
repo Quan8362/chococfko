@@ -2,7 +2,7 @@
 // Run with:  node --test lib/maps/config.test.ts
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { resolveMapConfig, shouldLoadGoogleMaps, parseFlag, adminGoogleAvailable } from './config.ts'
+import { resolveMapConfig, shouldLoadGoogleMaps, parseFlag, adminGoogleAvailable, externalSearchAvailable, routePreviewAvailable } from './config.ts'
 
 const KEY = 'AIza-browser-key'
 
@@ -105,6 +105,48 @@ test('adminGoogleAvailable: needs enabled + key + admin flag (not provider)', ()
   assert.equal(adminGoogleAvailable(resolveMapConfig({
     NEXT_PUBLIC_GOOGLE_MAPS_ENABLED: 'true', NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_KEY: KEY,
   })), false)
+})
+
+// External SEARCH availability — Phase 7. Independent of the base-map provider,
+// but still requires the master switch + key + external-POI flag (all default off).
+test('externalSearchAvailable: needs enabled + key + external flag (not provider)', () => {
+  // default → unavailable (internal-only search; external Google OFF)
+  assert.equal(externalSearchAvailable(resolveMapConfig({})), false)
+  // enabled + key + external flag, even with provider=leaflet → available
+  const ok = resolveMapConfig({
+    NEXT_PUBLIC_MAP_PROVIDER: 'leaflet', NEXT_PUBLIC_GOOGLE_MAPS_ENABLED: 'true',
+    NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_KEY: KEY, NEXT_PUBLIC_GOOGLE_EXTERNAL_POI_ENABLED: 'true',
+  })
+  assert.equal(ok.externalPoiFlag, true)
+  assert.equal(externalSearchAvailable(ok), true)
+  // base-map POI (provider-gated) stays OFF under leaflet even though search is available
+  assert.equal(ok.externalPoiEnabled, false)
+  // master switch off → unavailable
+  assert.equal(externalSearchAvailable(resolveMapConfig({
+    NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_KEY: KEY, NEXT_PUBLIC_GOOGLE_EXTERNAL_POI_ENABLED: 'true',
+  })), false)
+  // external flag off → unavailable even with key + master switch
+  assert.equal(externalSearchAvailable(resolveMapConfig({
+    NEXT_PUBLIC_GOOGLE_MAPS_ENABLED: 'true', NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_KEY: KEY,
+  })), false)
+})
+
+// Route preview availability — Phase 8. Independent of the base-map provider; the
+// server route additionally needs the server-only key (not in this client config).
+test('routePreviewAvailable: needs master switch + route flag (not provider)', () => {
+  // default → unavailable (only "Open in Google Maps" by default)
+  assert.equal(routePreviewAvailable(resolveMapConfig({})), false)
+  // master switch + route flag, even with provider=leaflet → available (client gate)
+  const ok = resolveMapConfig({
+    NEXT_PUBLIC_MAP_PROVIDER: 'leaflet', NEXT_PUBLIC_GOOGLE_MAPS_ENABLED: 'true',
+    NEXT_PUBLIC_GOOGLE_ROUTE_PREVIEW_ENABLED: 'true',
+  })
+  assert.equal(ok.routePreviewFlag, true)
+  assert.equal(routePreviewAvailable(ok), true)
+  // base-map route preview (provider-gated) stays OFF under leaflet
+  assert.equal(ok.routePreviewEnabled, false)
+  // master switch off → unavailable even with the flag
+  assert.equal(routePreviewAvailable(resolveMapConfig({ NEXT_PUBLIC_GOOGLE_ROUTE_PREVIEW_ENABLED: 'true' })), false)
 })
 
 // Flag parsing accepts common truthy spellings; everything else is false.

@@ -143,7 +143,7 @@ export default async function Home() {
               text + stats; appears between CTA and stats on mobile. A gentle
               saturate/contrast lift counters the pastel fade; the very light rose
               shadow grounds the transparent PNG without a box or halo. */}
-          <div className="lg:col-start-2 lg:row-start-1 lg:row-span-2 lg:self-center mt-6 sm:mt-7 lg:mt-0 mx-auto lg:mx-0 w-full max-w-[440px] sm:max-w-[560px] lg:max-w-none pointer-events-none select-none">
+          <div className="lg:col-start-2 lg:row-start-1 lg:row-span-2 lg:self-center mt-2 sm:mt-4 lg:mt-0 mx-auto lg:mx-0 w-full max-w-[440px] sm:max-w-[560px] lg:max-w-none pointer-events-none select-none">
             <Image
               src="/bg_web.png"
               alt={t("hero_map_alt")}
@@ -151,7 +151,11 @@ export default async function Home() {
               height={941}
               priority
               sizes="(min-width: 1280px) 56vw, (min-width: 1024px) 52vw, (min-width: 640px) 560px, 88vw"
-              className="w-full h-auto saturate-[1.08] contrast-[1.02] drop-shadow-[0_16px_36px_rgba(194,24,91,0.07)]"
+              /* On mobile, crop the near-empty transparent top of the PNG (rows
+                 above Hokkaido) so the visible map starts right under the CTA;
+                 desktop keeps the full intrinsic image. object-bottom keeps the
+                 full silhouette (Hokkaido→Okinawa) in view. */
+              className="w-full aspect-[1508/886] object-cover object-bottom lg:aspect-auto lg:h-auto lg:object-contain saturate-[1.08] contrast-[1.02] drop-shadow-[0_16px_36px_rgba(194,24,91,0.07)]"
             />
           </div>
 

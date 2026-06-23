@@ -192,7 +192,7 @@ export default function ExploreSearch({
   return (
     <>
       {/* ── LAYER 1 — SECTION INTRO ─────────────────────────── */}
-      <div className="max-w-[1240px] mx-auto px-6 mt-3 sm:mt-5 mb-3">
+      <div className="max-w-[1240px] mx-auto px-6 mt-8 sm:mt-10 mb-3">
         <h2 className="font-serif font-bold text-[22px] sm:text-[26px] text-ink">{te("intent_heading")}</h2>
         <p className="text-[13.5px] text-muted mt-1">{te("discover_sub")}</p>
       </div>

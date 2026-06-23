@@ -86,103 +86,62 @@ export default async function Home() {
   return (
     <>
       {/* ── HERO ─────────────────────────────────────────────── */}
-      <section className="relative pt-10 sm:pt-12 lg:pt-14 pb-6 sm:pb-8 overflow-hidden">
-        {/* Warm ambient glow — keeps the editorial identity without imagery. */}
-        <div className="absolute -top-[160px] -right-[120px] w-[440px] h-[440px] rounded-full bg-[radial-gradient(circle_at_35%_35%,rgba(194,24,91,0.09),transparent_60%)] pointer-events-none" aria-hidden="true" />
-        <div className="absolute top-[42%] -left-[90px] w-[340px] h-[340px] rounded-full bg-[radial-gradient(circle_at_50%_50%,rgba(31,143,166,0.07),transparent_65%)] pointer-events-none" aria-hidden="true" />
-
-        {/* Editorial "journey across places" motif: a faint dashed route threading
-            a few location pins. Decorative only — desktop, low opacity, no JS. */}
-        <svg
-          aria-hidden="true"
-          viewBox="0 0 320 220"
-          fill="none"
-          className="hidden xl:block absolute top-[64px] right-[10px] 2xl:right-[44px] w-[210px] h-[150px] text-rose pointer-events-none motion-safe:animate-fadeup"
-        >
-          <path d="M24 188 C 70 150, 60 96, 120 92 S 232 86, 252 30" stroke="currentColor" strokeOpacity="0.18" strokeWidth="2" strokeLinecap="round" strokeDasharray="2 9" />
-          <g className="text-rose">
-            <circle cx="24" cy="188" r="5" fill="currentColor" fillOpacity="0.22" />
-            <circle cx="120" cy="92" r="5" fill="currentColor" fillOpacity="0.28" />
-          </g>
-          <path d="M252 30 c-9 0-16 7-16 16 0 11 16 25 16 25s16-14 16-25c0-9-7-16-16-16z" fill="currentColor" fillOpacity="0.16" />
-          <circle cx="252" cy="46" r="5.5" fill="#faf4ea" />
-        </svg>
-        <svg
-          aria-hidden="true"
-          viewBox="0 0 160 140"
-          fill="none"
-          className="hidden xl:block absolute bottom-[6px] left-[10px] 2xl:left-[44px] w-[120px] h-[104px] text-teal pointer-events-none motion-safe:animate-fadeup"
-        >
-          <path d="M18 18 C 60 40, 50 92, 132 110" stroke="currentColor" strokeOpacity="0.16" strokeWidth="2" strokeLinecap="round" strokeDasharray="2 9" />
-          <circle cx="18" cy="18" r="4.5" fill="currentColor" fillOpacity="0.22" />
-          <circle cx="132" cy="110" r="4.5" fill="currentColor" fillOpacity="0.24" />
-        </svg>
+      <section className="relative pt-[72px] pb-10 overflow-hidden">
+        <div className="absolute -top-[180px] -right-[140px] w-[480px] h-[480px] rounded-full bg-[radial-gradient(circle_at_35%_35%,rgba(194,24,91,0.09),transparent_60%)] pointer-events-none" />
+        <div className="absolute top-[40%] -left-[100px] w-[360px] h-[360px] rounded-full bg-[radial-gradient(circle_at_50%_50%,rgba(31,143,166,0.07),transparent_65%)] pointer-events-none" />
 
         <div className="max-w-[1240px] mx-auto px-5 sm:px-7 relative z-[1]">
-          <div className="text-center max-w-[760px] mx-auto animate-fadeup">
-            <span className="inline-flex items-center gap-2 text-[11.5px] font-semibold tracking-[2.5px] uppercase text-rose mb-4 sm:mb-5 before:content-[''] before:w-6 before:h-px before:bg-rose/60 after:content-[''] after:w-6 after:h-px after:bg-rose/60">
+          <div className="text-center max-w-[720px] mx-auto animate-fadeup">
+            <span className="inline-flex items-center gap-2 text-[11.5px] font-semibold tracking-[2.5px] uppercase text-rose mb-6 before:content-[''] before:w-6 before:h-px before:bg-rose/60 after:content-[''] after:w-6 after:h-px after:bg-rose/60">
               {t("label")}
             </span>
 
-            {/* Headline wrap is locale-safe: the highlighted accent always begins a
-                new line (the translations split at the natural clause break), so no
-                language produces an orphaned final word. text-balance tidies the
-                clause itself. */}
-            <h1 className="font-serif font-black text-[clamp(31px,4.4vw,52px)] leading-[1.14] tracking-[-0.5px] mb-4 sm:mb-5 text-ink text-balance max-w-[820px] mx-auto">
-              <span className="block">{t("heading")}</span>
-              <em className="not-italic font-semibold text-rose">{t("heading_accent")}</em>
-              <span aria-hidden="true">.</span>
+            <h1 className="font-serif font-black text-[clamp(34px,4.8vw,60px)] leading-[1.1] tracking-[-0.5px] mb-5 text-ink">
+              {t("heading")}{" "}
+              <em className="italic font-semibold text-rose not-italic">{t("heading_accent")}</em>.
             </h1>
 
-            <p className="text-[16px] sm:text-[17px] text-muted max-w-[500px] mx-auto mb-7 leading-[1.65] whitespace-pre-line text-pretty">
+            <p className="text-[17px] text-muted max-w-[520px] mx-auto mb-8 leading-[1.7] whitespace-pre-line">
               {t("description")}
             </p>
 
-            {/* CTA hierarchy: primary (filled) · secondary (quiet outline) ·
-                tertiary (ghost). Stacks on phones so the primary stays obvious. */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2.5 sm:gap-3 mb-7 sm:mb-8">
+            {/* CTA buttons — single "Đăng địa điểm" at hero level */}
+            <div className="flex gap-3 justify-center flex-wrap mb-12">
               <Link
                 href="#sec-landmark"
-                className="group inline-flex items-center justify-center gap-2 font-semibold text-[14.5px] px-7 py-3.5 rounded-full bg-rose text-white shadow-[0_8px_24px_-8px_rgba(194,24,91,0.55)] hover:bg-rose-deep hover:-translate-y-0.5 hover:shadow-[0_12px_30px_-8px_rgba(194,24,91,0.55)] active:translate-y-0 active:shadow-[0_4px_14px_-8px_rgba(194,24,91,0.55)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose/45 focus-visible:ring-offset-2 focus-visible:ring-offset-cream transition-all duration-200"
+                className="font-semibold text-[14px] px-6 py-3 rounded-full bg-rose text-white shadow-[0_6px_20px_-6px_rgba(194,24,91,0.5)] hover:bg-rose-deep hover:-translate-y-0.5 transition-all"
               >
                 {t("cta_explore")}
-                <svg className="w-4 h-4 motion-safe:group-hover:translate-x-0.5 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-                </svg>
               </Link>
               <Link
                 href="/community"
-                className="inline-flex items-center justify-center font-semibold text-[14.5px] px-6 py-3.5 rounded-full border border-line bg-paper text-ink hover:border-ink/30 hover:bg-cream active:bg-cream focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/20 focus-visible:ring-offset-2 focus-visible:ring-offset-cream transition-all duration-200"
+                className="font-semibold text-[14px] px-6 py-3 rounded-full border border-[#c8b8a8] text-[#5c4d44] hover:border-ink hover:bg-ink hover:text-cream transition-all"
               >
                 {t("cta_community")}
               </Link>
               <Link
                 href="/places/new"
-                className="inline-flex items-center justify-center font-medium text-[14px] px-4 py-3 rounded-full text-muted hover:text-rose hover:bg-rose-soft/60 active:bg-rose-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose/30 focus-visible:ring-offset-2 focus-visible:ring-offset-cream transition-colors duration-200"
+                className="font-semibold text-[14px] px-6 py-3 rounded-full border border-rose/50 text-rose bg-rose-soft hover:bg-rose hover:text-white hover:border-rose transition-all"
               >
                 {t("write_place_cta")}
               </Link>
             </div>
 
-            {/* Lightweight social proof — sits close to the CTAs, no heavy card. */}
-            <div className="inline-flex flex-wrap items-center justify-center gap-x-5 gap-y-1.5 sm:gap-x-7 max-w-full px-5 sm:px-6 py-2.5 rounded-2xl bg-paper/70 border border-line/70">
+            {/* Stats — wraps and shrinks on narrow phones (no fixed-width row). */}
+            <div className="inline-flex flex-wrap items-center justify-center gap-x-6 gap-y-2 sm:gap-8 max-w-full px-5 sm:px-8 py-4 rounded-2xl bg-paper border border-line shadow-card">
               <div className="text-center">
-                <b className="font-serif text-[23px] font-bold block leading-none text-rose-deep">{allPlaces.length}</b>
-                <span className="text-[11.5px] text-muted mt-0.5 block">{t("stat_places")}</span>
+                <b className="font-serif text-[28px] font-bold block leading-none text-rose-deep">{allPlaces.length}</b>
+                <span className="text-[12px] text-muted mt-1 block">{t("stat_places")}</span>
               </div>
-              <div className="hidden sm:block w-px h-7 bg-line" aria-hidden="true" />
+              <div className="hidden sm:block w-px h-8 bg-line" />
               <div className="text-center">
-                <b className="font-serif text-[23px] font-bold block leading-none text-rose-deep">{visibleCategories.length}</b>
-                <span className="text-[11.5px] text-muted mt-0.5 block">{t("stat_categories")}</span>
+                <b className="font-serif text-[28px] font-bold block leading-none text-rose-deep">{visibleCategories.length}</b>
+                <span className="text-[12px] text-muted mt-1 block">{t("stat_categories")}</span>
               </div>
-              <div className="hidden sm:block w-px h-7 bg-line" aria-hidden="true" />
+              <div className="hidden sm:block w-px h-8 bg-line" />
               <div className="text-center">
-                <span className="flex items-center justify-center h-[23px] text-rose-deep">
-                  <svg className="w-[22px] h-[22px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-1.13a4 4 0 10-4-4 4 4 0 004 4zm6-4a3 3 0 11-3-3" />
-                  </svg>
-                </span>
-                <span className="text-[11.5px] text-muted mt-0.5 block">{t("community_open")}</span>
+                <b className="font-serif text-[28px] font-bold block leading-none text-rose-deep">∞</b>
+                <span className="text-[12px] text-muted mt-1 block">{t("stat_members")}</span>
               </div>
             </div>
           </div>

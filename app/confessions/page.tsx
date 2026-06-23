@@ -6,6 +6,7 @@ import { validateRequestedScope, canAccessScope } from '@/lib/access'
 import ScopeTabs from '@/components/access/ScopeTabs'
 import InternalNotice from '@/components/access/InternalNotice'
 import AnonAvatar from '@/components/AnonAvatar'
+import UserAvatar from '@/components/UserAvatar'
 import { generateAnonId } from '@/lib/anon'
 import { stripHtml } from '@/lib/sanitize'
 
@@ -42,9 +43,11 @@ function ConfessionCard({ confession, t }: { confession: Confession; t: (key: st
           {confession.is_anonymous ? (
             <AnonAvatar size={26} />
           ) : (
-            <div className="w-[26px] h-[26px] rounded-full bg-gradient-to-br from-rose/40 to-teal/40 grid place-items-center flex-none text-[10px] font-bold text-ink">
-              {(confession.visible_author_name ?? '?')[0].toUpperCase()}
-            </div>
+            <UserAvatar
+              src={confession.visible_author_avatar}
+              name={confession.visible_author_name}
+              size={26}
+            />
           )}
           <span className="text-[12.5px] font-semibold text-ink/80">{authorName}</span>
           <span className="text-muted/50 text-[11px]">·</span>

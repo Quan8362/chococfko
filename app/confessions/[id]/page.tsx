@@ -8,6 +8,7 @@ import { getCurrentUserAccess } from '@/lib/access-server'
 import { canAccessScope } from '@/lib/access'
 import AccessDenied from '@/components/access/AccessDenied'
 import AnonAvatar from '@/components/AnonAvatar'
+import UserAvatar from '@/components/UserAvatar'
 import AuthorLink from '@/components/AuthorLink'
 import { generateAnonId } from '@/lib/anon'
 import ConfessionComments from './ConfessionComments'
@@ -113,9 +114,11 @@ export default async function ConfessionDetailPage({ params }: { params: { id: s
             {confession.is_anonymous ? (
               <AnonAvatar size={36} />
             ) : (
-              <div className="w-9 h-9 rounded-full flex-none grid place-items-center border bg-gradient-to-br from-teal/20 to-rose/10 border-line text-[13px] font-bold text-ink/60">
-                {displayName[0]?.toUpperCase() ?? '?'}
-              </div>
+              <UserAvatar
+                src={confession.visible_author_avatar}
+                name={confession.visible_author_name}
+                size={36}
+              />
             )}
 
             <div className="flex flex-col leading-tight">

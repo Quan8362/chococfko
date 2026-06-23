@@ -5,7 +5,24 @@ import { useEffect, useRef, useState } from "react";
 
 export default function HeroMap({ alt }: { alt: string }) {
   const ref = useRef<HTMLDivElement>(null);
+  const floatRef = useRef<HTMLDivElement>(null);
   const [y, setY] = useState(0);
+
+  // Freeze the idle float animation while the tab is hidden. Otherwise its
+  // timeline keeps advancing in the background (Chrome doesn't composite hidden
+  // tabs but still ticks the animation clock), so on refocus the map visibly
+  // jumps to the new timeline position. Pausing holds currentTime fixed, so the
+  // painted frame stays valid and the float resumes seamlessly.
+  useEffect(() => {
+    const el = floatRef.current;
+    if (!el) return;
+    const onVisibility = () => {
+      el.style.animationPlayState = document.hidden ? "paused" : "running";
+    };
+    onVisibility();
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => document.removeEventListener("visibilitychange", onVisibility);
+  }, []);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -60,9 +77,9 @@ export default function HeroMap({ alt }: { alt: string }) {
         aria-hidden
         className="hidden lg:block absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 -z-[1] w-[126%] h-[120%] blur-[10px] bg-[radial-gradient(ellipse_56%_50%_at_58%_49%,rgba(194,24,91,0.22),rgba(194,24,91,0.12)_36%,rgba(194,24,91,0.04)_58%,transparent_74%)]"
       />
-      <div className="animate-float origin-center relative">
+      <div ref={floatRef} className="animate-float origin-center relative">
         <Image
-          src="/bg_web.png"
+          src="/bg_web.png?v=2"
           alt={alt}
           width={1508}
           height={941}

@@ -292,7 +292,10 @@ export default function MapExplorer({ defaultCenter, defaultRadius, categories, 
           </div>
         )}
         {(view === 'map' || view === 'split') && (
-          <div className="relative">
+          // `isolate` confines the map's high-z overlay children (z-[1100]) to a
+          // local stacking context so they never paint above the global header /
+          // nav dropdown (header is z-[100] at the root).
+          <div className="relative isolate">
             <div ref={mapEl} className="w-full h-[60vh] sm:h-[72vh] rounded-2xl overflow-hidden border border-line z-0" />
             {moved && (
               <button type="button" onClick={searchThisArea}

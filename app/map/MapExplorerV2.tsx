@@ -588,7 +588,12 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
   }
 
   return (
-    <div className="map-v2-shell relative w-full max-w-full h-[calc(100dvh-var(--header-h,68px)-40px)] min-h-[480px] rounded-2xl overflow-hidden border border-line">
+    // `isolate` (isolation:isolate) confines the floating overlays below (search
+    // bar z-[500], sheet/preview z-[550]+) to a LOCAL stacking context so they
+    // never paint above the global header / nav dropdown, which sits at z-[100]
+    // in the root stacking context. Without it those high z-indices leak to the
+    // root and cover the "Khám phá" dropdown.
+    <div className="map-v2-shell relative isolate w-full max-w-full h-[calc(100dvh-var(--header-h,68px)-40px)] min-h-[480px] rounded-2xl overflow-hidden border border-line">
       {/* Map fills the container. The results list is the non-map alternative. */}
       <div ref={mapEl} aria-label={t('map_region_label')} className="absolute inset-0 z-0" />
 

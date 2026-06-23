@@ -91,7 +91,7 @@ export default async function Home() {
         <div className="absolute -top-[180px] -right-[140px] w-[480px] h-[480px] rounded-full bg-[radial-gradient(circle_at_35%_35%,rgba(194,24,91,0.09),transparent_60%)] pointer-events-none" />
         <div className="absolute top-[40%] -left-[100px] w-[360px] h-[360px] rounded-full bg-[radial-gradient(circle_at_50%_50%,rgba(31,143,166,0.07),transparent_65%)] pointer-events-none" />
 
-        <div className="max-w-[1240px] mx-auto px-5 sm:px-7 relative z-[1] lg:flex lg:items-center lg:gap-10 xl:gap-14">
+        <div className="max-w-[1320px] mx-auto px-5 sm:px-7 relative z-[1] lg:flex lg:items-center lg:gap-10 xl:gap-12">
           <div className="text-center lg:text-left max-w-[720px] mx-auto lg:mx-0 lg:max-w-none lg:flex-1 animate-fadeup">
             <span className="inline-flex items-center gap-2 text-[11.5px] font-semibold tracking-[2.5px] uppercase text-rose mb-6 before:content-[''] before:w-6 before:h-px before:bg-rose/60 after:content-[''] after:w-6 after:h-px after:bg-rose/60">
               {t("label")}
@@ -152,7 +152,7 @@ export default async function Home() {
               the right side and lifted with a soft rose shadow. */}
           <div
             aria-hidden="true"
-            className="hidden lg:block lg:flex-none w-[clamp(400px,46%,620px)] xl:w-[clamp(520px,50%,760px)] pointer-events-none select-none"
+            className="hidden lg:block lg:flex-none w-[clamp(440px,50%,680px)] xl:w-[clamp(580px,56%,880px)] pointer-events-none select-none"
           >
             <Image
               src="/bg_web.png"
@@ -160,8 +160,8 @@ export default async function Home() {
               width={1508}
               height={941}
               priority
-              sizes="(min-width: 1280px) 50vw, (min-width: 1024px) 46vw, 0px"
-              className="w-full h-auto drop-shadow-[0_22px_48px_rgba(194,24,91,0.13)]"
+              sizes="(min-width: 1280px) 56vw, (min-width: 1024px) 50vw, 0px"
+              className="w-full h-auto drop-shadow-[0_16px_34px_rgba(194,24,91,0.06)]"
             />
           </div>
         </div>

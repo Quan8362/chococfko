@@ -107,10 +107,10 @@ export default async function PlacesPage({ searchParams }: { searchParams: Searc
   };
 
   return (
-    <div className="max-w-[1240px] mx-auto px-5 sm:px-6 py-6 sm:py-10 pb-20">
+    <div className="max-w-[1240px] mx-auto px-5 sm:px-6 pt-5 sm:pt-6 pb-20">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdString(jsonLd) }} />
-      <header className="mb-5 sm:mb-7 max-w-[680px]">
-        <h1 className="font-serif font-bold text-[clamp(24px,4vw,40px)] leading-tight tracking-[-0.4px] text-ink mb-2 sm:mb-2.5">
+      <header className="mb-4 sm:mb-5 max-w-[680px]">
+        <h1 className="font-serif font-bold text-[clamp(24px,4vw,38px)] leading-tight tracking-[-0.4px] text-ink mb-1.5 sm:mb-2">
           {t("places")}
         </h1>
         <p className="text-[14px] sm:text-[15px] text-muted leading-relaxed text-pretty">{t("places_description")}</p>

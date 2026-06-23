@@ -276,13 +276,22 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
         map.panTo([m.lat, m.lng], motionOptions(reducedRef.current))
       }
     }
-    if (fromList) return
-    // marker → scroll the matching list row into view (non-disruptive)
-    requestAnimationFrame(() => {
-      listRefs.current.get(slug)?.scrollIntoView({ block: 'nearest', behavior: scrollBehavior(reducedRef.current) })
-    })
-    if (sheet === 'collapsed') setSheet('half')
+    // Marker-driven selection: open the sheet enough to reveal the (now expanded)
+    // row. Row scroll-into-view is handled by the `selected` effect below.
+    if (!fromList && sheet === 'collapsed') setSheet('half')
   }, [places, sheet])
+
+  // When the selection changes, gently bring its row into view inside the
+  // scroll container. On mobile that row has just expanded inline, so this keeps
+  // the expanded card fully visible near the bottom of the sheet without ever
+  // jumping the whole page. `block: 'nearest'` is a no-op when already visible.
+  useEffect(() => {
+    if (!selected) return
+    const id = requestAnimationFrame(() => {
+      listRefs.current.get(selected)?.scrollIntoView({ block: 'nearest', behavior: scrollBehavior(reducedRef.current) })
+    })
+    return () => cancelAnimationFrame(id)
+  }, [selected])
 
   // ── Route preview rendering (origin/dest markers + polyline + fit bounds) ──
   useEffect(() => {
@@ -448,8 +457,46 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
 
   const sel = displayed.find((m) => m.slug === selected) ?? places.find((m) => m.slug === selected) ?? null
 
+  // `inline` = rendered inside the results list (mobile inline expansion): a
+  // calmer shadow + selected-state border so it reads as part of the list rather
+  // than a detached floating layer. Default = floating preview (desktop).
+  const Preview = ({ m, inline = false }: { m: NearbyPlace; inline?: boolean }) => {
+    const share = async () => {
+      const url = `${window.location.origin}/places/${m.slug}`
+      try { if (navigator.share) await navigator.share({ title: m.name, url }); else await navigator.clipboard.writeText(url) } catch { /* cancelled */ }
+    }
+    return (
+      <div className={`bg-paper border rounded-2xl overflow-hidden ${inline ? 'border-rose ring-1 ring-rose/25 shadow-sm motion-safe:animate-fadein' : 'border-line shadow-card-hover'}`}>
+        {m.img && <div className="h-[120px] bg-cover bg-center" style={{ backgroundImage: `url(${m.img})` }} aria-hidden />}
+        <div className="p-3.5">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <h3 className="font-serif font-bold text-[16px] text-ink leading-snug">{m.name}</h3>
+              <p className="text-[11.5px] text-teal font-semibold uppercase tracking-[0.4px]">{m.categoryLabel || m.category}</p>
+              <p className="text-[12.5px] text-muted mt-0.5">{m.area}{m.nearestStation ? ` · 🚉 ${m.nearestStation}` : ''}</p>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <SavePlaceButton slug={m.slug} name={m.name} />
+              <button type="button" onClick={() => { setSelected(null); mapEl.current?.focus() }} aria-label={tpd('close')}
+                className="w-8 h-8 grid place-items-center rounded-full bg-cream text-ink text-[13px] border border-line">✕</button>
+            </div>
+          </div>
+          <div className="flex gap-2 mt-3">
+            <Link href={`/places/${m.slug}`} className="flex-1 text-center py-1.5 text-[12.5px] font-semibold rounded-xl bg-teal-soft text-teal border border-teal/20 hover:bg-teal hover:text-white transition-all">{t('view_article')}</Link>
+            <button type="button" onClick={() => openDirections(m)} className="flex-1 text-center py-1.5 text-[12.5px] font-semibold rounded-xl bg-rose-soft text-rose border border-rose/20 hover:bg-rose hover:text-white transition-all">{t('directions')}</button>
+            <button type="button" onClick={share} aria-label={t('share')} className="px-3 py-1.5 text-[12.5px] font-semibold rounded-xl bg-cream text-ink border border-line">↗</button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   // ── shared list ──
-  const List = ({ idPrefix }: { idPrefix: string }) => (
+  // `inlineExpand` (mobile bottom sheet only): the selected row expands IN PLACE
+  // inside the scrollable list — it stays in normal document flow so following
+  // cards move below it. Desktop keeps the compact rows and shows the selected
+  // place in the floating preview beside the map instead.
+  const List = ({ idPrefix, inlineExpand = false }: { idPrefix: string; inlineExpand?: boolean }) => (
     <div className="h-full flex flex-col">
       {/* Header = result info ONLY. The single "search this area" action lives on
           the map (floating button); it is never duplicated here. */}
@@ -485,9 +532,18 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
           </li>
         ) : displayed.map((m) => {
           const isSel = m.slug === selected
+          // Inline-expanded selected row (mobile): full detail card rendered in
+          // normal list flow — never a floating overlay above other results.
+          if (inlineExpand && isSel) {
+            return (
+              <li key={m.slug} ref={(el) => { if (el) listRefs.current.set(m.slug, el); else listRefs.current.delete(m.slug) }}>
+                {Preview({ m, inline: true })}
+              </li>
+            )
+          }
           return (
             <li key={m.slug} ref={(el) => { if (el) listRefs.current.set(m.slug, el); else listRefs.current.delete(m.slug) }}>
-              <button type="button" id={`${idPrefix}-${m.slug}`} aria-pressed={isSel} onClick={() => selectPlace(m.slug, true)}
+              <button type="button" id={`${idPrefix}-${m.slug}`} aria-pressed={isSel} aria-expanded={inlineExpand ? isSel : undefined} onClick={() => selectPlace(m.slug, true)}
                 className={`w-full text-left flex gap-3 p-2.5 rounded-2xl border transition-colors ${isSel ? 'border-rose bg-rose-soft' : 'border-line bg-paper hover:border-rose/40'}`}>
                 {m.img && <span className="flex-none w-[64px] h-[64px] rounded-xl bg-cover bg-center" style={{ backgroundImage: `url(${m.img})` }} aria-hidden />}
                 <span className="min-w-0">
@@ -502,37 +558,6 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
       </ul>
     </div>
   )
-
-  const Preview = ({ m }: { m: NearbyPlace }) => {
-    const share = async () => {
-      const url = `${window.location.origin}/places/${m.slug}`
-      try { if (navigator.share) await navigator.share({ title: m.name, url }); else await navigator.clipboard.writeText(url) } catch { /* cancelled */ }
-    }
-    return (
-      <div className="bg-paper border border-line rounded-2xl shadow-card-hover overflow-hidden">
-        {m.img && <div className="h-[120px] bg-cover bg-center" style={{ backgroundImage: `url(${m.img})` }} aria-hidden />}
-        <div className="p-3.5">
-          <div className="flex items-start justify-between gap-2">
-            <div className="min-w-0">
-              <h3 className="font-serif font-bold text-[16px] text-ink leading-snug">{m.name}</h3>
-              <p className="text-[11.5px] text-teal font-semibold uppercase tracking-[0.4px]">{m.categoryLabel || m.category}</p>
-              <p className="text-[12.5px] text-muted mt-0.5">{m.area}{m.nearestStation ? ` · 🚉 ${m.nearestStation}` : ''}</p>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <SavePlaceButton slug={m.slug} name={m.name} />
-              <button type="button" onClick={() => { setSelected(null); mapEl.current?.focus() }} aria-label={tpd('close')}
-                className="w-8 h-8 grid place-items-center rounded-full bg-cream text-ink text-[13px] border border-line">✕</button>
-            </div>
-          </div>
-          <div className="flex gap-2 mt-3">
-            <Link href={`/places/${m.slug}`} className="flex-1 text-center py-1.5 text-[12.5px] font-semibold rounded-xl bg-teal-soft text-teal border border-teal/20 hover:bg-teal hover:text-white transition-all">{t('view_article')}</Link>
-            <button type="button" onClick={() => openDirections(m)} className="flex-1 text-center py-1.5 text-[12.5px] font-semibold rounded-xl bg-rose-soft text-rose border border-rose/20 hover:bg-rose hover:text-white transition-all">{t('directions')}</button>
-            <button type="button" onClick={share} aria-label={t('share')} className="px-3 py-1.5 text-[12.5px] font-semibold rounded-xl bg-cream text-ink border border-line">↗</button>
-          </div>
-        </div>
-      </div>
-    )
-  }
 
   const FilterBar = (
     <div className="flex flex-wrap items-center gap-2">
@@ -633,7 +658,7 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
           aria-label={t('toggle_list')} className="flex-none py-3 grid place-items-center cursor-grab touch-none">
           <span className="w-10 h-1.5 rounded-full bg-line" />
         </button>
-        <div className="flex-1 min-h-0">{List({ idPrefix: 'm' })}</div>
+        <div className="flex-1 min-h-0">{List({ idPrefix: 'm', inlineExpand: true })}</div>
       </div>
 
       {/* Picking-origin hint (route mode) */}
@@ -658,9 +683,12 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
         </div>
       )}
 
-      {/* Selected-place preview (internal Chợ Cóc FKO editorial) */}
+      {/* Selected-place preview (internal Chợ Cóc FKO editorial).
+          Desktop only: floats over the map beside the left sidebar. On mobile the
+          selection expands INLINE inside the bottom-sheet list (see List
+          `inlineExpand`), so no floating card overlaps the other results. */}
       {sel && !externalPreview && !directionsFor && (
-        <div className="absolute z-[700] inset-x-3 bottom-[120px] lg:inset-x-auto lg:left-[376px] lg:bottom-3 lg:w-[340px]">
+        <div className="hidden lg:block absolute z-[700] lg:inset-x-auto lg:left-[376px] lg:bottom-3 lg:w-[340px]">
           {Preview({ m: sel })}
         </div>
       )}

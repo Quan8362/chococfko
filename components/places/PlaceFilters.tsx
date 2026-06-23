@@ -219,11 +219,14 @@ export default function PlaceFilters({ filters, set, relevant, prefectures, loca
             {priceError
               ? <p id="place-price-error" role="alert" className="mt-2 text-[12px] text-rose leading-snug">{priceError}</p>
               : <p className="mt-2 text-[11px] text-muted leading-snug">{t('price_no_limit_hint')}</p>}
-            <div className="flex gap-2.5 mt-3">
+            {/* Two-column grid: Apply (primary) gets slightly more width than
+                Clear (secondary). `whitespace-nowrap` + `min-w-0` guarantee the
+                labels never wrap internally at any width or in any language. */}
+            <div className="grid grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] gap-2 mt-3">
               <button type="button" onClick={applyCustom} disabled={!canApplyCustom}
-                className="flex-1 min-h-[42px] px-4 rounded-xl bg-rose text-white text-[13px] font-semibold transition-colors hover:bg-rose/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/40 focus-visible:ring-offset-1 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-rose">{t('apply')}</button>
+                className="min-w-0 inline-flex items-center justify-center whitespace-nowrap min-h-[42px] px-3 rounded-xl bg-rose text-white text-[13px] font-semibold transition-colors hover:bg-rose/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/40 focus-visible:ring-offset-1 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-rose">{t('apply')}</button>
               <button type="button" onClick={clearCustom}
-                className="flex-1 min-h-[42px] px-4 rounded-xl border border-line bg-white text-[13px] font-semibold text-ink/70 transition-colors hover:text-ink hover:border-rose/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/40 focus-visible:ring-offset-1">{t('price_clear')}</button>
+                className="min-w-0 inline-flex items-center justify-center whitespace-nowrap min-h-[42px] px-3 rounded-xl border border-line bg-white text-[13px] font-semibold text-ink/70 transition-colors hover:text-ink hover:border-rose/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/40 focus-visible:ring-offset-1">{t('price_clear')}</button>
             </div>
           </div>
         )}

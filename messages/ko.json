@@ -3498,6 +3498,8 @@
     "try_removing": "“{filter}” 해제 · {count}곳",
     "show_all": "모든 필터 지우기",
     "show_all_n": "전체 {count}곳 보기",
+    "remove_filter_view": "“{filter}” 해제 · {count}곳 보기",
+    "view_all_places": "모든 장소 보기",
     "applied": "적용 중:",
     "remove_filter": "필터 “{filter}” 해제",
     "related_categories": "관련 카테고리",

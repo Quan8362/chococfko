@@ -3498,6 +3498,8 @@
     "try_removing": "移除“{filter}” · {count}个结果",
     "show_all": "清除所有筛选",
     "show_all_n": "查看全部 {count} 个地点",
+    "remove_filter_view": "移除“{filter}” · 查看 {count} 个地点",
+    "view_all_places": "查看所有地点",
     "applied": "已应用：",
     "remove_filter": "移除筛选 {filter}",
     "related_categories": "相关分类",

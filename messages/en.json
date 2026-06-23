@@ -3498,6 +3498,8 @@
     "try_removing": "Remove “{filter}” · {count} results",
     "show_all": "Clear all filters",
     "show_all_n": "Show all {count} places",
+    "remove_filter_view": "Remove “{filter}” · Show {count} places",
+    "view_all_places": "View all places",
     "applied": "Applied:",
     "remove_filter": "Remove filter {filter}",
     "related_categories": "Related categories",

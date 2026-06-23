@@ -3498,6 +3498,8 @@
     "try_removing": "「{filter}」を解除 · {count}件",
     "show_all": "すべての絞り込みを解除",
     "show_all_n": "すべての{count}件を表示",
+    "remove_filter_view": "「{filter}」を解除して{count}件を表示",
+    "view_all_places": "すべての場所を表示",
     "applied": "適用中:",
     "remove_filter": "フィルター「{filter}」を解除",
     "related_categories": "関連カテゴリー",

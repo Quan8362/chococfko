@@ -3498,6 +3498,8 @@
     "try_removing": "Bỏ “{filter}” · {count} kết quả",
     "show_all": "Xoá tất cả bộ lọc",
     "show_all_n": "Xem tất cả {count} địa điểm",
+    "remove_filter_view": "Xóa “{filter}” · Xem {count} địa điểm",
+    "view_all_places": "Xem tất cả địa điểm",
     "applied": "Đang áp dụng:",
     "remove_filter": "Bỏ bộ lọc {filter}",
     "related_categories": "Chủ đề liên quan",

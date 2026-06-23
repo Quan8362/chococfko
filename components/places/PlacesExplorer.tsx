@@ -264,6 +264,31 @@ export default function PlacesExplorer({ places, cards, categories, prefectures,
 
   // zero-result helpers
   const relax = useMemo(() => (results.length === 0 ? suggestRelaxation(places, criteria, searchConfig).slice(0, 3) : []), [results.length, places, criteria, searchConfig])
+
+  // Recovery suggestions for the empty state, each carrying the AUTHORITATIVE
+  // count of places that become visible after removing ONLY that filter (all
+  // other active filters preserved). The price dimension is collapsed into ONE
+  // suggestion: suggestRelaxation works per engine key (priceMin/priceMax/fee),
+  // but the button clears the WHOLE price dimension — so we compute that single
+  // count here (it matches what the click does) and drop the per-key price
+  // entries to avoid duplicate/contradictory buttons.
+  const relaxItems = useMemo(() => {
+    type Item = { key: string; label: string; count: number; onClick: () => void }
+    if (results.length > 0) return [] as Item[]
+    const priceKeys = new Set(['priceMin', 'priceMax', 'fee'])
+    const items: Item[] = []
+    if (hasPriceFilter(state) && priceSelectionLabel) {
+      const relaxed = { ...criteria, priceMin: null, priceMax: null, fee: state.fee === 'free' ? undefined : criteria.fee } as PlaceCriteria
+      const count = filterPlaces(places, relaxed, searchConfig).length
+      if (count > 0) items.push({ key: 'price', label: priceSelectionLabel, count, onClick: () => set({ ...PRICE_RESET }) })
+    }
+    for (const s of relax) {
+      if (priceKeys.has(String(s.filter))) continue
+      const label = chipLabel(s.filter as keyof ExploreFilters) ?? String(s.filter)
+      items.push({ key: String(s.filter), label, count: s.count, onClick: () => relaxFilter(s.filter) })
+    }
+    return items.slice(0, 3)
+  }, [results.length, relax, state, criteria, places, searchConfig, priceSelectionLabel, chipLabel, set, relaxFilter])
   const relatedCats = useMemo(() => {
     if (results.length > 0 || !state.category) return []
     return categories
@@ -471,20 +496,22 @@ export default function PlacesExplorer({ places, cards, categories, prefectures,
               <div className="text-[30px] mb-2" aria-hidden="true">🔍</div>
               <h3 className="font-serif font-bold text-[17px] text-ink mb-1">{t('empty_title')}</h3>
               <p className="text-[13.5px] text-muted mb-4 max-w-[380px] mx-auto leading-relaxed">{t('empty_sub')}</p>
-              <div className="flex flex-wrap justify-center gap-2 mb-4">
-                {relax.map((s) => {
-                  const isPrice = s.filter === 'priceMin' || s.filter === 'priceMax' || s.filter === 'fee'
-                  const lbl = (isPrice ? priceSelectionLabel : chipLabel(s.filter as keyof ExploreFilters)) ?? String(s.filter)
-                  return (
-                    <button key={String(s.filter)} type="button" onClick={() => relaxFilter(s.filter)}
-                      className="text-[13px] font-semibold px-4 min-h-[40px] rounded-full bg-rose-soft text-rose border border-rose/20 hover:bg-rose hover:text-white">
-                      {t('try_removing', { filter: lbl, count: s.count })}
-                    </button>
-                  )
-                })}
+              {/* Recovery actions: targeted filter removal is the PRIMARY path
+                  (filled, with the exact promised count); clear-all is a quieter
+                  secondary outline. Full-width controls stack cleanly on mobile
+                  and never break the label across lines. */}
+              <div className="flex flex-col items-stretch gap-2 mb-4 max-w-[360px] mx-auto">
+                {relaxItems.map((item, i) => (
+                  <button key={item.key} type="button" onClick={item.onClick}
+                    aria-label={t('remove_filter_view', { filter: item.label, count: item.count })}
+                    className={`inline-flex items-center justify-center text-center text-[13px] font-semibold px-4 min-h-[44px] rounded-full border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/40 ${i === 0 ? 'bg-rose text-white border-rose hover:bg-rose/90' : 'bg-rose-soft text-rose border-rose/20 hover:bg-rose hover:text-white'}`}>
+                    <span className="[text-wrap:balance]">{t('remove_filter_view', { filter: item.label, count: item.count })}</span>
+                  </button>
+                ))}
                 {activeCount > 0 && (
-                  <button type="button" onClick={() => setState((p) => ({ q: p.q, sort: p.sort }))} className="text-[13px] font-semibold px-4 min-h-[40px] rounded-full border border-line text-muted hover:text-ink hover:border-rose/40">
-                    {t('show_all_n', { count: places.length })}
+                  <button type="button" onClick={() => setState((p) => ({ q: p.q, sort: p.sort }))}
+                    className="inline-flex items-center justify-center text-[13px] font-semibold px-4 min-h-[44px] rounded-full border border-line bg-white text-ink/70 hover:text-ink hover:border-rose/40 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/40">
+                    {t('view_all_places')}
                   </button>
                 )}
               </div>
@@ -499,10 +526,14 @@ export default function PlacesExplorer({ places, cards, categories, prefectures,
                   </div>
                 </div>
               )}
-              <Link href="/community" className="inline-flex flex-col items-center gap-0.5">
-                <span className="font-semibold text-[13.5px] px-5 py-2.5 rounded-full bg-teal text-white hover:bg-teal/90 transition-colors">{t('ask_community')}</span>
-                <span className="text-[12px] text-muted mt-1.5 max-w-[320px]">{t('ask_community_sub')}</span>
-              </Link>
+              {/* Tertiary: community help — visually separated so it never competes
+                  with the recovery actions above. */}
+              <div className="mt-5 pt-4 border-t border-line/70">
+                <Link href="/community" className="inline-flex flex-col items-center gap-1">
+                  <span className="font-semibold text-[13px] px-4 py-2 rounded-full border border-teal/30 text-teal bg-teal-soft hover:bg-teal hover:text-white transition-colors">{t('ask_community')}</span>
+                  <span className="text-[12px] text-muted mt-1 max-w-[320px]">{t('ask_community_sub')}</span>
+                </Link>
+              </div>
             </div>
           ) : (
             <>

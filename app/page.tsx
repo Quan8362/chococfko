@@ -139,13 +139,16 @@ export default async function Home() {
                 </Link>
               </div>
 
-              {/* Tertiary action — a deliberate text link with a grow-underline,
-                  grouped with the CTAs (consistent spacing, not floating). */}
+              {/* Tertiary action — a genuine inline hyperlink with a thin, soft
+                  underline that sits a few px below the baseline. */}
               <Link
                 href="/places/new"
-                className="group/add relative inline-flex items-center self-center sm:self-start min-h-[32px] px-1 text-[13.5px] font-semibold text-rose hover:text-rose-deep no-underline transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose/40 focus-visible:ring-offset-2 focus-visible:ring-offset-cream rounded after:absolute after:left-1 after:right-1 after:-bottom-0.5 after:h-px after:bg-rose-deep after:origin-left after:scale-x-0 after:transition-transform after:duration-200 hover:after:scale-x-100"
+                className="group/add inline-flex items-center gap-1.5 self-center sm:self-start min-h-[40px] px-1 rounded-md text-[13.5px] font-semibold text-rose transition-colors duration-200 ease-out hover:text-rose-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose/45 focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
               >
-                {t("write_place_cta")}
+                <span aria-hidden="true" className="transition-transform duration-200 ease-out group-hover/add:translate-x-0.5">✍️</span>
+                <span className="underline decoration-1 decoration-rose/40 underline-offset-4 transition-[text-decoration-color] duration-200 ease-out group-hover/add:decoration-rose-deep">
+                  {t("write_place_cta")}
+                </span>
               </Link>
             </div>
           </div>

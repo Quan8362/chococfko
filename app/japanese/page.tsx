@@ -150,9 +150,10 @@ export default async function JapaneseLearningPage() {
   type TT = Parameters<typeof t>[0]
   const tt = (k: string) => t(k as TT)
 
-  /* Subtle, de-emphasized shortcuts under the hero search. */
-  const popular = [
-    { label: tt('dict_heading'), href: '/japanese/dictionary' },
+  /* Suggestion chips under the hero search — the first one (dictionary) is the
+     primary suggestion, expressed with a filled chip, not an underline. */
+  const popular: { label: string; href: string; active?: boolean }[] = [
+    { label: tt('dict_heading'), href: '/japanese/dictionary', active: true },
     { label: tt('seo_link_vocab_n5'), href: '/japanese/vocabulary/n5' },
     { label: tt('exam_heading'), href: '/japanese/jlpt-mock-test' },
   ]
@@ -219,14 +220,19 @@ export default async function JapaneseLearningPage() {
           {/* PRIMARY call-to-action */}
           <HeroSearch />
 
-          {/* De-emphasized shortcuts */}
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-5 text-[13px]">
-            <span className="font-semibold text-muted">{tt('hero_popular')}</span>
+          {/* Suggestion chips — selection shown by fill, never an underline */}
+          <div role="group" aria-label={tt('hero_popular')} className="flex flex-wrap items-center gap-2 mt-5">
+            <span aria-hidden="true" className="text-[13px] font-semibold text-muted mr-0.5">{tt('hero_popular')}</span>
             {popular.map(p => (
               <Link
                 key={p.href}
                 href={p.href}
-                className="font-medium text-ink/80 underline-offset-4 hover:text-rose hover:underline transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/45 rounded"
+                aria-current={p.active ? 'true' : undefined}
+                className={`inline-flex items-center min-h-[36px] px-3.5 text-[12.5px] font-medium rounded-full border transition-colors duration-200 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/45 focus-visible:ring-offset-2 focus-visible:ring-offset-cream ${
+                  p.active
+                    ? 'bg-rose text-white border-rose shadow-sm hover:bg-rose-deep hover:border-rose-deep'
+                    : 'bg-rose/[0.07] text-rose border-rose/15 hover:bg-rose/[0.12] hover:text-rose-deep'
+                }`}
               >
                 {p.label}
               </Link>

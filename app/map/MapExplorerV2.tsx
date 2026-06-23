@@ -403,14 +403,16 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
   // ── shared list ──
   const List = ({ idPrefix }: { idPrefix: string }) => (
     <div className="h-full flex flex-col">
-      <div className="px-4 pt-2 pb-1.5 text-[12.5px] text-muted flex items-center justify-between">
-        <span>{fetchState === 'loading' ? te('loading') : t('results_n', { count: displayed.length })}</span>
+      <div className="flex-none px-4 pt-3 pb-2.5 border-b border-line/60 flex items-center justify-between gap-2">
+        <span className="text-[13px] font-semibold text-ink truncate">
+          {fetchState === 'loading' ? te('loading') : t('results_n', { count: displayed.length })}
+        </span>
         {moved && (
           <button type="button" onClick={() => void fetchBounds()}
-            className="text-[12px] font-semibold px-3 py-1 rounded-full bg-ink text-white">{t('search_area')}</button>
+            className="flex-none text-[12px] font-semibold px-3 py-1 rounded-full bg-ink text-white hover:bg-ink/90 transition-colors">{t('search_area')}</button>
         )}
       </div>
-      <ul role="list" className="flex-1 overflow-y-auto px-3 pb-4 space-y-2">
+      <ul role="list" className="flex-1 overflow-y-auto px-3 pt-3 pb-4 space-y-2">
         {fetchState === 'loading' && displayed.length === 0 ? (
           [0, 1, 2, 3].map((i) => <li key={i} className="h-[84px] rounded-2xl bg-line/40 animate-pulse" aria-hidden />)
         ) : fetchState === 'error' ? (
@@ -486,13 +488,13 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
     <div className="flex flex-wrap items-center gap-2">
       <div className="relative inline-flex">
         <select value={category} onChange={(e) => onCategory(e.target.value)} aria-label={te('any_category')}
-          className="appearance-none text-[13px] pl-3 pr-8 py-2 border border-line rounded-full bg-paper">
+          className="appearance-none text-[13px] h-[40px] pl-3.5 pr-8 border border-line rounded-full bg-paper/95 backdrop-blur shadow-sm cursor-pointer hover:border-rose/40 focus:outline-none focus:border-rose transition-colors">
           <option value="">{te('any_category')}</option>
           {categories.map((c) => <option key={c.code} value={c.code}>{c.emoji} {c.label}</option>)}
         </select>
         <svg className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
       </div>
-      <label className="inline-flex items-center gap-1.5 text-[13px] px-3 py-2 rounded-full border border-line bg-paper cursor-pointer">
+      <label className={`inline-flex items-center gap-1.5 text-[13px] h-[40px] px-3.5 rounded-full border bg-paper/95 backdrop-blur shadow-sm cursor-pointer transition-colors ${openNowOnly ? 'border-rose text-rose' : 'border-line hover:border-rose/40'}`}>
         <input type="checkbox" className="accent-rose" checked={openNowOnly} onChange={(e) => setOpenNowOnly(e.target.checked)} />
         {t('open_now')}
       </label>
@@ -515,12 +517,15 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
       {/* Map fills the container. The results list is the non-map alternative. */}
       <div ref={mapEl} aria-label={t('map_region_label')} className="absolute inset-0 z-0" />
 
-      {/* Floating search + filters (top) — constrained to the viewport, safe-area
-          aware, and shrinkable so the filter button is never pushed off-screen. */}
-      <div className="absolute top-0 left-0 right-0 z-[500] flex flex-col gap-2 p-3 lg:left-[396px] pointer-events-none"
-        style={{ paddingTop: 'max(0.75rem, env(safe-area-inset-top))' }}>
-        <div className="flex gap-2 pointer-events-auto">
-          <div className="flex-1 min-w-0">
+      {/* Floating control bar (top). One compact row: a width-capped search that
+          stays primary without spanning the whole map, with the filters sitting
+          inline beside it on desktop (a toggle on tablet/mobile). Constrained to
+          the viewport, safe-area aware, and shrinkable. */}
+      <div className="absolute top-0 left-0 right-0 z-[500] p-3 sm:p-4 lg:left-[376px] pointer-events-none"
+        style={{ paddingTop: 'max(0.875rem, env(safe-area-inset-top))' }}>
+        <div className="flex flex-wrap items-center gap-2 pointer-events-auto">
+          {/* Search — capped so it reads as primary but never oversized. */}
+          <div className="flex-1 min-w-0 lg:flex-none lg:w-[420px]">
             <UnifiedSearchBox
               externalEnabled={externalEnabled}
               apiKey={apiKey}
@@ -532,11 +537,17 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
               onSelectExternal={onSelectExternal}
             />
           </div>
+          {/* Desktop: filters inline beside the search (one tidy control bar). */}
+          <div className="hidden lg:block">{FilterBar}</div>
+          {/* Tablet/mobile: compact filters toggle with an active-state dot. */}
           <button type="button" onClick={() => setFiltersOpen((v) => !v)} aria-expanded={filtersOpen}
-            className="lg:hidden flex-none min-h-[44px] px-4 rounded-full bg-paper/95 border border-line text-[13px] font-semibold shadow-sm">{t('filters')}</button>
+            className="lg:hidden flex-none inline-flex items-center gap-1.5 h-[44px] px-4 rounded-full bg-paper/95 backdrop-blur border border-line text-[13px] font-semibold shadow-sm hover:border-rose/40 transition-colors">
+            <svg className="w-4 h-4 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h18M6 12h12M10 20h4" /></svg>
+            {t('filters')}
+            {filtersActive && <span className="w-1.5 h-1.5 rounded-full bg-rose" aria-hidden="true" />}
+          </button>
         </div>
-        {(filtersOpen || false) && <div className="lg:hidden pointer-events-auto bg-paper/95 backdrop-blur border border-line rounded-2xl p-3 shadow-sm">{FilterBar}</div>}
-        <div className="hidden lg:block pointer-events-auto">{FilterBar}</div>
+        {filtersOpen && <div className="lg:hidden mt-2 pointer-events-auto bg-paper/95 backdrop-blur border border-line rounded-2xl p-3 shadow-sm">{FilterBar}</div>}
       </div>
 
       {/* Search-this-area pill */}
@@ -549,7 +560,7 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
 
       {/* Desktop: collapsible left results panel */}
       <div className={`hidden lg:flex absolute top-0 bottom-0 left-0 z-[550] transition-transform ${panelOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        <div role="region" aria-label={t('list_region_label')} className="w-[380px] bg-paper/95 backdrop-blur border-r border-line flex flex-col">
+        <div role="region" aria-label={t('list_region_label')} className="w-[360px] bg-paper/95 backdrop-blur border-r border-line flex flex-col">
           {List({ idPrefix: 'd' })}
         </div>
         <button type="button" onClick={() => setPanelOpen((v) => !v)} aria-label={panelOpen ? t('hide_list') : t('show_list')}
@@ -578,7 +589,7 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
 
       {/* Directions panel (takes precedence over previews; keeps selection) */}
       {directionsFor && (
-        <div className="absolute z-[710] inset-x-3 bottom-[120px] lg:inset-x-auto lg:left-[396px] lg:bottom-3 lg:w-[360px]">
+        <div className="absolute z-[710] inset-x-3 bottom-[120px] lg:inset-x-auto lg:left-[376px] lg:bottom-3 lg:w-[360px]">
           <DirectionsPanel
             destination={{ name: directionsFor.name, lat: directionsFor.lat, lng: directionsFor.lng, placeId: null, mapUrl: directionsFor.mapUrl }}
             routePreviewAvailable={routePreviewAvailable}
@@ -593,14 +604,14 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
 
       {/* Selected-place preview (internal Chợ Cóc FKO editorial) */}
       {sel && !externalPreview && !directionsFor && (
-        <div className="absolute z-[700] inset-x-3 bottom-[120px] lg:inset-x-auto lg:left-[396px] lg:bottom-3 lg:w-[340px]">
+        <div className="absolute z-[700] inset-x-3 bottom-[120px] lg:inset-x-auto lg:left-[376px] lg:bottom-3 lg:w-[340px]">
           {Preview({ m: sel })}
         </div>
       )}
 
       {/* External Google place preview (visually distinct; never editorial) */}
       {externalPreview && !directionsFor && (
-        <div className="absolute z-[700] inset-x-3 bottom-[120px] lg:inset-x-auto lg:left-[396px] lg:bottom-3 lg:w-[340px]">
+        <div className="absolute z-[700] inset-x-3 bottom-[120px] lg:inset-x-auto lg:left-[376px] lg:bottom-3 lg:w-[340px]">
           <ExternalPlacePreviewCard
             preview={externalPreview}
             duplicate={externalDuplicate}

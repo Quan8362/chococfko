@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { ReactNode } from "react";
 import { getTranslations, getLocale } from "next-intl/server";
 import { categories, places as staticPlaces, getAllPlacesFromDb, attachPlaceTags } from "@/lib/places";
@@ -90,8 +91,8 @@ export default async function Home() {
         <div className="absolute -top-[180px] -right-[140px] w-[480px] h-[480px] rounded-full bg-[radial-gradient(circle_at_35%_35%,rgba(194,24,91,0.09),transparent_60%)] pointer-events-none" />
         <div className="absolute top-[40%] -left-[100px] w-[360px] h-[360px] rounded-full bg-[radial-gradient(circle_at_50%_50%,rgba(31,143,166,0.07),transparent_65%)] pointer-events-none" />
 
-        <div className="max-w-[1240px] mx-auto px-5 sm:px-7 relative z-[1]">
-          <div className="text-center max-w-[720px] mx-auto animate-fadeup">
+        <div className="max-w-[1240px] mx-auto px-5 sm:px-7 relative z-[1] xl:flex xl:items-center xl:gap-12">
+          <div className="text-center xl:text-left max-w-[720px] mx-auto xl:mx-0 xl:max-w-none xl:flex-1 animate-fadeup">
             <span className="inline-flex items-center gap-2 text-[11.5px] font-semibold tracking-[2.5px] uppercase text-rose mb-6 before:content-[''] before:w-6 before:h-px before:bg-rose/60 after:content-[''] after:w-6 after:h-px after:bg-rose/60">
               {t("label")}
             </span>
@@ -101,12 +102,12 @@ export default async function Home() {
               <em className="italic font-semibold text-rose not-italic">{t("heading_accent")}</em>.
             </h1>
 
-            <p className="text-[17px] text-muted max-w-[520px] mx-auto mb-8 leading-[1.7] whitespace-pre-line">
+            <p className="text-[17px] text-muted max-w-[520px] mx-auto xl:mx-0 mb-8 leading-[1.7] whitespace-pre-line">
               {t("description")}
             </p>
 
             {/* CTA buttons — single "Đăng địa điểm" at hero level */}
-            <div className="flex gap-3 justify-center flex-wrap mb-12">
+            <div className="flex gap-3 justify-center xl:justify-start flex-wrap mb-12">
               <Link
                 href="#sec-landmark"
                 className="font-semibold text-[14px] px-6 py-3 rounded-full bg-rose text-white shadow-[0_6px_20px_-6px_rgba(194,24,91,0.5)] hover:bg-rose-deep hover:-translate-y-0.5 transition-all"
@@ -144,6 +145,22 @@ export default async function Home() {
                 <span className="text-[12px] text-muted mt-1 block">{t("stat_members")}</span>
               </div>
             </div>
+          </div>
+
+          {/* Decorative hero illustration — sits in the right gutter on large
+              desktops only; purely visual, never interactive. */}
+          <div
+            aria-hidden="true"
+            className="hidden xl:block xl:flex-none w-[clamp(320px,34%,460px)] pointer-events-none select-none"
+          >
+            <Image
+              src="/bg_web.png"
+              alt=""
+              width={1672}
+              height={941}
+              sizes="(min-width: 1280px) 34vw, 0px"
+              className="w-full h-auto opacity-90"
+            />
           </div>
         </div>
       </section>

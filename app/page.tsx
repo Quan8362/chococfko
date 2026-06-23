@@ -89,7 +89,7 @@ export default async function Home() {
         <div className="absolute -top-[180px] -right-[140px] w-[480px] h-[480px] rounded-full bg-[radial-gradient(circle_at_35%_35%,rgba(194,24,91,0.09),transparent_60%)] pointer-events-none" />
         <div className="absolute top-[40%] -left-[100px] w-[360px] h-[360px] rounded-full bg-[radial-gradient(circle_at_50%_50%,rgba(31,143,166,0.07),transparent_65%)] pointer-events-none" />
 
-        <div className="max-w-[1240px] mx-auto px-7 relative z-[1]">
+        <div className="max-w-[1240px] mx-auto px-5 sm:px-7 relative z-[1]">
           <div className="text-center max-w-[720px] mx-auto animate-fadeup">
             <span className="inline-flex items-center gap-2 text-[11.5px] font-semibold tracking-[2.5px] uppercase text-rose mb-6 before:content-[''] before:w-6 before:h-px before:bg-rose/60 after:content-[''] after:w-6 after:h-px after:bg-rose/60">
               {t("label")}
@@ -126,18 +126,18 @@ export default async function Home() {
               </Link>
             </div>
 
-            {/* Stats */}
-            <div className="inline-flex items-center gap-8 px-8 py-4 rounded-2xl bg-paper border border-line shadow-card">
+            {/* Stats — wraps and shrinks on narrow phones (no fixed-width row). */}
+            <div className="inline-flex flex-wrap items-center justify-center gap-x-6 gap-y-2 sm:gap-8 max-w-full px-5 sm:px-8 py-4 rounded-2xl bg-paper border border-line shadow-card">
               <div className="text-center">
                 <b className="font-serif text-[28px] font-bold block leading-none text-rose-deep">{allPlaces.length}</b>
                 <span className="text-[12px] text-muted mt-1 block">{t("stat_places")}</span>
               </div>
-              <div className="w-px h-8 bg-line" />
+              <div className="hidden sm:block w-px h-8 bg-line" />
               <div className="text-center">
                 <b className="font-serif text-[28px] font-bold block leading-none text-rose-deep">{visibleCategories.length}</b>
                 <span className="text-[12px] text-muted mt-1 block">{t("stat_categories")}</span>
               </div>
-              <div className="w-px h-8 bg-line" />
+              <div className="hidden sm:block w-px h-8 bg-line" />
               <div className="text-center">
                 <b className="font-serif text-[28px] font-bold block leading-none text-rose-deep">∞</b>
                 <span className="text-[12px] text-muted mt-1 block">{t("stat_members")}</span>

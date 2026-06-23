@@ -17,6 +17,7 @@ import {
 import type { InternalResultItem, StationAreaResultItem, TopicResultItem } from '@/lib/maps/unifiedSearch'
 import type { ExternalPlacePreview as ExternalPreview } from '@/lib/maps/externalPlace'
 import { findInternalDuplicate } from '@/lib/maps/duplicateDetection'
+import { internalToNearby, mergePinnedPlace } from '@/lib/maps/viewportResults'
 import { encodeExternalSeed, SEED_PARAM } from '@/lib/maps/adminSeed'
 import { polylineBounds } from '@/lib/maps/polyline'
 import { prefersReducedMotion, motionOptions, scrollBehavior } from '@/lib/maps/motion'
@@ -51,7 +52,14 @@ const STATUS_DOT: Record<OpenState, string> = {
   open: '#10b981', closing_soon: '#f59e0b', closed: '#9ca3af',
   opens_later: '#9ca3af', temporarily_closed: '#e11d48', hours_unknown: '#9ca3af',
 }
-const SHEET_H: Record<SheetState, string> = { collapsed: 'h-[110px]', half: 'h-[46vh]', full: 'h-[85vh]' }
+// Bottom-sheet heights use dynamic viewport units (dvh) so the mobile browser
+// chrome (collapsing URL bar) doesn't make the sheet jump or exceed the screen.
+// vh is kept as a fallback for browsers without dvh support.
+const SHEET_H: Record<SheetState, string> = {
+  collapsed: 'h-[104px]',
+  half: 'h-[42dvh]',
+  full: 'h-[82dvh]',
+}
 
 export default function MapExplorerV2({ defaultCenter, categories, initialPlaces, initialState, externalEnabled, apiKey, locale, isAdmin, adminSearchEnabled, routePreviewAvailable }: Props) {
   const t = useTranslations('map_v2')
@@ -82,6 +90,9 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
   const clusterRef = useRef<L.MarkerClusterGroup | null>(null)
   const markerBySlug = useRef<Map<string, L.Marker>>(new Map())
   const lastSearched = useRef<{ center: { lat: number; lng: number }; zoom: number } | null>(null)
+  // A search result selected from OUTSIDE the loaded viewport. Kept visible
+  // across the next viewport fetch so selection never flashes to an empty list.
+  const pinnedRef = useRef<NearbyPlace | null>(null)
   const routeLayerRef = useRef<L.LayerGroup | null>(null)
   const pickingOriginRef = useRef(false)
   const prevViewRef = useRef<{ center: { lat: number; lng: number }; zoom: number } | null>(null)
@@ -116,8 +127,12 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
     try {
       const res = await fetch(`/api/places/in-bounds?${params}`)
       const json = await res.json()
-      if (myId !== reqId.current) return // stale
-      setPlaces(Array.isArray(json.places) ? json.places : [])
+      if (myId !== reqId.current) return // stale: a newer fetch already won
+      const serverPlaces: NearbyPlace[] = Array.isArray(json.places) ? json.places : []
+      // Keep a pinned (just-selected, out-of-view) result visible if the new
+      // viewport still covers it but the server response omitted it.
+      const next = mergePinnedPlace(serverPlaces, pinnedRef.current, (lat, lng) => b.contains([lat, lng]))
+      setPlaces(next)
       setFetchState('')
       setMoved(false)
       lastSearched.current = { center: { lat: map.getCenter().lat, lng: map.getCenter().lng }, zoom: map.getZoom() }
@@ -149,7 +164,9 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
       map = L.map(mapEl.current, { zoomControl: false })
         .setView([initialState.center?.lat ?? defaultCenter.lat, initialState.center?.lng ?? defaultCenter.lng], initialState.zoom ?? 12)
       // Localized, accessibly-titled zoom control (Leaflet defaults are English).
-      L.control.zoom({ zoomInTitle: t('zoom_in'), zoomOutTitle: t('zoom_out') }).addTo(map)
+      // Bottom-right keeps it clear of the top search row on mobile; CSS lifts it
+      // above the bottom sheet (see .map-v2-shell rules in globals.css).
+      L.control.zoom({ position: 'bottomright', zoomInTitle: t('zoom_in'), zoomOutTitle: t('zoom_out') }).addTo(map)
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap', maxZoom: 19 }).addTo(map)
       const cluster = (L as unknown as { markerClusterGroup: (o?: unknown) => L.MarkerClusterGroup })
         .markerClusterGroup({ showCoverageOnHover: false, maxClusterRadius: 55 })
@@ -296,23 +313,42 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
   }, [filtersOpen, selected, sheet, externalPreview, directionsFor, closeDirections])
 
   const onCategory = (code: string) => { setCategory(code); setTimeout(() => void fetchBounds(code, q), 0) }
+  const clearFilters = () => { setCategory(''); setOpenNowOnly(false); setTimeout(() => void fetchBounds('', q), 0) }
+  const filtersActive = Boolean(category) || openNowOnly
 
   // ── Unified search selections (internal first; external kept separate) ──
   const onSelectInternal = useCallback((item: InternalResultItem) => {
     setExternalPreview(null)
     emitMapMetric('result_selected', { source: 'internal' })
     const map = mapRef.current
-    if (places.some((p) => p.slug === item.slug)) { selectPlace(item.slug, true); return }
-    if (item.hasCoordinates && item.lat != null && item.lng != null && map) {
-      map.setView([item.lat, item.lng], Math.max(map.getZoom(), 15), motionOptions(reducedRef.current))
-      void fetchBounds().then(() => setSelected(item.slug))
+    if (places.some((p) => p.slug === item.slug)) {
+      selectPlace(item.slug, true)
+      if (sheet === 'collapsed') setSheet('half')
       return
     }
-    // No coordinates / not in this viewport → open the editorial article.
+    if (item.hasCoordinates && item.lat != null && item.lng != null && map) {
+      // Inject the result up-front so the marker, preview and list row appear
+      // immediately — the selection stays visible even before the viewport
+      // reloads, and never flashes from 1 result to 0.
+      const np = internalToNearby(item)
+      pinnedRef.current = np
+      setPlaces((prev) => [np, ...prev.filter((p) => p.slug !== np.slug)])
+      setSelected(item.slug)
+      if (sheet === 'collapsed') setSheet('half')
+      const targetZoom = Math.max(map.getZoom(), 15)
+      // Fetch the new viewport AFTER the camera settles. getBounds() is stale
+      // during an animated setView, so querying immediately returned the OLD
+      // viewport (which excluded the place) → the "0 places" bug. moveend fires
+      // for both animated and instant moves.
+      map.once('moveend', () => { void fetchBounds() })
+      map.setView([item.lat, item.lng], targetZoom, motionOptions(reducedRef.current))
+      return
+    }
+    // No coordinates at all → open the editorial article instead.
     router.push(`/places/${item.slug}`)
     // selectPlace/fetchBounds are stable enough; deps kept minimal intentionally.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [places, router])
+  }, [places, router, sheet])
 
   const onSelectStationArea = useCallback((item: StationAreaResultItem) => {
     setExternalPreview(null); emitMapMetric('result_selected', { source: 'station' }); setQ(item.label); void fetchBounds(category, item.label)
@@ -383,7 +419,18 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
             <button type="button" onClick={() => void fetchBounds()} className="underline font-semibold">{t('retry')}</button>
           </li>
         ) : displayed.length === 0 ? (
-          <li className="text-[13.5px] text-muted bg-paper border border-line rounded-2xl p-5">{t('empty')}</li>
+          <li className="bg-paper border border-line rounded-2xl p-5 text-center">
+            <p className="text-[13.5px] text-muted">{filtersActive ? t('empty_filtered') : t('empty')}</p>
+            <p className="text-[12.5px] text-muted/80 mt-1">{t('empty_hint')}</p>
+            <div className="flex flex-wrap justify-center gap-2 mt-3">
+              <button type="button" onClick={() => void fetchBounds()}
+                className="text-[12.5px] font-semibold px-3.5 py-2 rounded-full bg-ink text-white">{t('search_area')}</button>
+              {filtersActive && (
+                <button type="button" onClick={clearFilters}
+                  className="text-[12.5px] font-semibold px-3.5 py-2 rounded-full border border-line text-ink bg-paper">{t('clear_filters')}</button>
+              )}
+            </div>
+          </li>
         ) : displayed.map((m) => {
           const isSel = m.slug === selected
           return (
@@ -464,14 +511,16 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
   }
 
   return (
-    <div className="relative w-full h-[calc(100vh-var(--header-h,64px)-40px)] min-h-[520px] rounded-2xl overflow-hidden border border-line">
+    <div className="map-v2-shell relative w-full max-w-full h-[calc(100dvh-var(--header-h,68px)-40px)] min-h-[480px] rounded-2xl overflow-hidden border border-line">
       {/* Map fills the container. The results list is the non-map alternative. */}
       <div ref={mapEl} aria-label={t('map_region_label')} className="absolute inset-0 z-0" />
 
-      {/* Floating search + filters (top) */}
-      <div className="absolute top-3 left-3 right-3 z-[500] flex flex-col gap-2 lg:left-[396px] pointer-events-none">
+      {/* Floating search + filters (top) — constrained to the viewport, safe-area
+          aware, and shrinkable so the filter button is never pushed off-screen. */}
+      <div className="absolute top-0 left-0 right-0 z-[500] flex flex-col gap-2 p-3 lg:left-[396px] pointer-events-none"
+        style={{ paddingTop: 'max(0.75rem, env(safe-area-inset-top))' }}>
         <div className="flex gap-2 pointer-events-auto">
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             <UnifiedSearchBox
               externalEnabled={externalEnabled}
               apiKey={apiKey}
@@ -484,7 +533,7 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
             />
           </div>
           <button type="button" onClick={() => setFiltersOpen((v) => !v)} aria-expanded={filtersOpen}
-            className="lg:hidden flex-none px-4 rounded-full bg-paper/95 border border-line text-[13px] font-semibold shadow-sm">{t('filters')}</button>
+            className="lg:hidden flex-none min-h-[44px] px-4 rounded-full bg-paper/95 border border-line text-[13px] font-semibold shadow-sm">{t('filters')}</button>
         </div>
         {(filtersOpen || false) && <div className="lg:hidden pointer-events-auto bg-paper/95 backdrop-blur border border-line rounded-2xl p-3 shadow-sm">{FilterBar}</div>}
         <div className="hidden lg:block pointer-events-auto">{FilterBar}</div>

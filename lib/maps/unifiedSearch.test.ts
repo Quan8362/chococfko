@@ -35,6 +35,23 @@ test('Japanese query matches internal place by name', () => {
   assert.equal(r[0]?.slug, 'dazaifu');
 });
 
+// Global internal search must find the SAME internal place by EVERY required
+// query form, independent of any map viewport (regression: Map V2 mobile search).
+// A realistic place carries both the romaji title and the Japanese name (here in
+// a localized tag) so Latin, lowercase and CJK queries all resolve to it.
+test('all required Dazaifu queries resolve to the same internal place', () => {
+  const dz = mk({
+    slug: 'dazaifu', name: 'Dazaifu Tenmangu', category: 'landmark', categoryLabel: 'Tham quan',
+    area: 'Dazaifu', nearestStation: 'Dazaifu Station', lat: 33.52, lng: 130.53,
+    tags: [{ name: 'dazaifu-tenmangu', display_name_ja: '太宰府天満宮' }] as Place['tags'],
+  });
+  const catalog = [dz, ...PLACES.filter((p) => p.slug !== 'dazaifu')];
+  for (const q of ['Dazaifu Tenmangu', 'dazaifu', '太宰府天満宮', 'Dazaifu']) {
+    const r = searchInternalPlaces(catalog, q);
+    assert.ok(r.some((x) => x.slug === 'dazaifu'), `query "${q}" should find Dazaifu`);
+  }
+});
+
 // Vietnamese query (diacritics-insensitive)
 test('Vietnamese query matches via normalized name', () => {
   const r = searchInternalPlaces(PLACES, 'pho quan');

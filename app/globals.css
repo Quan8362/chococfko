@@ -41,10 +41,18 @@ input[type="password"]::-webkit-strong-password-auto-fill-button {
   --line: #e8ddcf;
   --font-serif-display: "AmpFix", "Playfair Display", Georgia, serif;
   --font-bvp: "Be Vietnam Pro", system-ui, sans-serif;
+  /* Real height of the sticky site header (components/Nav.tsx → h-[68px]).
+     Consumed by full-height layouts such as Map V2. */
+  --header-h: 68px;
 }
 
 html {
   scroll-behavior: smooth;
+  /* Belt-and-braces against horizontal overflow: iOS Safari can still scroll the
+     document horizontally when only <body> has overflow-x:hidden. Clipping at the
+     root closes that gap. This is a safety net — real over-wide elements are
+     constrained at their source (containers use max-w + min-w-0). */
+  overflow-x: hidden;
 }
 body {
   background: var(--cream);
@@ -52,6 +60,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+  max-width: 100%;
   font-variant-numeric: lining-nums tabular-nums;
   font-feature-settings: "lnum" 1, "tnum" 1;
 }
@@ -297,6 +306,22 @@ body::before {
     box-shadow: none !important;
     max-width: 100% !important;
   }
+}
+
+/* === Map V2 (app/map/MapExplorerV2.tsx) === */
+/* Lift the bottom-right Leaflet controls (zoom + attribution) above the mobile
+   bottom sheet's collapsed height so they stay tappable; respect the safe-area
+   inset. On lg+ the sheet becomes a left panel, so the default offset is fine. */
+@media (max-width: 1023px) {
+  .map-v2-shell .leaflet-bottom.leaflet-right {
+    bottom: calc(112px + env(safe-area-inset-bottom));
+  }
+}
+.map-v2-shell .leaflet-control-zoom a {
+  width: 34px;
+  height: 34px;
+  line-height: 34px;
+  font-size: 20px;
 }
 
 /* Deter casual image saving: no drag-to-desktop, no iOS long-press menu.

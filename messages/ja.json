@@ -3528,6 +3528,10 @@
     "insights_col_clicks": "クリック"
   },
   "map_v2": {
+    "pick_origin_hint": "地図をタップして出発地を選択してください",
+    "empty_filtered": "この条件に合う地点がこのエリアにありません。",
+    "empty_hint": "地図を動かして別のエリアを検索するか、別のキーワードをお試しください。",
+    "clear_filters": "フィルターをクリア",
     "results_n": "{count} 件",
     "search_area": "このエリアを検索",
     "load_error": "場所を読み込めませんでした。",

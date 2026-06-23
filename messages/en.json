@@ -3528,6 +3528,10 @@
     "insights_col_clicks": "Clicks"
   },
   "map_v2": {
+    "pick_origin_hint": "Tap the map to set your starting point",
+    "empty_filtered": "No places match these filters in this area.",
+    "empty_hint": "Move the map to search another area, or try a different keyword.",
+    "clear_filters": "Clear filters",
     "results_n": "{count} places",
     "search_area": "Search this area",
     "load_error": "Couldn't load places.",

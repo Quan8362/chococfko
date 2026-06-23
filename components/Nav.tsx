@@ -71,8 +71,9 @@ export default async function Nav() {
           />
         </nav>
 
-        {/* Right actions — bên phải */}
-        <div className="flex items-center gap-2.5 ml-auto shrink-0">
+        {/* Right actions — bên phải. Tighter gaps on narrow phones so the cluster
+            (language, bells, avatar, menu) never overflows next to the logo. */}
+        <div className="flex items-center gap-1.5 sm:gap-2.5 ml-auto shrink-0">
           <LanguageSwitcher />
 
           {user && <UserNotificationBell />}

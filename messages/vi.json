@@ -3528,6 +3528,10 @@
     "insights_col_clicks": "Bấm"
   },
   "map_v2": {
+    "pick_origin_hint": "Chạm vào bản đồ để chọn điểm xuất phát",
+    "empty_filtered": "Bộ lọc hiện tại không có địa điểm nào trong khu vực này.",
+    "empty_hint": "Di chuyển bản đồ để tìm khu vực khác, hoặc thử từ khóa khác.",
+    "clear_filters": "Xóa bộ lọc",
     "results_n": "{count} địa điểm",
     "search_area": "Tìm khu vực này",
     "load_error": "Không tải được địa điểm.",

@@ -174,11 +174,11 @@ export default function MentionNotificationProvider() {
   if (!userId || notifs.length === 0) return null
 
   return (
-    <div className="fixed bottom-5 right-5 z-[9999] flex flex-col gap-3 items-end pointer-events-none">
+    <div className="fixed bottom-5 right-5 left-5 sm:left-auto z-[9999] flex flex-col gap-3 items-end pointer-events-none">
       {notifs.map(notif => (
         <div
           key={notif.id}
-          className={`pointer-events-auto w-[320px] bg-white rounded-2xl shadow-[0_8px_32px_-6px_rgba(36,26,23,0.2)] border border-line overflow-hidden transition-all duration-300 ease-out ${
+          className={`pointer-events-auto w-[min(320px,100%)] bg-white rounded-2xl shadow-[0_8px_32px_-6px_rgba(36,26,23,0.2)] border border-line overflow-hidden transition-all duration-300 ease-out ${
             notif.entering
               ? 'opacity-100 translate-x-0'
               : 'opacity-0 translate-x-10'

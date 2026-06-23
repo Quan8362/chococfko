@@ -38,13 +38,13 @@ export default async function Nav() {
 
   return (
     <header className="sticky top-0 z-[100] bg-[rgba(250,244,234,0.985)] backdrop-blur-md border-b border-line">
-      <div className="max-w-[1240px] mx-auto px-4 sm:px-6 h-[68px] flex items-center">
+      <div className="max-w-[1280px] mx-auto px-4 sm:px-6 h-[68px] sm:h-[70px] flex items-center">
 
         {/* Logo — bên trái. Always "return to homepage/default state" (see HomeLogo). */}
         <HomeLogo label={t('logo_home')} />
 
         {/* Desktop nav — absolute center */}
-        <nav className="hidden md:flex flex-1 justify-center items-center gap-0.5 text-[13.5px] font-medium text-[#6b5b50]">
+        <nav className="hidden md:flex flex-1 justify-center items-center gap-0.5 lg:gap-1 text-[14px] lg:text-[14.5px] font-medium text-[#5c4d44]">
           <NavDropdown
             label={t('explore')}
             items={[
@@ -64,10 +64,10 @@ export default async function Nav() {
               { href: '/community/chat', label: t('chat'), icon: 'chat', badge: 'chat' },
             ]}
           />
-          <Link href="/marketplace" className="px-3 py-1.5 rounded-lg hover:bg-line hover:text-rose transition-colors whitespace-nowrap">
+          <Link href="/marketplace" className="px-3 py-1.5 rounded-lg hover:bg-line hover:text-rose transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose/40">
             {t('marketplace')}
           </Link>
-          <Link href="/japanese" className="px-3 py-1.5 rounded-lg hover:bg-line hover:text-rose transition-colors whitespace-nowrap">
+          <Link href="/japanese" className="px-3 py-1.5 rounded-lg hover:bg-line hover:text-rose transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose/40">
             {tJp('nav')}
           </Link>
           <NavDropdown
@@ -91,7 +91,7 @@ export default async function Nav() {
           ) : (
             <Link
               href="/login"
-              className="hidden sm:block text-[13px] font-medium px-3 py-2 rounded-lg text-[#5c4d44] hover:bg-line hover:text-rose transition-colors"
+              className="hidden sm:block text-[13px] font-medium px-3 py-2 rounded-lg text-[#5c4d44] hover:bg-line hover:text-rose transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose/40"
             >
               {t('login')}
             </Link>

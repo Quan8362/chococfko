@@ -87,82 +87,93 @@ export default async function Home() {
   return (
     <>
       {/* ── HERO ─────────────────────────────────────────────── */}
-      <section className="relative pt-[72px] pb-10 overflow-hidden">
-        <div className="absolute -top-[180px] -right-[140px] w-[480px] h-[480px] rounded-full bg-[radial-gradient(circle_at_35%_35%,rgba(194,24,91,0.09),transparent_60%)] pointer-events-none" />
-        <div className="absolute top-[40%] -left-[100px] w-[360px] h-[360px] rounded-full bg-[radial-gradient(circle_at_50%_50%,rgba(31,143,166,0.07),transparent_65%)] pointer-events-none" />
+      <section className="relative pt-9 sm:pt-11 lg:pt-12 pb-12 lg:pb-14 overflow-hidden">
+        {/* Soft ambient washes — purely decorative, clipped by the section. The
+            rose wash also doubles as the gentle highlight that lifts the map. */}
+        <div className="absolute -top-[160px] -right-[120px] w-[520px] h-[520px] rounded-full bg-[radial-gradient(circle_at_40%_40%,rgba(194,24,91,0.08),transparent_62%)] pointer-events-none" />
+        <div className="absolute top-[42%] -left-[120px] w-[360px] h-[360px] rounded-full bg-[radial-gradient(circle_at_50%_50%,rgba(31,143,166,0.06),transparent_65%)] pointer-events-none" />
 
-        <div className="max-w-[1320px] mx-auto px-5 sm:px-7 relative z-[1] lg:flex lg:items-center lg:gap-10 xl:gap-12">
-          <div className="text-center lg:text-left max-w-[720px] mx-auto lg:mx-0 lg:max-w-none lg:flex-1 animate-fadeup">
-            <span className="inline-flex items-center gap-2 text-[11.5px] font-semibold tracking-[2.5px] uppercase text-rose mb-6 before:content-[''] before:w-6 before:h-px before:bg-rose/60 after:content-[''] after:w-6 after:h-px after:bg-rose/60">
+        {/* Two-column on lg+ via grid so the map can vertically centre against the
+            full text+stats stack; single column (text → map → stats) below lg.
+            Container matches the header for edge alignment. */}
+        <div className="max-w-[1280px] mx-auto px-4 sm:px-6 relative z-[1] lg:grid lg:grid-cols-[minmax(0,0.82fr)_minmax(0,1fr)] lg:items-center lg:gap-x-10 xl:gap-x-12">
+
+          {/* TEXT — eyebrow, headline, supporting copy, CTAs */}
+          <div className="text-center lg:text-left lg:col-start-1 lg:row-start-1 max-w-[600px] mx-auto lg:mx-0 animate-fadeup">
+            <span className="inline-flex items-center gap-3 text-[12px] font-semibold tracking-[0.22em] uppercase text-rose-deep mb-5 before:content-[''] before:w-7 before:h-px before:bg-rose-deep/45 after:content-[''] after:w-7 after:h-px after:bg-rose-deep/45">
               {t("label")}
             </span>
 
-            <h1 className="font-serif font-black text-[clamp(34px,4.8vw,60px)] leading-[1.1] tracking-[-0.5px] mb-5 text-ink">
+            <h1 className="font-serif font-black text-[clamp(32px,4.4vw,56px)] leading-[1.08] tracking-[-0.5px] text-ink text-balance">
               {t("heading")}{" "}
-              <em className="italic font-semibold text-rose not-italic">{t("heading_accent")}</em>.
+              {/* Keep the emphasised phrase + period together so it never breaks
+                  to a lone "trang." — locale-safe (no fixed <br/>). */}
+              <span className="whitespace-nowrap"><em className="not-italic font-semibold text-rose">{t("heading_accent")}</em>.</span>
             </h1>
 
-            <p className="text-[17px] text-muted max-w-[520px] mx-auto lg:mx-0 mb-8 leading-[1.7] whitespace-pre-line">
+            <p className="mt-5 text-[16.5px] leading-[1.65] text-[#5b4d44] max-w-[480px] mx-auto lg:mx-0 whitespace-pre-line">
               {t("description")}
             </p>
 
-            {/* CTA buttons — single "Đăng địa điểm" at hero level */}
-            <div className="flex gap-3 justify-center lg:justify-start flex-wrap mb-12">
+            {/* CTA hierarchy: primary (solid) → secondary (outline) → tertiary
+                (text link). Stacks full-width on mobile; row on sm+. */}
+            <div className="mt-8 flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center justify-center lg:justify-start gap-3">
               <Link
                 href="#sec-landmark"
-                className="font-semibold text-[14px] px-6 py-3 rounded-full bg-rose text-white shadow-[0_6px_20px_-6px_rgba(194,24,91,0.5)] hover:bg-rose-deep hover:-translate-y-0.5 transition-all"
+                className="inline-flex items-center justify-center min-h-[48px] px-7 text-[14.5px] font-semibold rounded-full bg-rose text-white shadow-[0_4px_16px_-6px_rgba(194,24,91,0.45)] hover:bg-rose-deep active:translate-y-px transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose/55 focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
               >
                 {t("cta_explore")}
               </Link>
               <Link
                 href="/community"
-                className="font-semibold text-[14px] px-6 py-3 rounded-full border border-[#c8b8a8] text-[#5c4d44] hover:border-ink hover:bg-ink hover:text-cream transition-all"
+                className="inline-flex items-center justify-center min-h-[48px] px-6 text-[14.5px] font-semibold rounded-full border border-[#c8b8a8] text-[#5c4d44] hover:border-ink hover:bg-ink hover:text-cream transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/30 focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
               >
                 {t("cta_community")}
               </Link>
               <Link
                 href="/places/new"
-                className="font-semibold text-[14px] px-6 py-3 rounded-full border border-rose/50 text-rose bg-rose-soft hover:bg-rose hover:text-white hover:border-rose transition-all"
+                className="inline-flex items-center justify-center gap-1.5 min-h-[44px] px-2 text-[13.5px] font-semibold text-rose hover:text-rose-deep underline-offset-4 hover:underline transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose/40 focus-visible:ring-offset-2 focus-visible:ring-offset-cream rounded-md"
               >
                 {t("write_place_cta")}
               </Link>
             </div>
-
-            {/* Stats — wraps and shrinks on narrow phones (no fixed-width row). */}
-            <div className="inline-flex flex-wrap items-center justify-center gap-x-6 gap-y-2 sm:gap-8 max-w-full px-5 sm:px-8 py-4 rounded-2xl bg-paper border border-line shadow-card">
-              <div className="text-center">
-                <b className="font-serif text-[28px] font-bold block leading-none text-rose-deep">{allPlaces.length}</b>
-                <span className="text-[12px] text-muted mt-1 block">{t("stat_places")}</span>
-              </div>
-              <div className="hidden sm:block w-px h-8 bg-line" />
-              <div className="text-center">
-                <b className="font-serif text-[28px] font-bold block leading-none text-rose-deep">{visibleCategories.length}</b>
-                <span className="text-[12px] text-muted mt-1 block">{t("stat_categories")}</span>
-              </div>
-              <div className="hidden sm:block w-px h-8 bg-line" />
-              <div className="text-center">
-                <b className="font-serif text-[28px] font-bold block leading-none text-rose-deep">∞</b>
-                <span className="text-[12px] text-muted mt-1 block">{t("stat_members")}</span>
-              </div>
-            </div>
           </div>
 
-          {/* Decorative hero illustration — Japan map. Sits in the right gutter
-              on desktop (lg+); purely visual, never interactive. Sized to anchor
-              the right side and lifted with a soft rose shadow. */}
-          <div
-            aria-hidden="true"
-            className="hidden lg:block lg:flex-none w-[clamp(440px,50%,680px)] xl:w-[clamp(580px,56%,880px)] pointer-events-none select-none"
-          >
+          {/* MAP — the hero visual. Spans both desktop rows so it centres against
+              text + stats; appears between CTA and stats on mobile. A gentle
+              saturate/contrast lift counters the pastel fade; the very light rose
+              shadow grounds the transparent PNG without a box or halo. */}
+          <div className="lg:col-start-2 lg:row-start-1 lg:row-span-2 lg:self-center mt-10 lg:mt-0 mx-auto lg:mx-0 w-full max-w-[440px] sm:max-w-[560px] lg:max-w-none pointer-events-none select-none">
             <Image
               src="/bg_web.png"
-              alt=""
+              alt={t("hero_map_alt")}
               width={1508}
               height={941}
               priority
-              sizes="(min-width: 1280px) 56vw, (min-width: 1024px) 50vw, 0px"
-              className="w-full h-auto drop-shadow-[0_16px_34px_rgba(194,24,91,0.06)]"
+              sizes="(min-width: 1280px) 56vw, (min-width: 1024px) 52vw, (min-width: 640px) 560px, 88vw"
+              className="w-full h-auto saturate-[1.08] contrast-[1.02] drop-shadow-[0_16px_36px_rgba(194,24,91,0.07)]"
             />
+          </div>
+
+          {/* STATS — supporting proof, tied to the hero (sits directly under the
+              CTAs on desktop, after the map on mobile). */}
+          <div className="lg:col-start-1 lg:row-start-2 mt-9 lg:mt-7 flex justify-center lg:justify-start">
+            <div className="inline-flex items-center gap-x-5 sm:gap-x-8 px-5 sm:px-7 py-3.5 rounded-2xl bg-paper/85 border border-line shadow-[0_2px_16px_-10px_rgba(60,40,40,0.4)]">
+              <div className="text-center">
+                <b className="font-serif text-[26px] font-bold block leading-none text-rose-deep tabular-nums">{allPlaces.length}</b>
+                <span className="text-[11.5px] text-muted mt-1.5 block">{t("stat_places")}</span>
+              </div>
+              <span className="w-px h-9 bg-line" aria-hidden="true" />
+              <div className="text-center">
+                <b className="font-serif text-[26px] font-bold block leading-none text-rose-deep tabular-nums">{visibleCategories.length}</b>
+                <span className="text-[11.5px] text-muted mt-1.5 block">{t("stat_categories")}</span>
+              </div>
+              <span className="w-px h-9 bg-line" aria-hidden="true" />
+              <div className="text-center">
+                <b className="font-serif text-[20px] font-bold block leading-none text-rose-deep">{t("stat_community_value")}</b>
+                <span className="text-[11.5px] text-muted mt-1.5 block">{t("stat_community_label")}</span>
+              </div>
+            </div>
           </div>
         </div>
       </section>

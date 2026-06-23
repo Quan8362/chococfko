@@ -32,7 +32,7 @@ export default function HomeLogo({ label }: { label: string }) {
       <img
         src="/logo-nav.png"
         alt="Chợ Cóc FKO"
-        className="h-8 sm:h-9 w-auto max-w-[150px] sm:max-w-[180px] object-contain"
+        className="h-9 sm:h-10 w-auto max-w-[160px] sm:max-w-[196px] object-contain"
       />
     </Link>
   )

@@ -58,3 +58,22 @@ export function mergePinnedPlace(
   if (serverPlaces.some((p) => p.slug === pin.slug)) return serverPlaces;
   return [pin, ...serverPlaces];
 }
+
+/**
+ * Union two place lists by stable slug, preserving order (primary first, then any
+ * extras not already present). Used ONLY on the initial committed load: the SSR
+ * results come from a generous fixed box, while the client's first viewport query
+ * reflects the actual rendered (often narrower) map. Unioning them guarantees a
+ * transiently narrow first viewport can never DROP a valid SSR place — without
+ * hardcoding anything. Later user-committed fetches replace normally.
+ */
+export function unionBySlug(primary: NearbyPlace[], extra: NearbyPlace[]): NearbyPlace[] {
+  const seen = new Set(primary.map((p) => p.slug));
+  const out = [...primary];
+  for (const p of extra) {
+    if (seen.has(p.slug)) continue;
+    seen.add(p.slug);
+    out.push(p);
+  }
+  return out;
+}

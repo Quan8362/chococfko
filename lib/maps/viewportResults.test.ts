@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import type { NearbyPlace } from '../placesNearby.ts';
 import type { InternalResultItem } from './unifiedSearch.ts';
-import { internalToNearby, mergePinnedPlace } from './viewportResults.ts';
+import { internalToNearby, mergePinnedPlace, unionBySlug } from './viewportResults.ts';
 
 function np(slug: string, lat: number, lng: number): NearbyPlace {
   return {
@@ -57,4 +57,26 @@ test('mergePinnedPlace drops the pin once the viewport no longer covers it', () 
 test('mergePinnedPlace is a no-op without a pin', () => {
   const server = [np('a', 33.5, 130.5)];
   assert.deepEqual(mergePinnedPlace(server, null, () => true), server);
+});
+
+test('unionBySlug keeps SSR places a narrower first viewport omitted (the disappearing-place bug)', () => {
+  // First client viewport only saw the centre place; SSR also had an edge place.
+  const viewport = [np('centre', 33.52, 130.53)];
+  const ssr = [np('centre', 33.52, 130.53), np('edge', 33.5, 130.62)];
+  const merged = unionBySlug(viewport, ssr);
+  assert.equal(merged.length, 2);
+  assert.deepEqual(merged.map((p) => p.slug), ['centre', 'edge']);
+});
+
+test('unionBySlug never duplicates a slug present in both lists', () => {
+  const a = [np('x', 33.5, 130.5), np('y', 33.6, 130.6)];
+  const b = [np('y', 33.6, 130.6), np('z', 33.7, 130.7)];
+  const merged = unionBySlug(a, b);
+  assert.deepEqual(merged.map((p) => p.slug), ['x', 'y', 'z']);
+});
+
+test('unionBySlug preserves primary (viewport) order first', () => {
+  const primary = [np('b', 33.5, 130.5), np('a', 33.6, 130.6)];
+  const extra = [np('c', 33.7, 130.7)];
+  assert.deepEqual(unionBySlug(primary, extra).map((p) => p.slug), ['b', 'a', 'c']);
 });

@@ -196,7 +196,7 @@ export default function MapExplorer({ defaultCenter, defaultRadius, categories, 
         </div>
         <div className="flex gap-2 mt-3">
           <Link href={`/places/${m.slug}`} className="flex-1 text-center py-1.5 text-[12px] font-semibold rounded-xl bg-teal-soft text-teal border border-teal/20 hover:bg-teal hover:text-white transition-all">{t('detail')}</Link>
-          <a href={dir} target="_blank" rel="noopener nofollow" className="flex-1 text-center py-1.5 text-[12px] font-semibold rounded-xl bg-rose-soft text-rose border border-rose/20 hover:bg-rose hover:text-white transition-all">{t('directions')}</a>
+          <a href={dir} rel="noopener nofollow" className="flex-1 text-center py-1.5 text-[12px] font-semibold rounded-xl bg-rose-soft text-rose border border-rose/20 hover:bg-rose hover:text-white transition-all">{t('directions')}</a>
         </div>
       </div>
     )

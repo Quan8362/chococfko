@@ -152,15 +152,15 @@ export default async function Home() {
               the right side and lifted with a soft rose shadow. */}
           <div
             aria-hidden="true"
-            className="hidden lg:block lg:flex-none w-[clamp(380px,44%,560px)] xl:w-[clamp(480px,46%,680px)] pointer-events-none select-none"
+            className="hidden lg:block lg:flex-none w-[clamp(400px,46%,620px)] xl:w-[clamp(520px,50%,760px)] pointer-events-none select-none"
           >
             <Image
               src="/bg_web.png"
               alt=""
-              width={1672}
+              width={1508}
               height={941}
               priority
-              sizes="(min-width: 1280px) 46vw, (min-width: 1024px) 44vw, 0px"
+              sizes="(min-width: 1280px) 50vw, (min-width: 1024px) 46vw, 0px"
               className="w-full h-auto drop-shadow-[0_22px_48px_rgba(194,24,91,0.13)]"
             />
           </div>

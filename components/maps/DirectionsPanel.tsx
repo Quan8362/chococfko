@@ -165,7 +165,12 @@ export default function DirectionsPanel({
     }
   }, [routePreviewAvailable, originCoords, destHasCoords, destination.lat, destination.lng, mode, locale, onRoute, beacon])
 
+  const openingRef = useRef(false)
   const openInGoogleMaps = () => {
+    // Guard against a double tap firing two navigations before the first commits.
+    if (openingRef.current) return
+    openingRef.current = true
+    if (process.env.NODE_ENV !== 'production') console.debug('[directions] openInGoogleMaps invoked')
     beacon('open_in_google_maps_clicked')
     const url = buildGoogleMapsDirectionsUrl({
       destination: { placeId: destination.placeId, lat: destination.lat, lng: destination.lng, name: destination.name },
@@ -176,7 +181,15 @@ export default function DirectionsPanel({
           : 'current',
       mode,
     })
-    window.open(url, '_blank', 'noopener')
+    // ONE navigation only. The official Google Maps `https://…/maps/dir/?api=1`
+    // universal link lets iOS hand off to the installed app (page stays intact) or
+    // open Google Maps web otherwise. We must NOT pre-open a tab / use
+    // `window.open(url, '_blank')` — on iOS that leaves a blank "Không tên" tab
+    // behind while the app launches from the universal link.
+    window.location.assign(url)
+    // Re-arm shortly after in case the navigation was intercepted by the app and
+    // the page is still alive (user may want directions again).
+    setTimeout(() => { openingRef.current = false }, 1200)
   }
 
   const dur = preview ? formatDurationSeconds(preview.durationSeconds) : null

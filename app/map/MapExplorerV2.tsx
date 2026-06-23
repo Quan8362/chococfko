@@ -17,7 +17,7 @@ import {
 import type { InternalResultItem, StationAreaResultItem, TopicResultItem } from '@/lib/maps/unifiedSearch'
 import type { ExternalPlacePreview as ExternalPreview } from '@/lib/maps/externalPlace'
 import { findInternalDuplicate } from '@/lib/maps/duplicateDetection'
-import { internalToNearby, mergePinnedPlace } from '@/lib/maps/viewportResults'
+import { internalToNearby, mergePinnedPlace, unionBySlug } from '@/lib/maps/viewportResults'
 import { encodeExternalSeed, SEED_PARAM } from '@/lib/maps/adminSeed'
 import { polylineBounds } from '@/lib/maps/polyline'
 import { prefersReducedMotion, motionOptions, scrollBehavior } from '@/lib/maps/motion'
@@ -114,7 +114,12 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
   )
 
   // ── Viewport fetch (explicit / committed only) ──
-  const fetchBounds = useCallback(async (cat = category, query = q) => {
+  // `initial` = the very first committed load right after the map mounts. The SSR
+  // `initialPlaces` were fetched from a generous fixed box; this first client query
+  // reflects the actual rendered (often narrower) viewport. On `initial` we UNION
+  // the two so a transiently narrow first viewport can never drop a valid SSR place
+  // ("two load, then one disappears"). All later (user-committed) fetches replace.
+  const fetchBounds = useCallback(async (cat = category, query = q, opts?: { initial?: boolean }) => {
     const map = mapRef.current
     if (!map) return
     const b = map.getBounds()
@@ -130,6 +135,7 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
     if (process.env.NODE_ENV !== 'production') {
       // Dev-only: trace the exact viewport → query the server receives.
       console.debug('[mapv2] fetchBounds', {
+        seq: myId, initial: !!opts?.initial, startedAt: Math.round(t0),
         center: map.getCenter(), zoom: map.getZoom(),
         bounds: { north: b.getNorth(), south: b.getSouth(), east: b.getEast(), west: b.getWest() },
         params: params.toString(), category: cat, openNowOnly,
@@ -142,13 +148,19 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
       const serverPlaces: NearbyPlace[] = Array.isArray(json.places) ? json.places : []
       // Keep a pinned (just-selected, out-of-view) result visible if the new
       // viewport still covers it but the server response omitted it.
-      const next = mergePinnedPlace(serverPlaces, pinnedRef.current, (lat, lng) => b.contains([lat, lng]))
+      const merged = mergePinnedPlace(serverPlaces, pinnedRef.current, (lat, lng) => b.contains([lat, lng]))
+      // First load only: never shrink below the SSR result set.
+      const next = opts?.initial ? unionBySlug(merged, initialPlaces) : merged
       setPlaces(next)
       setFetchState('')
       setMoved(false)
       lastSearched.current = { center: { lat: map.getCenter().lat, lng: map.getCenter().lng }, zoom: map.getZoom() }
       if (process.env.NODE_ENV !== 'production') {
-        console.debug('[mapv2] result', { serverCount: serverPlaces.length, afterMerge: next.length, slugs: next.map((p) => p.slug) })
+        const ms = (typeof performance !== 'undefined' ? performance.now() : 0) - t0
+        console.debug('[mapv2] result', {
+          seq: myId, ms: Math.round(ms), serverCount: serverPlaces.length,
+          afterPin: merged.length, afterUnion: next.length, slugs: next.map((p) => p.slug),
+        })
       }
       const ms = (typeof performance !== 'undefined' ? performance.now() : 0) - t0
       emitMapMetric('viewport_query', { ok: true, latency_ms: Math.round(ms), latency_bucket: latencyBucket(ms) })
@@ -159,7 +171,7 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
       emitMapMetric('viewport_query', { ok: false, status: 'error' })
       emitMapMetric('map_api_unavailable', { status: 'in_bounds' })
     }
-  }, [category, q, openNowOnly])
+  }, [category, q, openNowOnly, initialPlaces])
 
   // Track OS "reduce motion" so Leaflet pan/zoom/fit can honour it (CSS can't).
   useEffect(() => {
@@ -206,7 +218,17 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
       clusterRef.current = cluster
       emitMapMetric('map_loaded', { provider: 'leaflet' })
       emitMapMetric('map_provider', { provider: 'leaflet' })
-      void fetchBounds() // initial committed load aligned to the real viewport
+      // Initial committed load. Defer until the container has its FINAL size
+      // (mobile bottom sheet, dvh / Safari toolbar settle) so getBounds() reflects
+      // the real rendered viewport — querying too early gives a transiently narrow
+      // box. The `initial` union then guarantees the SSR places survive regardless.
+      const initialLoad = () => {
+        const m = mapRef.current
+        if (!m) return
+        m.invalidateSize()
+        void fetchBounds(category, q, { initial: true })
+      }
+      requestAnimationFrame(() => requestAnimationFrame(initialLoad))
     } catch {
       setMapFailed(true)
       emitMapMetric('map_load_failed', { provider: 'leaflet' })

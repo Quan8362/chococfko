@@ -132,7 +132,7 @@ export default async function Home() {
               </Link>
               <Link
                 href="/places/new"
-                className="inline-flex items-center justify-center gap-1.5 min-h-[44px] px-2 text-[13.5px] font-semibold text-rose hover:text-rose-deep underline-offset-4 hover:underline transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose/40 focus-visible:ring-offset-2 focus-visible:ring-offset-cream rounded-md"
+                className="inline-flex items-center justify-center gap-1.5 min-h-[44px] px-2 text-[13.5px] font-semibold text-rose hover:text-rose-deep no-underline transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose/40 focus-visible:ring-offset-2 focus-visible:ring-offset-cream rounded-md"
               >
                 {t("write_place_cta")}
               </Link>

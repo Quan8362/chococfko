@@ -2914,7 +2914,10 @@
     "it_err_translate_failed": "无法翻译文字。下方显示原文。",
     "it_err_rate_limited": "操作过于频繁。请稍后再试。",
     "it_err_network": "连接错误。请重试。",
-    "it_err_empty": "图片中未找到日语文字。"
+    "it_err_empty": "图片中未找到日语文字。",
+    "tools_heading": "学习工具",
+    "tools_subtitle": "学习日语所需的一切，尽在一处。",
+    "hero_popular": "热门"
   },
   "public_profile": {
     "title": "成员资料",

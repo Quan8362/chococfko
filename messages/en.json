@@ -2914,7 +2914,10 @@
     "it_err_translate_failed": "Could not translate the text. Showing the original below.",
     "it_err_rate_limited": "Too many requests. Please try again shortly.",
     "it_err_network": "Connection error. Please try again.",
-    "it_err_empty": "No Japanese text found in the image."
+    "it_err_empty": "No Japanese text found in the image.",
+    "tools_heading": "Learning tools",
+    "tools_subtitle": "Everything you need to learn Japanese, in one place.",
+    "hero_popular": "Popular"
   },
   "public_profile": {
     "title": "Member profile",

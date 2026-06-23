@@ -2914,7 +2914,10 @@
     "it_err_translate_failed": "Không thể dịch văn bản. Hiển thị văn bản gốc bên dưới.",
     "it_err_rate_limited": "Bạn thao tác quá nhanh. Vui lòng thử lại sau giây lát.",
     "it_err_network": "Lỗi kết nối. Vui lòng thử lại.",
-    "it_err_empty": "Không tìm thấy văn bản tiếng Nhật trong ảnh."
+    "it_err_empty": "Không tìm thấy văn bản tiếng Nhật trong ảnh.",
+    "tools_heading": "Công cụ học tập",
+    "tools_subtitle": "Mọi thứ bạn cần để học tiếng Nhật, gom về một nơi.",
+    "hero_popular": "Phổ biến"
   },
   "public_profile": {
     "title": "Hồ sơ thành viên",

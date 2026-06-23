@@ -2914,7 +2914,10 @@
     "it_err_translate_failed": "テキストを翻訳できませんでした。下に元のテキストを表示します。",
     "it_err_rate_limited": "リクエストが多すぎます。しばらくしてからお試しください。",
     "it_err_network": "接続エラーです。もう一度お試しください。",
-    "it_err_empty": "画像内に日本語のテキストが見つかりませんでした。"
+    "it_err_empty": "画像内に日本語のテキストが見つかりませんでした。",
+    "tools_heading": "学習ツール",
+    "tools_subtitle": "日本語学習に必要なものを、ひとつの場所に。",
+    "hero_popular": "人気"
   },
   "public_profile": {
     "title": "メンバープロフィール",

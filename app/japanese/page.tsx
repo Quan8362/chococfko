@@ -5,7 +5,6 @@ import { createClient } from '@/lib/supabase/server'
 import { JLPT_LEVELS } from '@/components/japanese/LevelPicker'
 import JlptBadge from '@/components/japanese/JlptBadge'
 import HeroSearch from '@/components/japanese/HeroSearch'
-import HandwritingModal from '@/components/japanese/HandwritingModal'
 
 export async function generateMetadata() {
   const t = await getTranslations('japanese')
@@ -58,10 +57,17 @@ const ICON: Record<string, ReactNode> = {
   ),
 }
 
-function FeatureIcon({ name }: { name: string }) {
+function FeatureIcon({ name, featured = false }: { name: string; featured?: boolean }) {
   return (
-    <span aria-hidden className="w-11 h-11 rounded-xl bg-rose/10 grid place-items-center text-rose shrink-0">
-      <svg className="w-[22px] h-[22px]" fill="none" stroke="currentColor" strokeWidth={1.75} viewBox="0 0 24 24">
+    <span
+      aria-hidden
+      className={`grid place-items-center rounded-xl shrink-0 transition-colors ${
+        featured
+          ? 'w-12 h-12 bg-rose text-white group-hover:bg-rose-deep shadow-[0_6px_16px_-6px_rgba(194,24,91,0.5)]'
+          : 'w-10 h-10 bg-rose/10 text-rose group-hover:bg-rose/15'
+      }`}
+    >
+      <svg className={featured ? 'w-6 h-6' : 'w-5 h-5'} fill="none" stroke="currentColor" strokeWidth={1.75} viewBox="0 0 24 24">
         {ICON[name]}
       </svg>
     </span>
@@ -69,29 +75,28 @@ function FeatureIcon({ name }: { name: string }) {
 }
 
 const Arrow = () => (
-  <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+  <svg aria-hidden className="w-4 h-4 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
   </svg>
 )
 
-type FeatureDef = { key: string; href: string; primary?: boolean; cta?: string }
+type FeatureDef = { key: string; href: string; cta?: string }
 
-const GROUP_LOOKUP: FeatureDef[] = [
-  { key: 'dictionary', href: '/japanese/dictionary', primary: true, cta: 'cta_start_lookup' },
-  { key: 'kanji', href: '/japanese/kanji' },
-  { key: 'grammar', href: '/japanese/grammar', primary: true, cta: 'cta_view_grammar' },
-  { key: 'handwriting', href: '/japanese/handwriting' },
+/* Three flagship tools — the visual focal point of the page. */
+const PRIMARY_TOOLS: FeatureDef[] = [
+  { key: 'dictionary', href: '/japanese/dictionary', cta: 'cta_start_lookup' },
+  { key: 'vocabulary', href: '/japanese/vocabulary', cta: 'cta_learn_by_level' },
+  { key: 'grammar', href: '/japanese/grammar', cta: 'cta_view_grammar' },
 ]
 
-const GROUP_JLPT: FeatureDef[] = [
-  { key: 'vocabulary', href: '/japanese/vocabulary', primary: true, cta: 'cta_learn_by_level' },
+/* Every other tool, once, in a single balanced grid. */
+const SECONDARY_TOOLS: FeatureDef[] = [
+  { key: 'kanji', href: '/japanese/kanji' },
   { key: 'flashcard', href: '/japanese/flashcards' },
   { key: 'practice', href: '/japanese/practice' },
   { key: 'jlpt_test', href: '/japanese/jlpt-mock-test' },
-]
-
-const GROUP_TOOLS: FeatureDef[] = [
   { key: 'writing', href: '/japanese/writing' },
+  { key: 'handwriting', href: '/japanese/handwriting' },
   { key: 'image_translate', href: '/japanese/image-translate' },
   { key: 'study_profile', href: '/japanese/profile' },
 ]
@@ -142,228 +147,216 @@ async function getProgress(): Promise<Progress | null> {
 export default async function JapaneseLearningPage() {
   const [t, progress] = await Promise.all([getTranslations('japanese'), getProgress()])
 
-  const renderCard = ({ key, href, primary, cta }: FeatureDef) => (
+  type TT = Parameters<typeof t>[0]
+  const tt = (k: string) => t(k as TT)
+
+  /* Subtle, de-emphasized shortcuts under the hero search. */
+  const popular = [
+    { label: tt('dict_heading'), href: '/japanese/dictionary' },
+    { label: tt('seo_link_vocab_n5'), href: '/japanese/vocabulary/n5' },
+    { label: tt('exam_heading'), href: '/japanese/jlpt-mock-test' },
+  ]
+
+  const renderPrimary = ({ key, href, cta }: FeatureDef) => (
     <Link
       key={key}
       href={href}
-      className={`group relative flex flex-col rounded-2xl p-5 transition-all hover:-translate-y-0.5 focus-visible:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/40 ${
-        primary
-          ? 'bg-gradient-to-br from-rose/[0.07] to-paper border border-rose/25 hover:border-rose/45 hover:shadow-[0_8px_28px_-10px_rgba(194,24,91,0.28)]'
-          : 'bg-paper border border-line hover:border-rose/30 hover:shadow-[0_4px_20px_-8px_rgba(194,24,91,0.18)]'
-      }`}
+      className="group relative flex flex-col rounded-2xl p-6 bg-gradient-to-br from-rose-soft to-paper border border-rose/25 transition-all hover:-translate-y-1 hover:border-rose/45 hover:shadow-[0_14px_34px_-14px_rgba(194,24,91,0.32)] focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/45 focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
     >
-      <FeatureIcon name={key} />
-      <h3 className="font-serif font-bold text-[16px] leading-snug text-ink group-hover:text-rose transition-colors mt-3.5">
-        {t(key as Parameters<typeof t>[0])}
+      <FeatureIcon name={key} featured />
+      <h3 className="font-serif font-bold text-[18px] leading-snug text-ink mt-4 transition-colors group-hover:text-rose">
+        {tt(key)}
       </h3>
-      <p className="text-[12.5px] text-muted leading-snug mt-1 flex-1">
-        {t(FEATURE_DESC[key] as Parameters<typeof t>[0])}
-      </p>
-      <span className={`inline-flex items-center gap-1.5 text-[12.5px] font-semibold mt-3.5 ${primary ? 'text-rose' : 'text-muted group-hover:text-rose transition-colors'}`}>
-        {t((cta ?? 'card_open') as Parameters<typeof t>[0])}
+      <p className="text-[13px] text-muted leading-snug mt-1.5 flex-1">{tt(FEATURE_DESC[key])}</p>
+      <span className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-rose mt-4">
+        {tt(cta ?? 'card_open')}
         <Arrow />
       </span>
     </Link>
   )
 
-  const SmartStart = [
-    { titleKey: 'start_first_word', descKey: 'start_first_word_desc', href: '/japanese/dictionary', icon: 'dictionary' },
-    { titleKey: 'start_n5_vocab', descKey: 'start_n5_vocab_desc', href: '/japanese/vocabulary/n5', icon: 'vocabulary' },
-    { titleKey: 'start_n5_grammar', descKey: 'start_n5_grammar_desc', href: '/japanese/grammar/n5', icon: 'grammar' },
-    { titleKey: 'start_practice', descKey: 'start_practice_desc', href: '/japanese/practice', icon: 'practice' },
-  ] as const
+  const renderSecondary = ({ key, href }: FeatureDef) => (
+    <Link
+      key={key}
+      href={href}
+      className="group flex flex-col rounded-xl p-4 bg-paper border border-line transition-all hover:-translate-y-0.5 hover:border-rose/30 hover:shadow-[0_6px_20px_-10px_rgba(194,24,91,0.22)] focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/45 focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
+    >
+      <FeatureIcon name={key} />
+      <h3 className="font-serif font-bold text-[14.5px] leading-snug text-ink mt-3 transition-colors group-hover:text-rose">
+        {tt(key)}
+      </h3>
+      <p className="text-[12px] text-muted leading-snug mt-1">{tt(FEATURE_DESC[key])}</p>
+    </Link>
+  )
 
   return (
-    <div className="max-w-[1040px] mx-auto px-5 sm:px-6 py-8 sm:py-10 pb-20">
+    <div className="max-w-[1040px] mx-auto px-5 sm:px-6 py-8 sm:py-10 pb-16 space-y-12">
 
       {/* ── Hero ─────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-rose/[0.08] via-cream to-paper border border-line mb-10 px-6 py-9 sm:px-12 sm:py-12">
-        <div aria-hidden className="absolute -right-2 -top-3 sm:right-6 sm:top-4 text-[88px] sm:text-[130px] font-bold text-rose/[0.06] select-none leading-none pointer-events-none">
-          日本語
+      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-rose-soft via-cream to-paper border border-line px-6 py-9 sm:px-12 sm:py-14">
+        {/* Layered Japanese-typography motif + soft glow */}
+        <div aria-hidden className="pointer-events-none absolute inset-0 select-none">
+          <span className="absolute -right-3 -top-4 sm:right-6 sm:top-6 text-[96px] sm:text-[150px] font-bold leading-none text-rose/[0.07]">
+            日本語
+          </span>
+          <span className="absolute right-10 bottom-2 hidden lg:block text-[120px] font-bold leading-none text-transparent [-webkit-text-stroke:1px_rgba(194,24,91,0.06)]">
+            学
+          </span>
+          <span className="absolute -left-16 -bottom-20 w-72 h-72 rounded-full bg-rose/10 blur-3xl" />
         </div>
+
         <div className="relative z-10">
           <span className="inline-flex items-center gap-1.5 text-[10.5px] font-bold tracking-[2.5px] uppercase text-rose bg-rose/10 border border-rose/20 px-3 py-1.5 rounded-full mb-5">
-            {t('page_badge')}
+            {tt('page_badge')}
           </span>
-          <h1 className="font-serif font-bold text-[clamp(26px,5vw,44px)] leading-tight tracking-[-0.5px] text-ink mb-3">
-            {t('hero_title')}
+          <h1 className="font-serif font-bold text-[clamp(28px,5.2vw,46px)] leading-tight tracking-[-0.5px] text-ink mb-3">
+            {tt('hero_title')}
           </h1>
-          <p className="text-[14.5px] sm:text-[16px] text-muted leading-relaxed max-w-[560px] mb-6">
-            {t('hero_subtitle')}
+          <p className="text-[14.5px] sm:text-[16px] text-muted leading-relaxed max-w-[560px] mb-7">
+            {tt('hero_subtitle')}
           </p>
 
+          {/* PRIMARY call-to-action */}
           <HeroSearch />
 
-          <div className="flex flex-wrap gap-2.5 mt-5">
-            <Link href="/japanese/dictionary" className="inline-flex items-center gap-1.5 bg-rose text-white font-semibold text-[13.5px] px-4 py-2.5 rounded-full hover:bg-rose-deep transition-colors shadow-sm">
-              {t('dict_heading')}
-            </Link>
-            {/* Quick tools — visible in the hero without scrolling */}
-            <HandwritingModal className="inline-flex items-center gap-1.5 bg-white text-rose font-semibold text-[13.5px] px-4 py-2.5 rounded-full border border-rose/30 hover:bg-rose/5 hover:border-rose/50 transition-colors shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/40" />
-            <Link href="/japanese/image-translate" className="inline-flex items-center gap-1.5 bg-white text-rose font-semibold text-[13.5px] px-4 py-2.5 rounded-full border border-rose/30 hover:bg-rose/5 hover:border-rose/50 transition-colors shadow-sm">
-              <svg aria-hidden className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.85} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              {t('hero_image_translate')}
-            </Link>
-            <Link href="/japanese/vocabulary" className="inline-flex items-center gap-1.5 bg-white text-ink font-semibold text-[13.5px] px-4 py-2.5 rounded-full border border-line hover:border-rose/40 hover:text-rose transition-colors">
-              {t('vocabulary')}
-            </Link>
-            <Link href="/japanese/grammar" className="inline-flex items-center gap-1.5 bg-white text-ink font-semibold text-[13.5px] px-4 py-2.5 rounded-full border border-line hover:border-rose/40 hover:text-rose transition-colors">
-              {t('grammar')}
-            </Link>
-            <Link href="/japanese/jlpt-mock-test" className="inline-flex items-center gap-1.5 bg-white text-ink font-semibold text-[13.5px] px-4 py-2.5 rounded-full border border-line hover:border-rose/40 hover:text-rose transition-colors">
-              {t('exam_heading')}
-            </Link>
+          {/* De-emphasized shortcuts */}
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-5 text-[13px]">
+            <span className="font-semibold text-muted">{tt('hero_popular')}</span>
+            {popular.map(p => (
+              <Link
+                key={p.href}
+                href={p.href}
+                className="font-medium text-ink/80 underline-offset-4 hover:text-rose hover:underline transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/45 rounded"
+              >
+                {p.label}
+              </Link>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ── Continue learning / Smart start ──────────────────── */}
-      {progress ? (
-        <section className="mb-12">
-          <div className="rounded-2xl border border-rose/20 bg-gradient-to-br from-rose/[0.05] to-paper p-5 sm:p-6">
+      {/* ── Continue learning (logged-in only) ───────────────── */}
+      {progress && (
+        <section aria-labelledby="jp-continue">
+          <div className="rounded-2xl border border-rose/20 bg-gradient-to-br from-rose-soft to-paper p-5 sm:p-6">
             <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
               <div>
-                <h2 className="font-serif font-bold text-[19px] text-ink">{t('continue_heading')}</h2>
-                <p className="text-[13px] text-muted mt-0.5">{t('continue_subtitle')}</p>
+                <h2 id="jp-continue" className="font-serif font-bold text-[19px] text-ink">{tt('continue_heading')}</h2>
+                <p className="text-[13px] text-muted mt-0.5">{tt('continue_subtitle')}</p>
               </div>
-              <Link href="/japanese/profile" className="group inline-flex items-center gap-1.5 text-[13px] font-semibold text-rose">
-                {t('continue_browse_saved')}
+              <Link href="/japanese/profile" className="group inline-flex items-center gap-1.5 text-[13px] font-semibold text-rose focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/45 rounded-md px-1">
+                {tt('continue_browse_saved')}
                 <Arrow />
               </Link>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <Link href="/japanese/profile" className="group bg-white border border-line rounded-xl p-4 hover:border-rose/30 transition-all">
-                <p className="text-[12px] text-muted">{t('continue_saved_label')}</p>
-                <p className="font-serif font-bold text-[26px] text-ink group-hover:text-rose transition-colors leading-tight mt-1">{progress.savedCount}</p>
+              <Link href="/japanese/profile" className="group bg-white border border-line rounded-xl p-4 transition-all hover:-translate-y-0.5 hover:border-rose/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/45">
+                <p className="text-[12px] text-muted">{tt('continue_saved_label')}</p>
+                <p className="font-serif font-bold text-[26px] text-ink leading-tight mt-1 transition-colors group-hover:text-rose">{progress.savedCount}</p>
               </Link>
-              <Link href="/japanese/flashcards" className="group bg-white border border-line rounded-xl p-4 hover:border-rose/30 transition-all">
-                <p className="text-[12px] text-muted">{t('continue_due_label')}</p>
-                <p className="font-serif font-bold text-[26px] text-ink group-hover:text-rose transition-colors leading-tight mt-1">{progress.dueCount}</p>
+              <Link href="/japanese/flashcards" className="group bg-white border border-line rounded-xl p-4 transition-all hover:-translate-y-0.5 hover:border-rose/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/45">
+                <p className="text-[12px] text-muted">{tt('continue_due_label')}</p>
+                <p className="font-serif font-bold text-[26px] text-ink leading-tight mt-1 transition-colors group-hover:text-rose">{progress.dueCount}</p>
               </Link>
               <Link
                 href={progress.lastLevel ? `/japanese/vocabulary/${progress.lastLevel.toLowerCase()}` : '/japanese/vocabulary'}
-                className="group bg-white border border-line rounded-xl p-4 hover:border-rose/30 transition-all flex flex-col"
+                className="group bg-white border border-line rounded-xl p-4 flex flex-col transition-all hover:-translate-y-0.5 hover:border-rose/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/45"
               >
-                <p className="text-[12px] text-muted">{t('continue_level_label')}</p>
-                <p className="font-serif font-bold text-[26px] text-ink group-hover:text-rose transition-colors leading-tight mt-1">
-                  {progress.lastLevel ?? t('continue_none')}
+                <p className="text-[12px] text-muted">{tt('continue_level_label')}</p>
+                <p className="font-serif font-bold text-[26px] text-ink leading-tight mt-1 transition-colors group-hover:text-rose">
+                  {progress.lastLevel ?? tt('continue_none')}
                 </p>
                 <span className="inline-flex items-center gap-1 text-[12px] font-semibold text-rose mt-auto pt-2">
-                  {t('continue_resume')}
+                  {tt('continue_resume')}
                   <Arrow />
                 </span>
               </Link>
             </div>
           </div>
         </section>
-      ) : (
-        <section className="mb-12">
-          <div className="mb-4">
-            <h2 className="font-serif font-bold text-[20px] text-ink">{t('start_heading')}</h2>
-            <p className="text-[13.5px] text-muted mt-0.5">{t('start_subtitle')}</p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            {SmartStart.map(({ titleKey, descKey, href, icon }) => (
-              <Link
-                key={titleKey}
-                href={href}
-                className="group bg-paper border border-line rounded-2xl p-4 hover:border-rose/30 hover:-translate-y-0.5 hover:shadow-[0_4px_20px_-8px_rgba(194,24,91,0.18)] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/40"
-              >
-                <FeatureIcon name={icon} />
-                <h3 className="font-serif font-bold text-[14.5px] text-ink group-hover:text-rose transition-colors mt-3">
-                  {t(titleKey as Parameters<typeof t>[0])}
-                </h3>
-                <p className="text-[12px] text-muted leading-snug mt-1">{t(descKey as Parameters<typeof t>[0])}</p>
-              </Link>
-            ))}
-          </div>
-        </section>
       )}
 
-      {/* ── Feature groups ───────────────────────────────────── */}
-      <FeatureGroup title={t('group_lookup_title')} desc={t('group_lookup_desc')}>
-        {GROUP_LOOKUP.map(renderCard)}
-      </FeatureGroup>
-
-      <FeatureGroup title={t('group_jlpt_title')} desc={t('group_jlpt_desc')}>
-        {GROUP_JLPT.map(renderCard)}
-      </FeatureGroup>
-
-      <FeatureGroup title={t('group_tools_title')} desc={t('group_tools_desc')}>
-        {GROUP_TOOLS.map(renderCard)}
-      </FeatureGroup>
-
-      {/* ── JLPT learning path ───────────────────────────────── */}
-      <section className="mb-12">
+      {/* ── Learning tools (consolidated) ────────────────────── */}
+      <section aria-labelledby="jp-tools">
         <div className="mb-5">
-          <h2 className="font-serif font-bold text-[20px] sm:text-[22px] text-ink">{t('jlpt_path_title')}</h2>
-          <p className="text-[13.5px] text-muted mt-1">{t('jlpt_path_subtitle')}</p>
+          <h2 id="jp-tools" className="font-serif font-bold text-[20px] sm:text-[22px] text-ink">{tt('tools_heading')}</h2>
+          <p className="text-[13.5px] text-muted mt-1">{tt('tools_subtitle')}</p>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {JLPT_LEVELS.map(level => {
-            const lv = level.toLowerCase()
-            return (
-              <div key={level} className="bg-paper border border-line rounded-2xl p-5 hover:border-rose/30 transition-colors">
-                <div className="flex items-center gap-2.5 mb-2.5">
-                  <JlptBadge level={level} />
-                  <span className="font-serif font-bold text-[17px] text-ink">{t('jlpt_level')} {level}</span>
-                </div>
-                <p className="text-[13px] text-muted leading-snug mb-4">
-                  {t(`path_${lv}_desc` as Parameters<typeof t>[0])}
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  <Link href={`/japanese/vocabulary/${lv}`} className="text-[12.5px] font-medium bg-cream border border-line text-ink hover:border-rose/40 hover:text-rose px-3 py-1.5 rounded-full transition-colors">
-                    {t('path_action_vocab')}
-                  </Link>
-                  <Link href={`/japanese/grammar/${lv}`} className="text-[12.5px] font-medium bg-cream border border-line text-ink hover:border-rose/40 hover:text-rose px-3 py-1.5 rounded-full transition-colors">
-                    {t('grammar')}
-                  </Link>
-                  <Link href={`/japanese/jlpt-mock-test/${lv}`} className="text-[12.5px] font-medium bg-cream border border-line text-ink hover:border-rose/40 hover:text-rose px-3 py-1.5 rounded-full transition-colors">
-                    {t('path_action_exam')}
-                  </Link>
-                </div>
-              </div>
-            )
-          })}
+
+        {/* Flagship trio — full row, the focal point */}
+        <div className="grid gap-4 sm:grid-cols-3">
+          {PRIMARY_TOOLS.map(renderPrimary)}
+        </div>
+
+        {/* Supporting tools — balanced 2×4 / 4×2 grid, no orphans */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-4">
+          {SECONDARY_TOOLS.map(renderSecondary)}
         </div>
       </section>
 
-      {/* ── SEO content block ────────────────────────────────── */}
-      <section className="rounded-2xl border border-line bg-paper p-6 sm:p-8">
-        <h2 className="font-serif font-bold text-[20px] text-ink mb-3">{t('seo_title')}</h2>
-        <p className="text-[14px] text-muted leading-[1.8] max-w-[760px]">{t('seo_body')}</p>
-        <p className="text-[11.5px] font-bold text-muted uppercase tracking-wide mt-6 mb-3">{t('seo_links_title')}</p>
+      {/* ── JLPT roadmap N5 → N1 (progression) ───────────────── */}
+      <section aria-labelledby="jp-roadmap">
+        <div className="mb-5">
+          <h2 id="jp-roadmap" className="font-serif font-bold text-[20px] sm:text-[22px] text-ink">{tt('jlpt_path_title')}</h2>
+          <p className="text-[13.5px] text-muted mt-1">{tt('jlpt_path_subtitle')}</p>
+        </div>
+        <ol className="grid grid-cols-1 md:grid-cols-5 gap-3">
+          {JLPT_LEVELS.map((level, i) => {
+            const lv = level.toLowerCase()
+            return (
+              <li
+                key={level}
+                className="group relative flex flex-col rounded-2xl bg-paper border border-line p-4 transition-all hover:-translate-y-0.5 hover:border-rose/30 hover:shadow-[0_6px_20px_-10px_rgba(194,24,91,0.2)]"
+              >
+                {/* progression accent strip */}
+                <span aria-hidden className="absolute inset-x-4 top-0 h-0.5 rounded-full bg-gradient-to-r from-rose/0 via-rose/40 to-rose/0" />
+                <div className="flex items-center justify-between">
+                  <JlptBadge level={level} />
+                  <span aria-hidden className="text-[10px] font-semibold text-muted tabular-nums">{i + 1}/{JLPT_LEVELS.length}</span>
+                </div>
+                <h3 className="font-serif font-bold text-[16px] text-ink mt-2.5">
+                  {tt('jlpt_level')} {level}
+                </h3>
+                <p className="text-[12.5px] text-muted leading-snug mt-1 mb-3 flex-1">
+                  {tt(`path_${lv}_desc`)}
+                </p>
+                <div className="flex flex-wrap gap-1.5">
+                  <Link href={`/japanese/vocabulary/${lv}`} className="text-[11.5px] font-medium bg-cream border border-line text-ink px-2.5 py-1 rounded-full transition-colors hover:border-rose/40 hover:text-rose focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/45">
+                    {tt('path_action_vocab')}
+                  </Link>
+                  <Link href={`/japanese/grammar/${lv}`} className="text-[11.5px] font-medium bg-cream border border-line text-ink px-2.5 py-1 rounded-full transition-colors hover:border-rose/40 hover:text-rose focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/45">
+                    {tt('grammar')}
+                  </Link>
+                  <Link href={`/japanese/jlpt-mock-test/${lv}`} className="text-[11.5px] font-medium bg-cream border border-line text-ink px-2.5 py-1 rounded-full transition-colors hover:border-rose/40 hover:text-rose focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/45">
+                    {tt('path_action_exam')}
+                  </Link>
+                </div>
+              </li>
+            )
+          })}
+        </ol>
+      </section>
+
+      {/* ── About + quick links ──────────────────────────────── */}
+      <section aria-labelledby="jp-about" className="rounded-2xl border border-line bg-paper p-6 sm:p-8">
+        <h2 id="jp-about" className="font-serif font-bold text-[20px] text-ink mb-3">{tt('seo_title')}</h2>
+        <p className="text-[14px] text-muted leading-[1.8] max-w-[760px]">{tt('seo_body')}</p>
+        <p className="text-[11.5px] font-bold text-muted uppercase tracking-wide mt-6 mb-3">{tt('seo_links_title')}</p>
         <div className="flex flex-wrap gap-2">
           {[
-            { label: t('seo_link_dictionary'), href: '/japanese/dictionary' },
-            { label: t('seo_link_vocab_n5'), href: '/japanese/vocabulary/n5' },
-            { label: t('seo_link_vocab_n4'), href: '/japanese/vocabulary/n4' },
-            { label: t('seo_link_grammar_n5'), href: '/japanese/grammar/n5' },
-            { label: t('seo_link_kanji'), href: '/japanese/kanji' },
-            { label: t('seo_link_exam'), href: '/japanese/jlpt-mock-test' },
+            { label: tt('seo_link_dictionary'), href: '/japanese/dictionary' },
+            { label: tt('seo_link_vocab_n5'), href: '/japanese/vocabulary/n5' },
+            { label: tt('seo_link_vocab_n4'), href: '/japanese/vocabulary/n4' },
+            { label: tt('seo_link_grammar_n5'), href: '/japanese/grammar/n5' },
+            { label: tt('seo_link_kanji'), href: '/japanese/kanji' },
+            { label: tt('seo_link_exam'), href: '/japanese/jlpt-mock-test' },
           ].map(l => (
-            <Link key={l.href} href={l.href} className="text-[13px] font-medium text-rose bg-rose/[0.07] border border-rose/15 hover:bg-rose/10 px-3.5 py-1.5 rounded-full transition-colors">
+            <Link key={l.href} href={l.href} className="text-[13px] font-medium text-rose bg-rose/[0.07] border border-rose/15 px-3.5 py-1.5 rounded-full transition-colors hover:bg-rose/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/45">
               {l.label}
             </Link>
           ))}
         </div>
       </section>
     </div>
-  )
-}
-
-function FeatureGroup({ title, desc, children }: { title: string; desc: string; children: ReactNode }) {
-  return (
-    <section className="mb-12">
-      <div className="mb-4">
-        <h2 className="font-serif font-bold text-[20px] sm:text-[22px] text-ink">{title}</h2>
-        <p className="text-[13.5px] text-muted mt-1">{desc}</p>
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {children}
-      </div>
-    </section>
   )
 }

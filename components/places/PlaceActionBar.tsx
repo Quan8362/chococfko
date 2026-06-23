@@ -7,6 +7,7 @@ import { useSavedPlaces } from '@/components/SavedPlacesProvider'
 import { trackEvent } from '@/lib/analytics'
 import AddToCollection from '@/components/places/AddToCollection'
 import PlaceReport from '@/components/places/PlaceReport'
+import { HeartIcon, ShareIcon } from '@/components/places/PlaceActionIcons'
 
 export interface ActionBarProps {
   slug: string
@@ -53,18 +54,18 @@ export default function PlaceActionBar(p: ActionBarProps) {
       >
         <div className="flex items-center gap-2 px-3 py-2.5 max-w-[680px] mx-auto">
           <a href={p.directionsUrl} target="_blank" rel="noopener" onClick={() => trackEvent('place_directions', { metadata: { slug: p.slug } })}
-            className="flex-1 text-center font-semibold text-[13.5px] py-2.5 rounded-full bg-rose text-white">
+            className="flex-1 text-center font-semibold text-[14px] min-h-[44px] grid place-items-center rounded-full bg-rose text-white shadow-[0_6px_18px_-6px_rgba(194,24,91,0.5)] active:scale-[0.98] transition-transform">
             {t('directions')}
           </a>
           <button type="button" onClick={onSave} aria-pressed={saved} aria-label={t('save')}
-            className={`flex-none w-11 h-11 grid place-items-center rounded-full border ${saved ? 'bg-rose text-white border-rose' : 'border-line text-muted bg-paper'}`}>
-            <span className="text-[18px]">{saved ? '♥' : '♡'}</span>
+            className={`flex-none w-11 h-11 grid place-items-center rounded-full border transition-colors active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose/45 ${saved ? 'bg-rose text-white border-rose' : 'border-line text-rose bg-paper'}`}>
+            <HeartIcon filled={saved} className="w-[20px] h-[20px]" />
           </button>
-          <button type="button" onClick={onShare} aria-label={t('share')} className="flex-none w-11 h-11 grid place-items-center rounded-full border border-line text-muted bg-paper">
-            <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.7 10.7l6.6-3.4M8.7 13.3l6.6 3.4M18 8a3 3 0 10-6 0 3 3 0 006 0zM9 12a3 3 0 11-6 0 3 3 0 016 0zm9 4a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+          <button type="button" onClick={onShare} aria-label={t('share')} className="flex-none w-11 h-11 grid place-items-center rounded-full border border-line text-rose bg-paper transition-colors active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose/45">
+            <ShareIcon className="w-[20px] h-[20px]" />
           </button>
-          <button type="button" onClick={() => setMenu((m) => !m)} aria-label={t('more')} aria-expanded={menu} className="flex-none w-11 h-11 grid place-items-center rounded-full border border-line text-muted bg-paper">
-            <svg className="w-[18px] h-[18px]" fill="currentColor" viewBox="0 0 24 24"><circle cx="5" cy="12" r="2" /><circle cx="12" cy="12" r="2" /><circle cx="19" cy="12" r="2" /></svg>
+          <button type="button" onClick={() => setMenu((m) => !m)} aria-label={t('more')} aria-expanded={menu} className="flex-none w-11 h-11 grid place-items-center rounded-full border border-line text-muted bg-paper transition-colors active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose/45">
+            <svg className="w-[20px] h-[20px]" fill="currentColor" viewBox="0 0 24 24"><circle cx="5" cy="12" r="2" /><circle cx="12" cy="12" r="2" /><circle cx="19" cy="12" r="2" /></svg>
           </button>
         </div>
 

@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl'
 import { useSavedPlaces } from '@/components/SavedPlacesProvider'
 import { getMyLists, createList, addPlaceToList, type ListRow } from '@/app/lists/actions'
 import { getMyPlans, createPlan, addStop, type PlanRow } from '@/app/plans/actions'
+import { PlusIcon } from '@/components/places/PlaceActionIcons'
 
 /** "Add to list / plan" — the Phase-4 deferred action, now backed by Phase 5. */
 export default function AddToCollection({ slug, variant = 'button' }: { slug: string; variant?: 'button' | 'menu' }) {
@@ -39,8 +40,28 @@ export default function AddToCollection({ slug, variant = 'button' }: { slug: st
   }
 
   const trigger = variant === 'menu'
-    ? <button type="button" onClick={openModal} className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-[14px] text-ink hover:bg-cream text-left">➕ {t('add_to')}</button>
-    : <button type="button" onClick={openModal} className="w-full flex items-center justify-center gap-2 font-semibold text-[14px] px-4 py-3 rounded-2xl bg-paper text-ink border border-line hover:border-rose/40 hover:text-rose transition-all">➕ {t('add_to')}</button>
+    ? (
+      <button type="button" onClick={openModal} className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-[14px] text-ink hover:bg-cream text-left">
+        <PlusIcon className="w-[18px] h-[18px] text-rose" /> {t('add_to')}
+      </button>
+    )
+    : (
+      <button
+        type="button"
+        onClick={openModal}
+        className="group w-full flex items-center gap-2.5 min-h-[52px] px-3 py-2.5 rounded-2xl bg-paper text-ink border border-line shadow-card transition-all duration-150
+          hover:-translate-y-px hover:border-rose/45 hover:shadow-card-hover active:translate-y-0 active:shadow-card
+          focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose/45 focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+      >
+        <span className="flex-none grid place-items-center w-9 h-9 rounded-xl bg-rose/10 text-rose transition-colors duration-150 group-hover:bg-rose group-hover:text-white">
+          <PlusIcon className="w-[18px] h-[18px]" />
+        </span>
+        <span className="flex-1 text-left text-[14px] font-semibold leading-snug">{t('add_to')}</span>
+        <svg className="flex-none w-4 h-4 text-muted transition-all duration-150 group-hover:text-rose group-hover:translate-x-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
+    )
 
   return (
     <>

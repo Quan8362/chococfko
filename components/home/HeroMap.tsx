@@ -8,20 +8,39 @@ export default function HeroMap({ alt }: { alt: string }) {
   const floatRef = useRef<HTMLDivElement>(null);
   const [y, setY] = useState(0);
 
-  // Freeze the idle float animation while the tab is hidden. Otherwise its
-  // timeline keeps advancing in the background (Chrome doesn't composite hidden
-  // tabs but still ticks the animation clock), so on refocus the map visibly
-  // jumps to the new timeline position. Pausing holds currentTime fixed, so the
-  // painted frame stays valid and the float resumes seamlessly.
+  // Idle float driven by requestAnimationFrame instead of a CSS @keyframe.
+  // A CSS animation is bound to the document timeline, which keeps advancing
+  // while the tab is hidden / the window is unfocused but not composited — so
+  // on refocus the browser paints the new timeline position and the map
+  // visibly jumps. rAF, by contrast, only fires for frames that are actually
+  // rendered: it stops while the tab is hidden and throttles while the window
+  // is blurred, so `phase` only advances during active frames. A per-frame
+  // delta clamp absorbs the large timestamp gap on the first frame after a
+  // resume, so the map holds its position and never jumps — covering both the
+  // tab-switch and window-refocus cases. Disabled under reduced-motion.
   useEffect(() => {
     const el = floatRef.current;
     if (!el) return;
-    const onVisibility = () => {
-      el.style.animationPlayState = document.hidden ? "paused" : "running";
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const AMP = 4.5; // px — half of the original 9px travel
+    const PERIOD = 13000; // ms for a full 0 → -9 → 0 cycle (old 6.5s alternate)
+    let phase = 0;
+    let last = 0;
+    let raf = 0;
+
+    const frame = (now: number) => {
+      if (last === 0) last = now;
+      let dt = now - last;
+      last = now;
+      if (dt > 50) dt = 16; // clamp the resume gap so it never steps
+      phase += (dt / PERIOD) * Math.PI * 2;
+      const offset = AMP * Math.cos(phase) - AMP; // 0 → -9 → 0, like floatY
+      el.style.transform = `translateY(${offset.toFixed(2)}px)`;
+      raf = requestAnimationFrame(frame);
     };
-    onVisibility();
-    document.addEventListener("visibilitychange", onVisibility);
-    return () => document.removeEventListener("visibilitychange", onVisibility);
+    raf = requestAnimationFrame(frame);
+    return () => cancelAnimationFrame(raf);
   }, []);
 
   useEffect(() => {
@@ -77,7 +96,7 @@ export default function HeroMap({ alt }: { alt: string }) {
         aria-hidden
         className="hidden lg:block absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 -z-[1] w-[126%] h-[120%] blur-[10px] bg-[radial-gradient(ellipse_56%_50%_at_58%_49%,rgba(194,24,91,0.22),rgba(194,24,91,0.12)_36%,rgba(194,24,91,0.04)_58%,transparent_74%)]"
       />
-      <div ref={floatRef} className="animate-float origin-center relative">
+      <div ref={floatRef} className="origin-center relative will-change-transform">
         <Image
           src="/bg_web.png?v=2"
           alt={alt}

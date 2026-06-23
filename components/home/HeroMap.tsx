@@ -38,14 +38,18 @@ export default function HeroMap({ alt }: { alt: string }) {
   return (
     <div
       ref={ref}
-      /* Desktop: a mid-size map, right-aligned in its grid track and pulled so
-         its right edge sits ~12px inside the viewport on every width. The mr
-         formula anchors to the viewport edge regardless of the centred
-         container (the min() clause accounts for the container capping at
-         1280px). The landmass + all labels stay inside; only the soft glow
-         feathers off the edge. The hero <section> has overflow-hidden so
-         nothing creates an h-scroll. Below lg the map is centred + contained. */
-      className="lg:col-start-2 lg:row-start-1 lg:row-span-2 lg:self-center lg:justify-self-end mt-2 sm:mt-4 lg:mt-0 mx-auto lg:ml-0 lg:mr-[calc(min(0px,_(1280px_-_100vw)_/_2)_-_12px)] w-full max-w-[440px] sm:max-w-[560px] lg:max-w-none lg:w-[44vw] xl:w-[min(44vw,1380px)] relative pointer-events-none select-none will-change-transform"
+      /* Desktop: a mid-size map, right-aligned in its grid track but pulled
+         left so its right edge sits ~115px inside the viewport on every width.
+         Because the map is wider than its track, that single leftward shift
+         both opens clear safe padding on the right (no clipped cities) and
+         closes the gap to the text column — the horizontal slack lands roughly
+         balanced left/right instead of all on the left. The mr formula anchors
+         to the viewport edge regardless of the centred container (the min()
+         clause accounts for the container capping at 1280px). The landmass +
+         all labels stay inside; only the soft glow feathers off the edge. The
+         hero <section> has overflow-hidden so nothing creates an h-scroll.
+         Below lg the map is centred + contained. */
+      className="lg:col-start-2 lg:row-start-1 lg:row-span-2 lg:self-center lg:justify-self-end mt-2 sm:mt-4 lg:mt-0 mx-auto lg:ml-0 lg:mr-[calc(min(0px,_(1280px_-_100vw)_/_2)_+_90px)] w-full max-w-[440px] sm:max-w-[560px] lg:max-w-none lg:w-[44vw] xl:w-[min(44vw,1380px)] relative pointer-events-none select-none will-change-transform"
       style={{ transform: `translate3d(0, ${y}px, 0)` }}
     >
       {/* Soft brand glow radiating from the map's optical centre — the brightest

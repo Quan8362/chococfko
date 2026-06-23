@@ -458,7 +458,7 @@ export default function PlacesExplorer({ places, cards, categories, prefectures,
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6" onClickCapture={onGridClick}>
                 {shown.map((p) => (
-                  <div key={p.slug} className="relative">
+                  <div key={p.slug} className="relative h-full">
                     {typeof p.distanceKm === 'number' && (
                       <span className="absolute top-3 left-3 z-[3] text-[11px] font-semibold px-2 py-[3px] rounded-full bg-ink/85 text-white">
                         {t('distance_away', { dist: formatDistanceKm(p.distanceKm) })}

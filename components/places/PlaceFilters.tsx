@@ -14,25 +14,47 @@ interface Props {
   prefectures: { code: string; name: string }[]
 }
 
-export default function PlaceFilters({ filters, set, relevant, categories, prefectures }: Props) {
-  const t = useTranslations('explore_search')
-  const tp = useTranslations('place_fields')
-  const show = (k: string) => relevant.has(k)
-
-  const Toggle = ({ k, label }: { k: keyof ExploreFilters; label: string }) =>
-    show(k as string) ? (
-      <label className="inline-flex items-center gap-2 text-[13.5px] px-3 py-2 rounded-xl border border-line bg-white cursor-pointer hover:border-rose/40">
-        <input type="checkbox" className="accent-rose" checked={!!filters[k]} onChange={(e) => set({ [k]: e.target.checked || undefined } as Partial<ExploreFilters>)} />
-        {label}
-      </label>
-    ) : null
-
-  const Group = ({ title, children }: { title: string; children: React.ReactNode }) => (
+// Hoisted to module scope so its component identity stays stable across renders.
+// (Defined inline, it would be a new type every render and remount its children —
+// dropping focus from the text inputs it wraps on each keystroke.)
+function Group({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
     <div className="py-3 border-b border-line last:border-0">
       <p className="text-[11.5px] font-semibold uppercase tracking-[1px] text-muted mb-2.5">{title}</p>
       {children}
     </div>
   )
+}
+
+export default function PlaceFilters({ filters, set, relevant, categories, prefectures }: Props) {
+  const t = useTranslations('explore_search')
+  const tp = useTranslations('place_fields')
+  const show = (k: string) => relevant.has(k)
+
+  const Toggle = ({ k, label }: { k: keyof ExploreFilters; label: string }) => {
+    if (!show(k as string)) return null
+    const on = !!filters[k]
+    return (
+      <label className={`inline-flex items-center gap-2 text-[13px] min-h-[40px] px-3 rounded-xl border cursor-pointer transition-colors focus-within:ring-2 focus-within:ring-rose/30 ${on ? 'border-rose/50 bg-rose-soft text-rose font-medium' : 'border-line bg-white text-ink/80 hover:border-rose/40'}`}>
+        <input type="checkbox" className="accent-rose focus:outline-none" checked={on} onChange={(e) => set({ [k]: e.target.checked || undefined } as Partial<ExploreFilters>)} />
+        {label}
+      </label>
+    )
+  }
+
+  // Shared interactive pill for multi/single-select filters. Off state keeps a
+  // readable label + visible border (not "disabled"-looking); on state fills
+  // with the accent colour. Consistent height + focus ring across the sidebar.
+  const Chip = ({ on, accent = 'rose', label, onClick }: { on: boolean; accent?: 'rose' | 'teal'; label: string; onClick: () => void }) => {
+    const onCls = accent === 'teal' ? 'bg-teal text-white border-teal' : 'bg-rose text-white border-rose'
+    const offHover = accent === 'teal' ? 'hover:border-teal/50 hover:text-teal' : 'hover:border-rose/50 hover:text-rose'
+    return (
+      <button type="button" onClick={onClick} aria-pressed={on}
+        className={`inline-flex items-center justify-center min-h-[34px] px-3 rounded-full border text-[12.5px] font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/40 ${on ? onCls : `bg-white border-line text-ink/80 ${offHover}`}`}>
+        {label}
+      </button>
+    )
+  }
 
   return (
     <div>
@@ -40,48 +62,48 @@ export default function PlaceFilters({ filters, set, relevant, categories, prefe
       <Group title={t('group_location')}>
         <div className="flex flex-col gap-2.5">
           <Toggle k="nearby" label={t('f_near_me')} />
+          {/* Prefecture spans the full width so its label + counts never truncate;
+              the shorter station/area inputs share a row below it. */}
+          <Select
+            variant="field"
+            className="bg-white"
+            value={filters.prefecture ?? ''}
+            onChange={(e) => set({ prefecture: e.target.value || undefined })}
+            aria-label={t('any_prefecture')}
+          >
+            <option value="">{t('any_prefecture')}</option>
+            {prefectures.map((p) => <option key={p.code} value={p.code}>{p.name}</option>)}
+          </Select>
           <div className="grid grid-cols-2 gap-2">
-            <Select
-              variant="field"
-              className="bg-white"
-              value={filters.prefecture ?? ''}
-              onChange={(e) => set({ prefecture: e.target.value || undefined })}
-              aria-label={t('any_prefecture')}
-            >
-              <option value="">{t('any_prefecture')}</option>
-              {prefectures.map((p) => <option key={p.code} value={p.code}>{p.name}</option>)}
-            </Select>
             <input
               value={filters.station ?? ''}
               onChange={(e) => set({ station: e.target.value || undefined })}
               placeholder={t('station_placeholder')}
               aria-label={t('station_placeholder')}
-              className="text-[13.5px] min-h-[44px] px-3 border border-line rounded-xl bg-white"
+              className="min-w-0 w-full text-[13.5px] min-h-[44px] px-3 border border-line rounded-xl bg-white text-ink placeholder:text-muted focus:outline-none focus:border-rose/50 focus:ring-2 focus:ring-rose/15"
+            />
+            <input
+              value={filters.area ?? ''}
+              onChange={(e) => set({ area: e.target.value || undefined })}
+              placeholder={t('area_placeholder')}
+              aria-label={t('area_placeholder')}
+              className="min-w-0 w-full text-[13.5px] min-h-[44px] px-3 border border-line rounded-xl bg-white text-ink placeholder:text-muted focus:outline-none focus:border-rose/50 focus:ring-2 focus:ring-rose/15"
             />
           </div>
-          <input
-            value={filters.area ?? ''}
-            onChange={(e) => set({ area: e.target.value || undefined })}
-            placeholder={t('area_placeholder')}
-            aria-label={t('area_placeholder')}
-            className="text-[13.5px] min-h-[44px] px-3 border border-line rounded-xl bg-white"
-          />
         </div>
       </Group>
 
       {/* Price */}
       <Group title={t('group_price')}>
         <div className="flex flex-wrap gap-2 mb-2.5">
-          <button type="button" onClick={() => set({ fee: filters.fee === 'free' ? undefined : 'free' })}
-            className={`text-[13px] px-3 py-1.5 rounded-full border ${filters.fee === 'free' ? 'bg-rose text-white border-rose' : 'border-line text-muted hover:border-rose/40'}`}>{t('f_free')}</button>
-          <button type="button" onClick={() => set({ fee: filters.fee === 'paid' ? undefined : 'paid' })}
-            className={`text-[13px] px-3 py-1.5 rounded-full border ${filters.fee === 'paid' ? 'bg-rose text-white border-rose' : 'border-line text-muted hover:border-rose/40'}`}>{t('f_paid')}</button>
+          <Chip on={filters.fee === 'free'} label={t('f_free')} onClick={() => set({ fee: filters.fee === 'free' ? undefined : 'free' })} />
+          <Chip on={filters.fee === 'paid'} label={t('f_paid')} onClick={() => set({ fee: filters.fee === 'paid' ? undefined : 'paid' })} />
         </div>
         <div className="grid grid-cols-2 gap-2">
           <input type="number" min={0} value={filters.priceMin ?? ''} onChange={(e) => set({ priceMin: e.target.value ? Number(e.target.value) : undefined })}
-            placeholder={t('budget_min')} aria-label={t('budget_min')} className="text-[13.5px] min-h-[44px] px-3 border border-line rounded-xl bg-white" />
+            placeholder={t('budget_min')} aria-label={t('budget_min')} className="min-w-0 w-full text-[13.5px] min-h-[44px] px-3 border border-line rounded-xl bg-white text-ink placeholder:text-muted focus:outline-none focus:border-rose/50 focus:ring-2 focus:ring-rose/15" />
           <input type="number" min={0} value={filters.priceMax ?? ''} onChange={(e) => set({ priceMax: e.target.value ? Number(e.target.value) : undefined })}
-            placeholder={t('budget_max')} aria-label={t('budget_max')} className="text-[13.5px] min-h-[44px] px-3 border border-line rounded-xl bg-white" />
+            placeholder={t('budget_max')} aria-label={t('budget_max')} className="min-w-0 w-full text-[13.5px] min-h-[44px] px-3 border border-line rounded-xl bg-white text-ink placeholder:text-muted focus:outline-none focus:border-rose/50 focus:ring-2 focus:ring-rose/15" />
         </div>
       </Group>
 
@@ -118,7 +140,7 @@ export default function PlaceFilters({ filters, set, relevant, categories, prefe
           <Toggle k="bbq" label={tp('bbq_available')} />
           <Toggle k="camping" label={tp('camping_available')} />
         </div>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="flex flex-col gap-2">
           {show('smoking') && (
             <Select variant="field" className="bg-white" value={filters.smoking ?? ''} onChange={(e) => set({ smoking: (e.target.value || undefined) as ExploreFilters['smoking'] })}
               aria-label={tp('smoking_policy')}>
@@ -140,25 +162,19 @@ export default function PlaceFilters({ filters, set, relevant, categories, prefe
       <Group title={t('group_payment')}>
         <div className="flex flex-wrap gap-1.5 mb-2.5">
           {PAYMENT_METHODS.map((m) => {
-            const on = filters.payment?.includes(m)
+            const on = !!filters.payment?.includes(m)
             return (
-              <button key={m} type="button"
-                onClick={() => { const cur = filters.payment ?? []; set({ payment: on ? cur.filter((x) => x !== m) : [...cur, m] }) }}
-                className={`text-[12.5px] px-2.5 py-1 rounded-full border ${on ? 'bg-teal text-white border-teal' : 'border-line text-muted hover:border-teal/40'}`}>
-                {tp(`pm_${m}` as 'pm_cash')}
-              </button>
+              <Chip key={m} on={on} accent="teal" label={tp(`pm_${m}` as 'pm_cash')}
+                onClick={() => { const cur = filters.payment ?? []; set({ payment: on ? cur.filter((x) => x !== m) : [...cur, m] }) }} />
             )
           })}
         </div>
         <div className="flex flex-wrap gap-1.5">
           {PLACE_LANGUAGES.map((l) => {
-            const on = filters.lang?.includes(l)
+            const on = !!filters.lang?.includes(l)
             return (
-              <button key={l} type="button"
-                onClick={() => { const cur = filters.lang ?? []; set({ lang: on ? cur.filter((x) => x !== l) : [...cur, l] }) }}
-                className={`text-[12.5px] px-2.5 py-1 rounded-full border ${on ? 'bg-teal text-white border-teal' : 'border-line text-muted hover:border-teal/40'}`}>
-                {tp(`lang_${l}` as 'lang_ja')}
-              </button>
+              <Chip key={l} on={on} accent="teal" label={tp(`lang_${l}` as 'lang_ja')}
+                onClick={() => { const cur = filters.lang ?? []; set({ lang: on ? cur.filter((x) => x !== l) : [...cur, l] }) }} />
             )
           })}
         </div>

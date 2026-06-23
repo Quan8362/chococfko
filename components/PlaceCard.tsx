@@ -46,7 +46,7 @@ export default async function PlaceCard({
   const displayArea = formatArea(place, (k, v) => t(k as never, v as never));
 
   return (
-    <article className="bg-paper rounded-2xl overflow-hidden border border-line shadow-card flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover group">
+    <article className="bg-paper rounded-2xl overflow-hidden border border-line shadow-card flex flex-col h-full transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover group">
       {/* Image */}
       <Link href={href} className="block relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-[#f3e1d2] to-[#e9cdb6] flex-none">
         {/* Category badge — hidden inside same-category sections (see prop docs) */}
@@ -88,7 +88,7 @@ export default async function PlaceCard({
         </span>
 
         <Link href={href}>
-          <h3 className="font-serif font-bold text-[18px] leading-[1.25] text-ink hover:text-rose transition-colors">
+          <h3 className="font-serif font-bold text-[18px] leading-[1.25] text-ink hover:text-rose transition-colors line-clamp-2">
             {place.name}
           </h3>
         </Link>
@@ -100,24 +100,26 @@ export default async function PlaceCard({
           {place.desc}
         </p>
 
-        {/* Tags */}
+        {/* Tags — capped at 2 visible + "+N" so a long tag list can't push the
+            action row down unevenly across a grid row. */}
         {place.tags && place.tags.length > 0 && (
-          <TagList tags={place.tags.slice(0, 3)} size="sm" variant="plain" />
+          <TagList tags={place.tags} max={2} size="sm" variant="plain" />
         )}
 
-        {/* Buttons */}
-        <div className="flex gap-2 mt-auto pt-1">
+        {/* Buttons — pinned to the bottom (mt-auto) so action rows align across
+            cards regardless of title/description/tag length. */}
+        <div className="flex gap-2 mt-auto pt-3">
           <a
             href={place.mapUrl}
             target="_blank"
             rel="noopener"
-            className="flex-1 text-center py-2 px-2 rounded-xl text-[12px] font-semibold bg-rose-soft text-rose border border-rose/20 hover:bg-rose hover:text-white hover:border-rose transition-all"
+            className="flex-1 inline-flex items-center justify-center min-h-[38px] px-2 rounded-xl text-[12px] font-semibold bg-rose-soft text-rose border border-rose/20 hover:bg-rose hover:text-white hover:border-rose transition-all"
           >
             {t("map_btn")}
           </a>
           <Link
             href={href}
-            className="flex-1 text-center py-2 px-2 rounded-xl text-[12px] font-semibold bg-teal-soft text-teal border border-teal/20 hover:bg-teal hover:text-white hover:border-teal transition-all"
+            className="flex-1 inline-flex items-center justify-center min-h-[38px] px-2 rounded-xl text-[12px] font-semibold bg-teal-soft text-teal border border-teal/20 hover:bg-teal hover:text-white hover:border-teal transition-all"
           >
             {t("detail_btn")}
           </Link>

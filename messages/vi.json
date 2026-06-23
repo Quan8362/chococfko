@@ -1403,7 +1403,7 @@
     "community_description": "Cộng đồng người Việt tại Nhật Bản — chia sẻ kinh nghiệm sống, thủ tục, giao thông, học tập, việc làm và những câu chuyện đời thường.",
     "community_keywords": "cộng đồng người Việt, Fukuoka, chia sẻ kinh nghiệm, cuộc sống Nhật Bản, thủ tục, việc làm",
     "places": "Địa điểm",
-    "places_description": "Khám phá địa điểm ăn uống, du lịch, biển, núi, công viên, quán Việt và onsen trên khắp Nhật Bản.",
+    "places_description": "Khám phá các địa điểm ăn uống đa dạng, điểm du lịch, biển, núi, công viên và onsen trên khắp Nhật Bản.",
     "places_keywords": "địa điểm Fukuoka, ăn uống, du lịch Nhật Bản, quán Việt, onsen, công viên"
   },
   "games": {
@@ -3512,10 +3512,10 @@
     "group_facilities": "Tiện ích",
     "group_payment": "Thanh toán & ngôn ngữ",
     "group_other": "Khác",
-    "budget_min": "Giá thấp nhất",
-    "budget_max": "Giá cao nhất",
+    "budget_min": "Giá thấp",
+    "budget_max": "Giá cao",
     "any_category": "Mọi chủ đề",
-    "any_prefecture": "Mọi tỉnh",
+    "any_prefecture": "Mọi tỉnh/thành",
     "area_placeholder": "Khu vực",
     "station_placeholder": "Ga gần",
     "f_open_now": "Đang mở cửa",

@@ -15,24 +15,29 @@ export default async function TagList({
   tags,
   size = 'md',
   variant = 'solid',
+  max,
   className = '',
 }: {
   tags: TagChip[]
   size?: 'sm' | 'md'
   /** 'solid' = rounded pill chips; 'plain' = flush text links (#tag) for cards */
   variant?: 'solid' | 'plain'
+  /** Cap the number of visible tags; the remainder collapse into a "+N" chip. */
+  max?: number
   className?: string
 }) {
   if (!tags || tags.length === 0) return null
   const locale = await getLocale()
   const textSize = size === 'sm' ? 'text-[11.5px]' : 'text-[12.5px]'
+  const visible = typeof max === 'number' && max >= 0 ? tags.slice(0, max) : tags
+  const hidden = tags.length - visible.length
 
   if (variant === 'plain') {
     // Flush-left text links so the first "#" lines up with the rows above (no
     // pill padding offset). Used on content cards.
     return (
-      <div className={`flex flex-wrap gap-x-3 gap-y-1 ${className}`}>
-        {tags.map((tag) => (
+      <div className={`flex flex-wrap items-center gap-x-3 gap-y-1 ${className}`}>
+        {visible.map((tag) => (
           <Link
             key={tag.slug}
             href={`/tags/${tag.slug}`}
@@ -41,6 +46,9 @@ export default async function TagList({
             #{getLocalizedTagName(tag, locale)}
           </Link>
         ))}
+        {hidden > 0 && (
+          <span className={`shrink-0 font-medium text-muted ${textSize}`} aria-hidden="true">+{hidden}</span>
+        )}
       </div>
     )
   }
@@ -48,7 +56,7 @@ export default async function TagList({
   const pad = size === 'sm' ? 'px-2.5 py-0.5' : 'px-3 py-1'
   return (
     <div className={`flex flex-wrap gap-1.5 ${className}`}>
-      {tags.map((tag) => (
+      {visible.map((tag) => (
         <Link
           key={tag.slug}
           href={`/tags/${tag.slug}`}
@@ -57,6 +65,9 @@ export default async function TagList({
           <span className="truncate">#{getLocalizedTagName(tag, locale)}</span>
         </Link>
       ))}
+      {hidden > 0 && (
+        <span className={`inline-flex items-center shrink-0 rounded-full bg-line/60 text-muted font-medium ${pad} ${textSize}`} aria-hidden="true">+{hidden}</span>
+      )}
     </div>
   )
 }

@@ -1,9 +1,9 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { currentPriceSelection, priceSelectionPatch, type ExploreFilters } from '@/lib/exploreParams'
-import { PRICE_RANGE_KEYS, PRICE_INPUT_MAX, priceRangeI18nKey, type PriceSelection } from '@/lib/placeBudget'
+import { PRICE_RANGE_KEYS, PRICE_INPUT_MAX, priceRangeI18nKey, formatYen, type PriceSelection } from '@/lib/placeBudget'
 import { PAYMENT_METHODS, PLACE_LANGUAGES, SMOKING_OPTIONS, TATTOO_OPTIONS } from '@/lib/placeFields'
 import Select from '@/components/explore/Select'
 
@@ -14,6 +14,8 @@ interface Props {
   relevant: Set<string>
   categories: { code: string; label: string }[]
   prefectures: { code: string; name: string }[]
+  /** Active locale — for yen formatting of the applied custom range. */
+  locale: string
 }
 
 // Hoisted to module scope so its component identity stays stable across renders.
@@ -28,17 +30,19 @@ function Group({ title, children }: { title: string; children: React.ReactNode }
   )
 }
 
-export default function PlaceFilters({ filters, set, relevant, categories, prefectures }: Props) {
+export default function PlaceFilters({ filters, set, relevant, prefectures, locale }: Props) {
   const t = useTranslations('explore_search')
   const tp = useTranslations('place_fields')
   const show = (k: string) => relevant.has(k)
 
-  // ── Price: one selection at a time (radio) + optional custom range ──────────
+  // ── Price: one applied selection (radio) + an independent custom EDITOR ──────
+  // EXPANSION (customOpen) is a separate concern from the APPLIED selection: the
+  // editor can be open without a custom filter being active, and a custom filter
+  // can stay applied while the editor is collapsed. The trigger is a pure toggle.
   const priceSelection = currentPriceSelection(filters)
   const [customOpen, setCustomOpen] = useState(priceSelection === 'custom')
   const [draftMin, setDraftMin] = useState(filters.priceMin != null ? String(filters.priceMin) : '')
   const [draftMax, setDraftMax] = useState(filters.priceMax != null ? String(filters.priceMax) : '')
-  const [priceError, setPriceError] = useState<string | null>(null)
 
   // Re-sync the draft inputs when the APPLIED custom range changes from outside
   // (global clear-all, shared/Back-Forward URL). Applied values only change on
@@ -46,9 +50,15 @@ export default function PlaceFilters({ filters, set, relevant, categories, prefe
   useEffect(() => {
     setDraftMin(filters.priceMin != null ? String(filters.priceMin) : '')
     setDraftMax(filters.priceMax != null ? String(filters.priceMax) : '')
-    setPriceError(null)
   }, [filters.priceMin, filters.priceMax])
-  useEffect(() => { if (priceSelection === 'custom') setCustomOpen(true) }, [priceSelection])
+  // Auto-collapse the editor when an APPLIED custom range is removed elsewhere
+  // (e.g. global "clear all", or a predefined option chosen on the Map). Never
+  // force-opens — opening is a deliberate user action on the trigger.
+  const prevSelection = useRef(priceSelection)
+  useEffect(() => {
+    if (prevSelection.current === 'custom' && priceSelection !== 'custom') setCustomOpen(false)
+    prevSelection.current = priceSelection
+  }, [priceSelection])
 
   const sanitizeYen = (s: string) => s.replace(/[^\d]/g, '').slice(0, 8)
 
@@ -58,25 +68,40 @@ export default function PlaceFilters({ filters, set, relevant, categories, prefe
     ...PRICE_RANGE_KEYS.map((k) => ({ value: k, label: t(priceRangeI18nKey(k)) })),
   ]
 
+  // Live (derived) validation of the draft — keeps Apply's disabled state, the
+  // inline error, and a11y attributes perfectly in sync with what's typed.
+  const draftMinNum = draftMin === '' ? null : Number(draftMin)
+  const draftMaxNum = draftMax === '' ? null : Number(draftMax)
+  const bothEmpty = draftMin === '' && draftMax === ''
+  const tooBig = (draftMinNum != null && draftMinNum > PRICE_INPUT_MAX) || (draftMaxNum != null && draftMaxNum > PRICE_INPUT_MAX)
+  const orderBad = draftMinNum != null && draftMaxNum != null && draftMinNum > draftMaxNum
+  const priceError = orderBad ? t('price_err_order') : tooBig ? t('price_err_invalid') : null
+  const canApplyCustom = !bothEmpty && !priceError
+
+  const appliedCustomLabel = priceSelection === 'custom'
+    ? (filters.priceMin != null && filters.priceMax != null
+        ? `${formatYen(filters.priceMin, locale)}–${formatYen(filters.priceMax, locale)}`
+        : filters.priceMin != null
+          ? t('price_from_chip', { value: formatYen(filters.priceMin, locale) })
+          : t('price_to_chip', { value: formatYen(filters.priceMax as number, locale) }))
+    : null
+
+  const toggleCustom = () => setCustomOpen((v) => !v)
+
   const selectPrice = (sel: Exclude<PriceSelection, 'custom'>) => {
-    setCustomOpen(false); setPriceError(null); set(priceSelectionPatch(sel))
+    setCustomOpen(false); set(priceSelectionPatch(sel))
   }
 
   const applyCustom = () => {
-    const min = draftMin === '' ? undefined : Number(draftMin)
-    const max = draftMax === '' ? undefined : Number(draftMax)
-    if (min == null && max == null) { setPriceError(null); set(priceSelectionPatch('all')); return }
-    const bad = (n: number | undefined) => n != null && (!Number.isFinite(n) || n < 0 || n > PRICE_INPUT_MAX)
-    if (bad(min) || bad(max)) { setPriceError(t('price_err_invalid')); return }
-    if (min != null && max != null && min > max) { setPriceError(t('price_err_order')); return }
-    setPriceError(null); set(priceSelectionPatch('custom', { min, max }))
+    if (!canApplyCustom) return
+    set(priceSelectionPatch('custom', { min: draftMinNum ?? undefined, max: draftMaxNum ?? undefined }))
   }
 
   const clearCustom = () => {
-    setDraftMin(''); setDraftMax(''); setPriceError(null); set(priceSelectionPatch('all'))
+    setDraftMin(''); setDraftMax(''); setCustomOpen(false); set(priceSelectionPatch('all'))
   }
 
-  const priceInputCls = 'min-w-0 w-full text-[13.5px] min-h-[44px] px-3 border border-line rounded-xl bg-white text-ink placeholder:text-muted focus:outline-none focus:border-rose/50 focus:ring-2 focus:ring-rose/15'
+  const priceInputCls = 'min-w-0 w-full text-[13.5px] min-h-[44px] px-3 border rounded-xl bg-white text-ink placeholder:text-muted/70 focus:outline-none focus:border-rose/50 focus:ring-2 focus:ring-rose/15'
 
   const Toggle = ({ k, label }: { k: keyof ExploreFilters; label: string }) => {
     if (!show(k as string)) return null
@@ -158,41 +183,47 @@ export default function PlaceFilters({ filters, set, relevant, categories, prefe
             )
           })}
         </div>
-        {/* Custom range — a disclosure (kept OUT of the radiogroup); it becomes the
-            active price choice only once Apply commits min/max. */}
+        {/* Custom range — a disclosure (kept OUT of the radiogroup). Toggling it
+            only opens/closes the editor; the range applies on Apply. When a custom
+            range is active the trigger shows the applied range + a filled dot so
+            the ACTIVE state is distinct from the merely-OPEN state. */}
         <button type="button" aria-expanded={customOpen} aria-controls="place-price-custom"
-          onClick={() => setCustomOpen((v) => (priceSelection === 'custom' ? !v : true))}
-          className={`mt-1.5 w-full inline-flex items-center gap-2 text-[13px] min-h-[40px] px-3 rounded-xl border text-left transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/40 ${priceSelection === 'custom' ? 'border-rose bg-rose-soft text-rose font-medium' : 'border-line bg-white text-ink/80 hover:border-rose/40'}`}>
-          <span aria-hidden="true" className={`flex-none grid place-items-center w-4 h-4 rounded-full border ${priceSelection === 'custom' ? 'border-rose' : 'border-line'}`}>
-            {priceSelection === 'custom' && <span className="w-2 h-2 rounded-full bg-rose" />}
+          onClick={toggleCustom}
+          className={`mt-1.5 w-full inline-flex items-center gap-2 text-[13px] min-h-[40px] px-3 rounded-xl border text-left transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/40 ${appliedCustomLabel ? 'border-rose bg-rose-soft text-rose font-medium' : customOpen ? 'border-rose/40 bg-white text-ink' : 'border-line bg-white text-ink/80 hover:border-rose/40'}`}>
+          <span aria-hidden="true" className={`flex-none grid place-items-center w-4 h-4 rounded-full border ${appliedCustomLabel ? 'border-rose' : 'border-line'}`}>
+            {appliedCustomLabel && <span className="w-2 h-2 rounded-full bg-rose" />}
           </span>
-          <span className="flex-1">{t('price_custom')}</span>
-          <svg className={`w-3.5 h-3.5 text-muted transition-transform ${customOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <span className="flex-1 truncate">{appliedCustomLabel ?? t('price_custom')}</span>
+          <svg className={`flex-none w-3.5 h-3.5 text-muted transition-transform ${customOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
           </svg>
         </button>
         {customOpen && (
-          <div id="place-price-custom" className="mt-2.5 rounded-xl border border-line bg-white/60 p-3">
-            <div className="grid grid-cols-2 gap-2">
+          <div id="place-price-custom" className="mt-2 rounded-xl border border-line/70 bg-cream/30 p-3">
+            <div className="grid grid-cols-2 gap-2.5">
               <label className="flex flex-col gap-1 min-w-0">
                 <span className="text-[11px] font-medium text-muted">{t('price_min_label')}</span>
                 <input inputMode="numeric" pattern="[0-9]*" value={draftMin}
-                  onChange={(e) => { setDraftMin(sanitizeYen(e.target.value)); setPriceError(null) }}
+                  onChange={(e) => setDraftMin(sanitizeYen(e.target.value))}
                   aria-label={t('price_min_label')} aria-invalid={!!priceError} aria-describedby={priceError ? 'place-price-error' : undefined}
-                  placeholder="¥ 0" className={priceInputCls} />
+                  placeholder={t('price_from_ph')} className={`${priceInputCls} ${priceError ? 'border-rose/60' : 'border-line'}`} />
               </label>
               <label className="flex flex-col gap-1 min-w-0">
                 <span className="text-[11px] font-medium text-muted">{t('price_max_label')}</span>
                 <input inputMode="numeric" pattern="[0-9]*" value={draftMax}
-                  onChange={(e) => { setDraftMax(sanitizeYen(e.target.value)); setPriceError(null) }}
+                  onChange={(e) => setDraftMax(sanitizeYen(e.target.value))}
                   aria-label={t('price_max_label')} aria-invalid={!!priceError} aria-describedby={priceError ? 'place-price-error' : undefined}
-                  placeholder="¥ ∞" className={priceInputCls} />
+                  placeholder={t('price_to_ph')} className={`${priceInputCls} ${priceError ? 'border-rose/60' : 'border-line'}`} />
               </label>
             </div>
-            {priceError && <p id="place-price-error" role="alert" className="mt-2 text-[12px] text-rose">{priceError}</p>}
-            <div className="flex gap-2 mt-2.5">
-              <button type="button" onClick={applyCustom} className="flex-1 min-h-[40px] rounded-xl bg-rose text-white text-[13px] font-semibold hover:bg-rose/90 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/40">{t('apply')}</button>
-              <button type="button" onClick={clearCustom} className="flex-1 min-h-[40px] rounded-xl border border-line text-[13px] font-semibold text-muted hover:text-ink hover:border-rose/40 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/40">{t('price_clear')}</button>
+            {priceError
+              ? <p id="place-price-error" role="alert" className="mt-2 text-[12px] text-rose leading-snug">{priceError}</p>
+              : <p className="mt-2 text-[11px] text-muted leading-snug">{t('price_no_limit_hint')}</p>}
+            <div className="flex gap-2.5 mt-3">
+              <button type="button" onClick={applyCustom} disabled={!canApplyCustom}
+                className="flex-1 min-h-[42px] px-4 rounded-xl bg-rose text-white text-[13px] font-semibold transition-colors hover:bg-rose/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/40 focus-visible:ring-offset-1 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-rose">{t('apply')}</button>
+              <button type="button" onClick={clearCustom}
+                className="flex-1 min-h-[42px] px-4 rounded-xl border border-line bg-white text-[13px] font-semibold text-ink/70 transition-colors hover:text-ink hover:border-rose/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/40 focus-visible:ring-offset-1">{t('price_clear')}</button>
             </div>
           </div>
         )}

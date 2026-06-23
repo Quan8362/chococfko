@@ -460,7 +460,7 @@ export default function PlacesExplorer({ places, cards, categories, prefectures,
       <div className="grid lg:grid-cols-[260px_1fr] gap-6 items-start">
         {/* desktop panel */}
         <aside className="hidden lg:block sticky top-[88px] bg-paper border border-line rounded-2xl px-4 max-h-[calc(100vh-110px)] overflow-auto">
-          <PlaceFilters filters={state} set={set} relevant={relevant} categories={categories} prefectures={prefectures} />
+          <PlaceFilters filters={state} set={set} relevant={relevant} categories={categories} prefectures={prefectures} locale={locale} />
         </aside>
 
         <div>
@@ -544,7 +544,7 @@ export default function PlacesExplorer({ places, cards, categories, prefectures,
               </button>
             </div>
             <div className="flex-1 overflow-auto overscroll-contain px-4">
-              <PlaceFilters filters={state} set={set} relevant={relevant} categories={categories} prefectures={prefectures} />
+              <PlaceFilters filters={state} set={set} relevant={relevant} categories={categories} prefectures={prefectures} locale={locale} />
             </div>
             <div className="flex gap-2 px-4 pt-3 border-t border-line" style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}>
               <button type="button" onClick={() => setState((p) => ({ q: p.q, sort: p.sort }))} className="flex-1 min-h-[44px] rounded-full border border-line text-[14px] font-semibold text-muted">{t('reset_filters')}</button>

@@ -143,7 +143,7 @@ export default async function Home() {
               text + stats; appears between CTA and stats on mobile. A gentle
               saturate/contrast lift counters the pastel fade; the very light rose
               shadow grounds the transparent PNG without a box or halo. */}
-          <div className="lg:col-start-2 lg:row-start-1 lg:row-span-2 lg:self-center mt-10 lg:mt-0 mx-auto lg:mx-0 w-full max-w-[440px] sm:max-w-[560px] lg:max-w-none pointer-events-none select-none">
+          <div className="lg:col-start-2 lg:row-start-1 lg:row-span-2 lg:self-center mt-6 sm:mt-7 lg:mt-0 mx-auto lg:mx-0 w-full max-w-[440px] sm:max-w-[560px] lg:max-w-none pointer-events-none select-none">
             <Image
               src="/bg_web.png"
               alt={t("hero_map_alt")}
@@ -157,7 +157,7 @@ export default async function Home() {
 
           {/* STATS — supporting proof, tied to the hero (sits directly under the
               CTAs on desktop, after the map on mobile). */}
-          <div className="lg:col-start-1 lg:row-start-2 mt-9 lg:mt-7 flex justify-center lg:justify-start">
+          <div className="lg:col-start-1 lg:row-start-2 mt-6 lg:mt-7 flex justify-center lg:justify-start">
             <div className="inline-flex items-center gap-x-5 sm:gap-x-8 px-5 sm:px-7 py-3.5 rounded-2xl bg-paper/85 border border-line shadow-[0_2px_16px_-10px_rgba(60,40,40,0.4)]">
               <div className="text-center">
                 <b className="font-serif text-[26px] font-bold block leading-none text-rose-deep tabular-nums">{allPlaces.length}</b>

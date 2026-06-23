@@ -3542,13 +3542,13 @@
   "map_v2": {
     "pick_origin_hint": "地図をタップして出発地を選択してください",
     "empty_filtered": "この条件に合う地点がこのエリアにありません。",
-    "empty_hint": "地図を動かして別のエリアを検索するか、別のキーワードをお試しください。",
+    "empty_hint": "地図を動かす、フィルターを減らす、範囲を広げてお試しください。",
     "clear_filters": "フィルターをクリア",
     "results_n": "{count} 件",
     "search_area": "このエリアを検索",
     "load_error": "場所を読み込めませんでした。",
     "retry": "再試行",
-    "empty": "このエリアに場所がありません。",
+    "empty": "表示中のエリアに地点が見つかりません。",
     "view_article": "詳細",
     "directions": "経路",
     "share": "共有",
@@ -3562,7 +3562,8 @@
     "zoom_in": "拡大",
     "zoom_out": "縮小",
     "map_region_label": "スポットの地図",
-    "list_region_label": "検索結果リスト"
+    "list_region_label": "検索結果リスト",
+    "filters_on": "絞り込み中"
   },
   "place_picker": {
     "search_label": "この場所を検索",

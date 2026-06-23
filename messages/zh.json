@@ -3542,13 +3542,13 @@
   "map_v2": {
     "pick_origin_hint": "点按地图选择出发地",
     "empty_filtered": "此区域内没有符合筛选条件的地点。",
-    "empty_hint": "移动地图搜索其他区域，或尝试其他关键词。",
+    "empty_hint": "请移动地图、减少筛选或扩大搜索范围。",
     "clear_filters": "清除筛选",
     "results_n": "{count} 个地点",
     "search_area": "搜索此区域",
     "load_error": "无法加载地点。",
     "retry": "重试",
-    "empty": "此区域没有地点。",
+    "empty": "当前地图区域内未找到地点。",
     "view_article": "查看",
     "directions": "路线",
     "share": "分享",
@@ -3562,7 +3562,8 @@
     "zoom_in": "放大",
     "zoom_out": "缩小",
     "map_region_label": "地点地图",
-    "list_region_label": "结果列表"
+    "list_region_label": "结果列表",
+    "filters_on": "已筛选"
   },
   "place_picker": {
     "search_label": "查找此地点",

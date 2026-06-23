@@ -93,6 +93,9 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
   // A search result selected from OUTSIDE the loaded viewport. Kept visible
   // across the next viewport fetch so selection never flashes to an empty list.
   const pinnedRef = useRef<NearbyPlace | null>(null)
+  // True for the next moveend caused by PROGRAMMATIC camera moves (select/fit/
+  // restore) so they don't surface the "search this area" prompt.
+  const suppressMovedRef = useRef(false)
   const routeLayerRef = useRef<L.LayerGroup | null>(null)
   const pickingOriginRef = useRef(false)
   const prevViewRef = useRef<{ center: { lat: number; lng: number }; zoom: number } | null>(null)
@@ -124,6 +127,14 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
     const myId = ++reqId.current
     setFetchState('loading')
     const t0 = typeof performance !== 'undefined' ? performance.now() : 0
+    if (process.env.NODE_ENV !== 'production') {
+      // Dev-only: trace the exact viewport → query the server receives.
+      console.debug('[mapv2] fetchBounds', {
+        center: map.getCenter(), zoom: map.getZoom(),
+        bounds: { north: b.getNorth(), south: b.getSouth(), east: b.getEast(), west: b.getWest() },
+        params: params.toString(), category: cat, openNowOnly,
+      })
+    }
     try {
       const res = await fetch(`/api/places/in-bounds?${params}`)
       const json = await res.json()
@@ -136,15 +147,19 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
       setFetchState('')
       setMoved(false)
       lastSearched.current = { center: { lat: map.getCenter().lat, lng: map.getCenter().lng }, zoom: map.getZoom() }
+      if (process.env.NODE_ENV !== 'production') {
+        console.debug('[mapv2] result', { serverCount: serverPlaces.length, afterMerge: next.length, slugs: next.map((p) => p.slug) })
+      }
       const ms = (typeof performance !== 'undefined' ? performance.now() : 0) - t0
       emitMapMetric('viewport_query', { ok: true, latency_ms: Math.round(ms), latency_bucket: latencyBucket(ms) })
-    } catch {
+    } catch (err) {
       if (myId !== reqId.current) return
       setFetchState('error')
+      if (process.env.NODE_ENV !== 'production') console.debug('[mapv2] fetchBounds error', err)
       emitMapMetric('viewport_query', { ok: false, status: 'error' })
       emitMapMetric('map_api_unavailable', { status: 'in_bounds' })
     }
-  }, [category, q])
+  }, [category, q, openNowOnly])
 
   // Track OS "reduce motion" so Leaflet pan/zoom/fit can honour it (CSS can't).
   useEffect(() => {
@@ -173,6 +188,9 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
       map.addLayer(cluster)
       lastSearched.current = { center: { lat: map.getCenter().lat, lng: map.getCenter().lng }, zoom: map.getZoom() }
       map.on('moveend', () => {
+        // Ignore moves we triggered ourselves (result select, fit, restore) —
+        // only genuine user pan/zoom should offer "search this area".
+        if (suppressMovedRef.current) { suppressMovedRef.current = false; scheduleUrlWrite(); return }
         const c = map.getCenter(); const cur = { center: { lat: c.lat, lng: c.lng }, zoom: map.getZoom() }
         if (lastSearched.current && shouldOfferSearchArea(lastSearched.current, cur)) setMoved(true)
         scheduleUrlWrite()
@@ -231,7 +249,10 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
     const map = mapRef.current
     if (m && map) {
       // pan ONLY when the marker is outside the current view (respect user intent)
-      if (!map.getBounds().contains([m.lat, m.lng])) map.panTo([m.lat, m.lng], motionOptions(reducedRef.current))
+      if (!map.getBounds().contains([m.lat, m.lng])) {
+        suppressMovedRef.current = true // programmatic pan → don't offer "search area"
+        map.panTo([m.lat, m.lng], motionOptions(reducedRef.current))
+      }
     }
     if (fromList) return
     // marker → scroll the matching list row into view (non-disruptive)
@@ -266,6 +287,7 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
       east: Math.max(routePreview.origin.lng, routePreview.destination.lng), west: Math.min(routePreview.origin.lng, routePreview.destination.lng),
     }
     if (!prevViewRef.current) prevViewRef.current = { center: { lat: map.getCenter().lat, lng: map.getCenter().lng }, zoom: map.getZoom() }
+    suppressMovedRef.current = true // programmatic fit → don't offer "search area"
     map.fitBounds([[b.south, b.west], [b.north, b.east]], { padding: [60, 60], maxZoom: 16, ...motionOptions(reducedRef.current) })
   }, [routePreview])
 
@@ -276,7 +298,10 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
   const closeDirections = useCallback(() => {
     setDirectionsFor(null); setRoutePreview(null); setPickingOrigin(false); pickingOriginRef.current = false; setPickedOrigin(null)
     const map = mapRef.current
-    if (map && prevViewRef.current) { map.setView([prevViewRef.current.center.lat, prevViewRef.current.center.lng], prevViewRef.current.zoom, motionOptions(reducedRef.current)) }
+    if (map && prevViewRef.current) {
+      suppressMovedRef.current = true // programmatic restore → don't offer "search area"
+      map.setView([prevViewRef.current.center.lat, prevViewRef.current.center.lng], prevViewRef.current.zoom, motionOptions(reducedRef.current))
+    }
     prevViewRef.current = null
     // Restore focus to the map region (the trigger lived in a now-hidden preview).
     mapEl.current?.focus()
@@ -340,6 +365,7 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
       // during an animated setView, so querying immediately returned the OLD
       // viewport (which excluded the place) → the "0 places" bug. moveend fires
       // for both animated and instant moves.
+      suppressMovedRef.current = true // programmatic fly → don't offer "search area"
       map.once('moveend', () => { void fetchBounds() })
       map.setView([item.lat, item.lng], targetZoom, motionOptions(reducedRef.current))
       return
@@ -403,13 +429,14 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
   // ── shared list ──
   const List = ({ idPrefix }: { idPrefix: string }) => (
     <div className="h-full flex flex-col">
-      <div className="flex-none px-4 pt-3 pb-2.5 border-b border-line/60 flex items-center justify-between gap-2">
-        <span className="text-[13px] font-semibold text-ink truncate">
+      {/* Header = result info ONLY. The single "search this area" action lives on
+          the map (floating button); it is never duplicated here. */}
+      <div className="flex-none px-4 pt-3 pb-2.5 border-b border-line/60 flex items-center gap-2">
+        <span className="text-[13px] font-semibold text-ink truncate" aria-live="polite">
           {fetchState === 'loading' ? te('loading') : t('results_n', { count: displayed.length })}
         </span>
-        {moved && (
-          <button type="button" onClick={() => void fetchBounds()}
-            className="flex-none text-[12px] font-semibold px-3 py-1 rounded-full bg-ink text-white hover:bg-ink/90 transition-colors">{t('search_area')}</button>
+        {filtersActive && fetchState !== 'loading' && (
+          <span className="flex-none text-[11px] font-semibold text-rose bg-rose-soft border border-rose/20 rounded-full px-2 py-0.5">{t('filters_on')}</span>
         )}
       </div>
       <ul role="list" className="flex-1 overflow-y-auto px-3 pt-3 pb-4 space-y-2">
@@ -421,17 +448,18 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
             <button type="button" onClick={() => void fetchBounds()} className="underline font-semibold">{t('retry')}</button>
           </li>
         ) : displayed.length === 0 ? (
-          <li className="bg-paper border border-line rounded-2xl p-5 text-center">
-            <p className="text-[13.5px] text-muted">{filtersActive ? t('empty_filtered') : t('empty')}</p>
-            <p className="text-[12.5px] text-muted/80 mt-1">{t('empty_hint')}</p>
-            <div className="flex flex-wrap justify-center gap-2 mt-3">
-              <button type="button" onClick={() => void fetchBounds()}
-                className="text-[12.5px] font-semibold px-3.5 py-2 rounded-full bg-ink text-white">{t('search_area')}</button>
-              {filtersActive && (
-                <button type="button" onClick={clearFilters}
-                  className="text-[12.5px] font-semibold px-3.5 py-2 rounded-full border border-line text-ink bg-paper">{t('clear_filters')}</button>
-              )}
-            </div>
+          // Compact, intentional empty state. NO duplicate "search this area"
+          // button — that action is the floating map button. Only a context-
+          // specific secondary action (clear filters) appears, and only when it
+          // is the actual cause.
+          <li className="bg-paper border border-line rounded-2xl px-5 py-6 text-center">
+            <span aria-hidden className="mx-auto mb-2 grid h-10 w-10 place-items-center rounded-full bg-cream text-[18px]">🗺️</span>
+            <p className="text-[13.5px] font-semibold text-ink">{filtersActive ? t('empty_filtered') : t('empty')}</p>
+            <p className="text-[12.5px] text-muted mt-1 leading-relaxed">{t('empty_hint')}</p>
+            {filtersActive && (
+              <button type="button" onClick={clearFilters}
+                className="mt-3 inline-block text-[12.5px] font-semibold px-3.5 py-2 rounded-full border border-line text-ink bg-paper hover:border-rose/40 transition-colors">{t('clear_filters')}</button>
+            )}
           </li>
         ) : displayed.map((m) => {
           const isSel = m.slug === selected
@@ -550,10 +578,16 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
         {filtersOpen && <div className="lg:hidden mt-2 pointer-events-auto bg-paper/95 backdrop-blur border border-line rounded-2xl p-3 shadow-sm">{FilterBar}</div>}
       </div>
 
-      {/* Search-this-area pill */}
+      {/* THE single "search this area" action. Floating, centered, below the
+          search row, shown only after an un-searched USER viewport change. It is
+          intentionally the only place this action appears (not in the list header
+          or empty state). */}
       {moved && (
         <button type="button" onClick={() => void fetchBounds()}
-          className="absolute top-16 left-1/2 -translate-x-1/2 z-[600] text-[13px] font-semibold px-4 py-2 rounded-full bg-ink text-white shadow-lg hover:bg-ink/90">
+          aria-label={t('search_area')}
+          style={{ top: 'calc(env(safe-area-inset-top) + 64px)' }}
+          className="absolute left-1/2 -translate-x-1/2 z-[600] inline-flex items-center gap-1.5 min-h-[44px] text-[13px] font-semibold px-4 rounded-full bg-ink text-white shadow-lg hover:bg-ink/90 transition-colors">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z" /></svg>
           {t('search_area')}
         </button>
       )}

@@ -3542,13 +3542,13 @@
   "map_v2": {
     "pick_origin_hint": "Tap the map to set your starting point",
     "empty_filtered": "No places match these filters in this area.",
-    "empty_hint": "Move the map to search another area, or try a different keyword.",
+    "empty_hint": "Try moving the map, removing filters, or widening your search.",
     "clear_filters": "Clear filters",
     "results_n": "{count} places",
     "search_area": "Search this area",
     "load_error": "Couldn't load places.",
     "retry": "Retry",
-    "empty": "No places in this area.",
+    "empty": "No places found in the current map area.",
     "view_article": "View",
     "directions": "Directions",
     "share": "Share",
@@ -3562,7 +3562,8 @@
     "zoom_in": "Zoom in",
     "zoom_out": "Zoom out",
     "map_region_label": "Map of places",
-    "list_region_label": "Results list"
+    "list_region_label": "Results list",
+    "filters_on": "Filtered"
   },
   "place_picker": {
     "search_label": "Find this place",

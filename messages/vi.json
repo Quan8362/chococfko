@@ -3542,13 +3542,13 @@
   "map_v2": {
     "pick_origin_hint": "Chạm vào bản đồ để chọn điểm xuất phát",
     "empty_filtered": "Bộ lọc hiện tại không có địa điểm nào trong khu vực này.",
-    "empty_hint": "Di chuyển bản đồ để tìm khu vực khác, hoặc thử từ khóa khác.",
+    "empty_hint": "Hãy di chuyển bản đồ, thu nhỏ bộ lọc hoặc mở rộng phạm vi tìm kiếm.",
     "clear_filters": "Xóa bộ lọc",
     "results_n": "{count} địa điểm",
     "search_area": "Tìm khu vực này",
     "load_error": "Không tải được địa điểm.",
     "retry": "Thử lại",
-    "empty": "Không có địa điểm trong khu vực này.",
+    "empty": "Không tìm thấy địa điểm trong khu vực đang hiển thị.",
     "view_article": "Xem",
     "directions": "Chỉ đường",
     "share": "Chia sẻ",
@@ -3562,7 +3562,8 @@
     "zoom_in": "Phóng to",
     "zoom_out": "Thu nhỏ",
     "map_region_label": "Bản đồ địa điểm",
-    "list_region_label": "Danh sách kết quả"
+    "list_region_label": "Danh sách kết quả",
+    "filters_on": "Đang lọc"
   },
   "place_picker": {
     "search_label": "Tìm địa điểm này",

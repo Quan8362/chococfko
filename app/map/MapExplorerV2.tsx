@@ -119,7 +119,12 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
   // reflects the actual rendered (often narrower) viewport. On `initial` we UNION
   // the two so a transiently narrow first viewport can never drop a valid SSR place
   // ("two load, then one disappears"). All later (user-committed) fetches replace.
-  const fetchBounds = useCallback(async (cat = category, query = q, opts?: { initial?: boolean }) => {
+  // The server viewport query is driven by the map BOUNDS + text query `q` ONLY.
+  // Topic/category and "open now" are CLIENT-side predicates (see `displayed`),
+  // so toggling or clearing them never re-queries the server — which means they
+  // can never drop a place that lives outside the current viewport but was
+  // unioned into `places` on the first load. This is the single source of truth.
+  const fetchBounds = useCallback(async (query = q, opts?: { initial?: boolean }) => {
     const map = mapRef.current
     if (!map) return
     const b = map.getBounds()
@@ -127,7 +132,6 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
       north: String(b.getNorth()), south: String(b.getSouth()),
       east: String(b.getEast()), west: String(b.getWest()), limit: '300',
     })
-    if (cat) params.set('category', cat)
     if (query.trim()) params.set('q', query.trim())
     const myId = ++reqId.current
     setFetchState('loading')
@@ -138,7 +142,7 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
         seq: myId, initial: !!opts?.initial, startedAt: Math.round(t0),
         center: map.getCenter(), zoom: map.getZoom(),
         bounds: { north: b.getNorth(), south: b.getSouth(), east: b.getEast(), west: b.getWest() },
-        params: params.toString(), category: cat, openNowOnly,
+        params: params.toString(),
       })
     }
     try {
@@ -171,7 +175,7 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
       emitMapMetric('viewport_query', { ok: false, status: 'error' })
       emitMapMetric('map_api_unavailable', { status: 'in_bounds' })
     }
-  }, [category, q, openNowOnly, initialPlaces])
+  }, [q, initialPlaces])
 
   // Track OS "reduce motion" so Leaflet pan/zoom/fit can honour it (CSS can't).
   useEffect(() => {
@@ -226,7 +230,7 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
         const m = mapRef.current
         if (!m) return
         m.invalidateSize()
-        void fetchBounds(category, q, { initial: true })
+        void fetchBounds(q, { initial: true })
       }
       requestAnimationFrame(() => requestAnimationFrame(initialLoad))
     } catch {
@@ -368,8 +372,14 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
     return () => window.removeEventListener('keydown', h)
   }, [filtersOpen, selected, sheet, externalPreview, directionsFor, closeDirections])
 
-  const onCategory = (code: string) => { setCategory(code); setTimeout(() => void fetchBounds(code, q), 0) }
-  const clearFilters = () => { setCategory(''); setOpenNowOnly(false); setTimeout(() => void fetchBounds('', q), 0) }
+  // Topic/category + "open now" are client-side filters over the already-loaded
+  // viewport set (`displayed`). Changing or clearing them must NOT refetch: a
+  // fresh viewport query can only narrow `places` and could drop an out-of-view
+  // place that the first-load union brought in. `clearFilters` is the single
+  // authoritative reset — it restores every place by simply clearing the
+  // predicates, never by trying to rebuild the result list.
+  const onCategory = (code: string) => setCategory(code)
+  const clearFilters = () => { setCategory(''); setOpenNowOnly(false) }
   const filtersActive = Boolean(category) || openNowOnly
 
   // ── Unified search selections (internal first; external kept separate) ──
@@ -408,16 +418,17 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
   }, [places, router, sheet])
 
   const onSelectStationArea = useCallback((item: StationAreaResultItem) => {
-    setExternalPreview(null); emitMapMetric('result_selected', { source: 'station' }); setQ(item.label); void fetchBounds(category, item.label)
+    setExternalPreview(null); emitMapMetric('result_selected', { source: 'station' }); setQ(item.label); void fetchBounds(item.label)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [category])
+  }, [])
 
   const onSelectTopic = useCallback((item: TopicResultItem) => {
     setExternalPreview(null); emitMapMetric('result_selected', { source: 'topic' })
-    if (item.topicType === 'category') { setCategory(item.code); void fetchBounds(item.code, q) }
-    else { setQ(item.label); void fetchBounds(category, item.label) }
+    // Category topic = client-side filter (no refetch); text topic = server query.
+    if (item.topicType === 'category') setCategory(item.code)
+    else { setQ(item.label); void fetchBounds(item.label) }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [category, q])
+  }, [])
 
   const onSelectExternal = useCallback((preview: ExternalPreview) => {
     setSelected(null); setExternalPreview(preview); emitMapMetric('result_selected', { source: 'external' })

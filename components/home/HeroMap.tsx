@@ -3,66 +3,6 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
-/**
- * Key-city overlay. The map PNG's own labels are tiny and unreadable; we layer
- * our own crisp pins + chips on top for the 5–6 most important destinations.
- * Coordinates are percentages of the *natural* image, so they stay aligned as
- * the map scales. Only shown on lg+, where the image renders uncropped
- * (object-contain); on mobile the image is cropped, so the overlay is hidden.
- *
- * name = romaji chip label · jp = native name shown in the hover tooltip.
- * side controls which way the chip extends so it never runs off the map.
- */
-const CITIES: {
-  name: string;
-  jp: string;
-  x: number;
-  y: number;
-  side: "l" | "r";
-}[] = [
-  { name: "Sapporo", jp: "札幌", x: 77.5, y: 11.2, side: "r" },
-  { name: "Tokyo", jp: "東京", x: 83.1, y: 52.9, side: "r" },
-  { name: "Fuji", jp: "富士山", x: 67.3, y: 48.9, side: "l" },
-  { name: "Kyoto", jp: "京都", x: 59.5, y: 54.7, side: "l" },
-  { name: "Osaka", jp: "大阪", x: 58.4, y: 64.5, side: "l" },
-  { name: "Fukuoka", jp: "福岡", x: 20.2, y: 60.0, side: "r" },
-];
-
-function CityMarker({ c }: { c: (typeof CITIES)[number] }) {
-  const chipSide =
-    c.side === "r" ? "left-full ml-2.5" : "right-full mr-2.5";
-  return (
-    <div
-      className="absolute -translate-x-1/2 -translate-y-1/2"
-      style={{ left: `${c.x}%`, top: `${c.y}%` }}
-    >
-      <div className="group/pin relative block pointer-events-auto cursor-default">
-        {/* Pin dot */}
-        <span className="relative grid place-items-center w-[14px] h-[14px]">
-          <span className="absolute inline-flex w-full h-full rounded-full bg-rose/25 scale-0 group-hover/pin:scale-150 transition-transform duration-200" />
-          <span className="relative w-[11px] h-[11px] rounded-full bg-rose ring-2 ring-white shadow-[0_2px_6px_-1px_rgba(157,18,72,0.55)] transition-transform duration-200 group-hover/pin:scale-125" />
-        </span>
-
-        {/* Label chip */}
-        <span
-          className={`absolute top-1/2 -translate-y-1/2 ${chipSide} whitespace-nowrap rounded-full bg-cream/85 backdrop-blur-[2px] border border-rose/15 px-2.5 py-1 text-[11px] font-semibold text-ink leading-none shadow-[0_2px_8px_-3px_rgba(60,40,40,0.4)] transition-all duration-200 group-hover/pin:-translate-y-[calc(50%+2px)] group-hover/pin:border-rose/35 group-hover/pin:shadow-[0_8px_18px_-6px_rgba(157,18,72,0.4)]`}
-        >
-          {c.name}
-        </span>
-
-        {/* Hover tooltip — native name teaser */}
-        <span
-          role="tooltip"
-          className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 whitespace-nowrap rounded-lg bg-ink/92 px-2.5 py-1 text-[11px] font-medium text-cream leading-none opacity-0 translate-y-1 transition-all duration-200 group-hover/pin:opacity-100 group-hover/pin:translate-y-0"
-        >
-          {c.jp} · {c.name}
-          <span className="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-x-4 border-x-transparent border-t-4 border-t-ink/92" />
-        </span>
-      </div>
-    </div>
-  );
-}
-
 export default function HeroMap({ alt }: { alt: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const [y, setY] = useState(0);
@@ -119,12 +59,6 @@ export default function HeroMap({ alt }: { alt: string }) {
           sizes="(min-width: 1280px) 62vw, (min-width: 1024px) 56vw, (min-width: 640px) 560px, 88vw"
           className="w-full aspect-[1508/886] object-cover object-bottom lg:aspect-auto lg:h-auto lg:object-contain saturate-[1.05] contrast-[1.02] drop-shadow-[0_26px_50px_rgba(194,24,91,0.12)]"
         />
-        {/* City overlay — desktop only (image is uncropped there). */}
-        <div className="hidden lg:block absolute inset-0 pointer-events-none">
-          {CITIES.map((c) => (
-            <CityMarker key={c.name} c={c} />
-          ))}
-        </div>
       </div>
     </div>
   );

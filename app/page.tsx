@@ -169,15 +169,6 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Soft wave divider bridging the hero into the discovery section so the
-          reading flow feels continuous (decorative, no added reading gap). */}
-      <div aria-hidden className="relative -mt-px pointer-events-none">
-        <div className="absolute left-1/2 -translate-x-1/2 -top-10 w-[72%] max-w-[760px] h-24 bg-[radial-gradient(ellipse_at_center,rgba(194,24,91,0.05),transparent_70%)]" />
-        <svg className="block w-full h-[28px] text-paper/60" viewBox="0 0 1440 40" preserveAspectRatio="none" fill="currentColor">
-          <path d="M0 40 C 360 0, 1080 0, 1440 40 Z" />
-        </svg>
-      </div>
-
       {/* ── DISCOVERY: intro → region+search → quick needs → categories → results.
           ExploreSearch owns the four-layer hierarchy (Phase 8 UI refactor). Cards
           are pre-rendered server-side (PlaceCard is async); ExploreSearch decides

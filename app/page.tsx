@@ -15,6 +15,7 @@ import PersonalizedHome from "@/components/explore/PersonalizedHome";
 import MapDiscoveryCard from "@/components/explore/MapDiscoveryCard";
 import HeroMap from "@/components/home/HeroMap";
 import HeroStats from "@/components/home/HeroStats";
+import Reveal from "@/components/home/Reveal";
 
 export const dynamic = "force-dynamic";
 
@@ -89,11 +90,9 @@ export default async function Home() {
     <>
       {/* ── HERO ─────────────────────────────────────────────── */}
       <section className="relative pt-9 sm:pt-11 lg:pt-12 pb-8 lg:pb-10 overflow-hidden">
-        {/* Soft ambient washes — purely decorative, clipped by the section. The
-            rose wash also doubles as the gentle highlight that lifts the map and
-            gives the right half enough visual weight to balance the text. */}
-        <div className="absolute -top-[180px] -right-[140px] w-[640px] h-[640px] rounded-full bg-[radial-gradient(circle_at_42%_42%,rgba(194,24,91,0.10),transparent_64%)] pointer-events-none" />
-        <div className="absolute top-[40%] -left-[120px] w-[360px] h-[360px] rounded-full bg-[radial-gradient(circle_at_50%_50%,rgba(31,143,166,0.06),transparent_65%)] pointer-events-none" />
+        {/* Subtle teal ambient on the far left — keeps the cream from feeling
+            flat without competing with the map's own pink glow (in HeroMap). */}
+        <div className="absolute top-[42%] -left-[120px] w-[360px] h-[360px] rounded-full bg-[radial-gradient(circle_at_50%_50%,rgba(31,143,166,0.05),transparent_65%)] pointer-events-none" />
 
         {/* Two-column on lg+ via grid so the map can vertically centre against the
             full text+stats stack; single column (text → map → stats) below lg.
@@ -125,7 +124,7 @@ export default async function Home() {
               <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center justify-center lg:justify-start gap-3">
                 <Link
                   href="#sec-landmark"
-                  className="group inline-flex items-center justify-center gap-2 min-h-[48px] px-7 text-[14.5px] font-semibold rounded-full bg-rose text-white shadow-[0_6px_20px_-6px_rgba(194,24,91,0.5)] hover:bg-rose-deep hover:-translate-y-0.5 hover:shadow-[0_12px_28px_-8px_rgba(194,24,91,0.55)] active:translate-y-0 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose/55 focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
+                  className="group inline-flex items-center justify-center gap-2 min-h-[48px] px-7 text-[14.5px] font-semibold rounded-full bg-rose text-white shadow-[0_6px_20px_-6px_rgba(194,24,91,0.5)] hover:bg-rose-deep hover:-translate-y-0.5 hover:scale-[1.02] hover:shadow-[0_14px_30px_-8px_rgba(194,24,91,0.6)] active:translate-y-0 active:scale-100 active:shadow-[0_4px_12px_-6px_rgba(194,24,91,0.5)] transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose/55 focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
                 >
                   {t("cta_explore")}
                   <svg className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -134,17 +133,17 @@ export default async function Home() {
                 </Link>
                 <Link
                   href="/community"
-                  className="inline-flex items-center justify-center min-h-[48px] px-6 text-[14.5px] font-semibold rounded-full border border-[#c8b8a8] text-[#5c4d44] hover:border-ink hover:bg-ink hover:text-cream hover:-translate-y-0.5 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/30 focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
+                  className="inline-flex items-center justify-center min-h-[48px] px-6 text-[14.5px] font-semibold rounded-full border border-[#c8b8a8] text-[#5c4d44] hover:border-ink hover:bg-ink hover:text-cream hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/30 focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
                 >
                   {t("cta_community")}
                 </Link>
               </div>
 
-              {/* Tertiary action — grouped with the CTAs via a subtle pill so it
-                  reads as part of the cluster rather than floating alone. */}
+              {/* Tertiary action — a deliberate text link with a grow-underline,
+                  grouped with the CTAs (consistent spacing, not floating). */}
               <Link
                 href="/places/new"
-                className="inline-flex items-center justify-center sm:justify-start gap-1.5 self-center sm:self-start min-h-[36px] px-3.5 text-[13.5px] font-semibold text-rose hover:text-rose-deep no-underline rounded-full bg-rose-soft/45 hover:bg-rose-soft transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose/40 focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
+                className="group/add relative inline-flex items-center self-center sm:self-start min-h-[32px] px-1 text-[13.5px] font-semibold text-rose hover:text-rose-deep no-underline transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose/40 focus-visible:ring-offset-2 focus-visible:ring-offset-cream rounded after:absolute after:left-1 after:right-1 after:-bottom-0.5 after:h-px after:bg-rose-deep after:origin-left after:scale-x-0 after:transition-transform after:duration-200 hover:after:scale-x-100"
               >
                 {t("write_place_cta")}
               </Link>
@@ -154,17 +153,29 @@ export default async function Home() {
           {/* MAP — the hero visual (parallax + idle float + brand glow). */}
           <HeroMap alt={t("hero_map_alt")} />
 
-          {/* STATS — count-up numbers + community status badge. */}
-          <div className="lg:col-start-1 lg:row-start-2 mt-7 lg:mt-7 flex justify-center lg:justify-start">
+          {/* STATS + community proof — the trust row extends the left column so
+              it balances the taller map on the right. */}
+          <div className="lg:col-start-1 lg:row-start-2 mt-7 lg:mt-8 flex flex-col items-center lg:items-start gap-5">
             <HeroStats places={allPlaces.length} categories={visibleCategories.length} />
+            <div className="hidden lg:flex items-center gap-2.5 text-[12.5px] text-muted">
+              <span className="grid place-items-center w-5 h-5 rounded-full bg-rose-soft text-rose">
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                </svg>
+              </span>
+              {t("hero_trust")}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Soft glow bridging the hero into the discovery section so the reading
-          flow feels continuous (no hard seam, no added vertical gap). */}
-      <div aria-hidden className="relative h-0 overflow-visible pointer-events-none">
-        <div className="absolute left-1/2 -translate-x-1/2 -top-8 w-[72%] max-w-[760px] h-20 bg-[radial-gradient(ellipse_at_center,rgba(194,24,91,0.05),transparent_70%)]" />
+      {/* Soft wave divider bridging the hero into the discovery section so the
+          reading flow feels continuous (decorative, no added reading gap). */}
+      <div aria-hidden className="relative -mt-px pointer-events-none">
+        <div className="absolute left-1/2 -translate-x-1/2 -top-10 w-[72%] max-w-[760px] h-24 bg-[radial-gradient(ellipse_at_center,rgba(194,24,91,0.05),transparent_70%)]" />
+        <svg className="block w-full h-[28px] text-paper/60" viewBox="0 0 1440 40" preserveAspectRatio="none" fill="currentColor">
+          <path d="M0 40 C 360 0, 1080 0, 1440 40 Z" />
+        </svg>
       </div>
 
       {/* ── DISCOVERY: intro → region+search → quick needs → categories → results.
@@ -195,16 +206,16 @@ export default async function Home() {
       />
 
       {/* ── USEFUL COLLECTIONS ───────────────────────────────── */}
-      <CollectionsRail />
+      <Reveal><CollectionsRail /></Reveal>
 
       {/* ── UPCOMING EVENTS ──────────────────────────────────── */}
-      <EventsRail />
+      <Reveal><EventsRail /></Reveal>
 
       {/* ── COMMUNITY ACTIVITY ───────────────────────────────── */}
-      <CommunityActivity cardsBySlug={cardsBySlug} recentlyUpdatedSlugs={recentlyUpdatedSlugs} />
+      <Reveal><CommunityActivity cardsBySlug={cardsBySlug} recentlyUpdatedSlugs={recentlyUpdatedSlugs} /></Reveal>
 
       {/* ── LATEST COMMUNITY POSTS ───────────────────────────── */}
-      <HomePosts />
+      <Reveal><HomePosts /></Reveal>
 
       {/* ── CTA BOTTOM ───────────────────────────────────────── */}
       <section className="mt-10 sm:mt-14 px-4 sm:px-6 pb-16 sm:pb-24">

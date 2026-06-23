@@ -61,7 +61,7 @@ export default function NavDropdown({
         aria-haspopup="menu"
         aria-expanded={open}
         aria-current={active ? 'true' : undefined}
-        className={`pl-3 pr-2.5 py-1.5 rounded-lg transition-colors whitespace-nowrap inline-flex items-center gap-1.5 ${active ? 'text-rose bg-rose-soft/70' : 'hover:bg-line hover:text-rose'}`}
+        className={`pl-3 pr-2.5 py-1.5 rounded-lg transition-colors whitespace-nowrap inline-flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose/40 ${active ? 'text-rose bg-rose-soft/70' : 'hover:bg-line hover:text-rose'}`}
       >
         {label}
         {showChatBadgeOnParent && <ChatUnreadBadge />}

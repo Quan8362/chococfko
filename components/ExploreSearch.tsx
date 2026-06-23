@@ -204,7 +204,7 @@ export default function ExploreSearch({
       >
         <div className="max-w-[1240px] mx-auto px-6 py-2.5 sm:py-3.5">
           {/* Unified search bar: [ prefecture ▾ | search input ] */}
-          <div className="flex flex-col sm:flex-row sm:items-stretch gap-2 sm:gap-0 sm:rounded-full sm:border sm:border-line sm:bg-paper sm:shadow-sm sm:overflow-visible max-w-[640px] w-full">
+          <div className="flex flex-col sm:flex-row sm:items-stretch gap-2 sm:gap-0 sm:rounded-full sm:border sm:border-line sm:bg-paper sm:shadow-[inset_0_1px_3px_rgba(60,40,40,0.04),0_1px_2px_rgba(60,40,40,0.04)] sm:overflow-visible max-w-[640px] w-full transition-all duration-200 sm:focus-within:border-rose/45 sm:focus-within:shadow-[0_0_0_3px_rgba(194,24,91,0.12),0_4px_14px_-6px_rgba(194,24,91,0.25)]">
             {/* Prefecture selector */}
             <div ref={prefRef} className="relative sm:flex-none">
               <button

@@ -73,7 +73,7 @@ export default function HeroStats({
   return (
     <div
       ref={ref}
-      className="inline-flex items-center gap-x-5 sm:gap-x-7 px-5 sm:px-7 py-4 rounded-2xl bg-paper/85 border border-line shadow-[0_10px_34px_-18px_rgba(60,40,40,0.5)] backdrop-blur-[2px]"
+      className="group inline-flex items-center gap-x-5 sm:gap-x-7 px-5 sm:px-7 py-4 rounded-2xl bg-paper/85 border border-line shadow-[0_10px_34px_-18px_rgba(60,40,40,0.5)] backdrop-blur-[2px] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-20px_rgba(60,40,40,0.55)] hover:border-rose/20"
     >
       <div className="text-center">
         <b className="font-serif text-[26px] font-bold block leading-none text-rose-deep tabular-nums">

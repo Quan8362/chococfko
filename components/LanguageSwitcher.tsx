@@ -44,8 +44,11 @@ export default function LanguageSwitcher() {
     <div className="relative">
       <button
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-1.5 px-2.5 py-2 rounded-full border-[1.5px] border-line hover:border-rose/50 bg-paper transition-all"
+        className="flex items-center gap-1.5 px-2.5 py-2 rounded-full border-[1.5px] border-line hover:border-rose/50 bg-paper transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose/40"
         aria-label="Switch language"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        title={current.label}
       >
         <Flag src={current.flag} label={current.label} />
         <svg width="10" height="10" viewBox="0 0 10 10" fill="none" className="text-muted">

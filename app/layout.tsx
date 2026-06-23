@@ -56,7 +56,7 @@ export async function generateMetadata(): Promise<Metadata> {
       description: t('site_description'),
       images: [
         {
-          url:    '/og-image.png',
+          url:    `${SITE_URL}/og-image.png?v=2`,
           width:  1200,
           height: 630,
           alt:    t('site_og_image_alt'),
@@ -67,7 +67,7 @@ export async function generateMetadata(): Promise<Metadata> {
       card:        'summary_large_image',
       title:       `${SITE_NAME} · ${t('site_tagline_short')}`,
       description: t('site_twitter_description'),
-      images:      ['/og-image.png'],
+      images:      [`${SITE_URL}/og-image.png?v=2`],
     },
     robots: {
       index:       true,

@@ -34,6 +34,15 @@ const config: Config = {
         nav: "0 1px 0 #e8ddcf",
         dropdown: "0 8px 32px rgba(36,26,23,0.12)",
       },
+      keyframes: {
+        float: {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-10px)" },
+        },
+      },
+      animation: {
+        float: "float 6s ease-in-out infinite",
+      },
     },
   },
   plugins: [],

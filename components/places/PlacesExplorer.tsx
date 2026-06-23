@@ -11,8 +11,10 @@ import { formatDistanceKm } from '@/lib/geo'
 import { relevantFilterKeys } from '@/lib/placeFields'
 import {
   encodeFilters, CHIP_KEYS, SORT_KEYS, activeFilterCount,
+  resolvePriceBounds, hasPriceFilter, priceSelectionPatch, currentPriceSelection, PRICE_RESET,
   type ExploreFilters, type SortKey,
 } from '@/lib/exploreParams'
+import { formatYen, priceRangeI18nKey, type PriceRangeKey } from '@/lib/placeBudget'
 import { SEARCH_EVENTS, trackSearchEvent, logSearchQuery, markSearchClicked } from '@/lib/searchAnalytics'
 import PlaceFilters from './PlaceFilters'
 import Select from '@/components/explore/Select'
@@ -83,6 +85,10 @@ export default function PlacesExplorer({ places, cards, categories, prefectures,
   const intent = useMemo(() => extractIntent(state.q ?? ''), [state.q])
   const criteria = useMemo<PlaceCriteria>(() => {
     const wantNearby = !!(state.nearby || intent.nearby)
+    // Explicit price filter (bucket/custom) wins; only fall back to the price
+    // parsed from the query text when the user set no price filter at all.
+    const pb = resolvePriceBounds(state)
+    const explicitPrice = hasPriceFilter(state)
     return {
       q: intent.rest,
       categories: state.category ? [state.category] : undefined,
@@ -90,8 +96,8 @@ export default function PlacesExplorer({ places, cards, categories, prefectures,
       area: state.area ?? intent.area ?? null,
       station: state.station ?? intent.station ?? null,
       fee: state.fee,
-      priceMin: state.priceMin ?? intent.priceMin ?? null,
-      priceMax: state.priceMax ?? intent.priceMax ?? null,
+      priceMin: explicitPrice ? pb.min : (intent.priceMin ?? null),
+      priceMax: explicitPrice ? pb.max : (intent.priceMax ?? null),
       openNow: state.openNow || intent.openNow || undefined,
       now: new Date(),
       nearby: userLoc ? { lat: userLoc.lat, lng: userLoc.lng, radiusKm: wantNearby ? 10 : undefined } : null,
@@ -199,8 +205,9 @@ export default function PlacesExplorer({ places, cards, categories, prefectures,
       case 'prefecture': return prefectures.find((p) => p.code === v)?.name ?? String(v)
       case 'area': case 'station': return String(v)
       case 'fee': return v === 'free' ? t('f_free') : t('f_paid')
-      case 'priceMin': return `≥ ¥${v}`
-      case 'priceMax': return `≤ ¥${v}`
+      case 'price': return t(priceRangeI18nKey(v as PriceRangeKey))
+      case 'priceMin': return t('price_from_chip', { value: formatYen(Number(v), locale) })
+      case 'priceMax': return t('price_to_chip', { value: formatYen(Number(v), locale) })
       case 'openNow': return t('f_open_now')
       case 'nearby': return t('f_near_me')
       case 'reservationAvailable': return t('f_takes_reservation')
@@ -223,7 +230,34 @@ export default function PlacesExplorer({ places, cards, categories, prefectures,
       case 'lang': return (v as string[]).map((l) => tp(`lang_${l}` as 'lang_ja')).join(', ')
       default: return null
     }
-  }, [state, categories, prefectures, t, tp])
+  }, [state, categories, prefectures, t, tp, locale])
+
+  // Combined label for an active CUSTOM range (one chip, not two ≥/≤ chips).
+  const customPriceChip = useMemo(() => {
+    if (state.price || (state.priceMin == null && state.priceMax == null)) return null
+    const min = state.priceMin != null ? formatYen(state.priceMin, locale) : null
+    const max = state.priceMax != null ? formatYen(state.priceMax, locale) : null
+    if (min && max) return `${min}–${max}`
+    if (min) return t('price_from_chip', { value: min })
+    return t('price_to_chip', { value: max as string })
+  }, [state.price, state.priceMin, state.priceMax, locale, t])
+
+  // Human label for the active price choice (bucket / free / custom) — for the
+  // zero-result relax suggestions, where the dropped engine key is priceMin/Max.
+  const priceSelectionLabel = useMemo(() => {
+    const sel = currentPriceSelection(state)
+    if (sel === 'all') return null
+    if (sel === 'free') return t('f_free')
+    if (sel === 'custom') return customPriceChip
+    return t(priceRangeI18nKey(sel))
+  }, [state, t, customPriceChip])
+
+  // Relax a single criterion from the zero-result state. Price-dimension keys map
+  // back to a full price reset (the bucket lives in state.price, not priceMin/Max).
+  const relaxFilter = useCallback((key: keyof PlaceCriteria) => {
+    if (key === 'priceMin' || key === 'priceMax' || key === 'fee') { set({ ...PRICE_RESET }); return }
+    set({ [key]: Array.isArray(state[key as keyof ExploreFilters]) ? [] : undefined } as Partial<ExploreFilters>)
+  }, [set, state])
 
   const activeCount = activeFilterCount(state)
   const shown = results.slice(0, visible)
@@ -269,9 +303,16 @@ export default function PlacesExplorer({ places, cards, categories, prefectures,
     if (q) sp.set('q', q)
     if (state.category) sp.set('cat', state.category)
     if (state.openNow) sp.set('open', '1')
+    // Price dimension — the Map applies the same shared semantics client-side.
+    if (state.fee === 'free') sp.set('price', 'free')
+    else if (state.price) sp.set('price', state.price)
+    else if (state.priceMin != null || state.priceMax != null) {
+      if (state.priceMin != null) sp.set('priceMin', String(state.priceMin))
+      if (state.priceMax != null) sp.set('priceMax', String(state.priceMax))
+    }
     const qs = sp.toString()
     return qs ? `/map?${qs}` : '/map'
-  }, [state.q, state.category, state.openNow])
+  }, [state.q, state.category, state.openNow, state.fee, state.price, state.priceMin, state.priceMax])
 
   return (
     <div>
@@ -369,7 +410,7 @@ export default function PlacesExplorer({ places, cards, categories, prefectures,
         </Select>
         <div className="flex flex-wrap items-center gap-2">
           <QuickChip on={!!state.openNow} label={t('quick_open_now')} onClick={() => set({ openNow: !state.openNow || undefined })} />
-          <QuickChip on={state.fee === 'free'} label={t('quick_free')} onClick={() => set({ fee: state.fee === 'free' ? undefined : 'free' })} />
+          <QuickChip on={currentPriceSelection(state) === 'free'} label={t('quick_free')} onClick={() => set(priceSelectionPatch(currentPriceSelection(state) === 'free' ? 'all' : 'free'))} />
           <QuickChip on={!!state.nearby} label={t('quick_nearby')} onClick={() => (userLoc ? set({ nearby: !state.nearby || undefined }) : requestMyLocation())} />
           {geoStatus === 'locating' && <span className="text-[12px] text-muted">{t('nearby_locating')}</span>}
           {(geoStatus === 'denied' || geoStatus === 'error' || geoStatus === 'unsupported') && (
@@ -394,6 +435,14 @@ export default function PlacesExplorer({ places, cards, categories, prefectures,
               </button>
             )
           })}
+          {customPriceChip && (
+            <button type="button" aria-label={t('remove_filter', { filter: customPriceChip })}
+              onClick={() => set({ priceMin: undefined, priceMax: undefined })}
+              className="inline-flex items-center gap-1.5 text-[12.5px] font-medium pl-3 pr-2.5 py-1.5 rounded-full bg-rose-soft text-rose border border-rose/20 hover:bg-rose hover:text-white group">
+              <span>{customPriceChip}</span>
+              <span aria-hidden="true" className="opacity-60 group-hover:opacity-100">✕</span>
+            </button>
+          )}
           {detected.map((d) => (
             <span key={d} className="inline-flex items-center gap-1 text-[12px] px-2.5 py-1 rounded-full bg-cream border border-line text-muted" title={t('detected')}>
               <span className="opacity-50">⌕</span>{d}
@@ -424,9 +473,10 @@ export default function PlacesExplorer({ places, cards, categories, prefectures,
               <p className="text-[13.5px] text-muted mb-4 max-w-[380px] mx-auto leading-relaxed">{t('empty_sub')}</p>
               <div className="flex flex-wrap justify-center gap-2 mb-4">
                 {relax.map((s) => {
-                  const lbl = chipLabel(s.filter as keyof ExploreFilters) ?? String(s.filter)
+                  const isPrice = s.filter === 'priceMin' || s.filter === 'priceMax' || s.filter === 'fee'
+                  const lbl = (isPrice ? priceSelectionLabel : chipLabel(s.filter as keyof ExploreFilters)) ?? String(s.filter)
                   return (
-                    <button key={String(s.filter)} type="button" onClick={() => set({ [s.filter]: Array.isArray(state[s.filter as keyof ExploreFilters]) ? [] : undefined } as Partial<ExploreFilters>)}
+                    <button key={String(s.filter)} type="button" onClick={() => relaxFilter(s.filter)}
                       className="text-[13px] font-semibold px-4 min-h-[40px] rounded-full bg-rose-soft text-rose border border-rose/20 hover:bg-rose hover:text-white">
                       {t('try_removing', { filter: lbl, count: s.count })}
                     </button>

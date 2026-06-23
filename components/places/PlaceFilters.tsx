@@ -1,7 +1,9 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
-import type { ExploreFilters } from '@/lib/exploreParams'
+import { currentPriceSelection, priceSelectionPatch, type ExploreFilters } from '@/lib/exploreParams'
+import { PRICE_RANGE_KEYS, PRICE_INPUT_MAX, priceRangeI18nKey, type PriceSelection } from '@/lib/placeBudget'
 import { PAYMENT_METHODS, PLACE_LANGUAGES, SMOKING_OPTIONS, TATTOO_OPTIONS } from '@/lib/placeFields'
 import Select from '@/components/explore/Select'
 
@@ -30,6 +32,51 @@ export default function PlaceFilters({ filters, set, relevant, categories, prefe
   const t = useTranslations('explore_search')
   const tp = useTranslations('place_fields')
   const show = (k: string) => relevant.has(k)
+
+  // ── Price: one selection at a time (radio) + optional custom range ──────────
+  const priceSelection = currentPriceSelection(filters)
+  const [customOpen, setCustomOpen] = useState(priceSelection === 'custom')
+  const [draftMin, setDraftMin] = useState(filters.priceMin != null ? String(filters.priceMin) : '')
+  const [draftMax, setDraftMax] = useState(filters.priceMax != null ? String(filters.priceMax) : '')
+  const [priceError, setPriceError] = useState<string | null>(null)
+
+  // Re-sync the draft inputs when the APPLIED custom range changes from outside
+  // (global clear-all, shared/Back-Forward URL). Applied values only change on
+  // Apply, so this never fights the user while typing.
+  useEffect(() => {
+    setDraftMin(filters.priceMin != null ? String(filters.priceMin) : '')
+    setDraftMax(filters.priceMax != null ? String(filters.priceMax) : '')
+    setPriceError(null)
+  }, [filters.priceMin, filters.priceMax])
+  useEffect(() => { if (priceSelection === 'custom') setCustomOpen(true) }, [priceSelection])
+
+  const sanitizeYen = (s: string) => s.replace(/[^\d]/g, '').slice(0, 8)
+
+  const priceOptions: { value: Exclude<PriceSelection, 'custom'>; label: string }[] = [
+    { value: 'all', label: t('price_all') },
+    { value: 'free', label: t('f_free') },
+    ...PRICE_RANGE_KEYS.map((k) => ({ value: k, label: t(priceRangeI18nKey(k)) })),
+  ]
+
+  const selectPrice = (sel: Exclude<PriceSelection, 'custom'>) => {
+    setCustomOpen(false); setPriceError(null); set(priceSelectionPatch(sel))
+  }
+
+  const applyCustom = () => {
+    const min = draftMin === '' ? undefined : Number(draftMin)
+    const max = draftMax === '' ? undefined : Number(draftMax)
+    if (min == null && max == null) { setPriceError(null); set(priceSelectionPatch('all')); return }
+    const bad = (n: number | undefined) => n != null && (!Number.isFinite(n) || n < 0 || n > PRICE_INPUT_MAX)
+    if (bad(min) || bad(max)) { setPriceError(t('price_err_invalid')); return }
+    if (min != null && max != null && min > max) { setPriceError(t('price_err_order')); return }
+    setPriceError(null); set(priceSelectionPatch('custom', { min, max }))
+  }
+
+  const clearCustom = () => {
+    setDraftMin(''); setDraftMax(''); setPriceError(null); set(priceSelectionPatch('all'))
+  }
+
+  const priceInputCls = 'min-w-0 w-full text-[13.5px] min-h-[44px] px-3 border border-line rounded-xl bg-white text-ink placeholder:text-muted focus:outline-none focus:border-rose/50 focus:ring-2 focus:ring-rose/15'
 
   const Toggle = ({ k, label }: { k: keyof ExploreFilters; label: string }) => {
     if (!show(k as string)) return null
@@ -93,18 +140,62 @@ export default function PlaceFilters({ filters, set, relevant, categories, prefe
         </div>
       </Group>
 
-      {/* Price */}
-      <Group title={t('group_price')}>
-        <div className="flex flex-wrap gap-2 mb-2.5">
-          <Chip on={filters.fee === 'free'} label={t('f_free')} onClick={() => set({ fee: filters.fee === 'free' ? undefined : 'free' })} />
-          <Chip on={filters.fee === 'paid'} label={t('f_paid')} onClick={() => set({ fee: filters.fee === 'paid' ? undefined : 'paid' })} />
+      {/* Price — estimated/reference cost (per person or per use). One choice at a
+          time (radio); custom range is an optional, hidden-until-opened panel. */}
+      <Group title={t('price_estimated')}>
+        <p className="text-[11.5px] text-muted -mt-1 mb-2.5 leading-snug">{t('price_estimated_hint')}</p>
+        <div className="flex flex-col gap-1.5" role="radiogroup" aria-label={t('price_estimated')}>
+          {priceOptions.map((opt) => {
+            const on = priceSelection === opt.value
+            return (
+              <button key={opt.value} type="button" role="radio" aria-checked={on} onClick={() => selectPrice(opt.value)}
+                className={`inline-flex items-center gap-2 text-[13px] min-h-[40px] px-3 rounded-xl border text-left transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/40 ${on ? 'border-rose bg-rose-soft text-rose font-medium' : 'border-line bg-white text-ink/80 hover:border-rose/40'}`}>
+                <span aria-hidden="true" className={`flex-none grid place-items-center w-4 h-4 rounded-full border ${on ? 'border-rose' : 'border-line'}`}>
+                  {on && <span className="w-2 h-2 rounded-full bg-rose" />}
+                </span>
+                {opt.label}
+              </button>
+            )
+          })}
         </div>
-        <div className="grid grid-cols-2 gap-2">
-          <input type="number" min={0} value={filters.priceMin ?? ''} onChange={(e) => set({ priceMin: e.target.value ? Number(e.target.value) : undefined })}
-            placeholder={t('budget_min')} aria-label={t('budget_min')} className="min-w-0 w-full text-[13.5px] min-h-[44px] px-3 border border-line rounded-xl bg-white text-ink placeholder:text-muted focus:outline-none focus:border-rose/50 focus:ring-2 focus:ring-rose/15" />
-          <input type="number" min={0} value={filters.priceMax ?? ''} onChange={(e) => set({ priceMax: e.target.value ? Number(e.target.value) : undefined })}
-            placeholder={t('budget_max')} aria-label={t('budget_max')} className="min-w-0 w-full text-[13.5px] min-h-[44px] px-3 border border-line rounded-xl bg-white text-ink placeholder:text-muted focus:outline-none focus:border-rose/50 focus:ring-2 focus:ring-rose/15" />
-        </div>
+        {/* Custom range — a disclosure (kept OUT of the radiogroup); it becomes the
+            active price choice only once Apply commits min/max. */}
+        <button type="button" aria-expanded={customOpen} aria-controls="place-price-custom"
+          onClick={() => setCustomOpen((v) => (priceSelection === 'custom' ? !v : true))}
+          className={`mt-1.5 w-full inline-flex items-center gap-2 text-[13px] min-h-[40px] px-3 rounded-xl border text-left transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/40 ${priceSelection === 'custom' ? 'border-rose bg-rose-soft text-rose font-medium' : 'border-line bg-white text-ink/80 hover:border-rose/40'}`}>
+          <span aria-hidden="true" className={`flex-none grid place-items-center w-4 h-4 rounded-full border ${priceSelection === 'custom' ? 'border-rose' : 'border-line'}`}>
+            {priceSelection === 'custom' && <span className="w-2 h-2 rounded-full bg-rose" />}
+          </span>
+          <span className="flex-1">{t('price_custom')}</span>
+          <svg className={`w-3.5 h-3.5 text-muted transition-transform ${customOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+        {customOpen && (
+          <div id="place-price-custom" className="mt-2.5 rounded-xl border border-line bg-white/60 p-3">
+            <div className="grid grid-cols-2 gap-2">
+              <label className="flex flex-col gap-1 min-w-0">
+                <span className="text-[11px] font-medium text-muted">{t('price_min_label')}</span>
+                <input inputMode="numeric" pattern="[0-9]*" value={draftMin}
+                  onChange={(e) => { setDraftMin(sanitizeYen(e.target.value)); setPriceError(null) }}
+                  aria-label={t('price_min_label')} aria-invalid={!!priceError} aria-describedby={priceError ? 'place-price-error' : undefined}
+                  placeholder="¥ 0" className={priceInputCls} />
+              </label>
+              <label className="flex flex-col gap-1 min-w-0">
+                <span className="text-[11px] font-medium text-muted">{t('price_max_label')}</span>
+                <input inputMode="numeric" pattern="[0-9]*" value={draftMax}
+                  onChange={(e) => { setDraftMax(sanitizeYen(e.target.value)); setPriceError(null) }}
+                  aria-label={t('price_max_label')} aria-invalid={!!priceError} aria-describedby={priceError ? 'place-price-error' : undefined}
+                  placeholder="¥ ∞" className={priceInputCls} />
+              </label>
+            </div>
+            {priceError && <p id="place-price-error" role="alert" className="mt-2 text-[12px] text-rose">{priceError}</p>}
+            <div className="flex gap-2 mt-2.5">
+              <button type="button" onClick={applyCustom} className="flex-1 min-h-[40px] rounded-xl bg-rose text-white text-[13px] font-semibold hover:bg-rose/90 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/40">{t('apply')}</button>
+              <button type="button" onClick={clearCustom} className="flex-1 min-h-[40px] rounded-xl border border-line text-[13px] font-semibold text-muted hover:text-ink hover:border-rose/40 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/40">{t('price_clear')}</button>
+            </div>
+          </div>
+        )}
       </Group>
 
       {/* Availability */}

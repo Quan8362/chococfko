@@ -6,6 +6,7 @@
 
 import { haversineKm } from '../geo.ts';
 import { isValidCoordinate } from '../coordinates.ts';
+import { isPriceRangeKey } from '../placeBudget.ts';
 
 export interface LatLng { lat: number; lng: number }
 export interface MapBounds { north: number; south: number; east: number; west: number }
@@ -16,12 +17,17 @@ export interface MapViewState {
   category: string;
   q: string;
   openNow: boolean;
+  /** Price choice: '' = all, 'free', or a predefined bucket key. Custom uses priceMin/priceMax. */
+  price: string;
+  priceMin: number | null;
+  priceMax: number | null;
   selected: string | null;
   mode: 'map' | 'list' | null;
 }
 
 export const DEFAULT_MAP_VIEW: MapViewState = {
-  center: null, zoom: null, category: '', q: '', openNow: false, selected: null, mode: null,
+  center: null, zoom: null, category: '', q: '', openNow: false,
+  price: '', priceMin: null, priceMax: null, selected: null, mode: null,
 };
 
 const round = (n: number, dp = 5) => Number(n.toFixed(dp));
@@ -42,6 +48,15 @@ export function decodeMapView(get: (k: string) => string | null): MapViewState {
   s.category = (get('cat') ?? '').trim();
   s.q = (get('q') ?? '').trim();
   s.openNow = ['1', 'true'].includes((get('open') ?? '').toLowerCase());
+  const price = (get('price') ?? '').trim();
+  if (price === 'free' || isPriceRangeKey(price)) {
+    s.price = price;
+  } else {
+    const pmin = Number.parseInt(get('priceMin') ?? '', 10);
+    const pmax = Number.parseInt(get('priceMax') ?? '', 10);
+    if (Number.isFinite(pmin) && pmin >= 0) s.priceMin = pmin;
+    if (Number.isFinite(pmax) && pmax >= 0) s.priceMax = pmax;
+  }
   s.selected = (get('sel') ?? '').trim() || null;
   const mode = (get('mode') ?? '').trim();
   s.mode = mode === 'list' || mode === 'map' ? mode : null;
@@ -56,6 +71,11 @@ export function encodeMapView(s: MapViewState): Record<string, string> {
   if (s.category) out.cat = s.category;
   if (s.q) out.q = s.q;
   if (s.openNow) out.open = '1';
+  if (s.price) out.price = s.price;
+  else {
+    if (s.priceMin != null) out.priceMin = String(s.priceMin);
+    if (s.priceMax != null) out.priceMax = String(s.priceMax);
+  }
   if (s.selected) out.sel = s.selected;
   if (s.mode) out.mode = s.mode;
   return out;

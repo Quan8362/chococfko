@@ -1,6 +1,7 @@
 import type { Place, Fee } from './places';
 import { haversineKm } from './geo.ts';
 import { isOpenNow } from './placeOpenNow.ts';
+import { priceInRange, effectiveMinPrice } from './placeBudget.ts';
 
 // ============================================================
 // Lớp trừu tượng tìm kiếm địa điểm (config-driven, boundary-aware).
@@ -562,29 +563,10 @@ function matchesPhrase(fieldsJoined: string, phrase: string): boolean {
   return toks.every((t) => fieldHasToken(fi, t));
 }
 
-/** Effective lowest price for the price_low sort (free = 0, unknown = Infinity). */
-function effectiveMinPrice(p: Place): number {
-  if (p.priceType === 'free' || p.fee === 'free') return 0;
-  if (p.priceMin != null) return p.priceMin;
-  if (p.priceMax != null) return p.priceMax;
-  return Number.POSITIVE_INFINITY;
-}
-
-/** Budget overlap: free always satisfies an upper bound; unknown price fails. */
-function priceMatches(p: Place, min: number | null | undefined, max: number | null | undefined): boolean {
-  const fMin = min ?? 0;
-  const fMax = max ?? Number.POSITIVE_INFINITY;
-  let pMin: number;
-  let pMax: number;
-  if (p.priceType === 'free' || p.fee === 'free') { pMin = 0; pMax = 0; }
-  else if (p.priceMin != null || p.priceMax != null) {
-    pMin = p.priceMin ?? (p.priceMax as number);
-    pMax = p.priceMax ?? (p.priceMin as number);
-  } else {
-    return false; // unknown price → cannot confirm it fits the budget
-  }
-  return pMin <= fMax && pMax >= fMin;
-}
+// Price boundaries + overlap semantics live centrally in lib/placeBudget so the
+// list engine, the active chips, and the Map view can never drift apart.
+const priceMatches = (p: Place, min: number | null | undefined, max: number | null | undefined) =>
+  priceInRange(p, min ?? null, max ?? null);
 
 function withinDays(dateStr: string | null | undefined, days: number, now: Date): boolean {
   if (!dateStr) return false;

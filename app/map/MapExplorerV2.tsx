@@ -14,6 +14,10 @@ import { openStatus, type OpenState } from '@/lib/placeOpenNow'
 import {
   type MapViewState, encodeMapView, shouldOfferSearchArea, markerAccent,
 } from '@/lib/maps/mapView'
+import {
+  placeMatchesPriceSelection, isPriceRangeKey, PRICE_RANGE_KEYS, priceRangeI18nKey,
+  formatYen, type PriceSelection,
+} from '@/lib/placeBudget'
 import type { InternalResultItem, StationAreaResultItem, TopicResultItem } from '@/lib/maps/unifiedSearch'
 import type { ExternalPlacePreview as ExternalPreview } from '@/lib/maps/externalPlace'
 import { findInternalDuplicate } from '@/lib/maps/duplicateDetection'
@@ -74,6 +78,15 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
   const [category, setCategory] = useState(initialState.category)
   const [q, setQ] = useState(initialState.q)
   const [openNowOnly, setOpenNowOnly] = useState(initialState.openNow)
+  // Price filter mirrors the Places list (shared semantics in lib/placeBudget):
+  // 'all' | 'free' | bucket key | 'custom'. Custom bounds arrive only via URL
+  // (forwarded from the list); the Map control itself sets predefined buckets.
+  const [priceSel, setPriceSel] = useState<PriceSelection>(
+    initialState.price === 'free' ? 'free'
+      : isPriceRangeKey(initialState.price) ? initialState.price
+        : (initialState.priceMin != null || initialState.priceMax != null) ? 'custom' : 'all',
+  )
+  const priceCustom = useRef<{ min: number | null; max: number | null }>({ min: initialState.priceMin, max: initialState.priceMax })
   const [moved, setMoved] = useState(false)
   const [sheet, setSheet] = useState<SheetState>('half')
   const [panelOpen, setPanelOpen] = useState(true)
@@ -109,8 +122,9 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
 
   const displayed = useMemo(
     () => places.filter((m) => (!category || m.category === category) &&
-      (!openNowOnly || stateOf(m) === 'open' || stateOf(m) === 'closing_soon')),
-    [places, category, openNowOnly, stateOf],
+      (!openNowOnly || stateOf(m) === 'open' || stateOf(m) === 'closing_soon') &&
+      placeMatchesPriceSelection(m, priceSel, priceCustom.current)),
+    [places, category, openNowOnly, priceSel, stateOf],
   )
 
   // ── Viewport fetch (explicit / committed only) ──
@@ -347,16 +361,20 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
     if (urlTimer.current) clearTimeout(urlTimer.current)
     urlTimer.current = setTimeout(() => {
       const map = mapRef.current
+      const custom = priceSel === 'custom' ? priceCustom.current : { min: null, max: null }
       const view: MapViewState = {
         center: map ? { lat: map.getCenter().lat, lng: map.getCenter().lng } : null,
         zoom: map ? map.getZoom() : null,
-        category, q, openNow: openNowOnly, selected, mode: null,
+        category, q, openNow: openNowOnly,
+        price: priceSel === 'all' || priceSel === 'custom' ? '' : priceSel,
+        priceMin: custom.min, priceMax: custom.max,
+        selected, mode: null,
       }
       const qs = new URLSearchParams(encodeMapView(view)).toString()
       window.history.replaceState(null, '', qs ? `?${qs}` : window.location.pathname)
     }, 500)
-  }, [category, q, openNowOnly, selected])
-  useEffect(() => { scheduleUrlWrite() }, [category, q, openNowOnly, selected, scheduleUrlWrite])
+  }, [category, q, openNowOnly, priceSel, selected])
+  useEffect(() => { scheduleUrlWrite() }, [category, q, openNowOnly, priceSel, selected, scheduleUrlWrite])
 
   // Escape closes overlays.
   useEffect(() => {
@@ -379,8 +397,10 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
   // authoritative reset — it restores every place by simply clearing the
   // predicates, never by trying to rebuild the result list.
   const onCategory = (code: string) => setCategory(code)
-  const clearFilters = () => { setCategory(''); setOpenNowOnly(false) }
-  const filtersActive = Boolean(category) || openNowOnly
+  // Price is a client-side predicate too (same rationale as category/open-now).
+  const onPrice = (sel: PriceSelection) => { if (sel !== 'custom') priceCustom.current = { min: null, max: null }; setPriceSel(sel) }
+  const clearFilters = () => { setCategory(''); setOpenNowOnly(false); priceCustom.current = { min: null, max: null }; setPriceSel('all') }
+  const filtersActive = Boolean(category) || openNowOnly || priceSel !== 'all'
 
   // ── Unified search selections (internal first; external kept separate) ──
   const onSelectInternal = useCallback((item: InternalResultItem) => {
@@ -577,6 +597,24 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
           className="appearance-none text-[13px] h-[40px] pl-3.5 pr-8 border border-line rounded-full bg-paper/95 backdrop-blur shadow-sm cursor-pointer hover:border-rose/40 focus:outline-none focus:border-rose transition-colors">
           <option value="">{te('any_category')}</option>
           {categories.map((c) => <option key={c.code} value={c.code}>{c.emoji} {c.label}</option>)}
+        </select>
+        <svg className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+      </div>
+      <div className="relative inline-flex">
+        <select value={priceSel} onChange={(e) => onPrice(e.target.value as PriceSelection)} aria-label={te('price_estimated')}
+          className={`appearance-none text-[13px] h-[40px] pl-3.5 pr-8 border rounded-full bg-paper/95 backdrop-blur shadow-sm cursor-pointer focus:outline-none focus:border-rose transition-colors ${priceSel !== 'all' ? 'border-rose text-rose' : 'border-line hover:border-rose/40'}`}>
+          <option value="all">{te('price_estimated')}</option>
+          <option value="free">{te('f_free')}</option>
+          {PRICE_RANGE_KEYS.map((k) => <option key={k} value={k}>{te(priceRangeI18nKey(k))}</option>)}
+          {priceSel === 'custom' && (
+            <option value="custom">
+              {priceCustom.current.min != null && priceCustom.current.max != null
+                ? `${formatYen(priceCustom.current.min, locale)}–${formatYen(priceCustom.current.max, locale)}`
+                : priceCustom.current.min != null
+                  ? te('price_from_chip', { value: formatYen(priceCustom.current.min, locale) })
+                  : te('price_to_chip', { value: formatYen(priceCustom.current.max ?? 0, locale) })}
+            </option>
+          )}
         </select>
         <svg className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
       </div>

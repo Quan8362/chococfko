@@ -74,7 +74,13 @@
     "mini_game": "미니게임",
     "chat": "채팅",
     "japanese": "일본어 배우기",
-    "open_menu": "메뉴 열기"
+    "open_menu": "메뉴 열기",
+    "explore_map": "탐색 지도",
+    "explore_map_desc": "지도에서 주변 장소를 찾아보세요",
+    "all_places": "모든 장소",
+    "place_categories": "장소 카테고리",
+    "todays_suggestion": "오늘의 추천",
+    "about": "소개"
   },
   "home": {
     "write_cta": "✍️ 글쓰기",
@@ -114,7 +120,10 @@
     "view_all_aria": "{category} 장소 전체 보기",
     "load_more": "더 보기",
     "no_more": "더 이상 항목이 없습니다",
-    "category_count": "{count}곳"
+    "category_count": "{count}곳",
+    "map_cta_title": "지도에서 장소 둘러보기",
+    "map_cta_description": "주변의 맛집, 관광지, 흥미로운 장소를 찾아보세요",
+    "map_cta_button": "지도 보기"
   },
   "community": {
     "label": "Chợ Cóc FKO 커뮤니티",
@@ -3525,7 +3534,10 @@
     "insights_col_query": "검색어",
     "insights_col_total": "횟수",
     "insights_col_zero": "0건",
-    "insights_col_clicks": "클릭"
+    "insights_col_clicks": "클릭",
+    "view_label": "보기",
+    "view_list": "목록",
+    "view_map": "지도"
   },
   "map_v2": {
     "pick_origin_hint": "지도를 탭하여 출발지를 선택하세요",

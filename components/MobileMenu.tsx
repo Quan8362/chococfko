@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import ChatUnreadBadge from './ChatUnreadBadge'
 import NavIcon from './NavIcon'
+import { trackMapOpen } from '@/lib/mapNav'
 
 interface MobileMenuProps {
   isAdmin?: boolean
@@ -52,6 +53,17 @@ export default function MobileMenu({ isLoggedIn }: MobileMenuProps) {
               <Link href="/" onClick={close} className="group/m flex items-center gap-3 px-2.5 py-2.5 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
                 <span className="flex-none grid place-items-center w-9 h-9 rounded-lg bg-cream text-muted group-hover/m:bg-rose/10 group-hover/m:text-rose transition-colors"><NavIcon name="explore" /></span>
                 {t('explore')}
+              </Link>
+              <Link href="/places" onClick={close} className="group/m flex items-center gap-3 px-2.5 py-2.5 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
+                <span className="flex-none grid place-items-center w-9 h-9 rounded-lg bg-cream text-muted group-hover/m:bg-rose/10 group-hover/m:text-rose transition-colors"><NavIcon name="grid" /></span>
+                {t('all_places')}
+              </Link>
+              <Link href="/map" onClick={() => { trackMapOpen('mobile_navigation'); close() }} className="group/m flex items-start gap-3 px-2.5 py-2.5 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
+                <span className="flex-none grid place-items-center w-9 h-9 rounded-lg bg-cream text-muted group-hover/m:bg-rose/10 group-hover/m:text-rose transition-colors"><NavIcon name="map" /></span>
+                <span className="flex flex-col min-w-0">
+                  <span className="leading-tight">{t('explore_map')}</span>
+                  <span className="text-[12.5px] font-normal text-muted leading-snug">{t('explore_map_desc')}</span>
+                </span>
               </Link>
 
               <p className="px-3 pt-3 pb-1.5 text-[11px] font-bold uppercase tracking-wider text-muted/70">{t('community')}</p>

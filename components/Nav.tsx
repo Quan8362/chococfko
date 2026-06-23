@@ -45,9 +45,16 @@ export default async function Nav() {
 
         {/* Desktop nav — absolute center */}
         <nav className="hidden md:flex flex-1 justify-center items-center gap-0.5 text-[13.5px] font-medium text-[#6b5b50]">
-          <Link href="/" className="px-3 py-1.5 rounded-lg hover:bg-line hover:text-rose transition-colors whitespace-nowrap">
-            {t('explore')}
-          </Link>
+          <NavDropdown
+            label={t('explore')}
+            items={[
+              { href: '/places', label: t('all_places'), icon: 'explore' },
+              { href: '/#categories', label: t('place_categories'), icon: 'grid' },
+              { href: '/map', label: t('explore_map'), icon: 'map', track: { event: 'explore_map_opened', source: 'header_dropdown' } },
+              { href: '/games/destination-wheel', label: t('todays_suggestion'), icon: 'sparkles' },
+              { href: '/about', label: t('about'), icon: 'info' },
+            ]}
+          />
           <NavDropdown
             label={t('community')}
             showChatBadgeOnParent

@@ -74,7 +74,13 @@
     "mini_game": "Mini Game",
     "chat": "Chat",
     "japanese": "Học tiếng Nhật",
-    "open_menu": "Mở menu"
+    "open_menu": "Mở menu",
+    "explore_map": "Bản đồ khám phá",
+    "explore_map_desc": "Xem các địa điểm xung quanh bạn trên bản đồ",
+    "all_places": "Tất cả địa điểm",
+    "place_categories": "Danh mục địa điểm",
+    "todays_suggestion": "Hôm nay đi đâu?",
+    "about": "Giới thiệu"
   },
   "home": {
     "write_cta": "✍️ Viết bài",
@@ -114,7 +120,10 @@
     "view_all_aria": "Xem tất cả địa điểm {category}",
     "load_more": "Xem thêm",
     "no_more": "Đã hiển thị tất cả",
-    "category_count": "{count} địa điểm"
+    "category_count": "{count} địa điểm",
+    "map_cta_title": "Khám phá địa điểm trên bản đồ",
+    "map_cta_description": "Tìm quán ăn, địa điểm du lịch và những nơi thú vị gần bạn",
+    "map_cta_button": "Xem bản đồ"
   },
   "community": {
     "label": "Cộng đồng Chợ Cóc FKO",
@@ -3525,7 +3534,10 @@
     "insights_col_query": "Truy vấn",
     "insights_col_total": "Lượt",
     "insights_col_zero": "Rỗng",
-    "insights_col_clicks": "Bấm"
+    "insights_col_clicks": "Bấm",
+    "view_label": "Chế độ xem",
+    "view_list": "Danh sách",
+    "view_map": "Bản đồ"
   },
   "map_v2": {
     "pick_origin_hint": "Chạm vào bản đồ để chọn điểm xuất phát",

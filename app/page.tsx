@@ -12,6 +12,7 @@ import CollectionsRail from "@/components/explore/CollectionsRail";
 import EventsRail from "@/components/explore/EventsRail";
 import CommunityActivity from "@/components/explore/CommunityActivity";
 import PersonalizedHome from "@/components/explore/PersonalizedHome";
+import MapDiscoveryCard from "@/components/explore/MapDiscoveryCard";
 
 export const dynamic = "force-dynamic";
 
@@ -163,6 +164,9 @@ export default async function Home() {
         }))}
         cards={cardsBySlug}
       />
+
+      {/* ── MAP DISCOVERY CTA (compact, sits between discovery + personalized) ── */}
+      <MapDiscoveryCard />
 
       {/* ── PERSONALIZED (returning users; client-only, never cached cross-user) ── */}
       <PersonalizedHome

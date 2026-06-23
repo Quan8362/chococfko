@@ -74,7 +74,13 @@
     "mini_game": "小游戏",
     "chat": "聊天",
     "japanese": "学日语",
-    "open_menu": "打开菜单"
+    "open_menu": "打开菜单",
+    "explore_map": "探索地图",
+    "explore_map_desc": "在地图上发现附近的地点",
+    "all_places": "所有地点",
+    "place_categories": "地点分类",
+    "todays_suggestion": "今天去哪儿？",
+    "about": "关于"
   },
   "home": {
     "write_cta": "✍️ 写文章",
@@ -114,7 +120,10 @@
     "view_all_aria": "查看全部{category}地点",
     "load_more": "加载更多",
     "no_more": "没有更多了",
-    "category_count": "{count} 个地点"
+    "category_count": "{count} 个地点",
+    "map_cta_title": "在地图上探索地点",
+    "map_cta_description": "寻找您附近的餐厅、景点和有趣的地方",
+    "map_cta_button": "查看地图"
   },
   "community": {
     "label": "Chợ Cóc FKO 社区",
@@ -3525,7 +3534,10 @@
     "insights_col_query": "搜索词",
     "insights_col_total": "次数",
     "insights_col_zero": "空",
-    "insights_col_clicks": "点击"
+    "insights_col_clicks": "点击",
+    "view_label": "视图",
+    "view_list": "列表",
+    "view_map": "地图"
   },
   "map_v2": {
     "pick_origin_hint": "点按地图选择出发地",

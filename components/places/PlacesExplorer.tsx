@@ -16,6 +16,7 @@ import {
 import { SEARCH_EVENTS, trackSearchEvent, logSearchQuery, markSearchClicked } from '@/lib/searchAnalytics'
 import PlaceFilters from './PlaceFilters'
 import Select from '@/components/explore/Select'
+import ViewSwitch from '@/components/explore/ViewSwitch'
 
 const PAGE = 12
 const RECENT_KEY = 'chococfko_recent_searches'
@@ -259,8 +260,26 @@ export default function PlacesExplorer({ places, cards, categories, prefectures,
 
   const sortKeys = SORT_KEYS.filter((s) => s !== 'nearest' || userLoc)
 
+  // Map view link — preserve only the filters the Map page understands (keyword,
+  // category, open-now). Area/prefecture aren't supported by the map view, so
+  // they're intentionally dropped rather than breaking navigation.
+  const mapHref = useMemo(() => {
+    const sp = new URLSearchParams()
+    const q = (state.q ?? '').trim()
+    if (q) sp.set('q', q)
+    if (state.category) sp.set('cat', state.category)
+    if (state.openNow) sp.set('open', '1')
+    const qs = sp.toString()
+    return qs ? `/map?${qs}` : '/map'
+  }, [state.q, state.category, state.openNow])
+
   return (
     <div>
+      {/* ── List / Map view switch ── */}
+      <div className="flex justify-end mb-3">
+        <ViewSwitch active="list" mapHref={mapHref} />
+      </div>
+
       {/* ── Search bar + sort + filters button ── */}
       <div className="flex flex-col lg:flex-row lg:items-center gap-2.5 mb-2.5">
         <div className="relative lg:flex-1">

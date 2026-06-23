@@ -74,7 +74,13 @@
     "mini_game": "Mini Game",
     "chat": "Chat",
     "japanese": "Learn Japanese",
-    "open_menu": "Open menu"
+    "open_menu": "Open menu",
+    "explore_map": "Explore Map",
+    "explore_map_desc": "Discover nearby places on the map",
+    "all_places": "All places",
+    "place_categories": "Place categories",
+    "todays_suggestion": "Today’s suggestion",
+    "about": "About"
   },
   "home": {
     "write_cta": "✍️ Write a post",
@@ -114,7 +120,10 @@
     "view_all_aria": "View all {category} places",
     "load_more": "Load more",
     "no_more": "No more items",
-    "category_count": "{count} places"
+    "category_count": "{count} places",
+    "map_cta_title": "Explore places on the map",
+    "map_cta_description": "Find restaurants, attractions, and interesting places near you",
+    "map_cta_button": "Open map"
   },
   "community": {
     "label": "Chợ Cóc FKO Community",
@@ -3525,7 +3534,10 @@
     "insights_col_query": "Query",
     "insights_col_total": "Total",
     "insights_col_zero": "Zero",
-    "insights_col_clicks": "Clicks"
+    "insights_col_clicks": "Clicks",
+    "view_label": "View",
+    "view_list": "List",
+    "view_map": "Map"
   },
   "map_v2": {
     "pick_origin_hint": "Tap the map to set your starting point",

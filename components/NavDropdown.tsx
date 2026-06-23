@@ -5,12 +5,15 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import ChatUnreadBadge from './ChatUnreadBadge'
 import NavIcon from './NavIcon'
+import { trackEvent } from '@/lib/analytics'
 
 export type NavDropdownItem = {
   href: string
   label: string
   icon?: string
   badge?: 'chat'
+  /** Optional analytics event fired on click (serializable — safe from RSC). */
+  track?: { event: string; source: string }
 }
 
 export default function NavDropdown({
@@ -77,7 +80,7 @@ export default function NavDropdown({
                 key={it.href}
                 href={it.href}
                 role="menuitem"
-                onClick={() => setOpen(false)}
+                onClick={() => { if (it.track) void trackEvent(it.track.event, { metadata: { source: it.track.source } }); setOpen(false) }}
                 className="group/item flex items-center gap-3 pl-2.5 pr-3 py-2.5 rounded-xl text-[13.5px] font-medium text-ink hover:bg-cream hover:text-rose transition-colors"
               >
                 {it.icon && (

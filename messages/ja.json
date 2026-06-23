@@ -74,7 +74,13 @@
     "mini_game": "ミニゲーム",
     "chat": "チャット",
     "japanese": "日本語を学ぶ",
-    "open_menu": "メニューを開く"
+    "open_menu": "メニューを開く",
+    "explore_map": "探索マップ",
+    "explore_map_desc": "近くのスポットを地図で探す",
+    "all_places": "すべてのスポット",
+    "place_categories": "カテゴリ",
+    "todays_suggestion": "今日のおすすめ",
+    "about": "サイトについて"
   },
   "home": {
     "write_cta": "✍️ 投稿する",
@@ -114,7 +120,10 @@
     "view_all_aria": "{category}の地点をすべて見る",
     "load_more": "もっと見る",
     "no_more": "すべて表示しました",
-    "category_count": "{count}件"
+    "category_count": "{count}件",
+    "map_cta_title": "地図でスポットを探す",
+    "map_cta_description": "近くのグルメ・観光スポット・面白い場所を見つけよう",
+    "map_cta_button": "地図を見る"
   },
   "community": {
     "label": "Chợ Cóc FKO コミュニティ",
@@ -3525,7 +3534,10 @@
     "insights_col_query": "検索語",
     "insights_col_total": "回数",
     "insights_col_zero": "0件",
-    "insights_col_clicks": "クリック"
+    "insights_col_clicks": "クリック",
+    "view_label": "表示",
+    "view_list": "リスト",
+    "view_map": "地図"
   },
   "map_v2": {
     "pick_origin_hint": "地図をタップして出発地を選択してください",

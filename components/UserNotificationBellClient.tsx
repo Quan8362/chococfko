@@ -120,6 +120,7 @@ export default function UserNotificationBellClient({ userId, initialUnread, init
       <button
         onClick={() => setOpen(v => !v)}
         aria-label={t('bell_label')}
+        title={t('bell_label')}
         className="relative w-9 h-9 flex items-center justify-center rounded-xl border border-line bg-paper hover:bg-rose-soft/50 hover:border-rose/30 transition-all"
       >
         <svg className="w-[18px] h-[18px] text-muted/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">

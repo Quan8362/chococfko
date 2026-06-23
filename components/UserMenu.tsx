@@ -33,6 +33,9 @@ export default function UserMenu({ displayName, isAdmin, avatarUrl }: UserMenuPr
       <button
         onClick={() => setOpen(v => !v)}
         aria-expanded={open}
+        aria-haspopup="menu"
+        aria-label={displayName}
+        title={displayName}
         className="flex items-center gap-2 pl-1 pr-2.5 py-1 rounded-full hover:bg-line transition-colors"
       >
         <UserAvatar src={avatarUrl} name={displayName} size={32} />

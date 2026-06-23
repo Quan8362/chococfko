@@ -37,7 +37,9 @@ input[type="password"]::-webkit-strong-password-auto-fill-button {
   --teal-soft: #e6f3f6;
   --gold: #c99a3d;
   --gold-light: #f5e8cc;
-  --muted: #8c7c70;
+  /* Darkened from #8c7c70 to meet WCAG AA (≥4.5:1) on the cream background for
+     small body/label text, while keeping the soft warm-grey character. */
+  --muted: #786a5d;
   --line: #e8ddcf;
   --font-serif-display: "AmpFix", "Playfair Display", Georgia, serif;
   --font-bvp: "Be Vietnam Pro", system-ui, sans-serif;
@@ -93,6 +95,14 @@ body::before {
 .animate-fadeup   { animation: fadeUp 0.55s cubic-bezier(.22,.68,0,1.2) both; }
 .animate-fadein   { animation: fadeIn 0.15s ease both; }
 .animate-slidedown { animation: slideDown 0.2s ease both; }
+
+/* Gentle idle float for the hero map illustration — composes with the
+   scroll-parallax transform applied on the parent wrapper. */
+@keyframes floatY {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-9px); }
+}
+.animate-float { animation: floatY 6.5s ease-in-out infinite alternate; }
 
 /* Topic bottom-sheet: slide up from the bottom edge on phones. */
 @keyframes sheetUp {

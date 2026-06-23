@@ -9,6 +9,7 @@ import MobileMenu from './MobileMenu'
 import AdminNotificationBell from './AdminNotificationBell'
 import UserNotificationBell from './UserNotificationBell'
 import NavDropdown from './NavDropdown'
+import NavLink from './NavLink'
 
 async function getAuthState() {
   try {
@@ -64,12 +65,8 @@ export default async function Nav() {
               { href: '/community/chat', label: t('chat'), icon: 'chat', badge: 'chat' },
             ]}
           />
-          <Link href="/marketplace" className="px-3 py-1.5 rounded-lg hover:bg-line hover:text-rose transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose/40">
-            {t('marketplace')}
-          </Link>
-          <Link href="/japanese" className="px-3 py-1.5 rounded-lg hover:bg-line hover:text-rose transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose/40">
-            {tJp('nav')}
-          </Link>
+          <NavLink href="/marketplace">{t('marketplace')}</NavLink>
+          <NavLink href="/japanese">{tJp('nav')}</NavLink>
           <NavDropdown
             label={t('entertainment')}
             items={[

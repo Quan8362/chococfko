@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import type { ReactNode } from "react";
 import { getTranslations, getLocale } from "next-intl/server";
 import { categories, places as staticPlaces, getAllPlacesFromDb, attachPlaceTags } from "@/lib/places";
@@ -14,6 +13,8 @@ import EventsRail from "@/components/explore/EventsRail";
 import CommunityActivity from "@/components/explore/CommunityActivity";
 import PersonalizedHome from "@/components/explore/PersonalizedHome";
 import MapDiscoveryCard from "@/components/explore/MapDiscoveryCard";
+import HeroMap from "@/components/home/HeroMap";
+import HeroStats from "@/components/home/HeroStats";
 
 export const dynamic = "force-dynamic";
 
@@ -87,16 +88,18 @@ export default async function Home() {
   return (
     <>
       {/* ── HERO ─────────────────────────────────────────────── */}
-      <section className="relative pt-9 sm:pt-11 lg:pt-12 pb-12 lg:pb-14 overflow-hidden">
+      <section className="relative pt-9 sm:pt-11 lg:pt-12 pb-8 lg:pb-10 overflow-hidden">
         {/* Soft ambient washes — purely decorative, clipped by the section. The
-            rose wash also doubles as the gentle highlight that lifts the map. */}
-        <div className="absolute -top-[160px] -right-[120px] w-[520px] h-[520px] rounded-full bg-[radial-gradient(circle_at_40%_40%,rgba(194,24,91,0.08),transparent_62%)] pointer-events-none" />
-        <div className="absolute top-[42%] -left-[120px] w-[360px] h-[360px] rounded-full bg-[radial-gradient(circle_at_50%_50%,rgba(31,143,166,0.06),transparent_65%)] pointer-events-none" />
+            rose wash also doubles as the gentle highlight that lifts the map and
+            gives the right half enough visual weight to balance the text. */}
+        <div className="absolute -top-[180px] -right-[140px] w-[640px] h-[640px] rounded-full bg-[radial-gradient(circle_at_42%_42%,rgba(194,24,91,0.10),transparent_64%)] pointer-events-none" />
+        <div className="absolute top-[40%] -left-[120px] w-[360px] h-[360px] rounded-full bg-[radial-gradient(circle_at_50%_50%,rgba(31,143,166,0.06),transparent_65%)] pointer-events-none" />
 
         {/* Two-column on lg+ via grid so the map can vertically centre against the
             full text+stats stack; single column (text → map → stats) below lg.
+            The right column is weighted heavier so the map reads as the anchor.
             Container matches the header for edge alignment. */}
-        <div className="max-w-[1280px] mx-auto px-4 sm:px-6 relative z-[1] lg:grid lg:grid-cols-[minmax(0,0.82fr)_minmax(0,1fr)] lg:items-center lg:gap-x-10 xl:gap-x-12">
+        <div className="max-w-[1280px] mx-auto px-4 sm:px-6 relative z-[1] lg:grid lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.12fr)] lg:items-center lg:gap-x-8 xl:gap-x-10">
 
           {/* TEXT — eyebrow, headline, supporting copy, CTAs */}
           <div className="text-center lg:text-left lg:col-start-1 lg:row-start-1 max-w-[600px] mx-auto lg:mx-0 animate-fadeup">
@@ -104,83 +107,65 @@ export default async function Home() {
               {t("label")}
             </span>
 
-            <h1 className="font-serif font-black text-[clamp(32px,4.4vw,56px)] leading-[1.08] tracking-[-0.5px] text-ink text-balance">
+            <h1 className="font-serif font-black text-[clamp(32px,4.4vw,56px)] leading-[1.07] tracking-[-0.5px] text-ink text-balance">
               {t("heading")}{" "}
               {/* Keep the emphasised phrase + period together so it never breaks
                   to a lone "trang." — locale-safe (no fixed <br/>). */}
               <span className="whitespace-nowrap"><em className="not-italic font-semibold text-rose">{t("heading_accent")}</em>.</span>
             </h1>
 
-            <p className="mt-5 text-[16.5px] leading-[1.65] text-[#5b4d44] max-w-[480px] mx-auto lg:mx-0 whitespace-pre-line">
+            <p className="mt-5 text-[16.5px] leading-[1.7] text-[#50443b] max-w-[480px] mx-auto lg:mx-0 whitespace-pre-line">
               {t("description")}
             </p>
 
-            {/* CTA hierarchy: primary (solid) → secondary (outline) → tertiary
-                (text link). Stacks full-width on mobile; row on sm+. */}
-            <div className="mt-8 flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center justify-center lg:justify-start gap-3">
-              <Link
-                href="#sec-landmark"
-                className="inline-flex items-center justify-center min-h-[48px] px-7 text-[14.5px] font-semibold rounded-full bg-rose text-white shadow-[0_4px_16px_-6px_rgba(194,24,91,0.45)] hover:bg-rose-deep active:translate-y-px transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose/55 focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
-              >
-                {t("cta_explore")}
-              </Link>
-              <Link
-                href="/community"
-                className="inline-flex items-center justify-center min-h-[48px] px-6 text-[14.5px] font-semibold rounded-full border border-[#c8b8a8] text-[#5c4d44] hover:border-ink hover:bg-ink hover:text-cream transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/30 focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
-              >
-                {t("cta_community")}
-              </Link>
+            {/* CTA cluster: primary (solid) + secondary (outline) on one row,
+                then the tertiary "add a place" link grouped just beneath with a
+                short connector so it reads as part of the cluster, not floating. */}
+            <div className="mt-8 flex flex-col items-stretch sm:items-start gap-3.5">
+              <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center justify-center lg:justify-start gap-3">
+                <Link
+                  href="#sec-landmark"
+                  className="group inline-flex items-center justify-center gap-2 min-h-[48px] px-7 text-[14.5px] font-semibold rounded-full bg-rose text-white shadow-[0_6px_20px_-6px_rgba(194,24,91,0.5)] hover:bg-rose-deep hover:-translate-y-0.5 hover:shadow-[0_12px_28px_-8px_rgba(194,24,91,0.55)] active:translate-y-0 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose/55 focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
+                >
+                  {t("cta_explore")}
+                  <svg className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                </Link>
+                <Link
+                  href="/community"
+                  className="inline-flex items-center justify-center min-h-[48px] px-6 text-[14.5px] font-semibold rounded-full border border-[#c8b8a8] text-[#5c4d44] hover:border-ink hover:bg-ink hover:text-cream hover:-translate-y-0.5 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/30 focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
+                >
+                  {t("cta_community")}
+                </Link>
+              </div>
+
+              {/* Tertiary action — grouped with the CTAs via a subtle pill so it
+                  reads as part of the cluster rather than floating alone. */}
               <Link
                 href="/places/new"
-                className="inline-flex items-center justify-center gap-1.5 min-h-[44px] px-2 text-[13.5px] font-semibold text-rose hover:text-rose-deep no-underline transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose/40 focus-visible:ring-offset-2 focus-visible:ring-offset-cream rounded-md"
+                className="inline-flex items-center justify-center sm:justify-start gap-1.5 self-center sm:self-start min-h-[36px] px-3.5 text-[13.5px] font-semibold text-rose hover:text-rose-deep no-underline rounded-full bg-rose-soft/45 hover:bg-rose-soft transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose/40 focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
               >
                 {t("write_place_cta")}
               </Link>
             </div>
           </div>
 
-          {/* MAP — the hero visual. Spans both desktop rows so it centres against
-              text + stats; appears between CTA and stats on mobile. A gentle
-              saturate/contrast lift counters the pastel fade; the very light rose
-              shadow grounds the transparent PNG without a box or halo. */}
-          <div className="lg:col-start-2 lg:row-start-1 lg:row-span-2 lg:self-center mt-2 sm:mt-4 lg:mt-0 mx-auto lg:mx-0 w-full max-w-[440px] sm:max-w-[560px] lg:max-w-none pointer-events-none select-none">
-            <Image
-              src="/bg_web.png"
-              alt={t("hero_map_alt")}
-              width={1508}
-              height={941}
-              priority
-              sizes="(min-width: 1280px) 56vw, (min-width: 1024px) 52vw, (min-width: 640px) 560px, 88vw"
-              /* On mobile, crop the near-empty transparent top of the PNG (rows
-                 above Hokkaido) so the visible map starts right under the CTA;
-                 desktop keeps the full intrinsic image. object-bottom keeps the
-                 full silhouette (Hokkaido→Okinawa) in view. */
-              className="w-full aspect-[1508/886] object-cover object-bottom lg:aspect-auto lg:h-auto lg:object-contain saturate-[1.08] contrast-[1.02] drop-shadow-[0_16px_36px_rgba(194,24,91,0.07)]"
-            />
-          </div>
+          {/* MAP — the hero visual (parallax + idle float + brand glow). */}
+          <HeroMap alt={t("hero_map_alt")} />
 
-          {/* STATS — supporting proof, tied to the hero (sits directly under the
-              CTAs on desktop, after the map on mobile). */}
-          <div className="lg:col-start-1 lg:row-start-2 mt-6 lg:mt-7 flex justify-center lg:justify-start">
-            <div className="inline-flex items-center gap-x-5 sm:gap-x-8 px-5 sm:px-7 py-3.5 rounded-2xl bg-paper/85 border border-line shadow-[0_2px_16px_-10px_rgba(60,40,40,0.4)]">
-              <div className="text-center">
-                <b className="font-serif text-[26px] font-bold block leading-none text-rose-deep tabular-nums">{allPlaces.length}</b>
-                <span className="text-[11.5px] text-muted mt-1.5 block">{t("stat_places")}</span>
-              </div>
-              <span className="w-px h-9 bg-line" aria-hidden="true" />
-              <div className="text-center">
-                <b className="font-serif text-[26px] font-bold block leading-none text-rose-deep tabular-nums">{visibleCategories.length}</b>
-                <span className="text-[11.5px] text-muted mt-1.5 block">{t("stat_categories")}</span>
-              </div>
-              <span className="w-px h-9 bg-line" aria-hidden="true" />
-              <div className="text-center">
-                <b className="font-serif text-[20px] font-bold block leading-none text-rose-deep">{t("stat_community_value")}</b>
-                <span className="text-[11.5px] text-muted mt-1.5 block">{t("stat_community_label")}</span>
-              </div>
-            </div>
+          {/* STATS — count-up numbers + community status badge. */}
+          <div className="lg:col-start-1 lg:row-start-2 mt-7 lg:mt-7 flex justify-center lg:justify-start">
+            <HeroStats places={allPlaces.length} categories={visibleCategories.length} />
           </div>
         </div>
       </section>
+
+      {/* Soft glow bridging the hero into the discovery section so the reading
+          flow feels continuous (no hard seam, no added vertical gap). */}
+      <div aria-hidden className="relative h-0 overflow-visible pointer-events-none">
+        <div className="absolute left-1/2 -translate-x-1/2 -top-8 w-[72%] max-w-[760px] h-20 bg-[radial-gradient(ellipse_at_center,rgba(194,24,91,0.05),transparent_70%)]" />
+      </div>
 
       {/* ── DISCOVERY: intro → region+search → quick needs → categories → results.
           ExploreSearch owns the four-layer hierarchy (Phase 8 UI refactor). Cards

@@ -2,8 +2,40 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
+
+// Location markers rendered as a DOM overlay on top of the (label-free) base
+// illustration. Coordinates are percentages of the image box (left/top), so
+// they stay aligned at every breakpoint as long as the container keeps the
+// image's native aspect ratio (1586×992) with object-contain — no letterbox,
+// percentages map 1:1. Calibrated visually against /bg_web.png.
+const MARKERS: { id: string; left: number; top: number }[] = [
+  { id: "sapporo", left: 73, top: 17 },
+  { id: "sendai", left: 82, top: 30 },
+  { id: "nikko", left: 72, top: 44 },
+  { id: "tokyo", left: 85, top: 48 },
+  { id: "yokohama", left: 83, top: 52 },
+  { id: "kamakura", left: 80, top: 55 },
+  { id: "hakone", left: 74, top: 53 },
+  { id: "mount_fuji", left: 67, top: 53 },
+  { id: "nagoya", left: 60, top: 57 },
+  { id: "nara", left: 63, top: 64 },
+  { id: "osaka", left: 53, top: 66 },
+  { id: "kobe", left: 46, top: 58 },
+  { id: "kyoto", left: 53, top: 53 },
+  { id: "kanazawa", left: 48, top: 43 },
+  { id: "shirakawago", left: 58, top: 38 },
+  { id: "hiroshima", left: 38, top: 55 },
+  { id: "miyajima", left: 36, top: 69 },
+  { id: "beppu", left: 24, top: 72 },
+  { id: "dazaifu", left: 24, top: 57 },
+  { id: "fukuoka", left: 18, top: 62 },
+  { id: "nagasaki", left: 10, top: 73 },
+  { id: "okinawa", left: 10, top: 89 },
+];
 
 export default function HeroMap({ alt }: { alt: string }) {
+  const t = useTranslations("home.map_markers");
   const ref = useRef<HTMLDivElement>(null);
   const floatRef = useRef<HTMLDivElement>(null);
   const [y, setY] = useState(0);
@@ -98,14 +130,34 @@ export default function HeroMap({ alt }: { alt: string }) {
       />
       <div ref={floatRef} className="origin-center relative will-change-transform">
         <Image
-          src="/bg_web.png?v=2"
+          src="/bg_web.png?v=3"
           alt={alt}
-          width={1508}
-          height={941}
+          width={1586}
+          height={992}
           priority
           sizes="(min-width: 1024px) 44vw, (min-width: 640px) 560px, 88vw"
-          className="w-full aspect-[1508/886] object-cover object-bottom lg:aspect-auto lg:h-auto lg:object-contain saturate-[1.05] contrast-[1.02] drop-shadow-[0_26px_50px_rgba(194,24,91,0.12)]"
+          className="w-full aspect-[1586/992] object-contain saturate-[1.05] contrast-[1.02] drop-shadow-[0_26px_50px_rgba(194,24,91,0.12)]"
         />
+
+        {/* Marker overlay — sits exactly over the image box (object-contain +
+            matching aspect ratio ⇒ no letterbox), so percentage left/top map
+            straight onto the illustration. The parent map div is
+            pointer-events-none; each marker re-enables pointer events so hover
+            works without blocking page scroll elsewhere. */}
+        <div className="absolute inset-0">
+          {MARKERS.map((m) => (
+            <div
+              key={m.id}
+              className="group absolute z-[2] pointer-events-auto hover:z-20"
+              style={{ left: `${m.left}%`, top: `${m.top}%`, transform: "translate(-50%, -50%)" }}
+            >
+              <span className="absolute bottom-full left-1/2 mb-1 -translate-x-1/2 whitespace-nowrap rounded-full border border-rose/15 bg-cream/85 px-2 py-0.5 text-[9px] sm:text-[10px] font-semibold leading-none text-ink/90 shadow-[0_1px_4px_rgba(120,60,40,0.18)] backdrop-blur-[1px] transition-all duration-200 ease-out group-hover:-translate-y-0.5 group-hover:bg-cream group-hover:shadow-[0_6px_16px_-4px_rgba(194,24,91,0.35)]">
+                {t(m.id)}
+              </span>
+              <span className="block h-2 w-2 rounded-full bg-rose shadow-[0_0_0_2px_rgba(255,255,255,0.85),0_2px_5px_rgba(194,24,91,0.45)] transition-transform duration-200 ease-out group-hover:scale-150" />
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

@@ -28,12 +28,15 @@ import {
   addMembersToRoom, removeMemberFromRoom, updateMemberRole, deleteRoom, updateRoomAvatar,
 } from './room-actions'
 import type { Room, ChatMessage, ReactionsMap, ChatAttachment, PollData, PollOption, PollsMap } from './page'
+import ScopeTabs from '@/components/access/ScopeTabs'
 
 // Keep in sync with MSG_SELECT in page.tsx — value import from page.tsx would break the build
 const MSG_SELECT =
   'id, user_id, display_name, avatar_url, message, is_deleted, created_at, room_id, is_pinned, pinned_at, pinned_by, mentioned_user_ids, mentioned_names, reply_to_id, reply_to_message, reply_to_display_name, has_attachment, has_poll, edited_at, attachments:community_chat_attachments(id, storage_bucket, storage_path, mime_type, file_size, file_name)'
 
 const ALLOWED_REACTION_EMOJIS = ['👍', '❤️', '😂', '😮', '🎉'] as const
+// Tappable conversation starters shown in the empty state (group chat only).
+const STARTER_CHIP_KEYS = ['starter_greet', 'starter_food', 'starter_today'] as const
 import type { UserSuggestion } from './actions'
 import type { RoomMember, UserSearchResult } from './room-actions'
 
@@ -352,6 +355,18 @@ export default function ChatClient({
     if (next === scope) return
     window.location.assign(`/community/chat?scope=${next}`)
   }, [scope])
+
+  // Empty-state starter chips → prefill the composer and focus it.
+  const prefillStarter = useCallback((text: string) => {
+    setInput(text)
+    requestAnimationFrame(() => {
+      const el = inputRef.current
+      if (el) {
+        el.focus()
+        el.setSelectionRange(text.length, text.length)
+      }
+    })
+  }, [])
 
   // Public rooms have a fixed key → show the localized name; private rooms keep their custom name.
   const roomLabel = (room: Room) =>
@@ -2518,7 +2533,7 @@ export default function ChatClient({
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
-    <div className="max-w-[1100px] mx-auto px-0 sm:px-6 sm:py-8 sm:pb-20">
+    <div className="max-w-[1360px] mx-auto px-0 sm:px-6 sm:py-8 sm:pb-20">
 
       {/* Breadcrumb */}
       <div className="hidden sm:flex items-center gap-1.5 text-[13px] text-muted mb-5">
@@ -2540,23 +2555,15 @@ export default function ChatClient({
           Community users never see the internal tab. On mobile the full-height
           chat container covers this area, so a mobile copy lives in the sidebar. */}
       {showScopeTabs && (
-        <div className="hidden md:flex gap-2 mb-3">
-          <button
-            onClick={() => switchScope('community')}
-            className={`px-3.5 py-1.5 rounded-full text-[12.5px] font-semibold border transition-colors ${
-              !isInternalScope ? 'bg-rose text-white border-rose' : 'bg-paper text-muted border-line hover:text-ink'
-            }`}
-          >
-            {t('scope_community')}
-          </button>
-          <button
-            onClick={() => switchScope('fko_internal')}
-            className={`px-3.5 py-1.5 rounded-full text-[12.5px] font-semibold border transition-colors ${
-              isInternalScope ? 'bg-ink text-cream border-ink' : 'bg-paper text-muted border-line hover:text-ink'
-            }`}
-          >
-            🔒 {t('scope_internal')}
-          </button>
+        <div className="hidden md:block mb-3">
+          <ScopeTabs
+            scope={scope}
+            canInternal
+            onSelect={switchScope}
+            communityLabel={t('scope_community')}
+            internalLabel={`🔒 ${t('scope_internal')}`}
+            className="flex items-center gap-2"
+          />
         </div>
       )}
 
@@ -2580,7 +2587,7 @@ export default function ChatClient({
       {/* Chat container: 2-column layout */}
       <div
         className="border border-line rounded-2xl overflow-hidden bg-paper shadow-md flex chat-container-box"
-        style={{ height: 'min(620px, calc(100dvh - 240px))' }}
+        style={{ height: 'clamp(520px, calc(100dvh - 200px), 900px)' }}
       >
         {/* ── LEFT: Room sidebar ──────────────────────────────────────────── */}
         <div
@@ -2590,23 +2597,15 @@ export default function ChatClient({
           {/* Mobile scope selector (desktop shows the tabs above the container).
               The active 🔒 chip is the persistent internal indicator on mobile. */}
           {showScopeTabs && (
-            <div className="md:hidden flex gap-1.5 p-2 border-b border-line">
-              <button
-                onClick={() => switchScope('community')}
-                className={`flex-1 py-1.5 rounded-lg text-[12px] font-semibold border transition-colors ${
-                  !isInternalScope ? 'bg-rose text-white border-rose' : 'bg-paper text-muted border-line'
-                }`}
-              >
-                {t('scope_community')}
-              </button>
-              <button
-                onClick={() => switchScope('fko_internal')}
-                className={`flex-1 py-1.5 rounded-lg text-[12px] font-semibold border transition-colors ${
-                  isInternalScope ? 'bg-ink text-cream border-ink' : 'bg-paper text-muted border-line'
-                }`}
-              >
-                🔒 {t('scope_internal')}
-              </button>
+            <div className="md:hidden p-2 border-b border-line">
+              <ScopeTabs
+                scope={scope}
+                canInternal
+                onSelect={switchScope}
+                communityLabel={t('scope_community')}
+                internalLabel={`🔒 ${t('scope_internal')}`}
+                variant="compact"
+              />
             </div>
           )}
 
@@ -2742,30 +2741,34 @@ export default function ChatClient({
           </div>
           )}
 
-          {/* Create room button (groups tab) */}
+          {/* Create room button (groups tab) — outlined brand-pink affordance */}
           {sidebarTab === 'groups' && (
-          <button
-            onClick={() => { setCreateRoomScope(scope); setShowCreateRoom(true) }}
-            className="flex-none flex items-center gap-2.5 px-4 py-3 text-[12.5px] text-muted/60 hover:text-rose hover:bg-rose/8 transition-all border-t border-line font-medium"
-          >
-            <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 5v14M5 12h14" />
-            </svg>
-            <span>{t('create_room')}</span>
-          </button>
+          <div className="flex-none border-t border-line p-2.5">
+            <button
+              onClick={() => { setCreateRoomScope(scope); setShowCreateRoom(true) }}
+              className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-[12.5px] font-semibold text-rose border border-rose/40 bg-rose/[0.06] hover:bg-rose/12 hover:border-rose/60 active:scale-[0.98] transition-all"
+            >
+              <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 5v14M5 12h14" />
+              </svg>
+              <span>{t('create_room')}</span>
+            </button>
+          </div>
           )}
 
-          {/* New DM button (DMs tab) */}
+          {/* New DM button (DMs tab) — matches the create-room affordance */}
           {sidebarTab === 'dms' && (
-          <button
-            onClick={() => { setShowUserSearch(true); setUserSearchQuery('') }}
-            className="flex-none flex items-center gap-2.5 px-4 py-3 text-[12.5px] text-muted/60 hover:text-rose hover:bg-rose/8 transition-all border-t border-line font-medium"
-          >
-            <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            <span>{t('new_dm')}</span>
-          </button>
+          <div className="flex-none border-t border-line p-2.5">
+            <button
+              onClick={() => { setShowUserSearch(true); setUserSearchQuery('') }}
+              className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-[12.5px] font-semibold text-rose border border-rose/40 bg-rose/[0.06] hover:bg-rose/12 hover:border-rose/60 active:scale-[0.98] transition-all"
+            >
+              <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              <span>{t('new_dm')}</span>
+            </button>
+          </div>
           )}
         </div>
 
@@ -2812,7 +2815,9 @@ export default function ChatClient({
               {onlineUserIds.size > 0 && (
                 <p className="flex items-center gap-1 text-[10.5px] text-emerald-500 leading-none mt-0.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
-                  {onlineUserIds.size} {t('people_online')}
+                  {onlineUserIds.size === 1
+                    ? t('alone_online')
+                    : `${onlineUserIds.size} ${t('people_online')}`}
                 </p>
               )}
             </div>
@@ -2946,9 +2951,9 @@ export default function ChatClient({
 
           {/* ── DM messages area ───────────────────────────────────────────── */}
           {chatMode === 'dm' && (
-            <div ref={dmScrollContainerRef} className="flex-1 overflow-y-auto min-h-0 bg-gradient-to-b from-cream/15 to-paper/50 overscroll-contain">
+            <div ref={dmScrollContainerRef} className="flex-1 overflow-y-auto min-h-0 relative bg-gradient-to-b from-cream/15 to-paper/50 overscroll-contain">
               {dmMessages.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-full gap-3 px-6 py-16">
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 px-6">
                   <div className="w-14 h-14 rounded-2xl bg-rose/8 flex items-center justify-center">
                     <svg className="w-7 h-7 text-rose/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
@@ -3165,14 +3170,34 @@ export default function ChatClient({
                 </svg>
               </div>
             ) : messages.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full gap-4 px-6 select-none py-16">
-                <div className="w-16 h-16 rounded-2xl bg-rose/8 flex items-center justify-center">
-                  <svg className="w-8 h-8 text-rose/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                      d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                  </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 px-6 select-none">
+                {/* Friendly illustration: chat bubble + waving hand badge */}
+                <div className="relative">
+                  <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-rose/15 to-rose/[0.04] flex items-center justify-center shadow-sm">
+                    <svg className="w-10 h-10 text-rose/55" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                  </div>
+                  <span className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-cream border border-rose/15 flex items-center justify-center text-[16px] shadow-sm select-none">👋</span>
                 </div>
-                <p className="text-[13.5px] font-semibold text-ink/40 text-center">{t('empty')}</p>
+                <div className="text-center">
+                  <p className="text-[14px] font-semibold text-ink/70">{t('empty')}</p>
+                  <p className="text-[12px] text-muted/50 mt-1">{t('empty_hint')}</p>
+                </div>
+                {/* Tappable conversation starters → prefill the composer */}
+                <div className="flex flex-wrap items-center justify-center gap-2 max-w-[360px]">
+                  {STARTER_CHIP_KEYS.map((key) => (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => prefillStarter(t(key))}
+                      className="px-3.5 py-1.5 rounded-full border border-rose/25 bg-rose/5 text-[12.5px] font-medium text-rose hover:bg-rose/[0.12] hover:border-rose/40 active:scale-95 transition-all"
+                    >
+                      {t(key)}
+                    </button>
+                  ))}
+                </div>
               </div>
             ) : (
               <div className="px-4 py-3 space-y-3">
@@ -3976,25 +4001,32 @@ export default function ChatClient({
               title={t('attach_options')}
             >+</button>
 
-            {/* Textarea */}
-            <textarea
-              ref={inputRef}
-              value={input}
-              onChange={handleInputChange}
-              onKeyDown={handleKeyDown}
-              placeholder={(imageFile || attachFile) ? t('add_caption') : 'Aa'}
-              disabled={loadingRoom || uploading}
-              maxLength={500}
-              rows={1}
-              className="flex-1 min-w-0 text-[16px] sm:text-[13.5px] px-3.5 py-2 rounded-full border border-line/60 bg-cream/60 focus:outline-none focus:border-rose/30 placeholder:text-muted/40 disabled:opacity-50 text-ink resize-none"
-              style={{ maxHeight: '80px', overflowY: 'auto' }}
-            />
+            {/* Textarea + inline char counter (hidden until the user types) */}
+            <div className="relative flex-1 min-w-0">
+              <textarea
+                ref={inputRef}
+                value={input}
+                onChange={handleInputChange}
+                onKeyDown={handleKeyDown}
+                placeholder={(imageFile || attachFile) ? t('add_caption') : 'Aa'}
+                disabled={loadingRoom || uploading}
+                maxLength={500}
+                rows={1}
+                className="w-full text-[16px] sm:text-[13.5px] pl-3.5 pr-12 py-2 rounded-2xl border border-line/60 bg-cream/60 focus:outline-none focus:border-rose/30 placeholder:text-muted/40 disabled:opacity-50 text-ink resize-none align-middle"
+                style={{ maxHeight: '80px', overflowY: 'auto' }}
+              />
+              {input.length > 0 && (
+                <span className="pointer-events-none absolute bottom-1.5 right-3 text-[10px] leading-none text-muted/40 tabular-nums select-none">
+                  {input.length}/500
+                </span>
+              )}
+            </div>
 
             {/* Emoji — bên phải textarea, trước nút gửi */}
             <button
               type="button"
               onClick={(e) => { e.stopPropagation(); openEmojiPicker('input') }}
-              className={`flex-none w-8 h-8 rounded-full flex items-center justify-center transition-all text-[18px] shrink-0 ${
+              className={`flex-none w-9 h-9 rounded-full flex items-center justify-center transition-all text-[18px] shrink-0 ${
                 emojiPickerTarget === 'input' ? 'bg-rose/15 text-rose' : 'text-muted/50 hover:text-rose hover:bg-rose/10'
               }`}
               title={t('pick_emoji')}
@@ -4005,30 +4037,38 @@ export default function ChatClient({
               <VoiceRecorder onSend={handleSendVoice} disabled={loadingRoom || uploading || dmSending} />
             )}
 
-            {/* Nút gửi */}
-            <button
-              onClick={handleSend}
-              disabled={(!input.trim() && !imageFile && !attachFile) || loadingRoom || uploading}
-              className="flex-none w-9 h-9 rounded-full bg-rose text-white flex items-center justify-center hover:bg-rose-deep transition-all disabled:opacity-40 shrink-0 active:scale-95"
-              title={uploading ? t('uploading') : t('send')}
-            >
-              {uploading ? (
-                <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                </svg>
-              ) : (
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                </svg>
-              )}
-            </button>
+            {/* Nút gửi — muted grey when empty, brand pink once there's content */}
+            {(() => {
+              const hasContent = !!input.trim() || !!imageFile || !!attachFile
+              const activeLook = hasContent && !loadingRoom
+              return (
+                <button
+                  onClick={handleSend}
+                  disabled={!hasContent || loadingRoom || uploading}
+                  className={`flex-none w-9 h-9 rounded-full flex items-center justify-center transition-all shrink-0 ${
+                    activeLook
+                      ? 'bg-rose text-white hover:bg-rose-deep active:scale-95 shadow-sm'
+                      : 'bg-line/70 text-muted/40 cursor-not-allowed'
+                  }`}
+                  title={uploading ? t('uploading') : t('send')}
+                >
+                  {uploading ? (
+                    <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                  ) : (
+                    <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M22 2 11 13" />
+                      <path d="M22 2 15 22 11 13 2 9 22 2Z" />
+                    </svg>
+                  )}
+                </button>
+              )
+            })()}
           </div>
         </div>{/* end right chat */}
       </div>{/* end 2-column container */}
-
-      {/* Char count */}
-      <p className="hidden sm:block text-right text-[10.5px] text-muted/30 mt-1 pr-2 tabular-nums select-none">{input.length}/500</p>
 
       {/* ── Lightbox ────────────────────────────────────────────────────────── */}
       {lightboxUrl && (

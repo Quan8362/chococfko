@@ -96,28 +96,6 @@ export function shouldLoadGoogleMaps(config: MapConfig): boolean {
   return config.provider === 'google' && config.googleMapsEnabled && !!config.browserKey;
 }
 
-/** Viewer access subset needed to gate the internal-only Map V2 surface. */
-export interface MapViewerAccess {
-  isAdmin: boolean;
-  isInternal: boolean;
-}
-
-/**
- * Should THIS viewer be served Map V2 (vs the legacy Leaflet map)? PURE and
- * server-evaluable so authorization happens on the server, not via client hiding.
- *
- *   • V2 disabled                      → legacy (false)
- *   • V2 enabled, internalOnly = false  → Map V2 for everyone (true)
- *   • V2 enabled, internalOnly = true   → Map V2 only for authenticated Admin /
- *                                         internal members; all others
- *                                         (anonymous, normal users) → legacy
- */
-export function canSeeMapV2(config: MapConfig, access: MapViewerAccess): boolean {
-  if (!config.v2Enabled) return false;
-  if (!config.internalOnly) return true;
-  return access.isAdmin || access.isInternal;
-}
-
 /**
  * Is the Google-powered Admin place picker usable? Independent of the PUBLIC map
  * provider (the picker is an internal tool): needs Google enabled, a browser key,

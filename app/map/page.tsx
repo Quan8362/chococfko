@@ -2,7 +2,7 @@ import loadDynamic from 'next/dynamic'
 import { getTranslations, getLocale } from 'next-intl/server'
 import { getAllPlacesFromDb, places as staticPlaces, categoryEmoji, categories, type Place } from '@/lib/places'
 import { isValidLat, isValidLng } from '@/lib/coordinates'
-import { getMapConfig, externalSearchAvailable, routePreviewAvailable, canSeeMapV2 } from '@/lib/maps/config'
+import { getMapConfig, externalSearchAvailable, routePreviewAvailable } from '@/lib/maps/config'
 import { decodeMapView, boundsFromCenter } from '@/lib/maps/mapView'
 import { getPlacesInBounds } from '@/lib/placesNearby'
 import { getCurrentUserAccess } from '@/lib/access-server'
@@ -46,41 +46,39 @@ export default async function MapPage({ searchParams }: { searchParams: SearchPa
   const cats = categories.map((c) => ({ code: c.code, label: tc(c.code as Parameters<typeof tc>[0]), emoji: categoryEmoji[c.code] ?? '📍' }))
   const config = getMapConfig()
 
-  // ── Map V2 — flag-gated + SERVER-SIDE internal-only authorization. ──
-  // The legacy Leaflet map below is the fallback for: V2 disabled, OR V2 enabled
-  // with internal-only on and the viewer is not an authenticated Admin/internal
-  // member (anonymous + normal users). Authorization is resolved on the server
-  // via getCurrentUserAccess(); we never rely on client-side hiding.
+  // ── Map V2 — the single PUBLIC base map for EVERYONE (anonymous + authed). ──
+  // V2 is the same map regardless of auth: same CARTO base tiles, same markers,
+  // same filter UI. Auth is NEVER allowed to change the base map; it only adds
+  // personalization additively (e.g. the admin place picker via isAdmin). The
+  // legacy Leaflet map below is the fallback only when V2 is disabled entirely
+  // (NEXT_PUBLIC_MAP_V2_ENABLED off — the kill switch).
   if (config.v2Enabled) {
     const access = await getCurrentUserAccess()
-    if (canSeeMapV2(config, access)) {
-      const initialState = decodeMapView((k) => searchParams[k] ?? null)
-      const center = initialState.center ?? DEFAULT_CENTER
-      // SSR an initial viewport so the list has content without JS (and as a
-      // list-only fallback). Empty today (no places have coordinates yet).
-      const [initialPlaces, locale] = await Promise.all([
-        getPlacesInBounds(boundsFromCenter(center, 0.25), { category: initialState.category, q: initialState.q, limit: 200 }),
-        getLocale(),
-      ])
-      return (
-        <div className="px-3 sm:px-4 py-3">
-          <h1 className="sr-only">{t('title')}</h1>
-          <MapExplorerV2
-            defaultCenter={DEFAULT_CENTER}
-            categories={cats}
-            initialPlaces={initialPlaces}
-            initialState={initialState}
-            externalEnabled={externalSearchAvailable(config)}
-            apiKey={config.browserKey}
-            locale={locale}
-            isAdmin={access.isAdmin}
-            adminSearchEnabled={config.adminPlaceSearchEnabled}
-            routePreviewAvailable={routePreviewAvailable(config)}
-          />
-        </div>
-      )
-    }
-    // V2 enabled but this viewer is not authorized → fall through to legacy.
+    const initialState = decodeMapView((k) => searchParams[k] ?? null)
+    const center = initialState.center ?? DEFAULT_CENTER
+    // SSR an initial viewport so the list has content without JS (and as a
+    // list-only fallback). Empty today (no places have coordinates yet).
+    const [initialPlaces, locale] = await Promise.all([
+      getPlacesInBounds(boundsFromCenter(center, 0.25), { category: initialState.category, q: initialState.q, limit: 200 }),
+      getLocale(),
+    ])
+    return (
+      <div className="px-3 sm:px-4 py-3">
+        <h1 className="sr-only">{t('title')}</h1>
+        <MapExplorerV2
+          defaultCenter={DEFAULT_CENTER}
+          categories={cats}
+          initialPlaces={initialPlaces}
+          initialState={initialState}
+          externalEnabled={externalSearchAvailable(config)}
+          apiKey={config.browserKey}
+          locale={locale}
+          isAdmin={access.isAdmin}
+          adminSearchEnabled={config.adminPlaceSearchEnabled}
+          routePreviewAvailable={routePreviewAvailable(config)}
+        />
+      </div>
+    )
   }
 
   // ── Existing map (production default / unauthorized fallback) — unchanged ──

@@ -3,10 +3,10 @@ import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import { dbLevel } from '@/components/japanese/LevelPicker'
 import { JLPT_LEVELS } from '@/components/japanese/LevelPicker'
-import { fetchUserProgress, type ProgressMap } from '@/app/japanese/actions'
-import { getWordsForDeck, FLASHCARD_DECK_SIZE, FLASHCARD_EXCLUDE_TAG } from '@/lib/japanese/words'
+import { fetchUserProgress, fetchAllUserProgress, type ProgressMap } from '@/app/japanese/actions'
+import { getWordsForDeck, getWordIdsForLevel, FLASHCARD_DECK_SIZE, FLASHCARD_EXCLUDE_TAG } from '@/lib/japanese/words'
 import type { JapaneseWord } from '@/components/japanese/WordCard'
-import FlashcardClient from './FlashcardClient'
+import FlashcardClient, { type DeckStat } from './FlashcardClient'
 
 export const dynamic = 'force-dynamic'
 
@@ -58,13 +58,35 @@ export default async function FlashcardPage({ searchParams }: Props) {
       ? rawSet
       : null
 
+  // Per-deck learning progress for the set-selection grid (real DB progress from
+  // jp_flashcard_progress, aggregated per deck). Only computed in deck-picker mode.
+  let deckStats: DeckStat[] = []
+
   if (validLevel && selectedDeck) {
     words = await getWordsForDeck(validLevel, selectedDeck)
     initialProgress = await fetchUserProgress(words.map(w => w.id))
+  } else if (validLevel) {
+    const [ids, progress] = await Promise.all([
+      getWordIdsForLevel(validLevel),
+      fetchAllUserProgress(),
+    ])
+    deckStats = Array.from({ length: totalDecks }, (_, i) => {
+      const deck = i + 1
+      const slice = ids.slice(i * FLASHCARD_DECK_SIZE, deck * FLASHCARD_DECK_SIZE)
+      const from = i * FLASHCARD_DECK_SIZE + 1
+      const size = slice.length
+      let mastered = 0
+      for (const id of slice) if (progress[id] === 'mastered') mastered++
+      return { deck, from, to: from + Math.max(size, 1) - 1, size, mastered }
+    })
   }
 
+  // Deck-picker mode gets a wider canvas so set cards can flow into 4 columns and
+  // fill the wide side margins; every other mode stays in the narrow reading column.
+  const isDeckPicker = !!validLevel && !selectedDeck
+
   return (
-    <div className="max-w-[700px] mx-auto px-5 sm:px-6 py-10 pb-20">
+    <div className={`${isDeckPicker ? 'max-w-[1120px]' : 'max-w-[700px]'} mx-auto px-5 sm:px-6 py-10 pb-20`}>
 
       {/* Breadcrumb */}
       <nav className="flex items-center gap-1.5 text-[12.5px] text-muted mb-8 flex-wrap">
@@ -95,6 +117,7 @@ export default async function FlashcardPage({ searchParams }: Props) {
         deckSize={FLASHCARD_DECK_SIZE}
         totalDecks={totalDecks}
         selectedDeck={selectedDeck}
+        deckStats={deckStats}
       />
     </div>
   )

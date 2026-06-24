@@ -43,6 +43,35 @@ export async function getAllWordsForLevel(level: string): Promise<JapaneseWord[]
 }
 
 /**
+ * Fetch only the ids of every published word for a level, ordered identically to
+ * {@link getWordsForDeck} (frequency desc, id asc) so the index→deck mapping is
+ * exact. Used to aggregate per-deck learning progress without loading the heavy
+ * meaning/example payloads of every word.
+ */
+export async function getWordIdsForLevel(level: string): Promise<string[]> {
+  const supabase = createClient()
+  const ids: string[] = []
+
+  for (let from = 0; ; from += FETCH_BATCH) {
+    const { data, error } = await supabase
+      .from('japanese_words')
+      .select('id')
+      .eq('jlpt_level', level)
+      .eq('is_published', true)
+      .or(`tags.is.null,tags.not.cs.{${FLASHCARD_EXCLUDE_TAG}}`)
+      .order('frequency', { ascending: false })
+      .order('id', { ascending: true })
+      .range(from, from + FETCH_BATCH - 1)
+
+    if (error || !data || data.length === 0) break
+    for (const row of data as { id: string }[]) ids.push(row.id)
+    if (data.length < FETCH_BATCH) break
+  }
+
+  return ids
+}
+
+/**
  * Fetch a single flashcard deck (slice of words) for a level.
  * `deck` is 1-based; returns the words ordered by frequency desc within the slice.
  */

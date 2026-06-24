@@ -135,7 +135,12 @@ export function formatArea(
     return key ? t(key) : legacy;
   }
   const nearby = place.nearbyPlace?.trim() || '';
-  const city = place.cityOrPrefecture?.trim() || '';
+  // Drop the trailing city when it just repeats the main area or the nearby
+  // landmark — that redundant tail (e.g. "Dazaifu · gần 太宰府駅 · Dazaifu") is
+  // pure noise. Compare case-insensitively so "Dazaifu"/"DAZAIFU" still match.
+  const cityRaw = place.cityOrPrefecture?.trim() || '';
+  const eq = (a: string, b: string) => a.toLowerCase() === b.toLowerCase();
+  const city = cityRaw && !eq(cityRaw, main) && !eq(cityRaw, nearby) ? cityRaw : '';
   const relation = t(`area_relation_${place.relationType || 'near'}`);
 
   let out: string;

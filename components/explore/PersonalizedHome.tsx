@@ -98,35 +98,50 @@ export default function PersonalizedHome({
     <section className="max-w-[1240px] mx-auto px-5 sm:px-7 mt-12">
       <div className="flex items-center justify-between gap-3 flex-wrap mb-5">
         <h2 className="font-serif font-bold text-[20px] sm:text-[24px] text-ink">{t('for_you_heading')}</h2>
-        <div className="flex items-center gap-3 flex-wrap">
-          <label className="flex items-center gap-2 text-[13px] text-muted">
-            {t('region_label')}
+        {/* One consolidated control bar: region · personalization · why-info. */}
+        <div className="flex items-center gap-1.5 rounded-full border border-line bg-paper px-1.5 py-1 shadow-sm">
+          <label className="flex items-center gap-1.5 text-[12.5px] text-muted pl-2">
+            <span className="hidden sm:inline">{t('region_label')}</span>
             <select
               value={region}
               onChange={(e) => setRegionPref(e.target.value)}
-              className="text-[13px] px-2 py-1 rounded-lg bg-paper border border-line text-ink"
+              aria-label={t('region_label')}
+              className="text-[12.5px] font-medium px-1.5 py-1 rounded-lg bg-transparent text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/40 cursor-pointer"
             >
               <option value="">{t('region_all')}</option>
               {prefectures.map((p) => <option key={p.code} value={p.code}>{p.name}</option>)}
             </select>
           </label>
+          <span aria-hidden className="w-px h-5 bg-line" />
           <button
             type="button"
             onClick={togglePersonalize}
             aria-pressed={personalize}
-            className={`text-[12.5px] font-medium px-3 py-1.5 rounded-full border transition-colors ${personalize ? 'bg-rose-soft border-rose text-rose-deep' : 'bg-paper border-line text-muted'}`}
+            className={`text-[12.5px] font-medium px-3 py-1.5 rounded-full border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/40 ${personalize ? 'bg-rose-soft border-rose text-rose-deep' : 'bg-paper border-line text-muted'}`}
           >
             {personalize ? t('personalize_on') : t('personalize_off')}
           </button>
-          <button type="button" onClick={() => setWhyOpen((v) => !v)} className="text-[12.5px] text-muted underline hover:text-ink">
-            {t('why_link')}
-          </button>
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setWhyOpen((v) => !v)}
+              aria-label={t('why_link')}
+              aria-expanded={whyOpen}
+              className={`grid place-items-center w-7 h-7 rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/40 ${whyOpen ? 'bg-rose-soft text-rose-deep' : 'text-muted hover:bg-cream hover:text-ink'}`}
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden>
+                <circle cx="12" cy="12" r="9" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 16v-4M12 8h.01" />
+              </svg>
+            </button>
+            {whyOpen && (
+              <div role="tooltip" className="absolute right-0 top-[calc(100%+8px)] z-30 w-[min(280px,80vw)] text-left text-[12.5px] text-muted bg-paper border border-line rounded-xl shadow-card-hover p-3 animate-fadein">
+                {t('why_explainer')}
+              </div>
+            )}
+          </div>
         </div>
       </div>
-
-      {whyOpen && (
-        <p className="text-[12.5px] text-muted bg-paper border border-line rounded-xl p-3 mb-5">{t('why_explainer')}</p>
-      )}
 
       {/* Continue planning — explicit, not algorithmic */}
       {loggedIn && (

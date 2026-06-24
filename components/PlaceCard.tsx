@@ -95,7 +95,7 @@ export default async function PlaceCard({
       <div className="p-4 flex flex-col gap-2 flex-1">
         {/* Location label — quiet single accent line, capped to one line with a
             reserved height so 1- and 2-line areas don't shift the title row. */}
-        <span className="block truncate min-h-[1.25em] leading-[1.25] text-[10.5px] font-semibold tracking-[0.5px] uppercase text-teal/90">
+        <span className="block truncate min-h-[1.25em] leading-[1.25] text-[10.5px] font-semibold tracking-[0.5px] uppercase text-rose-deep/85">
           {displayArea}
         </span>
 

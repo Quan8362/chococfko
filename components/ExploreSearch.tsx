@@ -305,8 +305,11 @@ export default function ExploreSearch({
       {/* ── LAYER 3 — QUICK PRACTICAL NEEDS (situational shortcuts) ── */}
       <QuickIntents />
 
-      {/* ── LAYER 4 — PLACE CATEGORIES (taxonomy navigation) ── */}
-      <section id="categories" aria-labelledby="categories-heading" className="max-w-[1240px] mx-auto px-6 mt-6">
+      {/* ── LAYER 4 — PLACE CATEGORIES (taxonomy navigation) ──
+          A hairline rule + extra top space separates the situational "needs"
+          filters above (filled rose pills) from these taxonomy chips (quiet
+          outline) so their different purposes read at a glance. */}
+      <section id="categories" aria-labelledby="categories-heading" className="max-w-[1240px] mx-auto px-6 mt-6 pt-6 border-t border-line/70">
         <h3 id="categories-heading" className="text-[13px] font-bold uppercase tracking-[1px] text-muted mb-2.5">
           {te("categories_browse_heading")}
         </h3>
@@ -350,6 +353,16 @@ export default function ExploreSearch({
           const href = prefecture
             ? `/places?category=${c.code}&prefecture=${prefecture}`
             : `/places?category=${c.code}`;
+          // A category only earns the full 3-col grid once it has ≥3 items.
+          // Thinner categories get a width-capped grid so a lone card never
+          // leaves two empty trailing columns (the "broken grid" look).
+          const shown = items.slice(0, PREVIEW_LIMIT);
+          const gridClass =
+            shown.length === 1
+              ? "grid grid-cols-1 gap-6 max-w-[420px] [&_.place-cat-badge]:hidden"
+              : shown.length === 2
+                ? `${GRID} lg:!grid-cols-2 max-w-[860px] [&_.place-cat-badge]:hidden`
+                : PREVIEW_GRID;
           return (
             <section key={c.code} id={`sec-${c.code}`} className="explore-section mt-14 pb-2">
               <div className="max-w-[1240px] mx-auto px-6">
@@ -372,8 +385,8 @@ export default function ExploreSearch({
                     </svg>
                   </Link>
                 </div>
-                <div className={PREVIEW_GRID}>
-                  {items.slice(0, PREVIEW_LIMIT).map((p) => (
+                <div className={gridClass}>
+                  {shown.map((p) => (
                     <Fragment key={p.slug}>{cards[p.slug]}</Fragment>
                   ))}
                 </div>

@@ -5,6 +5,7 @@ import { getPostsFromDb, posts as staticPosts } from '@/lib/posts'
 import type { Post } from '@/lib/posts'
 import { imgProxy } from '@/lib/avatar'
 import UserAvatar from '@/components/UserAvatar'
+import SectionHeader from '@/components/home/SectionHeader'
 
 const CAT_EMOJI: Record<string, string> = {
   landmark: '🏯', food: '🍜', sea: '🏖️', camp: '⛺', mountain: '⛰️',
@@ -34,21 +35,12 @@ export default async function HomePosts() {
   return (
     <section className="mt-12 sm:mt-16 py-10 sm:py-12 bg-paper border-t border-line">
       <div className="max-w-[1240px] mx-auto px-6">
-        {/* Header */}
-        <div className="flex items-end justify-between flex-wrap gap-3 mb-8">
-          <div>
-            <h2 className="font-serif text-[clamp(22px,2.8vw,32px)] font-bold tracking-[-0.3px] leading-tight text-ink mb-1">
-              {t('latest_posts_heading')}
-            </h2>
-            <p className="text-muted text-[13.5px]">{t('latest_posts_sub')}</p>
-          </div>
-          <Link
-            href="/community"
-            className="text-[13px] font-semibold text-rose hover:text-rose-deep transition-colors"
-          >
-            {t('latest_posts_more')} →
-          </Link>
-        </div>
+        <SectionHeader
+          title={t('latest_posts_heading')}
+          subtitle={t('latest_posts_sub')}
+          action={{ href: '/community', label: t('latest_posts_more') }}
+          className="mb-8"
+        />
 
         {latest.length === 0 && (
           <div className="bg-cream border border-line rounded-2xl p-10 text-center">
@@ -67,7 +59,7 @@ export default async function HomePosts() {
             <Link
               key={post.id}
               href={`/community/${post.id}`}
-              className="group bg-cream border border-line rounded-2xl overflow-hidden shadow-card hover:-translate-y-1 hover:shadow-card-hover transition-all flex flex-col"
+              className="group bg-cream border border-line rounded-2xl overflow-hidden shadow-card hover:-translate-y-1 hover:shadow-card-hover transition-all flex flex-col focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/40 focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
             >
               {/* Image */}
               <div className="relative h-44 overflow-hidden bg-gradient-to-br from-[#f3e1d2] to-[#e9cdb6] flex-none">
@@ -86,7 +78,7 @@ export default async function HomePosts() {
               {/* Content */}
               <div className="p-4 flex flex-col gap-2 flex-1">
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-semibold tracking-[0.8px] uppercase text-teal">
+                  <span className="text-[11px] font-semibold tracking-[0.8px] uppercase text-rose-deep/85 truncate min-w-0">
                     {post.area}
                   </span>
                   <StarRating rating={post.rating} />

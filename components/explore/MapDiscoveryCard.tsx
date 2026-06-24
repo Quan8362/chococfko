@@ -29,7 +29,7 @@ export default function MapDiscoveryCard() {
         <Link
           href="/map"
           onClick={() => trackMapOpen('homepage_cta')}
-          className="flex-none inline-flex items-center justify-center gap-1.5 font-semibold text-[14px] px-5 py-2.5 rounded-full bg-rose text-white shadow-[0_6px_20px_-6px_rgba(194,24,91,0.5)] hover:bg-rose-deep hover:-translate-y-0.5 transition-all whitespace-nowrap"
+          className="flex-none inline-flex items-center justify-center gap-1.5 font-semibold text-[14px] px-5 py-2.5 rounded-full bg-rose text-white shadow-[0_6px_20px_-6px_rgba(194,24,91,0.5)] hover:bg-rose-deep hover:-translate-y-0.5 transition-all whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/55 focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8} aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />

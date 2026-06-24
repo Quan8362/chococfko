@@ -7,17 +7,21 @@ import SmartImg from "./SmartImg";
 import UserAvatar from "./UserAvatar";
 import { useTranslations } from "next-intl";
 import type { Post } from "@/lib/posts";
-import { TopicIcon, TOPIC_ICONS, PenIcon } from "@/components/icons/CommunityIcons";
 
-// Community article categories (post_type = 'community')
+// Community article categories (post_type = 'community').
+// Colorful emoji match the site's visual language (homepage pills, place picker).
 const COMMUNITY_CATS = [
-  { f: "life",      key: "cat_life" },
-  { f: "paperwork", key: "cat_paperwork" },
-  { f: "transport", key: "cat_transport" },
-  { f: "study",     key: "cat_study" },
-  { f: "work",      key: "cat_work" },
-  { f: "story",     key: "cat_story" },
+  { f: "life",      emoji: "🏠", key: "cat_life" },
+  { f: "paperwork", emoji: "📋", key: "cat_paperwork" },
+  { f: "transport", emoji: "🚃", key: "cat_transport" },
+  { f: "study",     emoji: "📚", key: "cat_study" },
+  { f: "work",      emoji: "💼", key: "cat_work" },
+  { f: "story",     emoji: "💬", key: "cat_story" },
 ] as const;
+
+const CAT_EMOJI: Record<string, string> = Object.fromEntries(
+  COMMUNITY_CATS.map((c) => [c.f, c.emoji])
+);
 
 const VALID_FILTERS = new Set<string>(["all", ...COMMUNITY_CATS.map((c) => c.f)]);
 
@@ -41,9 +45,10 @@ export default function PostFeed({ posts }: Props) {
 
   // Always show the full community topic taxonomy
   const FILTERS = [
-    { f: "all", label: t("cat_all") },
-    ...COMMUNITY_CATS.map(({ f, key }) => ({
+    { f: "all", emoji: null as string | null, label: t("cat_all") },
+    ...COMMUNITY_CATS.map(({ f, emoji, key }) => ({
       f,
+      emoji,
       label: t(key as Parameters<typeof t>[0]),
     })),
   ];
@@ -72,9 +77,7 @@ export default function PostFeed({ posts }: Props) {
                   : "bg-paper text-ink border-line hover:bg-rose-soft hover:border-rose/40 hover:text-rose hover:-translate-y-px"
               }`}
             >
-              {TOPIC_ICONS[f.f] && (
-                <TopicIcon topic={f.f} className="h-[15px] w-[15px]" />
-              )}
+              {f.emoji && <span className="text-[13px] leading-none">{f.emoji}</span>}
               {f.label}
             </button>
           );
@@ -84,8 +87,8 @@ export default function PostFeed({ posts }: Props) {
       {/* ── Post grid ─────────────────────────────────── */}
       {shown.length === 0 ? (
         <div className="bg-paper border border-line shadow-card rounded-2xl py-16 px-6 text-center">
-          <div className="mx-auto mb-4 grid place-items-center w-14 h-14 rounded-2xl bg-rose-soft text-rose">
-            <PenIcon className="h-6 w-6" />
+          <div className="mx-auto mb-4 grid place-items-center w-14 h-14 rounded-2xl bg-rose-soft text-[26px] leading-none">
+            ✍️
           </div>
           <h3 className="font-serif font-bold text-[20px] text-ink mb-2">{t("empty_title")}</h3>
           <p className="text-muted text-[14px] max-w-[420px] mx-auto leading-[1.7] mb-6">
@@ -116,10 +119,10 @@ export default function PostFeed({ posts }: Props) {
                   <span className="absolute top-3 left-3 z-[2] bg-paper/95 text-rose-deep text-[10.5px] font-semibold tracking-[0.5px] uppercase px-2.5 py-[5px] rounded-full shadow-sm">
                     {label}
                   </span>
-                  {/* Category icon chip (only for the known community taxonomy) */}
-                  {TOPIC_ICONS[p.category] && (
-                    <span className="absolute bottom-3 left-3 z-[2] w-7 h-7 bg-paper/90 text-rose rounded-full grid place-items-center shadow-sm">
-                      <TopicIcon topic={p.category} className="h-4 w-4" />
+                  {/* Category emoji chip (only for the known community taxonomy) */}
+                  {CAT_EMOJI[p.category] && (
+                    <span className="absolute bottom-3 left-3 z-[2] w-7 h-7 bg-paper/90 rounded-full grid place-items-center shadow-sm text-[14px] leading-none">
+                      {CAT_EMOJI[p.category]}
                     </span>
                   )}
                   <SmartImg

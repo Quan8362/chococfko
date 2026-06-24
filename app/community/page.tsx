@@ -5,7 +5,6 @@ import { getTranslations, getLocale } from 'next-intl/server'
 import { getPostsFromDb } from '@/lib/posts'
 import { checkIsAdmin } from '@/lib/supabase/admin'
 import PostFeed from '@/components/PostFeed'
-import { TopicIcon } from '@/components/icons/CommunityIcons'
 import { SITE_URL, SITE_NAME, DEFAULT_OG_IMAGE, OG_LOCALE, breadcrumbJsonLd, jsonLdString } from '@/lib/seo'
 
 const CANONICAL = `${SITE_URL}/community`
@@ -44,6 +43,17 @@ const HERO_TOPICS = [
   { topic: 'story',     key: 'cat_story',     desc: 'cat_story_desc' },
 ] as const
 
+// Colorful emoji per community category — matches the site's emoji vocabulary
+// (homepage topic pills, place-editor icon picker) rather than SVG line icons.
+const TOPIC_EMOJI: Record<string, string> = {
+  life: '🏠',
+  paperwork: '📋',
+  transport: '🚃',
+  study: '📚',
+  work: '💼',
+  story: '💬',
+}
+
 // Shared overline style so the hero label and the "share" label read identically:
 // leading dash, uppercase, brand color, same tracking/size.
 const OVERLINE =
@@ -55,8 +65,8 @@ function TopicCard({ title, desc, topic }: { title: string; desc: string; topic:
       href={`/community?topic=${topic}#chu-de`}
       className="group flex items-start gap-3 bg-paper border border-line rounded-2xl p-4 shadow-card hover:bg-rose-soft/45 hover:border-rose/30 hover:shadow-card-hover hover:-translate-y-0.5 transition-all duration-200"
     >
-      <span className="flex-none grid place-items-center w-11 h-11 rounded-xl bg-rose-soft text-rose group-hover:bg-rose group-hover:text-white transition-colors duration-200">
-        <TopicIcon topic={topic} className="h-[22px] w-[22px]" />
+      <span className="flex-none grid place-items-center w-11 h-11 rounded-xl bg-rose-soft text-[22px] leading-none transition-colors duration-200 group-hover:bg-rose/15">
+        {TOPIC_EMOJI[topic]}
       </span>
       <span className="min-w-0">
         <span className="block font-semibold text-[13px] text-ink leading-tight mb-1 group-hover:text-rose transition-colors">

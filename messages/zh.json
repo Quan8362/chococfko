@@ -180,7 +180,8 @@
     "cat_transport_desc": "交通、月票、超市、二手",
     "cat_study_desc": "JLPT、学校、自学日语",
     "cat_work_desc": "兼职、面试、简历、职场环境",
-    "cat_story_desc": "故事、经历、真实视角"
+    "cat_story_desc": "故事、经历、真实视角",
+    "stat_topics": "主题"
   },
   "post_rating": {
     "title": "评价这篇文章",
@@ -693,7 +694,9 @@
     "policy": "政策",
     "delete_data": "删除用户数据",
     "copyright": "© 2026 Chợ Cóc FKO · 日本越南人社区",
-    "community_label": "社区"
+    "community_label": "社区",
+    "email": "邮箱",
+    "community_chat": "社区聊天"
   },
   "my_posts_page": {
     "title": "我的文章 · Chợ Cóc FKO",

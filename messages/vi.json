@@ -180,7 +180,8 @@
     "cat_transport_desc": "Tàu xe, vé tháng, siêu thị, đồ cũ",
     "cat_study_desc": "JLPT, trường học, tự học tiếng Nhật",
     "cat_work_desc": "Baito, phỏng vấn, 履歴書, môi trường làm việc",
-    "cat_story_desc": "Câu chuyện, trải nghiệm, góc nhìn thật"
+    "cat_story_desc": "Câu chuyện, trải nghiệm, góc nhìn thật",
+    "stat_topics": "chủ đề"
   },
   "post_rating": {
     "title": "Đánh giá bài viết",
@@ -693,7 +694,9 @@
     "policy": "Chính sách",
     "delete_data": "Xóa dữ liệu người dùng",
     "copyright": "© 2026 Chợ Cóc FKO · Cộng đồng người Việt tại Nhật Bản",
-    "community_label": "cộng đồng"
+    "community_label": "cộng đồng",
+    "email": "Email",
+    "community_chat": "Trò chuyện cộng đồng"
   },
   "my_posts_page": {
     "title": "Bài viết của tôi · Chợ Cóc FKO",

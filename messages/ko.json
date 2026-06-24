@@ -180,7 +180,8 @@
     "cat_transport_desc": "교통, 정기권, 마트, 중고거래",
     "cat_study_desc": "JLPT, 학교, 일본어 독학",
     "cat_work_desc": "아르바이트, 면접, 이력서, 직장 환경",
-    "cat_story_desc": "이야기, 경험, 솔직한 시선"
+    "cat_story_desc": "이야기, 경험, 솔직한 시선",
+    "stat_topics": "주제"
   },
   "post_rating": {
     "title": "이 글 평가하기",
@@ -693,7 +694,9 @@
     "policy": "정책",
     "delete_data": "데이터 삭제",
     "copyright": "© 2026 Chợ Cóc FKO · 일본 베트남인 커뮤니티",
-    "community_label": "커뮤니티"
+    "community_label": "커뮤니티",
+    "email": "이메일",
+    "community_chat": "커뮤니티 채팅"
   },
   "my_posts_page": {
     "title": "내 게시글 · Chợ Cóc FKO",

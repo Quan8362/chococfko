@@ -180,7 +180,8 @@
     "cat_transport_desc": "Trains, commuter pass, supermarkets, secondhand",
     "cat_study_desc": "JLPT, schools, self-studying Japanese",
     "cat_work_desc": "Part-time jobs, interviews, résumés, workplace",
-    "cat_story_desc": "Stories, experiences, honest perspectives"
+    "cat_story_desc": "Stories, experiences, honest perspectives",
+    "stat_topics": "topics"
   },
   "post_rating": {
     "title": "Rate this post",
@@ -693,7 +694,9 @@
     "policy": "Policy",
     "delete_data": "Delete user data",
     "copyright": "© 2026 Chợ Cóc FKO · Vietnamese community in Japan",
-    "community_label": "community"
+    "community_label": "community",
+    "email": "Email",
+    "community_chat": "Community chat"
   },
   "my_posts_page": {
     "title": "My posts · Chợ Cóc FKO",

@@ -1,8 +1,12 @@
 import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
+import { MailIcon, ChatIcon, FeedbackIcon } from '@/components/icons/CommunityIcons'
 
 const LINK_CLS =
   'text-[13.5px] text-white/60 hover:text-white transition-colors duration-150 leading-snug'
+
+const SOCIAL_CLS =
+  'grid place-items-center w-9 h-9 rounded-full border border-white/15 text-white/70 hover:text-white hover:border-white/40 hover:bg-white/[0.06] transition-colors duration-150'
 
 export default async function Footer() {
   const t = await getTranslations('footer')
@@ -26,6 +30,19 @@ export default async function Footer() {
             <p className="font-serif italic text-[15.5px] text-white/70 leading-[1.75] max-w-[240px]">
               {t('tagline')}
             </p>
+
+            {/* Connect / social row */}
+            <div className="flex items-center gap-2.5 mt-6">
+              <a href="mailto:chococfko@gmail.com" aria-label={t('email')} className={SOCIAL_CLS}>
+                <MailIcon className="h-[18px] w-[18px]" />
+              </a>
+              <Link href="/community/chat" aria-label={t('community_chat')} className={SOCIAL_CLS}>
+                <ChatIcon className="h-[18px] w-[18px]" />
+              </Link>
+              <Link href="/feedback" aria-label={t('feedback')} className={SOCIAL_CLS}>
+                <FeedbackIcon className="h-[18px] w-[18px]" />
+              </Link>
+            </div>
           </div>
 
           {/* ── Khám phá ───────────────────────────────────── */}
@@ -80,7 +97,7 @@ export default async function Footer() {
               </li>
               <li>
                 <Link href="/games/destination-wheel" className={LINK_CLS}>
-                  🎡 {t('destination_wheel')}
+                  {t('destination_wheel')}
                 </Link>
               </li>
             </ul>

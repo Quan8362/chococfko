@@ -180,7 +180,8 @@
     "cat_transport_desc": "電車、定期券、スーパー、中古品",
     "cat_study_desc": "JLPT、学校、日本語の独学",
     "cat_work_desc": "バイト、面接、履歴書、職場環境",
-    "cat_story_desc": "物語、体験、リアルな視点"
+    "cat_story_desc": "物語、体験、リアルな視点",
+    "stat_topics": "トピック"
   },
   "post_rating": {
     "title": "この記事を評価",
@@ -693,7 +694,9 @@
     "policy": "ポリシー",
     "delete_data": "データ削除",
     "copyright": "© 2026 Chợ Cóc FKO · 日本在住ベトナム人コミュニティ",
-    "community_label": "コミュニティ"
+    "community_label": "コミュニティ",
+    "email": "メール",
+    "community_chat": "コミュニティチャット"
   },
   "my_posts_page": {
     "title": "マイ投稿 · Chợ Cóc FKO",

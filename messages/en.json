@@ -993,7 +993,11 @@
     "loginAnonHint": "You can comment anonymously after signing in.",
     "statsTitle": "FKO community",
     "statsConfessions": "confessions",
-    "statsHint": "Stories shared anonymously."
+    "statsHint": "Stories shared anonymously.",
+    "like": "Like",
+    "share": "Share",
+    "copied": "Copied",
+    "commentAnonHint": "You can comment anonymously if you prefer."
   },
   "admin": {
     "marketplace_title": "Secondhand market",

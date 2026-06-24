@@ -993,7 +993,11 @@
     "loginAnonHint": "登录后可以匿名评论。",
     "statsTitle": "FKO 社区",
     "statsConfessions": "心声",
-    "statsHint": "匿名分享的故事。"
+    "statsHint": "匿名分享的故事。",
+    "like": "喜欢",
+    "share": "分享",
+    "copied": "已复制",
+    "commentAnonHint": "如果愿意，你可以匿名评论。"
   },
   "admin": {
     "marketplace_title": "二手市场",

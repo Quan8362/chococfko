@@ -1,27 +1,58 @@
 import Link from 'next/link'
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { getTranslations } from 'next-intl/server'
+import { getTranslations, getLocale } from 'next-intl/server'
 import { proxyStorageImages } from '@/lib/imageProxy'
-import { getConfessionById, getConfessionComments, relativeConfessionDate, isUuid } from '@/lib/confessions'
+import { getConfessionById, getConfessionComments, getConfessionReactionState, relativeConfessionDate, isUuid } from '@/lib/confessions'
 import { createClient } from '@/lib/supabase/server'
 import { getCurrentUserAccess } from '@/lib/access-server'
 import { canAccessScope } from '@/lib/access'
+import { stripHtml } from '@/lib/sanitize'
+import { SITE_URL, SITE_NAME, DEFAULT_OG_IMAGE, OG_LOCALE } from '@/lib/seo'
 import AccessDenied from '@/components/access/AccessDenied'
 import AnonAvatar from '@/components/AnonAvatar'
 import UserAvatar from '@/components/UserAvatar'
 import AuthorLink from '@/components/AuthorLink'
 import { generateAnonId } from '@/lib/anon'
 import ConfessionComments from './ConfessionComments'
+import ConfessionActions from './ConfessionActions'
 
 export const dynamic = 'force-dynamic'
 
-export async function generateMetadata({ params }: { params: { id: string } }) {
+/** Plain-text excerpt from confession content, capped for meta tags. */
+function confessionDescription(content: string): string {
+  const raw = stripHtml(content).replace(/\s+/g, ' ').trim()
+  return raw.length > 200 ? `${raw.slice(0, 197).trimEnd()}…` : raw
+}
+
+export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
   const c = await getConfessionById(params.id)
   // Never index internal confessions; never leak the internal title into metadata.
   if (c?.community_scope === 'fko_internal') {
     return { title: 'FKO Confessions · Chợ Cóc FKO', robots: { index: false, follow: false } }
   }
-  return { title: c ? `${c.title} · FKO Confessions` : 'FKO Confessions · Chợ Cóc FKO' }
+  if (!c) return { title: 'FKO Confessions · Chợ Cóc FKO', robots: { index: false, follow: true } }
+
+  const locale = await getLocale()
+  const canonical = `${SITE_URL}/confessions/${params.id}`
+  const description = confessionDescription(c.content)
+
+  return {
+    title: `${c.title} · FKO Confessions`,
+    description,
+    alternates: { canonical },
+    openGraph: {
+      type: 'article',
+      url: canonical,
+      locale: OG_LOCALE[locale] ?? 'vi_VN',
+      siteName: SITE_NAME,
+      title: c.title,
+      description,
+      images: [{ url: DEFAULT_OG_IMAGE }],
+      publishedTime: c.created_at,
+    },
+    twitter: { card: 'summary_large_image', title: c.title, description, images: [DEFAULT_OG_IMAGE] },
+  }
 }
 
 async function getCurrentUser() {
@@ -67,6 +98,7 @@ export default async function ConfessionDetailPage({ params }: { params: { id: s
     getConfessionComments(params.id),
     getCurrentUser(),
   ])
+  const reactions = await getConfessionReactionState(confession.id, currentUser?.id ?? null)
 
   const displayName = confession.is_anonymous
     ? generateAnonId(confession.id)
@@ -76,10 +108,9 @@ export default async function ConfessionDetailPage({ params }: { params: { id: s
     <article className="pb-20">
 
       {/* ── HERO ─────────────────────────────────────────────── */}
-      <div className="relative overflow-hidden bg-gradient-to-b from-[#fdeef5] via-[#fdf5f8] to-cream border-b border-rose/10">
-        {/* Soft background blobs */}
-        <div className="absolute -top-24 -right-16 w-80 h-80 rounded-full bg-rose/[0.06] pointer-events-none" />
-        <div className="absolute top-10 -left-20 w-56 h-56 rounded-full bg-teal/[0.04] pointer-events-none" />
+      <div className="relative overflow-hidden bg-gradient-to-b from-[#fdeef5] via-[#fdf5f8] to-cream">
+        {/* Intentional soft gradient blob behind the title */}
+        <div className="absolute -top-[120px] right-[4%] w-[420px] h-[420px] rounded-full bg-[radial-gradient(circle,rgba(194,24,91,0.10),transparent_62%)] pointer-events-none" />
 
         <div className="max-w-[900px] mx-auto px-6 pt-8 pb-10 relative z-[1]">
 
@@ -87,7 +118,7 @@ export default async function ConfessionDetailPage({ params }: { params: { id: s
           <div className="mb-7">
             <Link
               href="/confessions"
-              className="inline-flex items-center gap-1.5 text-[12.5px] font-medium text-muted hover:text-rose transition-colors group"
+              className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-ink/70 hover:text-rose transition-colors group"
             >
               <svg className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -112,7 +143,7 @@ export default async function ConfessionDetailPage({ params }: { params: { id: s
           <div className="flex items-center gap-3 flex-wrap">
             {/* Avatar */}
             {confession.is_anonymous ? (
-              <AnonAvatar size={36} />
+              <AnonAvatar size={36} id={confession.id} />
             ) : (
               <UserAvatar
                 src={confession.visible_author_avatar}
@@ -153,7 +184,7 @@ export default async function ConfessionDetailPage({ params }: { params: { id: s
           {/* Top accent bar */}
           <div className="h-[3px] bg-gradient-to-r from-rose/30 via-rose to-rose/30" />
 
-          <div className="px-7 sm:px-11 pt-8 pb-9">
+          <div className="px-7 sm:px-11 pt-8 pb-6">
             {/* Opening quote mark */}
             <div
               className="font-serif text-[64px] leading-none text-rose/18 -mb-3 -mt-1 select-none"
@@ -188,6 +219,15 @@ export default async function ConfessionDetailPage({ params }: { params: { id: s
             )}
           </div>
         </div>
+
+        {/* ── ACTIONS (react + share) ─────────────────────────── */}
+        <ConfessionActions
+          confessionId={confession.id}
+          initialCount={reactions.count}
+          initialReacted={reactions.reacted}
+          isLoggedIn={!!currentUser}
+          shareTitle={confession.title}
+        />
 
         {/* ── COMMENTS ────────────────────────────────────────── */}
         <div id="comments">

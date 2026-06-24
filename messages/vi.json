@@ -993,7 +993,11 @@
     "loginAnonHint": "Bạn có thể bình luận ẩn danh sau khi đăng nhập.",
     "statsTitle": "Cộng đồng FKO",
     "statsConfessions": "confession",
-    "statsHint": "Những câu chuyện được chia sẻ ẩn danh."
+    "statsHint": "Những câu chuyện được chia sẻ ẩn danh.",
+    "like": "Thích",
+    "share": "Chia sẻ",
+    "copied": "Đã sao chép",
+    "commentAnonHint": "Bạn có thể bình luận ẩn danh nếu muốn."
   },
   "admin": {
     "marketplace_title": "Chợ đồ cũ",

@@ -5,7 +5,6 @@ import StarterKit from '@tiptap/starter-kit'
 import TiptapLink from '@tiptap/extension-link'
 import TiptapImage from '@tiptap/extension-image'
 import TiptapUnderline from '@tiptap/extension-underline'
-import TiptapTextAlign from '@tiptap/extension-text-align'
 import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import EmojiPicker from './EmojiPicker'
@@ -16,6 +15,8 @@ interface Props {
   name: string
   placeholder?: string
   resetKey?: number
+  /** Soft character limit; shows a counter when set. Defaults to comment max. */
+  maxLength?: number
 }
 
 function Btn({
@@ -29,7 +30,7 @@ function Btn({
       onMouseDown={(e) => { e.preventDefault(); onClick() }}
       title={title}
       className={`w-[26px] h-[24px] rounded flex items-center justify-center text-[12.5px] transition-colors flex-none ${
-        active ? 'bg-rose text-white' : 'text-muted hover:bg-line hover:text-ink'
+        active ? 'bg-rose text-white' : 'text-[#5c4d44] hover:bg-line hover:text-ink'
       }`}
     >
       {children}
@@ -37,10 +38,11 @@ function Btn({
   )
 }
 
-export default function CommentRichEditor({ name, placeholder, resetKey = 0 }: Props) {
+export default function CommentRichEditor({ name, placeholder, resetKey = 0, maxLength = 1000 }: Props) {
   const t = useTranslations('confessions')
   const te = (k: string) => t(`editor.${k}` as Parameters<typeof t>[0])
   const [html, setHtml] = useState('')
+  const [charCount, setCharCount] = useState(0)
   const [showEmoji, setShowEmoji] = useState(false)
   const [showGif, setShowGif] = useState(false)
 
@@ -53,7 +55,6 @@ export default function CommentRichEditor({ name, placeholder, resetKey = 0 }: P
       }),
       TiptapImage.configure({ inline: false, allowBase64: false }),
       TiptapUnderline,
-      TiptapTextAlign.configure({ types: ['paragraph'] }),
     ],
     content: '<p></p>',
     immediatelyRender: false,
@@ -64,6 +65,7 @@ export default function CommentRichEditor({ name, placeholder, resetKey = 0 }: P
     },
     onUpdate: ({ editor }) => {
       setHtml(editor.getHTML())
+      setCharCount(editor.getText().trim().length)
     },
   })
 
@@ -72,9 +74,12 @@ export default function CommentRichEditor({ name, placeholder, resetKey = 0 }: P
     if (editor && resetKey > 0) {
       editor.commands.clearContent()
       setHtml('')
+      setCharCount(0)
       setShowGif(false)
     }
   }, [resetKey, editor])
+
+  const overLimit = charCount > maxLength
 
   const isEmpty = editor?.isEmpty ?? true
 
@@ -106,23 +111,6 @@ export default function CommentRichEditor({ name, placeholder, resetKey = 0 }: P
           >
             <span className="underline text-[12.5px]">U</span>
           </Btn>
-
-          <span className="w-px h-4 bg-line mx-0.5 flex-none" />
-
-          {(['left', 'center', 'right'] as const).map(al => (
-            <Btn
-              key={al}
-              onClick={() => editor?.chain().focus().setTextAlign(al).run()}
-              active={editor?.isActive({ textAlign: al })}
-              title={te(`align_${al}`)}
-            >
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                {al === 'left' && <path strokeLinecap="round" d="M4 6h16M4 12h10M4 18h13" />}
-                {al === 'center' && <path strokeLinecap="round" d="M4 6h16M7 12h10M5 18h14" />}
-                {al === 'right' && <path strokeLinecap="round" d="M4 6h16M10 12h10M7 18h13" />}
-              </svg>
-            </Btn>
-          ))}
 
           <span className="w-px h-4 bg-line mx-0.5 flex-none" />
 
@@ -184,6 +172,14 @@ export default function CommentRichEditor({ name, placeholder, resetKey = 0 }: P
           </div>
         )}
         <EditorContent editor={editor} />
+        {/* Character counter */}
+        <div
+          className={`absolute bottom-1.5 right-3 text-[11px] font-medium tabular-nums pointer-events-none select-none ${
+            overLimit ? 'text-red-500' : 'text-muted/70'
+          }`}
+        >
+          {charCount}/{maxLength}
+        </div>
       </div>
     </div>
   )

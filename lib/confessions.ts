@@ -98,6 +98,42 @@ export async function getConfessionById(id: string): Promise<Confession | null> 
   }
 }
 
+/**
+ * Heart-reaction state for a confession: total count and whether the given
+ * user has reacted. Degrades to a zero state if the table is absent (migration
+ * not yet applied) so the page never breaks.
+ */
+export async function getConfessionReactionState(
+  confessionId: string,
+  userId: string | null,
+): Promise<{ count: number; reacted: boolean }> {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !isUuid(confessionId)) {
+    return { count: 0, reacted: false }
+  }
+  try {
+    const { createClient } = await import('@/lib/supabase/server')
+    const supabase = createClient()
+    const { count, error } = await supabase
+      .from('confession_reactions')
+      .select('*', { count: 'exact', head: true })
+      .eq('confession_id', confessionId)
+    if (error) return { count: 0, reacted: false }
+    let reacted = false
+    if (userId) {
+      const { data } = await supabase
+        .from('confession_reactions')
+        .select('user_id')
+        .eq('confession_id', confessionId)
+        .eq('user_id', userId)
+        .maybeSingle()
+      reacted = !!data
+    }
+    return { count: count ?? 0, reacted }
+  } catch {
+    return { count: 0, reacted: false }
+  }
+}
+
 export async function getConfessionComments(confessionId: string): Promise<ConfessionComment[]> {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !isUuid(confessionId)) return []
   try {

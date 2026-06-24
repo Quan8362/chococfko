@@ -993,7 +993,11 @@
     "loginAnonHint": "ログイン後、匿名でコメントできます。",
     "statsTitle": "FKOコミュニティ",
     "statsConfessions": "コンフェッション",
-    "statsHint": "匿名で共有されたストーリー。"
+    "statsHint": "匿名で共有されたストーリー。",
+    "like": "いいね",
+    "share": "シェア",
+    "copied": "コピーしました",
+    "commentAnonHint": "匿名でコメントすることもできます。"
   },
   "admin": {
     "marketplace_title": "中古マーケット",

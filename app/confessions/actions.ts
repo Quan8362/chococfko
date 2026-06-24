@@ -132,6 +132,48 @@ export async function submitConfessionComment(
   return { ok: true }
 }
 
+export type ReactionResult =
+  | { ok: true; reacted: boolean; count: number }
+  | { ok?: false; error: string }
+
+export async function toggleConfessionReaction(confessionId: string): Promise<ReactionResult> {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'login_required' }
+  if (!isUuid(confessionId)) return { error: 'invalid_confession' }
+
+  try {
+    const { data: existing } = await supabase
+      .from('confession_reactions')
+      .select('user_id')
+      .eq('confession_id', confessionId)
+      .eq('user_id', user.id)
+      .maybeSingle()
+
+    if (existing) {
+      await supabase
+        .from('confession_reactions')
+        .delete()
+        .eq('confession_id', confessionId)
+        .eq('user_id', user.id)
+    } else {
+      const { error } = await supabase
+        .from('confession_reactions')
+        .insert({ confession_id: confessionId, user_id: user.id })
+      if (error) return { error: 'db_error' }
+    }
+
+    const { count } = await supabase
+      .from('confession_reactions')
+      .select('*', { count: 'exact', head: true })
+      .eq('confession_id', confessionId)
+
+    return { ok: true, reacted: !existing, count: count ?? 0 }
+  } catch {
+    return { error: 'db_error' }
+  }
+}
+
 export async function deleteConfessionComment(formData: FormData) {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()

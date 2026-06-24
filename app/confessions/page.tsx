@@ -225,7 +225,7 @@ export default async function ConfessionsPage({
           {scope === 'fko_internal' && <InternalNotice text={tAccess('internal_area_notice')} />}
 
           {/* ── SORT TABS — underlined, distinct from the scope toggle ────── */}
-          <div className="flex items-center gap-6 mb-6 border-b border-line overflow-x-auto">
+          <div className="flex items-center gap-6 mb-6 border-b border-line overflow-x-auto overflow-y-hidden">
             {TABS.map((tab) => (
               <Link
                 key={tab.key}

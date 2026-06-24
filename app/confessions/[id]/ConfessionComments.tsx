@@ -118,11 +118,17 @@ export default function ConfessionComments({
 
       {/* Comment list */}
       {comments.length === 0 ? (
-        <div className="bg-paper border border-line rounded-2xl px-6 py-10 text-center mb-5">
-          <div className="w-12 h-12 rounded-2xl bg-cream border border-line grid place-items-center text-[20px] mx-auto mb-3 shadow-sm">
-            💬
+        <div className="relative overflow-hidden bg-gradient-to-br from-[#fdeef5] via-paper to-cream border border-rose/15 rounded-2xl px-6 py-11 text-center mb-5">
+          <div className="absolute -top-10 -right-8 w-28 h-28 rounded-full bg-rose/[0.06] pointer-events-none" />
+          <div className="relative">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-rose/15 to-[#fdeef5] border border-rose/20 grid place-items-center text-[26px] mx-auto mb-3.5 shadow-sm">
+              💬
+            </div>
+            <p className="text-[14.5px] font-medium text-ink leading-relaxed">{t('noComments')}</p>
+            <p className="text-[12.5px] text-muted mt-1.5 flex items-center justify-center gap-1.5">
+              🤫 <span>{t('commentAnonHint' as Parameters<typeof t>[0])}</span>
+            </p>
           </div>
-          <p className="text-[14px] text-muted leading-relaxed">{t('noComments')}</p>
         </div>
       ) : (
         <div className="space-y-3 mb-5">
@@ -146,7 +152,7 @@ export default function ConfessionComments({
                 {/* Avatar */}
                 <div className="flex-none mt-0.5">
                   {c.is_anonymous ? (
-                    <AnonAvatar size={32} className="ring-2 ring-white" />
+                    <AnonAvatar size={32} id={c.id} className="ring-2 ring-white" />
                   ) : (
                     <UserAvatar src={c.author_avatar} name={displayName} size={32} className="ring-2 ring-white" />
                   )}

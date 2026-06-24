@@ -10,13 +10,17 @@ import { useTranslations } from "next-intl";
 // image's native aspect ratio (1586×992) with object-contain — no letterbox,
 // percentages map 1:1. Calibrated visually against /bg_web.png.
 //
-// labelTier — single source of truth for which static chips render:
-//   'all'     → chip on mobile + tablet + desktop (6 anchor cities)
-//   'desktop' → chip ONLY at ≥1280px (xl); hidden on mobile + tablet (4 cities)
-//   'hover'   → never static; label reveals on hover (desktop) / tap (touch)
-// labelPos — which side the chip sits relative to its dot, so the dot stays on
-//   the landmark while the chip is offset into open sea / empty space.
-type LabelTier = "all" | "desktop" | "hover";
+// labelTier — single source of truth for which markers render (dot + label are
+// one unit; a dot never shows without its label):
+//   'all'     → dot + label on mobile + tablet + desktop (6 anchor cities)
+//   'desktop' → dot + label ONLY at ≥1280px (xl); nothing below (4 cities)
+//   'none'    → not rendered at all (kept in the array + i18n for future use)
+// left/top — the DOT position (% of the image box). Calibrated to sit ON LAND
+// just BESIDE the city's landmark illustration (never on top of it, never in
+// the sea), verified against the bg_web.png alpha mask.
+// labelPos — which side the chip sits relative to its dot, offset into open
+// sea / empty land so it covers no illustration and no other label.
+type LabelTier = "all" | "desktop" | "none";
 type LabelPos = "top" | "bottom" | "left" | "right";
 const MARKERS: {
   id: string;
@@ -25,28 +29,28 @@ const MARKERS: {
   labelTier: LabelTier;
   labelPos: LabelPos;
 }[] = [
-  { id: "sapporo", left: 73, top: 17, labelTier: "all", labelPos: "top" },
-  { id: "sendai", left: 82, top: 30, labelTier: "hover", labelPos: "right" },
-  { id: "nikko", left: 72, top: 44, labelTier: "hover", labelPos: "top" },
-  { id: "tokyo", left: 85, top: 48, labelTier: "all", labelPos: "right" },
-  { id: "yokohama", left: 83, top: 52, labelTier: "hover", labelPos: "right" },
-  { id: "kamakura", left: 80, top: 55, labelTier: "hover", labelPos: "bottom" },
-  { id: "hakone", left: 74, top: 53, labelTier: "hover", labelPos: "top" },
-  { id: "mount_fuji", left: 67, top: 53, labelTier: "desktop", labelPos: "top" },
-  { id: "nagoya", left: 60, top: 57, labelTier: "desktop", labelPos: "bottom" },
-  { id: "nara", left: 63, top: 64, labelTier: "desktop", labelPos: "right" },
-  { id: "osaka", left: 53, top: 66, labelTier: "all", labelPos: "bottom" },
-  { id: "kobe", left: 46, top: 58, labelTier: "hover", labelPos: "left" },
-  { id: "kyoto", left: 53, top: 53, labelTier: "all", labelPos: "top" },
-  { id: "kanazawa", left: 48, top: 43, labelTier: "hover", labelPos: "top" },
-  { id: "shirakawago", left: 58, top: 38, labelTier: "hover", labelPos: "top" },
-  { id: "hiroshima", left: 38, top: 55, labelTier: "desktop", labelPos: "left" },
-  { id: "miyajima", left: 36, top: 69, labelTier: "hover", labelPos: "bottom" },
-  { id: "beppu", left: 24, top: 72, labelTier: "hover", labelPos: "bottom" },
-  { id: "dazaifu", left: 24, top: 57, labelTier: "hover", labelPos: "right" },
-  { id: "fukuoka", left: 18, top: 62, labelTier: "all", labelPos: "left" },
-  { id: "nagasaki", left: 10, top: 73, labelTier: "hover", labelPos: "left" },
-  { id: "okinawa", left: 10, top: 89, labelTier: "all", labelPos: "top" },
+  { id: "sapporo", left: 70, top: 18, labelTier: "all", labelPos: "left" },
+  { id: "sendai", left: 82, top: 30, labelTier: "none", labelPos: "right" },
+  { id: "nikko", left: 72, top: 44, labelTier: "none", labelPos: "top" },
+  { id: "tokyo", left: 87, top: 53, labelTier: "all", labelPos: "right" },
+  { id: "yokohama", left: 83, top: 52, labelTier: "none", labelPos: "right" },
+  { id: "kamakura", left: 80, top: 55, labelTier: "none", labelPos: "bottom" },
+  { id: "hakone", left: 74, top: 53, labelTier: "none", labelPos: "top" },
+  { id: "mount_fuji", left: 72, top: 54, labelTier: "desktop", labelPos: "top" },
+  { id: "nagoya", left: 60, top: 59, labelTier: "desktop", labelPos: "bottom" },
+  { id: "nara", left: 65, top: 66, labelTier: "desktop", labelPos: "right" },
+  { id: "osaka", left: 53, top: 69, labelTier: "all", labelPos: "bottom" },
+  { id: "kobe", left: 46, top: 58, labelTier: "none", labelPos: "left" },
+  { id: "kyoto", left: 50, top: 53, labelTier: "all", labelPos: "top" },
+  { id: "kanazawa", left: 48, top: 43, labelTier: "none", labelPos: "top" },
+  { id: "shirakawago", left: 58, top: 38, labelTier: "none", labelPos: "top" },
+  { id: "hiroshima", left: 38, top: 58, labelTier: "desktop", labelPos: "left" },
+  { id: "miyajima", left: 36, top: 69, labelTier: "none", labelPos: "bottom" },
+  { id: "beppu", left: 24, top: 72, labelTier: "none", labelPos: "bottom" },
+  { id: "dazaifu", left: 24, top: 57, labelTier: "none", labelPos: "right" },
+  { id: "fukuoka", left: 19, top: 58, labelTier: "all", labelPos: "left" },
+  { id: "nagasaki", left: 10, top: 73, labelTier: "none", labelPos: "left" },
+  { id: "okinawa", left: 10, top: 90, labelTier: "all", labelPos: "top" },
 ];
 
 // Chip placement classes per side. Each anchors the chip off the dot and adds a
@@ -60,9 +64,6 @@ const CHIP_POS: Record<LabelPos, string> = {
 
 export default function HeroMap({ alt }: { alt: string }) {
   const t = useTranslations("home.map_markers");
-  // Which marker's label is open via tap (touch). Only one at a time, so tapping
-  // a new marker closes any other; tapping the same one toggles it off.
-  const [openId, setOpenId] = useState<string | null>(null);
   const ref = useRef<HTMLDivElement>(null);
   const floatRef = useRef<HTMLDivElement>(null);
   const [y, setY] = useState(0);
@@ -173,23 +174,18 @@ export default function HeroMap({ alt }: { alt: string }) {
             works without blocking page scroll elsewhere. */}
         <div className="absolute inset-0">
           {MARKERS.map((m, i) => {
-            const isOpen = openId === m.id;
-            // Static visibility by tier; tap (isOpen) and hover always reveal.
-            const vis =
-              m.labelTier === "all" || isOpen
-                ? "opacity-100"
-                : m.labelTier === "desktop"
-                  ? "opacity-0 xl:opacity-100 group-hover:opacity-100"
-                  : "opacity-0 group-hover:opacity-100";
+            // Dot + label render as one unit; tier decides whether (and where)
+            // it shows. 'none' renders nothing; 'desktop' shows only ≥xl.
+            if (m.labelTier === "none") return null;
+            const gated = m.labelTier === "desktop" ? "hidden xl:block" : "";
             return (
               <div
                 key={m.id}
-                onClick={() => setOpenId((p) => (p === m.id ? null : m.id))}
-                className={`group absolute pointer-events-auto cursor-pointer hover:z-20 ${isOpen ? "z-20" : "z-[2]"}`}
+                className={`group absolute z-[2] pointer-events-auto hover:z-20 ${gated}`}
                 style={{ left: `${m.left}%`, top: `${m.top}%`, transform: "translate(-50%, -50%)" }}
               >
                 <span
-                  className={`pointer-events-none absolute whitespace-nowrap rounded-full border border-rose/15 bg-cream/85 px-2 py-0.5 text-[9px] sm:text-[10px] font-semibold leading-none text-ink/90 shadow-[0_1px_4px_rgba(120,60,40,0.18)] backdrop-blur-[1px] transition-all duration-200 ease-out group-hover:bg-cream group-hover:shadow-[0_6px_16px_-4px_rgba(194,24,91,0.35)] ${CHIP_POS[m.labelPos]} ${vis}`}
+                  className={`pointer-events-none absolute whitespace-nowrap rounded-full border border-rose/15 bg-cream/85 px-2 py-0.5 text-[9px] sm:text-[10px] font-semibold leading-none text-ink/90 shadow-[0_1px_4px_rgba(120,60,40,0.18)] backdrop-blur-[1px] transition-all duration-200 ease-out group-hover:bg-cream group-hover:shadow-[0_6px_16px_-4px_rgba(194,24,91,0.35)] ${CHIP_POS[m.labelPos]}`}
                 >
                   {t(m.id)}
                 </span>

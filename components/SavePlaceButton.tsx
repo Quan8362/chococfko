@@ -31,7 +31,7 @@ export default function SavePlaceButton({ slug, name, size = 'sm' }: Props) {
       aria-label={saved ? t('unsave_place', { name }) : t('save_place', { name })}
       aria-pressed={saved}
       title={saved ? t('unsave_place', { name }) : t('save_place', { name })}
-      className={`${sz} flex items-center justify-center rounded-full transition-all duration-200 ${
+      className={`${sz} flex items-center justify-center rounded-full transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/40 focus-visible:ring-offset-1 ${
         saved
           ? 'bg-rose text-white shadow-[0_2px_8px_-2px_rgba(194,24,91,0.5)]'
           : 'bg-paper/90 text-muted border border-line hover:border-rose/40 hover:text-rose'

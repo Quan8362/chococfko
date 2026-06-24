@@ -65,6 +65,22 @@ const SHEET_H: Record<SheetState, string> = {
   full: 'h-[82dvh]',
 }
 
+// Basemap tiles. CARTO renders far cleaner than raw OSM at high zoom (fewer
+// dense kanji labels / "P" icons) while keeping the warm colored look closest to
+// Google Maps. Flip BASEMAP to BASEMAPS.positron for the ultra-minimal grey
+// variant — that single line is the only change needed. The `{r}` retina
+// placeholder + detectRetina keep tiles crisp on hi-DPI screens.
+const BASEMAPS = {
+  voyager: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+  positron: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+} as const
+const BASEMAP = BASEMAPS.voyager
+// CARTO requires crediting both OpenStreetMap and CARTO (the "Leaflet" prefix is
+// added separately by the attribution control).
+const TILE_ATTRIBUTION = '© OpenStreetMap contributors © CARTO'
+// Persisted collapse state for the desktop results sidebar.
+const PANEL_KEY = 'chococfko_map_panel'
+
 export default function MapExplorerV2({ defaultCenter, categories, initialPlaces, initialState, externalEnabled, apiKey, locale, isAdmin, adminSearchEnabled, routePreviewAvailable }: Props) {
   const t = useTranslations('map_v2')
   const te = useTranslations('explore_search')
@@ -212,7 +228,7 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
       // Bottom-right keeps it clear of the top search row on mobile; CSS lifts it
       // above the bottom sheet (see .map-v2-shell rules in globals.css).
       L.control.zoom({ position: 'bottomright', zoomInTitle: t('zoom_in'), zoomOutTitle: t('zoom_out') }).addTo(map)
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap', maxZoom: 19 }).addTo(map)
+      L.tileLayer(BASEMAP, { attribution: TILE_ATTRIBUTION, subdomains: 'abcd', maxZoom: 20, detectRetina: true }).addTo(map)
       const cluster = (L as unknown as { markerClusterGroup: (o?: unknown) => L.MarkerClusterGroup })
         .markerClusterGroup({ showCoverageOnHover: false, maxClusterRadius: 55 })
       map.addLayer(cluster)
@@ -255,8 +271,23 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // keep Leaflet sized when layout changes
-  useEffect(() => { const id = setTimeout(() => mapRef.current?.invalidateSize(), 80); return () => clearTimeout(id) }, [sheet, panelOpen])
+  // keep Leaflet sized when layout changes — fire AFTER the panel/sheet
+  // transition settles so the map fills the freed space with no gray gap.
+  useEffect(() => { const id = setTimeout(() => mapRef.current?.invalidateSize(), 240); return () => clearTimeout(id) }, [sheet, panelOpen])
+
+  // Restore the persisted desktop-sidebar collapse state on mount.
+  useEffect(() => {
+    try { if (localStorage.getItem(PANEL_KEY) === '0') setPanelOpen(false) } catch { /* ignore */ }
+  }, [])
+
+  // Single source of truth for the desktop sidebar; persists across reloads.
+  const toggleSidebar = useCallback(() => {
+    setPanelOpen((v) => {
+      const next = !v
+      try { localStorage.setItem(PANEL_KEY, next ? '1' : '0') } catch { /* ignore */ }
+      return next
+    })
+  }, [])
 
   // ── Render markers ──
   useEffect(() => {
@@ -503,19 +534,22 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
               <h3 className="font-serif font-bold text-[16px] text-ink leading-snug">{m.name}</h3>
-              <p className="text-[11.5px] text-teal font-semibold uppercase tracking-[0.4px]">{m.categoryLabel || m.category}</p>
-              <p className="text-[12.5px] text-muted mt-0.5">{m.area}{m.nearestStation ? ` · 🚉 ${m.nearestStation}` : ''}</p>
+              <p className="text-[11.5px] text-rose-deep/85 font-semibold uppercase tracking-[0.4px] truncate">{m.categoryLabel || m.category}</p>
+              <p className="text-[12.5px] text-muted mt-0.5 truncate">{m.area}{m.nearestStation ? ` · 🚉 ${m.nearestStation}` : ''}</p>
             </div>
             <div className="flex items-center gap-1.5">
               <SavePlaceButton slug={m.slug} name={m.name} />
               <button type="button" onClick={() => { setSelected(null); mapEl.current?.focus() }} aria-label={tpd('close')}
-                className="w-8 h-8 grid place-items-center rounded-full bg-cream text-ink text-[13px] border border-line">✕</button>
+                className="w-8 h-8 grid place-items-center rounded-full bg-cream text-ink text-[13px] border border-line hover:border-rose/40 hover:text-rose transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/40">✕</button>
             </div>
           </div>
           <div className="flex gap-2 mt-3">
-            <Link href={`/places/${m.slug}`} className="flex-1 text-center py-1.5 text-[12.5px] font-semibold rounded-xl bg-teal-soft text-teal border border-teal/20 hover:bg-teal hover:text-white transition-all">{t('view_article')}</Link>
-            <button type="button" onClick={() => openDirections(m)} className="flex-1 text-center py-1.5 text-[12.5px] font-semibold rounded-xl bg-rose-soft text-rose border border-rose/20 hover:bg-rose hover:text-white transition-all">{t('directions')}</button>
-            <button type="button" onClick={share} aria-label={t('share')} className="px-3 py-1.5 text-[12.5px] font-semibold rounded-xl bg-cream text-ink border border-line">↗</button>
+            {/* Secondary: open the editorial detail page. */}
+            <Link href={`/places/${m.slug}`} className="flex-1 inline-flex items-center justify-center min-h-[38px] px-2 text-[12.5px] font-semibold rounded-xl bg-paper text-ink/80 border border-line hover:border-rose/40 hover:text-rose transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/40 focus-visible:ring-offset-2 focus-visible:ring-offset-paper">{t('view_article')}</Link>
+            {/* Primary: open Google Maps directions (most common map intent). */}
+            <button type="button" onClick={() => openDirections(m)} className="flex-1 inline-flex items-center justify-center min-h-[38px] px-2 text-[12.5px] font-semibold rounded-xl bg-rose text-white border border-rose shadow-[0_2px_10px_-4px_rgba(194,24,91,0.6)] hover:bg-rose-deep hover:border-rose-deep transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/50 focus-visible:ring-offset-2 focus-visible:ring-offset-paper">{t('directions')}</button>
+            {/* Tertiary: share / copy link — labelled + tooltip so its purpose is clear. */}
+            <button type="button" onClick={share} aria-label={t('share')} title={t('share')} className="inline-flex items-center justify-center min-h-[38px] px-3 text-[13px] font-semibold rounded-xl bg-cream text-ink border border-line hover:border-rose/40 hover:text-rose transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/40 focus-visible:ring-offset-2 focus-visible:ring-offset-paper">↗</button>
           </div>
         </div>
       </div>
@@ -579,7 +613,7 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
                 {m.img && <span className="flex-none w-[64px] h-[64px] rounded-xl bg-cover bg-center" style={{ backgroundImage: `url(${m.img})` }} aria-hidden />}
                 <span className="min-w-0">
                   <span className="block font-serif font-bold text-[14.5px] text-ink leading-snug truncate">{m.name}</span>
-                  <span className="block text-[11.5px] text-teal font-semibold uppercase tracking-[0.4px] truncate">{m.categoryLabel || m.category}</span>
+                  <span className="block text-[11.5px] text-rose-deep/85 font-semibold uppercase tracking-[0.4px] truncate">{m.categoryLabel || m.category}</span>
                   <span className="block text-[12px] text-muted truncate">{m.area}{m.nearestStation ? ` · 🚉 ${m.nearestStation}` : ''}</span>
                 </span>
               </button>
@@ -693,16 +727,29 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
         </button>
       )}
 
-      {/* Desktop: collapsible left results panel */}
-      <div className={`hidden lg:flex absolute top-0 bottom-0 left-0 z-[550] transition-transform ${panelOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        <div role="region" aria-label={t('list_region_label')} className="w-[360px] bg-paper/95 backdrop-blur border-r border-line flex flex-col">
+      {/* Desktop: collapsible left results panel. The collapse handle (‹) is
+          attached to the panel's right edge and slides away WITH it; the expand
+          handle (›) is rendered separately below — anchored to the map's left
+          edge OUTSIDE this translating container — so it can never disappear with
+          the panel. */}
+      <div className={`hidden lg:flex absolute top-0 bottom-0 left-0 z-[550] transition-transform duration-200 ${panelOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div id="map-v2-list-panel" role="region" aria-label={t('list_region_label')} className="w-[360px] bg-paper/95 backdrop-blur border-r border-line flex flex-col">
           {List({ idPrefix: 'd' })}
         </div>
-        <button type="button" onClick={() => setPanelOpen((v) => !v)} aria-label={panelOpen ? t('hide_list') : t('show_list')}
-          className="self-center -ml-px h-16 w-6 grid place-items-center bg-paper border border-l-0 border-line rounded-r-lg text-muted">
-          {panelOpen ? '‹' : '›'}
+        <button type="button" onClick={toggleSidebar} aria-label={t('hide_list')} aria-expanded={panelOpen} aria-controls="map-v2-list-panel"
+          className="self-center -ml-px h-16 w-6 grid place-items-center bg-paper border border-l-0 border-line rounded-r-lg text-muted hover:text-rose transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/40">
+          ‹
         </button>
       </div>
+
+      {/* Desktop: floating expand handle — only when collapsed, anchored to the
+          map's left edge so it is always reachable to reopen the panel. */}
+      {!panelOpen && (
+        <button type="button" onClick={toggleSidebar} aria-label={t('show_list')} aria-expanded={panelOpen} aria-controls="map-v2-list-panel"
+          className="hidden lg:grid place-items-center absolute top-1/2 -translate-y-1/2 left-0 z-[560] h-16 w-7 bg-paper border border-l-0 border-line rounded-r-lg text-muted shadow-md hover:text-rose transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/40">
+          ›
+        </button>
+      )}
 
       {/* Mobile/tablet: draggable bottom sheet */}
       <div role="region" aria-label={t('list_region_label')}

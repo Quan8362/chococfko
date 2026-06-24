@@ -1999,7 +1999,7 @@
       "breadcrumb": "Mini Game",
       "solo": "Nhóm",
       "input_label": "Danh sách người chơi",
-      "input_placeholder": "Nhập tên, mỗi dòng một người...",
+      "input_placeholder": "Nhập tên, mỗi dòng một người…\nVí dụ:\nAnhHD32\nDiepNNK",
       "add_btn": "Thêm",
       "clear_all": "Xóa tất cả",
       "shuffle": "Trộn",
@@ -2015,6 +2015,8 @@
       "copy_result_done": "Đã sao chép",
       "person_label": "người",
       "remove_entry": "Xóa",
+      "latest": "Mới nhất",
+      "sound_label": "Âm thanh",
       "close": "Đóng"
     },
     "jp60": {
@@ -3754,7 +3756,8 @@
     "phrases_title": "Tiếng Nhật hữu ích",
     "copy": "Sao chép",
     "copied": "Đã chép",
-    "speak": "Phát âm"
+    "speak": "Phát âm",
+    "speak_unsupported": "Thiết bị chưa hỗ trợ đọc tiếng Nhật"
   },
   "trips": {
     "lists": "Danh sách",

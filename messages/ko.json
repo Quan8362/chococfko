@@ -1999,7 +1999,7 @@
       "breadcrumb": "미니게임",
       "solo": "그룹",
       "input_label": "참가자 목록",
-      "input_placeholder": "한 줄에 한 명씩 입력...",
+      "input_placeholder": "한 줄에 한 명씩 입력…\n예시:\nAnhHD32\nDiepNNK",
       "add_btn": "추가",
       "clear_all": "전체 삭제",
       "shuffle": "섞기",
@@ -2015,6 +2015,8 @@
       "copy_result_done": "복사됨",
       "person_label": "명",
       "remove_entry": "삭제",
+      "latest": "최신",
+      "sound_label": "소리",
       "close": "닫기"
     },
     "jp60": {
@@ -3754,7 +3756,8 @@
     "phrases_title": "유용한 일본어",
     "copy": "복사",
     "copied": "복사됨",
-    "speak": "읽기"
+    "speak": "읽기",
+    "speak_unsupported": "이 기기는 일본어 음성 읽기를 지원하지 않습니다"
   },
   "trips": {
     "lists": "리스트",

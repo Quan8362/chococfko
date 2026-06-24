@@ -1999,7 +1999,7 @@
       "breadcrumb": "Mini Game",
       "solo": "Group",
       "input_label": "Participants",
-      "input_placeholder": "Enter a name per line...",
+      "input_placeholder": "Enter one name per line…\nExample:\nAnhHD32\nDiepNNK",
       "add_btn": "Add",
       "clear_all": "Clear all",
       "shuffle": "Shuffle",
@@ -2015,6 +2015,8 @@
       "copy_result_done": "Copied",
       "person_label": "entries",
       "remove_entry": "Remove",
+      "latest": "Latest",
+      "sound_label": "Sound",
       "close": "Close"
     },
     "jp60": {
@@ -3754,7 +3756,8 @@
     "phrases_title": "Useful Japanese",
     "copy": "Copy",
     "copied": "Copied",
-    "speak": "Speak"
+    "speak": "Speak",
+    "speak_unsupported": "This device doesn't support Japanese text-to-speech"
   },
   "trips": {
     "lists": "Lists",

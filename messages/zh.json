@@ -1999,7 +1999,7 @@
       "breadcrumb": "小游戏",
       "solo": "多人",
       "input_label": "参与者名单",
-      "input_placeholder": "每行输入一个名字...",
+      "input_placeholder": "每行输入一个名字…\n示例:\nAnhHD32\nDiepNNK",
       "add_btn": "添加",
       "clear_all": "清空",
       "shuffle": "随机排序",
@@ -2015,6 +2015,8 @@
       "copy_result_done": "已复制",
       "person_label": "人",
       "remove_entry": "删除",
+      "latest": "最新",
+      "sound_label": "声音",
       "close": "关闭"
     },
     "jp60": {
@@ -3754,7 +3756,8 @@
     "phrases_title": "实用日语",
     "copy": "复制",
     "copied": "已复制",
-    "speak": "朗读"
+    "speak": "朗读",
+    "speak_unsupported": "此设备不支持日语朗读"
   },
   "trips": {
     "lists": "清单",

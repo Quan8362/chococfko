@@ -19,6 +19,7 @@ const CONFETTI_COLORS = [
 const LS_ENTRIES = 'random-wheel-entries'
 const LS_HISTORY = 'random-wheel-history'
 const LS_REMOVE  = 'random-wheel-remove-after-pick'
+const LS_SOUND   = 'random-wheel-sound'
 
 const W       = 320   // SVG viewBox size (internal coordinates)
 const CX      = W / 2 // 160
@@ -44,9 +45,15 @@ function buildSlicePath(n: number): string {
 }
 
 // ── Wheel SVG component ───────────────────────────────────────────────────────
-interface WheelProps { entries: string[]; rotation: number; spinning: boolean }
+interface WheelProps {
+  entries: string[]
+  rotation: number
+  spinning: boolean
+  hovered?: number | null
+  onHover?: (i: number | null) => void
+}
 
-function WheelSVG({ entries, rotation, spinning }: WheelProps) {
+function WheelSVG({ entries, rotation, spinning, hovered = null, onHover }: WheelProps) {
   const n = entries.length
 
   // Applied to the <svg> element — rotates the whole wheel
@@ -108,10 +115,28 @@ function WheelSVG({ entries, rotation, spinning }: WheelProps) {
       ) : (
         entries.map((entry, i) => {
           const midDeg = (i + 0.5) * segDeg
-          const label  = entry.length > maxLen ? entry.slice(0, maxLen - 1) + '…' : entry
+          const norm   = ((midDeg % 360) + 360) % 360
+          // Radial labels are only upright for the right half (midDeg 0–180°). On
+          // the bottom-left → upper-left half (180–360°) the baseline points down,
+          // so the text renders upside-down — add 180° (use +90) to flip it back.
+          const flip    = norm > 180
+          const textRot = flip ? 90 : -90
+          const label   = entry.length > maxLen ? entry.slice(0, maxLen - 1) + '…' : entry
+          const isHot   = hovered === i
           return (
             <g key={i} transform={`rotate(${midDeg},${CX},${CY})`}>
-              <path d={slicePath} fill={PALETTE[i % PALETTE.length]} stroke="rgba(255,255,255,0.9)" strokeWidth={2} />
+              <path
+                d={slicePath}
+                fill={PALETTE[i % PALETTE.length]}
+                stroke="rgba(255,255,255,0.9)"
+                strokeWidth={2}
+                onMouseEnter={onHover ? () => onHover(i) : undefined}
+                onMouseLeave={onHover ? () => onHover(null) : undefined}
+                style={{ filter: isHot ? 'brightness(1.12)' : undefined, transition: 'filter 150ms ease' } as React.CSSProperties}
+              />
+              {isHot && (
+                <path d={slicePath} fill="none" stroke="white" strokeWidth={3} opacity={0.9} pointerEvents="none" />
+              )}
               <text
                 x={CX}
                 y={CY - midTextR}
@@ -120,9 +145,9 @@ function WheelSVG({ entries, rotation, spinning }: WheelProps) {
                 fontSize={fSize}
                 fontWeight="700"
                 fill="white"
-                stroke="rgba(0,0,0,0.22)"
-                strokeWidth={0.55}
-                transform={`rotate(-90, ${CX}, ${CY - midTextR})`}
+                stroke="rgba(0,0,0,0.34)"
+                strokeWidth={0.9}
+                transform={`rotate(${textRot}, ${CX}, ${CY - midTextR})`}
                 style={{ userSelect: 'none', pointerEvents: 'none', paintOrder: 'stroke', fontVariantNumeric: 'lining-nums', fontFeatureSettings: '"lnum" 1' } as React.CSSProperties}
               >
                 {label}
@@ -166,11 +191,78 @@ export default function RandomWheelClient() {
   const [loaded,          setLoaded]          = useState(false)
   const [spinSnapshot,    setSpinSnapshot]    = useState<string[] | null>(null)
   const [confettiActive,  setConfettiActive]  = useState(false)
+  const [hovered,         setHovered]         = useState<number | null>(null)
+  const [soundOn,         setSoundOn]         = useState(false)
 
   const confettiCanvasRef     = useRef<HTMLCanvasElement | null>(null)
   const confettiRafRef        = useRef<number>(0)
   const confettiStopRef       = useRef<ReturnType<typeof setTimeout> | null>(null)
   const confettiIntervalRef   = useRef<ReturnType<typeof setInterval> | null>(null)
+  const reducedRef            = useRef(false)
+  const soundOnRef            = useRef(false)
+  const audioCtxRef           = useRef<AudioContext | null>(null)
+  const tickTimerRef          = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // ── Honour prefers-reduced-motion (skip confetti, no tick scheduling) ──────
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
+    reducedRef.current = mq.matches
+    const onChange = () => { reducedRef.current = mq.matches }
+    mq.addEventListener?.('change', onChange)
+    return () => mq.removeEventListener?.('change', onChange)
+  }, [])
+
+  // ── Spin tick sound (WebAudio, off by default, toggleable) ─────────────────
+  const playTick = useCallback((progress: number) => {
+    try {
+      let ctx = audioCtxRef.current
+      if (!ctx) {
+        const Ctor = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
+        if (!Ctor) return
+        ctx = new Ctor()
+        audioCtxRef.current = ctx
+      }
+      if (ctx.state === 'suspended') ctx.resume()
+      const now  = ctx.currentTime
+      const osc  = ctx.createOscillator()
+      const gain = ctx.createGain()
+      osc.type = 'square'
+      osc.frequency.value = 360 + progress * 520        // higher pitch early, lower as it slows
+      gain.gain.setValueAtTime(0.0001, now)
+      gain.gain.exponentialRampToValueAtTime(0.05, now + 0.004)
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.05)
+      osc.connect(gain); gain.connect(ctx.destination)
+      osc.start(now); osc.stop(now + 0.06)
+    } catch {}
+  }, [])
+
+  const stopTicking = useCallback(() => {
+    if (tickTimerRef.current) { clearTimeout(tickTimerRef.current); tickTimerRef.current = null }
+  }, [])
+
+  const startTicking = useCallback(() => {
+    stopTicking()
+    const nowFn = () => (typeof performance !== 'undefined' ? performance.now() : Date.now())
+    const startedAt = nowFn()
+    let interval = 36
+    const loop = () => {
+      const elapsed = nowFn() - startedAt
+      if (elapsed >= SPIN_MS) { stopTicking(); return }
+      playTick(Math.max(0, 1 - elapsed / SPIN_MS))
+      interval = Math.min(240, interval * 1.06)        // decelerate, mirroring the visual ease-out
+      tickTimerRef.current = setTimeout(loop, interval)
+    }
+    loop()
+  }, [playTick, stopTicking])
+
+  // Keep a ref in sync so the (memoised) spin callback reads the latest value.
+  useEffect(() => { soundOnRef.current = soundOn }, [soundOn])
+
+  // Cleanup tick timer + audio context on unmount.
+  useEffect(() => () => {
+    stopTicking()
+    if (audioCtxRef.current) { audioCtxRef.current.close().catch(() => {}) ; audioCtxRef.current = null }
+  }, [stopTicking])
 
   // ── Load from localStorage ─────────────────────────────────────────────────
   useEffect(() => {
@@ -178,9 +270,11 @@ export default function RandomWheelClient() {
       const e = localStorage.getItem(LS_ENTRIES)
       const h = localStorage.getItem(LS_HISTORY)
       const r = localStorage.getItem(LS_REMOVE)
+      const s = localStorage.getItem(LS_SOUND)
       if (e) setEntries(JSON.parse(e))
       if (h) setHistory(JSON.parse(h))
       if (r !== null) setRemoveAfterPick(JSON.parse(r))
+      if (s !== null) setSoundOn(JSON.parse(s))
     } catch {}
     setLoaded(true)
   }, [])
@@ -201,6 +295,11 @@ export default function RandomWheelClient() {
     try { localStorage.setItem(LS_REMOVE, JSON.stringify(removeAfterPick)) } catch {}
   }, [removeAfterPick, loaded])
 
+  useEffect(() => {
+    if (!loaded) return
+    try { localStorage.setItem(LS_SOUND, JSON.stringify(soundOn)) } catch {}
+  }, [soundOn, loaded])
+
   // ── Animate popup modal in ─────────────────────────────────────────────────
   useEffect(() => {
     if (showResult) {
@@ -212,7 +311,7 @@ export default function RandomWheelClient() {
 
   // ── Activate confetti when winner popup shows ──────────────────────────────
   useEffect(() => {
-    if (showResult && winner) {
+    if (showResult && winner && !reducedRef.current) {
       setConfettiActive(true)
     } else {
       setConfettiActive(false)
@@ -363,12 +462,14 @@ export default function RandomWheelClient() {
   const addEntries = useCallback(() => {
     const parsed = inputText.split('\n').map(s => s.trim()).filter(Boolean)
     if (!parsed.length) return
+    setSpinSnapshot(null)
     setEntries(prev => {
       const seen = new Set<string>(prev)
       const next = [...prev]
       for (const s of parsed) { if (!seen.has(s)) { seen.add(s); next.push(s) } }
       return next
     })
+    setInputText('')
   }, [inputText])
 
   const handlePaste = useCallback((e: React.ClipboardEvent<HTMLTextAreaElement>) => {
@@ -376,6 +477,7 @@ export default function RandomWheelClient() {
     if (!pasted.trim()) return
     const parsed = pasted.split('\n').map(s => s.trim()).filter(Boolean)
     if (!parsed.length) return
+    setSpinSnapshot(null)
     setEntries(prev => {
       const seen = new Set<string>(prev)
       const next = [...prev]
@@ -431,9 +533,13 @@ export default function RandomWheelClient() {
     setSpinning(true)
     setWinner(null)
     setShowResult(false)
+    setHovered(null)
     setRotation(newRotation)
 
+    if (soundOnRef.current && !reducedRef.current) startTicking()
+
     setTimeout(() => {
+      stopTicking()
       setSpinning(false)
       setWinner(picked)
       setShowResult(true)
@@ -442,7 +548,7 @@ export default function RandomWheelClient() {
         setEntries(prev => prev.filter(e => e !== picked))
       }
     }, SPIN_MS + 300)
-  }, [spinning, entries, rotation, removeAfterPick])
+  }, [spinning, entries, rotation, removeAfterPick, startTicking, stopTicking])
 
   // ── Copy winner name ───────────────────────────────────────────────────────
   const copyResult = useCallback(() => {
@@ -456,6 +562,9 @@ export default function RandomWheelClient() {
   const closeResult = useCallback(() => {
     setShowResult(false)
     setConfettiActive(false)
+    // Re-sync the wheel to the live list (drops the just-picked name when
+    // "remove after pick" is on) so wheel segments === player list again.
+    setSpinSnapshot(null)
   }, [])
 
   // ── Render ────────────────────────────────────────────────────────────────
@@ -495,7 +604,7 @@ export default function RandomWheelClient() {
             <div className="flex items-center justify-center gap-2.5">
               <button
                 onClick={copyResult}
-                className="inline-flex items-center gap-1.5 text-[13px] font-semibold px-4 py-2.5 rounded-xl bg-cream border border-line text-muted hover:text-rose hover:border-rose/30 transition-all"
+                className="inline-flex items-center gap-1.5 text-[13px] font-semibold px-4 py-2.5 rounded-xl bg-cream border border-line text-muted hover:text-rose hover:border-rose/30 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/45 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
               >
                 {copied ? (
                   <>
@@ -515,7 +624,7 @@ export default function RandomWheelClient() {
               </button>
               <button
                 onClick={closeResult}
-                className="px-6 py-2.5 rounded-xl bg-rose text-white font-semibold text-[13px] hover:bg-rose-deep transition-all active:scale-95"
+                className="px-6 py-2.5 rounded-xl bg-rose text-white font-semibold text-[13px] hover:bg-rose-deep transition-all active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
               >
                 {t('close')}
               </button>
@@ -606,6 +715,8 @@ export default function RandomWheelClient() {
                 entries={spinSnapshot ?? entries}
                 rotation={rotation}
                 spinning={spinning}
+                hovered={!spinning && spinSnapshot === null ? hovered : null}
+                onHover={!spinning && spinSnapshot === null ? setHovered : undefined}
               />
             </div>
           </div>
@@ -614,7 +725,7 @@ export default function RandomWheelClient() {
           <button
             onClick={spin}
             disabled={spinning || entries.length === 0}
-            className={`min-w-[180px] py-3.5 px-10 rounded-2xl font-bold text-[16px] transition-all
+            className={`min-w-[180px] py-3.5 px-10 rounded-2xl font-bold text-[16px] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/50 focus-visible:ring-offset-2 focus-visible:ring-offset-cream
               ${spinning || entries.length === 0
                 ? 'bg-line/60 text-muted/40 cursor-not-allowed shadow-none'
                 : 'bg-rose text-white hover:bg-rose-deep shadow-[0_4px_24px_-4px_rgba(194,24,91,0.5)] hover:shadow-[0_6px_28px_-4px_rgba(194,24,91,0.65)] active:scale-95'
@@ -638,12 +749,28 @@ export default function RandomWheelClient() {
             </p>
           )}
 
-          {/* Entry count badge */}
-          {entries.length > 0 && !spinning && (
-            <p className="text-[12.5px] text-muted/50 font-medium">
-              {entries.length} {t('person_label')}
-            </p>
-          )}
+          {/* Entry count badge + sound toggle */}
+          <div className="flex items-center gap-3">
+            {entries.length > 0 && !spinning && (
+              <p className="text-[12.5px] text-muted/50 font-medium">
+                {entries.length} {t('person_label')}
+              </p>
+            )}
+            <button
+              type="button"
+              onClick={() => setSoundOn(s => !s)}
+              aria-pressed={soundOn}
+              title={t('sound_label')}
+              className={`inline-flex items-center gap-1.5 text-[12px] font-medium px-3 py-1.5 rounded-full border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/45 focus-visible:ring-offset-2 focus-visible:ring-offset-cream ${
+                soundOn
+                  ? 'bg-rose/10 border-rose/30 text-rose'
+                  : 'bg-paper border-line text-muted/70 hover:text-rose hover:border-rose/30'
+              }`}
+            >
+              <span className="select-none leading-none">{soundOn ? '🔊' : '🔇'}</span>
+              {t('sound_label')}
+            </button>
+          </div>
         </div>
 
         {/* ── RIGHT: Input + list + history ──────────────────────────────── */}
@@ -664,13 +791,17 @@ export default function RandomWheelClient() {
               onKeyDown={e => { if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); addEntries() } }}
               placeholder={t('input_placeholder')}
               rows={5}
-              className="w-full resize-none rounded-xl border border-line bg-cream/50 px-3.5 py-3 text-[13.5px] text-ink placeholder-muted/40 focus:outline-none focus:ring-2 focus:ring-rose/30 focus:border-rose/40 transition-all leading-relaxed"
+              className="w-full resize-none rounded-xl border border-line bg-cream/50 px-3.5 py-3 text-[13.5px] text-ink placeholder-muted/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/35 focus-visible:border-rose/40 transition-all leading-relaxed"
             />
             <div className="flex items-center gap-2.5 mt-3">
               <button
                 onClick={addEntries}
                 disabled={!inputText.trim()}
-                className="flex-none py-2.5 px-6 rounded-xl bg-rose text-white text-[13.5px] font-semibold hover:bg-rose-deep transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                className={`flex-none py-2.5 px-6 rounded-xl text-[13.5px] font-semibold transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/45 focus-visible:ring-offset-2 focus-visible:ring-offset-paper ${
+                  inputText.trim()
+                    ? 'bg-rose text-white hover:bg-rose-deep shadow-sm active:scale-95'
+                    : 'bg-line/50 text-muted/50 cursor-not-allowed'
+                }`}
               >
                 {t('add_btn')}
               </button>
@@ -701,13 +832,13 @@ export default function RandomWheelClient() {
                 <div className="flex gap-2">
                   <button
                     onClick={shuffleEntries}
-                    className="text-[12px] font-medium px-3 py-1.5 rounded-lg border border-line text-muted hover:bg-line hover:text-ink transition-all"
+                    className="text-[12px] font-medium px-3 py-1.5 rounded-lg border border-line text-muted hover:bg-line hover:text-ink transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/45 focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
                   >
                     🔀 {t('shuffle')}
                   </button>
                   <button
                     onClick={clearAll}
-                    className="text-[12px] font-medium px-3 py-1.5 rounded-lg border border-red-200 text-red-500 hover:bg-red-50 transition-all"
+                    className="text-[12px] font-medium px-3 py-1.5 rounded-lg border border-red-200 text-red-500 hover:bg-red-50 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300 focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
                   >
                     {t('clear_all')}
                   </button>
@@ -717,7 +848,10 @@ export default function RandomWheelClient() {
                 {entries.map((entry, i) => (
                   <li
                     key={i}
-                    className="flex items-center gap-2.5 py-1.5 px-2.5 rounded-lg hover:bg-cream/70 transition-colors group/row"
+                    onMouseEnter={() => setHovered(i)}
+                    onMouseLeave={() => setHovered(null)}
+                    className={`flex items-center gap-2.5 py-1.5 px-2.5 rounded-lg transition-colors group/row ${hovered === i ? 'bg-cream' : 'hover:bg-cream/70'}`}
+                    style={hovered === i ? { boxShadow: `inset 3px 0 0 ${PALETTE[i % PALETTE.length]}` } : undefined}
                   >
                     <span
                       className="w-5 h-5 rounded-full flex-none flex items-center justify-center text-[9px] font-black text-white shrink-0"
@@ -728,7 +862,7 @@ export default function RandomWheelClient() {
                     <span className="flex-1 text-[13.5px] text-ink truncate">{entry}</span>
                     <button
                       onClick={() => removeEntry(i)}
-                      className="opacity-0 group-hover/row:opacity-100 text-[11px] text-muted/40 hover:text-red-500 transition-all flex-none px-1.5 py-0.5 rounded"
+                      className="opacity-0 group-hover/row:opacity-100 focus-visible:opacity-100 text-[11px] text-muted/40 hover:text-red-500 transition-all flex-none px-1.5 py-0.5 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300"
                       aria-label={t('remove_entry')}
                     >
                       ✕
@@ -748,19 +882,32 @@ export default function RandomWheelClient() {
                 </h3>
                 <button
                   onClick={clearHistory}
-                  className="text-[12px] font-medium px-3 py-1.5 rounded-lg border border-line text-muted hover:bg-line hover:text-ink transition-all"
+                  className="text-[12px] font-medium px-3 py-1.5 rounded-lg border border-line text-muted hover:bg-line hover:text-ink transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/45 focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
                 >
                   {t('clear_history')}
                 </button>
               </div>
               <ol className="flex flex-col gap-1 max-h-[220px] overflow-y-auto pr-0.5">
-                {history.map((name, i) => (
-                  <li key={i} className="flex items-center gap-2.5 py-1.5 px-2.5 rounded-lg bg-cream/50 text-[13.5px] text-ink">
-                    <span className="text-muted/40 text-[11.5px] font-mono w-5 text-right flex-none shrink-0">{i + 1}.</span>
-                    <span className="flex-1 truncate">{name}</span>
-                    {i === 0 && <span className="text-[14px] flex-none">🏆</span>}
-                  </li>
-                ))}
+                {history.map((name, i) => {
+                  const isLatest = i === 0
+                  return (
+                    <li
+                      key={i}
+                      className={`flex items-center gap-2.5 py-1.5 px-2.5 rounded-lg text-[13.5px] text-ink ${
+                        isLatest ? 'bg-rose/8 border border-rose/20' : 'bg-cream/50'
+                      }`}
+                    >
+                      <span className="text-muted/40 text-[11.5px] font-mono w-5 text-right flex-none shrink-0">{i + 1}.</span>
+                      <span className={`flex-1 truncate ${isLatest ? 'font-semibold' : ''}`}>{name}</span>
+                      {isLatest && (
+                        <span className="flex-none text-[9.5px] font-bold uppercase tracking-wide text-rose bg-rose/10 border border-rose/20 px-1.5 py-0.5 rounded-full">
+                          {t('latest')}
+                        </span>
+                      )}
+                      {isLatest && <span className="text-[14px] flex-none">🏆</span>}
+                    </li>
+                  )
+                })}
               </ol>
             </div>
           )}

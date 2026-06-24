@@ -15,11 +15,12 @@ import { useTranslations } from "next-intl";
 //   'all'     → dot + label on mobile + tablet + desktop (6 anchor cities)
 //   'desktop' → dot + label ONLY at ≥1280px (xl); nothing below (4 cities)
 //   'none'    → not rendered at all (kept in the array + i18n for future use)
-// left/top — the DOT position (% of the image box). Calibrated to sit ON LAND
-// just BESIDE the city's landmark illustration (never on top of it, never in
-// the sea), verified against the bg_web.png alpha mask.
-// labelPos — which side the chip sits relative to its dot, offset into open
-// sea / empty land so it covers no illustration and no other label.
+// left/top — the DOT position (% of the image box). The dot marks the TRUE
+// location: it sits at the FOOT (ground-contact base) of the city's landmark
+// illustration — on land, may touch the lower edge of the illustration.
+// Calibrated against the bg_web.png illustration + alpha masks.
+// labelPos — which side the chip floats to (open sea / empty land), kept tight
+// to the dot so it covers no illustration and no other label.
 type LabelTier = "all" | "desktop" | "none";
 type LabelPos = "top" | "bottom" | "left" | "right";
 const MARKERS: {
@@ -29,28 +30,28 @@ const MARKERS: {
   labelTier: LabelTier;
   labelPos: LabelPos;
 }[] = [
-  { id: "sapporo", left: 70, top: 18, labelTier: "all", labelPos: "left" },
+  { id: "sapporo", left: 74, top: 20, labelTier: "all", labelPos: "left" },
   { id: "sendai", left: 82, top: 30, labelTier: "none", labelPos: "right" },
   { id: "nikko", left: 72, top: 44, labelTier: "none", labelPos: "top" },
-  { id: "tokyo", left: 87, top: 53, labelTier: "all", labelPos: "right" },
+  { id: "tokyo", left: 84, top: 54, labelTier: "all", labelPos: "right" },
   { id: "yokohama", left: 83, top: 52, labelTier: "none", labelPos: "right" },
   { id: "kamakura", left: 80, top: 55, labelTier: "none", labelPos: "bottom" },
   { id: "hakone", left: 74, top: 53, labelTier: "none", labelPos: "top" },
-  { id: "mount_fuji", left: 72, top: 54, labelTier: "desktop", labelPos: "top" },
-  { id: "nagoya", left: 60, top: 59, labelTier: "desktop", labelPos: "bottom" },
-  { id: "nara", left: 65, top: 66, labelTier: "desktop", labelPos: "right" },
-  { id: "osaka", left: 53, top: 69, labelTier: "all", labelPos: "bottom" },
+  { id: "mount_fuji", left: 66, top: 55, labelTier: "desktop", labelPos: "right" },
+  { id: "nagoya", left: 61, top: 57, labelTier: "desktop", labelPos: "bottom" },
+  { id: "nara", left: 59, top: 76, labelTier: "desktop", labelPos: "right" },
+  { id: "osaka", left: 53, top: 70, labelTier: "all", labelPos: "bottom" },
   { id: "kobe", left: 46, top: 58, labelTier: "none", labelPos: "left" },
-  { id: "kyoto", left: 50, top: 53, labelTier: "all", labelPos: "top" },
+  { id: "kyoto", left: 52, top: 59, labelTier: "all", labelPos: "bottom" },
   { id: "kanazawa", left: 48, top: 43, labelTier: "none", labelPos: "top" },
   { id: "shirakawago", left: 58, top: 38, labelTier: "none", labelPos: "top" },
-  { id: "hiroshima", left: 38, top: 58, labelTier: "desktop", labelPos: "left" },
+  { id: "hiroshima", left: 36, top: 63, labelTier: "desktop", labelPos: "left" },
   { id: "miyajima", left: 36, top: 69, labelTier: "none", labelPos: "bottom" },
   { id: "beppu", left: 24, top: 72, labelTier: "none", labelPos: "bottom" },
   { id: "dazaifu", left: 24, top: 57, labelTier: "none", labelPos: "right" },
-  { id: "fukuoka", left: 19, top: 58, labelTier: "all", labelPos: "left" },
+  { id: "fukuoka", left: 20, top: 66, labelTier: "all", labelPos: "left" },
   { id: "nagasaki", left: 10, top: 73, labelTier: "none", labelPos: "left" },
-  { id: "okinawa", left: 10, top: 90, labelTier: "all", labelPos: "top" },
+  { id: "okinawa", left: 10, top: 91, labelTier: "all", labelPos: "right" },
 ];
 
 // Chip placement classes per side. Each anchors the chip off the dot and adds a
@@ -164,14 +165,15 @@ export default function HeroMap({ alt }: { alt: string }) {
           height={992}
           priority
           sizes="(min-width: 1024px) 44vw, (min-width: 640px) 560px, 88vw"
-          className="w-full aspect-[1586/992] object-contain saturate-[1.05] contrast-[1.02] drop-shadow-[0_26px_50px_rgba(194,24,91,0.12)]"
+          className="block w-full h-auto saturate-[1.05] contrast-[1.02] drop-shadow-[0_26px_50px_rgba(194,24,91,0.12)]"
         />
 
-        {/* Marker overlay — sits exactly over the image box (object-contain +
-            matching aspect ratio ⇒ no letterbox), so percentage left/top map
-            straight onto the illustration. The parent map div is
-            pointer-events-none; each marker re-enables pointer events so hover
-            works without blocking page scroll elsewhere. */}
+        {/* Marker overlay — the image is a plain block (w-full h-auto, no
+            object-contain / fixed aspect), so its box IS its rendered pixels
+            with zero letterbox at every width. This overlay is inset-0 on that
+            same box, so percentage left/top map 1:1 onto bg_web.png pixels at
+            all breakpoints. The parent map div is pointer-events-none; each
+            marker re-enables pointer events for the hover lift. */}
         <div className="absolute inset-0">
           {MARKERS.map((m, i) => {
             // Dot + label render as one unit; tier decides whether (and where)

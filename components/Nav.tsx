@@ -77,13 +77,23 @@ export default async function Nav() {
           />
         </nav>
 
-        {/* Right actions — bên phải. Tighter gaps on narrow phones so the cluster
-            (language, bells, avatar, menu) never overflows next to the logo. */}
+        {/* Right actions — bên phải. To declutter the mobile top bar: the language
+            switcher moves into the hamburger drawer (hidden below xl here), the
+            admin shield is desktop-only (hidden below xl), and the user bell stays
+            as the single essential icon. Each notification bell keeps exactly one
+            mounted instance — no duplicate realtime subscriptions / double fetch.
+            Desktop (xl+) is unchanged. */}
         <div className="flex items-center gap-1.5 sm:gap-2.5 ml-auto shrink-0">
-          <LanguageSwitcher />
+          <div className="hidden xl:block">
+            <LanguageSwitcher />
+          </div>
 
           {user && <UserNotificationBell />}
-          {isAdmin && <AdminNotificationBell />}
+          {isAdmin && (
+            <div className="hidden xl:block">
+              <AdminNotificationBell />
+            </div>
+          )}
 
           {user ? (
             <UserMenu displayName={displayName} initial={initial} isAdmin={isAdmin} avatarUrl={avatarUrl} />

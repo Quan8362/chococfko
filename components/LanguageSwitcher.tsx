@@ -4,7 +4,7 @@ import { useLocale } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
-const LANGS = [
+export const LANGS = [
   { code: 'vi', flag: '/flags/vn.svg', label: 'Tiếng Việt' },
   { code: 'en', flag: '/flags/us.svg', label: 'English' },
   { code: 'ja', flag: '/flags/jp.svg', label: '日本語' },
@@ -12,7 +12,7 @@ const LANGS = [
   { code: 'zh', flag: '/flags/cn.svg', label: '中文' },
 ]
 
-function Flag({ src, label }: { src: string; label: string }) {
+export function Flag({ src, label }: { src: string; label: string }) {
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img

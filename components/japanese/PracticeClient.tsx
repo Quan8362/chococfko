@@ -133,108 +133,143 @@ export default function PracticeClient({
     const selectedAvail =
       type === 'mixed' ? av.vocabulary + av.grammar + av.kanji : av[type as 'vocabulary' | 'grammar' | 'kanji']
 
+    // A table column is "active" when its category is selected (mixed = all three).
+    const colActive = (col: 'vocabulary' | 'grammar' | 'kanji') => type === col || type === 'mixed'
+
+    // Shared option-pill styling: clear hover, selected fill + elevation, and a
+    // keyboard-visible focus ring (WCAG). `extra` carries per-group padding/weight.
+    const pillClass = (active: boolean, extra: string) =>
+      `rounded-xl border-2 py-2 text-[14px] transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose/50 focus-visible:ring-offset-2 focus-visible:ring-offset-paper ${extra} ${
+        active
+          ? 'bg-rose border-rose text-white shadow-md'
+          : 'bg-paper border-line text-ink hover:border-rose/40 hover:bg-rose/5'
+      }`
+
     return (
       <div>
-        {/* Intro / explanation */}
-        <div className="bg-cream border border-line rounded-2xl p-5 mb-8">
+        {/* Intro callout */}
+        <div className="flex items-start gap-3 bg-rose/5 border border-rose/15 rounded-2xl p-4 sm:p-5 mb-8">
+          <svg className="w-5 h-5 text-rose shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
           <p className="text-[13.5px] text-ink leading-relaxed">{t('practice_intro')}</p>
         </div>
 
-        {/* Level */}
-        <div className="mb-6">
-          <p className="text-[11px] font-bold uppercase tracking-[1.5px] text-muted mb-3">{t('select_level')}</p>
-          <div className="flex flex-wrap gap-2">
-            {JLPT_LEVELS.map(l => (
-              <button
-                key={l}
-                onClick={() => setLevel(l)}
-                className={`px-5 py-2 rounded-xl border-2 font-bold text-[14px] transition-all ${
-                  level === l ? 'bg-rose border-rose text-white shadow-sm' : 'bg-paper border-line text-ink hover:border-rose/40'
-                }`}
-              >
-                {l}
-              </button>
-            ))}
+        {/* Config (left) + sticky summary (right) */}
+        <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-6 lg:items-start">
+
+          {/* LEFT — control panel card */}
+          <div className="bg-paper border border-line rounded-2xl shadow-card p-5 sm:p-6 space-y-6">
+            {/* Level */}
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-[1.5px] text-muted mb-3">{t('select_level')}</p>
+              <div className="flex flex-wrap gap-2">
+                {JLPT_LEVELS.map(l => (
+                  <button key={l} onClick={() => setLevel(l)} className={pillClass(level === l, 'font-bold px-5')}>
+                    {l}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Type */}
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-[1.5px] text-muted mb-3">{t('select_category')}</p>
+              <div className="flex flex-wrap gap-2">
+                {TYPES.map(c => (
+                  <button key={c} onClick={() => setType(c)} className={pillClass(type === c, 'font-semibold px-4')}>
+                    {t(`category_${c}` as Parameters<typeof t>[0])}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Count */}
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-[1.5px] text-muted mb-3">{t('select_count')}</p>
+              <div className="flex flex-wrap gap-2">
+                {PRACTICE_COUNTS.map(n => (
+                  <button key={n} onClick={() => setCount(n)} className={pillClass(count === n, 'font-semibold px-4')}>
+                    {t(`count_${n}` as Parameters<typeof t>[0])}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
+
+          {/* RIGHT — live summary + CTA, sticky on desktop */}
+          <aside className="mt-6 lg:mt-0 lg:sticky lg:top-[90px]">
+            <div className="bg-paper border border-line rounded-2xl shadow-card p-5 sm:p-6">
+              <p className="text-[11px] font-bold uppercase tracking-[1.5px] text-muted mb-4">{t('practice_summary_title')}</p>
+
+              <dl className="space-y-2.5 mb-4 text-[13.5px]">
+                <div className="flex items-center justify-between">
+                  <dt className="text-muted">{t('practice_summary_level')}</dt>
+                  <dd className="font-bold text-ink">{level}</dd>
+                </div>
+                <div className="flex items-center justify-between">
+                  <dt className="text-muted">{t('practice_summary_type')}</dt>
+                  <dd className="font-semibold text-ink">{t(`category_${type}` as Parameters<typeof t>[0])}</dd>
+                </div>
+                <div className="flex items-center justify-between">
+                  <dt className="text-muted">{t('practice_summary_count')}</dt>
+                  <dd className="font-semibold text-ink tabular-nums">{count}</dd>
+                </div>
+              </dl>
+
+              {/* Available materials for the current combination (was the orphaned helper line) */}
+              <div className="flex items-center justify-between rounded-xl bg-rose/5 border border-rose/15 px-3.5 py-2.5 mb-4">
+                <span className="text-[12.5px] text-muted">{t('practice_summary_materials')}</span>
+                <span className="text-[18px] font-bold text-rose tabular-nums leading-none">{selectedAvail.toLocaleString()}</span>
+              </div>
+
+              {loadError && (
+                <p className="text-[13px] text-red-500 mb-3">
+                  {loadError === 'empty' ? t('practice_no_enough') : t('practice_error')}
+                </p>
+              )}
+
+              <button
+                onClick={handleStart}
+                disabled={phase === 'loading' || selectedAvail === 0}
+                className="w-full bg-rose text-white font-semibold text-[15px] px-8 py-3.5 rounded-xl hover:bg-rose-deep active:translate-y-px transition-all duration-150 shadow-sm disabled:opacity-60 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose/50 focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+              >
+                {phase === 'loading' ? `${t('loading')}…` : t('start')}
+              </button>
+            </div>
+          </aside>
         </div>
 
-        {/* Type */}
-        <div className="mb-6">
-          <p className="text-[11px] font-bold uppercase tracking-[1.5px] text-muted mb-3">{t('select_category')}</p>
-          <div className="flex flex-wrap gap-2">
-            {TYPES.map(c => (
-              <button
-                key={c}
-                onClick={() => setType(c)}
-                className={`px-4 py-2 rounded-xl border-2 text-[14px] transition-all ${
-                  type === c ? 'bg-rose border-rose text-white font-semibold shadow-sm' : 'bg-paper border-line text-ink hover:border-rose/40'
-                }`}
-              >
-                {t(`category_${c}` as Parameters<typeof t>[0])}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Count */}
-        <div className="mb-6">
-          <p className="text-[11px] font-bold uppercase tracking-[1.5px] text-muted mb-3">{t('select_count')}</p>
-          <div className="flex flex-wrap gap-2">
-            {PRACTICE_COUNTS.map(n => (
-              <button
-                key={n}
-                onClick={() => setCount(n)}
-                className={`px-4 py-2 rounded-xl border-2 text-[14px] transition-all ${
-                  count === n ? 'bg-rose border-rose text-white font-semibold shadow-sm' : 'bg-paper border-line text-ink hover:border-rose/40'
-                }`}
-              >
-                {t(`count_${n}` as Parameters<typeof t>[0])}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Availability for the current selection */}
-        <p className="text-[12.5px] text-muted mb-6">
-          {t('practice_available', { count: selectedAvail.toLocaleString() })}
-        </p>
-
-        {loadError && (
-          <p className="text-[13px] text-red-500 mb-4">
-            {loadError === 'empty' ? t('practice_no_enough') : t('practice_error')}
-          </p>
-        )}
-
-        <button
-          onClick={handleStart}
-          disabled={phase === 'loading' || selectedAvail === 0}
-          className="bg-rose text-white font-semibold text-[15px] px-8 py-3.5 rounded-xl hover:bg-rose-deep transition-colors shadow-sm disabled:opacity-60 w-full sm:w-auto"
-        >
-          {phase === 'loading' ? `${t('loading')}…` : t('start')}
-        </button>
-
-        {/* Availability matrix */}
+        {/* Availability matrix — full width, with the active level row + selected type column highlighted live */}
         <div className="mt-12">
           <h2 className="font-serif font-bold text-[16px] text-ink mb-3">{t('practice_availability_title')}</h2>
-          <div className="overflow-x-auto border border-line rounded-2xl">
+          <div className="overflow-x-auto border border-line rounded-2xl shadow-card">
             <table className="w-full text-[13px] min-w-[360px]">
               <thead>
                 <tr className="bg-cream text-muted">
                   <th className="text-left font-semibold px-4 py-2.5">{t('jlpt_level')}</th>
-                  <th className="text-right font-semibold px-4 py-2.5">{t('category_vocabulary')}</th>
-                  <th className="text-right font-semibold px-4 py-2.5">{t('category_grammar')}</th>
-                  <th className="text-right font-semibold px-4 py-2.5">{t('category_kanji')}</th>
+                  <th className={`text-right font-semibold px-4 py-2.5 transition-colors ${colActive('vocabulary') ? 'text-rose' : ''}`}>{t('category_vocabulary')}</th>
+                  <th className={`text-right font-semibold px-4 py-2.5 transition-colors ${colActive('grammar') ? 'text-rose' : ''}`}>{t('category_grammar')}</th>
+                  <th className={`text-right font-semibold px-4 py-2.5 transition-colors ${colActive('kanji') ? 'text-rose' : ''}`}>{t('category_kanji')}</th>
                 </tr>
               </thead>
               <tbody>
                 {JLPT_LEVELS.map(l => {
                   const a = availability[l]
+                  const rowActive = l === level
+                  const cellClass = (col: 'vocabulary' | 'grammar' | 'kanji') => {
+                    const ca = colActive(col)
+                    if (rowActive && ca) return 'text-rose font-bold'
+                    if (ca) return 'text-ink font-medium'
+                    if (rowActive) return 'text-ink'
+                    return 'text-muted'
+                  }
                   return (
-                    <tr key={l} className="border-t border-line">
-                      <td className="px-4 py-2.5 font-bold text-ink">{l}</td>
-                      <td className="px-4 py-2.5 text-right text-muted tabular-nums">{a.vocabulary.toLocaleString()}</td>
-                      <td className="px-4 py-2.5 text-right text-muted tabular-nums">{a.grammar.toLocaleString()}</td>
-                      <td className="px-4 py-2.5 text-right text-muted tabular-nums">{a.kanji.toLocaleString()}</td>
+                    <tr key={l} className={`border-t border-line transition-colors ${rowActive ? 'bg-rose/5' : ''}`}>
+                      <td className={`px-4 py-2.5 font-bold ${rowActive ? 'text-rose' : 'text-ink'}`}>{l}</td>
+                      <td className={`px-4 py-2.5 text-right tabular-nums transition-colors ${cellClass('vocabulary')}`}>{a.vocabulary.toLocaleString()}</td>
+                      <td className={`px-4 py-2.5 text-right tabular-nums transition-colors ${cellClass('grammar')}`}>{a.grammar.toLocaleString()}</td>
+                      <td className={`px-4 py-2.5 text-right tabular-nums transition-colors ${cellClass('kanji')}`}>{a.kanji.toLocaleString()}</td>
                     </tr>
                   )
                 })}
@@ -266,7 +301,12 @@ export default function PracticeClient({
           <div className="mt-10">
             <h2 className="font-serif font-bold text-[16px] text-ink mb-3">{t('practice_recent_history')}</h2>
             {recentSessions.length === 0 ? (
-              <p className="text-[13px] text-muted">{t('practice_no_history')}</p>
+              <div className="flex flex-col items-center text-center gap-3 border border-dashed border-line rounded-2xl py-10 px-5 bg-cream/40">
+                <svg className="w-9 h-9 text-muted/60" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                <p className="text-[13px] text-muted max-w-[280px] leading-relaxed">{t('practice_history_empty_hint')}</p>
+              </div>
             ) : (
               <div className="grid gap-2">
                 {recentSessions.map(s => (
@@ -310,7 +350,7 @@ export default function PracticeClient({
     const gradeEmoji = pct >= 80 ? '🎉' : pct >= 60 ? '👍' : '📚'
 
     return (
-      <div>
+      <div className="max-w-[680px] mx-auto">
         <div className="text-center">
           <div className="text-[56px] leading-none mb-4">{gradeEmoji}</div>
           <h2 className={`font-serif font-bold text-[40px] mb-1 ${gradeColor}`}>{pct}%</h2>
@@ -422,7 +462,7 @@ export default function PracticeClient({
   const isCorrect = answered && selectedKey === q.correctKey
 
   return (
-    <div>
+    <div className="max-w-[680px] mx-auto">
       {/* Progress header */}
       <div className="flex items-center justify-between mb-3">
         <span className="text-[13px] text-muted">{t('quiz_of', { current: index + 1, total: questions.length })}</span>
@@ -448,7 +488,7 @@ export default function PracticeClient({
             key={opt.key}
             onClick={() => handleAnswer(opt.key)}
             disabled={answered}
-            className={`flex items-center gap-3 w-full border-2 rounded-xl px-4 py-3.5 text-left transition-all ${optionClass(opt.key)}`}
+            className={`flex items-center gap-3 w-full border-2 rounded-xl px-4 py-3.5 text-left transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose/50 focus-visible:ring-offset-2 focus-visible:ring-offset-cream ${optionClass(opt.key)}`}
           >
             <span
               className={`shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-[12px] font-bold border-2 transition-colors ${badgeClass(opt.key)}`}
@@ -486,7 +526,7 @@ export default function PracticeClient({
 
           <button
             onClick={handleNext}
-            className="mt-5 bg-rose text-white font-semibold text-[14px] px-6 py-3 rounded-xl hover:bg-rose-deep transition-colors shadow-sm w-full sm:w-auto"
+            className="mt-5 bg-rose text-white font-semibold text-[14px] px-6 py-3 rounded-xl hover:bg-rose-deep active:translate-y-px transition-all duration-150 shadow-sm w-full sm:w-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose/50 focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
           >
             {isLast ? t('finish') : `${t('next_question')} →`}
           </button>

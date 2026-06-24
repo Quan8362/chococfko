@@ -191,13 +191,15 @@ export default async function JapaneseLearningPage() {
   )
 
   return (
-    <div className="max-w-[1040px] mx-auto px-5 sm:px-6 py-8 sm:py-10 pb-16 space-y-12">
+    <div className="max-w-[1040px] mx-auto px-5 sm:px-6 py-8 sm:py-10 pb-16 space-y-10 sm:space-y-12">
 
       {/* ── Hero ─────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-rose-soft via-cream to-paper border border-line px-6 py-9 sm:px-12 sm:py-14">
-        {/* Layered Japanese-typography motif + soft glow */}
+      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-rose-soft via-cream to-paper border border-line px-6 pt-8 pb-7 sm:px-12 sm:py-14">
+        {/* Layered Japanese-typography motif + soft glow.
+            日本語 watermark is decorative — hidden below sm where it clipped the
+            card edge and crowded the heading; shown from sm up on desktop. */}
         <div aria-hidden className="pointer-events-none absolute inset-0 select-none">
-          <span className="absolute -right-3 -top-4 sm:right-6 sm:top-6 text-[96px] sm:text-[150px] font-bold leading-none text-rose/[0.07]">
+          <span className="hidden sm:block absolute right-6 top-6 text-[150px] font-bold leading-none text-rose/[0.07]">
             日本語
           </span>
           <span className="absolute right-10 bottom-2 hidden lg:block text-[120px] font-bold leading-none text-transparent [-webkit-text-stroke:1px_rgba(194,24,91,0.06)]">
@@ -207,36 +209,39 @@ export default async function JapaneseLearningPage() {
         </div>
 
         <div className="relative z-10">
-          <span className="inline-flex items-center gap-1.5 text-[10.5px] font-bold tracking-[2.5px] uppercase text-rose bg-rose/10 border border-rose/20 px-3 py-1.5 rounded-full mb-5">
+          <span className="inline-flex items-center gap-1.5 text-[10.5px] font-bold tracking-[2.5px] uppercase text-rose bg-rose/10 border border-rose/20 px-3 py-1.5 rounded-full mb-4 sm:mb-5">
             {tt('page_badge')}
           </span>
           <h1 className="font-serif font-bold text-[clamp(28px,5.2vw,46px)] leading-tight tracking-[-0.5px] text-ink mb-3">
             {tt('hero_title')}
           </h1>
-          <p className="text-[14.5px] sm:text-[16px] text-muted leading-relaxed max-w-[560px] mb-7">
+          <p className="text-[14.5px] sm:text-[16px] text-muted leading-relaxed max-w-[560px] mb-6 sm:mb-7">
             {tt('hero_subtitle')}
           </p>
 
           {/* PRIMARY call-to-action */}
           <HeroSearch />
 
-          {/* Suggestion chips — selection shown by fill, never an underline */}
-          <div role="group" aria-label={tt('hero_popular')} className="flex flex-wrap items-center gap-2 mt-5">
-            <span aria-hidden="true" className="text-[13px] font-semibold text-muted mr-0.5">{tt('hero_popular')}</span>
-            {popular.map(p => (
-              <Link
-                key={p.href}
-                href={p.href}
-                aria-current={p.active ? 'true' : undefined}
-                className={`inline-flex items-center min-h-[36px] px-3.5 text-[12.5px] font-medium rounded-full border transition-colors duration-200 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/45 focus-visible:ring-offset-2 focus-visible:ring-offset-cream ${
-                  p.active
-                    ? 'bg-rose text-white border-rose shadow-sm hover:bg-rose-deep hover:border-rose-deep'
-                    : 'bg-rose/[0.07] text-rose border-rose/15 hover:bg-rose/[0.12] hover:text-rose-deep'
-                }`}
-              >
-                {p.label}
-              </Link>
-            ))}
+          {/* Suggestion chips — label on its own overline row above the pills;
+              selection shown by fill, never an underline. */}
+          <div className="mt-5 sm:mt-6">
+            <p className="text-[11px] font-bold tracking-[1.5px] uppercase text-muted mb-2.5">{tt('hero_popular')}</p>
+            <div role="group" aria-label={tt('hero_popular')} className="flex flex-wrap gap-2">
+              {popular.map(p => (
+                <Link
+                  key={p.href}
+                  href={p.href}
+                  aria-current={p.active ? 'true' : undefined}
+                  className={`inline-flex items-center min-h-[44px] px-4 text-[13px] font-medium rounded-full border transition-all duration-200 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/45 focus-visible:ring-offset-2 focus-visible:ring-offset-cream ${
+                    p.active
+                      ? 'bg-rose text-white border-rose shadow-sm hover:bg-rose-deep hover:border-rose-deep'
+                      : 'bg-rose/[0.07] text-rose border-rose/15 hover:bg-rose/[0.12] hover:text-rose-deep'
+                  }`}
+                >
+                  {p.label}
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
       </section>

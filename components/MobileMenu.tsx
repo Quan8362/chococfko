@@ -2,9 +2,11 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
+import { useRouter } from 'next/navigation'
 import ChatUnreadBadge from './ChatUnreadBadge'
 import NavIcon from './NavIcon'
+import { LANGS, Flag } from './LanguageSwitcher'
 import { trackMapOpen } from '@/lib/mapNav'
 
 interface MobileMenuProps {
@@ -16,7 +18,15 @@ export default function MobileMenu({ isLoggedIn }: MobileMenuProps) {
   const t = useTranslations('nav')
   const tConf = useTranslations('confessions')
   const tJp = useTranslations('japanese')
+  const locale = useLocale()
+  const router = useRouter()
   const [open, setOpen] = useState(false)
+
+  const changeLanguage = (code: string) => {
+    document.cookie = `locale=${code}; path=/; max-age=31536000; SameSite=Lax`
+    setOpen(false)
+    router.refresh()
+  }
 
   useEffect(() => {
     if (open) {
@@ -35,7 +45,7 @@ export default function MobileMenu({ isLoggedIn }: MobileMenuProps) {
         onClick={() => setOpen(v => !v)}
         aria-label={t('open_menu')}
         aria-expanded={open}
-        className="xl:hidden flex flex-col justify-center gap-[5px] p-2 -mr-1"
+        className="xl:hidden flex flex-col items-center justify-center gap-[5px] h-11 w-11 -mr-1.5 rounded-lg transition-colors hover:bg-line/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose/40"
       >
         <span className={`block h-[1.5px] w-[20px] bg-ink rounded-full transition-all duration-200 origin-center ${open ? 'rotate-45 translate-y-[6.5px]' : ''}`} />
         <span className={`block h-[1.5px] w-[20px] bg-ink rounded-full transition-all duration-200 ${open ? 'opacity-0 scale-x-0' : ''}`} />
@@ -49,7 +59,28 @@ export default function MobileMenu({ isLoggedIn }: MobileMenuProps) {
             onClick={close}
           />
           <div className="animate-slidedown fixed inset-x-0 top-[68px] z-[96] bg-paper border-b border-line shadow-dropdown xl:hidden">
-            <nav className="px-4 py-3 flex flex-col gap-0.5 max-h-[calc(100dvh-68px)] overflow-y-auto">
+            {/* Utility row — language switcher relocated from the top bar to
+                declutter mobile. Lives outside the scroll area. */}
+            <div className="flex items-center gap-3 px-4 py-2.5 border-b border-line">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-muted/70 shrink-0">{t('language')}</span>
+              <div className="flex items-center gap-1 flex-wrap">
+                {LANGS.map(l => (
+                  <button
+                    key={l.code}
+                    onClick={() => changeLanguage(l.code)}
+                    aria-label={l.label}
+                    aria-current={l.code === locale ? 'true' : undefined}
+                    title={l.label}
+                    className={`grid place-items-center h-10 w-10 rounded-lg border transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose/40 ${
+                      l.code === locale ? 'border-rose bg-rose/[0.07]' : 'border-transparent hover:bg-cream'
+                    }`}
+                  >
+                    <Flag src={l.flag} label={l.label} />
+                  </button>
+                ))}
+              </div>
+            </div>
+            <nav className="px-4 py-3 flex flex-col gap-0.5 max-h-[calc(100dvh-68px-57px)] overflow-y-auto">
               <Link href="/" onClick={close} className="group/m flex items-center gap-3 px-2.5 py-2.5 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
                 <span className="flex-none grid place-items-center w-9 h-9 rounded-lg bg-cream text-muted group-hover/m:bg-rose/10 group-hover/m:text-rose transition-colors"><NavIcon name="explore" /></span>
                 {t('explore')}

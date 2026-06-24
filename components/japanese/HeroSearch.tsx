@@ -19,7 +19,7 @@ export default function HeroSearch() {
     <form
       onSubmit={handleSubmit}
       role="search"
-      className="relative flex items-stretch gap-2 w-full max-w-[560px]"
+      className="relative flex flex-col gap-2.5 sm:flex-row sm:items-stretch sm:gap-2 w-full max-w-[560px]"
     >
       <label htmlFor="jp-hero-search" className="sr-only">
         {t('hero_search_label')}
@@ -47,7 +47,7 @@ export default function HeroSearch() {
       </div>
       <button
         type="submit"
-        className="shrink-0 inline-flex items-center justify-center bg-rose text-white font-semibold text-[14px] px-5 sm:px-6 rounded-xl hover:bg-rose-deep transition-colors shadow-sm"
+        className="shrink-0 inline-flex items-center justify-center w-full sm:w-auto bg-rose text-white font-semibold text-[15px] sm:text-[14px] px-5 sm:px-6 py-3.5 sm:py-0 rounded-xl hover:bg-rose-deep transition-colors duration-150 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose/45 focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
       >
         {t('hero_search_button')}
       </button>

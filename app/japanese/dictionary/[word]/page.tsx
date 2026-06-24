@@ -291,7 +291,7 @@ export default async function WordDetailPage({ params }: { params: { word: strin
                     <p className="text-[10.5px] font-bold text-rose/80 uppercase tracking-wide mb-3">
                       {RELATION_LABEL[group.type]}
                     </p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-stretch">
                       {group.words.map(w => (
                         <WordCard
                           key={w.id}

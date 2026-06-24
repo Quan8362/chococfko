@@ -41,35 +41,53 @@ export default function WordCard({ word, locale = 'vi', actionSlot, footerSlot }
   const firstMeaning = word.meanings?.[0]
   const firstExample = word.examples?.[0]
 
+  const hasBadges = (word.pos && word.pos.length > 0) || !!word.jlpt_level
+
   return (
-    <div className="bg-paper border border-line rounded-2xl p-4 hover:border-rose/30 hover:shadow-[0_4px_20px_-6px_rgba(194,24,91,0.12)] transition-all">
-      {/* Header row */}
-      <div className="flex items-start justify-between gap-3 mb-2">
-        <div className="flex-1 min-w-0">
-          {/* Japanese word — large, clear */}
-          <div className="flex items-baseline gap-2 flex-wrap">
-            <span className="text-[24px] font-bold text-ink leading-none" lang="ja">
-              {word.word}
+    <div className="group relative flex h-full flex-col cursor-pointer bg-paper border border-line rounded-2xl p-4 hover:border-rose/30 hover:bg-cream/40 hover:shadow-[0_6px_24px_-8px_rgba(194,24,91,0.18)] transition-all">
+      {/* Bookmark — pinned top-right so it never competes with the title for width */}
+      {actionSlot && (
+        <div className="absolute top-3 right-3 z-10">{actionSlot}</div>
+      )}
+
+      {/* Row 1 — WORD BLOCK on its own full-width row. The reading sits beside the
+          kanji (wrapping to its own line if needed). Right padding reserves space
+          for the pinned bookmark. break-normal + line-break:strict guarantee CJK
+          never breaks per character. */}
+      <div className="pr-9">
+        <div className="flex items-baseline gap-2 flex-wrap">
+          <span
+            className="text-[24px] font-bold text-ink leading-tight break-normal [line-break:strict] [overflow-wrap:normal] group-hover:text-rose transition-colors"
+            lang="ja"
+          >
+            {word.word}
+          </span>
+          {word.reading && word.reading !== word.word && (
+            <span
+              className="text-[13px] text-muted break-normal [line-break:strict] [overflow-wrap:normal]"
+              lang="ja"
+            >
+              {word.reading}
             </span>
-            {word.reading && word.reading !== word.word && (
-              <span className="text-[13px] text-muted" lang="ja">
-                {word.reading}
-              </span>
-            )}
-          </div>
-          {/* Romaji */}
-          {word.romaji && (
-            <div className="text-[12px] text-muted mt-0.5">{word.romaji}</div>
           )}
         </div>
-        {/* Badges + action */}
-        <div className="flex items-center gap-1.5 shrink-0 mt-0.5">
-          <PosBadges value={word.pos} variant="compact" max={2} />
-          {word.jlpt_level && <JlptBadge level={word.jlpt_level} />}
-          {actionSlot}
-        </div>
+        {/* Romaji */}
+        {word.romaji && (
+          <div className="text-[12px] text-muted mt-0.5">{word.romaji}</div>
+        )}
       </div>
 
+      {/* Row 2 — BADGE ROW beneath the word block, wraps on narrow cards */}
+      {hasBadges && (
+        <div className="flex flex-wrap items-center gap-1.5 mt-2">
+          <PosBadges value={word.pos} variant="compact" max={2} />
+          {word.jlpt_level && <JlptBadge level={word.jlpt_level} />}
+        </div>
+      )}
+
+      {/* Content region — flex-grows so the footer action row pins to the
+          bottom of every card at the same baseline (equal-height cards). */}
+      <div className="flex-1">
       {/* Meanings */}
       {firstMeaning && (
         <div className="mt-2 space-y-0.5">
@@ -108,14 +126,15 @@ export default function WordCard({ word, locale = 'vi', actionSlot, footerSlot }
         </div>
       )}
 
-      {/* First example */}
+      {/* First example — distinct block with a brand-magenta left accent,
+          matching the main entry's "VÍ DỤ" block. */}
       {firstExample && (
-        <div className="mt-3 pt-3 border-t border-line/60">
-          <p className="text-[13px] font-medium text-ink" lang="ja">
+        <div className="mt-3 border-l-2 border-rose/30 pl-3">
+          <p className="text-[13px] font-medium text-ink break-normal [overflow-wrap:normal]" lang="ja">
             {firstExample.ja}
           </p>
           {firstExample.reading && (
-            <p className="text-[11.5px] text-muted mt-0.5" lang="ja">
+            <p className="text-[11.5px] text-muted mt-0.5 break-normal [overflow-wrap:normal]" lang="ja">
               {firstExample.reading}
             </p>
           )}
@@ -131,6 +150,7 @@ export default function WordCard({ word, locale = 'vi', actionSlot, footerSlot }
           )}
         </div>
       )}
+      </div>
 
       {footerSlot && footerSlot}
     </div>

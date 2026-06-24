@@ -35,7 +35,7 @@ export default function MobileMenu({ isLoggedIn }: MobileMenuProps) {
         onClick={() => setOpen(v => !v)}
         aria-label={t('open_menu')}
         aria-expanded={open}
-        className="md:hidden flex flex-col justify-center gap-[5px] p-2 -mr-1"
+        className="xl:hidden flex flex-col justify-center gap-[5px] p-2 -mr-1"
       >
         <span className={`block h-[1.5px] w-[20px] bg-ink rounded-full transition-all duration-200 origin-center ${open ? 'rotate-45 translate-y-[6.5px]' : ''}`} />
         <span className={`block h-[1.5px] w-[20px] bg-ink rounded-full transition-all duration-200 ${open ? 'opacity-0 scale-x-0' : ''}`} />
@@ -45,10 +45,10 @@ export default function MobileMenu({ isLoggedIn }: MobileMenuProps) {
       {open && (
         <>
           <div
-            className="fixed inset-0 z-[95] bg-ink/20 backdrop-blur-[2px] md:hidden"
+            className="fixed inset-0 z-[95] bg-ink/20 backdrop-blur-[2px] xl:hidden"
             onClick={close}
           />
-          <div className="animate-slidedown fixed inset-x-0 top-[68px] z-[96] bg-paper border-b border-line shadow-dropdown md:hidden">
+          <div className="animate-slidedown fixed inset-x-0 top-[68px] z-[96] bg-paper border-b border-line shadow-dropdown xl:hidden">
             <nav className="px-4 py-3 flex flex-col gap-0.5 max-h-[calc(100dvh-68px)] overflow-y-auto">
               <Link href="/" onClick={close} className="group/m flex items-center gap-3 px-2.5 py-2.5 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
                 <span className="flex-none grid place-items-center w-9 h-9 rounded-lg bg-cream text-muted group-hover/m:bg-rose/10 group-hover/m:text-rose transition-colors"><NavIcon name="explore" /></span>

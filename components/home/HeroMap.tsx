@@ -9,33 +9,60 @@ import { useTranslations } from "next-intl";
 // they stay aligned at every breakpoint as long as the container keeps the
 // image's native aspect ratio (1586×992) with object-contain — no letterbox,
 // percentages map 1:1. Calibrated visually against /bg_web.png.
-const MARKERS: { id: string; left: number; top: number }[] = [
-  { id: "sapporo", left: 73, top: 17 },
-  { id: "sendai", left: 82, top: 30 },
-  { id: "nikko", left: 72, top: 44 },
-  { id: "tokyo", left: 85, top: 48 },
-  { id: "yokohama", left: 83, top: 52 },
-  { id: "kamakura", left: 80, top: 55 },
-  { id: "hakone", left: 74, top: 53 },
-  { id: "mount_fuji", left: 67, top: 53 },
-  { id: "nagoya", left: 60, top: 57 },
-  { id: "nara", left: 63, top: 64 },
-  { id: "osaka", left: 53, top: 66 },
-  { id: "kobe", left: 46, top: 58 },
-  { id: "kyoto", left: 53, top: 53 },
-  { id: "kanazawa", left: 48, top: 43 },
-  { id: "shirakawago", left: 58, top: 38 },
-  { id: "hiroshima", left: 38, top: 55 },
-  { id: "miyajima", left: 36, top: 69 },
-  { id: "beppu", left: 24, top: 72 },
-  { id: "dazaifu", left: 24, top: 57 },
-  { id: "fukuoka", left: 18, top: 62 },
-  { id: "nagasaki", left: 10, top: 73 },
-  { id: "okinawa", left: 10, top: 89 },
+//
+// labelTier — single source of truth for which static chips render:
+//   'all'     → chip on mobile + tablet + desktop (6 anchor cities)
+//   'desktop' → chip ONLY at ≥1280px (xl); hidden on mobile + tablet (4 cities)
+//   'hover'   → never static; label reveals on hover (desktop) / tap (touch)
+// labelPos — which side the chip sits relative to its dot, so the dot stays on
+//   the landmark while the chip is offset into open sea / empty space.
+type LabelTier = "all" | "desktop" | "hover";
+type LabelPos = "top" | "bottom" | "left" | "right";
+const MARKERS: {
+  id: string;
+  left: number;
+  top: number;
+  labelTier: LabelTier;
+  labelPos: LabelPos;
+}[] = [
+  { id: "sapporo", left: 73, top: 17, labelTier: "all", labelPos: "top" },
+  { id: "sendai", left: 82, top: 30, labelTier: "hover", labelPos: "right" },
+  { id: "nikko", left: 72, top: 44, labelTier: "hover", labelPos: "top" },
+  { id: "tokyo", left: 85, top: 48, labelTier: "all", labelPos: "right" },
+  { id: "yokohama", left: 83, top: 52, labelTier: "hover", labelPos: "right" },
+  { id: "kamakura", left: 80, top: 55, labelTier: "hover", labelPos: "bottom" },
+  { id: "hakone", left: 74, top: 53, labelTier: "hover", labelPos: "top" },
+  { id: "mount_fuji", left: 67, top: 53, labelTier: "desktop", labelPos: "top" },
+  { id: "nagoya", left: 60, top: 57, labelTier: "desktop", labelPos: "bottom" },
+  { id: "nara", left: 63, top: 64, labelTier: "desktop", labelPos: "right" },
+  { id: "osaka", left: 53, top: 66, labelTier: "all", labelPos: "bottom" },
+  { id: "kobe", left: 46, top: 58, labelTier: "hover", labelPos: "left" },
+  { id: "kyoto", left: 53, top: 53, labelTier: "all", labelPos: "top" },
+  { id: "kanazawa", left: 48, top: 43, labelTier: "hover", labelPos: "top" },
+  { id: "shirakawago", left: 58, top: 38, labelTier: "hover", labelPos: "top" },
+  { id: "hiroshima", left: 38, top: 55, labelTier: "desktop", labelPos: "left" },
+  { id: "miyajima", left: 36, top: 69, labelTier: "hover", labelPos: "bottom" },
+  { id: "beppu", left: 24, top: 72, labelTier: "hover", labelPos: "bottom" },
+  { id: "dazaifu", left: 24, top: 57, labelTier: "hover", labelPos: "right" },
+  { id: "fukuoka", left: 18, top: 62, labelTier: "all", labelPos: "left" },
+  { id: "nagasaki", left: 10, top: 73, labelTier: "hover", labelPos: "left" },
+  { id: "okinawa", left: 10, top: 89, labelTier: "all", labelPos: "top" },
 ];
+
+// Chip placement classes per side. Each anchors the chip off the dot and adds a
+// small directional lift on hover (composes with the centring translate vars).
+const CHIP_POS: Record<LabelPos, string> = {
+  top: "bottom-full left-1/2 -translate-x-1/2 mb-1.5 group-hover:-translate-y-0.5",
+  bottom: "top-full left-1/2 -translate-x-1/2 mt-1.5 group-hover:translate-y-0.5",
+  left: "right-full top-1/2 -translate-y-1/2 mr-1.5 group-hover:-translate-x-0.5",
+  right: "left-full top-1/2 -translate-y-1/2 ml-1.5 group-hover:translate-x-0.5",
+};
 
 export default function HeroMap({ alt }: { alt: string }) {
   const t = useTranslations("home.map_markers");
+  // Which marker's label is open via tap (touch). Only one at a time, so tapping
+  // a new marker closes any other; tapping the same one toggles it off.
+  const [openId, setOpenId] = useState<string | null>(null);
   const ref = useRef<HTMLDivElement>(null);
   const floatRef = useRef<HTMLDivElement>(null);
   const [y, setY] = useState(0);
@@ -145,18 +172,41 @@ export default function HeroMap({ alt }: { alt: string }) {
             pointer-events-none; each marker re-enables pointer events so hover
             works without blocking page scroll elsewhere. */}
         <div className="absolute inset-0">
-          {MARKERS.map((m) => (
-            <div
-              key={m.id}
-              className="group absolute z-[2] pointer-events-auto hover:z-20"
-              style={{ left: `${m.left}%`, top: `${m.top}%`, transform: "translate(-50%, -50%)" }}
-            >
-              <span className="absolute bottom-full left-1/2 mb-1 -translate-x-1/2 whitespace-nowrap rounded-full border border-rose/15 bg-cream/85 px-2 py-0.5 text-[9px] sm:text-[10px] font-semibold leading-none text-ink/90 shadow-[0_1px_4px_rgba(120,60,40,0.18)] backdrop-blur-[1px] transition-all duration-200 ease-out group-hover:-translate-y-0.5 group-hover:bg-cream group-hover:shadow-[0_6px_16px_-4px_rgba(194,24,91,0.35)]">
-                {t(m.id)}
-              </span>
-              <span className="block h-2 w-2 rounded-full bg-rose shadow-[0_0_0_2px_rgba(255,255,255,0.85),0_2px_5px_rgba(194,24,91,0.45)] transition-transform duration-200 ease-out group-hover:scale-150" />
-            </div>
-          ))}
+          {MARKERS.map((m, i) => {
+            const isOpen = openId === m.id;
+            // Static visibility by tier; tap (isOpen) and hover always reveal.
+            const vis =
+              m.labelTier === "all" || isOpen
+                ? "opacity-100"
+                : m.labelTier === "desktop"
+                  ? "opacity-0 xl:opacity-100 group-hover:opacity-100"
+                  : "opacity-0 group-hover:opacity-100";
+            return (
+              <div
+                key={m.id}
+                onClick={() => setOpenId((p) => (p === m.id ? null : m.id))}
+                className={`group absolute pointer-events-auto cursor-pointer hover:z-20 ${isOpen ? "z-20" : "z-[2]"}`}
+                style={{ left: `${m.left}%`, top: `${m.top}%`, transform: "translate(-50%, -50%)" }}
+              >
+                <span
+                  className={`pointer-events-none absolute whitespace-nowrap rounded-full border border-rose/15 bg-cream/85 px-2 py-0.5 text-[9px] sm:text-[10px] font-semibold leading-none text-ink/90 shadow-[0_1px_4px_rgba(120,60,40,0.18)] backdrop-blur-[1px] transition-all duration-200 ease-out group-hover:bg-cream group-hover:shadow-[0_6px_16px_-4px_rgba(194,24,91,0.35)] ${CHIP_POS[m.labelPos]} ${vis}`}
+                >
+                  {t(m.id)}
+                </span>
+                {/* Pin dot — solid brand-magenta dot with a soft expanding ring,
+                    reusing the community status indicator's animate-ping. Stagger
+                    the ring per index so they pulse organically; motion-safe drops
+                    the pulse entirely under prefers-reduced-motion. */}
+                <span className="relative flex h-2 w-2">
+                  <span
+                    className="motion-safe:animate-ping absolute inline-flex h-full w-full rounded-full bg-rose/60"
+                    style={{ animationDelay: `${(i * 120) % 960}ms` }}
+                  />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-rose shadow-[0_0_0_2px_rgba(255,255,255,0.85),0_2px_5px_rgba(194,24,91,0.45)] transition-transform duration-200 ease-out group-hover:scale-150" />
+                </span>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>

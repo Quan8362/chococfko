@@ -44,8 +44,10 @@ export default async function Nav() {
         {/* Logo — bên trái. Always "return to homepage/default state" (see HomeLogo). */}
         <HomeLogo label={t('logo_home')} />
 
-        {/* Desktop nav — absolute center */}
-        <nav className="hidden md:flex flex-1 justify-center items-center gap-0.5 lg:gap-1 text-[14px] lg:text-[14.5px] font-medium text-[#5c4d44]">
+        {/* Desktop nav — full horizontal nav only at ≥1280px (xl). Below that
+            (incl. all tablet/iPad widths) it collapses into the hamburger so the
+            right icon cluster never gets clipped. */}
+        <nav className="hidden xl:flex flex-1 justify-center items-center gap-0.5 lg:gap-1 text-[14px] lg:text-[14.5px] font-medium text-[#5c4d44]">
           <NavDropdown
             label={t('explore')}
             items={[

@@ -1468,7 +1468,13 @@
       "empty_hint": "Vui lòng chọn chủ đề khác.",
       "breadcrumb": "Mini Game",
       "solo": "1 người",
-      "place_count": "{count} địa điểm"
+      "place_count": "{count} địa điểm",
+      "result_empty_title": "Kết quả của bạn sẽ xuất hiện ở đây 🎯",
+      "result_empty_sub": "Mỗi vòng quay là một gợi ý mới — biết đâu bạn tìm được nơi cho cuối tuần này!",
+      "how_label": "Cách chơi",
+      "how_step_pick": "Chọn chủ đề",
+      "how_step_spin": "Nhấn Quay ngay",
+      "how_step_go": "Nhận điểm đến"
     },
     "caro": {
       "badge": "⚫ Cờ Caro",

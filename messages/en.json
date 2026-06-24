@@ -1468,7 +1468,13 @@
       "empty_hint": "Please choose another category.",
       "breadcrumb": "Mini Game",
       "solo": "1 player",
-      "place_count": "{count} places"
+      "place_count": "{count} places",
+      "result_empty_title": "Your result will appear here 🎯",
+      "result_empty_sub": "Every spin is a fresh suggestion — maybe you'll find your spot for this weekend!",
+      "how_label": "How it works",
+      "how_step_pick": "Pick a topic",
+      "how_step_spin": "Hit Spin",
+      "how_step_go": "Get a place"
     },
     "caro": {
       "badge": "⚫ Gomoku",

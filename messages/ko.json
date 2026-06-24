@@ -1463,7 +1463,13 @@
       "empty_hint": "다른 카테고리를 선택해 주세요.",
       "breadcrumb": "미니게임",
       "solo": "1인",
-      "place_count": "{count} 곳"
+      "place_count": "{count} 곳",
+      "result_empty_title": "결과가 여기에 표시됩니다 🎯",
+      "result_empty_sub": "돌릴 때마다 새로운 추천 — 이번 주말 갈 곳을 찾을지도 몰라요!",
+      "how_label": "이용 방법",
+      "how_step_pick": "주제 선택",
+      "how_step_spin": "돌리기",
+      "how_step_go": "장소 받기"
     },
     "page_badge": "🎮 미니게임",
     "page_heading": "재미 코너 — 함께 즐겨요",

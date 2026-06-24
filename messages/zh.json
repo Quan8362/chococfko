@@ -1463,7 +1463,13 @@
       "empty_hint": "请选择其他分类。",
       "breadcrumb": "迷你游戏",
       "solo": "1人",
-      "place_count": "{count} 个地点"
+      "place_count": "{count} 个地点",
+      "result_empty_title": "你的结果会显示在这里 🎯",
+      "result_empty_sub": "每一次转动都是新建议 —— 也许就能找到这周末的好去处！",
+      "how_label": "玩法",
+      "how_step_pick": "选择主题",
+      "how_step_spin": "点击转动",
+      "how_step_go": "获得地点"
     },
     "page_badge": "🎮 小游戏",
     "page_heading": "娱乐角 — 与社区一起玩",

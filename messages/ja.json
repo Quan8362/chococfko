@@ -1468,7 +1468,13 @@
       "empty_hint": "別のカテゴリを選んでください。",
       "breadcrumb": "ミニゲーム",
       "solo": "1人",
-      "place_count": "{count} 件のスポット"
+      "place_count": "{count} 件のスポット",
+      "result_empty_title": "結果はここに表示されます 🎯",
+      "result_empty_sub": "回すたびに新しい提案 — 今週末の行き先が見つかるかも！",
+      "how_label": "遊び方",
+      "how_step_pick": "テーマを選ぶ",
+      "how_step_spin": "回す",
+      "how_step_go": "行き先をゲット"
     },
     "caro": {
       "badge": "⚫ 五目並べ",

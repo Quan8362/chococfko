@@ -189,8 +189,10 @@ export default function DestinationWheel({ places, categories }: Props) {
         {/* Wheel card */}
         <div className="bg-paper border border-line rounded-2xl p-6 sm:p-7 shadow-card flex flex-col items-center">
 
-          {/* Wheel */}
-          <div className="relative mx-auto w-[min(78vw,300px)] aspect-square">
+          {/* Wheel — centred in the available height so the left column balances
+              the (taller) result card instead of leaving a gap below the wheel */}
+          <div className="flex-1 grid place-items-center w-full">
+          <div className="relative mx-auto w-[min(80vw,340px)] aspect-square">
             {/* Pointer (fixed at the top, points down into the wheel) */}
             <div className="absolute left-1/2 -translate-x-1/2 -top-1 z-20 filter drop-shadow-[0_2px_2px_rgba(36,26,23,0.25)]">
               <div className="w-0 h-0 border-l-[11px] border-r-[11px] border-t-[18px] border-l-transparent border-r-transparent border-t-rose" />
@@ -215,14 +217,22 @@ export default function DestinationWheel({ places, categories }: Props) {
                   willChange: 'transform',
                 }}
               >
-                {/* Emoji labels, one per segment, riding the wheel */}
+                {/* Emoji labels — pinned to each segment but kept UPRIGHT: counter-
+                    rotate the slice angle AND the live wheel rotation, so the glyph
+                    never tilts with the spinning slice. The matching transition keeps
+                    it upright smoothly throughout the spin. */}
                 {segments.map((cat, i) => {
                   const angle = i * segAngle + segAngle / 2
                   return (
                     <div key={cat.code} className="absolute inset-0" style={{ transform: `rotate(${angle}deg)` }}>
                       <span
-                        className="absolute left-1/2 top-[6%] text-[clamp(13px,3.4vw,19px)] select-none leading-none"
-                        style={{ transform: `translateX(-50%) rotate(${-angle}deg)` }}
+                        className="absolute left-1/2 top-[8%] text-[clamp(17px,4.4vw,25px)] select-none leading-none drop-shadow-[0_1px_1.5px_rgba(255,255,255,0.9)]"
+                        style={{
+                          transform: `translateX(-50%) rotate(${-angle - rotation}deg)`,
+                          transitionProperty: 'transform',
+                          transitionDuration: `${spinMs}ms`,
+                          transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)',
+                        }}
                       >
                         {CATEGORY_EMOJI[cat.code] ?? '📍'}
                       </span>
@@ -232,14 +242,15 @@ export default function DestinationWheel({ places, categories }: Props) {
               </div>
             </div>
 
-            {/* Static hub */}
-            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 w-14 h-14 rounded-full bg-paper border border-line shadow-md grid place-items-center text-[24px] select-none">
-              🎡
+            {/* Static hub — compass mark for the travel / destination theme */}
+            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 w-14 h-14 rounded-full bg-paper border border-line shadow-md grid place-items-center text-[26px] select-none">
+              🧭
             </div>
+          </div>
           </div>
 
           {/* Controls */}
-          <div className="w-full mt-7">
+          <div className="w-full mt-6">
             {noPlaces ? (
               <div className="text-center space-y-2">
                 <p className="text-[14px] text-muted">{t('empty_category')}</p>
@@ -443,7 +454,7 @@ function ResultCard({
             href={place.mapUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-teal/10 text-teal border border-teal/30 font-semibold text-[14px] hover:bg-teal/20 transition-all hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal/40 focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+            className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-paper text-rose border border-rose/35 font-semibold text-[14px] hover:bg-rose/5 hover:border-rose/55 transition-all hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/45 focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
           >
             🗺️ {tMap}
           </a>

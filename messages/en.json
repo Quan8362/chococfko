@@ -990,7 +990,10 @@
       "deleted": "Deleted"
     },
     "leaveComment": "Leave a comment",
-    "loginAnonHint": "You can comment anonymously after signing in."
+    "loginAnonHint": "You can comment anonymously after signing in.",
+    "statsTitle": "FKO community",
+    "statsConfessions": "confessions",
+    "statsHint": "Stories shared anonymously."
   },
   "admin": {
     "marketplace_title": "Secondhand market",

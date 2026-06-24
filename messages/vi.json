@@ -990,7 +990,10 @@
       "deleted": "Đã xóa"
     },
     "leaveComment": "Để lại bình luận",
-    "loginAnonHint": "Bạn có thể bình luận ẩn danh sau khi đăng nhập."
+    "loginAnonHint": "Bạn có thể bình luận ẩn danh sau khi đăng nhập.",
+    "statsTitle": "Cộng đồng FKO",
+    "statsConfessions": "confession",
+    "statsHint": "Những câu chuyện được chia sẻ ẩn danh."
   },
   "admin": {
     "marketplace_title": "Chợ đồ cũ",

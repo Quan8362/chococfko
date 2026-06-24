@@ -990,7 +990,10 @@
       "deleted": "삭제됨"
     },
     "leaveComment": "댓글 남기기",
-    "loginAnonHint": "로그인 후 익명으로 댓글을 달 수 있습니다."
+    "loginAnonHint": "로그인 후 익명으로 댓글을 달 수 있습니다.",
+    "statsTitle": "FKO 커뮤니티",
+    "statsConfessions": "컨페션",
+    "statsHint": "익명으로 공유된 이야기."
   },
   "admin": {
     "marketplace_title": "중고마켓",

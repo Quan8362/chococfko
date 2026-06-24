@@ -990,7 +990,10 @@
       "deleted": "削除済み"
     },
     "leaveComment": "コメントを残す",
-    "loginAnonHint": "ログイン後、匿名でコメントできます。"
+    "loginAnonHint": "ログイン後、匿名でコメントできます。",
+    "statsTitle": "FKOコミュニティ",
+    "statsConfessions": "コンフェッション",
+    "statsHint": "匿名で共有されたストーリー。"
   },
   "admin": {
     "marketplace_title": "中古マーケット",

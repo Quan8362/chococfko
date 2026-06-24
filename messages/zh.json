@@ -990,7 +990,10 @@
       "deleted": "已删除"
     },
     "leaveComment": "留下评论",
-    "loginAnonHint": "登录后可以匿名评论。"
+    "loginAnonHint": "登录后可以匿名评论。",
+    "statsTitle": "FKO 社区",
+    "statsConfessions": "心声",
+    "statsHint": "匿名分享的故事。"
   },
   "admin": {
     "marketplace_title": "二手市场",

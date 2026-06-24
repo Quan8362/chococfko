@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
-import { getApprovedConfessions, relativeConfessionDate, type Confession } from '@/lib/confessions'
+import { getApprovedConfessions, getConfessionStats, relativeConfessionDate, type Confession } from '@/lib/confessions'
 import { getCurrentUserAccess } from '@/lib/access-server'
 import { validateRequestedScope, canAccessScope } from '@/lib/access'
 import ScopeTabs from '@/components/access/ScopeTabs'
@@ -41,7 +41,7 @@ function ConfessionCard({ confession, t }: { confession: Confession; t: (key: st
         {/* Author row */}
         <div className="flex items-center gap-2 mb-3.5">
           {confession.is_anonymous ? (
-            <AnonAvatar size={26} />
+            <AnonAvatar size={26} id={confession.id} />
           ) : (
             <UserAvatar
               src={confession.visible_author_avatar}
@@ -51,7 +51,7 @@ function ConfessionCard({ confession, t }: { confession: Confession; t: (key: st
           )}
           <span className="text-[12.5px] font-semibold text-ink/80">{authorName}</span>
           <span className="text-muted/50 text-[11px]">·</span>
-          <span className="text-[11.5px] text-muted">{relativeConfessionDate(confession.created_at)}</span>
+          <span className="text-[11.5px] text-[#8a7d72]">{relativeConfessionDate(confession.created_at)}</span>
         </div>
 
         {/* Title */}
@@ -60,7 +60,7 @@ function ConfessionCard({ confession, t }: { confession: Confession; t: (key: st
         </h3>
 
         {/* Content preview */}
-        <p className="text-[13.5px] text-[#6b5b50] leading-[1.72] line-clamp-3">
+        <p className="text-[13.5px] text-[#4a3f38] leading-[1.72] line-clamp-2">
           {rawPreview}
         </p>
       </div>
@@ -85,12 +85,18 @@ function ConfessionCard({ confession, t }: { confession: Confession; t: (key: st
 }
 
 // ── 3 horizontal info cards ───────────────────────────────────────────────────
-function InfoCards({ t }: { t: (key: string) => string }) {
+function InfoCards({
+  t,
+  stats,
+}: {
+  t: (key: string) => string
+  stats: { confessions: number; comments: number }
+}) {
   const RULES = [t('rule1'), t('rule2'), t('rule3'), t('rule4')]
   const RULE_ICONS = ['🤝', '🔒', '💬', '✅']
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8 -mt-6 relative z-10">
 
       {/* Card 1: What is a confession */}
       <div className="bg-paper border border-line rounded-2xl p-6 flex flex-col">
@@ -117,22 +123,26 @@ function InfoCards({ t }: { t: (key: string) => string }) {
         </ul>
       </div>
 
-      {/* Card 3: CTA */}
+      {/* Card 3: Community stats */}
       <div className="relative bg-gradient-to-br from-[#fdeef5] via-[#fdf2f7] to-[#f9f4f0] border border-rose/20 rounded-2xl p-6 flex flex-col overflow-hidden">
         <div className="absolute -top-8 -right-8 w-28 h-28 rounded-full bg-rose/[0.07] pointer-events-none" />
         <div className="absolute -bottom-6 -left-4 w-20 h-20 rounded-full bg-teal/[0.05] pointer-events-none" />
         <div className="relative flex-1 flex flex-col">
-          <div className="flex items-center gap-3 mb-3.5">
-            <div className="w-9 h-9 rounded-xl bg-rose/15 grid place-items-center text-[18px] flex-none">✍️</div>
-            <h3 className="font-serif font-bold text-[15.5px] text-ink leading-snug">{t('sidebarCtaTitle')}</h3>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-9 h-9 rounded-xl bg-rose/15 grid place-items-center text-[18px] flex-none">✨</div>
+            <h3 className="font-serif font-bold text-[15.5px] text-ink leading-snug">{t('statsTitle')}</h3>
           </div>
-          <p className="text-[13px] text-muted leading-[1.75] mb-5 flex-1">{t('subtitle')}</p>
-          <Link
-            href="/confessions/write"
-            className="self-start inline-flex items-center gap-1.5 font-semibold text-[13px] px-5 py-2.5 rounded-full bg-rose text-white hover:bg-rose-deep transition-all shadow-[0_3px_14px_-3px_rgba(194,24,91,0.45)] hover:-translate-y-px"
-          >
-            ✍️ {t('writeButton')}
-          </Link>
+          <div className="flex gap-7 mb-3">
+            <div>
+              <div className="font-serif font-bold text-[27px] text-rose leading-none">{stats.confessions}</div>
+              <div className="text-[12px] text-muted mt-1.5">{t('statsConfessions')}</div>
+            </div>
+            <div>
+              <div className="font-serif font-bold text-[27px] text-teal leading-none">{stats.comments}</div>
+              <div className="text-[12px] text-muted mt-1.5">{t('commentCount')}</div>
+            </div>
+          </div>
+          <p className="text-[12.5px] text-muted leading-[1.7] mt-auto">{t('statsHint')}</p>
         </div>
       </div>
 
@@ -151,10 +161,11 @@ export default async function ConfessionsPage({
   const scope = validateRequestedScope(searchParams.scope, access)
   const canInternal = canAccessScope(access, 'fko_internal')
 
-  const [t, tAccess, confessions] = await Promise.all([
+  const [t, tAccess, confessions, stats] = await Promise.all([
     getTranslations('confessions'),
     getTranslations('access'),
     getApprovedConfessions(sort, scope),
+    getConfessionStats(scope),
   ])
 
   const writeHref = `/confessions/write?scope=${scope}`
@@ -167,12 +178,11 @@ export default async function ConfessionsPage({
   return (
     <>
       {/* ── HERO ─────────────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-[#fdeef5] via-[#fdf5f8] to-cream border-b border-rose/10">
-        <div className="absolute -top-[100px] -right-[80px] w-[340px] h-[340px] rounded-full bg-[radial-gradient(circle,rgba(194,24,91,0.08),transparent_60%)] pointer-events-none" />
+      <section className="relative overflow-hidden bg-gradient-to-b from-[#fdeef5] via-[#fdf5f8] to-cream">
+        <div className="absolute -top-[120px] right-[6%] w-[420px] h-[420px] rounded-full bg-[radial-gradient(circle,rgba(194,24,91,0.10),transparent_62%)] pointer-events-none" />
         <div className="absolute -bottom-[50px] -left-[60px] w-[240px] h-[240px] rounded-full bg-[radial-gradient(circle,rgba(31,143,166,0.06),transparent_60%)] pointer-events-none" />
-        <div className="absolute top-[30%] right-[20%] w-[180px] h-[180px] rounded-full bg-rose/[0.04] pointer-events-none" />
 
-        <div className="max-w-[1100px] mx-auto px-6 pt-12 pb-12 relative z-[1]">
+        <div className="max-w-[1100px] mx-auto px-6 pt-12 pb-7 relative z-[1]">
           <div className="max-w-[620px] animate-fadeup">
             <span className="inline-flex items-center gap-1.5 text-[10.5px] font-bold tracking-[2.5px] uppercase text-rose bg-rose/10 border border-rose/20 px-3.5 py-1.5 rounded-full mb-5">
               🤫 FKO Confessions
@@ -196,11 +206,11 @@ export default async function ConfessionsPage({
       </section>
 
       {/* ── MAIN CONTENT ─────────────────────────────────────────────────── */}
-      <section className="py-8 pb-20 min-h-[50vh]">
+      <section className="pb-20 min-h-[50vh]">
         <div className="max-w-[1100px] mx-auto px-6">
 
           {/* ── 3 INFO CARDS ─────────────────────────────────────────────── */}
-          <InfoCards t={t} />
+          <InfoCards t={t} stats={stats} />
 
           {/* ── SCOPE TABS (Cộng đồng | 🔒 Nội bộ FKO) ───────────────────── */}
           <ScopeTabs
@@ -214,22 +224,22 @@ export default async function ConfessionsPage({
 
           {scope === 'fko_internal' && <InternalNotice text={tAccess('internal_area_notice')} />}
 
-          {/* ── TABS ─────────────────────────────────────────────────────── */}
-          <div className="flex items-center gap-2 mb-6 overflow-x-auto pb-1">
+          {/* ── SORT TABS — underlined, distinct from the scope toggle ────── */}
+          <div className="flex items-center gap-6 mb-6 border-b border-line overflow-x-auto">
             {TABS.map((tab) => (
               <Link
                 key={tab.key}
                 href={`/confessions?scope=${scope}&sort=${tab.key}`}
-                className={`inline-flex items-center gap-1.5 text-[13px] font-medium px-4 py-2.5 rounded-full border transition-all whitespace-nowrap flex-none ${
+                className={`inline-flex items-center gap-1.5 text-[13.5px] font-semibold pb-2.5 -mb-px border-b-2 transition-all whitespace-nowrap flex-none ${
                   sort === tab.key
-                    ? 'bg-rose text-white border-rose shadow-[0_2px_12px_rgba(194,24,91,0.3)]'
-                    : 'bg-paper text-[#5c4d44] border-line hover:bg-rose-soft hover:border-rose/35 hover:text-rose'
+                    ? 'border-rose text-rose'
+                    : 'border-transparent text-[#8a7d72] hover:text-ink'
                 }`}
               >
                 <span className="text-[12px]">{tab.icon}</span>
                 {tab.label}
                 {sort === tab.key && confessions.length > 0 && (
-                  <span className="text-[11px] font-bold bg-white/25 text-white px-1.5 py-0.5 rounded-full min-w-[20px] text-center">
+                  <span className="text-[11px] font-bold bg-rose/10 text-rose px-1.5 py-0.5 rounded-full min-w-[20px] text-center">
                     {confessions.length}
                   </span>
                 )}
@@ -259,6 +269,16 @@ export default async function ConfessionsPage({
               {confessions.map((c) => (
                 <ConfessionCard key={c.id} confession={c} t={t} />
               ))}
+              {/* CTA card — gives the grid an intentional terminus instead of a
+                  lone orphan trailing the last full row. */}
+              <Link
+                href={writeHref}
+                className="group flex flex-col items-center justify-center text-center gap-3 rounded-2xl border-2 border-dashed border-rose/25 bg-rose-soft/40 p-6 min-h-[180px] hover:border-rose/50 hover:bg-rose-soft transition-all"
+              >
+                <span className="w-12 h-12 rounded-full bg-rose/10 grid place-items-center text-[22px] group-hover:scale-105 transition-transform">✍️</span>
+                <span className="font-serif font-bold text-[16px] text-ink leading-snug">{t('sidebarCtaTitle')}</span>
+                <span className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-rose">{t('writeButton')}</span>
+              </Link>
             </div>
           )}
 

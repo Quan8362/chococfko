@@ -54,6 +54,33 @@ export async function getApprovedConfessions(
   }
 }
 
+/**
+ * True totals for a scope — count of approved confessions and the summed
+ * comment_count across ALL of them, independent of the paged list limit.
+ */
+export async function getConfessionStats(
+  scope: Scope = 'community',
+): Promise<{ confessions: number; comments: number }> {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return { confessions: 0, comments: 0 }
+  try {
+    const { createClient } = await import('@/lib/supabase/server')
+    const supabase = createClient()
+    const { data, count, error } = await supabase
+      .from('confessions_public')
+      .select('comment_count', { count: 'exact' })
+      .eq('status', 'approved')
+      .eq('community_scope', scope)
+    if (error || !data) return { confessions: 0, comments: 0 }
+    const comments = data.reduce(
+      (sum, r) => sum + ((r as { comment_count: number }).comment_count ?? 0),
+      0,
+    )
+    return { confessions: count ?? data.length, comments }
+  } catch {
+    return { confessions: 0, comments: 0 }
+  }
+}
+
 export async function getConfessionById(id: string): Promise<Confession | null> {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !isUuid(id)) return null
   try {

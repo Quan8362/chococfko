@@ -51,9 +51,10 @@ interface WheelProps {
   spinning: boolean
   hovered?: number | null
   onHover?: (i: number | null) => void
+  svgRef?: React.Ref<SVGSVGElement>
 }
 
-function WheelSVG({ entries, rotation, spinning, hovered = null, onHover }: WheelProps) {
+function WheelSVG({ entries, rotation, spinning, hovered = null, onHover, svgRef }: WheelProps) {
   const n = entries.length
 
   // Applied to the <svg> element — rotates the whole wheel
@@ -71,7 +72,7 @@ function WheelSVG({ entries, rotation, spinning, hovered = null, onHover }: Whee
 
   if (n === 0) {
     return (
-      <svg viewBox={`0 0 ${W} ${W}`} style={svgStyle}>
+      <svg ref={svgRef} viewBox={`0 0 ${W} ${W}`} style={svgStyle}>
         {/* Outer shadow ring */}
         <circle cx={CX} cy={CY} r={R + 6} fill="rgba(0,0,0,0.04)" />
         <circle cx={CX} cy={CY} r={R} fill="#ede8e0" stroke="#c8b89a" strokeWidth={3} />
@@ -95,7 +96,7 @@ function WheelSVG({ entries, rotation, spinning, hovered = null, onHover }: Whee
   const slicePath = n > 1 ? buildSlicePath(n) : ''
 
   return (
-    <svg viewBox={`0 0 ${W} ${W}`} style={svgStyle}>
+    <svg ref={svgRef} viewBox={`0 0 ${W} ${W}`} style={svgStyle}>
       {/* Subtle outer shadow band */}
       <circle cx={CX} cy={CY} r={R + 5} fill="rgba(0,0,0,0.07)" />
 
@@ -201,7 +202,8 @@ export default function RandomWheelClient() {
   const reducedRef            = useRef(false)
   const soundOnRef            = useRef(false)
   const audioCtxRef           = useRef<AudioContext | null>(null)
-  const tickTimerRef          = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const tickRafRef            = useRef<number>(0)
+  const wheelSvgRef           = useRef<SVGSVGElement | null>(null)
 
   // ── Honour prefers-reduced-motion (skip confetti, no tick scheduling) ──────
   useEffect(() => {
@@ -212,47 +214,127 @@ export default function RandomWheelClient() {
     return () => mq.removeEventListener?.('change', onChange)
   }, [])
 
-  // ── Spin tick sound (WebAudio, off by default, toggleable) ─────────────────
-  const playTick = useCallback((progress: number) => {
+  // ── Create / resume the AudioContext (MUST run inside a user gesture for iOS) ─
+  const ensureAudio = useCallback((): AudioContext | null => {
     try {
       let ctx = audioCtxRef.current
       if (!ctx) {
         const Ctor = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
-        if (!Ctor) return
+        if (!Ctor) return null
         ctx = new Ctor()
         audioCtxRef.current = ctx
       }
       if (ctx.state === 'suspended') ctx.resume()
+      return ctx
+    } catch { return null }
+  }, [])
+
+  // ── A single peg "tick" (synthesised square blip; very short, very quiet) ──
+  // `progress` = 1 at spin start → 0 at stop. Ticks are denser when fast, so we
+  // pitch them higher AND keep them quieter early to avoid a harsh machine-gun.
+  const playTick = useCallback((progress: number) => {
+    const ctx = audioCtxRef.current
+    if (!ctx || ctx.state !== 'running') return
+    try {
       const now  = ctx.currentTime
       const osc  = ctx.createOscillator()
       const gain = ctx.createGain()
       osc.type = 'square'
       osc.frequency.value = 360 + progress * 520        // higher pitch early, lower as it slows
+      const peak = 0.05 - progress * 0.034              // ≈0.016 when dense → 0.05 near the stop
       gain.gain.setValueAtTime(0.0001, now)
-      gain.gain.exponentialRampToValueAtTime(0.05, now + 0.004)
+      gain.gain.exponentialRampToValueAtTime(peak, now + 0.004)
       gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.05)
       osc.connect(gain); gain.connect(ctx.destination)
-      osc.start(now); osc.stop(now + 0.06)
+      osc.start(now)
+      osc.stop(now + 0.06)
+      osc.onended = () => { try { osc.disconnect(); gain.disconnect() } catch {} }
+    } catch {}
+  }, [])
+
+  // ── Win fanfare (synthesised ascending arpeggio + shimmer; ~1.4s, moderate) ──
+  const playWin = useCallback(() => {
+    const ctx = audioCtxRef.current
+    if (!ctx) return
+    try {
+      if (ctx.state === 'suspended') ctx.resume()
+      const now    = ctx.currentTime
+      const master = ctx.createGain()
+      master.gain.value = 0.16
+      master.connect(ctx.destination)
+      const voice = (freq: number, t0: number, dur: number, peak: number) => {
+        const osc  = ctx.createOscillator()
+        const gain = ctx.createGain()
+        osc.type = 'triangle'
+        osc.frequency.value = freq
+        gain.gain.setValueAtTime(0.0001, t0)
+        gain.gain.exponentialRampToValueAtTime(peak, t0 + 0.02)
+        gain.gain.exponentialRampToValueAtTime(0.0001, t0 + dur)
+        osc.connect(gain); gain.connect(master)
+        osc.start(t0)
+        osc.stop(t0 + dur + 0.05)
+        osc.onended = () => { try { osc.disconnect(); gain.disconnect() } catch {} }
+      }
+      const notes = [523.25, 659.25, 783.99, 1046.5]   // C5 E5 G5 C6
+      notes.forEach((f, i) => voice(f, now + i * 0.12, 0.5, 0.9))
+      const tEnd = now + notes.length * 0.12
+      voice(1046.5, tEnd, 0.9, 0.7)                      // C6 + E6 shimmer chord
+      voice(1318.5, tEnd, 0.9, 0.6)
+      setTimeout(() => { try { master.disconnect() } catch {} }, 2000)
     } catch {}
   }, [])
 
   const stopTicking = useCallback(() => {
-    if (tickTimerRef.current) { clearTimeout(tickTimerRef.current); tickTimerRef.current = null }
+    if (tickRafRef.current) { cancelAnimationFrame(tickRafRef.current); tickRafRef.current = 0 }
   }, [])
 
-  const startTicking = useCallback(() => {
+  // ── Tick loop driven by the wheel's REAL rotation ──────────────────────────
+  // Reads the live transform matrix each animation frame and fires one tick for
+  // every segment boundary (multiple of 360/segCount) the wheel sweeps past, so
+  // ticks track the visual deceleration exactly — dense at first, sparse at the end.
+  const startTicking = useCallback((segCount: number) => {
     stopTicking()
-    const nowFn = () => (typeof performance !== 'undefined' ? performance.now() : Date.now())
-    const startedAt = nowFn()
-    let interval = 36
-    const loop = () => {
-      const elapsed = nowFn() - startedAt
-      if (elapsed >= SPIN_MS) { stopTicking(); return }
-      playTick(Math.max(0, 1 - elapsed / SPIN_MS))
-      interval = Math.min(240, interval * 1.06)        // decelerate, mirroring the visual ease-out
-      tickTimerRef.current = setTimeout(loop, interval)
+    if (segCount < 1) return
+    const segDeg = 360 / segCount
+    const readAngle = (): number | null => {
+      const el = wheelSvgRef.current
+      if (!el) return null
+      const tr = getComputedStyle(el).transform
+      if (!tr || tr === 'none') return 0
+      try {
+        const m = new DOMMatrixReadOnly(tr)
+        return Math.atan2(m.b, m.a) * 180 / Math.PI       // -180..180
+      } catch { return null }
     }
-    loop()
+    const startedAt    = performance.now()
+    let   lastAngle    = readAngle() ?? 0
+    let   traveled     = 0
+    let   nextBoundary = segDeg
+    let   lastTickAt   = 0
+    const MIN_GAP      = 26                                // ms — caps tick rate on slow phones / at peak speed
+    const loop = () => {
+      const nowT    = performance.now()
+      const elapsed = nowT - startedAt
+      const a = readAngle()
+      if (a !== null) {
+        let delta = ((a - lastAngle) % 360 + 360) % 360   // forward sweep, 0..360
+        if (delta > 180) delta -= 360                     // tolerate tiny backward jitter
+        if (delta > 0) traveled += delta
+        lastAngle = a
+      }
+      let crossed = 0
+      while (traveled >= nextBoundary && crossed < 4) { nextBoundary += segDeg; crossed++ }
+      if (crossed > 0 && nowT - lastTickAt >= MIN_GAP) {
+        playTick(Math.max(0, 1 - elapsed / SPIN_MS))
+        lastTickAt = nowT
+      }
+      if (elapsed < SPIN_MS + 120) {
+        tickRafRef.current = requestAnimationFrame(loop)
+      } else {
+        stopTicking()
+      }
+    }
+    tickRafRef.current = requestAnimationFrame(loop)
   }, [playTick, stopTicking])
 
   // Keep a ref in sync so the (memoised) spin callback reads the latest value.
@@ -536,7 +618,12 @@ export default function RandomWheelClient() {
     setHovered(null)
     setRotation(newRotation)
 
-    if (soundOnRef.current && !reducedRef.current) startTicking()
+    // Unlock audio inside this tap (required by iOS Safari / Android Chrome),
+    // then start ticks synced to the wheel's real rotation.
+    if (soundOnRef.current) {
+      ensureAudio()
+      startTicking(n)
+    }
 
     setTimeout(() => {
       stopTicking()
@@ -544,11 +631,12 @@ export default function RandomWheelClient() {
       setWinner(picked)
       setShowResult(true)
       setHistory(prev => [picked, ...prev])
+      if (soundOnRef.current) playWin()
       if (removeAfterPick) {
         setEntries(prev => prev.filter(e => e !== picked))
       }
     }, SPIN_MS + 300)
-  }, [spinning, entries, rotation, removeAfterPick, startTicking, stopTicking])
+  }, [spinning, entries, rotation, removeAfterPick, ensureAudio, startTicking, stopTicking, playWin])
 
   // ── Copy winner name ───────────────────────────────────────────────────────
   const copyResult = useCallback(() => {
@@ -712,6 +800,7 @@ export default function RandomWheelClient() {
               }}
             >
               <WheelSVG
+                svgRef={wheelSvgRef}
                 entries={spinSnapshot ?? entries}
                 rotation={rotation}
                 spinning={spinning}

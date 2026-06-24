@@ -548,12 +548,40 @@ export default function ChatClient({
     else el.scrollTop = el.scrollHeight
   }, [])
 
-  // ── Profile cache: populate display names from loaded messages ───────────────
+  // Live sender profiles (id → current name/avatar). Group messages store a
+  // denormalized avatar/name snapshot taken at send time, which goes stale when a
+  // member later changes their avatar — so we resolve the current profile and
+  // override the snapshot at render. Cached + fetched once per id.
+  const [liveProfiles, setLiveProfiles] = useState<Record<string, { name: string; avatar: string | null }>>({})
+  const profilesFetchedRef = useRef<Set<string>>(new Set())
+
+  const hydrateSenderProfiles = useCallback(async (ids: string[]) => {
+    const need = Array.from(new Set(ids)).filter(id => id && !profilesFetchedRef.current.has(id))
+    if (need.length === 0) return
+    need.forEach(id => profilesFetchedRef.current.add(id))
+    const supabase = createClient()
+    const { data } = await supabase.from('profiles').select('id, display_name, avatar_url').in('id', need)
+    if (!mountedRef.current || !data || data.length === 0) return
+    setLiveProfiles(prev => {
+      const next = { ...prev }
+      for (const p of data as { id: string; display_name: string | null; avatar_url: string | null }[]) {
+        next[p.id] = { name: p.display_name ?? '', avatar: p.avatar_url }
+      }
+      return next
+    })
+  }, [])
+
+  // ── Profile cache: populate display names + resolve live avatars from messages ─
   useEffect(() => {
+    const ids: string[] = []
     for (const m of messages) {
-      if (m.user_id) profileCacheRef.current[m.user_id] = m.display_name
+      if (m.user_id) {
+        profileCacheRef.current[m.user_id] = m.display_name
+        ids.push(m.user_id)
+      }
     }
-  }, [messages])
+    hydrateSenderProfiles(ids)
+  }, [messages, hydrateSenderProfiles])
 
   // ── Lifecycle ────────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -3205,6 +3233,10 @@ export default function ChatClient({
                   const isMe = msg.user_id === userId
                   const msgReactions = reactions[msg.id] ?? []
                   const isMentioned = (msg.mentioned_user_ids ?? []).includes(userId)
+                  // Prefer the sender's current profile over the message snapshot.
+                  const live = msg.user_id ? liveProfiles[msg.user_id] : undefined
+                  const senderAvatar = live?.avatar ?? msg.avatar_url
+                  const senderName = live?.name || msg.display_name
 
                   return (
                     <div
@@ -3216,18 +3248,18 @@ export default function ChatClient({
                     >
                       {/* Avatar */}
                       <div className="relative flex-none shrink-0" style={{ width: '32px', height: '32px' }}>
-                        {msg.avatar_url ? (
+                        {senderAvatar ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img
-                            src={upgradeAvatarUrl(msg.avatar_url)!}
-                            srcSet={avatarSrcSet(msg.avatar_url) ?? undefined}
-                            alt={msg.display_name}
+                            src={upgradeAvatarUrl(senderAvatar)!}
+                            srcSet={avatarSrcSet(senderAvatar) ?? undefined}
+                            alt={senderName}
                             className="rounded-full object-cover block"
                             style={{ width: '32px', height: '32px' }}
                           />
                         ) : (
                           <div className="rounded-full bg-rose/10 flex items-center justify-center text-[13px] font-bold text-rose" style={{ width: '32px', height: '32px' }}>
-                            {getInitial(msg.display_name)}
+                            {getInitial(senderName)}
                           </div>
                         )}
                         {msg.user_id && onlineUserIds.has(msg.user_id) && (
@@ -3241,7 +3273,7 @@ export default function ChatClient({
                       {/* Bubble + meta */}
                       <div className={`flex flex-col gap-0.5 max-w-[76%] ${isMe ? 'items-end' : 'items-start'}`}>
                         {!isMe && (
-                          <span className="text-[10.5px] text-muted/60 px-1 leading-none">{msg.display_name}</span>
+                          <span className="text-[10.5px] text-muted/60 px-1 leading-none">{senderName}</span>
                         )}
 
                         <div className={`flex items-end gap-1 ${isMe ? 'flex-row-reverse' : 'flex-row'}`}>

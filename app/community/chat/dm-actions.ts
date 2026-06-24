@@ -99,16 +99,15 @@ export async function getDmConversations(scope?: string): Promise<{
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'unauthenticated' }
 
-  let q = supabase
+  // DMs are person-to-person: a given pair has exactly one conversation row, so
+  // the list must NOT be filtered by the active community/internal tab — doing so
+  // made a user's community DMs vanish whenever they viewed the internal scope.
+  // RLS still gates which conversations the user may read; the `.or` keeps it to
+  // their own threads. `scope` is intentionally ignored here.
+  const { data, error } = await supabase
     .from('community_dm_conversations')
     .select('id, user1_id, user2_id, last_message_at, last_message_preview, community_scope')
     .or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`)
-  // Keep each tab's DM list within its scope (RLS still gates access). A forged
-  // value other than the exact internal token resolves to community.
-  if (scope === 'fko_internal' || scope === 'community') {
-    q = q.eq('community_scope', scope)
-  }
-  const { data, error } = await q
     .order('last_message_at', { ascending: false, nullsFirst: false })
     .limit(30)
 

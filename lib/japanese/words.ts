@@ -16,6 +16,24 @@ export const FLASHCARD_DECK_SIZE = 50
 export const FLASHCARD_EXCLUDE_TAG = 'flashcard_exclude'
 
 /**
+ * Single source of truth for the per-level word count shown anywhere in the UI.
+ * Applies the SAME filters as {@link getAllWordsForLevel} (published, not
+ * flashcard-excluded) so the number on the list card equals the number of
+ * records the detail page can actually render. `head: true` keeps it a count-only
+ * query (no rows transferred).
+ */
+export async function getPublishedWordCount(level: string): Promise<number> {
+  const supabase = createClient()
+  const { count } = await supabase
+    .from('japanese_words')
+    .select('id', { count: 'exact', head: true })
+    .eq('jlpt_level', level)
+    .eq('is_published', true)
+    .or(`tags.is.null,tags.not.cs.{${FLASHCARD_EXCLUDE_TAG}}`)
+  return count ?? 0
+}
+
+/**
  * Fetch every published word for a JLPT level (ordered by frequency desc).
  * Pages through in batches so the PostgREST row cap never truncates the result.
  */

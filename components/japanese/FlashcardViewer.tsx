@@ -6,6 +6,7 @@ import type { JapaneseWord } from './WordCard'
 import type { ProgressStatus } from './VocabularyCard'
 import ProgressBar from './ProgressBar'
 import { cleanMeaningText } from '@/lib/sanitize'
+import { displayRomaji } from '@/lib/japanese/romaji'
 
 type FlashAction = 'correct' | 'review' | 'wrong'
 
@@ -191,8 +192,8 @@ export default function FlashcardViewer({ words, isLoggedIn, onSave, loginMessag
                 </span>
               )}
             </div>
-            {current.romaji && (
-              <p className="text-[14px] text-muted mb-3">{current.romaji}</p>
+            {displayRomaji(current.reading, current.romaji) && (
+              <p className="text-[14px] text-muted mb-3">{displayRomaji(current.reading, current.romaji)}</p>
             )}
             {current.meanings?.[0] && (
               <div className="mb-4 space-y-1">

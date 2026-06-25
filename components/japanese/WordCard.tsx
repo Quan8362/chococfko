@@ -1,6 +1,7 @@
 import JlptBadge from './JlptBadge'
 import PosBadges from './PosBadges'
 import { cleanMeaningText } from '@/lib/sanitize'
+import { displayRomaji } from '@/lib/japanese/romaji'
 
 export type JapaneseWord = {
   id: string
@@ -40,6 +41,7 @@ const NO_VI_MEANING: Record<string, string> = {
 export default function WordCard({ word, locale = 'vi', actionSlot, footerSlot }: WordCardProps) {
   const firstMeaning = word.meanings?.[0]
   const firstExample = word.examples?.[0]
+  const romaji = displayRomaji(word.reading, word.romaji)
 
   const hasBadges = (word.pos && word.pos.length > 0) || !!word.jlpt_level
 
@@ -72,8 +74,8 @@ export default function WordCard({ word, locale = 'vi', actionSlot, footerSlot }
           )}
         </div>
         {/* Romaji */}
-        {word.romaji && (
-          <div className="text-[12px] text-muted mt-0.5">{word.romaji}</div>
+        {romaji && (
+          <div className="text-[12px] text-muted mt-0.5">{romaji}</div>
         )}
       </div>
 

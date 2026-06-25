@@ -7,6 +7,7 @@ import JlptBadge from './JlptBadge'
 import PosBadges from './PosBadges'
 import type { JapaneseWord } from './WordCard'
 import { cleanMeaningText } from '@/lib/sanitize'
+import { displayRomaji } from '@/lib/japanese/romaji'
 
 export type ProgressStatus = 'learning' | 'review' | 'mastered'
 
@@ -40,6 +41,7 @@ export default function VocabularyCard({
 
   const firstMeaning = word.meanings?.[0]
   const firstExample = word.examples?.[0]
+  const romaji = displayRomaji(word.reading, word.romaji)
 
   const handleAction = async (action: 'correct' | 'review' | 'wrong') => {
     if (!isLoggedIn) {
@@ -83,8 +85,8 @@ export default function VocabularyCard({
             )}
           </div>
           <div className="flex items-center gap-2 mt-0.5">
-            {word.romaji && (
-              <span className="text-[12px] text-muted">{word.romaji}</span>
+            {romaji && (
+              <span className="text-[12px] text-muted">{romaji}</span>
             )}
             <PosBadges value={word.pos} variant="compact" max={2} />
             {word.jlpt_level && <JlptBadge level={word.jlpt_level} />}

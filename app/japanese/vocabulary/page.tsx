@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
-import { createClient } from '@/lib/supabase/server'
 import LevelPicker, { JLPT_LEVELS, urlLevel } from '@/components/japanese/LevelPicker'
+import { getPublishedWordCount } from '@/lib/japanese/words'
 
 export const dynamic = 'force-dynamic'
 
@@ -14,17 +14,10 @@ export async function generateMetadata() {
 }
 
 async function getLevelCounts(): Promise<Record<string, number>> {
-  const supabase = createClient()
   const counts: Record<string, number> = {}
-
   await Promise.all(
     JLPT_LEVELS.map(async level => {
-      const { count } = await supabase
-        .from('japanese_words')
-        .select('id', { count: 'exact', head: true })
-        .eq('jlpt_level', level)
-        .eq('is_published', true)
-      counts[level] = count ?? 0
+      counts[level] = await getPublishedWordCount(level)
     })
   )
   return counts

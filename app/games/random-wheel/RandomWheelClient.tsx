@@ -33,6 +33,10 @@ const R       = 146   // wheel radius
 // animate the wheel toward it.
 const SPIN_MS     = 10000                              // ~10s spin
 const SPIN_EASING = 'cubic-bezier(0.16, 1, 0.2, 1)'    // easeOutQuint-ish: fast start, long glide to stop
+// Gap between the wheel visually stopping and the winner popup appearing. Keep
+// tiny so the popup snaps in at the climax. The celebration sound fires in
+// parallel (fire-and-forget) and never delays the popup.
+const POPUP_DELAY_MS = 60
 
 // Winner celebration: applause + crowd-cheer clip, fired the moment the wheel stops.
 // Source: Wikimedia Commons "277021_sandermotions_applause-2.wav" — CC0 (public domain).
@@ -383,6 +387,10 @@ export default function RandomWheelClient() {
   // Keep a ref in sync so the (memoised) spin callback reads the latest value.
   useEffect(() => { soundOnRef.current = soundOn }, [soundOn])
 
+  // Eagerly fetch/decode the celebration clip on mount so first-spin playback is
+  // instant and never what delays the popup (preload="auto" + explicit load()).
+  useEffect(() => { try { celebrationAudioRef.current?.load() } catch {} }, [])
+
   // Cleanup tick timer + audio context on unmount.
   useEffect(() => () => {
     stopTicking()
@@ -672,15 +680,18 @@ export default function RandomWheelClient() {
 
     setTimeout(() => {
       stopTicking()
+      // Reveal the winner popup immediately — never gated on audio.
       setSpinning(false)
       setWinner(picked)
       setShowResult(true)
       setHistory(prev => [picked, ...prev])
-      if (soundOnRef.current) playCelebration()
       if (removeAfterPick) {
         setEntries(prev => prev.filter(e => e !== picked))
       }
-    }, SPIN_MS + 300)
+      // Fire the celebration sound in parallel; deferred a tick so the popup
+      // paints first and any audio work can't block the climactic reveal.
+      if (soundOnRef.current) setTimeout(() => playCelebration(), 0)
+    }, SPIN_MS + POPUP_DELAY_MS)
   }, [spinning, entries, rotation, removeAfterPick, ensureAudio, primeCelebration, startTicking, stopTicking, playCelebration])
 
   // ── Copy winner name ───────────────────────────────────────────────────────

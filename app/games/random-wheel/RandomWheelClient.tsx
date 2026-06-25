@@ -25,7 +25,21 @@ const W       = 320   // SVG viewBox size (internal coordinates)
 const CX      = W / 2 // 160
 const CY      = W / 2 // 160
 const R       = 146   // wheel radius
-const SPIN_MS = 4200
+
+// ── Fine-tune knobs (edit here) ────────────────────────────────────────────────
+// Spin lasts SPIN_MS and decelerates on SPIN_EASING — an ease-out with a long,
+// slow tail so the last 2–3s crawl past the segments and build suspense. It must
+// NOT change the outcome: the winner is still picked uniformly at random, we only
+// animate the wheel toward it.
+const SPIN_MS     = 10000                              // ~10s spin
+const SPIN_EASING = 'cubic-bezier(0.16, 1, 0.2, 1)'    // easeOutQuint-ish: fast start, long glide to stop
+
+// Winner celebration: applause + crowd-cheer clip, fired the moment the wheel stops.
+// Source: Wikimedia Commons "277021_sandermotions_applause-2.wav" — CC0 (public domain).
+const CELEBRATION_SRC     = '/applause-cheer.wav'
+const CELEBRATION_MS      = 7000                       // play up to ~7s then stop (clip is ~6.3s)
+const CELEBRATION_FADE_MS = 800                        // fade-out length so it doesn't cut abruptly
+const CELEBRATION_VOLUME  = 0.9
 
 // Pointer tip aligns at this % from top of the wheel container.
 // = (CY - R) / W * 100 = 14/320 * 100 = 4.375 — correct at ANY display size.
@@ -61,7 +75,7 @@ function WheelSVG({ entries, rotation, spinning, hovered = null, onHover, svgRef
   const svgStyle: React.CSSProperties = {
     transform: `rotate(${rotation}deg)`,
     transition: spinning
-      ? `transform ${SPIN_MS}ms cubic-bezier(0.17, 0.67, 0.12, 0.99)`
+      ? `transform ${SPIN_MS}ms ${SPIN_EASING}`
       : 'none',
     willChange: 'transform',
     transformOrigin: 'center',
@@ -204,6 +218,10 @@ export default function RandomWheelClient() {
   const audioCtxRef           = useRef<AudioContext | null>(null)
   const tickRafRef            = useRef<number>(0)
   const wheelSvgRef           = useRef<SVGSVGElement | null>(null)
+  const celebrationAudioRef   = useRef<HTMLAudioElement | null>(null)
+  const celebrationPrimedRef  = useRef(false)
+  const celebrationStopRef    = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const celebrationFadeRef    = useRef<ReturnType<typeof setInterval> | null>(null)
 
   // ── Honour prefers-reduced-motion (skip confetti, no tick scheduling) ──────
   useEffect(() => {
@@ -252,37 +270,62 @@ export default function RandomWheelClient() {
     } catch {}
   }, [])
 
-  // ── Win fanfare (synthesised ascending arpeggio + shimmer; ~1.4s, moderate) ──
-  const playWin = useCallback(() => {
-    const ctx = audioCtxRef.current
-    if (!ctx) return
+  // ── Stop any in-flight celebration playback / timers ───────────────────────
+  const clearCelebration = useCallback(() => {
+    if (celebrationStopRef.current) { clearTimeout(celebrationStopRef.current); celebrationStopRef.current = null }
+    if (celebrationFadeRef.current) { clearInterval(celebrationFadeRef.current); celebrationFadeRef.current = null }
+    const el = celebrationAudioRef.current
+    if (el) { try { el.pause(); el.currentTime = 0 } catch {} }
+  }, [])
+
+  // ── Prime the <audio> element inside the user gesture (iOS/Android unlock) ──
+  // A muted play()/pause() during the tap satisfies mobile autoplay policies so a
+  // later programmatic play() (when the wheel stops) is allowed to make sound.
+  const primeCelebration = useCallback(() => {
+    const el = celebrationAudioRef.current
+    if (!el || celebrationPrimedRef.current) return
     try {
-      if (ctx.state === 'suspended') ctx.resume()
-      const now    = ctx.currentTime
-      const master = ctx.createGain()
-      master.gain.value = 0.16
-      master.connect(ctx.destination)
-      const voice = (freq: number, t0: number, dur: number, peak: number) => {
-        const osc  = ctx.createOscillator()
-        const gain = ctx.createGain()
-        osc.type = 'triangle'
-        osc.frequency.value = freq
-        gain.gain.setValueAtTime(0.0001, t0)
-        gain.gain.exponentialRampToValueAtTime(peak, t0 + 0.02)
-        gain.gain.exponentialRampToValueAtTime(0.0001, t0 + dur)
-        osc.connect(gain); gain.connect(master)
-        osc.start(t0)
-        osc.stop(t0 + dur + 0.05)
-        osc.onended = () => { try { osc.disconnect(); gain.disconnect() } catch {} }
-      }
-      const notes = [523.25, 659.25, 783.99, 1046.5]   // C5 E5 G5 C6
-      notes.forEach((f, i) => voice(f, now + i * 0.12, 0.5, 0.9))
-      const tEnd = now + notes.length * 0.12
-      voice(1046.5, tEnd, 0.9, 0.7)                      // C6 + E6 shimmer chord
-      voice(1318.5, tEnd, 0.9, 0.6)
-      setTimeout(() => { try { master.disconnect() } catch {} }, 2000)
+      el.muted = true
+      const p = el.play()
+      if (p) p.then(() => {
+        try { el.pause(); el.currentTime = 0 } catch {}
+        el.muted = false
+        celebrationPrimedRef.current = true
+      }).catch(() => { el.muted = false })
     } catch {}
   }, [])
+
+  // ── Winner celebration: applause + crowd cheer, trimmed to ~CELEBRATION_MS ──
+  // with a fade-out tail. Fires the moment the wheel stops; respects sound toggle.
+  const playCelebration = useCallback(() => {
+    const el = celebrationAudioRef.current
+    if (!el) return
+    clearCelebration()
+    try {
+      el.currentTime = 0
+      el.volume = CELEBRATION_VOLUME
+      const p = el.play()
+      if (p) p.catch(() => {})
+
+      const durMs   = el.duration && isFinite(el.duration) ? el.duration * 1000 : CELEBRATION_MS
+      const endAt   = Math.min(CELEBRATION_MS, durMs)
+      const fadeAt  = Math.max(0, endAt - CELEBRATION_FADE_MS)
+
+      celebrationStopRef.current = setTimeout(() => {
+        const startVol = el.volume
+        const steps    = 16
+        let   i        = 0
+        celebrationFadeRef.current = setInterval(() => {
+          i++
+          try { el.volume = Math.max(0, startVol * (1 - i / steps)) } catch {}
+          if (i >= steps) {
+            if (celebrationFadeRef.current) { clearInterval(celebrationFadeRef.current); celebrationFadeRef.current = null }
+            try { el.pause(); el.currentTime = 0; el.volume = CELEBRATION_VOLUME } catch {}
+          }
+        }, CELEBRATION_FADE_MS / steps)
+      }, fadeAt)
+    } catch {}
+  }, [clearCelebration])
 
   const stopTicking = useCallback(() => {
     if (tickRafRef.current) { cancelAnimationFrame(tickRafRef.current); tickRafRef.current = 0 }
@@ -343,8 +386,9 @@ export default function RandomWheelClient() {
   // Cleanup tick timer + audio context on unmount.
   useEffect(() => () => {
     stopTicking()
+    clearCelebration()
     if (audioCtxRef.current) { audioCtxRef.current.close().catch(() => {}) ; audioCtxRef.current = null }
-  }, [stopTicking])
+  }, [stopTicking, clearCelebration])
 
   // ── Load from localStorage ─────────────────────────────────────────────────
   useEffect(() => {
@@ -618,10 +662,11 @@ export default function RandomWheelClient() {
     setHovered(null)
     setRotation(newRotation)
 
-    // Unlock audio inside this tap (required by iOS Safari / Android Chrome),
-    // then start ticks synced to the wheel's real rotation.
+    // Unlock audio inside this tap (required by iOS Safari / Android Chrome): the
+    // AudioContext for the ticks AND the <audio> element for the win celebration.
     if (soundOnRef.current) {
       ensureAudio()
+      primeCelebration()
       startTicking(n)
     }
 
@@ -631,12 +676,12 @@ export default function RandomWheelClient() {
       setWinner(picked)
       setShowResult(true)
       setHistory(prev => [picked, ...prev])
-      if (soundOnRef.current) playWin()
+      if (soundOnRef.current) playCelebration()
       if (removeAfterPick) {
         setEntries(prev => prev.filter(e => e !== picked))
       }
     }, SPIN_MS + 300)
-  }, [spinning, entries, rotation, removeAfterPick, ensureAudio, startTicking, stopTicking, playWin])
+  }, [spinning, entries, rotation, removeAfterPick, ensureAudio, primeCelebration, startTicking, stopTicking, playCelebration])
 
   // ── Copy winner name ───────────────────────────────────────────────────────
   const copyResult = useCallback(() => {
@@ -648,12 +693,13 @@ export default function RandomWheelClient() {
   }, [winner])
 
   const closeResult = useCallback(() => {
+    clearCelebration()
     setShowResult(false)
     setConfettiActive(false)
     // Re-sync the wheel to the live list (drops the just-picked name when
     // "remove after pick" is on) so wheel segments === player list again.
     setSpinSnapshot(null)
-  }, [])
+  }, [clearCelebration])
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
@@ -665,6 +711,10 @@ export default function RandomWheelClient() {
         className="fixed inset-0 pointer-events-none"
         style={{ zIndex: 55, display: confettiActive ? 'block' : 'none' }}
       />
+
+      {/* Winner celebration audio (applause + cheer) — fired when the wheel stops */}
+      <audio ref={celebrationAudioRef} src={CELEBRATION_SRC} preload="auto" />
+
 
       {/* ── Winner popup modal ─────────────────────────────────────────────── */}
       {showResult && winner && (

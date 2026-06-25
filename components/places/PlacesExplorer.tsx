@@ -237,6 +237,8 @@ export default function PlacesExplorer({ places, cards, categories, prefectures,
       case 'wheelchair': return tp('wheelchair_accessible')
       case 'bbq': return tp('bbq_available')
       case 'camping': return tp('camping_available')
+      case 'pet': return tp('pet_friendly')
+      case 'vegetarian': return tp('serves_vegetarian')
       case 'verified': return t('f_verified')
       case 'recentlyUpdated': return t('f_recently_updated')
       case 'smoking': return tp(`smk_${v}` as 'smk_no_smoking')

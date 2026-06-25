@@ -1,5 +1,6 @@
 import { getTranslations } from 'next-intl/server'
 import Link from 'next/link'
+import { createClient } from '@/lib/supabase/server'
 import FeedbackForm from './FeedbackForm'
 
 export async function generateMetadata() {
@@ -14,6 +15,26 @@ export async function generateMetadata() {
 
 export default async function GopY() {
   const t = await getTranslations('feedback_page')
+
+  // Prefill name/email cho người đã đăng nhập (best-effort)
+  let initialName = ''
+  let initialEmail = ''
+  try {
+    const supabase = createClient()
+    const { data } = await supabase.auth.getUser()
+    const user = data.user
+    if (user) {
+      initialEmail = user.email ?? ''
+      const meta = user.user_metadata as Record<string, unknown> | undefined
+      initialName =
+        (meta?.full_name as string) ||
+        (meta?.name as string) ||
+        (meta?.display_name as string) ||
+        ''
+    }
+  } catch {
+    // không chặn render form nếu lấy user lỗi
+  }
 
   return (
     <div className="min-h-[calc(100vh-160px)] py-16 px-6">
@@ -42,6 +63,8 @@ export default async function GopY() {
         </div>
 
         <FeedbackForm
+          initialName={initialName}
+          initialEmail={initialEmail}
           labels={{
             name: t('name'),
             namePh: t('name_ph'),
@@ -54,6 +77,11 @@ export default async function GopY() {
             error: t('error'),
             successTitle: t('success_title'),
             successDesc: t('success_desc'),
+            errName: t('err_name'),
+            errEmailRequired: t('err_email_required'),
+            errEmailInvalid: t('err_email_invalid'),
+            errMessage: t('err_message'),
+            errRateLimit: t('error_rate_limit'),
           }}
         />
 

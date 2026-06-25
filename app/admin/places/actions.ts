@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { checkIsAdmin, createAdminClient } from '@/lib/supabase/admin'
 import { places, parseStructuredArea } from '@/lib/places'
+import type { SupabaseLike as EnrichDb } from '@/lib/places/enrichPlace'
 import { setContentTags } from '@/lib/tags'
 import { PREFECTURE_NAME, PREFECTURES } from '@/lib/japan'
 import { getLocale } from 'next-intl/server'
@@ -280,6 +281,20 @@ export async function updatePlace(formData: FormData) {
     const { data: row } = await admin.from('places').select('id').eq('slug', slug).maybeSingle()
     const placeId = (row as { id: string } | null)?.id
     if (placeId) await setContentTags(admin, 'place', placeId, formData.get('tags'), await getLocale())
+  }
+
+  // Auto-enrich from Google when a Google place is linked (admin place picker set
+  // provider_place_id). Best-effort + time-bounded; positive-only, so it never
+  // overwrites the fields the admin just entered (those are protected as non-google
+  // provenance). No-ops without a Google key.
+  if ((extended as Record<string, unknown>).provider_place_id) {
+    try {
+      const { enrichPlaceBySlug } = await import('@/lib/places/enrichPlace')
+      const ctrl = new AbortController()
+      const timer = setTimeout(() => ctrl.abort(), 8000)
+      await enrichPlaceBySlug(admin as unknown as EnrichDb, slug, { signal: ctrl.signal })
+      clearTimeout(timer)
+    } catch { /* best-effort */ }
   }
 
   // Revalidate the edit route itself so the App Router client cache does not serve

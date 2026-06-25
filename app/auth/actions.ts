@@ -10,6 +10,7 @@ import { setContentTags } from '@/lib/tags'
 import { PREFECTURE_NAME, PREFECTURES } from '@/lib/japan'
 import { sanitizeUserName } from '@/lib/sanitize'
 import { parseStructuredArea } from '@/lib/places'
+import type { SupabaseLike as EnrichDb } from '@/lib/places/enrichPlace'
 
 const CATEGORY_LABEL: Record<string, string> = {
   food: 'Ăn uống',
@@ -247,6 +248,17 @@ export async function submitPlace(formData: FormData) {
     target_url: `/admin/places/${slug}`,
     actor_id: user.id,
   })
+
+  // Auto-enrich from Google so a community submission arrives pre-filled (zero admin
+  // work). Best-effort + time-bounded: never blocks/breaks the submission, no-ops
+  // without a Google key, and positive-only (never overwrites what the user entered).
+  try {
+    const { enrichPlaceBySlug } = await import('@/lib/places/enrichPlace')
+    const ctrl = new AbortController()
+    const timer = setTimeout(() => ctrl.abort(), 8000)
+    await enrichPlaceBySlug(createAdminClient() as unknown as EnrichDb, slug, { signal: ctrl.signal })
+    clearTimeout(timer)
+  } catch { /* best-effort */ }
 
   redirect('/places/new?success=1')
 }

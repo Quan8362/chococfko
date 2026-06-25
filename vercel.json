@@ -4,6 +4,10 @@
     {
       "path": "/api/cron/return-user",
       "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cron/enrich-places",
+      "schedule": "0 3 * * 1"
     }
   ]
 }

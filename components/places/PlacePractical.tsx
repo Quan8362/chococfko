@@ -1,5 +1,6 @@
 import { getTranslations } from 'next-intl/server'
 import type { Place } from '@/lib/places'
+import { placePaymentMethods } from '@/lib/places'
 import { WEEKDAYS } from '@/lib/placeFields'
 
 const CURRENCY_SYMBOL: Record<string, string> = { JPY: '¥', USD: '$', EUR: '€', KRW: '₩', CNY: '¥', VND: '₫' }
@@ -62,7 +63,7 @@ export default async function PlacePractical({ place }: { place: Place }) {
   if (place.campingAvailable) fac.push(t('camping_available'))
   if (place.tattooPolicy) fac.push(`${t('tattoo_policy')}: ${t(`tat_${place.tattooPolicy}` as 'tat_allowed')}`)
   if (place.petPolicy) fac.push(`${t('pet_policy')}: ${t(`pet_${place.petPolicy}` as 'pet_allowed')}`)
-  for (const pm of place.paymentMethods ?? []) fac.push(t(`pm_${pm}` as 'pm_cash'))
+  for (const pm of placePaymentMethods(place)) fac.push(t(`pm_${pm}` as 'pm_cash'))
   for (const lg of place.supportedLanguages ?? []) fac.push(t(`lang_${lg}` as 'lang_ja'))
 
   // Reservation chips

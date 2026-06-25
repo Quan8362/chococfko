@@ -100,7 +100,9 @@ function buildExtendedPlacePayload(formData: FormData): Record<string, unknown> 
     rainy_day_ok: parseTriState(formData.get('rainy_day_ok')),
     wheelchair_accessible: parseTriState(formData.get('wheelchair_accessible')),
     smoking_policy: parseEnum(formData.get('smoking_policy'), SMOKING_OPTIONS),
-    payment_methods: parseEnumList(formData.getAll('payment_methods'), PAYMENT_METHODS),
+    // Human-owned payment array (QR/PayPay + corrections). NEVER write the
+    // Google-owned `payment_methods` from a form — keeps the provenance split clean.
+    payment_methods_manual: parseEnumList(formData.getAll('payment_methods_manual'), PAYMENT_METHODS),
     supported_languages: parseEnumList(formData.getAll('supported_languages'), PLACE_LANGUAGES),
     tattoo_policy: parseEnum(formData.get('tattoo_policy'), TATTOO_OPTIONS),
     bbq_available: parseTriState(formData.get('bbq_available')),
@@ -214,16 +216,26 @@ export async function updatePlace(formData: FormData) {
   }
 
   // Snapshot fields that drive return-user notifications BEFORE the update so we
-  // can fire only on a real transition (not on every edit). Best-effort.
-  type PrevSnap = { temporary_status: string | null; last_verified_at: string | null }
+  // can fire only on a real transition (not on every edit). Also grab field_sources
+  // so we can merge the human-owned provenance markers without clobbering Google's.
+  type PrevSnap = { temporary_status: string | null; last_verified_at: string | null; field_sources: Record<string, string> | null }
   let prev: PrevSnap | null = null
   try {
-    const { data } = await admin.from('places').select('temporary_status, last_verified_at').eq('slug', slug).maybeSingle()
+    const { data } = await admin.from('places').select('temporary_status, last_verified_at, field_sources').eq('slug', slug).maybeSingle()
     if (data) prev = data as unknown as PrevSnap
   } catch { /* table/columns may be pre-migration */ }
 
   // ── Explore Phase 1 extended fields (validated). Validation errors still throw. ──
   const extended = buildExtendedPlacePayload(formData)
+
+  // Mark the human-owned fields this form edits as 'manual' so enrichment never
+  // alters them, merged over existing provenance (preserves Google's google/inferred).
+  extended.field_sources = {
+    ...(prev?.field_sources ?? {}),
+    payment_methods_manual: 'manual',
+    supported_languages: 'manual',
+    good_for_solo: 'manual',
+  }
 
   // Phase 5 confirmation metadata: stamp who/when confirmed the location, but only
   // when the picker says it was confirmed AND a valid coordinate is present.

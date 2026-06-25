@@ -61,7 +61,8 @@ export interface Place {
   rainyDayOk?: boolean | null;
   wheelchairAccessible?: boolean | null;
   smokingPolicy?: string | null;
-  paymentMethods?: string[] | null;
+  paymentMethods?: string[] | null;        // Google-owned (enrichment)
+  paymentMethodsManual?: string[] | null;  // Human-owned (forms): QR/PayPay + corrections
   supportedLanguages?: string[] | null;
   tattooPolicy?: string | null;
   bbqAvailable?: boolean | null;
@@ -208,6 +209,21 @@ export function parseStructuredArea(form: Pick<FormData, 'get'>): StructuredArea
     city_or_prefecture: cityOrPrefecture,
     relation_type: relationType,
   };
+}
+
+/**
+ * Deduplicated union of the Google-owned (paymentMethods) and human-owned
+ * (paymentMethodsManual) payment arrays — the single source the filter AND the
+ * display read, so neither column can hide the other's contribution.
+ */
+export function placePaymentMethods(
+  p: Pick<Place, 'paymentMethods' | 'paymentMethodsManual'>,
+): string[] {
+  const out: string[] = [];
+  for (const m of [...(p.paymentMethods ?? []), ...(p.paymentMethodsManual ?? [])]) {
+    if (m && out.indexOf(m) === -1) out.push(m);
+  }
+  return out;
 }
 
 export interface Category { code: string; short: string; full: string; }
@@ -1317,7 +1333,7 @@ interface DbPlace {
   good_for_children?: boolean | null; good_for_solo?: boolean | null; good_for_groups?: boolean | null;
   parking?: string | null; indoor_outdoor?: string | null; rainy_day_ok?: boolean | null;
   wheelchair_accessible?: boolean | null; smoking_policy?: string | null;
-  payment_methods?: string[] | null; supported_languages?: string[] | null;
+  payment_methods?: string[] | null; payment_methods_manual?: string[] | null; supported_languages?: string[] | null;
   tattoo_policy?: string | null; bbq_available?: boolean | null; camping_available?: boolean | null; pet_policy?: string | null;
   official_website?: string | null; reservation_url?: string | null; reservation_provider?: string | null;
   phone?: string | null; phone_e164?: string | null; social_url?: string | null; source_url?: string | null; last_verified_at?: string | null;
@@ -1388,6 +1404,7 @@ function mapDbPlace(row: DbPlace): Place {
     wheelchairAccessible: row.wheelchair_accessible ?? null,
     smokingPolicy: row.smoking_policy ?? null,
     paymentMethods: row.payment_methods ?? null,
+    paymentMethodsManual: row.payment_methods_manual ?? null,
     supportedLanguages: row.supported_languages ?? null,
     tattooPolicy: row.tattoo_policy ?? null,
     bbqAvailable: row.bbq_available ?? null,

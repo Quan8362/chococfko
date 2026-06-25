@@ -600,7 +600,17 @@ function passesStructuredFilters(p: Place, c: PlaceCriteria, now: Date): boolean
   if (c.camping && p.campingAvailable !== true) return false;
   if (c.smoking && p.smokingPolicy !== c.smoking) return false;
   if (c.tattoo && p.tattooPolicy !== c.tattoo) return false;
-  if (c.paymentMethods?.length && !c.paymentMethods.some((m) => p.paymentMethods?.includes(m))) return false;
+  // Payment matches the dedup UNION of Google-owned (paymentMethods) + human-owned
+  // (paymentMethodsManual) arrays, so QR/PayPay (human-only) and Google-detected
+  // methods all work from one filter. Inlined (not imported from the heavy places.ts)
+  // to keep this module pure/node-testable. Mirrors places.ts placePaymentMethods.
+  if (c.paymentMethods?.length) {
+    const pm: string[] = [];
+    for (const m of [...(p.paymentMethods ?? []), ...(p.paymentMethodsManual ?? [])]) {
+      if (m && pm.indexOf(m) === -1) pm.push(m);
+    }
+    if (!c.paymentMethods.some((m) => pm.includes(m))) return false;
+  }
   if (c.languages?.length && !c.languages.some((l) => p.supportedLanguages?.includes(l))) return false;
   if (c.verifiedOnly && p.verificationStatus !== 'verified') return false;
   // "Recently updated" = recent HUMAN edit only. Reads lastHumanEditAt (admin/community

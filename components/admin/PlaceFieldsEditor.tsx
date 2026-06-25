@@ -31,7 +31,7 @@ export interface PlaceFieldsRow {
   good_for_children?: boolean | null; good_for_solo?: boolean | null; good_for_groups?: boolean | null
   parking?: string | null; indoor_outdoor?: string | null; rainy_day_ok?: boolean | null
   wheelchair_accessible?: boolean | null; smoking_policy?: string | null
-  payment_methods?: string[] | null; supported_languages?: string[] | null
+  payment_methods?: string[] | null; payment_methods_manual?: string[] | null; supported_languages?: string[] | null
   tattoo_policy?: string | null; bbq_available?: boolean | null; camping_available?: boolean | null; pet_policy?: string | null
   official_website?: string | null; reservation_url?: string | null; reservation_provider?: string | null
   phone?: string | null; social_url?: string | null; source_url?: string | null; last_verified_at?: string | null
@@ -164,7 +164,9 @@ export default async function PlaceFieldsEditor({ p }: { p: PlaceFieldsRow }) {
         <div className="grid sm:grid-cols-2 gap-4 mt-4">
           <div>
             <span className={LBL}>{t('payment_methods')}</span>
-            <ChkGroup name="payment_methods" selected={p.payment_methods ?? []} options={PAYMENT_METHODS.map((v) => ({ value: v, label: t(`pm_${v}`) }))} />
+            {/* Human-owned array (incl. QR/PayPay). Google-detected methods are unioned
+                in for display/filter; enrichment never touches this column. */}
+            <ChkGroup name="payment_methods_manual" selected={p.payment_methods_manual ?? []} options={PAYMENT_METHODS.map((v) => ({ value: v, label: t(`pm_${v}`) }))} />
           </div>
           <div>
             <span className={LBL}>{t('supported_languages')}</span>

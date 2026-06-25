@@ -11,6 +11,7 @@ import { getPopularTags } from '@/lib/tags'
 import { createPublicClient } from '@/lib/supabase/public'
 import { PREFECTURES } from '@/lib/japan'
 import { RELATION_TYPES } from '@/lib/places'
+import { PAYMENT_METHODS, PLACE_LANGUAGES } from '@/lib/placeFields'
 
 const RichTextEditor = dynamic(() => import('@/components/RichTextEditor'), { ssr: false })
 
@@ -38,12 +39,13 @@ export default async function DangDiaDiem({
 }: {
   searchParams: { error?: string; success?: string }
 }) {
-  const [{ user, avatarUrl }, t, tf, tn, tc, popularTags] = await Promise.all([
+  const [{ user, avatarUrl }, t, tf, tn, tc, tp, popularTags] = await Promise.all([
     getUser(),
     getTranslations('placeForm'),
     getTranslations('filters'),
     getTranslations('nav'),
     getTranslations('common'),
+    getTranslations('place_fields'),
     getPopularTags(createPublicClient(), 12).then((tags) => tags.map((tag) => tag.name)),
   ])
 
@@ -263,6 +265,41 @@ export default async function DangDiaDiem({
             />
             <p className="text-[12px] text-muted mt-2">{t('pendingNote')}</p>
           </div>
+
+          {/* Thông tin cộng đồng — những thứ Google không có (thanh toán QR/PayPay,
+              ngôn ngữ phục vụ, hợp đi một mình). Tuỳ chọn. */}
+          <fieldset className="border border-line rounded-xl px-4 pt-3 pb-4">
+            <legend className="text-[12.5px] font-semibold text-[#5c4d44] px-1.5">{t('attrsSectionLabel')}</legend>
+            <div className="space-y-4">
+              <div>
+                <span className="block text-[13px] font-semibold mb-1.5 text-[#5c4d44]">{t('paymentLabel')}</span>
+                <div className="flex flex-wrap gap-x-4 gap-y-2">
+                  {PAYMENT_METHODS.map((v) => (
+                    <label key={v} className="inline-flex items-center gap-1.5 text-[13.5px] text-ink cursor-pointer">
+                      <input type="checkbox" name="payment_methods_manual" value={v} className="accent-rose w-4 h-4" />
+                      {tp(`pm_${v}` as 'pm_cash')}
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <span className="block text-[13px] font-semibold mb-1.5 text-[#5c4d44]">{t('languagesLabel')}</span>
+                <div className="flex flex-wrap gap-x-4 gap-y-2">
+                  {PLACE_LANGUAGES.map((v) => (
+                    <label key={v} className="inline-flex items-center gap-1.5 text-[13.5px] text-ink cursor-pointer">
+                      <input type="checkbox" name="supported_languages" value={v} className="accent-rose w-4 h-4" />
+                      {tp(`lang_${v}` as 'lang_ja')}
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <label className="inline-flex items-center gap-2 text-[13.5px] text-ink cursor-pointer">
+                <input type="checkbox" name="good_for_solo" value="true" className="accent-rose w-4 h-4" />
+                {tp('good_for_solo')}
+              </label>
+            </div>
+            <p className="text-[11.5px] text-muted mt-3">{t('attrsSectionHint')}</p>
+          </fieldset>
 
           {/* Tags */}
           <TagInput

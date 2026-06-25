@@ -11,6 +11,7 @@ import { PREFECTURE_NAME, PREFECTURES } from '@/lib/japan'
 import { sanitizeUserName } from '@/lib/sanitize'
 import { parseStructuredArea } from '@/lib/places'
 import type { SupabaseLike as EnrichDb } from '@/lib/places/enrichPlace'
+import { parseEnumList, parseTriState, PAYMENT_METHODS, PLACE_LANGUAGES } from '@/lib/placeFields'
 
 const CATEGORY_LABEL: Record<string, string> = {
   food: 'Ăn uống',
@@ -235,10 +236,25 @@ export async function submitPlace(formData: FormData) {
 
   if (error) redirect('/places/new?error=' + encodeURIComponent(error.message))
 
-  // Stamp the HUMAN-edit timestamp (drives "recently updated"). Best-effort; new
-  // rows are also covered by the created_at fallback in mapDbPlace. Enrichment must
-  // NEVER set this — it reflects human edits only.
-  await createAdminClient().from('places').update({ last_human_edit_at: new Date().toISOString() }).eq('slug', slug)
+  // Human-owned, community-sourced attributes Google can't provide (QR/PayPay,
+  // staff languages, good-for-solo). Written to the HUMAN columns only — enrichment
+  // never touches these. Marked field_sources='manual'. Best-effort, isolated from
+  // the insert so a pre-migration DB can't fail a submission. Also bumps the
+  // HUMAN-edit timestamp ("recently updated"); enrichment/cron never set it.
+  const paymentManual = parseEnumList(formData.getAll('payment_methods_manual'), PAYMENT_METHODS)
+  const supportedLanguages = parseEnumList(formData.getAll('supported_languages'), PLACE_LANGUAGES)
+  const goodForSolo = parseTriState(formData.get('good_for_solo'))
+  const fieldSources: Record<string, string> = {}
+  if (paymentManual) fieldSources.payment_methods_manual = 'manual'
+  if (supportedLanguages) fieldSources.supported_languages = 'manual'
+  if (goodForSolo != null) fieldSources.good_for_solo = 'manual'
+  await createAdminClient().from('places').update({
+    last_human_edit_at: new Date().toISOString(),
+    payment_methods_manual: paymentManual,
+    supported_languages: supportedLanguages,
+    good_for_solo: goodForSolo,
+    ...(Object.keys(fieldSources).length ? { field_sources: fieldSources } : {}),
+  }).eq('slug', slug)
 
   if (inserted?.id) {
     await setContentTags(createAdminClient(), 'place', inserted.id as string, formData.get('tags'), await getLocale())

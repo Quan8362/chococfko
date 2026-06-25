@@ -111,6 +111,29 @@ export async function getListingRating(listingId: string, viewerId?: string | nu
   }
 }
 
+// Anti review-bombing gate: a viewer may only review a seller they have actually
+// messaged. "Messaged" = a DM conversation row exists for the pair AND a message
+// was sent (last_message_at set) — merely opening the chat thread is not enough.
+export async function hasContactedSeller(viewerId: string, sellerId: string): Promise<boolean> {
+  if (!viewerId || !sellerId || viewerId === sellerId) return false
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !isUuid(viewerId) || !isUuid(sellerId)) return false
+  try {
+    const { createAdminClient } = await import('@/lib/supabase/admin')
+    const admin = createAdminClient()
+    const [u1, u2] = [viewerId, sellerId].sort()
+    const { data } = await admin
+      .from('community_dm_conversations')
+      .select('last_message_at')
+      .eq('user1_id', u1)
+      .eq('user2_id', u2)
+      .maybeSingle()
+    const row = data as { last_message_at: string | null } | null
+    return !!row && row.last_message_at != null
+  } catch {
+    return false
+  }
+}
+
 export async function getSellerRatingSummary(sellerId: string): Promise<{ average: number; count: number }> {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !isUuid(sellerId)) return { average: 0, count: 0 }
   try {

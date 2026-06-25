@@ -37,6 +37,8 @@ export default function MarketplaceFilters(current: Props) {
       active ? 'border-rose bg-rose/10 text-rose' : 'border-line bg-paper text-muted hover:border-rose/30'
     }`
 
+  const groupLabel = 'text-[10.5px] font-semibold uppercase tracking-[1.2px] text-muted/80 mb-1.5'
+
   return (
     <div className="space-y-3">
       {/* Search + sort */}
@@ -69,26 +71,41 @@ export default function MarketplaceFilters(current: Props) {
         </div>
       </div>
 
-      {/* Type + condition */}
-      <div className="flex gap-2 flex-wrap items-center">
-        <button onClick={() => apply({ type: '' })} className={chip(!current.type)}>{t('filter_all')}</button>
-        <button onClick={() => apply({ type: 'sell' })} className={chip(current.type === 'sell')}>💰 {t('type_sell')}</button>
-        <button onClick={() => apply({ type: 'free' })} className={chip(current.type === 'free')}>🎁 {t('type_free')}</button>
-        <button onClick={() => apply({ type: 'auction' })} className={chip(current.type === 'auction')}>🔨 {t('type_auction')}</button>
-        <span className="w-px h-5 bg-line mx-1" />
-        <button onClick={() => apply({ condition: '' })} className={chip(!current.condition)}>{t('cond_any')}</button>
-        <button onClick={() => apply({ condition: 'new' })} className={chip(current.condition === 'new')}>{t('cond_new')}</button>
-        <button onClick={() => apply({ condition: 'used' })} className={chip(current.condition === 'used')}>{t('cond_used')}</button>
+      {/* Grouped filters — each axis is labelled so users see they combine. */}
+      <div className="flex flex-col sm:flex-row sm:flex-wrap gap-x-6 gap-y-3">
+        {/* Loại tin */}
+        <div>
+          <p className={groupLabel}>{t('group_type')}</p>
+          <div className="flex gap-2 flex-wrap items-center">
+            <button onClick={() => apply({ type: '' })} className={chip(!current.type)}>{t('filter_all')}</button>
+            <button onClick={() => apply({ type: 'sell' })} className={chip(current.type === 'sell')}>💰 {t('type_sell')}</button>
+            <button onClick={() => apply({ type: 'free' })} className={chip(current.type === 'free')}>🎁 {t('type_free')}</button>
+            <button onClick={() => apply({ type: 'auction' })} className={chip(current.type === 'auction')}>🔨 {t('type_auction')}</button>
+          </div>
+        </div>
+
+        {/* Tình trạng */}
+        <div>
+          <p className={groupLabel}>{t('group_condition')}</p>
+          <div className="flex gap-2 flex-wrap items-center">
+            <button onClick={() => apply({ condition: '' })} className={chip(!current.condition)}>{t('cond_any')}</button>
+            <button onClick={() => apply({ condition: 'new' })} className={chip(current.condition === 'new')}>{t('cond_new')}</button>
+            <button onClick={() => apply({ condition: 'used' })} className={chip(current.condition === 'used')}>{t('cond_used')}</button>
+          </div>
+        </div>
       </div>
 
-      {/* Categories */}
-      <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
-        <button onClick={() => apply({ category: 'all' })} className={chip(!current.category || current.category === 'all')}>{t('cat_all')}</button>
-        {CATEGORIES.map(c => (
-          <button key={c} onClick={() => apply({ category: c })} className={chip(current.category === c)}>
-            {t(`cat_${c}` as Parameters<typeof t>[0])}
-          </button>
-        ))}
+      {/* Danh mục */}
+      <div>
+        <p className={groupLabel}>{t('group_category')}</p>
+        <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+          <button onClick={() => apply({ category: 'all' })} className={chip(!current.category || current.category === 'all')}>{t('cat_all')}</button>
+          {CATEGORIES.map(c => (
+            <button key={c} onClick={() => apply({ category: c })} className={chip(current.category === c)}>
+              {t(`cat_${c}` as Parameters<typeof t>[0])}
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   )

@@ -67,6 +67,26 @@ const MONOGRAPHS: Record<string, string> = {
 
 const VOWELS = new Set(['a', 'i', 'u', 'e', 'o'])
 
+/**
+ * Particle-aware overrides for fixed phrase headwords whose は / へ / を are
+ * grammatical particles, pronounced (and romanized) **wa / e / o** — not ha /
+ * he / wo. A context-free mora converter cannot detect this from kana alone, and
+ * a blanket "trailing は → wa" rule is wrong (はは=母 must stay "haha", かいわ is
+ * already わ). So we whitelist the exact full readings where it is unambiguous.
+ *
+ * Keyed by the **normalized hiragana reading** (katakana folded, trimmed). This
+ * applies to every surface that derives romaji (dictionary, JLPT cards,
+ * flashcards) AND to the stored-romaji regeneration script, so search stays
+ * consistent. Long-vowel handling is untouched — these are exact-match escapes.
+ */
+export const PARTICLE_PHRASE_OVERRIDES: Record<string, string> = {
+  こんにちは: 'konnichiwa',
+  こんばんは: 'konbanwa',
+  では: 'dewa',
+  それでは: 'soredewa',
+  ではまた: 'dewamata',
+}
+
 /** Convert any katakana in the string to hiragana so one table covers both. */
 function katakanaToHiragana(s: string): string {
   let out = ''
@@ -89,6 +109,12 @@ function katakanaToHiragana(s: string): string {
 export function kanaToRomaji(input: string | null | undefined): string {
   if (!input) return ''
   const kana = katakanaToHiragana(input.trim())
+
+  // Exact-match particle override (こんにちは → konnichiwa) takes precedence over
+  // the mora converter, which would otherwise read は/へ/を as ha/he/wo.
+  const override = PARTICLE_PHRASE_OVERRIDES[kana]
+  if (override) return override
+
   const chars = Array.from(kana)
   let out = ''
   let pendingSokuon = false // っ seen, double the next consonant

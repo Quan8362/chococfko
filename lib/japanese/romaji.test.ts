@@ -51,6 +51,30 @@ test('foreign combos', () => {
   assert.equal(kanaToRomaji('パーティー'), 'paatii')
 })
 
+test('particle は/へ/を in fixed phrases romanize as wa/e/o (not ha/he/wo)', () => {
+  // The new fix — particle は is "wa" in these greeting/phrase headwords.
+  assert.equal(kanaToRomaji('こんにちは'), 'konnichiwa') // was wrongly "konnichiha"
+  assert.equal(kanaToRomaji('こんばんは'), 'konbanwa')   // was wrongly "konbanha"
+  assert.equal(kanaToRomaji('では'), 'dewa')
+  assert.equal(kanaToRomaji('それでは'), 'soredewa')
+  // Katakana spelling of a greeting still normalizes through the override.
+  assert.equal(kanaToRomaji('コンニチハ'), 'konnichiwa')
+})
+
+test('word-は (not a particle) is still read "ha" — no over-correction', () => {
+  assert.equal(kanaToRomaji('はな'), 'hana')   // 花
+  assert.equal(kanaToRomaji('はし'), 'hashi')  // 橋 / 箸
+  assert.equal(kanaToRomaji('はは'), 'haha')   // 母 — trailing は must stay ha
+  assert.equal(kanaToRomaji('にほんは'), 'nihonha') // not whitelisted → unchanged
+})
+
+test('long-vowel fix still holds alongside the particle fix (no regression)', () => {
+  assert.equal(kanaToRomaji('べんきょう'), 'benkyou')
+  assert.equal(kanaToRomaji('しゅうせい'), 'shuusei')
+  assert.equal(kanaToRomaji('おはよう'), 'ohayou')
+  assert.equal(kanaToRomaji('おはようございます'), 'ohayougozaimasu')
+})
+
 test('displayRomaji prefers regenerating from kana over a bad stored value', () => {
   assert.equal(displayRomaji('しゅうせい', 'shusei'), 'shuusei')
   assert.equal(displayRomaji('たいおう', 'taio'), 'taiou')

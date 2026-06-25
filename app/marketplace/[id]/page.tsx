@@ -12,7 +12,7 @@ import ListingCard from '@/components/marketplace/ListingCard'
 import TagList from '@/components/tags/TagList'
 import { getTagsForContent } from '@/lib/tags'
 import { isUuid, formatPriceJPY, relativeListingDate, CONDITION_PRESETS } from '@/lib/marketplace'
-import { getListingById, getListingComments, getRelatedListings, getListingRating } from '@/lib/marketplace-data'
+import { getListingById, getListingComments, getRelatedListings, getListingRating, hasContactedSeller } from '@/lib/marketplace-data'
 import { setSaleStatus, deleteListing, incrementListingView, resolveEndedAuction, getListingBids } from '../actions'
 import RichDescription from '@/components/RichDescription'
 import ListingGallery from './ListingGallery'
@@ -76,13 +76,14 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
   const auctionResolve = listing.listing_type === 'auction'
     ? resolveEndedAuction(listing) : Promise.resolve()
 
-  const [seller, comments, related, rating, initialBids, tags] = await Promise.all([
+  const [seller, comments, related, rating, initialBids, tags, contacted] = await Promise.all([
     getUserIdentity(listing.user_id),
     getListingComments(listing.id),
     getRelatedListings(listing.category, listing.id, listing.community_scope),
     getListingRating(listing.id, viewer?.id ?? null),
     listing.listing_type === 'auction' ? getListingBids(listing.id) : Promise.resolve([]),
     getTagsForContent(supabase, 'listing', listing.id),
+    viewer && !isOwner ? hasContactedSeller(viewer.id, listing.user_id) : Promise.resolve(false),
   ])
   // Ensure the writes finish before the serverless function returns (they were
   // already running in parallel with the reads above, so this rarely waits).
@@ -93,13 +94,54 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
   const sold = listing.sale_status === 'sold'
   const sellerName = seller.name || t('member_fallback')
   const presetLabel = CONDITION_PRESETS.find(p => p.percent === listing.condition_percent)?.key
+  const conditionText = listing.condition === 'new'
+    ? t('cond_new')
+    : `${presetLabel ? t(`cond_${presetLabel}` as Parameters<typeof t>[0]) + ' · ' : ''}${listing.condition_percent}%`
+
+  // Review eligibility (anti review-bombing): a logged-in non-owner may submit a
+  // review only after they have messaged the seller, OR if they already left one.
+  const canRate = !!viewer && !isOwner
+  const eligibleToRate = canRate && (rating.myStars != null || contacted)
+
+  // Scope-aware marketplace hrefs (keep the internal tab while navigating).
+  const scopePrefix = listing.community_scope === 'fko_internal' ? 'scope=fko_internal&' : ''
+  const marketHref = listing.community_scope === 'fko_internal' ? '/marketplace?scope=fko_internal' : '/marketplace'
+  const categoryHref = `/marketplace?${scopePrefix}category=${listing.category}`
+
+  // Product details table — filled into the left column (desktop) and the stack
+  // (mobile) so both columns carry real content and read at a similar height.
+  const detailRows: { label: string; value: string }[] = [
+    { label: t('field_condition'), value: conditionText },
+    { label: t('field_category'), value: t(`cat_${listing.category}` as Parameters<typeof t>[0]) },
+    ...(listing.area ? [{ label: t('field_location'), value: listing.area }] : []),
+    { label: t('field_posted'), value: relativeListingDate(listing.created_at, locale) },
+    { label: t('field_views'), value: String(listing.view_count) },
+  ]
+  const detailsCard = (className: string) => (
+    <div className={className}>
+      <h2 className="font-serif font-bold text-[17px] text-ink mb-3">{t('details_title')}</h2>
+      <dl className="bg-paper border border-line rounded-2xl divide-y divide-line overflow-hidden">
+        {detailRows.map(r => (
+          <div key={r.label} className="flex items-center justify-between gap-4 px-4 py-2.5">
+            <dt className="text-[13px] text-muted">{r.label}</dt>
+            <dd className="text-[13.5px] font-medium text-ink text-right">{r.value}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  )
 
   return (
     <div className="pb-20">
       <div className="max-w-[1100px] mx-auto px-5 sm:px-6 pt-6">
-        <Link href="/marketplace" className="inline-flex items-center gap-1.5 text-[12.5px] font-medium text-muted hover:text-rose transition-colors mb-5">
-          ← {t('back_to_market')}
-        </Link>
+        {/* Breadcrumb (consistent with the rest of the site) */}
+        <nav className="flex items-center gap-1.5 text-[12.5px] text-muted mb-5 flex-wrap">
+          <Link href={marketHref} className="hover:text-rose transition-colors">{t('page_title')}</Link>
+          <span>/</span>
+          <Link href={categoryHref} className="hover:text-rose transition-colors">{t(`cat_${listing.category}` as Parameters<typeof t>[0])}</Link>
+          <span>/</span>
+          <span className="text-ink font-medium truncate max-w-[55vw] sm:max-w-[320px]">{listing.title}</span>
+        </nav>
 
         {listing.status !== 'approved' && (
           <div className="mb-5 px-4 py-3 rounded-xl bg-amber-50 border border-amber-200 text-[13px] text-amber-800">
@@ -119,6 +161,9 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
                 <RichDescription content={listing.description} className="text-[15px] text-[#3a2d22] leading-[1.85]" />
               </div>
             )}
+
+            {/* Details table (desktop) — gives the left column real content */}
+            {detailsCard('mt-7 hidden lg:block')}
           </div>
 
           {/* Info column */}
@@ -247,17 +292,9 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
               )}
             </div>
 
-            {/* Seller rating */}
-            {(rating.count > 0 || (!!viewer && !isOwner)) && (
-              <ListingRating
-                listingId={listing.id}
-                average={rating.average}
-                count={rating.count}
-                myStars={rating.myStars}
-                myReview={rating.myReview}
-                canRate={!!viewer && !isOwner}
-              />
-            )}
+            {/* Details table (mobile) — placed in-flow so the stack order is
+                image → price → contact → details → safety on phones. */}
+            {detailsCard('lg:hidden')}
 
             {/* Safety tips */}
             <div className="bg-cream border border-line rounded-2xl p-4 text-[12px] text-muted leading-relaxed">
@@ -272,6 +309,21 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
           <div className="mt-7 lg:hidden">
             <h2 className="font-serif font-bold text-[19px] text-ink mb-3">{t('description')}</h2>
             <RichDescription content={listing.description} className="text-[15px] text-[#3a2d22] leading-[1.85]" />
+          </div>
+        )}
+
+        {/* Seller reviews — moved out of the rail to full width below the fold */}
+        {(rating.count > 0 || canRate) && (
+          <div className="mt-9 max-w-[680px]">
+            <ListingRating
+              listingId={listing.id}
+              average={rating.average}
+              count={rating.count}
+              myStars={rating.myStars}
+              myReview={rating.myReview}
+              canRate={canRate}
+              eligible={eligibleToRate}
+            />
           </div>
         )}
 

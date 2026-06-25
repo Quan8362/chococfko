@@ -432,6 +432,7 @@ export default function ListingForm({
           draftKey={null}
           enableImages={false}
         />
+        <p className="text-[11.5px] text-muted mt-2">{t('desc_hint')}</p>
       </div>
 
       {/* Tags */}

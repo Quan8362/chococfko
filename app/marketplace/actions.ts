@@ -284,6 +284,31 @@ export async function submitSellerRating(
   if (!sellerId) return { error: 'invalid' }
   if (sellerId === user.id) return { error: 'self' }
 
+  // ── Anti review-bombing gate (server is the security boundary) ──────────────
+  // A user may keep one review per seller and may edit it freely. A *new* review
+  // is allowed only when the rater has actually messaged the seller, and never
+  // when they already reviewed this seller on a different listing.
+  const admin = createAdminClient()
+  const { data: priorForSeller } = await admin
+    .from('marketplace_ratings')
+    .select('listing_id')
+    .eq('seller_id', sellerId)
+    .eq('rater_id', user.id)
+    .maybeSingle()
+  const priorListingId = (priorForSeller as { listing_id: string } | null)?.listing_id ?? null
+  if (priorListingId && priorListingId !== listingId) return { error: 'already_reviewed' }
+  if (!priorListingId) {
+    const [u1, u2] = [user.id, sellerId].sort()
+    const { data: conv } = await admin
+      .from('community_dm_conversations')
+      .select('last_message_at')
+      .eq('user1_id', u1)
+      .eq('user2_id', u2)
+      .maybeSingle()
+    const contacted = !!conv && (conv as { last_message_at: string | null }).last_message_at != null
+    if (!contacted) return { error: 'not_contacted' }
+  }
+
   const trimmed = (review ?? '').trim().slice(0, 500)
   const { error } = await supabase
     .from('marketplace_ratings')

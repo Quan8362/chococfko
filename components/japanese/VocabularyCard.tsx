@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import JlptBadge from './JlptBadge'
 import PosBadges from './PosBadges'
 import type { JapaneseWord } from './WordCard'
@@ -30,6 +30,7 @@ export default function VocabularyCard({
   word, progress, isLoggedIn, onAction, loginMessage, commentCount
 }: VocabularyCardProps) {
   const t = useTranslations('japanese')
+  const locale = useLocale()
   const [busy, setBusy] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
 
@@ -106,12 +107,23 @@ export default function VocabularyCard({
         </div>
       )}
 
-      {/* Example */}
+      {/* Example — three-line treatment (Japanese / reading / translation) with a
+          brand-magenta left accent, standardized to match the dictionary WordCard. */}
       {firstExample?.ja && (
-        <div className="mb-3 pt-2.5 border-t border-line/60">
-          <p className="text-[13px] text-ink" lang="ja">{firstExample.ja}</p>
-          {firstExample.vi && (
-            <p className="text-[11.5px] text-muted/80 italic mt-0.5">{firstExample.vi}</p>
+        <div className="mb-3 border-l-2 border-rose/30 pl-3">
+          <p className="text-[13px] font-medium text-ink break-normal [overflow-wrap:normal]" lang="ja">{firstExample.ja}</p>
+          {firstExample.reading && (
+            <p className="text-[11.5px] text-muted mt-0.5 break-normal [overflow-wrap:normal]" lang="ja">{firstExample.reading}</p>
+          )}
+          {(locale === 'en'
+            ? (firstExample.en || firstExample.vi)
+            : (firstExample.vi || firstExample.en)
+          ) && (
+            <p className="text-[12px] text-muted/80 mt-0.5 italic">
+              {locale === 'en'
+                ? (firstExample.en || firstExample.vi)
+                : (firstExample.vi || firstExample.en)}
+            </p>
           )}
         </div>
       )}

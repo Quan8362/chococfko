@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { getTranslations, getLocale } from 'next-intl/server'
-import { type Listing, formatPriceJPY, relativeListingDate } from '@/lib/marketplace'
+import { type Listing, formatPriceJPY, relativeListingDate, CONDITION_PRESETS } from '@/lib/marketplace'
 import { imgProxy } from '@/lib/avatar'
 
 export default async function ListingCard({ listing }: { listing: Listing }) {
@@ -8,6 +8,10 @@ export default async function ListingCard({ listing }: { listing: Listing }) {
   const isFree = listing.listing_type === 'free'
   const isAuction = listing.listing_type === 'auction'
   const sold = listing.sale_status === 'sold'
+  const presetLabel = CONDITION_PRESETS.find(p => p.percent === listing.condition_percent)?.key
+  const conditionLabel = listing.condition === 'new'
+    ? t('cond_new')
+    : `${presetLabel ? t(`cond_${presetLabel}` as Parameters<typeof t>[0]) + ' · ' : ''}${listing.condition_percent ?? ''}%`
 
   return (
     <Link
@@ -48,9 +52,13 @@ export default async function ListingCard({ listing }: { listing: Listing }) {
           )}
         </div>
 
-        {/* Condition chip */}
-        <span className="absolute bottom-2.5 right-2.5 text-[10.5px] font-semibold px-2 py-0.5 rounded-full bg-white/90 backdrop-blur-sm text-ink/70">
-          {listing.condition === 'new' ? t('cond_new') : `${listing.condition_percent ?? ''}%`}
+        {/* Condition chip — labelled so the percentage reads as item condition */}
+        <span
+          title={t('field_condition')}
+          className="absolute bottom-2.5 right-2.5 inline-flex items-center gap-1 text-[10.5px] font-semibold px-2 py-0.5 rounded-full bg-white/90 backdrop-blur-sm text-ink/70"
+        >
+          <svg className="w-3 h-3 text-rose/70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          {conditionLabel}
         </span>
       </div>
 

@@ -11,6 +11,15 @@ import MarketplaceFilters from './MarketplaceFilters'
 
 export const dynamic = 'force-dynamic'
 
+// Keep cards at a natural size and left-aligned when there are few listings, so a
+// sparse result set looks deliberate rather than like a broken multi-column grid.
+function gridLayoutClass(count: number): string {
+  if (count === 1) return 'grid-cols-1 max-w-[300px]'
+  if (count === 2) return 'grid-cols-2 max-w-[620px]'
+  if (count === 3) return 'grid-cols-2 sm:grid-cols-3 max-w-[920px]'
+  return 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4'
+}
+
 export async function generateMetadata({ searchParams }: { searchParams: { scope?: string } }) {
   const t = await getTranslations('marketplace')
   const internal = searchParams.scope === 'fko_internal'
@@ -119,9 +128,14 @@ export default async function MarketplacePage({
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-4">
-            {listings.map(l => <ListingCard key={l.id} listing={l} />)}
-          </div>
+          <>
+            <p className="text-[13px] text-muted mb-4">{t('result_count', { count: listings.length })}</p>
+            {/* Constrain the grid when there are only a few items so the row reads
+                as intentional instead of leaving a large empty gap. */}
+            <div className={`grid gap-3.5 sm:gap-4 ${gridLayoutClass(listings.length)}`}>
+              {listings.map(l => <ListingCard key={l.id} listing={l} />)}
+            </div>
+          </>
         )}
       </div>
     </div>

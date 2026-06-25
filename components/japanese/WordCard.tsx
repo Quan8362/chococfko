@@ -28,6 +28,8 @@ interface WordCardProps {
   locale?: string
   actionSlot?: React.ReactNode
   footerSlot?: React.ReactNode
+  /** Self-test mode — hide the kana reading + romaji so the learner can recall them. */
+  hideReadings?: boolean
 }
 
 const NO_VI_MEANING: Record<string, string> = {
@@ -38,7 +40,7 @@ const NO_VI_MEANING: Record<string, string> = {
   zh: '暂无越南语释义',
 }
 
-export default function WordCard({ word, locale = 'vi', actionSlot, footerSlot }: WordCardProps) {
+export default function WordCard({ word, locale = 'vi', actionSlot, footerSlot, hideReadings = false }: WordCardProps) {
   const firstMeaning = word.meanings?.[0]
   const firstExample = word.examples?.[0]
   const romaji = displayRomaji(word.reading, word.romaji)
@@ -64,7 +66,7 @@ export default function WordCard({ word, locale = 'vi', actionSlot, footerSlot }
           >
             {word.word}
           </span>
-          {word.reading && word.reading !== word.word && (
+          {!hideReadings && word.reading && word.reading !== word.word && (
             <span
               className="text-[13px] text-muted break-normal [line-break:strict] [overflow-wrap:normal]"
               lang="ja"
@@ -74,7 +76,7 @@ export default function WordCard({ word, locale = 'vi', actionSlot, footerSlot }
           )}
         </div>
         {/* Romaji */}
-        {romaji && (
+        {!hideReadings && romaji && (
           <div className="text-[12px] text-muted mt-0.5">{romaji}</div>
         )}
       </div>

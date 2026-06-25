@@ -235,6 +235,11 @@ export async function submitPlace(formData: FormData) {
 
   if (error) redirect('/places/new?error=' + encodeURIComponent(error.message))
 
+  // Stamp the HUMAN-edit timestamp (drives "recently updated"). Best-effort; new
+  // rows are also covered by the created_at fallback in mapDbPlace. Enrichment must
+  // NEVER set this — it reflects human edits only.
+  await createAdminClient().from('places').update({ last_human_edit_at: new Date().toISOString() }).eq('slug', slug)
+
   if (inserted?.id) {
     await setContentTags(createAdminClient(), 'place', inserted.id as string, formData.get('tags'), await getLocale())
   }

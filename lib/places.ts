@@ -91,6 +91,10 @@ export interface Place {
   // Timestamps (for "newest" / "recently updated" sorts & filters)
   createdAt?: string | null;
   updatedAt?: string | null;
+  // Last HUMAN edit (admin updatePlace / community submitPlace) — drives the
+  // "recently updated" filter. Deliberately separate from updated_at, which the
+  // weekly enrichment cron bumps. Falls back to createdAt when unset.
+  lastHumanEditAt?: string | null;
   // Transient (attached at query time, not stored): distance for "nearby"/"nearest"
   // sort, and a community-activity score (ratings+comments) for the "community" sort.
   distanceKm?: number | null;
@@ -1322,6 +1326,7 @@ interface DbPlace {
   japanese_phrases?: { ja: string; romaji: string; vi: string }[] | null; verification_status?: string | null;
   search_eligible?: boolean | null; recommend_eligible?: boolean | null;
   created_at?: string | null; updated_at?: string | null;
+  last_human_edit_at?: string | null;
 }
 
 function mapDbPlace(row: DbPlace): Place {
@@ -1408,6 +1413,9 @@ function mapDbPlace(row: DbPlace): Place {
     recommendEligible: row.recommend_eligible ?? null,
     createdAt: row.created_at ?? null,
     updatedAt: row.updated_at ?? null,
+    // Fall back to created_at so "recently updated" is correct even before the
+    // migration/backfill populates last_human_edit_at (seed = created_at).
+    lastHumanEditAt: row.last_human_edit_at ?? row.created_at ?? null,
   };
 }
 

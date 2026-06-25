@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { checkIsAdmin, createAdminClient } from '@/lib/supabase/admin'
 import { categories } from '@/lib/places'
-import { seedPlaces } from './actions'
+import { seedPlaces, verifyAllSuggested, setPlaceVerified } from './actions'
 import DeletePlaceButton from './DeletePlaceButton'
 import { imgProxy } from '@/lib/avatar'
 import { decodeExternalSeed, SEED_PARAM } from '@/lib/maps/adminSeed'
@@ -30,7 +30,14 @@ type Row = {
   img: string | null
   body: string | null
   status: string | null
+  verification_status: string | null
+  google_enrichment: { match?: { low_confidence?: boolean } } | null
 }
+
+const isVerified = (r: Row) => r.verification_status === 'verified'
+// High-confidence enriched but not yet verified → suggest for admin confirmation.
+const isSuggested = (r: Row) =>
+  !isVerified(r) && r.google_enrichment != null && r.google_enrichment.match?.low_confidence !== true
 
 export default async function AdminDiaDiem({
   searchParams,
@@ -53,12 +60,14 @@ export default async function AdminDiaDiem({
   const admin = createAdminClient()
   const { data, error } = await admin
     .from('places')
-    .select('slug, name, area, category, category_label, img, body, status')
+    .select('slug, name, area, category, category_label, img, body, status, verification_status, google_enrichment')
     .order('sort_order', { ascending: true })
 
   const dbRows: Row[] = (data as Row[]) ?? []
   const isSeeded = !error && dbRows.length > 0
   const pendingCount = dbRows.filter((r) => r.status === 'pending').length
+  const suggested = dbRows.filter(isSuggested)
+  const verifiedCount = dbRows.filter(isVerified).length
 
   let shown = dbRows
   if (searchParams.cat) shown = shown.filter((p) => p.category === searchParams.cat)
@@ -163,6 +172,52 @@ export default async function AdminDiaDiem({
         </div>
       )}
 
+      {isSeeded && suggested.length > 0 && (
+        <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-5 mb-6">
+          <div className="flex items-start justify-between gap-4 flex-wrap">
+            <div>
+              <h2 className="font-serif font-bold text-emerald-800 text-[16px] mb-1">
+                ✅ {admin_t('verify_suggested_heading', { n: suggested.length })}
+              </h2>
+              <p className="text-[13px] text-emerald-700 max-w-[560px]">{admin_t('verify_suggested_desc')}</p>
+            </div>
+            <form action={verifyAllSuggested}>
+              <button
+                type="submit"
+                className="inline-flex items-center gap-2 text-[13px] font-semibold px-4 py-2 rounded-full bg-emerald-600 text-white hover:bg-emerald-700 transition-all whitespace-nowrap shadow-[0_4px_14px_-4px_rgba(5,150,105,0.5)]"
+              >
+                {admin_t('verify_all_btn', { n: suggested.length })}
+              </button>
+            </form>
+          </div>
+          <details className="mt-3">
+            <summary className="text-[12.5px] font-semibold text-emerald-700 cursor-pointer select-none">
+              {admin_t('verify_show_list')}
+            </summary>
+            <div className="mt-2 space-y-1.5">
+              {suggested.map((p) => (
+                <div key={p.slug} className="flex items-center gap-3 bg-paper border border-line rounded-lg px-3 py-2">
+                  <span className="flex-1 min-w-0 truncate text-[13px] text-ink">
+                    {CAT_EMOJI[p.category]} {p.name}
+                    <span className="text-muted"> · {p.area}</span>
+                  </span>
+                  <form action={setPlaceVerified} className="flex-none">
+                    <input type="hidden" name="slug" value={p.slug} />
+                    <input type="hidden" name="verified" value="1" />
+                    <button
+                      type="submit"
+                      className="text-[12px] font-semibold px-3 py-1.5 rounded-lg bg-emerald-soft text-emerald-700 border border-emerald-300 hover:bg-emerald-600 hover:text-white hover:border-emerald-600 transition-all whitespace-nowrap"
+                    >
+                      {admin_t('verify_btn')}
+                    </button>
+                  </form>
+                </div>
+              ))}
+            </div>
+          </details>
+        </div>
+      )}
+
       {isSeeded && (
         <>
           {/* ── CATEGORY FILTER ──────────────────────────────── */}
@@ -227,6 +282,11 @@ export default async function AdminDiaDiem({
                         ⏳ {admin_t('pending')}
                       </span>
                     )}
+                    {isVerified(p) && (
+                      <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200 whitespace-nowrap flex-none">
+                        ✓ {admin_t('verified_badge')}
+                      </span>
+                    )}
                   </div>
                   <div className="text-[12px] text-muted flex items-center flex-wrap gap-x-2 gap-y-0.5 mt-0.5">
                     <span>{CAT_EMOJI[p.category]} {tCat(p.category as Parameters<typeof tCat>[0])}</span>
@@ -249,6 +309,18 @@ export default async function AdminDiaDiem({
                   >
                     👁 {admin_t('action_view')}
                   </Link>
+                  {isVerified(p) && (
+                    <form action={setPlaceVerified}>
+                      <input type="hidden" name="slug" value={p.slug} />
+                      <input type="hidden" name="verified" value="0" />
+                      <button
+                        type="submit"
+                        className="text-[12px] text-muted hover:text-rose px-2.5 py-1.5 rounded-lg hover:bg-rose-soft border border-transparent hover:border-rose/20 transition-all whitespace-nowrap"
+                      >
+                        {admin_t('unverify_btn')}
+                      </button>
+                    </form>
+                  )}
                   <Link
                     href={`/admin/places/${p.slug}`}
                     className="text-[12.5px] font-semibold px-3.5 py-1.5 rounded-lg bg-teal-soft text-teal border border-teal/25 hover:bg-teal hover:text-white hover:border-teal transition-all whitespace-nowrap"

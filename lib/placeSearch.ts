@@ -603,7 +603,10 @@ function passesStructuredFilters(p: Place, c: PlaceCriteria, now: Date): boolean
   if (c.paymentMethods?.length && !c.paymentMethods.some((m) => p.paymentMethods?.includes(m))) return false;
   if (c.languages?.length && !c.languages.some((l) => p.supportedLanguages?.includes(l))) return false;
   if (c.verifiedOnly && p.verificationStatus !== 'verified') return false;
-  if (c.recentlyUpdatedDays != null && !withinDays(p.updatedAt, c.recentlyUpdatedDays, now)) return false;
+  // "Recently updated" = recent HUMAN edit only. Reads lastHumanEditAt (admin/community
+  // edits), NOT updated_at — the weekly enrichment cron bumps updated_at and must not
+  // count. mapDbPlace falls back lastHumanEditAt → created_at.
+  if (c.recentlyUpdatedDays != null && !withinDays(p.lastHumanEditAt, c.recentlyUpdatedDays, now)) return false;
   return true;
 }
 

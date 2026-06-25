@@ -8,6 +8,9 @@ import {
 export const SORT_KEYS = ['recommended', 'nearest', 'recently_verified', 'price_low', 'community', 'newest'] as const;
 export type SortKey = (typeof SORT_KEYS)[number];
 
+/** Window (days) for the "recently updated" filter — counts HUMAN edits only. */
+export const RECENTLY_UPDATED_WINDOW_DAYS = 30;
+
 export interface ExploreFilters {
   q?: string;
   category?: string;
@@ -126,7 +129,7 @@ export function filtersToCriteria(f: ExploreFilters): Record<string, unknown> {
     paymentMethods: f.payment,
     languages: f.lang,
     verifiedOnly: f.verified || undefined,
-    recentlyUpdatedDays: f.recentlyUpdated ? 30 : null,
+    recentlyUpdatedDays: f.recentlyUpdated ? RECENTLY_UPDATED_WINDOW_DAYS : null,
     sort: f.sort,
   };
 }

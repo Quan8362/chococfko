@@ -259,6 +259,11 @@ export async function updatePlace(formData: FormData) {
 
   if (error) throw new Error(error.message)
 
+  // Stamp the HUMAN-edit timestamp (drives the "recently updated" filter). Separate
+  // from updated_at, which the enrichment cron bumps. Best-effort + isolated so a
+  // pre-migration DB (no column) never fails the edit; enrichment must NEVER set this.
+  await admin.from('places').update({ last_human_edit_at: new Date().toISOString() }).eq('slug', slug)
+
   // Notify users who saved this place when its info materially changed.
   try {
     const newStatus = (extended as Record<string, unknown>).temporary_status as string | null | undefined
@@ -329,6 +334,64 @@ export async function rejectPlace(formData: FormData) {
   revalidatePath('/admin')
   revalidatePath('/')
   redirect(formData.get('from') === 'dashboard' ? '/admin' : '/admin/places')
+}
+
+// ── Verified (admin confirmation) ─────────────────────────────────────────────
+// "verified" reuses verification_status='verified' (the column the /places filter
+// already reads). A Google match alone NEVER sets this — only an admin confirming.
+// High-confidence enriched places are SUGGESTED (derived from google_enrichment,
+// no separate column); the 3 wrong slugs have a null blob so they're never suggested.
+
+type SuggestRow = { slug: string; google_enrichment: { match?: { low_confidence?: boolean } } | null; verification_status: string | null }
+
+/** Slugs that are high-confidence enriched but not yet admin-verified. */
+export async function getSuggestedVerifiedSlugs(): Promise<string[]> {
+  if (!(await checkIsAdmin())) return []
+  const { data } = await createAdminClient()
+    .from('places')
+    .select('slug, google_enrichment, verification_status')
+    .not('google_enrichment', 'is', null)
+    .neq('verification_status', 'verified')
+  return ((data ?? []) as SuggestRow[])
+    .filter((r) => r.google_enrichment?.match?.low_confidence !== true)
+    .map((r) => r.slug)
+}
+
+/** Set verified state on slugs, recording field_sources.verification_status='manual'
+ *  (human-owned → enrichment never alters it). Merges field_sources per row. */
+async function setVerifiedForSlugs(slugs: string[], verified: boolean): Promise<void> {
+  if (!slugs.length) return
+  const admin = createAdminClient()
+  const { data } = await admin.from('places').select('slug, field_sources').in('slug', slugs)
+  const rows = (data ?? []) as { slug: string; field_sources: Record<string, string> | null }[]
+  const fsMap = new Map(rows.map((r) => [r.slug, r.field_sources ?? {}]))
+  for (const slug of slugs) {
+    const fs = { ...(fsMap.get(slug) ?? {}), verification_status: 'manual' }
+    await admin
+      .from('places')
+      .update({ verification_status: verified ? 'verified' : 'unverified', field_sources: fs })
+      .eq('slug', slug)
+  }
+}
+
+export async function verifyAllSuggested(): Promise<void> {
+  await guardAdmin()
+  const slugs = await getSuggestedVerifiedSlugs()
+  await setVerifiedForSlugs(slugs, true)
+  revalidatePath('/admin/places')
+  revalidatePath('/places')
+  revalidatePath('/')
+}
+
+export async function setPlaceVerified(formData: FormData): Promise<void> {
+  await guardAdmin()
+  const slug = (formData.get('slug') as string)?.trim()
+  if (!slug) return
+  const verified = (formData.get('verified') as string) === '1'
+  await setVerifiedForSlugs([slug], verified)
+  revalidatePath('/admin/places')
+  revalidatePath(`/places/${slug}`)
+  revalidatePath('/')
 }
 
 export async function deletePlace(slug: string) {

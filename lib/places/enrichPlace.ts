@@ -143,6 +143,10 @@ export async function enrichPlace(db: SupabaseLike, row: EnrichRow, opts: Enrich
   for (const k of applied.changedKeys) out.diff[k] = { from: row[k] ?? null, to: applied.update[k] };
 
   // ── 5. Build the persisted payload (always stamps the audit blob) ──
+  // INVARIANT: enrichment NEVER sets verification_status/'verified' (a Google match
+  // is not human confirmation — admin-only) and NEVER touches last_human_edit_at
+  // (that reflects human edits only, for the "recently updated" filter). Only the
+  // mapped attribute columns + the audit/provenance blobs below are written here.
   const nowIso = new Date().toISOString();
   const payload: Record<string, unknown> = {
     ...applied.update,

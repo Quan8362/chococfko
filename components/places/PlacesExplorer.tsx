@@ -23,6 +23,19 @@ import ViewSwitch from '@/components/explore/ViewSwitch'
 const PAGE = 12
 const RECENT_KEY = 'chococfko_recent_searches'
 
+// suggestRelaxation returns engine (PlaceCriteria) keys, a few of which differ
+// from the URL/UI (ExploreFilters) keys that chipLabel + `set` understand. Map
+// them so the empty-state "remove filter" buttons get the right localized label
+// AND actually clear the filter when clicked.
+const CRITERIA_TO_FILTER_KEY: Partial<Record<string, keyof ExploreFilters>> = {
+  verifiedOnly: 'verified',
+  recentlyUpdatedDays: 'recentlyUpdated',
+  paymentMethods: 'payment',
+  languages: 'lang',
+}
+const toFilterKey = (k: keyof PlaceCriteria): keyof ExploreFilters =>
+  CRITERIA_TO_FILTER_KEY[String(k)] ?? (k as keyof ExploreFilters)
+
 interface Props {
   places: Place[]
   cards: Record<string, React.ReactNode>
@@ -256,7 +269,8 @@ export default function PlacesExplorer({ places, cards, categories, prefectures,
   // back to a full price reset (the bucket lives in state.price, not priceMin/Max).
   const relaxFilter = useCallback((key: keyof PlaceCriteria) => {
     if (key === 'priceMin' || key === 'priceMax' || key === 'fee') { set({ ...PRICE_RESET }); return }
-    set({ [key]: Array.isArray(state[key as keyof ExploreFilters]) ? [] : undefined } as Partial<ExploreFilters>)
+    const fk = toFilterKey(key)
+    set({ [fk]: Array.isArray(state[fk]) ? [] : undefined } as Partial<ExploreFilters>)
   }, [set, state])
 
   const activeCount = activeFilterCount(state)
@@ -284,7 +298,7 @@ export default function PlacesExplorer({ places, cards, categories, prefectures,
     }
     for (const s of relax) {
       if (priceKeys.has(String(s.filter))) continue
-      const label = chipLabel(s.filter as keyof ExploreFilters) ?? String(s.filter)
+      const label = chipLabel(toFilterKey(s.filter)) ?? String(s.filter)
       items.push({ key: String(s.filter), label, count: s.count, onClick: () => relaxFilter(s.filter) })
     }
     return items.slice(0, 3)

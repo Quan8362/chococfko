@@ -203,7 +203,9 @@ export function mapGoogleToProposal(
     const endU = parseUnits(range?.endPrice);
     const ccy = (range?.endPrice?.currencyCode ?? range?.startPrice?.currencyCode ?? 'JPY').toUpperCase();
     if (ccy === 'JPY' && (startU != null || endU != null)) {
-      if (startU != null) set('price_min', startU, 'google');
+      // Google often reports a placeholder startPrice of ¥0–¥1 ("from cheap"); that
+      // is not a real lower bound, so skip it to avoid an ugly "¥1–…" display.
+      if (startU != null && startU > 1) set('price_min', startU, 'google');
       if (endU != null) set('price_max', endU, 'google');
       set('price_type', 'paid', 'inferred');
       set('currency', 'JPY', 'google');

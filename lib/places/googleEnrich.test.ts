@@ -95,6 +95,13 @@ test('priceRange in JPY → numeric bounds; null priceLevel → no free, no pric
   assert.equal(ranged.updates.price_min, 1000);
   assert.equal(ranged.updates.price_max, 2500);
 
+  // Placeholder ¥1 startPrice is not a real lower bound → price_min stays unset.
+  const floor = mapGoogleToProposal({
+    priceRange: { startPrice: { currencyCode: 'JPY', units: '1' }, endPrice: { currencyCode: 'JPY', units: '5000' } },
+  });
+  assert.equal(floor.updates.price_min, undefined);
+  assert.equal(floor.updates.price_max, 5000);
+
   // Paid-admission park where Google returns nothing → never a free badge.
   const unknown = mapGoogleToProposal({ primaryType: 'park', types: ['tourist_attraction'] });
   assert.equal(unknown.updates.fee, undefined);

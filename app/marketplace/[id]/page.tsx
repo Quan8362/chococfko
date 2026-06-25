@@ -108,8 +108,9 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
   const marketHref = listing.community_scope === 'fko_internal' ? '/marketplace?scope=fko_internal' : '/marketplace'
   const categoryHref = `/marketplace?${scopePrefix}category=${listing.category}`
 
-  // Product details table — filled into the left column (desktop) and the stack
-  // (mobile) so both columns carry real content and read at a similar height.
+  // Product details table — rendered full-width below the two-column zone, as a
+  // 2-column label/value grid so it fills the width and its right edge aligns
+  // with the reviews + comments sections.
   const detailRows: { label: string; value: string }[] = [
     { label: t('field_condition'), value: conditionText },
     { label: t('field_category'), value: t(`cat_${listing.category}` as Parameters<typeof t>[0]) },
@@ -117,12 +118,21 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
     { label: t('field_posted'), value: relativeListingDate(listing.created_at, locale) },
     { label: t('field_views'), value: String(listing.view_count) },
   ]
+  const detailTotal = detailRows.length
+  const detailLastRowStart = Math.floor((detailTotal - 1) / 2) * 2
   const detailsCard = (className: string) => (
     <div className={className}>
-      <h2 className="font-serif font-bold text-[17px] text-ink mb-3">{t('details_title')}</h2>
-      <dl className="bg-paper border border-line rounded-2xl divide-y divide-line overflow-hidden">
-        {detailRows.map(r => (
-          <div key={r.label} className="flex items-center justify-between gap-4 px-4 py-2.5">
+      <h2 className="font-serif font-bold text-[19px] text-ink mb-3">{t('details_title')}</h2>
+      <dl className="bg-paper border border-line rounded-2xl overflow-hidden grid sm:grid-cols-2">
+        {detailRows.map((r, i) => (
+          <div
+            key={r.label}
+            className={`flex items-center justify-between gap-4 px-4 sm:px-5 py-3 border-line ${
+              i === detailTotal - 1 ? '' : 'border-b'
+            } ${i >= detailLastRowStart ? 'sm:border-b-0' : ''} ${
+              i % 2 === 1 ? 'sm:border-l' : ''
+            } ${detailTotal % 2 === 1 && i === detailTotal - 1 ? 'sm:col-span-2' : ''}`}
+          >
             <dt className="text-[13px] text-muted">{r.label}</dt>
             <dd className="text-[13.5px] font-medium text-ink text-right">{r.value}</dd>
           </div>
@@ -161,9 +171,6 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
                 <RichDescription content={listing.description} className="text-[15px] text-[#3a2d22] leading-[1.85]" />
               </div>
             )}
-
-            {/* Details table (desktop) — gives the left column real content */}
-            {detailsCard('mt-7 hidden lg:block')}
           </div>
 
           {/* Info column */}
@@ -292,10 +299,6 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
               )}
             </div>
 
-            {/* Details table (mobile) — placed in-flow so the stack order is
-                image → price → contact → details → safety on phones. */}
-            {detailsCard('lg:hidden')}
-
             {/* Safety tips */}
             <div className="bg-cream border border-line rounded-2xl p-4 text-[12px] text-muted leading-relaxed">
               <p className="font-semibold text-ink mb-1">🛡️ {t('safety_title')}</p>
@@ -312,9 +315,14 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
           </div>
         )}
 
-        {/* Seller reviews — moved out of the rail to full width below the fold */}
+        {/* Details table — full width below the two-column zone (aligns its right
+            edge with the reviews + comments sections below). */}
+        {detailsCard('mt-9')}
+
+        {/* Seller reviews — full width below the fold (no width constraint, so the
+            right edge lines up with the details table and comments). */}
         {(rating.count > 0 || canRate) && (
-          <div className="mt-9 max-w-[680px]">
+          <div className="mt-9">
             <ListingRating
               listingId={listing.id}
               average={rating.average}

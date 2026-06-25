@@ -12,7 +12,7 @@ import SmartImg from "@/components/SmartImg";
 import StarsDisplay from "@/components/marketplace/StarsDisplay";
 import PlaceCard from "@/components/PlaceCard";
 import PlaceActions from "@/components/places/PlaceActions";
-import PlacePractical from "@/components/places/PlacePractical";
+import PlaceVisitInfo from "@/components/places/PlaceVisitInfo";
 import PlacePhrases from "@/components/places/PlacePhrases";
 import PlaceActionBar from "@/components/places/PlaceActionBar";
 import PlaceSaveShare from "@/components/places/PlaceSaveShare";
@@ -24,7 +24,6 @@ import VisitedButton from "@/components/places/VisitedButton";
 import { getPlaceQuestions, getVisitInfo } from "../qa-actions";
 import TagList from "@/components/tags/TagList";
 import { getTagsForContent, type Tag } from "@/lib/tags";
-import { prefectureName } from "@/lib/japan";
 import { openStatus } from "@/lib/placeOpenNow";
 import { phrasesForCategory } from "@/lib/japanesePhrases";
 import { availableActions, directionsUrl, telHref } from "@/lib/placeActions";
@@ -179,11 +178,6 @@ export default async function PlaceDetail({ params }: { params: { slug: string }
       .slice(0, 3),
   );
 
-  const costLabel =
-    place.fee === "free" ? t("cost_free") :
-    place.fee === "paid" ? t("cost_paid") :
-    t("cost_varies");
-
   const canonical = `${SITE_URL}/places/${place.slug}`;
   const hasGeo = typeof place.lat === "number" && typeof place.lng === "number";
   const jsonLd = {
@@ -271,16 +265,21 @@ export default async function PlaceDetail({ params }: { params: { slug: string }
         </div>
       )}
 
-      {/* ── BODY — 2-column desktop ───────────────────────────── */}
-      <div className="max-w-[1100px] mx-auto px-6 mt-10 grid lg:grid-cols-[1fr_268px] gap-10 items-start">
+      {/* ── BODY — 2-column desktop. DOM order intro → rail → body so the rail
+            (with the visit-info card) sits right under the intro on mobile;
+            grid placement restores intro/body in col 1 and the rail in col 2. */}
+      <div className="max-w-[1100px] mx-auto px-6 mt-10 grid lg:grid-cols-[1fr_268px] gap-x-10 gap-y-8 items-start">
 
-        {/* ── LEFT — main content ───────────────────────────── */}
-        <div className="min-w-0">
-          {/* Short description */}
-          <p className="font-serif text-[20px] leading-[1.6] text-[#3a2d22] mb-7">
+        {/* ── INTRO — short description (col 1, row 1) ───────── */}
+        <div className="min-w-0 order-1 lg:order-none lg:col-start-1 lg:row-start-1">
+          <p className="font-serif text-[20px] leading-[1.6] text-[#3a2d22]">
             {place.desc}
           </p>
+        </div>
 
+        {/* ── LEFT — main content (col 1, row 2). order-3 on mobile so the
+              rail (order-2) reflows between the intro and the article body. */}
+        <div className="min-w-0 order-3 lg:order-none lg:col-start-1 lg:row-start-2">
           {/* Rich text body */}
           {place.body ? (
             <div
@@ -308,9 +307,6 @@ export default async function PlaceDetail({ params }: { params: { slug: string }
           <div className="mb-8">
             <VisitedButton slug={place.slug} initialCount={visitInfo.count} initialVisited={visitInfo.visited} />
           </div>
-
-          {/* Practical info (price, hours, station, reservation, suitability, facilities) */}
-          <PlacePractical place={place} />
 
           {/* Know before you go */}
           {place.knowBeforeYouGo && (
@@ -378,8 +374,8 @@ export default async function PlaceDetail({ params }: { params: { slug: string }
           )}
         </div>
 
-        {/* ── RIGHT — sticky sidebar ────────────────────────── */}
-        <aside className="lg:sticky lg:top-[88px] h-fit space-y-3">
+        {/* ── RIGHT — sticky sidebar (col 2, spans both rows) ─── */}
+        <aside className="order-2 lg:order-none lg:col-start-2 lg:row-start-1 lg:row-span-2 lg:sticky lg:top-[88px] h-fit space-y-3">
           {/* Save + Share (desktop) */}
           <PlaceSaveShare slug={place.slug} name={place.name} shareUrl={shareUrl} />
 
@@ -409,38 +405,9 @@ export default async function PlaceDetail({ params }: { params: { slug: string }
           {/* Add to a custom list or trip plan */}
           <AddToCollection slug={place.slug} variant="button" />
 
-          {/* Quick info card */}
-          <div className="bg-paper border border-line rounded-2xl p-5">
-            <h4 className="font-serif font-bold text-[15px] mb-3.5 text-ink">{t("quick_info")}</h4>
-            <ul className="text-[13.5px] text-[#5c4d44] space-y-2.5">
-              <li className="flex items-start gap-2.5">
-                <span className="text-[15px] leading-none mt-px">📂</span>
-                <span>{t("topic")} <b className="text-ink">{displayCategory}</b></span>
-              </li>
-              <li className="flex items-start gap-2.5">
-                <span className="text-[15px] leading-none mt-px">📍</span>
-                <span>{t("location")} <b className="text-ink">{displayArea}</b></span>
-              </li>
-              {place.prefecture && (
-                <li className="flex items-start gap-2.5">
-                  <span className="text-[15px] leading-none mt-px">🏙️</span>
-                  <span>{t("prefecture")} <b className="text-ink">{prefectureName(place.prefecture)}{place.city ? ` · ${place.city}` : ""}</b></span>
-                </li>
-              )}
-              {place.address && (
-                <li className="flex items-start gap-2.5">
-                  <span className="text-[15px] leading-none mt-px">🧭</span>
-                  <span>{t("address")} <b className="text-ink">{place.address}</b></span>
-                </li>
-              )}
-              {place.fee && (
-                <li className="flex items-start gap-2.5">
-                  <span className="text-[15px] leading-none mt-px">💰</span>
-                  <span>{t("cost")} <b className="text-ink">{costLabel}</b></span>
-                </li>
-              )}
-            </ul>
-          </div>
+          {/* Merged visit-info card: status + price + station + topic/area/
+              prefecture/address + reservation/suitability/facility pills */}
+          <PlaceVisitInfo place={place} displayCategory={displayCategory} displayArea={displayArea} />
 
           {/* Place rating */}
           <PlaceRating

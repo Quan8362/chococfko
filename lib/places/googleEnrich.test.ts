@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   googleHoursToInternal, inferIndoorOutdoor, mapGoogleToProposal, applyEnrichment,
-  nameSimilarity, matchConfidence,
+  nameSimilarity, nameContainment, matchConfidence,
   type GoogleOpeningHours,
 } from './googleEnrich.ts';
 import { isOpenNow } from '../placeOpenNow.ts';
@@ -187,4 +187,39 @@ test('name similarity & low-confidence flagging', () => {
     resultLatLng: { latitude: 33.70, longitude: 130.60 },
   });
   assert.equal(bad.lowConfidence, true);
+});
+
+test('containment rescues a bilingual superset name', () => {
+  // Jaccard is penalized by the extra romaji tokens; containment is 1.0.
+  assert.ok(nameSimilarity('奈多海岸 / Nata Beach', '奈多海岸') < 0.5);
+  assert.equal(nameContainment('奈多海岸 / Nata Beach', '奈多海岸'), 1);
+  // No stored coordinate, but the shared full CJK name is strong evidence → not low.
+  const c = matchConfidence({ queryName: '奈多海岸 / Nata Beach', resultName: '奈多海岸' });
+  assert.equal(c.lowConfidence, false);
+});
+
+test('a lone shared latin/romaji token is NOT enough without coords', () => {
+  // "Nakasu Yatai" vs "Nakasu Food Stalls Street": only "nakasu" shared → stays flagged.
+  const c = matchConfidence({ queryName: 'Nakasu Yatai', resultName: 'Nakasu Food Stalls Street' });
+  assert.equal(c.lowConfidence, true);
+});
+
+test('coordinate priority: a very close result confirms despite a weak name', () => {
+  // Romaji vs Japanese name (no overlap) but the pin is ~50m from the known coord.
+  const c = matchConfidence({
+    queryName: 'Mount Tachibana',
+    resultName: 'Tachibanayama',
+    queryLatLng: { latitude: 33.69, longitude: 130.47 },
+    resultLatLng: { latitude: 33.6903, longitude: 130.4704 },
+  });
+  assert.equal(c.lowConfidence, false);
+
+  // Same weak name but the pin is far away → rejected.
+  const far = matchConfidence({
+    queryName: 'Mount Tachibana',
+    resultName: 'Tachibanayama',
+    queryLatLng: { latitude: 33.69, longitude: 130.47 },
+    resultLatLng: { latitude: 34.20, longitude: 131.10 },
+  });
+  assert.equal(far.lowConfidence, true);
 });

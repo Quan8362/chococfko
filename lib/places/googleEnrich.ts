@@ -303,6 +303,34 @@ export function nameSimilarity(a: string | null | undefined, b: string | null | 
   return inter / (sa.length + sb.length - inter);
 }
 
+/**
+ * Containment (overlap) similarity = |intersection| / |smaller set|, 0..1. Unlike
+ * Jaccard it is NOT penalized when one name carries extra tokens, so a bilingual
+ * DB name like "奈多海岸 / Nata Beach" fully contains Google's "奈多海岸" → 1.0.
+ */
+export function nameContainment(a: string | null | undefined, b: string | null | undefined): number {
+  const sa = nameTokenSet(a);
+  const sb = nameTokenSet(b);
+  if (!sa.length || !sb.length) return 0;
+  let inter = 0;
+  for (const t of sa) if (sb.indexOf(t) !== -1) inter++;
+  return inter / Math.min(sa.length, sb.length);
+}
+
+/** Shared tokens carry STRONG evidence: ≥2 distinct, or one multi-char CJK token. */
+function sharedTokens(a: string | null | undefined, b: string | null | undefined): string[] {
+  const sb = nameTokenSet(b);
+  return nameTokenSet(a).filter((t) => sb.indexOf(t) !== -1);
+}
+function hasStrongSharedToken(a: string | null | undefined, b: string | null | undefined): boolean {
+  const shared = sharedTokens(a, b);
+  if (shared.length >= 2) return true;
+  // A single shared token only counts when it's a multi-char CJK token — a whole
+  // place-name written identically in Japanese/Chinese is strong, language-specific
+  // evidence, whereas a lone shared latin word ("asiatico", "mount") is not.
+  return shared.some((t) => t.length >= 2 && /[\u3040-\u30ff\u4e00-\u9fff]/.test(t));
+}
+
 /** Haversine distance in km (small helper; avoids importing the maps module). */
 export function distanceKm(a: GoogleLatLng | null, b: GoogleLatLng | null): number | null {
   if (!a || !b || a.latitude == null || a.longitude == null || b.latitude == null || b.longitude == null) return null;
@@ -336,17 +364,31 @@ export function matchConfidence(args: {
   maxDistanceKm?: number;
 }): MatchConfidence {
   const sim = nameSimilarity(args.queryName, args.resultName);
+  const cont = nameContainment(args.queryName, args.resultName);
+  const strong = hasStrongSharedToken(args.queryName, args.resultName);
+  const nameScore = Math.max(sim, cont);
   const dist = distanceKm(args.queryLatLng ?? null, args.resultLatLng ?? null);
   const maxDist = args.maxDistanceKm ?? 1.0;
   const reasons: string[] = [];
   let low = false;
-  if (sim < 0.34) { low = true; reasons.push(`name_overlap_low(${sim.toFixed(2)})`); }
-  if (dist != null && dist > maxDist) { low = true; reasons.push(`distance_far(${dist.toFixed(2)}km)`); }
-  if (dist == null && sim < 0.5) { low = true; reasons.push('no_coord_and_weak_name'); }
+
+  // Name evidence: a decent Jaccard, OR strong containment (extra tokens on one
+  // side are not penalized) backed by a strong shared token.
+  const nameOk = sim >= 0.5 || (cont >= 0.6 && strong);
+
+  if (dist != null) {
+    // Coordinate priority: a result very close to a KNOWN coordinate confirms the
+    // match even when the name is romaji-vs-Japanese; far away is a hard reject.
+    if (dist > maxDist) { low = true; reasons.push(`distance_far(${dist.toFixed(2)}km)`); }
+    else if (dist > 0.3 && !nameOk && sim < 0.34) { low = true; reasons.push(`weak_name_mid_distance(name=${nameScore.toFixed(2)},${dist.toFixed(2)}km)`); }
+  } else if (!nameOk) {
+    low = true;
+    reasons.push(`no_coord_and_weak_name(jac=${sim.toFixed(2)},cont=${cont.toFixed(2)})`);
+  }
   return {
-    score: sim,
+    score: nameScore,
     lowConfidence: low,
-    reason: reasons.length ? reasons.join(', ') : `ok(name=${sim.toFixed(2)}${dist != null ? `,dist=${dist.toFixed(2)}km` : ''})`,
+    reason: reasons.length ? reasons.join(', ') : `ok(name=${nameScore.toFixed(2)}${dist != null ? `,dist=${dist.toFixed(2)}km` : ''})`,
   };
 }
 

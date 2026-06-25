@@ -122,6 +122,31 @@ test('reservable & goodForChildren are positive-only', () => {
   assert.equal(mapGoogleToProposal({ goodForChildren: false }).updates.good_for_children, undefined);
 });
 
+test('goodForGroups is positive-only', () => {
+  assert.equal(mapGoogleToProposal({ goodForGroups: true }).updates.good_for_groups, true);
+  assert.equal(mapGoogleToProposal({ goodForGroups: false }).updates.good_for_groups, undefined);
+});
+
+test('accessibilityOptions: any wheelchair sub-field → wheelchair_accessible', () => {
+  assert.equal(mapGoogleToProposal({ accessibilityOptions: { wheelchairAccessibleEntrance: true } }).updates.wheelchair_accessible, true);
+  assert.equal(mapGoogleToProposal({ accessibilityOptions: { wheelchairAccessibleSeating: true } }).updates.wheelchair_accessible, true);
+  assert.equal(mapGoogleToProposal({ accessibilityOptions: { wheelchairAccessibleEntrance: false } }).updates.wheelchair_accessible, undefined);
+  assert.equal(mapGoogleToProposal({}).updates.wheelchair_accessible, undefined);
+});
+
+test('paymentOptions: credit/NFC/cash mapped; QR & PayPay never inferred', () => {
+  const p = mapGoogleToProposal({ paymentOptions: { acceptsCreditCards: true, acceptsNfc: true, acceptsCashOnly: true } });
+  assert.deepEqual(p.updates.payment_methods, ['credit_card', 'ic_card', 'cash']);
+  // never produces 'qr' or 'paypay' (no Google field)
+  assert.ok(!(p.updates.payment_methods as string[]).includes('qr'));
+  assert.ok(!(p.updates.payment_methods as string[]).includes('paypay'));
+  // acceptsCashOnly false/absent → cash NOT inferred
+  const noCash = mapGoogleToProposal({ paymentOptions: { acceptsCreditCards: true } });
+  assert.deepEqual(noCash.updates.payment_methods, ['credit_card']);
+  // empty paymentOptions → no write
+  assert.equal(mapGoogleToProposal({ paymentOptions: {} }).updates.payment_methods, undefined);
+});
+
 test('indoor inference also sets rainy_day_ok (rainy filter payoff)', () => {
   const p = mapGoogleToProposal({ primaryType: 'shopping_mall' });
   assert.equal(p.updates.indoor_outdoor, 'indoor');

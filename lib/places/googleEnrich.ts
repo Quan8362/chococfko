@@ -29,6 +29,18 @@ export interface GoogleParkingOptions {
   freeGarageParking?: boolean; paidGarageParking?: boolean;
   valetParking?: boolean;
 }
+export interface GooglePaymentOptions {
+  acceptsCreditCards?: boolean;
+  acceptsDebitCards?: boolean;
+  acceptsCashOnly?: boolean;
+  acceptsNfc?: boolean;
+}
+export interface GoogleAccessibilityOptions {
+  wheelchairAccessibleParking?: boolean;
+  wheelchairAccessibleEntrance?: boolean;
+  wheelchairAccessibleRestroom?: boolean;
+  wheelchairAccessibleSeating?: boolean;
+}
 export interface GooglePlaceDetails {
   id?: string;
   displayName?: { text?: string; languageCode?: string } | string;
@@ -42,6 +54,9 @@ export interface GooglePlaceDetails {
   reservable?: boolean;
   parkingOptions?: GoogleParkingOptions;
   goodForChildren?: boolean;
+  goodForGroups?: boolean;
+  paymentOptions?: GooglePaymentOptions;
+  accessibilityOptions?: GoogleAccessibilityOptions;
 }
 
 /** Provenance marker stored per-column in places.field_sources. */
@@ -183,6 +198,29 @@ export function mapGoogleToProposal(
 
   // ── Tier A: family-friendly (positive only) ──
   if (g.goodForChildren === true) set('good_for_children', true, 'google');
+
+  // ── Tier A: good for groups (mirror, positive only) ──
+  if (g.goodForGroups === true) set('good_for_groups', true, 'google');
+
+  // ── Tier A: wheelchair access (positive only) — true if ANY wheelchair sub-field ──
+  const acc = g.accessibilityOptions;
+  if (acc && (acc.wheelchairAccessibleParking === true || acc.wheelchairAccessibleEntrance === true ||
+    acc.wheelchairAccessibleRestroom === true || acc.wheelchairAccessibleSeating === true)) {
+    set('wheelchair_accessible', true, 'google');
+  }
+
+  // ── Tier A: payment methods (positive only) → payment_methods text[] ──
+  // QR and PayPay have NO field in Google paymentOptions → never enriched here
+  // (stay community-sourced). acceptsNfc is the closest Google has to a Japanese
+  // IC card (Suica/Pasmo) — an APPROXIMATION, not an exact match.
+  const pay = g.paymentOptions;
+  if (pay) {
+    const methods: string[] = [];
+    if (pay.acceptsCreditCards === true) methods.push('credit_card');
+    if (pay.acceptsNfc === true) methods.push('ic_card'); // NFC ≈ IC (approximation)
+    if (pay.acceptsCashOnly === true) methods.push('cash'); // true = cash accepted; absence ≠ "accepts cash"
+    if (methods.length) set('payment_methods', methods, 'google');
+  }
 
   // ── Tier A (inferred): indoor / outdoor + rainy-day OK ──
   const io = inferIndoorOutdoor(g.primaryType, g.types);

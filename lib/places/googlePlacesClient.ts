@@ -22,6 +22,9 @@ export const DETAILS_FIELD_MASK = [
   'id', 'displayName', 'types', 'primaryType', 'location',
   'regularOpeningHours', 'currentOpeningHours',
   'priceLevel', 'priceRange', 'reservable', 'parkingOptions', 'goodForChildren',
+  // Enterprise+Atmosphere (paymentOptions, goodForGroups) + Pro (accessibilityOptions).
+  // Billing is the highest SKU per request, already Enterprise+Atmosphere → +0 cost.
+  'paymentOptions', 'accessibilityOptions', 'goodForGroups',
 ].join(',');
 
 /** Minimal Essentials mask for Text Search resolution (cheap). */

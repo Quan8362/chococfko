@@ -68,6 +68,7 @@ export interface Place {
   bbqAvailable?: boolean | null;
   campingAvailable?: boolean | null;
   petPolicy?: string | null;
+  servesVegetarian?: boolean | null;
   // Action links
   officialWebsite?: string | null;
   reservationUrl?: string | null;
@@ -1335,6 +1336,7 @@ interface DbPlace {
   wheelchair_accessible?: boolean | null; smoking_policy?: string | null;
   payment_methods?: string[] | null; payment_methods_manual?: string[] | null; supported_languages?: string[] | null;
   tattoo_policy?: string | null; bbq_available?: boolean | null; camping_available?: boolean | null; pet_policy?: string | null;
+  serves_vegetarian?: boolean | null;
   official_website?: string | null; reservation_url?: string | null; reservation_provider?: string | null;
   phone?: string | null; phone_e164?: string | null; social_url?: string | null; source_url?: string | null; last_verified_at?: string | null;
   know_before_you_go?: string | null; vi_tips?: string | null; items_to_bring?: string[] | null;
@@ -1410,6 +1412,7 @@ function mapDbPlace(row: DbPlace): Place {
     bbqAvailable: row.bbq_available ?? null,
     campingAvailable: row.camping_available ?? null,
     petPolicy: row.pet_policy ?? null,
+    servesVegetarian: row.serves_vegetarian ?? null,
     officialWebsite: row.official_website ?? null,
     reservationUrl: row.reservation_url ?? null,
     reservationProvider: row.reservation_provider ?? null,

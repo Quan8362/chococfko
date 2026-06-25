@@ -38,6 +38,8 @@ export interface ExploreFilters {
   wheelchair?: boolean;
   bbq?: boolean;
   camping?: boolean;
+  pet?: boolean;
+  vegetarian?: boolean;
   smoking?: 'no_smoking' | 'smoking_allowed' | 'separated';
   tattoo?: 'allowed' | 'not_allowed' | 'covered_ok';
   payment?: string[];
@@ -49,7 +51,7 @@ export interface ExploreFilters {
 const BOOL_KEYS: (keyof ExploreFilters)[] = [
   'openNow', 'nearby', 'reservationAvailable', 'reservationRequired', 'parking',
   'children', 'solo', 'group', 'rainy', 'indoor', 'outdoor', 'wheelchair',
-  'bbq', 'camping', 'verified', 'recentlyUpdated',
+  'bbq', 'camping', 'pet', 'vegetarian', 'verified', 'recentlyUpdated',
 ];
 const STR_KEYS: (keyof ExploreFilters)[] = ['q', 'category', 'prefecture', 'area', 'station', 'fee', 'smoking', 'tattoo'];
 const NUM_KEYS: (keyof ExploreFilters)[] = ['priceMin', 'priceMax'];
@@ -124,6 +126,8 @@ export function filtersToCriteria(f: ExploreFilters): Record<string, unknown> {
     wheelchair: f.wheelchair || undefined,
     bbq: f.bbq || undefined,
     camping: f.camping || undefined,
+    pet: f.pet || undefined,
+    vegetarian: f.vegetarian || undefined,
     smoking: f.smoking ?? null,
     tattoo: f.tattoo ?? null,
     paymentMethods: f.payment,

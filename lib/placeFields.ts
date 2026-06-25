@@ -185,6 +185,7 @@ export interface CategoryFieldRelevance {
   bbq: boolean;
   camping: boolean;
   pet: boolean;
+  dining: boolean;
 }
 
 const DINING = ['food', 'viet', 'izakaya', 'japanese', 'thai', 'chinese', 'korean', 'cafe_milk_tea'];
@@ -200,6 +201,7 @@ export function categoryFieldRelevance(category: string): CategoryFieldRelevance
     bbq: ['sea', 'camp', 'park'].includes(category),
     camping: ['camp', 'mountain', 'park'].includes(category),
     pet: ['park', 'sea', 'camp', 'cafe_milk_tea'].includes(category),
+    dining: isDining,
   };
 }
 
@@ -222,6 +224,8 @@ export function relevantFilterKeys(category: string): Set<string> {
   if (r.tattoo) keys.add('tattoo');
   if (r.bbq) keys.add('bbq');
   if (r.camping) keys.add('camping');
+  if (r.pet) keys.add('pet');
+  if (r.dining) keys.add('vegetarian');
   return keys;
 }
 

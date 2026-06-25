@@ -62,6 +62,10 @@ export interface PlaceCriteria {
   wheelchair?: boolean;
   bbq?: boolean;
   camping?: boolean;
+  /** Pet-friendly: pet_policy is any policy other than 'not_allowed'. */
+  pet?: boolean;
+  /** Serves vegetarian food (Google servesVegetarianFood). */
+  vegetarian?: boolean;
   smoking?: string | null;
   tattoo?: string | null;
   /** Place must accept at least one of these payment methods. */
@@ -598,6 +602,10 @@ function passesStructuredFilters(p: Place, c: PlaceCriteria, now: Date): boolean
   if (c.wheelchair && p.wheelchairAccessible !== true) return false;
   if (c.bbq && p.bbqAvailable !== true) return false;
   if (c.camping && p.campingAvailable !== true) return false;
+  // Pet-friendly = any pet_policy that admits pets (allowed/leashed_ok/outdoor_only);
+  // unknown (null) or 'not_allowed' fails. Google writes 'allowed' on allowsDogs=true.
+  if (c.pet && !(p.petPolicy && p.petPolicy !== 'not_allowed')) return false;
+  if (c.vegetarian && p.servesVegetarian !== true) return false;
   if (c.smoking && p.smokingPolicy !== c.smoking) return false;
   if (c.tattoo && p.tattooPolicy !== c.tattoo) return false;
   // Payment matches the dedup UNION of Google-owned (paymentMethods) + human-owned
@@ -720,7 +728,7 @@ export function suggestRelaxation(
     'openNow', 'priceMax', 'priceMin', 'fee', 'nearby', 'station', 'area',
     'reservationAvailable', 'reservationRequired', 'parking', 'children', 'solo',
     'group', 'rainy', 'indoor', 'outdoor', 'wheelchair', 'bbq', 'camping',
-    'smoking', 'tattoo', 'paymentMethods', 'languages', 'verifiedOnly',
+    'pet', 'vegetarian', 'smoking', 'tattoo', 'paymentMethods', 'languages', 'verifiedOnly',
     'recentlyUpdatedDays', 'prefecture',
   ];
   const out: RelaxationSuggestion[] = [];

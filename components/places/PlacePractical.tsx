@@ -61,6 +61,7 @@ export default async function PlacePractical({ place }: { place: Place }) {
   if (place.rainyDayOk) fac.push(t('rainy_day_ok'))
   if (place.bbqAvailable) fac.push(t('bbq_available'))
   if (place.campingAvailable) fac.push(t('camping_available'))
+  if (place.servesVegetarian) fac.push(t('serves_vegetarian'))
   if (place.tattooPolicy) fac.push(`${t('tattoo_policy')}: ${t(`tat_${place.tattooPolicy}` as 'tat_allowed')}`)
   if (place.petPolicy) fac.push(`${t('pet_policy')}: ${t(`pet_${place.petPolicy}` as 'pet_allowed')}`)
   for (const pm of placePaymentMethods(place)) fac.push(t(`pm_${pm}` as 'pm_cash'))

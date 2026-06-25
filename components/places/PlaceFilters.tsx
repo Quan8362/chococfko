@@ -254,6 +254,15 @@ export default function PlaceFilters({ filters, set, relevant, prefectures, loca
         </Group>
       )}
 
+      {/* Dining — food-specific attributes, shown only for dining categories. */}
+      {show('vegetarian') && (
+        <Group title={t('group_dining')}>
+          <div className="flex flex-wrap gap-2">
+            <Toggle k="vegetarian" label={tp('serves_vegetarian')} />
+          </div>
+        </Group>
+      )}
+
       {/* Facilities */}
       <Group title={t('group_facilities')}>
         <div className="flex flex-wrap gap-2 mb-2.5">
@@ -264,6 +273,7 @@ export default function PlaceFilters({ filters, set, relevant, prefectures, loca
           <Toggle k="wheelchair" label={tp('wheelchair_accessible')} />
           <Toggle k="bbq" label={tp('bbq_available')} />
           <Toggle k="camping" label={tp('camping_available')} />
+          <Toggle k="pet" label={tp('pet_friendly')} />
         </div>
         <div className="flex flex-col gap-2">
           {show('smoking') && (

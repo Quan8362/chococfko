@@ -25,6 +25,9 @@ export const DETAILS_FIELD_MASK = [
   // Enterprise+Atmosphere (paymentOptions, goodForGroups) + Pro (accessibilityOptions).
   // Billing is the highest SKU per request, already Enterprise+Atmosphere → +0 cost.
   'paymentOptions', 'accessibilityOptions', 'goodForGroups',
+  // More Atmosphere fields (same Enterprise+Atmosphere SKU → still +0 cost):
+  // allowsDogs → pet_policy='allowed'; servesVegetarianFood → serves_vegetarian.
+  'allowsDogs', 'servesVegetarianFood',
 ].join(',');
 
 /** Minimal Essentials mask for Text Search resolution (cheap). */

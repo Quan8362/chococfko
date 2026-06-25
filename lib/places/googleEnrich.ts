@@ -57,6 +57,8 @@ export interface GooglePlaceDetails {
   goodForGroups?: boolean;
   paymentOptions?: GooglePaymentOptions;
   accessibilityOptions?: GoogleAccessibilityOptions;
+  allowsDogs?: boolean;
+  servesVegetarianFood?: boolean;
 }
 
 /** Provenance marker stored per-column in places.field_sources. */
@@ -201,6 +203,15 @@ export function mapGoogleToProposal(
 
   // ── Tier A: good for groups (mirror, positive only) ──
   if (g.goodForGroups === true) set('good_for_groups', true, 'google');
+
+  // ── Tier A: pet-friendly (positive only) ──
+  // pet_policy is an ENUM (allowed|not_allowed|leashed_ok|outdoor_only); Google's
+  // allowsDogs only asserts "dogs allowed" and can't distinguish leashed/outdoor,
+  // so the conservative positive write is 'allowed'. allowsDogs=false/null → unset.
+  if (g.allowsDogs === true) set('pet_policy', 'allowed', 'google');
+
+  // ── Tier A: vegetarian options (positive only) ──
+  if (g.servesVegetarianFood === true) set('serves_vegetarian', true, 'google');
 
   // ── Tier A: wheelchair access (positive only) — true if ANY wheelchair sub-field ──
   const acc = g.accessibilityOptions;

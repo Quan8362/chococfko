@@ -23,6 +23,7 @@ export const ENRICH_SELECT_COLUMNS = [
   'fee', 'price_type', 'price_min', 'price_max', 'currency',
   'opening_hours', 'parking', 'indoor_outdoor', 'rainy_day_ok',
   'reservation_recommended', 'good_for_children',
+  'pet_policy', 'serves_vegetarian',
   'field_sources', 'google_enrichment',
 ].join(', ');
 
@@ -173,6 +174,8 @@ export async function enrichPlace(db: SupabaseLike, row: EnrichRow, opts: Enrich
         goodForGroups: details.goodForGroups ?? null,
         paymentOptions: details.paymentOptions ?? null,
         accessibilityOptions: details.accessibilityOptions ?? null,
+        allowsDogs: details.allowsDogs ?? null,
+        servesVegetarianFood: details.servesVegetarianFood ?? null,
         weekdayDescriptions: details.regularOpeningHours?.weekdayDescriptions ?? null,
       },
     },

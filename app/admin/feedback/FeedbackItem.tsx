@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { replyToFeedback } from './actions'
+import { replyToFeedback, deleteFeedback } from './actions'
+import ConfirmDialog from './ConfirmDialog'
 
 export type ReplyView = {
   id: string
@@ -41,6 +42,15 @@ export type ItemLabels = {
   historyTitle: string
   replyByLabel: string
   adminFallback: string
+  // Delete + select
+  deleteLabel: string
+  deleting: string
+  deleteConfirmTitle: string
+  deleteConfirmDesc: string
+  deleteConfirmYes: string
+  deleteCancel: string
+  deleteError: string
+  selectAria: string
 }
 
 const TYPE_BADGE: Record<string, string> = {
@@ -56,10 +66,16 @@ export default function FeedbackItem({
   feedback,
   replies: initialReplies,
   labels,
+  selected,
+  onToggleSelect,
+  onDeleted,
 }: {
   feedback: FeedbackView
   replies: ReplyView[]
   labels: ItemLabels
+  selected: boolean
+  onToggleSelect: (id: string) => void
+  onDeleted: (id: string) => void
 }) {
   const [replies, setReplies] = useState<ReplyView[]>(initialReplies)
   const [status, setStatus] = useState(feedback.status)
@@ -67,6 +83,10 @@ export default function FeedbackItem({
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
 
   const canReply = !!feedback.email && EMAIL_RE.test(feedback.email)
 
@@ -120,10 +140,37 @@ export default function FeedbackItem({
     }
   }
 
+  async function handleDelete() {
+    setDeleteError(null)
+    setDeleting(true)
+    try {
+      const res = await deleteFeedback(feedback.id)
+      if (res.ok) {
+        setConfirmOpen(false)
+        onDeleted(feedback.id)
+      } else {
+        setDeleteError(labels.deleteError)
+      }
+    } catch {
+      setDeleteError(labels.deleteError)
+    } finally {
+      setDeleting(false)
+    }
+  }
+
   return (
-    <div className="bg-paper border border-line rounded-2xl p-4 sm:p-5 hover:border-rose/20 transition-all">
-      {/* Badges + date */}
+    <div className={`bg-paper border rounded-2xl p-4 sm:p-5 transition-all ${
+      selected ? 'border-rose/50 ring-2 ring-rose/15' : 'border-line hover:border-rose/20'
+    }`}>
+      {/* Badges + date + actions */}
       <div className="flex items-center gap-2 flex-wrap mb-2">
+        <input
+          type="checkbox"
+          checked={selected}
+          onChange={() => onToggleSelect(feedback.id)}
+          aria-label={labels.selectAria}
+          className="flex-none w-4 h-4 rounded border-line text-rose accent-rose cursor-pointer"
+        />
         <span className={`text-[11px] font-semibold px-2.5 py-[5px] rounded-full ${TYPE_BADGE[feedback.type] ?? TYPE_BADGE.general}`}>
           {TYPE_EMOJI[feedback.type] ?? TYPE_EMOJI.general} {typeLabel}
         </span>
@@ -136,6 +183,18 @@ export default function FeedbackItem({
           {feedback.isMember ? labels.member : labels.guest}
         </span>
         <span className="text-[12px] text-muted ml-auto">{feedback.createdAtLabel}</span>
+        <button
+          type="button"
+          onClick={() => { setDeleteError(null); setConfirmOpen(true) }}
+          aria-label={labels.deleteLabel}
+          title={labels.deleteLabel}
+          className="flex-none inline-flex items-center gap-1 text-[12px] font-semibold px-2.5 py-[5px] rounded-full text-red-600 border border-red-200 bg-red-50/60 hover:bg-red-100 transition-colors"
+        >
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
+          {labels.deleteLabel}
+        </button>
       </div>
 
       {/* Message */}
@@ -168,6 +227,12 @@ export default function FeedbackItem({
               </p>
             </div>
           ))}
+        </div>
+      )}
+
+      {deleteError && (
+        <div role="alert" aria-live="assertive" className="mt-3 rounded-xl bg-red-50 border border-red-200 px-3.5 py-2 text-[13px] text-red-700">
+          {deleteError}
         </div>
       )}
 
@@ -204,6 +269,17 @@ export default function FeedbackItem({
       ) : (
         <p className="mt-3 text-[12.5px] text-muted italic">{labels.noReplyAddressDesc}</p>
       )}
+
+      <ConfirmDialog
+        open={confirmOpen}
+        title={labels.deleteConfirmTitle}
+        description={labels.deleteConfirmDesc}
+        confirmLabel={deleting ? labels.deleting : labels.deleteConfirmYes}
+        cancelLabel={labels.deleteCancel}
+        onConfirm={handleDelete}
+        onCancel={() => setConfirmOpen(false)}
+        pending={deleting}
+      />
     </div>
   )
 }

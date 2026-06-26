@@ -2,7 +2,8 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { checkIsAdmin, createAdminClient } from '@/lib/supabase/admin'
-import FeedbackItem, { type FeedbackView, type ReplyView, type ItemLabels } from './FeedbackItem'
+import { type FeedbackView, type ReplyView, type ItemLabels } from './FeedbackItem'
+import FeedbackListClient, { type ListLabels } from './FeedbackListClient'
 
 export const metadata = { title: 'Admin · Góp ý' }
 export const dynamic = 'force-dynamic'
@@ -102,6 +103,31 @@ export default async function AdminFeedbackPage({
     historyTitle: t('history_title'),
     replyByLabel: t('reply_by_label'),
     adminFallback: t('admin_fallback'),
+    deleteLabel: t('delete_label'),
+    deleting: t('deleting'),
+    deleteConfirmTitle: t('delete_confirm_title'),
+    deleteConfirmDesc: t('delete_confirm_desc'),
+    deleteConfirmYes: t('delete_confirm_yes'),
+    deleteCancel: t('delete_cancel'),
+    deleteError: t('delete_error'),
+    selectAria: t('select_aria'),
+  }
+
+  const listLabels: ListLabels = {
+    searchPlaceholder: t('search_placeholder'),
+    searchNoResults: t('search_no_results'),
+    selectAll: t('select_all'),
+    clearSelection: t('clear_selection'),
+    bulkSelected: t.raw('bulk_selected'),
+    bulkDelete: t('bulk_delete'),
+    bulkConfirmTitle: t.raw('bulk_confirm_title'),
+    bulkConfirmDesc: t('bulk_confirm_desc'),
+    bulkConfirmYes: t('bulk_confirm_yes'),
+    bulkCancel: t('delete_cancel'),
+    bulkError: t('bulk_error'),
+    bulkDeleting: t('deleting'),
+    emptyTitle: t('empty_title'),
+    emptyDesc: t('empty_desc'),
   }
 
   const FILTERS = [
@@ -170,37 +196,22 @@ export default async function AdminFeedbackPage({
       </div>
 
       {/* LIST */}
-      {rows.length === 0 && !error ? (
-        <div className="bg-paper border border-line rounded-2xl py-16 px-8 text-center">
-          <div className="w-14 h-14 rounded-2xl bg-cream border border-line grid place-items-center text-[22px] mx-auto mb-4 shadow-sm">
-            📭
-          </div>
-          <h3 className="font-serif font-bold text-[18px] text-ink mb-2">{t('empty_title')}</h3>
-          <p className="text-[13.5px] text-muted max-w-[340px] mx-auto leading-relaxed">{t('empty_desc')}</p>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {rows.map((row) => {
-            const view: FeedbackView = {
-              id: row.id,
-              name: row.name,
-              email: row.email,
-              message: row.message,
-              type: row.type,
-              isMember: !!row.user_id,
-              createdAtLabel: fmtDate(row.created_at),
-              status: row.status ?? 'new',
-            }
-            return (
-              <FeedbackItem
-                key={row.id}
-                feedback={view}
-                replies={repliesByFeedback[row.id] ?? []}
-                labels={itemLabels}
-              />
-            )
-          })}
-        </div>
+      {!error && (
+        <FeedbackListClient
+          initialItems={rows.map<FeedbackView>((row) => ({
+            id: row.id,
+            name: row.name,
+            email: row.email,
+            message: row.message,
+            type: row.type,
+            isMember: !!row.user_id,
+            createdAtLabel: fmtDate(row.created_at),
+            status: row.status ?? 'new',
+          }))}
+          repliesByFeedback={repliesByFeedback}
+          itemLabels={itemLabels}
+          listLabels={listLabels}
+        />
       )}
     </div>
   )

@@ -16,6 +16,10 @@ export type ReplyResult =
   | { ok: true }
   | { ok: false; error: 'not_admin' | 'missing_fields' | 'too_long' | 'not_found' | 'no_email' | 'no_api_key' | 'send_failed' | 'db_error' | 'unknown' }
 
+export type DeleteResult =
+  | { ok: true; deleted: number }
+  | { ok: false; error: 'not_admin' | 'missing_fields' | 'db_error' }
+
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 // Strip control chars but keep tab and newline.
 const CONTROL_CHARS = /[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g
@@ -169,4 +173,65 @@ export async function replyToFeedback(
   console.log(`[admin/feedback] Phản hồi đã lưu cho góp ý ${feedbackId} bởi ${adminEmail ?? 'admin'}.`)
   revalidatePath('/admin/feedback')
   return { ok: true }
+}
+
+// HARD delete 1 góp ý. Admin-only (re-check server-side). Xoá replies trước phòng khi
+// FK ở DB hiện tại không có ON DELETE CASCADE, để tránh lỗi ràng buộc.
+export async function deleteFeedback(id: string): Promise<DeleteResult> {
+  if (!(await checkIsAdmin())) {
+    return { ok: false, error: 'not_admin' }
+  }
+  const fid = (id ?? '').trim()
+  if (!fid) {
+    return { ok: false, error: 'missing_fields' }
+  }
+
+  const admin = createAdminClient()
+
+  const { error: repErr } = await admin.from('feedback_replies').delete().eq('feedback_id', fid)
+  if (repErr) {
+    console.error('[admin/feedback] Xoá phản hồi lỗi:', repErr.message)
+    return { ok: false, error: 'db_error' }
+  }
+
+  const { error } = await admin.from('feedback').delete().eq('id', fid)
+  if (error) {
+    console.error('[admin/feedback] Xoá góp ý lỗi:', error.message)
+    return { ok: false, error: 'db_error' }
+  }
+
+  console.log(`[admin/feedback] Đã xoá góp ý ${fid}.`)
+  revalidatePath('/admin/feedback')
+  return { ok: true, deleted: 1 }
+}
+
+// HARD delete nhiều góp ý trong 1 round-trip. Admin-only.
+export async function deleteFeedbackBulk(ids: string[]): Promise<DeleteResult> {
+  if (!(await checkIsAdmin())) {
+    return { ok: false, error: 'not_admin' }
+  }
+  const list = Array.from(
+    new Set((ids ?? []).map((s) => (s ?? '').trim()).filter(Boolean)),
+  )
+  if (!list.length) {
+    return { ok: false, error: 'missing_fields' }
+  }
+
+  const admin = createAdminClient()
+
+  const { error: repErr } = await admin.from('feedback_replies').delete().in('feedback_id', list)
+  if (repErr) {
+    console.error('[admin/feedback] Xoá phản hồi (bulk) lỗi:', repErr.message)
+    return { ok: false, error: 'db_error' }
+  }
+
+  const { error } = await admin.from('feedback').delete().in('id', list)
+  if (error) {
+    console.error('[admin/feedback] Xoá góp ý (bulk) lỗi:', error.message)
+    return { ok: false, error: 'db_error' }
+  }
+
+  console.log(`[admin/feedback] Đã xoá ${list.length} góp ý (bulk).`)
+  revalidatePath('/admin/feedback')
+  return { ok: true, deleted: list.length }
 }

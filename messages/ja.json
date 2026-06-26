@@ -1935,7 +1935,10 @@
       "score_den": "ペナルティ",
       "score_winner": "1抜け",
       "score_total": "合計",
-      "play_err_hint_none": "出せる手がありません — パスしてください。"
+      "play_err_hint_none": "出せる手がありません — パスしてください。",
+      "close_label": "閉じる",
+      "menu_label": "オプション",
+      "rotate_hint": "横向きにするとより快適にプレイできます"
     },
     "chinese_chess": {
       "badge": "🎮 象棋",

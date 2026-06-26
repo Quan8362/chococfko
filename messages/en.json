@@ -1935,7 +1935,10 @@
       "score_den": "Penalty",
       "score_winner": "1st out",
       "score_total": "Total",
-      "play_err_hint_none": "No legal move — pass instead."
+      "play_err_hint_none": "No legal move — pass instead.",
+      "close_label": "Close",
+      "menu_label": "Options",
+      "rotate_hint": "Rotate for a better experience"
     },
     "chinese_chess": {
       "badge": "🎮 Chinese Chess",

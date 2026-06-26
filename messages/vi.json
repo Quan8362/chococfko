@@ -1935,7 +1935,10 @@
       "score_den": "Đền",
       "score_winner": "Về Nhất",
       "score_total": "Tổng",
-      "play_err_hint_none": "Không có nước hợp lệ — hãy bỏ lượt."
+      "play_err_hint_none": "Không có nước hợp lệ — hãy bỏ lượt.",
+      "close_label": "Đóng",
+      "menu_label": "Tuỳ chọn",
+      "rotate_hint": "Xoay ngang để chơi tốt hơn"
     },
     "chinese_chess": {
       "badge": "🎮 Cờ Tướng",

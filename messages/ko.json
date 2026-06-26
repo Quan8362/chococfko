@@ -1935,7 +1935,10 @@
       "score_den": "벌점",
       "score_winner": "1등",
       "score_total": "합계",
-      "play_err_hint_none": "낼 수 있는 패가 없습니다 — 패스하세요."
+      "play_err_hint_none": "낼 수 있는 패가 없습니다 — 패스하세요.",
+      "close_label": "닫기",
+      "menu_label": "옵션",
+      "rotate_hint": "가로로 돌리면 더 편하게 플레이할 수 있어요"
     },
     "chinese_chess": {
       "badge": "🎮 장기",

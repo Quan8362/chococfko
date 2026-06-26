@@ -1935,7 +1935,10 @@
       "score_den": "罚分",
       "score_winner": "头名",
       "score_total": "总分",
-      "play_err_hint_none": "没有合法出牌 — 请过牌。"
+      "play_err_hint_none": "没有合法出牌 — 请过牌。",
+      "close_label": "关闭",
+      "menu_label": "选项",
+      "rotate_hint": "横屏体验更佳"
     },
     "chinese_chess": {
       "badge": "🎮 中国象棋",

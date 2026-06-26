@@ -135,7 +135,8 @@ export default function TlmnRoom({ initialState, userId }: Props) {
   return (
     <div className="flex flex-col gap-5">
 
-      {/* Room code banner */}
+      {/* Room code banner (lobby only — the immersive table carries its own chrome) */}
+      {!isPlaying && (
       <div className="w-full bg-gradient-to-r from-ink to-[#3a2d22] rounded-2xl px-5 py-4 flex items-center justify-between gap-3 shadow-lg">
         <div>
           <p className="text-[10.5px] font-bold uppercase tracking-[2px] text-white/50 mb-0.5">{t('room_code_label')}</p>
@@ -154,6 +155,7 @@ export default function TlmnRoom({ initialState, userId }: Props) {
           )}
         </button>
       </div>
+      )}
 
       {/* Status line (lobby only — the table shows its own status when playing) */}
       {!isPlaying && (
@@ -176,6 +178,8 @@ export default function TlmnRoom({ initialState, userId }: Props) {
           seats={seats}
           mySeat={mySeat ? mySeat.seat_index : null}
           isHost={isHost}
+          inviteCode={room.invite_code}
+          onLeave={handleLeave}
         />
       )}
 
@@ -307,21 +311,25 @@ export default function TlmnRoom({ initialState, userId }: Props) {
       </>
       )}
 
-      {/* Leave (always available) */}
-      <button
-        onClick={handleLeave}
-        disabled={isPending}
-        className="self-center font-medium text-[13px] px-5 py-2.5 rounded-xl border border-line text-muted hover:bg-line transition-all disabled:opacity-60"
-      >
-        {t('leave_btn')}
-      </button>
+      {/* Leave + back (lobby only — the immersive table carries its own chrome) */}
+      {!isPlaying && (
+        <>
+          <button
+            onClick={handleLeave}
+            disabled={isPending}
+            className="self-center font-medium text-[13px] px-5 py-2.5 rounded-xl border border-line text-muted hover:bg-line transition-all disabled:opacity-60"
+          >
+            {t('leave_btn')}
+          </button>
 
-      <Link
-        href="/games/tlmn"
-        className="text-[12.5px] text-muted/70 hover:text-rose transition-colors text-center"
-      >
-        ← {t('back_lobby')}
-      </Link>
+          <Link
+            href="/games/tlmn"
+            className="text-[12.5px] text-muted/70 hover:text-rose transition-colors text-center"
+          >
+            ← {t('back_lobby')}
+          </Link>
+        </>
+      )}
     </div>
   )
 }

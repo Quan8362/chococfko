@@ -83,11 +83,7 @@ export default function AdminNotificationBellClient({
           setItems(prev => [notif, ...prev.slice(0, 9)])
         }
       )
-      .subscribe((status) => {
-        if (status === 'SUBSCRIBED') {
-          console.log('[notif-bell] Realtime subscribed for', userId)
-        }
-      })
+      .subscribe()
 
     return () => { supabase.removeChannel(channel) }
   }, [userId])

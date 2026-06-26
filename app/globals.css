@@ -134,6 +134,74 @@ body::before {
   transform-origin: left;
 }
 
+/* ── Tiến Lên Miền Nam (TLMN) table motion ───────────────────────────────────
+   Deliberate, short. All of these are auto-neutralised by the site-wide
+   prefers-reduced-motion block above (it zeroes animation-duration globally). */
+@keyframes tlmnDeal {
+  from { opacity: 0; transform: translate(var(--tlmn-deal-x, 0), var(--tlmn-deal-y, -160px)) scale(.7) rotate(var(--tlmn-deal-r, -8deg)); }
+  to   { opacity: 1; transform: none; }
+}
+.tlmn-deal { animation: tlmnDeal .42s cubic-bezier(.22,.68,0,1.2) both; }
+
+@keyframes tlmnPlayIn {
+  from { opacity: 0; transform: translateY(28px) scale(.85); }
+  to   { opacity: 1; transform: none; }
+}
+.tlmn-play-in { animation: tlmnPlayIn .3s cubic-bezier(.22,.68,0,1.2) both; }
+
+@keyframes tlmnStamp {
+  0%   { opacity: 0; transform: scale(1.6) rotate(-14deg); }
+  55%  { opacity: 1; transform: scale(.92) rotate(-9deg); }
+  70%  { transform: scale(1.04) rotate(-9deg); }
+  100% { opacity: 1; transform: scale(1) rotate(-9deg); }
+}
+.tlmn-stamp { animation: tlmnStamp .45s cubic-bezier(.2,.8,.2,1) both; }
+
+@keyframes tlmnFlash {
+  0%   { opacity: 0; }
+  18%  { opacity: .82; }
+  100% { opacity: 0; }
+}
+.tlmn-flash { animation: tlmnFlash .55s ease-out both; }
+
+@keyframes tlmnShake {
+  0%,100% { transform: translateX(0); }
+  15% { transform: translateX(-7px) rotate(-.5deg); }
+  30% { transform: translateX(6px) rotate(.5deg); }
+  45% { transform: translateX(-5px); }
+  60% { transform: translateX(4px); }
+  75% { transform: translateX(-2px); }
+}
+.tlmn-shake { animation: tlmnShake .5s cubic-bezier(.36,.07,.19,.97) both; }
+
+@keyframes tlmnBannerPop {
+  0%   { opacity: 0; transform: translateY(10px) scale(.9); }
+  60%  { opacity: 1; transform: translateY(0) scale(1.03); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.tlmn-banner-pop { animation: tlmnBannerPop .5s cubic-bezier(.22,.68,0,1.2) both; }
+
+@keyframes tlmnConfetti {
+  0%   { opacity: 1; transform: translateY(-10px) rotate(0); }
+  100% { opacity: 0; transform: translateY(320px) rotate(540deg); }
+}
+.tlmn-confetti-piece { animation: tlmnConfetti 1.5s ease-in forwards; }
+
+@keyframes tlmnInvalidShake {
+  0%,100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(5px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(3px); }
+}
+.tlmn-invalid { animation: tlmnInvalidShake .4s ease both; }
+
+@keyframes tlmnRing {
+  0%   { transform: scale(.96); opacity: .55; }
+  100% { transform: scale(1.14); opacity: 0; }
+}
+.tlmn-ring { animation: tlmnRing 1.4s ease-out infinite; }
+
 /* Scrollbar */
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { scrollbar-width: none; }

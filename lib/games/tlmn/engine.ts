@@ -562,6 +562,100 @@ export function settleRound(state: SettlementState, rules: Partial<Rules> = DEFA
   return delta
 }
 
+// ── Itemized settlement breakdown (for the đếm-lá scoreboard UI) ──────────────────
+// Pure, ADDITIVE: this re-derives the SAME numbers settleRound produces, but exposes
+// each component (lá còn, cóng, thối-heo, thối-bom, đền) so the presentation layer can
+// show a readable breakdown instead of a single delta. It does NOT change scoring —
+// every `total` equals the matching settleRound delta by construction.
+export type SeatBreakdown = {
+  seat: number
+  isWinner: boolean
+  cardsLeft: number        // lá còn
+  cong: boolean            // played 0 cards this round
+  heldTwos: number         // 2s (heo) still in hand → thối heo
+  thoiHeoMult: number      // multiplier applied to the card payment (1 when none)
+  thoiBomUnits: number     // held tứ quý / đôi-thông bộ → thối bom
+  thoiBomPenalty: number   // flat bom penalty total
+  cardPayment: number      // card-count payment after cóng + thối-heo
+  denDelta: number         // net đền effect on this seat (+ as cutter, − as victim)
+  total: number            // final per-seat delta (== settleRound)
+}
+
+export type RoundBreakdown = {
+  instant: { seat: number; type: InstantWinType } | null
+  toiTrangPayout: number
+  seats: SeatBreakdown[]
+}
+
+/** Per-seat itemized breakdown mirroring settleRound (same totals, exposed parts). */
+export function explainSettlement(state: SettlementState, rules: Partial<Rules> = DEFAULT_RULES): RoundBreakdown {
+  const R = resolveRules(rules)
+  const delta = settleRound(state, R) // authoritative totals — kept in lock-step
+
+  // Tới trắng: a flat payout, no card breakdown.
+  if (state.instantWin) {
+    const w = state.instantWin.seat
+    return {
+      instant: state.instantWin,
+      toiTrangPayout: R.toiTrangPayout,
+      seats: state.seats.map(seat => ({
+        seat,
+        isWinner: seat === w,
+        cardsLeft: (state.hands[seat] ?? []).length,
+        cong: false,
+        heldTwos: 0,
+        thoiHeoMult: 1,
+        thoiBomUnits: 0,
+        thoiBomPenalty: 0,
+        cardPayment: 0,
+        denDelta: 0,
+        total: delta[seat] ?? 0,
+      })),
+    }
+  }
+
+  // Net đền per seat (so winner/loser rows can show their đền line).
+  const denBySeat: Record<number, number> = {}
+  for (const s of state.seats) denBySeat[s] = 0
+  for (const ev of state.cutEvents ?? []) {
+    const amount = R.denEnabled ? (ev.kind === 'heo' ? R.denHeo : R.denBom) : 0
+    denBySeat[ev.cutVictim] = (denBySeat[ev.cutVictim] ?? 0) - amount
+    denBySeat[ev.cutter] = (denBySeat[ev.cutter] ?? 0) + amount
+  }
+
+  const w = state.winner
+  const seats: SeatBreakdown[] = state.seats.map(seat => {
+    const hand = state.hands[seat] ?? []
+    const n = hand.length
+    if (seat === w) {
+      return {
+        seat, isWinner: true, cardsLeft: 0, cong: false, heldTwos: 0,
+        thoiHeoMult: 1, thoiBomUnits: 0, thoiBomPenalty: 0, cardPayment: 0,
+        denDelta: denBySeat[seat] ?? 0, total: delta[seat] ?? 0,
+      }
+    }
+    const cong = (state.playedCount[seat] ?? 0) === 0
+    let cardPayment = (cong && R.congEnabled)
+      ? 13 * R.basePerCard * R.congMultiplier
+      : n * R.basePerCard
+    const twos = heldTwos(hand)
+    let thoiHeoMult = 1
+    if (twos > 0 && R.thoiHeoEnabled) {
+      thoiHeoMult = R.thoiHeoPerCard ? Math.pow(R.thoiHeoMultiplier, twos) : R.thoiHeoMultiplier
+      cardPayment *= thoiHeoMult
+    }
+    const bomUnits = countHeldBoms(hand)
+    const thoiBomPenalty = R.thoiBomEnabled ? bomUnits * R.thoiBomPenalty : 0
+    return {
+      seat, isWinner: false, cardsLeft: n, cong,
+      heldTwos: twos, thoiHeoMult, thoiBomUnits: bomUnits, thoiBomPenalty,
+      cardPayment, denDelta: denBySeat[seat] ?? 0, total: delta[seat] ?? 0,
+    }
+  })
+
+  return { instant: null, toiTrangPayout: 0, seats }
+}
+
 /** Fold a round's deltas into cumulative per-seat scores (pure). */
 export function applyDeltas(
   cumulative: Record<number, number>,

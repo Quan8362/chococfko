@@ -4,8 +4,8 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import {
-  resolveRules, pickHostOverride, type Card, type Rules,
-  type HostRulesOverride, type CutEvent, type InstantWinType,
+  resolveRules, pickHostOverride, explainSettlement, type Card, type Rules,
+  type HostRulesOverride, type CutEvent, type InstantWinType, type RoundBreakdown,
 } from '@/lib/games/tlmn/engine'
 import {
   dealRound, applyPlay, applyPass, applyTimeout, cardCounts, type RoundState,
@@ -349,6 +349,8 @@ export type TlmnGameResult = {
   deltas: Record<string, number>
   instant: { seat: number; type: InstantWinType } | null
   winner: number | null
+  // Itemized đếm-lá breakdown for the scoreboard (presentation only — same totals).
+  breakdown?: RoundBreakdown | null
 }
 export type TlmnPublicGame = {
   id: string
@@ -422,7 +424,22 @@ function gameColumns(round: RoundState): Record<string, unknown> {
     nhat_seat: round.winner,
     chat_events: round.cutEvents,
     result: round.status === 'ended'
-      ? { deltas: round.deltas ?? {}, instant: round.instantWin, winner: round.winner }
+      ? {
+          deltas: round.deltas ?? {},
+          instant: round.instantWin,
+          winner: round.winner,
+          breakdown: explainSettlement(
+            {
+              seats: round.seats,
+              winner: round.winner ?? round.seats[0],
+              hands: round.hands,
+              playedCount: round.playedCount,
+              cutEvents: round.cutEvents,
+              instantWin: round.instantWin,
+            },
+            round.rules,
+          ),
+        }
       : null,
   }
 }

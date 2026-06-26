@@ -13,7 +13,7 @@ import CopyButton from '@/components/japanese/CopyButton'
 import WordImage from '@/components/japanese/WordImage'
 import PosBadges from '@/components/japanese/PosBadges'
 import KanjiPracticeSection from '@/components/japanese/KanjiPracticeSection'
-import { displayRomaji } from '@/lib/japanese/romaji'
+import { displayPhraseRomaji } from '@/lib/japanese/romaji'
 import WordCard from '@/components/japanese/WordCard'
 import { urlLevel } from '@/components/japanese/LevelPicker'
 import { cleanMeaningText } from '@/lib/sanitize'
@@ -151,8 +151,8 @@ export default async function WordDetailPage({ params }: { params: { word: strin
                 <span className="text-[22px] text-muted font-medium" lang="ja">{word.reading}</span>
               )}
             </div>
-            {displayRomaji(word.reading, word.romaji) && (
-              <p className="text-[15px] text-muted mt-1">{displayRomaji(word.reading, word.romaji)}</p>
+            {displayPhraseRomaji(word.word, word.reading, word.romaji) && (
+              <p className="text-[15px] text-muted mt-1">{displayPhraseRomaji(word.word, word.reading, word.romaji)}</p>
             )}
           </div>
           <div className="flex flex-col items-end gap-2 shrink-0 pt-2">

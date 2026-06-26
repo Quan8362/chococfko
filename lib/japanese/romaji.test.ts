@@ -1,7 +1,7 @@
 // node --test lib/japanese/romaji.test.ts
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { kanaToRomaji, displayRomaji } from './romaji.ts'
+import { kanaToRomaji, displayRomaji, displayPhraseRomaji } from './romaji.ts'
 
 test('long vowels are written out (the original bug)', () => {
   assert.equal(kanaToRomaji('しゅうせい'), 'shuusei') // 修正 — was wrongly "shusei"
@@ -73,6 +73,21 @@ test('long-vowel fix still holds alongside the particle fix (no regression)', ()
   assert.equal(kanaToRomaji('しゅうせい'), 'shuusei')
   assert.equal(kanaToRomaji('おはよう'), 'ohayou')
   assert.equal(kanaToRomaji('おはようございます'), 'ohayougozaimasu')
+})
+
+test('phrase romaji is spaced at word/particle boundaries', () => {
+  assert.equal(displayPhraseRomaji('相好を崩す', 'そうごうをくずす'), 'sougou o kuzusu')
+  assert.equal(displayPhraseRomaji('へそで茶を沸かす', 'へそでちゃをわかす'), 'heso de cha o wakasu')
+  assert.equal(displayPhraseRomaji('腹が立つ', 'はらがたつ'), 'hara ga tatsu')
+  assert.equal(displayPhraseRomaji('手を貸す', 'てをかす'), 'te o kasu')
+})
+
+test('single-word romaji is left unspaced (no phrase boundary)', () => {
+  assert.equal(displayPhraseRomaji('東京', 'とうきょう'), 'toukyou')
+  assert.equal(displayPhraseRomaji('電話', 'でんわ'), 'denwa') // word-internal で not split
+  assert.equal(displayPhraseRomaji('修正', 'しゅうせい'), 'shuusei') // long vowel intact
+  assert.equal(displayPhraseRomaji('こんにちは', 'こんにちは'), 'konnichiwa') // particle override survives
+  assert.equal(displayPhraseRomaji('母', 'はは'), 'haha')
 })
 
 test('displayRomaji prefers regenerating from kana over a bad stored value', () => {

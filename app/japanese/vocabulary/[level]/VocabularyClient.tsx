@@ -124,7 +124,7 @@ export default function VocabularyClient({
       {/* Flashcard CTA */}
       <div className="flex items-center justify-between flex-wrap gap-3 mb-5">
         <p className="text-[14px] text-muted">
-          {t('words_count', { count: total })}
+          {t('words_count', { count: filter === 'all' ? total : displayedWords.length })}
         </p>
         <Link
           href={`/japanese/flashcards?level=${level}`}
@@ -173,7 +173,15 @@ export default function VocabularyClient({
       {displayedWords.length === 0 ? (
         <div className="text-center py-16">
           <div className="text-[40px] mb-3" aria-hidden>📭</div>
-          <p className="text-[15px] text-muted">{t('no_vocabulary')}</p>
+          <p className="text-[15px] text-muted">
+            {filter === 'mastered'
+              ? t('no_mastered')
+              : filter === 'learning'
+                ? t('no_learning')
+                : filter === 'review'
+                  ? t('no_review')
+                  : t('no_vocabulary')}
+          </p>
         </div>
       ) : (
         <>

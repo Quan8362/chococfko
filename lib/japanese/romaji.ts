@@ -189,3 +189,75 @@ export function displayRomaji(
   if (generated && /[a-z]/i.test(generated)) return generated
   return storedRomaji?.trim() || generated
 }
+
+/** Kanji (incl. extension-A and the iteration mark 々) — used to spot the kanji
+ *  neighbours that disambiguate a kana particle from a word-internal kana. */
+const KANJI_RE = /[一-龯㐀-䶿々]/
+
+/** Grammatical particles read differently from their dictionary mora. */
+const PARTICLE_ROMAJI: Record<string, string> = { は: 'wa', へ: 'e', を: 'o' }
+
+/** Single-kana particles whose split is only trusted when a kanji sits beside
+ *  them (so word-internal で/に/… inside a content word are left alone). */
+const CONTEXTUAL_PARTICLES = new Set(['は', 'へ', 'が', 'に', 'で', 'と', 'も', 'の', 'や'])
+
+/**
+ * From the SURFACE headword, list the kana particles (in order) at which a
+ * multi-word phrase should be split. を is always a particle; the others only
+ * count when adjacent to a kanji — this keeps word-internal kana (でんわ の で)
+ * from being mistaken for a particle.
+ */
+function phraseParticles(word: string): string[] {
+  const chars = Array.from(word)
+  const out: string[] = []
+  for (let i = 0; i < chars.length; i++) {
+    const c = chars[i]
+    if (c === 'を') {
+      out.push(c)
+      continue
+    }
+    if (CONTEXTUAL_PARTICLES.has(c)) {
+      const prev = chars[i - 1]
+      const next = chars[i + 1]
+      if ((prev && KANJI_RE.test(prev)) || (next && KANJI_RE.test(next))) out.push(c)
+    }
+  }
+  return out
+}
+
+/**
+ * Romaji for a phrase/idiom headword with spaces at word/particle boundaries,
+ * e.g. 相好を崩す → "sougou o kuzusu", へそで茶を沸かす → "heso de cha o wakasu".
+ *
+ * Boundaries come from particles detected on the SURFACE word; the kana
+ * `reading` is then split at those same particles and each segment romanized via
+ * the untouched mora converter (long vowels preserved). When no phrase boundary
+ * is found it returns the ordinary single-word romaji unchanged, so 東京 stays
+ * "toukyou".
+ */
+export function displayPhraseRomaji(
+  word: string | null | undefined,
+  reading: string | null | undefined,
+  storedRomaji?: string | null,
+): string {
+  const particles = word ? phraseParticles(word) : []
+  if (!reading || particles.length === 0) return displayRomaji(reading, storedRomaji)
+
+  const segments: string[] = []
+  let cursor = 0
+  for (const p of particles) {
+    const idx = reading.indexOf(p, cursor)
+    if (idx === -1) continue
+    segments.push(reading.slice(cursor, idx)) // content before the particle
+    segments.push(p)                          // the particle itself
+    cursor = idx + p.length
+  }
+  segments.push(reading.slice(cursor)) // trailing content
+
+  const romaji = segments
+    .map((s) => (PARTICLE_ROMAJI[s] ?? kanaToRomaji(s)))
+    .filter((s) => s.length > 0)
+    .join(' ')
+
+  return /[a-z]/i.test(romaji) ? romaji : displayRomaji(reading, storedRomaji)
+}

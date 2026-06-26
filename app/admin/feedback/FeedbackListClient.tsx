@@ -169,7 +169,7 @@ export default function FeedbackListClient({
           </div>
         )
       ) : (
-        <div className="space-y-3 pb-24">
+        <div className={`space-y-3 ${selectedCount > 0 ? 'pb-32 sm:pb-28' : 'pb-6'}`}>
           {filtered.map((view) => (
             <FeedbackItem
               key={view.id}
@@ -186,8 +186,8 @@ export default function FeedbackListClient({
 
       {/* BULK ACTION BAR */}
       {selectedCount > 0 && (
-        <div className="fixed inset-x-0 bottom-0 z-40 px-4 pb-4 pointer-events-none">
-          <div className="max-w-[900px] mx-auto pointer-events-auto bg-paper border border-line rounded-2xl shadow-[0_8px_30px_-8px_rgba(0,0,0,0.25)] px-4 py-3 flex items-center gap-3 flex-wrap">
+        <div className="fixed inset-x-0 bottom-0 z-40 px-4 pb-4 sm:px-6 sm:pb-5 pointer-events-none">
+          <div className="max-w-[900px] mx-auto pointer-events-auto bg-paper border border-line rounded-2xl shadow-[0_14px_44px_-10px_rgba(36,26,23,0.4)] px-4 py-3 flex items-center gap-3 flex-wrap">
             <span className="text-[13.5px] font-semibold text-ink">{bulkBarLabel}</span>
             {bulkError && (
               <span role="alert" className="text-[12.5px] text-red-700">{bulkError}</span>

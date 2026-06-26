@@ -107,7 +107,11 @@ export default async function Home() {
             </span>
 
             <h1 className="font-serif font-black text-[clamp(32px,4.4vw,56px)] leading-[1.07] tracking-[-0.5px] text-ink text-balance">
-              {t("heading")}{" "}
+              {t("heading")}
+              {/* The heading ends with a comma; CJK uses a fullwidth comma (、/，)
+                  that already carries its own trailing space, so skip the join
+                  space for ja/zh to avoid a stray gap before the accent phrase. */}
+              {locale === "ja" || locale === "zh" ? "" : " "}
               {/* Keep the emphasised phrase + period together so it never breaks
                   to a lone "trang." — locale-safe (no fixed <br/>). */}
               <span className="whitespace-nowrap"><em className="not-italic font-semibold text-rose">{t("heading_accent")}</em>.</span>

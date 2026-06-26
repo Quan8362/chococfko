@@ -19,7 +19,7 @@ function useCountUp(target: number, run: boolean, duration = 1100) {
     const tick = (now: number) => {
       const p = Math.min(1, (now - start) / duration);
       const eased = 1 - Math.pow(1 - p, 3); // easeOutCubic
-      setVal(Math.round(eased * target));
+      setVal(Math.max(0, Math.round(eased * target)));
       if (p < 1) raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);

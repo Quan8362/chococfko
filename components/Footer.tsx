@@ -52,7 +52,7 @@ export default async function Footer() {
             </h4>
             <ul className="space-y-3">
               <li>
-                <Link href="/" className={LINK_CLS}>
+                <Link href="/places" className={LINK_CLS}>
                   {t('all_places')}
                 </Link>
               </li>

@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
 import { getAllPlacesFromDb, places as staticPlaces } from '@/lib/places'
+import { SITE_URL } from '@/lib/seo'
 import Reveal from './Reveal'
 
 export const dynamic = 'force-dynamic'
@@ -8,10 +9,14 @@ export const dynamic = 'force-dynamic'
 export async function generateMetadata() {
   const t = await getTranslations('about')
   const description = t('meta_description')
+  const canonical = `${SITE_URL}/about`
+  // about.title already carries the brand suffix per locale, so bypass the root
+  // title.template (`%s · Chợ Cóc FKO`) with `absolute` to avoid doubling it.
   return {
-    title: t('title'),
+    title: { absolute: t('title') },
     description,
-    openGraph: { title: t('title'), description },
+    alternates: { canonical },
+    openGraph: { title: t('title'), description, url: canonical },
   }
 }
 

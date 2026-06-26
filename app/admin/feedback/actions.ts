@@ -32,7 +32,9 @@ async function sendReplyEmail(payload: {
     return { sent: false, reason: 'no_api_key' }
   }
 
-  const from = process.env.FEEDBACK_FROM_EMAIL || 'Chợ Cóc FKO <onboarding@resend.dev>'
+  // Gửi từ domain đã verify trên Resend (chococfko.com). KHÔNG dùng onboarding@resend.dev:
+  // sender test chỉ gửi được tới chính chủ tài khoản → Resend trả 403 với recipient khác.
+  const from = 'Chợ Cóc FKO <noreply@chococfko.com>'
   // reply_to = hộp thư chủ site: người gửi reply lại sẽ về Gmail
   const replyTo = process.env.FEEDBACK_TO_EMAIL || 'chococfko@gmail.com'
   const subject = 'Phản hồi góp ý của bạn · Chợ Cóc FKO'

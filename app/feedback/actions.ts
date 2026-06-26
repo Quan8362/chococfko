@@ -62,7 +62,9 @@ async function sendFeedbackEmail(payload: {
   }
 
   const to = process.env.FEEDBACK_TO_EMAIL || 'chococfko@gmail.com'
-  const from = process.env.FEEDBACK_FROM_EMAIL || 'Chợ Cóc FKO <onboarding@resend.dev>'
+  // Gửi từ domain đã verify trên Resend (chococfko.com). KHÔNG dùng onboarding@resend.dev:
+  // sender test chỉ gửi được tới chính chủ tài khoản → Resend trả 403 với recipient khác.
+  const from = 'Chợ Cóc FKO <noreply@chococfko.com>'
   const typeLabel = TYPE_LABELS[payload.type]
   const subject = `[${typeLabel}] Góp ý từ chococfko.com`
 

@@ -3578,6 +3578,7 @@
     "pub_today": "今天",
     "pub_reopens": "{day} {time} 重新开放",
     "pub_all_day": "24小时营业",
+    "pub_daily": "每日营业 {hours}",
     "pub_week": "查看整周",
     "pub_week_hide": "收起",
     "pub_closed_days": "休息日",

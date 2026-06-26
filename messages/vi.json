@@ -3578,6 +3578,7 @@
     "pub_today": "hôm nay",
     "pub_reopens": "mở lại {day} {time}",
     "pub_all_day": "Mở cả ngày",
+    "pub_daily": "Mở cửa hằng ngày {hours}",
     "pub_week": "Xem cả tuần",
     "pub_week_hide": "Thu gọn",
     "pub_closed_days": "Ngày nghỉ",

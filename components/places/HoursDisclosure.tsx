@@ -21,6 +21,7 @@ export default function HoursDisclosure({
   weekLabel,
   hideLabel,
   notes,
+  dailySummary,
 }: {
   stateLabel: string
   stateColor: string
@@ -29,6 +30,8 @@ export default function HoursDisclosure({
   weekLabel: string
   hideLabel: string
   notes?: string | null
+  /** When set, all 7 days share identical hours: show this one-line summary instead of the week table + toggle. */
+  dailySummary?: string | null
 }) {
   const [open, setOpen] = useState(false)
 
@@ -40,6 +43,10 @@ export default function HoursDisclosure({
           <span className={`font-semibold ${stateColor}`}>{stateLabel}</span>
           {detail && <span className="text-[#5c4d44]"> · {detail}</span>}
         </p>
+        {dailySummary ? (
+          <p className="mt-1 text-[12.5px] text-muted tabular-nums">{dailySummary}</p>
+        ) : (
+        <>
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
@@ -60,6 +67,8 @@ export default function HoursDisclosure({
               ))}
             </tbody>
           </table>
+        )}
+        </>
         )}
         {notes && <p className="text-[12px] text-muted mt-1.5">{notes}</p>}
       </div>

@@ -3578,6 +3578,7 @@
     "pub_today": "本日",
     "pub_reopens": "{day} {time} に再開",
     "pub_all_day": "24時間営業",
+    "pub_daily": "毎日 {hours}",
     "pub_week": "1週間を表示",
     "pub_week_hide": "閉じる",
     "pub_closed_days": "定休日",

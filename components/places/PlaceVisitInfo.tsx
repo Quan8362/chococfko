@@ -49,11 +49,12 @@ interface HoursModel {
   stateKey: string
   detail: string
   rows: HoursRow[]
+  daily?: string | null
   notes?: string | null
 }
 
 /** Build the week rows + status detail line, or null when hours are entirely unknown. */
-function buildHours(place: Place, tp: T, dayLabel: (d: string) => string, allDayLabel: string, todayLabel: string, reopens: (day: string, time: string) => string): HoursModel | null {
+function buildHours(place: Place, tp: T, dayLabel: (d: string) => string, allDayLabel: string, todayLabel: string, reopens: (day: string, time: string) => string, dailyLabel: (hours: string) => string): HoursModel | null {
   const oh = place.openingHours as Record<string, { open?: string; close?: string }[]> | null
   if (!oh || typeof oh !== 'object') return null
   const closedSet = new Set(place.closedDays ?? [])
@@ -86,7 +87,13 @@ function buildHours(place: Place, tp: T, dayLabel: (d: string) => string, allDay
     if (next) detail = reopens(next.offset === 0 ? todayLabel : dayLabel(next.day), next.time)
   }
 
-  return { stateKey, detail, rows, notes: (place.openingHours as { notes?: string } | null)?.notes }
+  // All 7 days share identical hours → collapse to a single summary line (no week table / toggle).
+  const uniqueSlots = new Set(rows.map((r) => r.slots))
+  const daily = uniqueSlots.size === 1 && rows[0].slots && rows[0].slots !== '—'
+    ? dailyLabel(rows[0].slots)
+    : null
+
+  return { stateKey, detail, rows, daily, notes: (place.openingHours as { notes?: string } | null)?.notes }
 }
 
 /** First opening slot from `today` forward (skips already-passed slots today, closed days). */
@@ -148,6 +155,7 @@ export default async function PlaceVisitInfo({
     tp('pub_all_day'),
     tp('pub_today'),
     (day, time) => tp('pub_reopens', { day, time }),
+    (hours) => tp('pub_daily', { hours }),
   )
 
   // Reservation chips
@@ -181,67 +189,80 @@ export default async function PlaceVisitInfo({
   return (
     <div className="bg-paper border border-line rounded-2xl p-5">
       <h4 className="font-serif font-bold text-[15px] mb-3.5 text-ink">{t('quick_info')}</h4>
-      <div className="space-y-3 text-[13.5px] text-[#5c4d44]">
+      <div className="text-[13.5px] text-[#5c4d44]">
         {hours && hours.stateKey !== 'hours_unknown' && (
-          <HoursDisclosure
-            stateLabel={tm(`state_${hours.stateKey}` as 'state_open')}
-            stateColor={STATE_COLOR[hours.stateKey] ?? 'text-muted'}
-            detail={hours.detail}
-            rows={hours.rows}
-            weekLabel={tp('pub_week')}
-            hideLabel={tp('pub_week_hide')}
-            notes={hours.notes}
-          />
+          <div className="pb-3.5">
+            <HoursDisclosure
+              stateLabel={tm(`state_${hours.stateKey}` as 'state_open')}
+              stateColor={STATE_COLOR[hours.stateKey] ?? 'text-muted'}
+              detail={hours.detail}
+              rows={hours.rows}
+              weekLabel={tp('pub_week')}
+              hideLabel={tp('pub_week_hide')}
+              notes={hours.notes}
+              dailySummary={hours.daily}
+            />
+          </div>
         )}
 
-        {price && (
-          <InfoRow icon="💰">
-            <span>{tp('pub_price_label')} <b className="text-ink font-semibold">{price}</b></span>
+        <div className="space-y-3 py-3.5 border-t border-black/5 first:border-t-0 first:pt-0">
+          {price && (
+            <InfoRow icon="💰">
+              <span>{tp('pub_price_label')}: <b className="text-ink font-semibold">{price}</b></span>
+            </InfoRow>
+          )}
+
+          {station && (
+            <InfoRow icon="🚉">
+              <span>{tp('pub_station')}: <b className="text-ink font-semibold">{station}</b>{place.stationWalkMinutes != null ? ` · ${tp('pub_walk', { min: place.stationWalkMinutes })}` : ''}</span>
+            </InfoRow>
+          )}
+
+          <InfoRow icon="📂">
+            <span>{t('topic')} <b className="text-ink">{displayCategory}</b></span>
           </InfoRow>
-        )}
 
-        {station && (
-          <InfoRow icon="🚉">
-            <span>{tp('pub_station')} <b className="text-ink font-semibold">{station}</b>{place.stationWalkMinutes != null ? ` · ${tp('pub_walk', { min: place.stationWalkMinutes })}` : ''}</span>
+          <InfoRow icon="📍">
+            <span>{t('location')} <b className="text-ink">{displayArea}</b></span>
           </InfoRow>
-        )}
 
-        <InfoRow icon="📂">
-          <span>{t('topic')} <b className="text-ink">{displayCategory}</b></span>
-        </InfoRow>
+          {place.prefecture && (
+            <InfoRow icon="🏙️">
+              <span>{t('prefecture')} <b className="text-ink">{prefectureName(place.prefecture)}{place.city ? ` · ${place.city}` : ''}</b></span>
+            </InfoRow>
+          )}
 
-        <InfoRow icon="📍">
-          <span>{t('location')} <b className="text-ink">{displayArea}</b></span>
-        </InfoRow>
+          {place.address && (
+            <InfoRow icon="🧭">
+              <span>{t('address')} <b className="text-ink">{place.address}</b></span>
+            </InfoRow>
+          )}
+        </div>
 
-        {place.prefecture && (
-          <InfoRow icon="🏙️">
-            <span>{t('prefecture')} <b className="text-ink">{prefectureName(place.prefecture)}{place.city ? ` · ${place.city}` : ''}</b></span>
-          </InfoRow>
-        )}
+        {(res.length > 0 || suit.length > 0 || fac.length > 0) && (
+          <div className="space-y-3 pt-3.5 border-t border-black/5">
+            {res.length > 0 && (
+              <InfoRow icon="📅">
+                <div className="flex flex-wrap gap-1.5">{res.map((r) => <Badge key={r}>{r}</Badge>)}</div>
+              </InfoRow>
+            )}
 
-        {place.address && (
-          <InfoRow icon="🧭">
-            <span>{t('address')} <b className="text-ink">{place.address}</b></span>
-          </InfoRow>
-        )}
+            {suit.length > 0 && (
+              <InfoRow icon="👥">
+                <div className="flex flex-wrap gap-1.5">{suit.map((s) => <Badge key={s}>{s}</Badge>)}</div>
+              </InfoRow>
+            )}
 
-        {res.length > 0 && (
-          <InfoRow icon="📅">
-            <div className="flex flex-wrap gap-1.5">{res.map((r) => <Badge key={r}>{r}</Badge>)}</div>
-          </InfoRow>
-        )}
-
-        {suit.length > 0 && (
-          <InfoRow icon="👥">
-            <div className="flex flex-wrap gap-1.5">{suit.map((s) => <Badge key={s}>{s}</Badge>)}</div>
-          </InfoRow>
-        )}
-
-        {fac.length > 0 && (
-          <InfoRow icon="🏷️">
-            <div className="flex flex-wrap gap-1.5">{fac.map((f) => <Badge key={f}>{f}</Badge>)}</div>
-          </InfoRow>
+            {fac.length > 0 && (
+              <div>
+                <div className="flex items-center gap-2.5 mb-2">
+                  <span className="text-[15px] leading-none w-[18px] text-center shrink-0" aria-hidden>🏷️</span>
+                  <span className="font-medium text-ink">{tp('pub_facilities')}</span>
+                </div>
+                <div className="flex flex-wrap gap-1.5 pl-[28px]">{fac.map((f) => <Badge key={f}>{f}</Badge>)}</div>
+              </div>
+            )}
+          </div>
         )}
       </div>
     </div>

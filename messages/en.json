@@ -3579,6 +3579,7 @@
     "pub_reopens": "reopens {day} {time}",
     "pub_all_day": "Open 24 hours",
     "pub_daily": "Open daily {hours}",
+    "pub_closed": "Closed",
     "pub_week": "See full week",
     "pub_week_hide": "Collapse",
     "pub_closed_days": "Closing days",

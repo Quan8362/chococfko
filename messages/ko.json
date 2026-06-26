@@ -3579,6 +3579,7 @@
     "pub_reopens": "{day} {time} 다시 영업",
     "pub_all_day": "24시간 영업",
     "pub_daily": "매일 {hours}",
+    "pub_closed": "휴무",
     "pub_week": "일주일 보기",
     "pub_week_hide": "접기",
     "pub_closed_days": "휴무일",

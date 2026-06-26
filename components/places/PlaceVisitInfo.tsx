@@ -64,15 +64,22 @@ function buildHours(place: Place, tp: T, dayLabel: (d: string) => string, allDay
   const { weekday: today, minutes: nowMin } = jstParts()
 
   for (const d of WEEKDAYS) {
-    const isClosed = closedSet.has(d)
+    const isToday = d === today
     const slots = oh[d]
-    let text: string
-    if (isClosed) text = '—'
-    else if (!Array.isArray(slots)) { rows.push({ label: dayLabel(d), slots: '', isToday: d === today }); continue }
-    else if (slots.length === 0) text = '—'
-    else { text = slots.map((s) => fmtSlot(s, allDayLabel)).join(', '); anyKnown = true }
-    if (text === '—') anyKnown = true
-    rows.push({ label: dayLabel(d), slots: text, isToday: d === today })
+    // Closed = listed in closed_days OR an explicit empty slot array. Missing key = unknown,
+    // also shown as "closed" in the table but it does not count as known hours.
+    const explicitlyClosed = closedSet.has(d) || (Array.isArray(slots) && slots.length === 0)
+    if (explicitlyClosed) {
+      rows.push({ label: dayLabel(d), slots: '', isToday, closed: true })
+      anyKnown = true
+      continue
+    }
+    if (!Array.isArray(slots)) {
+      rows.push({ label: dayLabel(d), slots: '', isToday, closed: true })
+      continue
+    }
+    rows.push({ label: dayLabel(d), slots: slots.map((s) => fmtSlot(s, allDayLabel)).join(', '), isToday })
+    anyKnown = true
   }
   if (!anyKnown) return null
 
@@ -87,9 +94,10 @@ function buildHours(place: Place, tp: T, dayLabel: (d: string) => string, allDay
     if (next) detail = reopens(next.offset === 0 ? todayLabel : dayLabel(next.day), next.time)
   }
 
-  // All 7 days share identical hours → collapse to a single summary line (no week table / toggle).
-  const uniqueSlots = new Set(rows.map((r) => r.slots))
-  const daily = uniqueSlots.size === 1 && rows[0].slots && rows[0].slots !== '—'
+  // Collapse to "open daily" ONLY when all 7 days are present, none closed/missing, and ranges identical.
+  const anyClosed = rows.some((r) => r.closed)
+  const ranges = new Set(rows.map((r) => r.slots))
+  const daily = !anyClosed && rows.length === 7 && ranges.size === 1 && rows[0].slots
     ? dailyLabel(rows[0].slots)
     : null
 
@@ -199,6 +207,7 @@ export default async function PlaceVisitInfo({
               rows={hours.rows}
               weekLabel={tp('pub_week')}
               hideLabel={tp('pub_week_hide')}
+              closedLabel={tp('pub_closed')}
               notes={hours.notes}
               dailySummary={hours.daily}
             />

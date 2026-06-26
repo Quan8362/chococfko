@@ -1,11 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { Fragment, useState } from 'react'
 
 export interface HoursRow {
   label: string
   slots: string
   isToday: boolean
+  /** Day is closed (or hours unknown) — render the closed label, not a time range. */
+  closed?: boolean
 }
 
 /**
@@ -20,6 +22,7 @@ export default function HoursDisclosure({
   rows,
   weekLabel,
   hideLabel,
+  closedLabel,
   notes,
   dailySummary,
 }: {
@@ -29,6 +32,7 @@ export default function HoursDisclosure({
   rows: HoursRow[]
   weekLabel: string
   hideLabel: string
+  closedLabel: string
   notes?: string | null
   /** When set, all 7 days share identical hours: show this one-line summary instead of the week table + toggle. */
   dailySummary?: string | null
@@ -57,16 +61,16 @@ export default function HoursDisclosure({
           <span className="text-[8px] leading-none">{open ? '▲' : '▼'}</span>
         </button>
         {open && (
-          <table className="mt-1.5 w-full max-w-[200px] text-[12.5px]">
-            <tbody>
-              {rows.map((r) => (
-                <tr key={r.label} className={r.isToday ? 'text-ink font-semibold' : 'text-muted'}>
-                  <td className="pr-4 py-[3px]">{r.label}</td>
-                  <td className="py-[3px] text-right tabular-nums">{r.slots}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="mt-1.5 grid grid-cols-[auto_auto] gap-x-6 gap-y-1 w-fit text-[12.5px]">
+            {rows.map((r) => (
+              <Fragment key={r.label}>
+                <span className={r.isToday ? 'text-ink font-semibold' : 'text-muted'}>{r.label}</span>
+                <span className={`text-right tabular-nums ${r.closed ? 'text-muted' : r.isToday ? 'text-ink font-semibold' : 'text-muted'}`}>
+                  {r.closed ? closedLabel : r.slots}
+                </span>
+              </Fragment>
+            ))}
+          </div>
         )}
         </>
         )}

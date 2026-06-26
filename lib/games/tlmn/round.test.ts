@@ -82,6 +82,19 @@ test('a follow must beat the table; a weaker same-shape card is rejected', () =>
   assert.equal(applyPlay(s, 1, [parseCard('9S')]).ok, true)
 })
 
+test('regression: the round-1 3♠ rule never blocks a follow (only the opening lead)', () => {
+  // Round 1, mid-trick: the table holds the bot's single 4♠ and it's the human's
+  // turn. The human holds no 3♠ but a 6♥. Even with the opening flag still set, a
+  // FOLLOW must be legal — the 3♠ requirement applies only when leading.
+  const s = buildState(
+    { 0: '4D 5D', 1: '6H 7H' },
+    { roundNo: 1, turnSeat: 1, trick: { cards: parseHand('4S'), bySeat: 0 }, mustIncludeThreeSpade: true },
+  )
+  const res = applyPlay(s, 1, [parseCard('6H')])
+  assert.ok(res.ok, `a single 6♥ must legally follow a single 4♠, got: ${res.ok ? '' : res.error}`)
+  assert.equal(res.ok && res.state.trick?.bySeat, 1) // the human now owns the trick
+})
+
 // ── First-out đếm-lá settlement ─────────────────────────────────────────────────
 test('first out ends the round; đếm-lá charges remaining cards to the Nhất', () => {
   // seat 0 plays its last card; seats 1,2 hold plain cards (played > 0 ⇒ no cóng).

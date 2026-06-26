@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, useTransition, type 
 import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import {
-  parseCombo, beats, sortHand, legalMoves, strength,
+  parseCombo, beats, sortHand, legalMoves, strength, DEFAULT_RULES,
   type Card, type Combo,
 } from '@/lib/games/tlmn/engine'
 import {
@@ -71,7 +71,18 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost }: Props) {
   const refreshHand = useCallback(() => {
     fetchMyHand(roomId).then(h => {
       if (!mountedRef.current) return
-      setHand(h ? sortHand(h.cards) : [])
+      const next = h ? sortHand(h.cards) : []
+      setHand(next)
+      // Keep the selection in sync with the real hand: drop any card no longer held
+      // (e.g. once our own play commits) but never clear a still-valid selection — a
+      // routine state refresh must not wipe a card the player just picked.
+      setSelected(prev => {
+        if (prev.size === 0) return prev
+        const live = new Set(next.map(cardKey))
+        const pruned = new Set<string>()
+        prev.forEach(k => { if (live.has(k)) pruned.add(k) })
+        return pruned.size === prev.size ? prev : pruned
+      })
     }).catch(() => {})
   }, [roomId])
 
@@ -79,7 +90,6 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost }: Props) {
     fetchGameState(roomId).then(g => {
       if (!mountedRef.current) return
       setGame(g)
-      setSelected(new Set())
     }).catch(() => {})
     refreshHand()
   }, [roomId, refreshHand])
@@ -102,6 +112,9 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost }: Props) {
     const id = setInterval(() => setNow(Date.now()), 500)
     return () => clearInterval(id)
   }, [])
+
+  // A fresh round (new game id) ⇒ drop any stale selection from the previous deal.
+  useEffect(() => { setSelected(new Set()) }, [game?.id])
 
   // ── Timeout reaper nudge ───────────────────────────────────────────────────────
   useEffect(() => {
@@ -211,7 +224,9 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost }: Props) {
   const isMyTurn = !!game && mySeat != null && game.turn_seat === mySeat && game.status === 'playing'
   const selectedCards = useMemo(() => hand.filter(c => selected.has(cardKey(c))), [hand, selected])
   const selectedCombo = selectedCards.length ? parseCombo(selectedCards) : null
-  const canPlay = isMyTurn && !!selectedCombo && !!rules && beats(selectedCombo, tableCombo, rules)
+  // `beats` defaults to DEFAULT_RULES, so a momentarily-missing rules object must NOT
+  // make a legal play look illegal — only the turn + a valid, table-beating combo gate it.
+  const canPlay = isMyTurn && !!selectedCombo && beats(selectedCombo, tableCombo, rules ?? DEFAULT_RULES)
   const canPass = isMyTurn && !!game?.trick
 
   const displayHand = useMemo(() => {
@@ -351,7 +366,6 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost }: Props) {
               isNhat={game.nhat_seat === idx}
               passed={!!passStamp && passStamp.seat === idx}
               passKey={passStamp?.key}
-              thinking={game.turn_seat === idx && game.status === 'playing'}
               secondsLeft={game.turn_seat === idx ? secondsLeft : null}
               turnFrac={game.turn_seat === idx ? turnFrac : 0}
               lastTrick={game.trick?.by_seat === idx ? game.trick.cards : null}
@@ -372,7 +386,6 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost }: Props) {
               isTurn={isMyTurn}
               isNhat={game.nhat_seat === mySeat}
               passed={false}
-              thinking={false}
               secondsLeft={isMyTurn ? secondsLeft : null}
               turnFrac={isMyTurn ? turnFrac : 0}
               lastTrick={null}
@@ -493,7 +506,7 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost }: Props) {
             <button
               type="button"
               onClick={doPlay}
-              disabled={!isMyTurn || selectedCards.length === 0 || isPending}
+              disabled={!isMyTurn || selectedCards.length === 0 || isPending || !canPlay}
               className="flex-1 font-semibold text-[14px] px-5 py-2.5 rounded-xl bg-rose text-white hover:bg-rose-deep transition-all disabled:opacity-40 disabled:hover:bg-rose shadow-[0_4px_16px_-5px_rgba(214,0,108,0.5)]"
             >
               {t('play_btn')}{selectedCards.length ? ` · ${selectedCards.length}` : ''}
@@ -544,7 +557,7 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost }: Props) {
 
 // ── Seat pod ──────────────────────────────────────────────────────────────────────
 function SeatPod({
-  idx, seat, name, isMe, count, isTurn, isNhat, passed, passKey, thinking,
+  idx, seat, name, isMe, count, isTurn, isNhat, passed, passKey,
   secondsLeft, turnFrac, lastTrick, compact, t,
 }: {
   idx: number
@@ -556,7 +569,6 @@ function SeatPod({
   isNhat: boolean
   passed: boolean
   passKey?: number
-  thinking: boolean
   secondsLeft: number | null
   turnFrac: number
   lastTrick: Card[] | null
@@ -604,7 +616,9 @@ function SeatPod({
                 {secondsLeft}
               </span>
             </span>
-            <span className="text-[9.5px] text-muted italic">{t('thinking')}</span>
+            {/* "đang suy nghĩ" is for an opponent we're waiting on — never on my own
+                active seat (the hand panel already shows "Lượt của bạn!"). */}
+            {!isMe && <span className="text-[9.5px] text-muted italic">{t('thinking')}</span>}
           </div>
         )}
       </div>

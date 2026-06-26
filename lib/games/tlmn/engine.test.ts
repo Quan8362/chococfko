@@ -121,6 +121,16 @@ test('legalMoves vs a single returns only higher singles', () => {
   assert.deepEqual(ranks, [3, 4]) // rank indices for 6 and 7
 })
 
+test('regression: a single 6 beats a single 4, and legalMoves offers it from the live hand', () => {
+  // From a reported "cannot follow" bug: human holds no 3♠ but a 6♥ that must beat
+  // the bot's single 4♠. The engine must treat this as a perfectly legal follow.
+  assert.equal(beats(combo('6H'), combo('4S')), true)
+  const hand = parseHand('3D 3H 6H 8C 9D 10S 10C JH QH KC KS AD')
+  const singles = legalMoves(hand, combo('4S')).filter(c => c.type === 'single')
+  assert.ok(singles.length > 0, 'at least one single must beat a 4')
+  assert.ok(singles.some(c => c.high.rank === parseCard('6H').rank), 'the 6♥ must be a legal single over a 4♠')
+})
+
 test('legalMoves leading returns only valid combos and includes the full straight', () => {
   const hand = parseHand('3S 4S 5S 6S 7S')
   const moves = legalMoves(hand, null)

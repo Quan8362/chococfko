@@ -10,7 +10,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import type { NearbyPlace } from '@/lib/placesNearby'
-import { AREA_LEGACY_KEY_MAP } from '@/lib/places'
+import { AREA_LEGACY_KEY_MAP } from '@/lib/placesAreaKeys'
 import { openStatus, type OpenState } from '@/lib/placeOpenNow'
 import {
   type MapViewState, encodeMapView, shouldOfferSearchArea, markerAccent,

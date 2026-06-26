@@ -1852,6 +1852,8 @@
       "empty_seat": "空位 — 邀请好友或添加机器人",
       "add_bot": "添加机器人",
       "add_bot_soon": "机器人将在后续更新中加入",
+      "remove_bot": "移除",
+      "waiting_players": "等待玩家中…",
       "settings_heading": "规则与计分",
       "settings_host_only": "只有房主可以更改规则。",
       "rules_classic": "经典",

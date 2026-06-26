@@ -1852,6 +1852,8 @@
       "empty_seat": "空席 — 友達を招待またはボットを追加",
       "add_bot": "ボットを追加",
       "add_bot_soon": "ボットは今後のアップデートで追加されます",
+      "remove_bot": "削除",
+      "waiting_players": "プレイヤーを待っています…",
       "settings_heading": "ルールと得点",
       "settings_host_only": "ルールを変更できるのはホストだけです。",
       "rules_classic": "クラシック",

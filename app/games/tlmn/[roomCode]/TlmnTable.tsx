@@ -8,7 +8,7 @@ import {
   type Card, type Combo,
 } from '@/lib/games/tlmn/engine'
 import {
-  fetchGameState, fetchMyHand, playCards, passTurn, tickTurnTimer, startNextRound,
+  fetchGameState, fetchMyHand, playCards, passTurn, tickTurnTimer, startNextRound, runBotTurn,
   type TlmnPublicGame, type TlmnSeat,
 } from '../actions'
 import { CardFace, FannedBacks } from './TlmnCard'
@@ -53,6 +53,7 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost }: Props) {
   const [isPending, startTransition] = useTransition()
   const mountedRef = useRef(true)
   const tickRef = useRef<string | null>(null)
+  const botRef = useRef<string | null>(null)
 
   // ── Transient FX state ───────────────────────────────────────────────────────
   const [chac, setChac] = useState<{ cutter: number; victim: number; amount: number; key: number } | null>(null)
@@ -111,6 +112,22 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost }: Props) {
     tickRef.current = game.turn_started_at
     tickTurnTimer(roomId).catch(() => {})
   }, [now, game, roomId])
+
+  // ── Bot-turn nudge ──────────────────────────────────────────────────────────────
+  // When the current turn belongs to a bot seat (a real lobby bot OR a human under
+  // AFK takeover), prompt the server to make its move. The server re-checks the seat
+  // + gates on its own randomized think delay, so this just needs to fire once per
+  // turn after that window has comfortably passed. (If it's ever missed, the timeout
+  // reaper above still auto-moves the bot — so bots always progress.)
+  useEffect(() => {
+    if (!game || game.status !== 'playing' || game.turn_seat == null || !game.turn_started_at) return
+    const turnSeat = seats.find(s => s.seat_index === game.turn_seat)
+    if (!turnSeat || !(turnSeat.is_bot || turnSeat.bot_takeover)) return
+    if (now - new Date(game.turn_started_at).getTime() < 1500) return // ≥ server max delay
+    if (botRef.current === game.turn_started_at) return
+    botRef.current = game.turn_started_at
+    runBotTurn(roomId).catch(() => {})
+  }, [now, game, seats, roomId])
 
   // ── React to game transitions: sounds, haptics, FX ─────────────────────────────
   useEffect(() => {

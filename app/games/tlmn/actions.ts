@@ -10,6 +10,7 @@ import {
 import {
   dealRound, applyPlay, applyPass, applyTimeout, cardCounts, type RoundState,
 } from '@/lib/games/tlmn/round'
+import { chooseBotMove } from '@/lib/games/tlmn/bot'
 
 // ── Types ───────────────────────────────────────────────────────────────────────
 export type TlmnStatus = 'lobby' | 'playing' | 'ended'
@@ -40,6 +41,11 @@ export type TlmnSeat = {
   is_bot: boolean
   connected: boolean
   cumulative_score: number
+  // Phase 5 — resilience. A seat is "bot-controlled" when is_bot (a real lobby bot)
+  // OR bot_takeover (a human seat auto-piloted after going AFK / disconnecting).
+  missed_turns: number
+  bot_takeover: boolean
+  last_seen: string | null
 }
 
 export type TlmnRoomState = { room: TlmnRoom; seats: TlmnSeat[] }
@@ -47,6 +53,17 @@ export type SeatResult = { state: TlmnRoomState | null; error?: string }
 export type ActionResult = { error: string } | null
 
 const MAX_SEATS = 4
+
+// Phase 5 — resilience tuning.
+// A seat is auto-piloted by a bot once the human misses this many turns in a row…
+const MISSED_TURNS_TAKEOVER = 2
+// …or has not sent a heartbeat for this long (tab closed). The room heartbeat fires
+// every 15s, so this is ~3 missed beats — comfortably past a transient hiccup.
+const OFFLINE_MS = 45000
+// Randomized bot "think" window before it acts (server-gated off turn_started_at so
+// every client agrees, and the move can't fire the instant the turn opens).
+const BOT_MIN_DELAY_MS = 600
+const BOT_MAX_DELAY_MS = 1400
 
 // ── Helpers ─────────────────────────────────────────────────────────────────────
 const CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
@@ -287,8 +304,13 @@ export async function updateRules(roomId: string, override: HostRulesOverride | 
 }
 
 // ── leaveSeat ────────────────────────────────────────────────────────────────────
-// Free the leaver's seat. If they were the host, migrate host to the lowest
-// remaining occupied seat. If the room empties out, delete it (cascades seats).
+// Leaving behaves differently depending on whether a round is in progress:
+//   • Lobby/ended → free the seat outright. If the room empties, delete it.
+//   • Playing → the active round references this seat's hand, so we DON'T delete it:
+//     mark it offline + bot_takeover so a bot finishes the round, and the game
+//     continues uninterrupted. (The human can return any time via the room code.)
+// Either way, if the leaver was the host, host migrates to the lowest-index
+// remaining HUMAN seat (falling back to the lowest remaining seat if none).
 export async function leaveSeat(roomId: string): Promise<ActionResult> {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -300,37 +322,120 @@ export async function leaveSeat(roomId: string): Promise<ActionResult> {
     .eq('room_id', roomId).eq('user_id', user.id).maybeSingle()
   if (!seat) return null // already gone
 
-  await admin.from('tlmn_seats').delete().eq('id', seat.id)
+  const { data: room } = await admin
+    .from('tlmn_rooms').select('host_seat, status').eq('id', roomId).maybeSingle()
+  const playing = room?.status === 'playing'
+
+  if (playing) {
+    // Hand the seat to a bot for the rest of the game — never break the round.
+    await admin.from('tlmn_seats')
+      .update({ connected: false, bot_takeover: true, is_ready: false })
+      .eq('id', seat.id)
+  } else {
+    await admin.from('tlmn_seats').delete().eq('id', seat.id)
+  }
 
   const { data: remaining } = await admin
-    .from('tlmn_seats').select('seat_index')
+    .from('tlmn_seats').select('seat_index, user_id, bot_takeover')
     .eq('room_id', roomId).order('seat_index', { ascending: true })
+  const rows = (remaining ?? []) as Array<{ seat_index: number; user_id: string | null; bot_takeover: boolean }>
 
-  const rows = (remaining ?? []) as Array<{ seat_index: number }>
   if (rows.length === 0) {
     await admin.from('tlmn_rooms').delete().eq('id', roomId)
     return null
   }
 
-  // Host migration: if the leaver held the host seat, hand it to the lowest seat.
-  const { data: room } = await admin.from('tlmn_rooms').select('host_seat').eq('id', roomId).maybeSingle()
+  // Host migration → lowest present human (a real, non-taken-over seat), else lowest.
   if (room && room.host_seat === seat.seat_index) {
-    await admin.from('tlmn_rooms').update({ host_seat: rows[0].seat_index }).eq('id', roomId)
+    const human = rows.find(r => r.user_id && !r.bot_takeover)
+    const target = (human ?? rows[0]).seat_index
+    await admin.from('tlmn_rooms').update({ host_seat: target }).eq('id', roomId)
   }
   return null
 }
 
 // ── heartbeatRoom ────────────────────────────────────────────────────────────────
 // Keep the caller's seat marked connected while the tab is open (mirrors the
-// caro/chess waiting-room heartbeat).
+// caro/chess waiting-room heartbeat). Also drives RECONNECT: if the seat had been
+// auto-piloted by a bot (AFK/disconnect) AND we've been gone past the offline
+// threshold, returning hands control back to the human and clears the miss counter.
 export async function heartbeatRoom(roomId: string): Promise<void> {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return
   const admin = createAdminClient()
+
+  const { data: seat } = await admin.from('tlmn_seats')
+    .select('id, bot_takeover, last_seen')
+    .eq('room_id', roomId).eq('user_id', user.id).maybeSingle()
+  if (!seat) return
+
+  const wasOffline = !seat.last_seen || Date.now() - new Date(seat.last_seen).getTime() > OFFLINE_MS
+  const patch: Record<string, unknown> = { connected: true, last_seen: new Date().toISOString() }
+  // Resume control only on a genuine reconnect — a steady stream of heartbeats from
+  // an idle-but-open tab must NOT keep clearing a takeover earned by missed turns.
+  if (seat.bot_takeover && wasOffline) {
+    patch.bot_takeover = false
+    patch.missed_turns = 0
+  }
+  await admin.from('tlmn_seats').update(patch).eq('id', seat.id)
+}
+
+// ── addBot (host only) ─────────────────────────────────────────────────────────────
+// Fill the lowest free seat with a bot (is_bot=true, NULL user_id, always ready).
+// Lobby-only. Idempotent against the UNIQUE(room_id, seat_index) constraint.
+export async function addBot(roomId: string): Promise<ActionResult> {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'not_logged_in' }
+
+  const admin = createAdminClient()
+  const state = await readState(admin, roomId)
+  if (!state) return { error: 'not_found' }
+  if (state.room.status !== 'lobby') return { error: 'not_in_lobby' }
+
+  const mySeat = state.seats.find(s => s.user_id === user.id)
+  if (!mySeat || mySeat.seat_index !== state.room.host_seat) return { error: 'not_host' }
+
+  const taken = new Set(state.seats.map(s => s.seat_index))
+  const botCount = state.seats.filter(s => s.is_bot).length
+  for (let idx = 0; idx < MAX_SEATS; idx++) {
+    if (taken.has(idx)) continue
+    const { error } = await admin.from('tlmn_seats').insert({
+      room_id: roomId,
+      seat_index: idx,
+      user_id: null,
+      display_name: `Bot ${botCount + 1}`,
+      avatar_url: null,
+      is_ready: true,   // bots are always ready so the host can start
+      is_bot: true,
+      connected: true,
+    })
+    if (!error) return null
+  }
+  return { error: 'full' }
+}
+
+// ── removeBot (host only) ──────────────────────────────────────────────────────────
+// Remove a lobby bot seat (is_bot + NULL user_id). Never touches a human seat nor a
+// human under bot takeover. Lobby-only.
+export async function removeBot(roomId: string, seatIndex: number): Promise<ActionResult> {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'not_logged_in' }
+
+  const admin = createAdminClient()
+  const state = await readState(admin, roomId)
+  if (!state) return { error: 'not_found' }
+  if (state.room.status !== 'lobby') return { error: 'not_in_lobby' }
+
+  const mySeat = state.seats.find(s => s.user_id === user.id)
+  if (!mySeat || mySeat.seat_index !== state.room.host_seat) return { error: 'not_host' }
+
   await admin.from('tlmn_seats')
-    .update({ connected: true })
-    .eq('room_id', roomId).eq('user_id', user.id)
+    .delete()
+    .eq('room_id', roomId).eq('seat_index', seatIndex).eq('is_bot', true).is('user_id', null)
+  return null
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -564,7 +669,9 @@ export async function playCards(roomId: string, cards: Card[]): Promise<ActionRe
   const res = applyPlay(round, mySeat, cards)
   if (!res.ok) return { error: res.error }
 
-  return commitRound(admin, roomId, game.id, mySeat, res.state, [mySeat])
+  const committed = await commitRound(admin, roomId, game.id, mySeat, res.state, [mySeat])
+  if (!committed) await clearMisses(admin, roomId, mySeat)
+  return committed
 }
 
 // ── passTurn ─────────────────────────────────────────────────────────────────────
@@ -587,7 +694,16 @@ export async function passTurn(roomId: string): Promise<ActionResult> {
   const res = applyPass(round, mySeat)
   if (!res.ok) return { error: res.error }
 
-  return commitRound(admin, roomId, game.id, mySeat, res.state, [])
+  const committed = await commitRound(admin, roomId, game.id, mySeat, res.state, [])
+  if (!committed) await clearMisses(admin, roomId, mySeat)
+  return committed
+}
+
+// A human acted of their own accord → they're present; reset the AFK counter.
+async function clearMisses(admin: Admin, roomId: string, seatIndex: number): Promise<void> {
+  await admin.from('tlmn_seats')
+    .update({ missed_turns: 0 })
+    .eq('room_id', roomId).eq('seat_index', seatIndex)
 }
 
 // ── tickTurnTimer ────────────────────────────────────────────────────────────────
@@ -614,7 +730,67 @@ export async function tickTurnTimer(roomId: string): Promise<ActionResult> {
 
   // A leading timeout auto-PLAYS (hand changes); a following timeout auto-PASSES.
   const changed = wasLeading ? [timedOutSeat] : []
-  return commitRound(admin, roomId, game.id, timedOutSeat, res.state, changed)
+  const committed = await commitRound(admin, roomId, game.id, timedOutSeat, res.state, changed)
+  if (committed) return committed // a conflicting actor already advanced this turn
+
+  // The commit is OURS → this was a genuine miss. Count it against a HUMAN seat and,
+  // after enough misses (or once the tab has gone offline), hand the seat to a bot
+  // for the rest of the round. Real lobby bots / already-taken-over seats are skipped.
+  const { data: seat } = await admin.from('tlmn_seats')
+    .select('id, user_id, is_bot, bot_takeover, missed_turns, last_seen')
+    .eq('room_id', roomId).eq('seat_index', timedOutSeat).maybeSingle()
+  if (seat && seat.user_id && !seat.is_bot && !seat.bot_takeover) {
+    const missed = (seat.missed_turns ?? 0) + 1
+    const offline = !seat.last_seen || Date.now() - new Date(seat.last_seen).getTime() > OFFLINE_MS
+    await admin.from('tlmn_seats')
+      .update({ missed_turns: missed, bot_takeover: missed >= MISSED_TURNS_TAKEOVER || offline })
+      .eq('id', seat.id)
+  }
+  return null
+}
+
+// ── runBotTurn ───────────────────────────────────────────────────────────────────
+// Drives a bot-controlled turn. Like the timeout reaper, it's NUDGED by any client
+// (there is no long-lived server) and is fully server-authoritative + idempotent: it
+// only acts when the current turn belongs to a bot seat (a real lobby bot OR a human
+// under AFK takeover) AND a randomized think delay has elapsed since the turn opened.
+// The chosen move comes from the engine's legalMoves (see bot.ts) and is committed
+// through the SAME guarded path a human uses, so a bot can never play illegally and
+// two racing nudges can never both apply.
+export async function runBotTurn(roomId: string): Promise<ActionResult> {
+  const admin = createAdminClient()
+  const game = await latestGame(admin, roomId, true)
+  if (!game || game.turn_seat == null || !game.turn_started_at) return null
+
+  const { data: seat } = await admin.from('tlmn_seats')
+    .select('is_bot, bot_takeover')
+    .eq('room_id', roomId).eq('seat_index', game.turn_seat).maybeSingle()
+  if (!seat || !(seat.is_bot || seat.bot_takeover)) return null // not a bot turn
+
+  // Server-side think delay: deterministic per turn so every nudging client agrees.
+  const elapsed = Date.now() - new Date(game.turn_started_at).getTime()
+  if (elapsed < botDelay(game.turn_started_at, game.turn_seat)) return null
+
+  const actingSeat = game.turn_seat
+  const hands = await loadHands(admin, game.id)
+  const round = roundFromDb(game, hands)
+
+  const move = chooseBotMove(round, actingSeat)
+  let res = move.type === 'play' ? applyPlay(round, actingSeat, move.cards) : applyPass(round, actingSeat)
+  // chooseBotMove is provably legal, but never trust a single source: fall back to
+  // the always-legal timeout move so a bot turn can't wedge the round.
+  if (!res.ok) res = applyTimeout(round)
+  if (!res.ok) return { error: res.error }
+
+  const changed = res.state.hands[actingSeat].length !== round.hands[actingSeat].length ? [actingSeat] : []
+  return commitRound(admin, roomId, game.id, actingSeat, res.state, changed)
+}
+
+// Deterministic randomized think delay in [BOT_MIN_DELAY_MS, BOT_MAX_DELAY_MS].
+function botDelay(startedAt: string, seat: number): number {
+  const base = new Date(startedAt).getTime() + seat * 1009
+  const frac = Math.abs(Math.sin(base)) // stable pseudo-random 0..1
+  return BOT_MIN_DELAY_MS + Math.floor(frac * (BOT_MAX_DELAY_MS - BOT_MIN_DELAY_MS))
 }
 
 // ── startNextRound (host only) — "Ván mới" ───────────────────────────────────────

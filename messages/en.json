@@ -1852,6 +1852,8 @@
       "empty_seat": "Empty — invite friends or add a Bot",
       "add_bot": "Add Bot",
       "add_bot_soon": "Bots arrive in a later update",
+      "remove_bot": "Remove",
+      "waiting_players": "Waiting for players…",
       "settings_heading": "Rules & scoring",
       "settings_host_only": "Only the host can change the rules.",
       "rules_classic": "Classic",

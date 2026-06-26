@@ -1852,6 +1852,8 @@
       "empty_seat": "Trống — mời bạn bè hoặc thêm Bot",
       "add_bot": "Thêm Bot",
       "add_bot_soon": "Bot sẽ có ở bản cập nhật sau",
+      "remove_bot": "Xoá",
+      "waiting_players": "Đang chờ người chơi…",
       "settings_heading": "Luật chơi & điểm",
       "settings_host_only": "Chỉ chủ phòng mới đổi được luật chơi.",
       "rules_classic": "Cổ điển",

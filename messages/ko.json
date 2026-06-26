@@ -1852,6 +1852,8 @@
       "empty_seat": "빈자리 — 친구를 초대하거나 봇 추가",
       "add_bot": "봇 추가",
       "add_bot_soon": "봇은 향후 업데이트에서 추가됩니다",
+      "remove_bot": "제거",
+      "waiting_players": "플레이어를 기다리는 중…",
       "settings_heading": "규칙 및 점수",
       "settings_host_only": "방장만 규칙을 변경할 수 있습니다.",
       "rules_classic": "클래식",

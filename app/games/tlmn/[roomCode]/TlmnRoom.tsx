@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import {
   refetchRoomState, toggleReady, startGame, leaveSeat, heartbeatRoom,
+  addBot, removeBot,
   type TlmnRoomState, type TlmnSeat,
 } from '../actions'
 import TlmnRulesPanel from './TlmnRulesPanel'
@@ -89,7 +90,7 @@ export default function TlmnRoom({ initialState, userId }: Props) {
   useEffect(() => {
     if (!mySeat) return
     heartbeatRoom(room.id)
-    const interval = setInterval(() => heartbeatRoom(room.id), 25000)
+    const interval = setInterval(() => heartbeatRoom(room.id), 15000)
     return () => clearInterval(interval)
   }, [room.id, mySeat])
 
@@ -120,6 +121,14 @@ export default function TlmnRoom({ initialState, userId }: Props) {
       await leaveSeat(room.id)
       router.push('/games/tlmn')
     })
+  }
+
+  const handleAddBot = () => {
+    startTransition(async () => { await addBot(room.id) })
+  }
+
+  const handleRemoveBot = (seatIndex: number) => {
+    startTransition(async () => { await removeBot(room.id, seatIndex) })
   }
 
   // ── Render ───────────────────────────────────────────────────────────────────
@@ -216,11 +225,23 @@ export default function TlmnRoom({ initialState, userId }: Props) {
                       {t('seat_label', { n: i + 1 })}
                     </p>
                   </div>
-                  <span className={`text-[10.5px] font-bold px-2.5 py-1 rounded-full flex-none ${
-                    seat.is_ready ? 'bg-emerald-100 text-emerald-700' : 'bg-line text-muted'
-                  }`}>
-                    {seat.is_ready ? `✓ ${t('ready')}` : t('not_ready')}
-                  </span>
+                  <div className="flex flex-col items-end gap-1 flex-none">
+                    <span className={`text-[10.5px] font-bold px-2.5 py-1 rounded-full ${
+                      seat.is_ready ? 'bg-emerald-100 text-emerald-700' : 'bg-line text-muted'
+                    }`}>
+                      {seat.is_ready ? `✓ ${t('ready')}` : t('not_ready')}
+                    </span>
+                    {isHost && seat.is_bot && (
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveBot(seat.seat_index)}
+                        disabled={isPending}
+                        className="text-[10.5px] font-semibold text-rose hover:text-rose-deep border border-rose/30 rounded-lg px-2 py-0.5 transition-colors disabled:opacity-50"
+                      >
+                        {t('remove_bot')}
+                      </button>
+                    )}
+                  </div>
                 </>
               ) : (
                 <>
@@ -229,15 +250,18 @@ export default function TlmnRoom({ initialState, userId }: Props) {
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="text-[12.5px] text-muted/70 leading-snug">{t('empty_seat')}</p>
-                    {/* Add-Bot button is a Phase-1 stub; becomes functional in Phase 5. */}
-                    <button
-                      type="button"
-                      disabled
-                      title={t('add_bot_soon')}
-                      className="mt-1 text-[11.5px] font-semibold text-muted/50 border border-line rounded-lg px-2.5 py-1 cursor-not-allowed"
-                    >
-                      🤖 {t('add_bot')}
-                    </button>
+                    {isHost ? (
+                      <button
+                        type="button"
+                        onClick={handleAddBot}
+                        disabled={isPending}
+                        className="mt-1 text-[11.5px] font-semibold text-ink hover:text-rose border border-line hover:border-rose/30 rounded-lg px-2.5 py-1 transition-colors disabled:opacity-50"
+                      >
+                        🤖 {t('add_bot')}
+                      </button>
+                    ) : (
+                      <p className="mt-1 text-[11px] text-muted/50">{t('waiting_players')}</p>
+                    )}
                   </div>
                 </>
               )}

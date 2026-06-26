@@ -3,7 +3,8 @@
 //
 // Framework-agnostic: NO React, NO Supabase, NO next/* imports. Everything here is
 // a pure function so it can be unit-tested in isolation and reused by bots (Phase 5)
-// and the realtime server actions (Phase 3). All tunable amounts live in RULES.
+// and the realtime server actions (Phase 3). All tunable amounts live in DEFAULT_RULES;
+// host overrides are deep-merged via resolveRules().
 // ─────────────────────────────────────────────────────────────────────────────
 
 // ── Cards & ordering ────────────────────────────────────────────────────────────
@@ -90,7 +91,7 @@ export type Combo = {
   high: Card          // strongest card — the basis for same-shape comparison
 }
 
-// ── RULES — documented, tunable config ──────────────────────────────────────────
+// ── DEFAULT_RULES — documented, tunable config ──────────────────────────────────
 export type BombsConfig = {
   // What a "3 đôi thông" (3 consecutive pairs) may cut, beyond a lower 3 đôi thông.
   threePairsRunCutsSingle2: boolean
@@ -111,7 +112,14 @@ export type InstantWinType =
   | 'sauDoi'       // ≥6 pairs
   | 'baSamCo'      // 3 triples
 
-export type RulesConfig = {
+export type Rules = {
+  // ── on/off flags (all ON in DEFAULT_RULES ⇒ full ruleset) ──────────────────
+  toiTrangEnabled: boolean     // instant win on deal (tới trắng)
+  thoiHeoEnabled: boolean      // doubling for a loser still holding a 2 (thối heo)
+  thoiBomEnabled: boolean      // flat penalty for a held bomb bộ (thối đôi thông / tứ quý)
+  congEnabled: boolean         // multiplier when a loser played 0 cards (cóng)
+  denEnabled: boolean          // đền khi bị chặt (victim→cutter transfers)
+  // ── numeric amounts ────────────────────────────────────────────────────────
   basePerCard: number          // pay per remaining card to the Nhất
   thoiHeoMultiplier: number    // multiply a loser's card-payment if they still hold a 2
   thoiHeoPerCard: boolean      // if true, multiply once per held 2 instead of a single doubling
@@ -121,13 +129,24 @@ export type RulesConfig = {
   denBom: number               // victim→cutter when a held bomb is cut by a bigger bomb
   toiTrangPayout: number       // each other player pays the instant-winner this
   turnSeconds: number          // per-turn clock (used by the realtime layer, not here)
+  // ── engine-level (NOT host-editable in v1) ─────────────────────────────────
   endOnFirstOut: boolean       // đếm-lá: round ends the instant the FIRST player is out
   nextRoundLeader: 'winner' | 'loser' // who leads next round
   instantWinOrder: InstantWinType[]   // highest → lowest when several match
   bombs: BombsConfig
 }
 
-export const RULES: RulesConfig = {
+/** @deprecated use `Rules` */
+export type RulesConfig = Rules
+
+// The canonical, full "chuẩn chỉ" ruleset — everything ON. Host overrides are
+// deep-merged onto this via resolveRules(); an untouched config ⇒ the full ruleset.
+export const DEFAULT_RULES: Rules = {
+  toiTrangEnabled: true,
+  thoiHeoEnabled: true,
+  thoiBomEnabled: true,
+  congEnabled: true,
+  denEnabled: true,
   basePerCard: 1,
   thoiHeoMultiplier: 2,
   thoiHeoPerCard: false,
@@ -151,9 +170,51 @@ export const RULES: RulesConfig = {
   },
 }
 
-function mergeRules(overrides?: Partial<RulesConfig>): RulesConfig {
-  if (!overrides) return RULES
-  return { ...RULES, ...overrides, bombs: { ...RULES.bombs, ...(overrides.bombs ?? {}) } }
+function cloneRules(r: Rules): Rules {
+  return { ...r, instantWinOrder: [...r.instantWinOrder], bombs: { ...r.bombs } }
+}
+
+/**
+ * Deep-merge a partial host override onto DEFAULT_RULES → a complete Rules.
+ * Only KNOWN keys are copied (unknown keys are ignored), so resolveRules({}) and
+ * resolveRules(undefined) both deep-equal DEFAULT_RULES (untouched ⇒ full ruleset).
+ */
+export function resolveRules(partial?: Partial<Rules>): Rules {
+  const out = cloneRules(DEFAULT_RULES)
+  if (!partial) return out
+
+  for (const key of Object.keys(DEFAULT_RULES) as (keyof Rules)[]) {
+    if (key === 'bombs') continue
+    const v = (partial as Record<string, unknown>)[key]
+    if (v !== undefined) (out as Record<string, unknown>)[key] = v
+  }
+  if (partial.bombs && typeof partial.bombs === 'object') {
+    for (const bk of Object.keys(DEFAULT_RULES.bombs) as (keyof BombsConfig)[]) {
+      const bv = (partial.bombs as Record<string, unknown>)[bk]
+      if (bv !== undefined) (out.bombs as Record<string, unknown>)[bk] = bv
+    }
+  }
+  return out
+}
+
+// ── Host-configurable allow-list (for the Phase-3 lobby settings UI) ─────────────
+// Only these keys may be overridden by a room host in v1. bombs / instantWinOrder /
+// endOnFirstOut / nextRoundLeader stay engine-level.
+export const HOST_CONFIGURABLE_KEYS = [
+  'toiTrangEnabled', 'thoiHeoEnabled', 'thoiBomEnabled', 'congEnabled', 'denEnabled',
+  'basePerCard', 'thoiHeoMultiplier', 'thoiBomPenalty', 'congMultiplier',
+  'denHeo', 'denBom', 'toiTrangPayout', 'turnSeconds',
+] as const
+export type HostConfigurableKey = (typeof HOST_CONFIGURABLE_KEYS)[number]
+export type HostRulesOverride = Partial<Pick<Rules, HostConfigurableKey>>
+
+/** Strip any non-allow-listed keys from a raw host override before persisting. */
+export function pickHostOverride(raw: Partial<Rules> & Record<string, unknown>): HostRulesOverride {
+  const out: Record<string, unknown> = {}
+  for (const k of HOST_CONFIGURABLE_KEYS) {
+    if (raw[k] !== undefined) out[k] = raw[k]
+  }
+  return out as HostRulesOverride
 }
 
 // ── Internal grouping helpers ───────────────────────────────────────────────────
@@ -239,7 +300,7 @@ export function isBomb(c: Combo): boolean {
 }
 
 // Cross-type cutting (the candidate is a bomb cutting a different-shaped table play).
-function canCut(candidate: Combo, table: Combo, rules: RulesConfig): boolean {
+function canCut(candidate: Combo, table: Combo, rules: Rules): boolean {
   const b = rules.bombs
   if (isThreePairsRun(candidate)) {
     return b.threePairsRunCutsSingle2 && isSingleTwo(table)
@@ -265,10 +326,9 @@ function canCut(candidate: Combo, table: Combo, rules: RulesConfig): boolean {
  *  • same type + same count ⇒ must be strictly higher by highest card.
  *  • otherwise ⇒ only via a bomb cut (canCut).
  */
-export function beats(candidate: Combo | null, table: Combo | null, overrides?: Partial<RulesConfig>): boolean {
+export function beats(candidate: Combo | null, table: Combo | null, rules: Rules = DEFAULT_RULES): boolean {
   if (!candidate) return false
   if (!table) return true // leading — candidate is already a validated Combo
-  const rules = mergeRules(overrides)
 
   // Same shape → strict higher-by-highest-card.
   if (candidate.type === table.type && candidate.count === table.count) {
@@ -342,8 +402,7 @@ export function enumerateCombos(hand: Card[]): Combo[] {
   return out
 }
 
-export function legalMoves(hand: Card[], table: Combo | null, overrides?: Partial<RulesConfig>): Combo[] {
-  const rules = mergeRules(overrides)
+export function legalMoves(hand: Card[], table: Combo | null, rules: Rules = DEFAULT_RULES): Combo[] {
   return enumerateCombos(hand).filter(c => beats(c, table, rules))
 }
 
@@ -390,10 +449,15 @@ function detectInstantWin(hand: Card[], type: InstantWinType): boolean {
   }
 }
 
-/** Highest-ranked instant win on a dealt hand (per RULES.instantWinOrder), else null. */
-export function checkInstantWin(hand: Card[], overrides?: Partial<RulesConfig>): InstantWin | null {
-  const rules = mergeRules(overrides)
-  for (const type of rules.instantWinOrder) {
+/**
+ * Highest-ranked instant win on a dealt hand (per rules.instantWinOrder), else null.
+ * Accepts a resolved Rules or a partial override (resolved internally). Returns null
+ * unconditionally when toiTrangEnabled is off.
+ */
+export function checkInstantWin(hand: Card[], rules: Partial<Rules> = DEFAULT_RULES): InstantWin | null {
+  const R = resolveRules(rules)
+  if (!R.toiTrangEnabled) return null
+  for (const type of R.instantWinOrder) {
     if (detectInstantWin(hand, type)) return { type }
   }
   return null
@@ -410,7 +474,6 @@ export type SettlementState = {
   playedCount: Record<number, number>      // cards each seat played (0 ⇒ cóng)
   cutEvents?: CutEvent[]                    // chặt events recorded during play
   instantWin?: { seat: number; type: InstantWinType } | null
-  rules?: Partial<RulesConfig>
 }
 
 /** Count held "thối-bom" units: complete tứ quý + each maximal run of ≥3 consec. pairs. */
@@ -438,9 +501,11 @@ function heldTwos(cards: Card[]): number {
 /**
  * Pure settlement → per-seat score delta (sums to zero across all seats).
  * Covers: đếm-lá base, thối-heo, thối-bom, cóng, đền-khi-bị-chặt, and tới trắng.
+ * Accepts a resolved Rules or a partial override (resolved internally). The on/off
+ * flags gate each modifier: congEnabled, thoiHeoEnabled, thoiBomEnabled, denEnabled.
  */
-export function settleRound(state: SettlementState): Record<number, number> {
-  const rules = mergeRules(state.rules)
+export function settleRound(state: SettlementState, rules: Partial<Rules> = DEFAULT_RULES): Record<number, number> {
+  const R = resolveRules(rules)
   const delta: Record<number, number> = {}
   for (const s of state.seats) delta[s] = 0
 
@@ -449,8 +514,8 @@ export function settleRound(state: SettlementState): Record<number, number> {
     const w = state.instantWin.seat
     for (const s of state.seats) {
       if (s === w) continue
-      delta[s] -= rules.toiTrangPayout
-      delta[w] += rules.toiTrangPayout
+      delta[s] -= R.toiTrangPayout
+      delta[w] += R.toiTrangPayout
     }
     return delta
   }
@@ -463,28 +528,31 @@ export function settleRound(state: SettlementState): Record<number, number> {
     const n = hand.length
     const cong = (state.playedCount[s] ?? 0) === 0
 
-    // Card-count payment (cóng multiplies the full 13; otherwise base per remaining card).
-    let cardPayment = cong ? 13 * rules.basePerCard * rules.congMultiplier : n * rules.basePerCard
+    // Card-count payment. Cóng (played 0) multiplies the full 13 when enabled;
+    // otherwise it's base per remaining card.
+    let cardPayment = (cong && R.congEnabled)
+      ? 13 * R.basePerCard * R.congMultiplier
+      : n * R.basePerCard
 
     // Thối-heo: still holding a 2 multiplies the card-count payment (stacks on cóng).
     const twos = heldTwos(hand)
-    if (twos > 0) {
-      cardPayment *= rules.thoiHeoPerCard
-        ? Math.pow(rules.thoiHeoMultiplier, twos)
-        : rules.thoiHeoMultiplier
+    if (twos > 0 && R.thoiHeoEnabled) {
+      cardPayment *= R.thoiHeoPerCard
+        ? Math.pow(R.thoiHeoMultiplier, twos)
+        : R.thoiHeoMultiplier
     }
 
     // Thối-bom: flat penalty per held tứ quý / đôi-thông bộ (added, not multiplied).
-    const bomPenalty = countHeldBoms(hand) * rules.thoiBomPenalty
+    const bomPenalty = R.thoiBomEnabled ? countHeldBoms(hand) * R.thoiBomPenalty : 0
 
     const payment = cardPayment + bomPenalty
     delta[s] -= payment
     delta[w] += payment
   }
 
-  // ── Đền khi bị chặt: move denHeo/denBom from victim to cutter. ─────────────────
+  // ── Đền khi bị chặt: move denHeo/denBom from victim to cutter (0 when disabled). ─
   for (const ev of state.cutEvents ?? []) {
-    const amount = ev.kind === 'heo' ? rules.denHeo : rules.denBom
+    const amount = R.denEnabled ? (ev.kind === 'heo' ? R.denHeo : R.denBom) : 0
     if (!(ev.cutVictim in delta)) delta[ev.cutVictim] = 0
     if (!(ev.cutter in delta)) delta[ev.cutter] = 0
     delta[ev.cutVictim] -= amount

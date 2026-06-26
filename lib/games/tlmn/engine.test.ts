@@ -5,8 +5,11 @@ import assert from 'node:assert/strict'
 import {
   parseHand, parseCard, parseCombo, beats, legalMoves, enumerateCombos,
   isRoundOneOpening, checkInstantWin, settleRound, isBomb,
-  RULES, type Combo, type Card, type SettlementState,
+  DEFAULT_RULES, resolveRules, pickHostOverride, HOST_CONFIGURABLE_KEYS,
+  type Combo, type Card, type SettlementState,
 } from './engine.ts'
+
+const RULES = DEFAULT_RULES // existing tests reference numeric defaults via this alias
 
 // ── helpers ──────────────────────────────────────────────────────────────────────
 function combo(s: string): Combo {
@@ -271,4 +274,72 @@ test('enumerateCombos never emits an illegal combo', () => {
   for (const m of enumerateCombos(hand)) {
     assert.equal(parseCombo(m.cards)?.type, m.type)
   }
+})
+
+// ── PATCH: host rule-config layer ─────────────────────────────────────────────────
+test('resolveRules(undefined) and resolveRules({}) deep-equal DEFAULT_RULES', () => {
+  assert.deepEqual(resolveRules(undefined), DEFAULT_RULES)
+  assert.deepEqual(resolveRules({}), DEFAULT_RULES)
+})
+
+test('resolveRules overrides only the given keys; unknown keys ignored; no mutation', () => {
+  const r = resolveRules({ denHeo: 10, toiTrangEnabled: false })
+  assert.deepEqual(r, { ...DEFAULT_RULES, denHeo: 10, toiTrangEnabled: false })
+  // everything not named stays at default
+  assert.equal(r.denBom, DEFAULT_RULES.denBom)
+  assert.deepEqual(r.bombs, DEFAULT_RULES.bombs)
+  // unknown keys are dropped entirely
+  assert.deepEqual(resolveRules({ foo: 1, nope: 'x' } as Record<string, unknown>), DEFAULT_RULES)
+  // DEFAULT_RULES is never mutated by a resolve
+  resolveRules({ denHeo: 999 })
+  assert.equal(DEFAULT_RULES.denHeo, 5)
+})
+
+test('host allow-list: pickHostOverride keeps only allow-listed keys', () => {
+  const picked = pickHostOverride({ denHeo: 9, instantWinOrder: ['dongHoa'], bombs: {} as never, foo: 1 } as Record<string, unknown>)
+  assert.deepEqual(picked, { denHeo: 9 })
+  // bombs / instantWinOrder are engine-level, not host-editable
+  assert.ok(!HOST_CONFIGURABLE_KEYS.includes('bombs' as never))
+  assert.ok(!HOST_CONFIGURABLE_KEYS.includes('instantWinOrder' as never))
+})
+
+test('flag off — toiTrangEnabled false → checkInstantWin returns null on a qualifying hand', () => {
+  const dragon = parseHand('3H 4H 5H 6H 7H 8H 9H 10H JH QH KH AH 2H')
+  assert.equal(checkInstantWin(dragon)?.type, 'dongHoa')           // on by default
+  assert.equal(checkInstantWin(dragon, { toiTrangEnabled: false }), null)
+})
+
+test('flag off — congEnabled false → a 0-card player gets no cóng multiplier', () => {
+  const state = st({
+    hands: { 0: [], 1: parseHand('3S 4S 5S 6S 7S 8S 9S 10S JS QS KS AS 3C') },
+    playedCount: { 0: 5, 1: 0 },
+  })
+  assert.equal(settleRound(state)[1], -(13 * RULES.basePerCard * RULES.congMultiplier)) // on
+  assert.equal(settleRound(state, { congEnabled: false })[1], -(13 * RULES.basePerCard)) // off
+})
+
+test('flag off — thoiHeoEnabled false → no doubling for a 2-holder', () => {
+  const state = st({ hands: { 0: [], 1: parseHand('4S 5S 6S 7S 2D') } })
+  assert.equal(settleRound(state)[1], -(5 * RULES.thoiHeoMultiplier))    // on
+  assert.equal(settleRound(state, { thoiHeoEnabled: false })[1], -5)     // off
+})
+
+test('flag off — thoiBomEnabled false → no held-bomb penalty', () => {
+  const state = st({ hands: { 0: [], 1: parseHand('5S 5C 5D 5H 3S') } })
+  assert.equal(settleRound(state)[1], -(5 + RULES.thoiBomPenalty))       // on
+  assert.equal(settleRound(state, { thoiBomEnabled: false })[1], -5)     // off
+})
+
+test('flag off — denEnabled false → a chặt event moves 0', () => {
+  const state = st({
+    seats: [0, 1, 2],
+    hands: { 0: [], 1: parseHand('4S'), 2: parseHand('5S') },
+    playedCount: { 0: 5, 1: 5, 2: 5 },
+    cutEvents: [{ cutVictim: 1, cutter: 2, kind: 'heo' }],
+  })
+  const d = settleRound(state, { denEnabled: false })
+  assert.equal(d[0], 2)   // base only: each loser pays 1
+  assert.equal(d[1], -1)  // no đền −5
+  assert.equal(d[2], -1)  // no đền +5
+  assert.equal(Object.values(d).reduce((a, b) => a + b, 0), 0)
 })

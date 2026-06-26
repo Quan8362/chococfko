@@ -64,17 +64,15 @@ function useMeasuredWidth<T extends HTMLElement>() {
 // the seat after me). Spectators (no "me") fall back to the 4-slot ring.
 const SLOTS: Record<number, string[]> = {
   1: ['top'],
-  2: ['top-left', 'top-right'],
-  3: ['top-left', 'top', 'top-right'],
+  2: ['left', 'right'],
+  3: ['right', 'top', 'left'],
   4: ['right', 'top', 'left', 'bottom'],
 }
 const SLOT_POS: Record<string, string> = {
-  top: 'top-[4%] left-1/2 -translate-x-1/2',
-  'top-left': 'top-[12%] left-[14%]',
-  'top-right': 'top-[12%] right-[14%]',
-  left: 'top-[42%] left-[2%] -translate-y-1/2',
-  right: 'top-[42%] right-[2%] -translate-y-1/2',
-  bottom: 'bottom-[4%] left-1/2 -translate-x-1/2',
+  top: 'top-[5%] left-1/2 -translate-x-1/2',
+  left: 'top-1/2 left-[2.5%] -translate-y-1/2',
+  right: 'top-1/2 right-[2.5%] -translate-y-1/2',
+  bottom: 'bottom-[5%] left-1/2 -translate-x-1/2',
 }
 
 export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, onLeave }: Props) {
@@ -145,6 +143,16 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
       .subscribe(status => { if (status === 'SUBSCRIBED' && mountedRef.current) refreshAll() })
     return () => { mountedRef.current = false; sb.removeChannel(ch) }
   }, [roomId, refreshAll])
+
+  // ── Polling safety net ─────────────────────────────────────────────────────────
+  // Realtime is the fast path, but a single dropped tlmn_games broadcast otherwise
+  // strands the client on a stale turn (the play button never re-enables, bots look
+  // frozen) until the next round forces a refetch. A light poll guarantees the board,
+  // turn and hand re-sync even when realtime misses an event.
+  useEffect(() => {
+    const id = setInterval(() => { if (mountedRef.current) refreshAll() }, 2500)
+    return () => clearInterval(id)
+  }, [refreshAll])
 
   // ── Local clock for the turn countdown ────────────────────────────────────────
   useEffect(() => {
@@ -335,6 +343,7 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
       const res = await playCards(roomId, selectedCards)
       if (res?.error) { setError(res.error); setInvalidKey(k => k + 1) }
       else setSelected(new Set())
+      refreshAll() // don't wait on realtime to advance my own move
     })
   }
 
@@ -344,6 +353,7 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
     startTransition(async () => {
       const res = await passTurn(roomId)
       if (res?.error) setError(res.error)
+      refreshAll()
     })
   }
 
@@ -361,6 +371,7 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
     startTransition(async () => {
       const res = await startNextRound(roomId)
       if (res?.error) setError(res.error)
+      refreshAll()
     })
   }
 
@@ -455,6 +466,7 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
                   turnFrac={game.turn_seat === idx ? turnFrac : 0}
                   av={vw < 560 ? 42 : vw < 1024 ? 50 : 58}
                   backW={seatBackW}
+                  place={slotList[i] ?? 'top'}
                   t={t}
                 />
               </div>
@@ -650,7 +662,7 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
 // only number on a seat is the card-count badge on the face-down stack.
 function SeatPod({
   seat, name, isMe, count, isTurn, isNhat, passed, passKey,
-  secondsLeft, turnFrac, av, backW, t,
+  secondsLeft, turnFrac, av, backW, place, t,
 }: {
   seat: TlmnSeat | undefined
   name: string
@@ -664,39 +676,46 @@ function SeatPod({
   turnFrac: number
   av: number
   backW: number
+  place: string
   t: ReturnType<typeof useTranslations>
 }) {
   void isMe
   const ringCls = isTurn
     ? 'tlmn-glow bg-rose'
     : isNhat ? 'bg-gold' : 'bg-white/20'
+  // Orient the card stack toward the table CENTER (in front of the player): below a
+  // top seat, to the inner side of a left/right seat, above a bottom seat.
+  const dirClass =
+    place === 'left' ? 'flex-row' :
+    place === 'right' ? 'flex-row-reverse' :
+    place === 'bottom' ? 'flex-col-reverse' : 'flex-col'
+
   return (
-    <div className="relative flex flex-col items-center gap-1" style={{ width: av + 56 }}>
-      {isTurn && <span className="absolute left-1/2 -translate-x-1/2 -top-1 rounded-full tlmn-ring pointer-events-none" style={{ width: av + 8, height: av + 8 }} />}
-
-      {/* Avatar with frame ring + countdown badge */}
-      <span className={`relative inline-flex rounded-full p-[2.5px] ${ringCls}`}>
-        <PodAvatar name={name} url={seat?.avatar_url ?? null} size={av} />
-        {isTurn && secondsLeft != null && (
-          <span
-            className="absolute -bottom-1 -right-1 rounded-full flex items-center justify-center"
-            style={{ width: av * 0.46, height: av * 0.46, background: `conic-gradient(${secondsLeft <= 5 ? '#ffd1e0' : '#7fe3f0'} ${turnFrac * 360}deg, rgba(0,0,0,0.5) 0deg)` }}
-          >
-            <span className="absolute inset-[2px] rounded-full bg-ink flex items-center justify-center font-bold text-white" style={{ fontSize: Math.max(9, av * 0.2) }}>
-              {secondsLeft}
+    <div className={`relative flex items-center gap-2 ${dirClass}`}>
+      {/* Avatar + name plate */}
+      <div className="relative flex flex-col items-center gap-1" style={{ width: av + 30 }}>
+        {isTurn && <span className="absolute left-1/2 -translate-x-1/2 -top-1 rounded-full tlmn-ring pointer-events-none" style={{ width: av + 8, height: av + 8 }} />}
+        <span className={`relative inline-flex rounded-full p-[2.5px] ${ringCls}`}>
+          <PodAvatar name={name} url={seat?.avatar_url ?? null} size={av} />
+          {isTurn && secondsLeft != null && (
+            <span
+              className="absolute -bottom-1 -right-1 rounded-full flex items-center justify-center"
+              style={{ width: av * 0.46, height: av * 0.46, background: `conic-gradient(${secondsLeft <= 5 ? '#ffd1e0' : '#7fe3f0'} ${turnFrac * 360}deg, rgba(0,0,0,0.5) 0deg)` }}
+            >
+              <span className="absolute inset-[2px] rounded-full bg-ink flex items-center justify-center font-bold text-white" style={{ fontSize: Math.max(9, av * 0.2) }}>
+                {secondsLeft}
+              </span>
             </span>
-          </span>
-        )}
-      </span>
+          )}
+        </span>
+        <span className="max-w-full inline-flex items-center gap-1 rounded-full bg-black/35 backdrop-blur px-2.5 py-0.5 text-[11.5px] font-semibold text-white/95">
+          {isNhat && <span className="text-gold flex-none">🏆</span>}
+          <span className="truncate">{name}</span>
+        </span>
+      </div>
 
-      {/* Name plate (no number) */}
-      <span className="max-w-full inline-flex items-center gap-1 rounded-full bg-black/35 backdrop-blur px-2.5 py-0.5 text-[11.5px] font-semibold text-white/95">
-        {isNhat && <span className="text-gold flex-none">🏆</span>}
-        <span className="truncate">{name}</span>
-      </span>
-
-      {/* Face-down stack with the only seat number — the card count */}
-      <span className="relative inline-flex items-center justify-center">
+      {/* Face-down stack with the only seat number — the card count — in front */}
+      <span className="relative inline-flex items-center justify-center flex-none">
         <FannedBacks count={count} w={backW} />
         <span className="absolute -right-2 -bottom-1 text-[10px] font-black text-ink bg-cream rounded-full px-1.5 py-0.5 shadow ring-1 ring-rose-deep/30 leading-none">
           {count}
@@ -705,7 +724,7 @@ function SeatPod({
 
       {/* Bỏ lượt stamp */}
       {passed && (
-        <span key={passKey} className="absolute -bottom-2 tlmn-stamp text-[10px] font-black uppercase text-white bg-rose/90 border border-white/40 rounded-md px-1.5 py-0.5 tracking-wide">
+        <span key={passKey} className="absolute -bottom-2 left-1/2 -translate-x-1/2 tlmn-stamp text-[10px] font-black uppercase text-white bg-rose/90 border border-white/40 rounded-md px-1.5 py-0.5 tracking-wide whitespace-nowrap">
           {t('passed')}
         </span>
       )}

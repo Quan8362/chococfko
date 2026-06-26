@@ -10,6 +10,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import type { NearbyPlace } from '@/lib/placesNearby'
+import { AREA_LEGACY_KEY_MAP } from '@/lib/places'
 import { openStatus, type OpenState } from '@/lib/placeOpenNow'
 import {
   type MapViewState, encodeMapView, shouldOfferSearchArea, markerAccent,
@@ -85,8 +86,18 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
   const t = useTranslations('map_v2')
   const te = useTranslations('explore_search')
   const tpd = useTranslations('place_detail')
+  const tCommon = useTranslations('common')
   const router = useRouter()
   const emojiOf = useMemo(() => Object.fromEntries(categories.map((c) => [c.code, c.emoji])), [categories])
+  // Localized category label by code — reuse the already-translated `categories`
+  // prop (central `categories` namespace) so card chips match the filter dropdown.
+  const labelOf = useMemo(() => Object.fromEntries(categories.map((c) => [c.code, c.label])), [categories])
+  // Legacy free-text `area` (e.g. "Tối") → localized via the shared common keys;
+  // place names (no legacy mapping) pass through untouched.
+  const localizeArea = useCallback((area: string) => {
+    const key = AREA_LEGACY_KEY_MAP[area]
+    return key ? tCommon(key as Parameters<typeof tCommon>[0]) : area
+  }, [tCommon])
 
   const [places, setPlaces] = useState<NearbyPlace[]>(initialPlaces)
   const [fetchState, setFetchState] = useState<FetchState>('')
@@ -534,8 +545,8 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
               <h3 className="font-serif font-bold text-[16px] text-ink leading-snug">{m.name}</h3>
-              <p className="text-[11.5px] text-rose-deep/85 font-semibold uppercase tracking-[0.4px] truncate">{m.categoryLabel || m.category}</p>
-              <p className="text-[12.5px] text-muted mt-0.5 truncate">{m.area}{m.nearestStation ? ` · 🚉 ${m.nearestStation}` : ''}</p>
+              <p className="text-[11.5px] text-rose-deep/85 font-semibold uppercase tracking-[0.4px] truncate">{labelOf[m.category] || m.categoryLabel || m.category}</p>
+              <p className="text-[12.5px] text-muted mt-0.5 truncate">{localizeArea(m.area)}{m.nearestStation ? ` · 🚉 ${m.nearestStation}` : ''}</p>
             </div>
             <div className="flex items-center gap-1.5">
               <SavePlaceButton slug={m.slug} name={m.name} />
@@ -613,8 +624,8 @@ export default function MapExplorerV2({ defaultCenter, categories, initialPlaces
                 {m.img && <span className="flex-none w-[64px] h-[64px] rounded-xl bg-cover bg-center" style={{ backgroundImage: `url(${m.img})` }} aria-hidden />}
                 <span className="min-w-0">
                   <span className="block font-serif font-bold text-[14.5px] text-ink leading-snug truncate">{m.name}</span>
-                  <span className="block text-[11.5px] text-rose-deep/85 font-semibold uppercase tracking-[0.4px] truncate">{m.categoryLabel || m.category}</span>
-                  <span className="block text-[12px] text-muted truncate">{m.area}{m.nearestStation ? ` · 🚉 ${m.nearestStation}` : ''}</span>
+                  <span className="block text-[11.5px] text-rose-deep/85 font-semibold uppercase tracking-[0.4px] truncate">{labelOf[m.category] || m.categoryLabel || m.category}</span>
+                  <span className="block text-[12px] text-muted truncate">{localizeArea(m.area)}{m.nearestStation ? ` · 🚉 ${m.nearestStation}` : ''}</span>
                 </span>
               </button>
             </li>

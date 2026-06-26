@@ -3,12 +3,20 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import {
+  resolveRules, pickHostOverride, type Card, type Rules,
+  type HostRulesOverride, type CutEvent, type InstantWinType,
+} from '@/lib/games/tlmn/engine'
+import {
+  dealRound, applyPlay, applyPass, applyTimeout, cardCounts, type RoundState,
+} from '@/lib/games/tlmn/round'
 
 // ── Types ───────────────────────────────────────────────────────────────────────
 export type TlmnStatus = 'lobby' | 'playing' | 'ended'
 
 export type TlmnSettings = {
-  rules?: string        // rules/score preset key — no effect yet (Phase 1 stub)
+  // Host rule override — ONLY the changed fields are stored (untouched ⇒ full ruleset).
+  rules?: HostRulesOverride
 }
 
 export type TlmnRoom = {
@@ -223,8 +231,11 @@ export async function toggleReady(roomId: string): Promise<ActionResult> {
 }
 
 // ── startGame (host only) ────────────────────────────────────────────────────────
-// Phase 1: only flips the room to 'playing' once ≥2 seats are ready. The deal lands
-// in Phase 3. Idempotent: the status='lobby' guard means a double-click is a no-op.
+// Flip the room to 'playing' AND deal round 1 server-side: shuffle (secure RNG via
+// the engine's Fisher–Yates), deal 13/seat, drop the remainder, run the tới-trắng
+// check, and persist the public game row + the per-seat secret hands. The resolved
+// ruleset is locked into the game row. Idempotent: the status='lobby' guard makes a
+// double-click a no-op.
 export async function startGame(roomId: string): Promise<ActionResult> {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -238,18 +249,25 @@ export async function startGame(roomId: string): Promise<ActionResult> {
   const mySeat = state.seats.find(s => s.user_id === user.id)
   if (!mySeat || mySeat.seat_index !== state.room.host_seat) return { error: 'not_host' }
 
-  const readyCount = state.seats.filter(s => s.is_ready).length
-  if (readyCount < 2) return { error: 'not_enough_ready' }
+  const readySeats = state.seats.filter(s => s.is_ready)
+  if (readySeats.length < 2) return { error: 'not_enough_ready' }
 
-  const { data: updated } = await admin
+  // Claim the lobby→playing transition first so a double Start can't double-deal.
+  const { data: claimed } = await admin
     .from('tlmn_rooms').update({ status: 'playing' })
     .eq('id', roomId).eq('status', 'lobby').select('id')
-  if (!updated || updated.length === 0) return { error: 'already_started' }
+  if (!claimed || claimed.length === 0) return { error: 'already_started' }
+
+  const rules = resolveRules(state.room.settings?.rules)
+  const seats = readySeats.map(s => s.seat_index).sort((a, b) => a - b)
+  await dealAndPersist(admin, roomId, seats, 1, rules, null)
   return null
 }
 
-// ── updateSettings (host only) ───────────────────────────────────────────────────
-export async function updateSettings(roomId: string, settings: TlmnSettings): Promise<ActionResult> {
+// ── updateRules (host only) ──────────────────────────────────────────────────────
+// Persist a partial host override (ONLY the changed fields) into settings.rules. An
+// empty/undefined override clears it → the room runs the complete default ruleset.
+export async function updateRules(roomId: string, override: HostRulesOverride | null): Promise<ActionResult> {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'not_logged_in' }
@@ -262,6 +280,8 @@ export async function updateSettings(roomId: string, settings: TlmnSettings): Pr
   const mySeat = state.seats.find(s => s.user_id === user.id)
   if (!mySeat || mySeat.seat_index !== state.room.host_seat) return { error: 'not_host' }
 
+  const clean = override ? pickHostOverride(override) : {}
+  const settings: TlmnSettings = { ...(state.room.settings ?? {}), rules: clean }
   await admin.from('tlmn_rooms').update({ settings }).eq('id', roomId)
   return null
 }
@@ -311,4 +331,306 @@ export async function heartbeatRoom(roomId: string): Promise<void> {
   await admin.from('tlmn_seats')
     .update({ connected: true })
     .eq('room_id', roomId).eq('user_id', user.id)
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Phase 3 — server-authoritative play (hidden hands).
+// The engine (lib/games/tlmn) is the single source of truth. All hand writes go
+// through the service role; clients only ever assert which cards they WANT to play.
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// Grace window: a move is accepted up to GRACE_MS past the turn deadline; the
+// timeout reaper only acts once now() is past deadline + GRACE_MS — so there is no
+// dead zone and the player always has priority right at the buzzer.
+const GRACE_MS = 3000
+
+export type TlmnTrick = { cards: Card[]; by_seat: number } | null
+export type TlmnGameResult = {
+  deltas: Record<string, number>
+  instant: { seat: number; type: InstantWinType } | null
+  winner: number | null
+}
+export type TlmnPublicGame = {
+  id: string
+  room_id: string
+  round_no: number
+  status: 'playing' | 'ended'
+  seats: number[]
+  turn_seat: number | null
+  trick: TlmnTrick
+  pass_flags: number[]
+  card_counts: Record<string, number>
+  played_counts: Record<string, number>
+  must_three_spade: boolean
+  turn_deadline: string | null
+  turn_started_at: string | null
+  nhat_seat: number | null
+  chat_events: CutEvent[]
+  rules: Rules
+  result: TlmnGameResult | null
+}
+
+// ── Round ↔ DB mapping ─────────────────────────────────────────────────────────
+async function loadHands(admin: Admin, gameId: string): Promise<Record<number, Card[]>> {
+  const { data } = await admin.from('tlmn_hands').select('seat, cards').eq('game_id', gameId)
+  const out: Record<number, Card[]> = {}
+  for (const row of (data ?? []) as Array<{ seat: number; cards: Card[] }>) out[row.seat] = row.cards
+  return out
+}
+
+async function latestGame(admin: Admin, roomId: string, onlyPlaying = false): Promise<TlmnPublicGame | null> {
+  let q = admin.from('tlmn_games').select('*').eq('room_id', roomId)
+  if (onlyPlaying) q = q.eq('status', 'playing')
+  const { data } = await q.order('round_no', { ascending: false }).limit(1).maybeSingle()
+  return (data as TlmnPublicGame | null) ?? null
+}
+
+function roundFromDb(row: TlmnPublicGame, hands: Record<number, Card[]>): RoundState {
+  return {
+    seats: row.seats,
+    roundNo: row.round_no,
+    rules: row.rules,
+    hands,
+    turnSeat: row.turn_seat ?? row.seats[0],
+    trick: row.trick ? { cards: row.trick.cards, bySeat: row.trick.by_seat } : null,
+    passed: row.pass_flags ?? [],
+    playedCount: (row.played_counts ?? {}) as unknown as Record<number, number>,
+    cutEvents: row.chat_events ?? [],
+    mustIncludeThreeSpade: row.must_three_spade,
+    status: row.status,
+    winner: row.nhat_seat,
+    instantWin: row.result?.instant ?? null,
+    deltas: (row.result?.deltas ?? null) as unknown as Record<number, number> | null,
+  }
+}
+
+// Mutable columns derived from a (post-action) round. A playing round gets a fresh
+// per-turn deadline; an ended round clears the clock and writes the result.
+function gameColumns(round: RoundState): Record<string, unknown> {
+  const playing = round.status === 'playing'
+  const now = Date.now()
+  return {
+    status: round.status,
+    turn_seat: playing ? round.turnSeat : null,
+    trick: round.trick ? { cards: round.trick.cards, by_seat: round.trick.bySeat } : null,
+    pass_flags: round.passed,
+    card_counts: cardCounts(round),
+    played_counts: round.playedCount,
+    must_three_spade: round.mustIncludeThreeSpade,
+    turn_deadline: playing ? new Date(now + round.rules.turnSeconds * 1000).toISOString() : null,
+    turn_started_at: playing ? new Date(now).toISOString() : null,
+    nhat_seat: round.winner,
+    chat_events: round.cutEvents,
+    result: round.status === 'ended'
+      ? { deltas: round.deltas ?? {}, instant: round.instantWin, winner: round.winner }
+      : null,
+  }
+}
+
+// Fold a finished round's per-seat deltas into the cumulative seat scores.
+async function applyScores(admin: Admin, roomId: string, deltas: Record<number, number>): Promise<void> {
+  const { data: seats } = await admin
+    .from('tlmn_seats').select('id, seat_index, cumulative_score').eq('room_id', roomId)
+  for (const s of (seats ?? []) as Array<{ id: string; seat_index: number; cumulative_score: number }>) {
+    const d = deltas[s.seat_index]
+    if (!d) continue
+    await admin.from('tlmn_seats').update({ cumulative_score: (s.cumulative_score ?? 0) + d }).eq('id', s.id)
+  }
+}
+
+// Deal a round and persist the public game row + all secret hands. Used by both the
+// initial Start and "Ván mới". Handles the tới-trắng instant end transparently.
+async function dealAndPersist(
+  admin: Admin,
+  roomId: string,
+  seats: number[],
+  roundNo: number,
+  rules: Rules,
+  previousWinner: number | null,
+): Promise<void> {
+  const round = dealRound({ seats, roundNo, rules, previousWinner })
+
+  const { data: game } = await admin
+    .from('tlmn_games')
+    .insert({ room_id: roomId, round_no: roundNo, seats, rules, ...gameColumns(round) })
+    .select('id')
+    .single()
+  if (!game) return
+
+  const handRows = seats.map(seat => ({ game_id: game.id, seat, cards: round.hands[seat] }))
+  await admin.from('tlmn_hands').insert(handRows)
+
+  if (round.status === 'ended' && round.deltas) {
+    await applyScores(admin, roomId, round.deltas)
+  }
+}
+
+// Commit a post-action round. The game-row UPDATE is guarded on (status='playing',
+// turn_seat=actingSeat) so two racing actors (player vs. the timeout reaper, or a
+// double-submit) can't both apply — exactly one wins; the loser is a no-op. Hands
+// and scores are written only AFTER the guarded row update succeeds.
+async function commitRound(
+  admin: Admin,
+  roomId: string,
+  gameId: string,
+  actingSeat: number,
+  round: RoundState,
+  changedSeats: number[],
+): Promise<ActionResult> {
+  const { data: updated } = await admin
+    .from('tlmn_games')
+    .update(gameColumns(round))
+    .eq('id', gameId)
+    .eq('status', 'playing')
+    .eq('turn_seat', actingSeat)
+    .select('id')
+  if (!updated || updated.length === 0) return { error: 'conflict' }
+
+  for (const seat of changedSeats) {
+    await admin.from('tlmn_hands').update({ cards: round.hands[seat] }).eq('game_id', gameId).eq('seat', seat)
+  }
+  if (round.status === 'ended' && round.deltas) {
+    await applyScores(admin, roomId, round.deltas)
+  }
+  return null
+}
+
+function isExpired(deadline: string | null): boolean {
+  if (!deadline) return false
+  return Date.now() > new Date(deadline).getTime() + GRACE_MS
+}
+
+// ── fetchGameState ───────────────────────────────────────────────────────────────
+// The latest game row (public — counts only) for the room. Used on mount and to
+// reconcile after the realtime channel (re)subscribes.
+export async function fetchGameState(roomId: string): Promise<TlmnPublicGame | null> {
+  return latestGame(createAdminClient(), roomId)
+}
+
+// ── fetchMyHand ──────────────────────────────────────────────────────────────────
+// Returns ONLY the caller's own cards. Deliberately uses the user-scoped (anon)
+// client so RLS physically prevents reading any other seat's hand — the network
+// payload can never contain an opponent's cards even if the server is wrong.
+export async function fetchMyHand(roomId: string): Promise<{ seat: number; cards: Card[] } | null> {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return null
+
+  const { data: game } = await supabase
+    .from('tlmn_games').select('id').eq('room_id', roomId).eq('status', 'playing')
+    .order('round_no', { ascending: false }).limit(1).maybeSingle()
+  if (!game) return null
+
+  const { data: hand } = await supabase
+    .from('tlmn_hands').select('seat, cards').eq('game_id', game.id).maybeSingle()
+  if (!hand) return null
+  return { seat: hand.seat as number, cards: (hand.cards ?? []) as Card[] }
+}
+
+// ── playCards ────────────────────────────────────────────────────────────────────
+export async function playCards(roomId: string, cards: Card[]): Promise<ActionResult> {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'not_logged_in' }
+
+  const admin = createAdminClient()
+  const mySeat = await seatIndexOf(admin, roomId, user.id)
+  if (mySeat == null) return { error: 'not_seated' }
+
+  const game = await latestGame(admin, roomId, true)
+  if (!game) return { error: 'no_active_game' }
+  if (game.turn_seat !== mySeat) return { error: 'not_your_turn' }
+  if (isExpired(game.turn_deadline)) return { error: 'turn_expired' }
+
+  const hands = await loadHands(admin, game.id)
+  const round = roundFromDb(game, hands)
+  const res = applyPlay(round, mySeat, cards)
+  if (!res.ok) return { error: res.error }
+
+  return commitRound(admin, roomId, game.id, mySeat, res.state, [mySeat])
+}
+
+// ── passTurn ─────────────────────────────────────────────────────────────────────
+export async function passTurn(roomId: string): Promise<ActionResult> {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'not_logged_in' }
+
+  const admin = createAdminClient()
+  const mySeat = await seatIndexOf(admin, roomId, user.id)
+  if (mySeat == null) return { error: 'not_seated' }
+
+  const game = await latestGame(admin, roomId, true)
+  if (!game) return { error: 'no_active_game' }
+  if (game.turn_seat !== mySeat) return { error: 'not_your_turn' }
+  if (isExpired(game.turn_deadline)) return { error: 'turn_expired' }
+
+  const hands = await loadHands(admin, game.id)
+  const round = roundFromDb(game, hands)
+  const res = applyPass(round, mySeat)
+  if (!res.ok) return { error: res.error }
+
+  return commitRound(admin, roomId, game.id, mySeat, res.state, [])
+}
+
+// ── tickTurnTimer ────────────────────────────────────────────────────────────────
+// Server-authoritative timeout safety net. Any seated client may call this when it
+// sees the deadline pass; the server re-checks now() against the AUTHORITATIVE
+// deadline and, if truly expired, auto-passes (or auto-plays the lowest legal single
+// when the timed-out player is leading and cannot pass). Idempotent.
+export async function tickTurnTimer(roomId: string): Promise<ActionResult> {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'not_logged_in' }
+
+  const admin = createAdminClient()
+  const game = await latestGame(admin, roomId, true)
+  if (!game || game.turn_seat == null) return null
+  if (!isExpired(game.turn_deadline)) return null // not yet — nothing to do
+
+  const hands = await loadHands(admin, game.id)
+  const round = roundFromDb(game, hands)
+  const wasLeading = round.trick === null
+  const timedOutSeat = round.turnSeat
+  const res = applyTimeout(round)
+  if (!res.ok) return { error: res.error }
+
+  // A leading timeout auto-PLAYS (hand changes); a following timeout auto-PASSES.
+  const changed = wasLeading ? [timedOutSeat] : []
+  return commitRound(admin, roomId, game.id, timedOutSeat, res.state, changed)
+}
+
+// ── startNextRound (host only) — "Ván mới" ───────────────────────────────────────
+export async function startNextRound(roomId: string): Promise<ActionResult> {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'not_logged_in' }
+
+  const admin = createAdminClient()
+  const state = await readState(admin, roomId)
+  if (!state) return { error: 'not_found' }
+  if (state.room.status !== 'playing') return { error: 'not_playing' }
+
+  const mySeat = state.seats.find(s => s.user_id === user.id)
+  if (!mySeat || mySeat.seat_index !== state.room.host_seat) return { error: 'not_host' }
+
+  const prev = await latestGame(admin, roomId)
+  if (!prev) return { error: 'no_game' }
+  if (prev.status !== 'ended') return { error: 'round_in_progress' }
+
+  // Re-deal to the seats still present (≥2). Previous Nhất leads the new round.
+  const seats = state.seats.map(s => s.seat_index).sort((a, b) => a - b)
+  if (seats.length < 2) return { error: 'not_enough_players' }
+
+  const rules = resolveRules(state.room.settings?.rules)
+  const previousWinner = prev.nhat_seat != null && seats.includes(prev.nhat_seat) ? prev.nhat_seat : null
+  await dealAndPersist(admin, roomId, seats, prev.round_no + 1, rules, previousWinner)
+  return null
+}
+
+// Resolve the caller's seat index in a room, or null if not seated.
+async function seatIndexOf(admin: Admin, roomId: string, userId: string): Promise<number | null> {
+  const { data } = await admin
+    .from('tlmn_seats').select('seat_index').eq('room_id', roomId).eq('user_id', userId).maybeSingle()
+  return data ? (data.seat_index as number) : null
 }

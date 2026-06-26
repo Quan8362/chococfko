@@ -6,13 +6,14 @@ import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import {
-  refetchRoomState, toggleReady, startGame, leaveSeat, updateSettings, heartbeatRoom,
+  refetchRoomState, toggleReady, startGame, leaveSeat, heartbeatRoom,
   type TlmnRoomState, type TlmnSeat,
 } from '../actions'
+import TlmnRulesPanel from './TlmnRulesPanel'
+import TlmnTable from './TlmnTable'
 
 const MAX_SEATS = 4
 const MIN_READY_TO_START = 2
-const RULES_PRESETS = ['classic', 'no_two_chop', 'instant_win'] as const
 
 type Props = {
   initialState: TlmnRoomState
@@ -38,7 +39,7 @@ export default function TlmnRoom({ initialState, userId }: Props) {
   const inviteUrl = typeof window !== 'undefined'
     ? `${window.location.origin}/games/tlmn/${room.invite_code}`
     : ''
-  const currentRules = room.settings?.rules ?? 'classic'
+  const isPlaying = room.status === 'playing'
 
   // ── Realtime: room + seats ──────────────────────────────────────────────────
   // Mirrors the caro/chess layer: one postgres_changes channel per room. The room
@@ -121,10 +122,6 @@ export default function TlmnRoom({ initialState, userId }: Props) {
     })
   }
 
-  const handleRules = (rules: string) => {
-    startTransition(async () => { await updateSettings(room.id, { rules }) })
-  }
-
   // ── Render ───────────────────────────────────────────────────────────────────
   return (
     <div className="flex flex-col gap-5">
@@ -149,16 +146,12 @@ export default function TlmnRoom({ initialState, userId }: Props) {
         </button>
       </div>
 
-      {/* Status line */}
-      <div className={`rounded-xl px-4 py-3 text-center border text-[13.5px] font-semibold ${
-        room.status === 'playing'
-          ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
-          : 'bg-cream border-line text-ink'
-      }`}>
-        {room.status === 'playing'
-          ? t('status_playing')
-          : t('status_lobby', { ready: readyCount, total: seats.length })}
-      </div>
+      {/* Status line (lobby only — the table shows its own status when playing) */}
+      {!isPlaying && (
+        <div className="rounded-xl px-4 py-3 text-center border text-[13.5px] font-semibold bg-cream border-line text-ink">
+          {t('status_lobby', { ready: readyCount, total: seats.length })}
+        </div>
+      )}
 
       {connState === 'reconnecting' && (
         <p className="text-[13px] text-amber-700 bg-amber-50 px-4 py-2 rounded-xl border border-amber-200 w-full text-center flex items-center justify-center gap-2">
@@ -167,6 +160,19 @@ export default function TlmnRoom({ initialState, userId }: Props) {
         </p>
       )}
 
+      {/* ── Playing: the server-authoritative play surface ── */}
+      {isPlaying && (
+        <TlmnTable
+          roomId={room.id}
+          seats={seats}
+          mySeat={mySeat ? mySeat.seat_index : null}
+          isHost={isHost}
+        />
+      )}
+
+      {/* ── Lobby: seats + rule config + ready/start ── */}
+      {!isPlaying && (
+      <>
       {/* Seats grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {Array.from({ length: MAX_SEATS }, (_, i) => {
@@ -240,39 +246,17 @@ export default function TlmnRoom({ initialState, userId }: Props) {
         })}
       </div>
 
-      {/* Room settings stub */}
-      <div className="bg-paper border border-line rounded-2xl p-4">
-        <p className="text-[11px] font-bold text-muted uppercase tracking-[1.5px] mb-2.5">
-          ⚙️ {t('settings_heading')}
-        </p>
-        <div className="flex flex-wrap gap-2">
-          {RULES_PRESETS.map(preset => {
-            const active = currentRules === preset
-            return (
-              <button
-                key={preset}
-                type="button"
-                disabled={!isHost || room.status !== 'lobby' || isPending}
-                onClick={() => handleRules(preset)}
-                className={`text-[12.5px] font-semibold px-3.5 py-1.5 rounded-xl border transition-all disabled:cursor-not-allowed ${
-                  active
-                    ? 'border-rose/50 bg-rose/5 text-rose'
-                    : 'border-line text-muted hover:border-rose/30 disabled:hover:border-line'
-                }`}
-              >
-                {t(`rules_${preset}` as Parameters<typeof t>[0])}
-              </button>
-            )
-          })}
-        </div>
-        {!isHost && (
-          <p className="text-[11.5px] text-muted/60 mt-2">{t('settings_host_only')}</p>
-        )}
-      </div>
+      {/* Host rule-config panel (read-only & live-synced for non-hosts) */}
+      <TlmnRulesPanel
+        roomId={room.id}
+        isHost={isHost}
+        override={room.settings?.rules}
+        disabled={room.status !== 'lobby'}
+      />
 
-      {/* Actions */}
+      {/* Lobby actions */}
       <div className="flex flex-col sm:flex-row gap-3">
-        {mySeat && room.status === 'lobby' && (
+        {mySeat && (
           <button
             onClick={handleReady}
             disabled={isPending}
@@ -286,7 +270,7 @@ export default function TlmnRoom({ initialState, userId }: Props) {
           </button>
         )}
 
-        {isHost && room.status === 'lobby' && (
+        {isHost && (
           <button
             onClick={handleStart}
             disabled={!canStart || isPending}
@@ -295,15 +279,18 @@ export default function TlmnRoom({ initialState, userId }: Props) {
             {canStart ? t('start_btn') : t('start_btn_need_ready', { n: MIN_READY_TO_START })}
           </button>
         )}
-
-        <button
-          onClick={handleLeave}
-          disabled={isPending}
-          className="flex-none font-medium text-[13px] px-5 py-3 rounded-xl border border-line text-muted hover:bg-line transition-all disabled:opacity-60"
-        >
-          {t('leave_btn')}
-        </button>
       </div>
+      </>
+      )}
+
+      {/* Leave (always available) */}
+      <button
+        onClick={handleLeave}
+        disabled={isPending}
+        className="self-center font-medium text-[13px] px-5 py-2.5 rounded-xl border border-line text-muted hover:bg-line transition-all disabled:opacity-60"
+      >
+        {t('leave_btn')}
+      </button>
 
       <Link
         href="/games/tlmn"

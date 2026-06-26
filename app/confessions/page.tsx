@@ -138,7 +138,7 @@ function InfoCards({
               <div className="text-[12px] text-muted mt-1.5">{t('statsConfessions')}</div>
             </div>
             <div>
-              <div className="font-serif font-bold text-[27px] text-teal leading-none">{stats.comments}</div>
+              <div className="font-serif font-bold text-[27px] text-rose leading-none">{stats.comments}</div>
               <div className="text-[12px] text-muted mt-1.5">{t('commentCount')}</div>
             </div>
           </div>

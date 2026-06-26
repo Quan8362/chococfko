@@ -106,8 +106,8 @@ export interface Place {
 // AREA_LEGACY_KEY_MAP now lives in a client-safe module (lib/placesAreaKeys.ts)
 // so Client Components can import it without dragging in the server-only data
 // layer below. Re-exported here to keep existing import paths working.
-export { AREA_LEGACY_KEY_MAP } from './placesAreaKeys';
-import { AREA_LEGACY_KEY_MAP } from './placesAreaKeys';
+export { AREA_LEGACY_KEY_MAP } from './placesAreaKeys.ts';
+import { AREA_LEGACY_KEY_MAP } from './placesAreaKeys.ts';
 
 type AreaTranslator = (key: string, values?: Record<string, string | number>) => string;
 

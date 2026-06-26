@@ -115,10 +115,6 @@ export default function PostFeed({ posts }: Props) {
                   href={`/community/${p.id}`}
                   className="relative block overflow-hidden bg-gradient-to-br from-[#f3e1d2] to-[#e9cdb6] flex-none h-[190px]"
                 >
-                  {/* Category tag */}
-                  <span className="absolute top-3 left-3 z-[2] bg-paper/95 text-rose-deep text-[10.5px] font-semibold tracking-[0.5px] uppercase px-2.5 py-[5px] rounded-full shadow-sm">
-                    {label}
-                  </span>
                   {/* Category emoji chip (only for the known community taxonomy) */}
                   {CAT_EMOJI[p.category] && (
                     <span className="absolute bottom-3 left-3 z-[2] w-7 h-7 bg-paper/90 rounded-full grid place-items-center shadow-sm text-[14px] leading-none">

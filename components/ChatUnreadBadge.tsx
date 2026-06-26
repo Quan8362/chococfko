@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
+const EPOCH = new Date(0).toISOString()
+
 export default function ChatUnreadBadge() {
   const [count, setCount] = useState(0)
   const [mentionCount, setMentionCount] = useState(0)
@@ -29,60 +31,81 @@ export default function ChatUnreadBadge() {
     }
   }, [isOnChatPage])
 
-  // Lấy user + tính unread count + mention count ban đầu
+  // Initial unread + mention counts. Each is a SINGLE query (not one request
+  // per room): the old per-room fan-out fired ~10 parallel `count: exact` HEAD
+  // requests on every page load, which saturated the Supabase REST pooler and
+  // returned intermittent 503s. After this initial read, the realtime
+  // subscriptions below keep the badge live — no polling.
   useEffect(() => {
     if (isOnChatPage) return
 
     const supabase = createClient()
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (!session?.user || !mountedRef.current) return
+    let cancelled = false
+    let retryTimer: ReturnType<typeof setTimeout> | undefined
+
+    async function load(): Promise<boolean> {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.user || !mountedRef.current || cancelled) return false
 
       const uid = session.user.id
       setUserId(uid)
 
       const [{ data: readStates }, { data: rooms }] = await Promise.all([
-        supabase
-          .from('community_chat_read_states')
-          .select('room_id, last_read_at')
-          .eq('user_id', uid),
-        supabase
-          .from('community_chat_rooms')
-          .select('id')
-          .eq('is_active', true),
+        supabase.from('community_chat_read_states').select('room_id, last_read_at').eq('user_id', uid),
+        supabase.from('community_chat_rooms').select('id').eq('is_active', true),
       ])
-
-      if (!rooms || !mountedRef.current) return
-
+      if (!rooms || !mountedRef.current || cancelled) return false
       setRoomIds(rooms.map((r) => r.id as string))
 
-      // Unread messages per room (parallel)
-      const msgCounts = await Promise.all(
-        rooms.map(async (room) => {
+      // One OR-combined count over every accessible room instead of N per-room
+      // counts. Each message belongs to exactly one room, so the total matches
+      // the previous sum. Normalise last_read_at to a Z-form ISO string so the
+      // value carries no `+` offset inside the PostgREST or() filter.
+      const orFilter = rooms
+        .map((room) => {
           const rs = readStates?.find((r) => r.room_id === room.id)
-          const since = rs?.last_read_at ?? new Date(0).toISOString()
-          const { count: cnt } = await supabase
+          const since = rs?.last_read_at ? new Date(rs.last_read_at).toISOString() : EPOCH
+          return `and(room_id.eq.${room.id},created_at.gt.${since})`
+        })
+        .join(',')
+
+      const msgPromise = rooms.length
+        ? supabase
             .from('community_chat_messages')
             .select('id', { count: 'exact', head: true })
-            .eq('room_id', room.id)
             .eq('is_deleted', false)
             .neq('user_id', uid)
-            .gt('created_at', since)
-          return cnt ?? 0
-        })
-      )
+            .or(orFilter)
+        : null
 
-      // Unread mentions
-      const { count: mCnt } = await supabase
-        .from('community_chat_mentions')
-        .select('id', { count: 'exact', head: true })
-        .eq('mentioned_user_id', uid)
-        .eq('is_read', false)
+      const [msgRes, mentionRes] = await Promise.all([
+        msgPromise,
+        supabase
+          .from('community_chat_mentions')
+          .select('id', { count: 'exact', head: true })
+          .eq('mentioned_user_id', uid)
+          .eq('is_read', false),
+      ])
 
-      if (mountedRef.current) {
-        setCount(msgCounts.reduce((a, b) => a + b, 0))
-        setMentionCount(mCnt ?? 0)
-      }
-    })
+      if (!mountedRef.current || cancelled) return false
+      // On a transient error (e.g. 503) leave the existing badge untouched
+      // rather than zeroing it — realtime keeps it live and we retry once.
+      if (!msgRes?.error) setCount(msgRes?.count ?? 0)
+      if (!mentionRes.error) setMentionCount(mentionRes.count ?? 0)
+      return Boolean(msgRes?.error || mentionRes.error)
+    }
+
+    load()
+      .then((hadError) => {
+        if (hadError && mountedRef.current && !cancelled) {
+          // Single delayed retry so a transient pooler 503 doesn't leave a
+          // stale badge, without hammering the endpoint.
+          retryTimer = setTimeout(() => { void load() }, 4000)
+        }
+      })
+      .catch(() => { /* network hiccup — realtime + next load recover */ })
+
+    return () => { cancelled = true; clearTimeout(retryTimer) }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOnChatPage])
 

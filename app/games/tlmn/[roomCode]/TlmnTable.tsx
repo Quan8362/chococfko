@@ -64,14 +64,14 @@ function useMeasuredWidth<T extends HTMLElement>() {
 // the seat after me). Spectators (no "me") fall back to the 4-slot ring.
 const SLOTS: Record<number, string[]> = {
   1: ['top'],
-  2: ['top-right', 'top-left'],
-  3: ['right', 'top', 'left'],
+  2: ['top-left', 'top-right'],
+  3: ['top-left', 'top', 'top-right'],
   4: ['right', 'top', 'left', 'bottom'],
 }
 const SLOT_POS: Record<string, string> = {
-  top: 'top-[3%] left-1/2 -translate-x-1/2',
-  'top-left': 'top-[9%] left-[3%]',
-  'top-right': 'top-[9%] right-[3%]',
+  top: 'top-[4%] left-1/2 -translate-x-1/2',
+  'top-left': 'top-[12%] left-[14%]',
+  'top-right': 'top-[12%] right-[14%]',
   left: 'top-[42%] left-[2%] -translate-y-1/2',
   right: 'top-[42%] right-[2%] -translate-y-1/2',
   bottom: 'bottom-[4%] left-1/2 -translate-x-1/2',
@@ -437,7 +437,7 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
         <div className="relative flex-1 flex items-center justify-center px-3 sm:px-6 py-2">
           <div
             className="tlmn-felt relative w-full"
-            style={{ maxWidth: 'min(94vw, 1200px)', height: tableH }}
+            style={{ maxWidth: 'min(88vw, 1000px)', height: tableH }}
           >
             {/* Opponent / other seats around the oval */}
             {orderedOthers.map((idx, i) => (
@@ -453,10 +453,8 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
                   passKey={passStamp?.key}
                   secondsLeft={game.turn_seat === idx ? secondsLeft : null}
                   turnFrac={game.turn_seat === idx ? turnFrac : 0}
-                  lastTrick={game.trick?.by_seat === idx ? game.trick.cards : null}
                   av={vw < 560 ? 42 : vw < 1024 ? 50 : 58}
                   backW={seatBackW}
-                  pileW={pileW}
                   t={t}
                 />
               </div>
@@ -652,7 +650,7 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
 // only number on a seat is the card-count badge on the face-down stack.
 function SeatPod({
   seat, name, isMe, count, isTurn, isNhat, passed, passKey,
-  secondsLeft, turnFrac, lastTrick, av, backW, pileW, t,
+  secondsLeft, turnFrac, av, backW, t,
 }: {
   seat: TlmnSeat | undefined
   name: string
@@ -664,10 +662,8 @@ function SeatPod({
   passKey?: number
   secondsLeft: number | null
   turnFrac: number
-  lastTrick: Card[] | null
   av: number
   backW: number
-  pileW: number
   t: ReturnType<typeof useTranslations>
 }) {
   void isMe
@@ -706,17 +702,6 @@ function SeatPod({
           {count}
         </span>
       </span>
-
-      {/* Last played combo (mini) under the active opponent */}
-      {lastTrick && (
-        <div className="flex mt-0.5">
-          {sortHand(lastTrick).slice(0, 6).map((c, i) => (
-            <span key={cardKey(c)} style={{ marginLeft: i === 0 ? 0 : -Math.round(pileW * 0.5) }}>
-              <CardFace card={c} w={Math.round(pileW * 0.55)} />
-            </span>
-          ))}
-        </div>
-      )}
 
       {/* Bỏ lượt stamp */}
       {passed && (

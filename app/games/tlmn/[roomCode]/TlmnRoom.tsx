@@ -108,12 +108,22 @@ export default function TlmnRoom({ initialState, userId }: Props) {
     })
   }
 
+  // Pull authoritative state right after a mutation instead of waiting for the
+  // realtime event — a missed/delayed tlmn_seats broadcast otherwise leaves the
+  // lobby stale (e.g. an added bot or the ready/start buttons not appearing until
+  // a manual reload).
+  const reconcileNow = () => {
+    refetchRoomState(room.id)
+      .then(fresh => { if (fresh && mountedRef.current) setState(fresh) })
+      .catch(() => {})
+  }
+
   const handleReady = () => {
-    startTransition(async () => { await toggleReady(room.id) })
+    startTransition(async () => { await toggleReady(room.id); reconcileNow() })
   }
 
   const handleStart = () => {
-    startTransition(async () => { await startGame(room.id) })
+    startTransition(async () => { await startGame(room.id); reconcileNow() })
   }
 
   const handleLeave = () => {
@@ -124,11 +134,11 @@ export default function TlmnRoom({ initialState, userId }: Props) {
   }
 
   const handleAddBot = () => {
-    startTransition(async () => { await addBot(room.id) })
+    startTransition(async () => { await addBot(room.id); reconcileNow() })
   }
 
   const handleRemoveBot = (seatIndex: number) => {
-    startTransition(async () => { await removeBot(room.id, seatIndex) })
+    startTransition(async () => { await removeBot(room.id, seatIndex); reconcileNow() })
   }
 
   // ── Render ───────────────────────────────────────────────────────────────────

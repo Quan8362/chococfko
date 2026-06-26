@@ -4,7 +4,7 @@ import { requestPasswordReset } from '@/app/auth/actions'
 
 export async function generateMetadata() {
   const t = await getTranslations('auth')
-  return { title: `${t('forgot_heading')} · Chợ Cóc FKO` }
+  return { title: `${t('forgot_heading')}` }
 }
 
 export default async function QuenMatKhau({

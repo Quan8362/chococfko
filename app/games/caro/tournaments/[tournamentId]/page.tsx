@@ -11,8 +11,8 @@ export const dynamic = 'force-dynamic'
 export async function generateMetadata({ params }: { params: { tournamentId: string } }) {
   const t = await getTranslations('games.caro')
   const { tournament } = await getTournamentById(params.tournamentId)
-  if (!tournament) return { title: `${t('tournament_page_title')} · Chợ Cóc FKO` }
-  return { title: `${tournament.title} · ${t('tournament_page_title')} · Chợ Cóc FKO` }
+  if (!tournament) return { title: `${t('tournament_page_title')}` }
+  return { title: `${tournament.title} · ${t('tournament_page_title')}` }
 }
 
 export default async function TournamentPage({ params }: { params: { tournamentId: string } }) {

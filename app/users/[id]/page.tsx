@@ -32,10 +32,10 @@ type PostCard = {
 
 export async function generateMetadata({ params }: { params: { id: string } }) {
   const t = await getTranslations('public_profile')
-  if (!isUuid(params.id)) return { title: `${t('title')} · Chợ Cóc FKO` }
+  if (!isUuid(params.id)) return { title: `${t('title')}` }
   const identity = await getUserIdentity(params.id)
   const name = identity.name || t('member_fallback')
-  return { title: `${name} · Chợ Cóc FKO` }
+  return { title: `${name}` }
 }
 
 export default async function PublicProfilePage({ params }: { params: { id: string } }) {

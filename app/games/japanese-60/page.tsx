@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic'
 
 export async function generateMetadata() {
   const t = await getTranslations('games.jp60')
-  return { title: `${t('meta_title')} · Mini Game · Chợ Cóc FKO` }
+  return { title: `${t('meta_title')} · Mini Game` }
 }
 
 export default async function Jp60Page() {

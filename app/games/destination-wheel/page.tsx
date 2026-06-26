@@ -5,7 +5,7 @@ import DestinationWheel from './DestinationWheel'
 
 export async function generateMetadata() {
   const t = await getTranslations('games.destination_wheel')
-  return { title: `${t('title')} · Chợ Cóc FKO` }
+  return { title: `${t('title')}` }
 }
 
 export default async function DestinationWheelPage() {

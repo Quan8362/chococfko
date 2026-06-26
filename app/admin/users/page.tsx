@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic'
 
 export async function generateMetadata() {
   const t = await getTranslations('admin')
-  return { title: `Admin · ${t('manage_users_title')} · Chợ Cóc FKO` }
+  return { title: `Admin · ${t('manage_users_title')}` }
 }
 
 type AuthUser = {

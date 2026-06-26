@@ -65,7 +65,7 @@ export default function HoursDisclosure({
             {rows.map((r) => (
               <Fragment key={r.label}>
                 <span className={r.isToday ? 'text-ink font-semibold' : 'text-muted'}>{r.label}</span>
-                <span className={`text-left tabular-nums ${r.closed ? 'text-muted' : r.isToday ? 'text-ink font-semibold' : 'text-muted'}`}>
+                <span className={`text-right tabular-nums ${r.closed ? 'text-muted' : r.isToday ? 'text-ink font-semibold' : 'text-muted'}`}>
                   {r.closed ? closedLabel : r.slots}
                 </span>
               </Fragment>

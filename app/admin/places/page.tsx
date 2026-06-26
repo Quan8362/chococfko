@@ -10,7 +10,7 @@ import { decodeExternalSeed, SEED_PARAM } from '@/lib/maps/adminSeed'
 
 export async function generateMetadata() {
   const t = await getTranslations('meta')
-  return { title: `Admin · ${t('admin_places')} · Chợ Cóc FKO` }
+  return { title: `Admin · ${t('admin_places')}` }
 }
 export const dynamic = 'force-dynamic'
 

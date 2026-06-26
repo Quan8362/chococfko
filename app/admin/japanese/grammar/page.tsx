@@ -7,7 +7,7 @@ import GrammarClient from './GrammarClient'
 
 export async function generateMetadata() {
   const t = await getTranslations('admin_jp')
-  return { title: `Admin · ${t('section_grammar')} · Chợ Cóc FKO` }
+  return { title: `Admin · ${t('section_grammar')}` }
 }
 export const dynamic = 'force-dynamic'
 

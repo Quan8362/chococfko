@@ -12,7 +12,7 @@ export const dynamic = 'force-dynamic'
 
 export async function generateMetadata() {
   const t = await getTranslations('japanese')
-  return { title: `${t('flashcard_heading')} · ${t('page_heading')} · Chợ Cóc FKO` }
+  return { title: `${t('flashcard_heading')} · ${t('page_heading')}` }
 }
 
 async function getLevelCounts(): Promise<Record<string, number>> {

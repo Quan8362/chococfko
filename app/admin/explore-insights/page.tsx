@@ -9,7 +9,7 @@ import { totalFindings } from '@/lib/dataQuality';
 export const dynamic = 'force-dynamic';
 
 export async function generateMetadata() {
-  return { title: 'Admin · Explore insights · Chợ Cóc FKO' };
+  return { title: 'Admin · Explore insights' };
 }
 
 function Stat({ label, value }: { label: string; value: string }) {

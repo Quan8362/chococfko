@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic'
 
 export async function generateMetadata() {
   const t = await getTranslations('japanese')
-  return { title: `${t('profile_heading')} · Chợ Cóc FKO` }
+  return { title: `${t('profile_heading')}` }
 }
 
 export default async function StudyProfilePage() {

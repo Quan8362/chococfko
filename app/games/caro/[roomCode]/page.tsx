@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic'
 
 export async function generateMetadata({ params }: { params: { roomCode: string } }) {
   const t = await getTranslations('games.caro')
-  return { title: `${t('room_code_label')} ${params.roomCode.toUpperCase()} · ${t('title')} · Chợ Cóc FKO` }
+  return { title: `${t('room_code_label')} ${params.roomCode.toUpperCase()} · ${t('title')}` }
 }
 
 async function getPlayerName(

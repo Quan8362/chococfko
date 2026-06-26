@@ -13,7 +13,7 @@ export async function generateMetadata() {
   // Chat is auth-gated, user-specific, and (for internal members) contains
   // internal content — never index it.
   return {
-    title: `${t('community_chat')} · Chợ Cóc FKO`,
+    title: `${t('community_chat')}`,
     robots: { index: false, follow: false },
   }
 }

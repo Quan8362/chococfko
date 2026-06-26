@@ -9,7 +9,7 @@ import EventAdminRow from './EventAdminRow';
 export const dynamic = 'force-dynamic';
 
 export async function generateMetadata() {
-  return { title: 'Admin · Events · Chợ Cóc FKO' };
+  return { title: 'Admin · Events' };
 }
 
 export default async function AdminEventsPage({ searchParams }: { searchParams: { edit?: string } }) {

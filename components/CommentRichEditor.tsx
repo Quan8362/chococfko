@@ -48,7 +48,7 @@ export default function CommentRichEditor({ name, placeholder, resetKey = 0, max
 
   const editor = useEditor({
     extensions: [
-      StarterKit.configure({ heading: false, horizontalRule: false, codeBlock: false }),
+      StarterKit.configure({ heading: false, horizontalRule: false, codeBlock: false, link: false, underline: false }),
       TiptapLink.configure({
         openOnClick: false,
         HTMLAttributes: { rel: 'noopener noreferrer', target: '_blank' },

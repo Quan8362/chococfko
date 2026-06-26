@@ -70,7 +70,7 @@ export async function generateMetadata({ params }: { params: { level: string } }
   const label = track.type === 'jlpt'
     ? track.level
     : track.key === 's' ? t('writing_joyo_secondary_full') : t('writing_joyo_grade_full', { grade: track.key })
-  return { title: `${label} · ${t('writing_heading')} · ${t('page_heading')} · Chợ Cóc FKO` }
+  return { title: `${label} · ${t('writing_heading')} · ${t('page_heading')}` }
 }
 
 interface Props {

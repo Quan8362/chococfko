@@ -9,7 +9,7 @@ import { markAsRead, markAllAsRead } from './actions'
 export const dynamic = 'force-dynamic'
 export async function generateMetadata() {
   const t = await getTranslations('meta')
-  return { title: `${t('admin_notifications')} · Chợ Cóc FKO` }
+  return { title: `${t('admin_notifications')}` }
 }
 
 const TYPE_EMOJI: Record<string, string> = {

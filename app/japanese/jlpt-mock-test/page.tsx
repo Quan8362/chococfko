@@ -6,7 +6,7 @@ import { JLPT_LEVELS } from '@/components/japanese/LevelPicker'
 export async function generateMetadata() {
   const t = await getTranslations('japanese')
   return {
-    title: `${t('exam_heading')} · ${t('page_heading')} · Chợ Cóc FKO`,
+    title: `${t('exam_heading')} · ${t('page_heading')}`,
   }
 }
 

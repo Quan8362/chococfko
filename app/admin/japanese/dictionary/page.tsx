@@ -7,7 +7,7 @@ import WordsClient from './WordsClient'
 
 export async function generateMetadata() {
   const t = await getTranslations('admin_jp')
-  return { title: `Admin · ${t('section_dictionary')} · Chợ Cóc FKO` }
+  return { title: `Admin · ${t('section_dictionary')}` }
 }
 export const dynamic = 'force-dynamic'
 

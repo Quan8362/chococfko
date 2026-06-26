@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic'
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('tags')
   return {
-    title: `${t('browse')} | ${SITE_NAME}`,
+    title: `${t('browse')}`,
     description: t('browseSub'),
     alternates: { canonical: `${SITE_URL}/tags` },
   }

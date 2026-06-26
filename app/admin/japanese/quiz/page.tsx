@@ -5,7 +5,7 @@ import { checkIsAdmin, createAdminClient } from '@/lib/supabase/admin'
 import type { QuizQuestion } from '@/app/japanese/quiz-actions'
 import QuizClient from './QuizClient'
 
-export const metadata = { title: 'Admin · Quiz · Chợ Cóc FKO' }
+export const metadata = { title: 'Admin · Quiz' }
 export const dynamic = 'force-dynamic'
 
 export type AdminQuiz = QuizQuestion & { is_published: boolean }

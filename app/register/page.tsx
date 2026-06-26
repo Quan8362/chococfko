@@ -6,7 +6,7 @@ import PasswordInput from '@/components/PasswordInput'
 
 export async function generateMetadata() {
   const t = await getTranslations('auth')
-  return { title: `${t('register_heading')} · Chợ Cóc FKO` }
+  return { title: `${t('register_heading')}` }
 }
 
 export default async function DangKy({

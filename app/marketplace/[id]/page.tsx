@@ -25,16 +25,16 @@ export const dynamic = 'force-dynamic'
 
 export async function generateMetadata({ params }: { params: { id: string } }) {
   const l = await getListingById(params.id)
-  if (!l) return { title: 'Chợ đồ cũ · Chợ Cóc FKO' }
+  if (!l) return { title: 'Chợ đồ cũ' }
   // Never index internal listings; never leak the internal title into metadata.
   if (l.community_scope === 'fko_internal') {
-    return { title: 'Chợ đồ cũ · Chợ Cóc FKO', robots: { index: false, follow: false } }
+    return { title: 'Chợ đồ cũ', robots: { index: false, follow: false } }
   }
   const tagNames = isUuid(params.id)
     ? (await getTagsForContent(createClient(), 'listing', params.id)).map((tag) => tag.name)
     : []
   return {
-    title: `${l.title} · Chợ đồ cũ · Chợ Cóc FKO`,
+    title: `${l.title} · Chợ đồ cũ`,
     keywords: [l.title, l.area, ...tagNames].filter(Boolean) as string[],
   }
 }

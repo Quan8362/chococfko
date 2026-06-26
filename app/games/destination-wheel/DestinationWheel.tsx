@@ -58,6 +58,7 @@ type SpinState = 'idle' | 'spinning' | 'done'
 export default function DestinationWheel({ places, categories }: Props) {
   const t = useTranslations('games.destination_wheel')
   const tCommon = useTranslations('common')
+  const tCat = useTranslations('categories')
 
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [spinState, setSpinState] = useState<SpinState>('idle')
@@ -177,7 +178,7 @@ export default function DestinationWheel({ places, categories }: Props) {
               aria-pressed={selectedCategory === cat.code}
               className={chipClass(selectedCategory === cat.code)}
             >
-              {CATEGORY_EMOJI[cat.code] ?? '📍'} {cat.full}
+              {CATEGORY_EMOJI[cat.code] ?? '📍'} {tCat(`${cat.code}_full` as 'landmark_full')}
             </button>
           ))}
         </div>
@@ -298,6 +299,7 @@ export default function DestinationWheel({ places, categories }: Props) {
           {spinState === 'done' && result ? (
             <ResultCard
               place={result}
+              categoryLabel={tCat(`${result.category}_full` as 'landmark_full')}
               imgError={imgError}
               onImgError={() => setImgError(true)}
               tDetail={t('detail_btn')}
@@ -366,6 +368,7 @@ function Connector() {
 /* ── Result card ────────────────────────────────────────── */
 interface ResultCardProps {
   place: Place
+  categoryLabel: string
   imgError: boolean
   onImgError: () => void
   tDetail: string
@@ -379,7 +382,7 @@ interface ResultCardProps {
 }
 
 function ResultCard({
-  place, imgError, onImgError,
+  place, categoryLabel, imgError, onImgError,
   tDetail, tMap, tResultHeading,
   tFree, tPaid, tTopic, tLocation, tCost,
 }: ResultCardProps) {
@@ -407,7 +410,7 @@ function ResultCard({
         />
         {/* Category badge */}
         <span className="absolute top-3 left-3 bg-ink/70 text-white text-[11px] font-semibold px-2.5 py-1 rounded-full backdrop-blur-sm">
-          {CATEGORY_EMOJI[place.category] ?? '📍'} {place.categoryLabel}
+          {CATEGORY_EMOJI[place.category] ?? '📍'} {categoryLabel}
         </span>
         {/* Fee badge */}
         {place.fee && (
@@ -432,7 +435,7 @@ function ResultCard({
 
         {/* Meta */}
         <div className="flex flex-wrap gap-3 mb-6">
-          <MetaChip label={tTopic} value={place.categoryLabel} />
+          <MetaChip label={tTopic} value={categoryLabel} />
           <MetaChip label={tLocation} value={place.area} />
           {place.fee && (
             <MetaChip

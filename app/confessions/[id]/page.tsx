@@ -29,9 +29,9 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   const c = await getConfessionById(params.id)
   // Never index internal confessions; never leak the internal title into metadata.
   if (c?.community_scope === 'fko_internal') {
-    return { title: 'FKO Confessions · Chợ Cóc FKO', robots: { index: false, follow: false } }
+    return { title: 'FKO Confessions', robots: { index: false, follow: false } }
   }
-  if (!c) return { title: 'FKO Confessions · Chợ Cóc FKO', robots: { index: false, follow: true } }
+  if (!c) return { title: 'FKO Confessions', robots: { index: false, follow: true } }
 
   const locale = await getLocale()
   const canonical = `${SITE_URL}/confessions/${params.id}`

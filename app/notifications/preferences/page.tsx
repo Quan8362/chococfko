@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic';
 
 export async function generateMetadata() {
   const t = await getTranslations('notif_prefs');
-  return { title: `${t('title')} · Chợ Cóc FKO` };
+  return { title: `${t('title')}` };
 }
 
 export default async function NotificationPrefsPage() {

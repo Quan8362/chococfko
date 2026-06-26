@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
 
-export const metadata = { title: 'Mini Game · Chợ Cóc FKO' }
+export const metadata = { title: 'Mini Game' }
 
 export default async function GamesPage() {
   const t = await getTranslations('games')

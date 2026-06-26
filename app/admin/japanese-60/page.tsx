@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic'
 
 export async function generateMetadata() {
   const t = await getTranslations('admin_jp60')
-  return { title: `Admin · ${t('breadcrumb')} · Chợ Cóc FKO` }
+  return { title: `Admin · ${t('breadcrumb')}` }
 }
 
 export default async function Jp60AdminPage() {

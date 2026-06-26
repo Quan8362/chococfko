@@ -25,7 +25,7 @@ function DraftClearer() {
 
 export async function generateMetadata() {
   const t = await getTranslations('meta')
-  return { title: `${t('write_post')} · Chợ Cóc FKO` }
+  return { title: `${t('write_post')}` }
 }
 
 async function getUser() {

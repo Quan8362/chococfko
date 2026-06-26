@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic'
 
 export async function generateMetadata() {
   const t = await getTranslations('auth')
-  return { title: `${t('reset_heading')} · Chợ Cóc FKO` }
+  return { title: `${t('reset_heading')}` }
 }
 
 export default async function DatLaiMatKhau({

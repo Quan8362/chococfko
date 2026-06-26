@@ -4,7 +4,7 @@ import SudokuGame from './SudokuGame'
 
 export async function generateMetadata() {
   const t = await getTranslations('games.sudoku')
-  return { title: `${t('title')} · Chợ Cóc FKO` }
+  return { title: `${t('title')}` }
 }
 
 export default async function SudokuPage() {

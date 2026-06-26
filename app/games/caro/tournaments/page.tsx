@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic'
 
 export async function generateMetadata() {
   const t = await getTranslations('games.caro')
-  return { title: `${t('tournament_page_title')} · Chợ Cóc FKO` }
+  return { title: `${t('tournament_page_title')}` }
 }
 
 const STATUS_COLOR: Record<string, string> = {

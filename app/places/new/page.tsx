@@ -17,7 +17,7 @@ const RichTextEditor = dynamic(() => import('@/components/RichTextEditor'), { ss
 
 export async function generateMetadata() {
   const t = await getTranslations('meta')
-  return { title: `${t('post_place')} · Chợ Cóc FKO` }
+  return { title: `${t('post_place')}` }
 }
 
 async function getUser() {

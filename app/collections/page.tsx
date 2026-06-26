@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic';
 
 export async function generateMetadata() {
   const t = await getTranslations('collections');
-  return { title: `${t('page_title')} · Chợ Cóc FKO` };
+  return { title: `${t('page_title')}` };
 }
 
 export default async function CollectionsPage() {

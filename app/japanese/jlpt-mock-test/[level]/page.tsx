@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: Props) {
   const jlptLevel = dbLevel(params.level)
   if (!jlptLevel) return { title: 'Not found' }
   return {
-    title: `${t('exam_heading')} ${jlptLevel} · ${t('page_heading')} · Chợ Cóc FKO`,
+    title: `${t('exam_heading')} ${jlptLevel} · ${t('page_heading')}`,
   }
 }
 

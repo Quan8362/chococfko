@@ -8,7 +8,7 @@ import AnalyticsRecentClient, { type RecentEvent } from './AnalyticsRecentClient
 export const dynamic = 'force-dynamic'
 
 export async function generateMetadata() {
-  return { title: 'Admin · Analytics · Chợ Cóc FKO' }
+  return { title: 'Admin · Analytics' }
 }
 
 type Event = {

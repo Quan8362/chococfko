@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic';
 
 export async function generateMetadata() {
   const t = await getTranslations('events');
-  return { title: `${t('page_title')} · Chợ Cóc FKO` };
+  return { title: `${t('page_title')}` };
 }
 
 const VIEWS: EventView[] = ['today', 'weekend', 'upcoming', 'free'];

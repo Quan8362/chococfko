@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic'
 
 export async function generateMetadata() {
   const t = await getTranslations('admin_jp')
-  return { title: `Admin · ${t('c_title')} · Chợ Cóc FKO` }
+  return { title: `Admin · ${t('c_title')}` }
 }
 
 type Row = {

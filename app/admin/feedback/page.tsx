@@ -4,7 +4,7 @@ import { getTranslations } from 'next-intl/server'
 import { checkIsAdmin, createAdminClient } from '@/lib/supabase/admin'
 import FeedbackItem, { type FeedbackView, type ReplyView, type ItemLabels } from './FeedbackItem'
 
-export const metadata = { title: 'Admin · Góp ý · Chợ Cóc FKO' }
+export const metadata = { title: 'Admin · Góp ý' }
 export const dynamic = 'force-dynamic'
 
 type DbFeedback = {

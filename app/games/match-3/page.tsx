@@ -4,7 +4,7 @@ import Match3Game from './Match3Game'
 
 export async function generateMetadata() {
   const t = await getTranslations('games.match3')
-  return { title: `${t('title')} · Chợ Cóc FKO` }
+  return { title: `${t('title')}` }
 }
 
 export default async function Match3Page() {

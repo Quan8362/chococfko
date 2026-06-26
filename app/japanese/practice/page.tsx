@@ -13,7 +13,7 @@ export const dynamic = 'force-dynamic'
 export async function generateMetadata() {
   const t = await getTranslations('japanese')
   return {
-    title: `${t('quiz_heading')} · ${t('page_heading')} · Chợ Cóc FKO`,
+    title: `${t('quiz_heading')} · ${t('page_heading')}`,
   }
 }
 

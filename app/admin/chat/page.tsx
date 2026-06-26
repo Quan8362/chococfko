@@ -6,7 +6,7 @@ import { adminDeleteMessage, adminRestoreMessage, adminPinMessage, adminUnpinMes
 
 export async function generateMetadata() {
   const t = await getTranslations('meta')
-  return { title: `${t('admin_chat')} · Admin Chợ Cóc FKO` }
+  return { title: `${t('admin_chat')} · Admin` }
 }
 export const dynamic = 'force-dynamic'
 

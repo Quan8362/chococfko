@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic'
 
 export async function generateMetadata() {
   const t = await getTranslations('games.caro')
-  return { title: `${t('leaderboard_title')} · Chợ Cóc FKO` }
+  return { title: `${t('leaderboard_title')}` }
 }
 
 type LeaderboardRow = {

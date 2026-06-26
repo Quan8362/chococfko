@@ -394,7 +394,7 @@ export default async function PlaceDetail({ params }: { params: { slug: string }
             href={place.photoUrl}
             target="_blank"
             rel="noopener"
-            className="flex items-center justify-center gap-2 font-semibold text-[14px] px-5 py-3.5 rounded-2xl bg-[#e8f3f6] text-teal border border-[#cfe6ec] hover:bg-teal hover:text-white transition-all"
+            className="flex items-center justify-center gap-2 font-semibold text-[14px] px-5 py-3.5 rounded-2xl bg-paper text-rose border border-rose/35 hover:bg-rose/5 hover:border-rose/55 hover:-translate-y-px transition-all"
           >
             {t("view_photos")}
           </a>

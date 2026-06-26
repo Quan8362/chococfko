@@ -24,7 +24,7 @@ export async function generateMetadata({ searchParams }: { searchParams: { scope
   const t = await getTranslations('marketplace')
   const internal = searchParams.scope === 'fko_internal'
   return {
-    title: `${t('page_title')} · Chợ Cóc FKO`,
+    title: `${t('page_title')}`,
     ...(internal ? { robots: { index: false, follow: false } } : {}),
   }
 }

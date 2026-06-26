@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic'
 
 export async function generateMetadata() {
   const t = await getTranslations('marketplace')
-  return { title: `${t('my_listings')} · Chợ Cóc FKO` }
+  return { title: `${t('my_listings')}` }
 }
 
 const STATUS_STYLE: Record<string, string> = {

@@ -15,7 +15,7 @@ export const dynamic = 'force-dynamic'
 export function generateMetadata({ searchParams }: { searchParams: { scope?: string } }) {
   const internal = searchParams.scope === 'fko_internal'
   return {
-    title: 'FKO Confessions · Chợ Cóc FKO',
+    title: 'FKO Confessions',
     ...(internal ? { robots: { index: false, follow: false } } : {}),
   }
 }

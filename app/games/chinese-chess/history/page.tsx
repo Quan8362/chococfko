@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic'
 
 export async function generateMetadata() {
   const t = await getTranslations('games.chinese_chess')
-  return { title: `${t('history_page_title')} · Chợ Cóc FKO` }
+  return { title: `${t('history_page_title')}` }
 }
 
 type HistoryRow = {

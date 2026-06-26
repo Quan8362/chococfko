@@ -6,7 +6,7 @@ import ProfileForm from './ProfileForm'
 
 export async function generateMetadata() {
   const tm = await getTranslations('meta')
-  return { title: `${tm('profile')} · Chợ Cóc FKO` }
+  return { title: `${tm('profile')}` }
 }
 export const dynamic = 'force-dynamic'
 

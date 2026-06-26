@@ -12,7 +12,7 @@ export const dynamic = 'force-dynamic'
 
 export async function generateMetadata() {
   const t = await getTranslations('marketplace')
-  return { title: `${t('edit_title')} · Chợ Cóc FKO` }
+  return { title: `${t('edit_title')}` }
 }
 
 export default async function EditListingPage({ params }: { params: { id: string } }) {

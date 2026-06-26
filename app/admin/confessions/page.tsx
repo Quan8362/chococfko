@@ -8,7 +8,7 @@ import AnonAvatar from '@/components/AnonAvatar'
 import { generateAnonId } from '@/lib/anon'
 import { stripHtml } from '@/lib/sanitize'
 
-export const metadata = { title: 'Admin · Confessions · Chợ Cóc FKO' }
+export const metadata = { title: 'Admin · Confessions' }
 export const dynamic = 'force-dynamic'
 
 type RawConfession = {

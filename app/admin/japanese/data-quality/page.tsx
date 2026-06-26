@@ -5,7 +5,7 @@ import { checkIsAdmin, createAdminClient } from '@/lib/supabase/admin'
 
 export async function generateMetadata() {
   const t = await getTranslations('admin_jp')
-  return { title: `Admin · ${t('dq_title')} · Chợ Cóc FKO` }
+  return { title: `Admin · ${t('dq_title')}` }
 }
 export const dynamic = 'force-dynamic'
 

@@ -3,7 +3,7 @@ import RandomWheelClient from './RandomWheelClient'
 
 export async function generateMetadata() {
   const t = await getTranslations('games.random_wheel')
-  return { title: `${t('title')} · Chợ Cóc FKO` }
+  return { title: `${t('title')}` }
 }
 
 export default function RandomWheelPage() {

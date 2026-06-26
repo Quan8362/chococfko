@@ -5,7 +5,7 @@ import { checkIsAdmin, createAdminClient } from '@/lib/supabase/admin'
 import type { JapaneseKanji } from '@/components/japanese/KanjiCard'
 import KanjiClient from './KanjiClient'
 
-export const metadata = { title: 'Admin · Kanji · Chợ Cóc FKO' }
+export const metadata = { title: 'Admin · Kanji' }
 export const dynamic = 'force-dynamic'
 
 export type AdminKanji = JapaneseKanji & { is_published: boolean }

@@ -12,7 +12,7 @@ const PAGE_SIZE = 10
 
 export async function generateMetadata() {
   const t = await getTranslations('japanese')
-  return { title: `${t('writing_heading')} · ${t('page_heading')} · Chợ Cóc FKO` }
+  return { title: `${t('writing_heading')} · ${t('page_heading')}` }
 }
 
 async function getJlptCounts(): Promise<Record<string, number>> {

@@ -34,7 +34,7 @@ async function getPendingListingsCount(): Promise<number> {
   }
 }
 
-export const metadata = { title: 'Admin · Chợ Cóc FKO' }
+export const metadata = { title: 'Admin' }
 export const dynamic = 'force-dynamic'
 
 const STATUS_BADGE: Record<string, string> = {

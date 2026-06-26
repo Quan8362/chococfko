@@ -6,7 +6,7 @@ import ImportClient from './ImportClient'
 
 export async function generateMetadata() {
   const t = await getTranslations('admin_jp')
-  return { title: `Admin · ${t('import_data')} · Chợ Cóc FKO` }
+  return { title: `Admin · ${t('import_data')}` }
 }
 export const dynamic = 'force-dynamic'
 

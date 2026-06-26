@@ -7,7 +7,7 @@ import { resolveAuthErrorKey } from '@/lib/auth/oauthErrors'
 
 export async function generateMetadata() {
   const t = await getTranslations('auth')
-  return { title: `${t('login_heading')} · Chợ Cóc FKO` }
+  return { title: `${t('login_heading')}` }
 }
 
 export default async function DangNhap({

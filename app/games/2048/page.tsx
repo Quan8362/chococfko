@@ -3,7 +3,7 @@ import Game2048 from './Game2048'
 
 export async function generateMetadata() {
   const t = await getTranslations('games.game2048')
-  return { title: `${t('title')} · Mini Game · Chợ Cóc FKO` }
+  return { title: `${t('title')} · Mini Game` }
 }
 
 export default function Page2048() {

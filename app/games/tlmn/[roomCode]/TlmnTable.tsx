@@ -12,6 +12,7 @@ import {
   fetchGameState, fetchMyHand, playCards, passTurn, tickTurnTimer, startNextRound, runBotTurn,
   type TlmnPublicGame, type TlmnSeat,
 } from '../actions'
+import { getWallet } from '../wallet'
 import { motion } from 'framer-motion'
 import { CardFace, CardBack, OpponentFan, BotAvatar } from './TlmnCard'
 import { useTlmnSound } from './useTlmnSound'
@@ -148,6 +149,23 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
     try { reducedRef.current = window.matchMedia('(prefers-reduced-motion: reduce)').matches } catch {}
   }, [])
 
+  // Run 7 — my REAL persisted "xu" balance. Only my own wallet is readable (RLS
+  // select-own), so other seats keep their session-derived display number. Loaded on
+  // mount and re-fetched after each round settles so the display always matches the DB.
+  const [myBalance, setMyBalance] = useState<number | null>(null)
+  // The REAL applied coin delta for my seat this round (post − pre balance, already
+  // clamped server-side). Drives the podium delta; cleared when the next round deals.
+  const [myRoundDelta, setMyRoundDelta] = useState<number | null>(null)
+  const balanceRef = useRef<number | null>(null)
+  const refreshBalance = useCallback(() => {
+    getWallet().then(w => {
+      if (!w || !mountedRef.current) return
+      balanceRef.current = w.balance
+      setMyBalance(w.balance)
+    }).catch(() => {})
+  }, [])
+  useEffect(() => { refreshBalance() }, [refreshBalance])
+
   const refreshHand = useCallback(() => {
     fetchMyHand(roomId).then(h => {
       if (!mountedRef.current) return
@@ -208,7 +226,7 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
   }, [])
 
   // A fresh round (new game id) ⇒ drop any stale selection from the previous deal.
-  useEffect(() => { setSelected(new Set()) }, [game?.id])
+  useEffect(() => { setSelected(new Set()); setMyRoundDelta(null) }, [game?.id])
 
   // A fresh deal staggers the hand-card entrance; the flag clears shortly after so
   // later interactions (select / sort reflow) animate instantly without the stagger.
@@ -345,6 +363,20 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
       if (!reducedRef.current) setConfettiKey(Date.now())
       const w = game.result?.winner ?? game.nhat_seat
       setLiveMsg(w != null ? t('a11y_round_over', { name: seatName(w) }) : t('round_over'))
+
+      // Re-fetch the authoritative wallet after settlement (which runs server-side as
+      // the round ends) and derive my REAL applied delta (post − pre). The short
+      // delayed retry covers the tiny window between the realtime row update and
+      // settle_round committing the coin deltas; both reads use the same `pre`.
+      const pre = balanceRef.current
+      const settle = () => getWallet().then(wal => {
+        if (!wal || !mountedRef.current) return
+        balanceRef.current = wal.balance
+        setMyBalance(wal.balance)
+        if (pre != null) setMyRoundDelta(wal.balance - pre)
+      }).catch(() => {})
+      settle()
+      setTimeout(settle, 900)
 
       // A brief NON-celebratory toast by a penalised seat (cóng / thối heo / thối bom)
       // so the player understands what happened. Derived from the đếm-lá breakdown only.
@@ -867,7 +899,7 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
                     {game.nhat_seat === mySeat && <span className="text-gold">🏆</span>}
                     {seatName(mySeat)}
                     <span className="text-[10px] font-bold text-white/60 bg-white/15 rounded-full px-1.5 py-0.5">{t('you_badge')}</span>
-                    <span className="tlmn-chip-balance text-[10px] font-black inline-flex items-center gap-0.5"><span aria-hidden className="text-[9px]">🪙</span>{formatChips(chipsFromScore(seatOf(mySeat)?.cumulative_score ?? 0))}</span>
+                    <span className="tlmn-chip-balance text-[10px] font-black inline-flex items-center gap-0.5"><span aria-hidden className="text-[9px]">🪙</span>{formatChips(myBalance ?? chipsFromScore(seatOf(mySeat)?.cumulative_score ?? 0))}</span>
                   </p>
                   {isMyTurn ? (
                     <span className="text-[11px] font-bold text-rose-200 flex items-center gap-1 mt-0.5">
@@ -1013,7 +1045,7 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
         {ended && (
           <div className="relative z-20 w-full max-w-[600px] mx-auto px-3 sm:px-4 flex flex-col gap-3" style={{ paddingBottom: 'calc(1.25rem + env(safe-area-inset-bottom))' }}>
             {game.result?.instant && <ToiTrangBanner game={game} seatName={seatName} t={t} />}
-            <Podium game={game} seats={seats} seatName={seatName} reduced={reduced} t={t} />
+            <Podium game={game} seats={seats} seatName={seatName} reduced={reduced} mySeat={mySeat} myBalance={myBalance} myRoundDelta={myRoundDelta} t={t} />
             <div className="text-center">
               {isHost ? (
                 <button
@@ -1278,12 +1310,15 @@ function ToiTrangBanner({
 // down. Each row shows avatar, name, "Còn N lá", the round delta, running total and the
 // animated virtual-CHIP delta. The đếm-lá MATH is unchanged — display only.
 function Podium({
-  game, seats, seatName, reduced, t,
+  game, seats, seatName, reduced, mySeat, myBalance, myRoundDelta, t,
 }: {
   game: TlmnPublicGame
   seats: TlmnSeat[]
   seatName: (i: number) => string
   reduced: boolean
+  mySeat: number | null
+  myBalance: number | null
+  myRoundDelta: number | null
   t: ReturnType<typeof useTranslations>
 }) {
   const breakdown = game.result?.breakdown
@@ -1313,8 +1348,11 @@ function Podium({
       <div className="flex flex-col gap-2">
         {rows.map((r, rank) => {
           const cum = cumulativeOf(r.seat)
-          const chips = chipsFromScore(cum)
-          const chipDelta = r.total * CHIP_RATE
+          // My seat shows the REAL persisted wallet balance + REAL applied delta;
+          // every other seat keeps the session-derived display number.
+          const isMyRow = mySeat != null && r.seat === mySeat
+          const chips = isMyRow && myBalance != null ? myBalance : chipsFromScore(cum)
+          const chipDelta = isMyRow && myRoundDelta != null ? myRoundDelta : r.total * CHIP_RATE
           const first = rank === 0
           return (
             <div

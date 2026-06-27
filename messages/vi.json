@@ -1988,7 +1988,21 @@
       "penalty_cong": "Bị cóng",
       "penalty_thoiheo": "Thối heo",
       "penalty_thoibom": "Thối bom",
-      "podium_title": "Kết quả ván"
+      "podium_title": "Kết quả ván",
+      "coin_balance_label": "Số dư xu",
+      "coin_play_money": "Xu chỉ để chơi cho vui — không quy đổi thành tiền thật.",
+      "coin_welcome_toast": "Chào mừng! Bạn được tặng {amount} xu.",
+      "coin_daily_toast": "Bạn nhận được {amount} xu!",
+      "coin_broke_title": "Hết xu",
+      "coin_broke_desc": "Bạn cần ít nhất {min} xu để vào bàn. Nhận xu hằng ngày để chơi tiếp nhé!",
+      "coin_claim_btn": "Nhận xu hằng ngày",
+      "coin_next_claim_label": "Nhận lượt xu kế tiếp sau",
+      "error_insufficient_coins": "Bạn cần tối thiểu {min} xu để vào bàn.",
+      "coin_claim_err_not_broke": "Bạn vẫn còn đủ xu để chơi.",
+      "coin_claim_err_cooldown_active": "Chưa tới lượt nhận xu. Vui lòng đợi thêm.",
+      "coin_claim_err_no_wallet": "Không tìm thấy ví xu.",
+      "coin_claim_err_claim_failed": "Nhận xu thất bại, thử lại sau.",
+      "coin_claim_err_not_logged_in": "Bạn cần đăng nhập."
     },
     "chinese_chess": {
       "badge": "🎮 Cờ Tướng",

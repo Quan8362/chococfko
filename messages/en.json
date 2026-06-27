@@ -1988,7 +1988,21 @@
       "penalty_cong": "Stuck — no plays",
       "penalty_thoiheo": "Stuck with a 2",
       "penalty_thoibom": "Stuck with a bomb",
-      "podium_title": "Round Results"
+      "podium_title": "Round Results",
+      "coin_balance_label": "Coin balance",
+      "coin_play_money": "Coins are just for fun — they have no real-money value.",
+      "coin_welcome_toast": "Welcome! You received {amount} coins.",
+      "coin_daily_toast": "You received {amount} coins!",
+      "coin_broke_title": "Out of coins",
+      "coin_broke_desc": "You need at least {min} coins to join a table. Claim your daily coins to keep playing!",
+      "coin_claim_btn": "Claim daily coins",
+      "coin_next_claim_label": "Next claim in",
+      "error_insufficient_coins": "You need at least {min} coins to join a table.",
+      "coin_claim_err_not_broke": "You still have enough coins to play.",
+      "coin_claim_err_cooldown_active": "It's not time to claim yet. Please wait.",
+      "coin_claim_err_no_wallet": "Wallet not found.",
+      "coin_claim_err_claim_failed": "Claim failed, try again later.",
+      "coin_claim_err_not_logged_in": "Please sign in."
     },
     "chinese_chess": {
       "badge": "🎮 Chinese Chess",

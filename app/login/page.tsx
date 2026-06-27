@@ -3,7 +3,7 @@ import { getTranslations } from 'next-intl/server'
 import { signIn, resendConfirmation } from '@/app/auth/actions'
 import SocialLoginButtons from '@/components/SocialLoginButtons'
 import PasswordInput from '@/components/PasswordInput'
-import { resolveAuthErrorKey } from '@/lib/auth/oauthErrors'
+import { resolveAuthErrorKey, safeNextPath } from '@/lib/auth/oauthErrors'
 
 export async function generateMetadata() {
   const t = await getTranslations('auth')
@@ -13,10 +13,13 @@ export async function generateMetadata() {
 export default async function DangNhap({
   searchParams,
 }: {
-  searchParams: { error?: string; authError?: string; confirmed?: string; unconfirmed?: string; email?: string; resent?: string; reset?: string }
+  searchParams: { error?: string; authError?: string; confirmed?: string; unconfirmed?: string; email?: string; resent?: string; reset?: string; next?: string }
 }) {
   const t = await getTranslations('auth')
   const email = searchParams.email ? decodeURIComponent(searchParams.email) : ''
+  // Post-login destination (e.g. a TLMN invite link) — validated against open-redirects.
+  const next = safeNextPath(searchParams.next)
+  const hasNext = next !== '/'
   // OAuth / email-callback failures arrive as a stable code (?authError=...) that
   // is translated here in the active locale. Unknown codes fall back safely.
   const authErrorKey = searchParams.authError ? resolveAuthErrorKey(searchParams.authError) : null
@@ -90,6 +93,7 @@ export default async function DangNhap({
         )}
 
         <form action={signIn} className="space-y-4">
+          {hasNext && <input type="hidden" name="next" value={next} />}
           <div>
             <label className="block text-[13px] font-semibold mb-1.5 text-[#5c4d44]">
               {t('email')}
@@ -127,11 +131,14 @@ export default async function DangNhap({
           </button>
         </form>
 
-        <SocialLoginButtons />
+        <SocialLoginButtons next={hasNext ? next : undefined} />
 
         <p className="text-center text-[14px] text-muted mt-6">
           {t('no_account')}{' '}
-          <Link href="/register" className="text-rose font-semibold hover:underline">
+          <Link
+            href={hasNext ? `/register?next=${encodeURIComponent(next)}` : '/register'}
+            className="text-rose font-semibold hover:underline"
+          >
             {t('register_link')}
           </Link>
         </p>

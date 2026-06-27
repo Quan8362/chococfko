@@ -9,6 +9,7 @@ import { createAdminNotification } from '@/lib/admin/notifications'
 import { setContentTags } from '@/lib/tags'
 import { PREFECTURE_NAME, PREFECTURES } from '@/lib/japan'
 import { sanitizeUserName } from '@/lib/sanitize'
+import { safeNextPath } from '@/lib/auth/oauthErrors'
 import { parseStructuredArea } from '@/lib/places'
 import type { SupabaseLike as EnrichDb } from '@/lib/places/enrichPlace'
 import { parseEnumList, parseTriState, PAYMENT_METHODS, PLACE_LANGUAGES } from '@/lib/placeFields'
@@ -100,16 +101,21 @@ export async function signIn(formData: FormData) {
   if (!password)
     redirect(`/login?error=${encodeURIComponent(t('err_password_empty'))}`)
 
+  // Where to land after a successful sign-in (guarded against open-redirects). Lets an
+  // invite link bounce the user through login and back to the room's join flow.
+  const next = safeNextPath(formData.get('next') as string | null)
+
   const { error } = await supabase.auth.signInWithPassword({ email, password })
   if (error) {
     const msg = error.message.toLowerCase()
+    const suffix = next !== '/' ? `&next=${encodeURIComponent(next)}` : ''
     if (msg.includes('email not confirmed') || msg.includes('email_not_confirmed')) {
-      redirect(`/login?unconfirmed=1&email=${encodeURIComponent(email)}`)
+      redirect(`/login?unconfirmed=1&email=${encodeURIComponent(email)}${suffix}`)
     }
-    redirect(`/login?error=${encodeURIComponent(mapAuthError(error.message, 'login', t))}`)
+    redirect(`/login?error=${encodeURIComponent(mapAuthError(error.message, 'login', t))}${suffix}`)
   }
   revalidatePath('/', 'layout')
-  redirect('/')
+  redirect(next)
 }
 
 export async function resendConfirmation(formData: FormData): Promise<void> {

@@ -25,9 +25,12 @@ function FacebookIcon() {
 
 interface Props {
   variant?: 'login' | 'register'
+  // Post-login destination (e.g. an invite link). Forwarded to the OAuth callback,
+  // which validates it via safeNextPath before redirecting.
+  next?: string
 }
 
-export default function SocialLoginButtons({ variant = 'login' }: Props) {
+export default function SocialLoginButtons({ variant = 'login', next }: Props) {
   const t = useTranslations('auth')
   const supabase = createClient()
   const [error, setError] = useState('')
@@ -36,9 +39,12 @@ export default function SocialLoginButtons({ variant = 'login' }: Props) {
   const signInWithOAuth = async (provider: 'google' | 'facebook') => {
     setError('')
     setLoading(provider)
+    const callback = next
+      ? `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`
+      : `${window.location.origin}/auth/callback`
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
+      options: { redirectTo: callback },
     })
     setLoading('')
     if (error) {

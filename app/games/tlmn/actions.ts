@@ -62,6 +62,9 @@ const MISSED_TURNS_TAKEOVER = 2
 // …or has not sent a heartbeat for this long (tab closed). The room heartbeat fires
 // every 15s, so this is ~3 missed beats — comfortably past a transient hiccup.
 const OFFLINE_MS = 45000
+// A LOBBY seat whose human occupant has stopped heart-beating for this long is treated
+// as a closed tab and freed so its slot reopens live for everyone (see pruneStaleLobbySeats).
+const LOBBY_SEAT_STALE_MS = 45000
 // Randomized bot "think" window before it acts (server-gated off turn_started_at so
 // every client agrees, and the move can't fire the instant the turn opens).
 const BOT_MIN_DELAY_MS = 600
@@ -135,6 +138,7 @@ async function seatUser(admin: Admin, roomId: string, userId: string): Promise<s
       avatar_url: info.avatar,
       is_ready: false,
       connected: true,
+      last_seen: new Date().toISOString(),
     })
     if (!error) return null
     // 23505 = unique violation: slot or user grabbed concurrently. If it's the
@@ -183,6 +187,7 @@ export async function createRoom(): Promise<never> {
     avatar_url: info.avatar,
     is_ready: false,
     connected: true,
+    last_seen: new Date().toISOString(),
   })
 
   redirect(`/games/tlmn/${code}`)
@@ -244,6 +249,19 @@ export async function joinRoomByCode(_prev: ActionResult, formData: FormData): P
 // Reconcile after the realtime channel (re)subscribes, mirroring caro/chess.
 export async function refetchRoomState(roomId: string): Promise<TlmnRoomState | null> {
   return readState(createAdminClient(), roomId)
+}
+
+// ── getRoomState (read-only, by code) ─────────────────────────────────────────────
+// Resolve a room by its invite code WITHOUT seating anyone — used by the room page to
+// decide between the invite-preview (visitor not yet seated) and the in-room view, and
+// to render the inviter/host + current player list in the preview. Seating happens only
+// on an explicit "Vào phòng" (seatIntoRoom), never on a passive page load.
+export async function getRoomState(code: string): Promise<TlmnRoomState | null> {
+  const admin = createAdminClient()
+  const { data: room } = await admin
+    .from('tlmn_rooms').select('id').eq('invite_code', code.toUpperCase()).maybeSingle()
+  if (!room) return null
+  return readState(admin, room.id)
 }
 
 // ── toggleReady ─────────────────────────────────────────────────────────────────
@@ -458,6 +476,79 @@ export async function removeBot(roomId: string, seatIndex: number): Promise<Seat
     .delete()
     .eq('room_id', roomId).eq('seat_index', seatIndex).eq('is_bot', true).is('user_id', null)
   return { state: await readState(admin, roomId) }
+}
+
+// ── kickSeat (host only) ───────────────────────────────────────────────────────────
+// Host removes another occupied seat from the lobby; the freed slot reopens live for
+// everyone via the tlmn_seats DELETE event. Lobby-only. The host can never kick their
+// own seat (they use Leave). Works on a human seat (a lobby bot has its own removeBot
+// path, but kicking one is harmless). Returns the fresh authoritative state so the host
+// updates instantly without waiting on the realtime broadcast.
+export async function kickSeat(roomId: string, seatIndex: number): Promise<SeatResult> {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { state: null, error: 'not_logged_in' }
+
+  const admin = createAdminClient()
+  const state = await readState(admin, roomId)
+  if (!state) return { state: null, error: 'not_found' }
+  if (state.room.status !== 'lobby') return { state, error: 'not_in_lobby' }
+
+  const mySeat = state.seats.find(s => s.user_id === user.id)
+  if (!mySeat || mySeat.seat_index !== state.room.host_seat) return { state, error: 'not_host' }
+  if (seatIndex === state.room.host_seat) return { state, error: 'cannot_kick_host' }
+
+  await admin.from('tlmn_seats').delete().eq('room_id', roomId).eq('seat_index', seatIndex)
+  return { state: await readState(admin, roomId) }
+}
+
+// ── pruneStaleLobbySeats ───────────────────────────────────────────────────────────
+// Free lobby seats whose human occupant has stopped heart-beating (closed tab) so the
+// slot reopens for everyone in realtime. There is no long-lived server, so this is
+// NUDGED by any still-connected client on its heartbeat tick (the same pattern as the
+// timeout reaper / bot driver); the caller is by definition fresh, so it never prunes
+// itself. Lobby-only — a seat in a live round is handed to a bot (leaveSeat/timeout),
+// never deleted. Bots and seats that have not heart-beaten yet are left alone. Migrates
+// the host and tears down a room left with no humans, exactly like leaveSeat.
+export async function pruneStaleLobbySeats(roomId: string): Promise<void> {
+  const admin = createAdminClient()
+  const { data: room } = await admin
+    .from('tlmn_rooms').select('host_seat, status').eq('id', roomId).maybeSingle()
+  if (!room || room.status !== 'lobby') return
+
+  const { data: seats } = await admin
+    .from('tlmn_seats').select('id, seat_index, user_id, is_bot, last_seen').eq('room_id', roomId)
+  const rows = (seats ?? []) as Array<{
+    id: string; seat_index: number; user_id: string | null; is_bot: boolean; last_seen: string | null
+  }>
+
+  const cutoff = Date.now() - LOBBY_SEAT_STALE_MS
+  const stale = rows.filter(s =>
+    s.user_id && !s.is_bot && s.last_seen != null && new Date(s.last_seen).getTime() < cutoff,
+  )
+  if (stale.length === 0) return
+
+  for (const s of stale) await admin.from('tlmn_seats').delete().eq('id', s.id)
+
+  const { data: remaining } = await admin
+    .from('tlmn_seats').select('seat_index, user_id, is_bot, bot_takeover')
+    .eq('room_id', roomId).order('seat_index', { ascending: true })
+  const left = (remaining ?? []) as Array<{
+    seat_index: number; user_id: string | null; is_bot: boolean; bot_takeover: boolean
+  }>
+
+  // No humans left (empty, or only orphaned bots) → tear the lobby down.
+  if (left.length === 0 || left.every(r => !r.user_id || r.is_bot)) {
+    await admin.from('tlmn_rooms').delete().eq('id', roomId)
+    return
+  }
+
+  // Host fell away → migrate to the lowest present human, else the lowest seat.
+  if (stale.some(s => s.seat_index === room.host_seat)) {
+    const human = left.find(r => r.user_id && !r.bot_takeover)
+    const target = (human ?? left[0]).seat_index
+    await admin.from('tlmn_rooms').update({ host_seat: target }).eq('id', roomId)
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════

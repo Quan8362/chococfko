@@ -236,34 +236,38 @@ body::before {
    SCOPED THEME: every red/gold token below lives only under .tlmn-stage, so the rest
    of chococfko stays magenta/cream. Global brand tokens are never touched. */
 .tlmn-stage {
-  /* Warm-gold accent palette (Run 6) — accents/banners only, never a solid slab. */
+  /* Warm-gold accent palette — accents/banners only, never a solid slab. Tuned to the
+     board art's gold filigree + mahogany rail (Run 6.3). */
   --tg-gold: #e3b23c;
   --tg-gold-deep: #b8860b;
   --tg-gold-bright: #f6d989;
   --tg-cream: #f7eccf;
-  --tg-rail-dark: #3a1208;
-  /* The room around the table: a dark vignette so the felt reads as a lit object. */
+  --tg-rail-dark: #2c1108;       /* mahogany — matches the board's wood rail */
+  --tg-felt: #1f5638;            /* green felt mid-tone (board harmony) */
+  --tg-felt-deep: #123620;
+  /* The room around the table: a dark GREEN-charcoal vignette so the green felt reads
+     as a lit object and any letterboxing around the board image looks deliberate. */
   background:
-    radial-gradient(ellipse 120% 120% at 50% 35%, #2a0710 0%, #1a040a 55%, #0c0205 100%);
+    radial-gradient(ellipse 120% 120% at 50% 35%, #16271d 0%, #0d160f 55%, #060b08 100%);
   border-radius: 18px;
 }
-/* Deep-red OVAL felt: bright crimson centre → dark maroon rim, with a raised GOLD
-   rail (outer gold/cream hairline + inner dark bevel), soft inner shadow + a faint
-   weave texture. The watermark + texture ride on ::before so the felt face stays clean. */
+/* Deep-GREEN OVAL felt (portrait fallback) — bright green centre → dark green rim, with
+   a raised mahogany+GOLD rail, soft inner shadow + a faint weave texture. Re-tuned to
+   harmonize with the board image (Run 6.3). The watermark + texture ride on ::before. */
 .tlmn-felt {
   border-radius: 9999px / 46%;
   background:
-    radial-gradient(ellipse 76% 72% at 50% 42%, #a8142a 0%, #8a1024 38%, #6a0c1c 66%, #5a0a18 100%);
-  /* The gold rail: a stack of rings — dark bevel, bright gold hairline, cream sheen,
-     dark outer edge — reading as a polished raised table border. */
+    radial-gradient(ellipse 76% 72% at 50% 42%, #2c6e49 0%, #1f5638 40%, #164027 70%, #103119 100%);
+  /* The rail: a stack of rings — dark bevel, mahogany, bright gold hairline, cream
+     sheen, dark wood edge — reading as a polished raised table border. */
   box-shadow:
-    inset 0 0 0 3px rgba(0,0,0,0.35),
-    inset 0 0 0 5px var(--tg-gold-deep),
-    inset 0 0 0 8px var(--tg-gold),
-    inset 0 0 0 10px var(--tg-gold-bright),
-    inset 0 0 0 13px var(--tg-rail-dark),
+    inset 0 0 0 3px rgba(0,0,0,0.4),
+    inset 0 0 0 6px #5a2d18,
+    inset 0 0 0 9px var(--tg-gold-deep),
+    inset 0 0 0 11px var(--tg-gold-bright),
+    inset 0 0 0 15px var(--tg-rail-dark),
     inset 0 6px 38px rgba(0,0,0,0.5),
-    inset 0 0 90px rgba(120,8,30,0.4),
+    inset 0 0 90px rgba(8,40,24,0.5),
     0 18px 50px -12px rgba(0,0,0,0.7),
     0 0 0 2px rgba(0,0,0,0.4);
   border: none;
@@ -292,6 +296,56 @@ body::before {
     radial-gradient(circle at 50% 50%, transparent 38%, rgba(247,236,207,0.9) 39% 41%, transparent 42%),
     radial-gradient(circle at 50% 50%, transparent 26%, rgba(247,236,207,0.9) 27% 29%, transparent 30%);
 }
+
+/* ── Custom board-image surface (Run 6.3) ─────────────────────────────────────────
+   The painted WebP board is the felt for desktop / landscape / fullscreen. The element
+   is sized in JS to the image's EXACT 1672×941 ratio (no distortion), so every % anchor
+   on top lands precisely on the painted seat slots. A soft drop shadow + ring make it
+   read as a lit object floating on the green-charcoal vignette. The art is swappable —
+   see the NOTE + BOARD_SRC in TlmnTable.tsx; the oval .tlmn-felt remains the fallback. */
+.tlmn-board--image {
+  border-radius: 16px;
+  box-shadow:
+    0 26px 70px -20px rgba(0,0,0,0.85),
+    0 0 0 1px rgba(0,0,0,0.5),
+    0 0 0 2px rgba(246,217,137,0.12);
+}
+.tlmn-board--image > img { border-radius: 16px; }
+/* Faint radial scrim under the centre pile + combo banner, just enough to keep cards /
+   text crisp over the board's centre medallion. Subtle — never a hard plate. Sits where
+   the pile sits per mode (lower on desktop/tablet, higher on short-landscape phones). */
+.tlmn-center-scrim {
+  position: absolute;
+  left: 50%; top: 43%;
+  width: 42%; aspect-ratio: 1.5;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  border-radius: 9999px;
+  background: radial-gradient(ellipse at center, rgba(4,12,8,0.55) 0%, rgba(4,12,8,0.30) 46%, transparent 72%);
+}
+@media (max-height: 519px) {
+  .tlmn-center-scrim { top: 30%; }
+}
+/* Compact hand-dock for short-landscape phones (board-image mode): trim the vertical
+   footprint so the dock overlay never swallows the centre pile or top seat. */
+.tlmn-dock-compact { padding-top: 0; }
+.tlmn-dock-compact .tlmn-tray { padding-top: 16px; padding-bottom: 6px; }
+.tlmn-dock-compact .tlmn-dock-decision { display: none; }
+.tlmn-dock-compact .tlmn-action-row > button { padding-top: 8px; padding-bottom: 8px; }
+.tlmn-dock-compact .tlmn-action-row { margin-top: 6px; }
+.tlmn-dock-compact .tlmn-hide-compact { display: none; }
+.tlmn-dock-compact .tlmn-tray { margin-top: 2px; }
+/* Bottom-up scrim behind the hand-dock overlay (image mode) so the cream tray + buttons
+   separate cleanly from the felt without a hard edge. */
+.tlmn-dock-scrim {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 62%;
+  pointer-events: none;
+  border-radius: 0 0 16px 16px;
+  background: linear-gradient(180deg, transparent 0%, rgba(6,15,10,0.18) 40%, rgba(5,12,8,0.62) 100%);
+}
+
 /* Minimal dark chrome buttons (close / menu / sound / leave). */
 .tlmn-chrome {
   display: inline-flex; align-items: center; justify-content: center;
@@ -391,7 +445,7 @@ body::before {
   height: 100dvh;
   left: 0;
   transform: none;          /* neutralise the full-bleed -translate-x-1/2 breakout */
-  background: #160309;
+  background: #0b1410;
 }
 .tlmn-fs-root.pseudo-fullscreen {
   position: fixed;
@@ -401,7 +455,7 @@ body::before {
   left: 0;
   transform: none;
   z-index: 200;             /* above the sticky nav (z-[100]) so it reads as fullscreen */
-  background: #160309;
+  background: #0b1410;
   /* NOTE (pseudo mode = iOS Safari / iPad): we CANNOT hide the OS status bar or force
      rotation here — only a real Fullscreen API could, and iOS exposes none for non-
      video elements. The container fills 100dvh UNDER the status bar, which stays

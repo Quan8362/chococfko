@@ -311,6 +311,86 @@ body::before {
     0 0 0 2px rgba(246,217,137,0.12);
 }
 .tlmn-board--image > img { border-radius: 16px; }
+
+/* ── Full-bleed table surface (mobile/tablet — Approach A) ─────────────────────────
+   Below the desktop breakpoint the table is NOT the fixed 16:9 board image; it is a
+   responsive felt that fills the whole stage edge-to-edge. No green letterbox, no
+   vignette surround — the entire screen IS the felt. Colours are sampled from
+   tien-len-game-board-bg.webp (felt bright #3a7951 → #2c6e49 → #1f5638 → rim #123620;
+   gold #f6d989/#e3b23c; mahogany rail #5a2d18/#2c1108) so it matches the desktop art.
+   The felt bleeds behind the safe-area; the rail + content are inset from it. */
+.tlmn-stage--bleed {
+  border-radius: 0;
+  background:
+    radial-gradient(ellipse 96% 82% at 50% 42%, #3a7951 0%, #2c6e49 32%, #1f5638 62%, #123620 100%);
+}
+/* In native + pseudo fullscreen keep the felt square to the corners (no radius). */
+.tlmn-fs-root:fullscreen > .tlmn-stage--bleed,
+.tlmn-fs-root:-webkit-full-screen > .tlmn-stage--bleed,
+.tlmn-fs-root.pseudo-fullscreen > .tlmn-stage--bleed { border-radius: 0; }
+
+/* Faint damask weave + a centre medallion (the brand suit mark), echoing the board's
+   painted felt. Rides on its own absolute layer so it bleeds to the physical edges. */
+.tlmn-bleed-felt-tex {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image: radial-gradient(circle, rgba(247,236,207,0.05) 0.5px, transparent 0.6px);
+  background-size: 7px 7px;
+  opacity: 0.5;
+}
+.tlmn-bleed-felt-tex::after {
+  content: "";
+  position: absolute;
+  left: 50%; top: 44%;
+  width: min(38vh, 34vw); aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  opacity: 0.05;
+  background:
+    radial-gradient(circle at 50% 50%, transparent 38%, rgba(247,236,207,0.9) 39% 41%, transparent 42%),
+    radial-gradient(circle at 50% 50%, transparent 26%, rgba(247,236,207,0.9) 27% 29%, transparent 30%);
+}
+
+/* The screen-hugging rail: a rounded rectangle frame inset from the edges by the
+   safe-area, so it sits just inside the notch / home indicator while the felt behind it
+   still bleeds to the physical edge. A stack of inset rings reads as a polished raised
+   table border (dark bevel → mahogany → gold hairline → cream sheen → inner shadow). */
+.tlmn-bleed-rail {
+  position: absolute;
+  inset:
+    max(7px, env(safe-area-inset-top))
+    max(7px, env(safe-area-inset-right))
+    max(7px, env(safe-area-inset-bottom))
+    max(7px, env(safe-area-inset-left));
+  border-radius: 28px;
+  pointer-events: none;
+  z-index: 0;
+  box-shadow:
+    inset 0 0 0 2px rgba(0,0,0,0.35),
+    inset 0 0 0 5px #5a2d18,
+    inset 0 0 0 7px var(--tg-gold-deep),
+    inset 0 0 0 8px var(--tg-gold-bright),
+    inset 0 0 0 11px var(--tg-rail-dark),
+    inset 0 6px 34px rgba(0,0,0,0.42),
+    inset 0 0 90px rgba(8,40,24,0.4),
+    inset 0 -4px 30px rgba(0,0,0,0.3);
+}
+/* Gold corner ornaments hugging the rail corners (flipped per corner). */
+.tlmn-bleed-corner {
+  position: absolute;
+  z-index: 0;
+  width: clamp(34px, 7.5vmin, 60px);
+  aspect-ratio: 1;
+  color: var(--tg-gold-bright);
+  opacity: 0.9;
+  pointer-events: none;
+}
+.tlmn-bleed-corner svg { width: 100%; height: 100%; display: block; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.45)); }
+.tlmn-bleed-corner--tl { top: max(11px, calc(env(safe-area-inset-top) + 5px));    left:  max(11px, calc(env(safe-area-inset-left) + 5px)); }
+.tlmn-bleed-corner--tr { top: max(11px, calc(env(safe-area-inset-top) + 5px));    right: max(11px, calc(env(safe-area-inset-right) + 5px)); transform: scaleX(-1); }
+.tlmn-bleed-corner--bl { bottom: max(11px, calc(env(safe-area-inset-bottom) + 5px)); left:  max(11px, calc(env(safe-area-inset-left) + 5px)); transform: scaleY(-1); }
+.tlmn-bleed-corner--br { bottom: max(11px, calc(env(safe-area-inset-bottom) + 5px)); right: max(11px, calc(env(safe-area-inset-right) + 5px)); transform: scale(-1, -1); }
 /* Faint radial scrim under the centre pile + combo banner, just enough to keep cards /
    text crisp over the board's centre medallion. Subtle — never a hard plate. Sits where
    the pile sits per mode (lower on desktop/tablet, higher on short-landscape phones). */

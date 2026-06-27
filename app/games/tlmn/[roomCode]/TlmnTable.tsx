@@ -134,10 +134,16 @@ const SLOT_POS: Record<string, string> = {
 // Anchors tuned to the BOARD IMAGE's painted seat slots (top / left / right panels). The
 // real elements win over the art, but these land them inside the painted recesses. The
 // bottom slot is the human's dock overlay, so it's only used for a spectator's 4th seat.
+// Anchors tuned so the side AVATARS land exactly on the board's painted LOTUS seat-markers
+// (measured lotus centres: L 8.6%/51%, R 91.4%/51% of the image). The seat is a [cluster][fan]
+// row centred on the anchor, so the avatar sits inboard of the anchor by ~half (gap+fan) and
+// up by ~half the plate; the anchor compensates (seat-centre L 10.18%/53%, R 89.82%/53%) so the
+// AVATAR's centre — not the whole cluster — falls on the lotus. Verified end-to-end on the real
+// board art at 1440 (avatar centre within 0.01% of each lotus centre).
 const SLOT_POS_IMAGE: Record<string, string> = {
   top: 'top-[8%] left-1/2 -translate-x-1/2',
-  left: 'top-[47%] left-[7.5%] -translate-x-1/2 -translate-y-1/2',
-  right: 'top-[47%] right-[7.5%] translate-x-1/2 -translate-y-1/2',
+  left: 'top-[53%] left-[10.18%] -translate-x-1/2 -translate-y-1/2',
+  right: 'top-[53%] right-[10.18%] translate-x-1/2 -translate-y-1/2',
   bottom: 'bottom-[18%] left-1/2 -translate-x-1/2',
 }
 // Short-landscape phones (vh < 520): the dock overlay eats the lower half, so the seats +
@@ -147,6 +153,23 @@ const SLOT_POS_IMAGE_SHORT: Record<string, string> = {
   left: 'top-[30%] left-[6.5%] -translate-x-1/2 -translate-y-1/2',
   right: 'top-[30%] right-[6.5%] translate-x-1/2 -translate-y-1/2',
   bottom: 'bottom-[26%] left-1/2 -translate-x-1/2',
+}
+// Full-bleed (mobile/tablet, Approach A): the felt fills the whole screen, so the seats are
+// pulled to the screen edges/corners with clear gaps. Resolved against the safe-area-padded
+// content box, so these % land cleanly INSIDE the rail (never under the notch).
+const SLOT_POS_BLEED: Record<string, string> = {
+  top: 'top-[6%] left-1/2 -translate-x-1/2',
+  left: 'top-[40%] left-[3%] -translate-y-1/2',
+  right: 'top-[40%] right-[3%] -translate-y-1/2',
+  bottom: 'bottom-[3%] left-1/2 -translate-x-1/2',
+}
+// Full-bleed short-landscape phones: the hand dock eats the lower band, so cluster the
+// seats high (mirrors SLOT_POS_IMAGE_SHORT, tuned for the edge-to-edge felt).
+const SLOT_POS_BLEED_SHORT: Record<string, string> = {
+  top: 'top-[5%] left-1/2 -translate-x-1/2',
+  left: 'top-[26%] left-[2%] -translate-y-1/2',
+  right: 'top-[26%] right-[2%] -translate-y-1/2',
+  bottom: 'bottom-[30%] left-1/2 -translate-x-1/2',
 }
 
 export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, onLeave }: Props) {
@@ -593,6 +616,11 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
   // the board's green palette. The fixed-ratio image can't fit portrait, so this is the
   // one real limitation (Feature 7) — the rotate hint + fullscreen nudge it to landscape.
   const portrait = vh > vw * 1.05
+  // Mobile + tablet (< desktop breakpoint) ⇒ full-bleed responsive felt (Approach A): the
+  // table fills the whole stage edge-to-edge — no 16:9 letterbox, no vignette surround.
+  // Desktop (≥1024) keeps the framed board image + green surround exactly as before. The
+  // vw>0 guard keeps the SSR/first-paint default (1024) on the desktop path until measured.
+  const fullBleed = vw > 0 && vw < 1024
   const useImage = !portrait
   // Fit the board to the live play area at the image's exact ratio (no distortion). The
   // area starts at 0 before the ResizeObserver fires; a viewport-based default keeps the
@@ -758,15 +786,23 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
   // deal-cascade dimensions, and the centre block's vertical band change per mode. In
   // image mode the hand-dock overlays the board's bottom, so the centre sits in the
   // upper band (clear of the dock); in oval mode the dock is a flow bar below the felt.
-  const compactDock = useImage && shortVp
-  const anchors = !useImage ? SLOT_POS : shortVp ? SLOT_POS_IMAGE_SHORT : SLOT_POS_IMAGE
-  const dealW = useImage ? board.w : feltW
-  const dealH = useImage ? board.h : tableH
-  const centerWrapClass = !useImage
-    ? 'absolute inset-0 flex items-center justify-center px-4 pointer-events-none'
-    : shortVp
-      ? 'absolute left-0 right-0 top-[4%] bottom-[48%] flex items-center justify-center px-4 pointer-events-none'
-      : 'absolute left-0 right-0 top-[14%] bottom-[27%] flex items-center justify-center px-4 pointer-events-none'
+  const compactDock = (fullBleed || useImage) && shortVp
+  const anchors = fullBleed
+    ? (shortVp ? SLOT_POS_BLEED_SHORT : SLOT_POS_BLEED)
+    : !useImage ? SLOT_POS : shortVp ? SLOT_POS_IMAGE_SHORT : SLOT_POS_IMAGE
+  const dealW = fullBleed ? (area.w || vw) : useImage ? board.w : feltW
+  const dealH = fullBleed ? (area.h || vh) : useImage ? board.h : tableH
+  const centerWrapClass = fullBleed
+    ? (shortVp
+        // Short-landscape phones: little vertical room, so the centre sits in the lower-
+        // middle band — clearly BELOW the top seat and ABOVE the bottom hand dock.
+        ? 'absolute left-0 right-0 top-[28%] bottom-[34%] flex items-center justify-center px-3 pointer-events-none'
+        : 'absolute left-0 right-0 top-[8%] bottom-[35%] flex items-center justify-center px-4 pointer-events-none')
+    : !useImage
+      ? 'absolute inset-0 flex items-center justify-center px-4 pointer-events-none'
+      : shortVp
+        ? 'absolute left-0 right-0 top-[4%] bottom-[48%] flex items-center justify-center px-4 pointer-events-none'
+        : 'absolute left-0 right-0 top-[14%] bottom-[27%] flex items-center justify-center px-4 pointer-events-none'
   const boardEntrance = reduced ? false : { opacity: 0, scale: 0.975 }
   const boardTransition = reduced ? { duration: 0 } : { duration: DURATIONS.SETTLE, ease: EASINGS.settle }
 
@@ -939,9 +975,14 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
 
       {mySeat != null && playing && !myFinished && (
         <div className={`tlmn-dock-safe relative z-20 px-3 sm:px-6 pt-1 ${compactDock ? 'tlmn-dock-compact' : ''}`} aria-busy={busy} style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}>
-          {/* Human seat (bottom-left) + sort pill */}
-          <div className="flex items-end justify-between gap-2 mb-1.5 max-w-[760px] mx-auto">
-            <div className="flex items-center gap-2.5">
+          {/* Human (bottom-seat) info cluster — CENTERED at the bottom of the table, just
+              above the hand. Flanking flex-1 zones keep the cluster horizontally centred on
+              the stage so it never drifts left into Bot 3 / the pile / the combo banner; the
+              Sắp xếp pill lives in the right zone (so it can't pull the cluster off-centre or
+              overlap it). Consistent across desktop / tablet / mobile / fullscreen. */}
+          <div className="flex items-center gap-2 mb-1.5 max-w-[760px] mx-auto">
+            <div className="flex-1 min-w-0" aria-hidden />
+            <div className="flex items-center gap-2.5 min-w-0">
               <span className={`relative inline-flex rounded-full p-[3px] tlmn-frame-gold ${isMyTurn && !reduced ? 'tlmn-frame-active' : ''}`}>
                 <PodAvatar name={seatName(mySeat)} url={seatOf(mySeat)?.avatar_url ?? null} size={compactDock ? 34 : vw < 560 ? 38 : 46} />
                 {isMyTurn && secondsLeft != null && (
@@ -969,13 +1010,15 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
                 )}
               </div>
             </div>
-            <button
-              type="button"
-              onClick={() => setSortMode(m => (m === 'rank' ? 'suit' : 'rank'))}
-              className="tlmn-btn-gold flex-none text-[12px] font-black uppercase tracking-wide rounded-full px-3.5 py-1.5 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
-            >
-              ↕ {t('sort_btn')}
-            </button>
+            <div className="flex-1 min-w-0 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setSortMode(m => (m === 'rank' ? 'suit' : 'rank'))}
+                className="tlmn-btn-gold flex-none text-[12px] font-black uppercase tracking-wide rounded-full px-3.5 py-1.5 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+              >
+                ↕ {t('sort_btn')}
+              </button>
+            </div>
           </div>
 
           {/* Cream hand tray with the fanned cards. Extra top room so the arced middle
@@ -1135,8 +1178,20 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
     <div ref={fs.rootRef} className="tlmn-fs-root relative w-screen left-1/2 -translate-x-1/2">
       <div
         key={shakeKey}
-        className={`tlmn-stage relative flex flex-col min-h-[86vh] overflow-hidden ${shakeKey ? 'tlmn-shake' : ''}`}
+        className={`tlmn-stage relative flex flex-col min-h-[86vh] overflow-hidden ${fullBleed ? 'tlmn-stage--bleed' : ''} ${shakeKey ? 'tlmn-shake' : ''}`}
       >
+        {/* Full-bleed table surface (mobile/tablet, Approach A). The felt colour fills the
+            whole stage via .tlmn-stage--bleed (bleeding behind the safe-area); these layers
+            add the damask/medallion texture + a screen-hugging mahogany/gold rail + gold
+            corner flourishes, scaling to ANY aspect ratio. z-0 → below chrome + content. */}
+        {fullBleed && (
+          <>
+            <div className="tlmn-bleed-felt-tex" aria-hidden />
+            <div className="tlmn-bleed-rail" aria-hidden />
+            <BleedCorners />
+          </>
+        )}
+
         {/* Polite ARIA live region — localized play / pass / turn-change narration. */}
         <div role="status" aria-live="polite" aria-atomic="true" aria-label={t('a11y_region_label')} className="sr-only">
           {liveMsg}
@@ -1213,7 +1268,31 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
             Run 6.3: landscape/desktop/fullscreen use the painted WebP board; portrait
             falls back to the scalable oval felt. Same seats/center/FX layer (boardContents)
             renders over either surface — the image is just the backdrop. */}
-        {useImage ? (
+        {fullBleed ? (
+          // Mobile/tablet full-bleed: the felt + rail already fill the stage (above); this
+          // region just hosts the seats/centre/FX + the hand dock. The content box is
+          // inset by the safe-area (top/sides) so nothing hides under the notch, while the
+          // felt itself still bleeds to the physical edges. The padded box is the positioned
+          // ancestor, so every % anchor + the centre band resolve INSIDE the rail.
+          <div ref={areaRef} className="relative flex-1 min-h-0">
+            <div
+              className="absolute inset-0"
+              style={{
+                paddingTop: 'env(safe-area-inset-top)',
+                paddingLeft: 'env(safe-area-inset-left)',
+                paddingRight: 'env(safe-area-inset-right)',
+              }}
+            >
+              {boardContents}
+              {/* Hand-dock overlay anchored to the felt's bottom edge (bottom safe-area is
+                  handled inside the dock itself, so it isn't double-padded here). */}
+              <div className="absolute inset-x-0 bottom-0 z-20">
+                <div className="tlmn-dock-scrim" aria-hidden />
+                <div className="relative">{bottomContent}</div>
+              </div>
+            </div>
+          </div>
+        ) : useImage ? (
           <div ref={areaRef} className="relative flex-1 flex items-center justify-center min-h-0 px-2 sm:px-4 py-2 overflow-hidden">
             <motion.div
               className="tlmn-board--image relative"
@@ -1256,9 +1335,9 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
           </div>
         )}
 
-        {/* Bottom content — image mode renders it as the board's bottom overlay
+        {/* Bottom content — image + full-bleed modes render it as a bottom overlay
             (above); oval mode renders it here in flow below the felt. */}
-        {!useImage && bottomContent}
+        {!fullBleed && !useImage && bottomContent}
 
         {/* ── Run 5/8: portrait rotate prompt (active game only) ───────────────
             PORTALLED TO <body>: rendered as a position:fixed top layer OUTSIDE the
@@ -1314,6 +1393,29 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
         )}
       </div>
     </div>
+  )
+}
+
+// ── Full-bleed rail corner flourishes (Approach A) ──────────────────────────────────
+// Four gold corner ornaments that hug the screen-hugging rail, echoing the board art's
+// painted gold filigree. One base SVG (top-left shape) flipped per corner via CSS, so it
+// scales to any aspect ratio. Purely decorative (aria-hidden, pointer-events:none).
+function BleedCorners() {
+  const corner = (
+    <svg viewBox="0 0 64 64" fill="none" aria-hidden>
+      <path d="M5 32 Q5 5 32 5" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
+      <path d="M12 32 Q12 12 32 12" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" opacity="0.65" />
+      <path d="M17 19 q6 -2 8.5 -8.5 q2.5 6.5 8.5 8.5 q-6 2 -8.5 8.5 q-2.5 -6.5 -8.5 -8.5 z" fill="currentColor" opacity="0.5" />
+      <circle cx="32" cy="32" r="1.5" fill="currentColor" />
+    </svg>
+  )
+  return (
+    <>
+      <span className="tlmn-bleed-corner tlmn-bleed-corner--tl" aria-hidden>{corner}</span>
+      <span className="tlmn-bleed-corner tlmn-bleed-corner--tr" aria-hidden>{corner}</span>
+      <span className="tlmn-bleed-corner tlmn-bleed-corner--bl" aria-hidden>{corner}</span>
+      <span className="tlmn-bleed-corner tlmn-bleed-corner--br" aria-hidden>{corner}</span>
+    </>
   )
 }
 

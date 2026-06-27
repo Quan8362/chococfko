@@ -134,16 +134,14 @@ const SLOT_POS: Record<string, string> = {
 // Anchors tuned to the BOARD IMAGE's painted seat slots (top / left / right panels). The
 // real elements win over the art, but these land them inside the painted recesses. The
 // bottom slot is the human's dock overlay, so it's only used for a spectator's 4th seat.
-// Anchors tuned so the side AVATARS land exactly on the board's painted LOTUS seat-markers
-// (measured lotus centres: L 8.6%/51%, R 91.4%/51% of the image). The seat is a [cluster][fan]
-// row centred on the anchor, so the avatar sits inboard of the anchor by ~half (gap+fan) and
-// up by ~half the plate; the anchor compensates (seat-centre L 10.18%/53%, R 89.82%/53%) so the
-// AVATAR's centre — not the whole cluster — falls on the lotus. Verified end-to-end on the real
-// board art at 1440 (avatar centre within 0.01% of each lotus centre).
+// The side seats now anchor on the AVATAR's own centre (SeatPod's left/right layout shrink-
+// wraps the avatar; the fan + plate hang off it absolutely), so translate(-50%,-50%) drops
+// the avatar's MIDDLE straight onto the painted LOTUS seat-marker — board-size-independent
+// (no fan/plate drift). Measured lotus centres on the art: L 8%/49%, R 92%/49%.
 const SLOT_POS_IMAGE: Record<string, string> = {
   top: 'top-[8%] left-1/2 -translate-x-1/2',
-  left: 'top-[53%] left-[10.18%] -translate-x-1/2 -translate-y-1/2',
-  right: 'top-[53%] right-[10.18%] translate-x-1/2 -translate-y-1/2',
+  left: 'top-[49%] left-[8%] -translate-x-1/2 -translate-y-1/2',
+  right: 'top-[49%] right-[8%] translate-x-1/2 -translate-y-1/2',
   bottom: 'bottom-[18%] left-1/2 -translate-x-1/2',
 }
 // Short-landscape phones (vh < 520): the dock overlay eats the lower half, so the seats +
@@ -975,14 +973,16 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
 
       {mySeat != null && playing && !myFinished && (
         <div className={`tlmn-dock-safe relative z-20 px-3 sm:px-6 pt-1 ${compactDock ? 'tlmn-dock-compact' : ''}`} aria-busy={busy} style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}>
-          {/* Human (bottom-seat) info cluster — CENTERED at the bottom of the table, just
-              above the hand. Flanking flex-1 zones keep the cluster horizontally centred on
-              the stage so it never drifts left into Bot 3 / the pile / the combo banner; the
-              Sắp xếp pill lives in the right zone (so it can't pull the cluster off-centre or
-              overlap it). Consistent across desktop / tablet / mobile / fullscreen. */}
-          <div className="flex items-center gap-2 mb-1.5 max-w-[760px] mx-auto">
+          {/* Human (bottom-seat) info cluster — a slim bar pinned LOW, hugging the top of the
+              hand fan (a small negative margin tucks it over the tray's empty top so it reads as
+              part of the bottom dock, NOT floating up in the centre play area). Flanking flex-1
+              zones keep it horizontally centred so it never drifts left into Bot 3 / the pile /
+              the combo banner; the Sắp xếp pill lives in the right zone. The z-[2] keeps the bar
+              above the tray as they overlap. Consistent across desktop / tablet / mobile /
+              fullscreen. */}
+          <div className="relative z-[2] flex items-end gap-2 -mb-4 max-w-[760px] mx-auto">
             <div className="flex-1 min-w-0" aria-hidden />
-            <div className="flex items-center gap-2.5 min-w-0">
+            <div className="flex items-center gap-2.5 min-w-0 rounded-[22px] bg-black/40 py-1 pl-1 pr-3 backdrop-blur-[1px]">
               <span className={`relative inline-flex rounded-full p-[3px] tlmn-frame-gold ${isMyTurn && !reduced ? 'tlmn-frame-active' : ''}`}>
                 <PodAvatar name={seatName(mySeat)} url={seatOf(mySeat)?.avatar_url ?? null} size={compactDock ? 34 : vw < 560 ? 38 : 46} />
                 {isMyTurn && secondsLeft != null && (
@@ -1023,7 +1023,7 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
 
           {/* Cream hand tray with the fanned cards. Extra top room so the arced middle
               cards + any selected lift are never clipped. */}
-          <div className="tlmn-tray rounded-xl px-2 sm:px-4 max-w-[760px] mx-auto" style={{ minHeight: Math.round(handW * 1.4) + (compactDock ? 14 : 22) }}>
+          <div className="tlmn-tray relative z-[1] rounded-xl px-2 sm:px-4 max-w-[760px] mx-auto" style={{ minHeight: Math.round(handW * 1.4) + (compactDock ? 14 : 22) }}>
             <div
               key={invalidKey}
               ref={trayRef}
@@ -1463,6 +1463,7 @@ function SeatPod({
       ? `tlmn-frame-gold ${reduced ? '' : 'tlmn-frame-active'}`
       : 'tlmn-frame-gold'
   const fanOrientation: 'top' | 'left' | 'right' = place === 'left' ? 'left' : place === 'right' ? 'right' : 'top'
+  const isSide = place === 'left' || place === 'right'
   // The whole seat is ONE positioned block: avatar/name/count cluster + the hand-fan,
   // arranged so the fan sits toward the table CENTER (below a top seat, to the inner
   // side of left/right). The count badge stays UPRIGHT in the non-rotated cluster.
@@ -1471,8 +1472,12 @@ function SeatPod({
     place === 'right' ? 'flex-row-reverse' :
     place === 'bottom' ? 'flex-col-reverse' : 'flex-col'
 
-  const cluster = (
-    <div className="relative flex flex-col items-center gap-1 flex-none" style={{ width: av + 30 }}>
+  // Avatar + its decorations (gold frame, active/winner ring, turn timer, count badge) as
+  // ONE self-contained unit. For LEFT/RIGHT seats this unit is the geometric centre of the
+  // positioned block, so the wrapper's translate(-50%,-50%) lands the AVATAR's middle — not
+  // the cluster's — on the painted lotus seat-marker, identically at every board size.
+  const avatarUnit = (
+    <span className="relative inline-flex flex-none">
       {isTurn && !isWinner && <span className="absolute left-1/2 -translate-x-1/2 -top-1 rounded-full tlmn-ring pointer-events-none" style={{ width: av + 8, height: av + 8 }} />}
       {isWinner && <span className="absolute left-1/2 -translate-x-1/2 -top-5 text-[18px] tlmn-banner-pop pointer-events-none z-20" aria-hidden>👑</span>}
       <span className={`relative inline-flex rounded-full p-[3px] ${ringCls}`}>
@@ -1492,42 +1497,86 @@ function SeatPod({
           {count}
         </span>
       </span>
-      <span className="max-w-full inline-flex flex-col items-center rounded-xl tlmn-plate px-2.5 py-0.5 leading-tight">
-        <span className="inline-flex items-center gap-1 text-[11.5px] font-semibold text-white/95">
-          {isNhat && <span className="text-gold flex-none">🏆</span>}
-          <span className="truncate max-w-[12ch]">{name}</span>
-        </span>
-        {/* Virtual chips — social-casino style. DISPLAY ONLY, not real money. */}
-        <span className="tlmn-chip-balance inline-flex items-center gap-0.5 text-[10px] font-black tracking-wide">
-          <span aria-hidden className="text-[9px]">🪙</span>{formatChips(chips)}
-        </span>
+    </span>
+  )
+
+  const plateUnit = (
+    <span className="max-w-full inline-flex flex-col items-center rounded-xl tlmn-plate px-2.5 py-0.5 leading-tight">
+      <span className="inline-flex items-center gap-1 text-[11.5px] font-semibold text-white/95">
+        {isNhat && <span className="text-gold flex-none">🏆</span>}
+        <span className="truncate max-w-[12ch]">{name}</span>
       </span>
-      {(offline || finished) && (
-        <span
-          className={`inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[9px] font-bold ${offline ? 'bg-amber-500/30 text-amber-100' : 'bg-emerald-500/30 text-emerald-100'}`}
-          role="status"
-        >
-          {offline ? `📵 ${t('seat_offline')}` : `✓ ${t('seat_finished')}`}
+      {/* Virtual chips — social-casino style. DISPLAY ONLY, not real money. */}
+      <span className="tlmn-chip-balance inline-flex items-center gap-0.5 text-[10px] font-black tracking-wide">
+        <span aria-hidden className="text-[9px]">🪙</span>{formatChips(chips)}
+      </span>
+    </span>
+  )
+
+  const statusUnit = (offline || finished) ? (
+    <span
+      className={`inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[9px] font-bold ${offline ? 'bg-amber-500/30 text-amber-100' : 'bg-emerald-500/30 text-emerald-100'}`}
+      role="status"
+    >
+      {offline ? `📵 ${t('seat_offline')}` : `✓ ${t('seat_finished')}`}
+    </span>
+  ) : null
+
+  // "đang suy nghĩ…" — a subtle animated 3-dot under the active opponent.
+  const dotsUnit = (isTurn && !passed) ? (
+    <span
+      className="inline-flex items-center gap-[3px] rounded-full bg-black/45 px-2 py-1 pointer-events-none z-20"
+      role="status"
+      aria-label={t('thinking')}
+      title={t('thinking')}
+    >
+      {[0, 1, 2].map(d => (
+        <span key={d} className="tlmn-think-dot w-[3px] h-[3px] rounded-full bg-white/85" style={{ animationDelay: `${d * 180}ms` }} />
+      ))}
+    </span>
+  ) : null
+
+  const lastPlayedUnit = (lastPlayed && lastPlayed.length > 0)
+    ? <SeatLastPlayed cards={lastPlayed} w={lastW} reduced={reduced} />
+    : null
+
+  // ── LEFT / RIGHT seats ─ avatar IS the anchored centroid ──────────────────────────
+  // The root shrink-wraps the avatar unit, so the wrapper's translate(-50%,-50%) centres
+  // the AVATAR on the lotus. The fan hangs to the INNER side (table centre) and the plate /
+  // status / last-played hang BELOW — all absolutely positioned so they never shove the
+  // avatar off the marker, whatever the hand-size or transient state.
+  if (isSide) {
+    return (
+      <div className="relative inline-flex flex-none">
+        {avatarUnit}
+        <span className={`absolute top-1/2 -translate-y-1/2 inline-flex items-center justify-center ${place === 'left' ? 'left-full ml-1.5' : 'right-full mr-1.5'}`}>
+          <OpponentFan count={count} w={backW} orientation={fanOrientation} />
         </span>
+        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 flex flex-col items-center gap-1 w-max">
+          {plateUnit}
+          {statusUnit}
+          {lastPlayedUnit}
+          {dotsUnit}
+        </div>
+        {passed && (
+          <span key={passKey} className="absolute -bottom-2 left-1/2 -translate-x-1/2 tlmn-stamp text-[10px] font-black uppercase text-white bg-rose/90 border border-white/40 rounded-md px-1.5 py-0.5 tracking-wide whitespace-nowrap z-20">
+            {t('passed')}
+          </span>
+        )}
+      </div>
+    )
+  }
+
+  // ── TOP / BOTTOM seats ─ vertical cluster + fan toward the centre ──────────────────
+  const cluster = (
+    <div className="relative flex flex-col items-center gap-1 flex-none" style={{ width: av + 30 }}>
+      {avatarUnit}
+      {plateUnit}
+      {statusUnit}
+      {dotsUnit && (
+        <span className="absolute left-1/2 -translate-x-1/2 -bottom-3">{dotsUnit}</span>
       )}
-      {/* "đang suy nghĩ…" — a subtle animated 3-dot under the active opponent (absolute
-          so it never reflows the compact seat cluster). */}
-      {isTurn && !passed && (
-        <span
-          className="absolute left-1/2 -translate-x-1/2 -bottom-3 inline-flex items-center gap-[3px] rounded-full bg-black/45 px-2 py-1 pointer-events-none z-20"
-          role="status"
-          aria-label={t('thinking')}
-          title={t('thinking')}
-        >
-          {[0, 1, 2].map(d => (
-            <span key={d} className="tlmn-think-dot w-[3px] h-[3px] rounded-full bg-white/85" style={{ animationDelay: `${d * 180}ms` }} />
-          ))}
-        </span>
-      )}
-      {/* Per-seat last-played slot, beside the avatar (small, overlapped). */}
-      {lastPlayed && lastPlayed.length > 0 && (
-        <SeatLastPlayed cards={lastPlayed} w={lastW} reduced={reduced} />
-      )}
+      {lastPlayedUnit}
     </div>
   )
 

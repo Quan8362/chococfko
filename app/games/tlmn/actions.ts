@@ -574,6 +574,14 @@ async function dealAndPersist(
   rules: Rules,
   previousWinner: number | null,
 ): Promise<void> {
+  // A fresh round starts everyone in HUMAN control again: clear any stale AFK takeover
+  // (and miss counter) left over from a previous round/game so a present player is never
+  // auto-piloted from the first turn. Real lobby bots keep is_bot=true and still play; a
+  // genuinely-absent human simply re-triggers takeover after actually timing out.
+  await admin.from('tlmn_seats')
+    .update({ missed_turns: 0, bot_takeover: false })
+    .eq('room_id', roomId)
+
   const round = dealRound({ seats, roundNo, rules, previousWinner })
 
   const { data: game } = await admin

@@ -16,28 +16,44 @@ const SUIT_CODE = ['S', 'C', 'D', 'H'] as const // matches SUITS in engine.ts
 const COURT_INSET = '17.5% 16%'
 
 // ── Suit pips as inline SVG ──────────────────────────────────────────────────────
-// Vector paths (24×24 viewBox) so suits stay razor-crisp at every card size and never
-// fall back to the OS emoji renderer (which turns ♥♦ into coloured glyphs and breaks
-// the brand magenta). Index = suit: ♠ bích, ♣ chuồn, ♦ rô, ♥ cơ.
-const SUIT_PATH = [
-  // ♠ spade
-  'M12 2C8.5 6 3.5 8.5 3.5 13c0 2.49 2.01 4.5 4.5 4.5 1.06 0 2.04-.37 2.81-.98C10.5 18.5 9.5 20 8 21v.6h8V21c-1.5-1-2.5-2.5-2.81-4.48.77.61 1.75.98 2.81.98 2.49 0 4.5-2.01 4.5-4.5C20.5 8.5 15.5 6 12 2z',
-  // ♣ club
-  'M12 2C9.79 2 8 3.79 8 6c0 .73.2 1.41.54 2C6.79 8.13 5.5 9.62 5.5 11.5 5.5 13.71 7.29 15.5 9.5 15.5c.73 0 1.41-.2 2-.54C11.13 16.7 10 18.4 8 19.5v.6h8v-.6c-2-1.1-3.13-2.8-3.5-4.54.59.34 1.27.54 2 .54 2.21 0 4-1.79 4-4 0-1.88-1.29-3.37-3.04-3.5.34-.59.54-1.27.54-2C18.04 3.79 16.25 2 14 2c-.74 0-1.43.2-2.02.56C11.43 2.2 12 2 12 2z',
-  // ♦ diamond
-  'M12 2l8.5 10L12 22 3.5 12 12 2z',
-  // ♥ heart
-  'M12 21s-6.716-4.297-9.428-7.01C.86 12.28.5 10.5.5 9 .5 6.46 2.46 4.5 5 4.5c1.7 0 3.2.9 4 2.26.8-1.36 2.3-2.26 4-2.26 2.54 0 4.5 1.96 4.5 4.5 0 1.5-.36 3.28-2.07 4.99C18.716 16.703 12 21 12 21z',
-] as const
+// Clean, SYMMETRIC playing-card suit shapes authored in a SHARED square 48×48 viewBox
+// and scaled UNIFORMLY (width === height) so hearts/clubs stay round and nothing is
+// stretched. Inline vector (never the OS emoji renderer, which turns ♥♦ into coloured
+// glyphs and breaks the brand red). Solid nonzero-winding fill — no holes / fill-rule
+// tricks / chunky icon bases — so each pip is razor-crisp at the large central pip, the
+// small corner index AND the tiny opponent minis. Index = suit: ♠ bích(0), ♣ chuồn(1),
+// ♦ rô(2), ♥ cơ(3) — matches SUITS in engine.ts.
+const SPADE_PATH =
+  'M24 5C24 5 9 16 9 27 9 32 12 35 16 35 18.5 35 20.5 34 22 32.5 21.5 36 20 39.5 17 42L31 42C28 39.5 26.5 36 26 32.5 27.5 34 29.5 35 32 35 36 35 39 32 39 27 39 16 24 5 24 5Z'
+const DIAMOND_PATH = 'M24 3 41 24 24 45 7 24Z'
+const HEART_PATH =
+  'M24 42C8 30 4 18.5 4 13 4 8 8 6 12 6c4.5 0 8 3 12 8 4-5 7.5-8 12-8 4 0 8 2 8 7 0 5.5-4 17-20 29Z'
 
 const INK = '#1a1a1a'
 // Run 6 — true playing-card red for ♥♦ (casino look), near-black for ♠♣.
 const CARD_RED = '#d32f2f'
 
+// The suit's inner geometry, drawn in the shared 48×48 viewBox. The club is composed of
+// three TRUE circles + a flared stem (all the same solid fill → a clean union with
+// perfectly round lobes) instead of an approximate single path.
+function SuitGlyph({ suit }: { suit: number }) {
+  if (suit === 1) {
+    return (
+      <>
+        <circle cx="24" cy="15" r="8.4" />
+        <circle cx="14.6" cy="27.4" r="8.4" />
+        <circle cx="33.4" cy="27.4" r="8.4" />
+        <path d="M20.4 28C21 33.4 19 38.5 14.5 42L33.5 42C29 38.5 27 33.4 27.6 28Z" />
+      </>
+    )
+  }
+  return <path d={suit === 0 ? SPADE_PATH : suit === 2 ? DIAMOND_PATH : HEART_PATH} />
+}
+
 function SuitPip({ suit, size, color }: { suit: number; size: number; color: string }) {
   return (
-    <svg viewBox="0 0 24 24" width={size} height={size} aria-hidden style={{ display: 'block', fill: color }}>
-      <path d={SUIT_PATH[suit]} />
+    <svg viewBox="0 0 48 48" width={size} height={size} aria-hidden style={{ display: 'block', fill: color }}>
+      <SuitGlyph suit={suit} />
     </svg>
   )
 }
@@ -220,9 +236,9 @@ export function BotAvatar({ seed, size = 46 }: { seed: number; size?: number }) 
       <ellipse cx="24" cy="13" rx="15" ry="8" fill="#ffffff" opacity="0.12" />
       {/* gold inner ring */}
       <circle cx="24" cy="24" r="20.5" fill="none" stroke="rgba(246,217,137,0.5)" strokeWidth="1.2" />
-      {/* bold suit emblem (24×24 path centred + scaled) */}
-      <g transform="translate(24 24.5) scale(0.82) translate(-12 -12)">
-        <path d={SUIT_PATH[th.suit]} fill={th.ink} />
+      {/* bold suit emblem (shared 48×48 glyph, centred + scaled) */}
+      <g transform="translate(24 24) scale(0.62) translate(-24 -24)" fill={th.ink}>
+        <SuitGlyph suit={th.suit} />
       </g>
     </svg>
   )

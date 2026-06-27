@@ -27,6 +27,8 @@ export default function TlmnRoom({ initialState, userId }: Props) {
   const [state, setState] = useState<TlmnRoomState>(initialState)
   const [copied, setCopied] = useState(false)
   const [isPending, startTransition] = useTransition()
+  // Bot add/remove gets its own pending flag so it never dims the Ready/Start buttons.
+  const [isBotPending, startBotTransition] = useTransition()
   const [connState, setConnState] = useState<'connecting' | 'connected' | 'reconnecting'>('connecting')
   const mountedRef = useRef(true)
 
@@ -137,14 +139,14 @@ export default function TlmnRoom({ initialState, userId }: Props) {
   }
 
   const handleAddBot = () => {
-    startTransition(async () => {
+    startBotTransition(async () => {
       const res = await addBot(room.id)
       if (res.state && mountedRef.current) setState(res.state)
     })
   }
 
   const handleRemoveBot = (seatIndex: number) => {
-    startTransition(async () => {
+    startBotTransition(async () => {
       const res = await removeBot(room.id, seatIndex)
       if (res.state && mountedRef.current) setState(res.state)
     })
@@ -258,7 +260,7 @@ export default function TlmnRoom({ initialState, userId }: Props) {
                       <button
                         type="button"
                         onClick={() => handleRemoveBot(seat.seat_index)}
-                        disabled={isPending}
+                        disabled={isBotPending}
                         className="text-[10.5px] font-semibold text-rose hover:text-rose-deep border border-rose/30 rounded-lg px-2 py-0.5 transition-colors disabled:opacity-50"
                       >
                         {t('remove_bot')}
@@ -277,7 +279,7 @@ export default function TlmnRoom({ initialState, userId }: Props) {
                       <button
                         type="button"
                         onClick={handleAddBot}
-                        disabled={isPending}
+                        disabled={isBotPending}
                         className="mt-1 text-[11.5px] font-semibold text-ink hover:text-rose border border-line hover:border-rose/30 rounded-lg px-2.5 py-1 transition-colors disabled:opacity-50"
                       >
                         🤖 {t('add_bot')}

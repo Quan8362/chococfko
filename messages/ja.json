@@ -1988,7 +1988,21 @@
       "penalty_cong": "出せず（コーン）",
       "penalty_thoiheo": "2が残った",
       "penalty_thoibom": "爆弾が残った",
-      "podium_title": "ラウンド結果"
+      "podium_title": "ラウンド結果",
+      "coin_balance_label": "コイン残高",
+      "coin_play_money": "コインは遊び用です。実際のお金には換金できません。",
+      "coin_welcome_toast": "ようこそ！{amount}コインをプレゼントしました。",
+      "coin_daily_toast": "{amount}コインを受け取りました！",
+      "coin_broke_title": "コインがありません",
+      "coin_broke_desc": "テーブルに参加するには最低{min}コインが必要です。デイリーコインを受け取って続けましょう！",
+      "coin_claim_btn": "デイリーコインを受け取る",
+      "coin_next_claim_label": "次の受け取りまで",
+      "error_insufficient_coins": "テーブルに参加するには最低{min}コインが必要です。",
+      "coin_claim_err_not_broke": "まだ十分なコインがあります。",
+      "coin_claim_err_cooldown_active": "まだ受け取り時間ではありません。お待ちください。",
+      "coin_claim_err_no_wallet": "ウォレットが見つかりません。",
+      "coin_claim_err_claim_failed": "受け取りに失敗しました。後でもう一度お試しください。",
+      "coin_claim_err_not_logged_in": "ログインしてください。"
     },
     "chinese_chess": {
       "badge": "🎮 象棋",

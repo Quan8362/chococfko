@@ -11,6 +11,8 @@ import {
   dealRound, applyPlay, applyPass, applyTimeout, cardCounts, type RoundState,
 } from '@/lib/games/tlmn/round'
 import { chooseBotMove } from '@/lib/games/tlmn/bot'
+import { ENTRY_MIN_BALANCE } from '@/lib/game/economy'
+import { ensureWallet } from './wallet'
 
 // ── Types ───────────────────────────────────────────────────────────────────────
 export type TlmnStatus = 'lobby' | 'playing' | 'ended'
@@ -150,6 +152,12 @@ export async function createRoom(): Promise<never> {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
+  // Entry gate: must hold at least ENTRY_MIN_BALANCE to open a table. ensureWallet
+  // also grants the one-time signup bonus on a first-ever visit. If broke, bounce
+  // back to the lobby where the "Hết xu" daily-claim panel takes over.
+  const { balance } = await ensureWallet()
+  if (balance < ENTRY_MIN_BALANCE) redirect('/games/tlmn')
+
   const admin = createAdminClient()
 
   let code = genCode()
@@ -195,6 +203,12 @@ export async function seatIntoRoom(code: string): Promise<SeatResult> {
 
   let error: string | undefined
   if (user) {
+    // Entry gate: a broke player isn't seated (stays a spectator). ensureWallet also
+    // grants the one-time signup bonus on a first-ever visit.
+    const { balance } = await ensureWallet()
+    if (balance < ENTRY_MIN_BALANCE) {
+      return { state: await readState(admin, room.id), error: 'insufficient_coins' }
+    }
     const err = await seatUser(admin, room.id, user.id)
     if (err) error = err
   }
@@ -209,6 +223,10 @@ export async function joinRoomByCode(_prev: ActionResult, formData: FormData): P
 
   const code = ((formData.get('invite_code') as string) ?? '').trim().toUpperCase()
   if (!code) return { error: 'no_code' }
+
+  // Entry gate: must hold at least ENTRY_MIN_BALANCE to join a table.
+  const { balance } = await ensureWallet()
+  if (balance < ENTRY_MIN_BALANCE) return { error: 'insufficient_coins' }
 
   const admin = createAdminClient()
   const { data: room } = await admin
@@ -564,6 +582,39 @@ async function applyScores(admin: Admin, roomId: string, deltas: Record<number, 
   }
 }
 
+// ── Coin settlement (Run 7 — persistent virtual-coin economy) ─────────────────────
+// Persist the authoritative ĐẾM LÁ per-seat deltas as coin deltas for every REAL
+// (authenticated, non-bot) player. This is the ONLY place coins move during play and
+// it runs ONLY from the trusted server round-end path. The actual balance math,
+// clamping, ledger and once-only guard all live in the settle_round SECURITY DEFINER
+// function; idempotency is keyed on (game_code = room_id, round_number) so a reconnect
+// or retry can never double-apply. Bots have no wallet and are skipped. Best-effort:
+// a settlement hiccup must never break gameplay (scores are already applied).
+async function settleRoundCoins(
+  admin: Admin,
+  roomId: string,
+  roundNo: number,
+  deltas: Record<number, number>,
+): Promise<void> {
+  const { data: seats } = await admin
+    .from('tlmn_seats').select('seat_index, user_id, is_bot').eq('room_id', roomId)
+  const results: Array<{ user_id: string; delta: number }> = []
+  for (const s of (seats ?? []) as Array<{ seat_index: number; user_id: string | null; is_bot: boolean }>) {
+    if (!s.user_id || s.is_bot) continue // bots / empty seats have no wallet
+    const d = deltas[s.seat_index]
+    if (!d) continue // skip unaffected (0 / undefined) seats
+    results.push({ user_id: s.user_id, delta: d })
+  }
+  if (results.length === 0) return
+  try {
+    await admin.rpc('settle_round', {
+      p_game_code: roomId, p_round_number: roundNo, p_results: results,
+    })
+  } catch {
+    // Never let a wallet error wedge the round — đếm-lá scores are already persisted.
+  }
+}
+
 // Deal a round and persist the public game row + all secret hands. Used by both the
 // initial Start and "Ván mới". Handles the tới-trắng instant end transparently.
 async function dealAndPersist(
@@ -596,6 +647,7 @@ async function dealAndPersist(
 
   if (round.status === 'ended' && round.deltas) {
     await applyScores(admin, roomId, round.deltas)
+    await settleRoundCoins(admin, roomId, roundNo, round.deltas)
   }
 }
 
@@ -625,6 +677,7 @@ async function commitRound(
   }
   if (round.status === 'ended' && round.deltas) {
     await applyScores(admin, roomId, round.deltas)
+    await settleRoundCoins(admin, roomId, round.roundNo, round.deltas)
   }
   return null
 }
@@ -818,6 +871,10 @@ export async function startNextRound(roomId: string): Promise<ActionResult> {
 
   const mySeat = state.seats.find(s => s.user_id === user.id)
   if (!mySeat || mySeat.seat_index !== state.room.host_seat) return { error: 'not_host' }
+
+  // Entry gate also applies to "Ván mới": the host needs coins to open the next round.
+  const { balance } = await ensureWallet()
+  if (balance < ENTRY_MIN_BALANCE) return { error: 'insufficient_coins' }
 
   const prev = await latestGame(admin, roomId)
   if (!prev) return { error: 'no_game' }

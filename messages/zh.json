@@ -1988,7 +1988,21 @@
       "penalty_cong": "一张未出",
       "penalty_thoiheo": "压二罚分",
       "penalty_thoibom": "压炸罚分",
-      "podium_title": "本局结果"
+      "podium_title": "本局结果",
+      "coin_balance_label": "金币余额",
+      "coin_play_money": "金币仅供娱乐，不能兑换成真实货币。",
+      "coin_welcome_toast": "欢迎！已赠送你 {amount} 金币。",
+      "coin_daily_toast": "你领取了 {amount} 金币！",
+      "coin_broke_title": "金币用完了",
+      "coin_broke_desc": "加入牌桌至少需要 {min} 金币。领取每日金币继续游戏吧！",
+      "coin_claim_btn": "领取每日金币",
+      "coin_next_claim_label": "下次领取还需",
+      "error_insufficient_coins": "加入牌桌至少需要 {min} 金币。",
+      "coin_claim_err_not_broke": "你还有足够的金币可以游戏。",
+      "coin_claim_err_cooldown_active": "还没到领取时间，请稍候。",
+      "coin_claim_err_no_wallet": "未找到钱包。",
+      "coin_claim_err_claim_failed": "领取失败，请稍后再试。",
+      "coin_claim_err_not_logged_in": "请先登录。"
     },
     "chinese_chess": {
       "badge": "🎮 中国象棋",

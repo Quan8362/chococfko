@@ -1988,7 +1988,21 @@
       "penalty_cong": "한 장도 못 냄",
       "penalty_thoiheo": "2 남음",
       "penalty_thoibom": "폭탄 남음",
-      "podium_title": "라운드 결과"
+      "podium_title": "라운드 결과",
+      "coin_balance_label": "코인 잔액",
+      "coin_play_money": "코인은 재미를 위한 것이며 실제 화폐로 교환할 수 없습니다.",
+      "coin_welcome_toast": "환영합니다! {amount} 코인을 드렸어요.",
+      "coin_daily_toast": "{amount} 코인을 받았어요!",
+      "coin_broke_title": "코인이 없어요",
+      "coin_broke_desc": "테이블에 참가하려면 최소 {min} 코인이 필요합니다. 매일 코인을 받아 계속 플레이하세요!",
+      "coin_claim_btn": "매일 코인 받기",
+      "coin_next_claim_label": "다음 받기까지",
+      "error_insufficient_coins": "테이블에 참가하려면 최소 {min} 코인이 필요합니다.",
+      "coin_claim_err_not_broke": "아직 플레이할 코인이 충분합니다.",
+      "coin_claim_err_cooldown_active": "아직 받을 시간이 아닙니다. 잠시 기다려 주세요.",
+      "coin_claim_err_no_wallet": "지갑을 찾을 수 없습니다.",
+      "coin_claim_err_claim_failed": "받기에 실패했습니다. 나중에 다시 시도하세요.",
+      "coin_claim_err_not_logged_in": "로그인해 주세요."
     },
     "chinese_chess": {
       "badge": "🎮 장기",

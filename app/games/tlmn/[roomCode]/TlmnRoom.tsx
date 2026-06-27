@@ -134,11 +134,17 @@ export default function TlmnRoom({ initialState, userId }: Props) {
   }
 
   const handleAddBot = () => {
-    startTransition(async () => { await addBot(room.id); reconcileNow() })
+    startTransition(async () => {
+      const res = await addBot(room.id)
+      if (res.state && mountedRef.current) setState(res.state)
+    })
   }
 
   const handleRemoveBot = (seatIndex: number) => {
-    startTransition(async () => { await removeBot(room.id, seatIndex); reconcileNow() })
+    startTransition(async () => {
+      const res = await removeBot(room.id, seatIndex)
+      if (res.state && mountedRef.current) setState(res.state)
+    })
   }
 
   // ── Render ───────────────────────────────────────────────────────────────────

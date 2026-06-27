@@ -384,18 +384,20 @@ export async function heartbeatRoom(roomId: string): Promise<void> {
 // ── addBot (host only) ─────────────────────────────────────────────────────────────
 // Fill the lowest free seat with a bot (is_bot=true, NULL user_id, always ready).
 // Lobby-only. Idempotent against the UNIQUE(room_id, seat_index) constraint.
-export async function addBot(roomId: string): Promise<ActionResult> {
+// Returns the fresh authoritative state so the caller updates instantly — never
+// relying on a possibly-delayed/missed realtime broadcast for its own action.
+export async function addBot(roomId: string): Promise<SeatResult> {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return { error: 'not_logged_in' }
+  if (!user) return { state: null, error: 'not_logged_in' }
 
   const admin = createAdminClient()
   const state = await readState(admin, roomId)
-  if (!state) return { error: 'not_found' }
-  if (state.room.status !== 'lobby') return { error: 'not_in_lobby' }
+  if (!state) return { state: null, error: 'not_found' }
+  if (state.room.status !== 'lobby') return { state, error: 'not_in_lobby' }
 
   const mySeat = state.seats.find(s => s.user_id === user.id)
-  if (!mySeat || mySeat.seat_index !== state.room.host_seat) return { error: 'not_host' }
+  if (!mySeat || mySeat.seat_index !== state.room.host_seat) return { state, error: 'not_host' }
 
   const taken = new Set(state.seats.map(s => s.seat_index))
   const botCount = state.seats.filter(s => s.is_bot).length
@@ -411,31 +413,31 @@ export async function addBot(roomId: string): Promise<ActionResult> {
       is_bot: true,
       connected: true,
     })
-    if (!error) return null
+    if (!error) return { state: await readState(admin, roomId) }
   }
-  return { error: 'full' }
+  return { state, error: 'full' }
 }
 
 // ── removeBot (host only) ──────────────────────────────────────────────────────────
 // Remove a lobby bot seat (is_bot + NULL user_id). Never touches a human seat nor a
-// human under bot takeover. Lobby-only.
-export async function removeBot(roomId: string, seatIndex: number): Promise<ActionResult> {
+// human under bot takeover. Lobby-only. Returns the fresh authoritative state (see addBot).
+export async function removeBot(roomId: string, seatIndex: number): Promise<SeatResult> {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return { error: 'not_logged_in' }
+  if (!user) return { state: null, error: 'not_logged_in' }
 
   const admin = createAdminClient()
   const state = await readState(admin, roomId)
-  if (!state) return { error: 'not_found' }
-  if (state.room.status !== 'lobby') return { error: 'not_in_lobby' }
+  if (!state) return { state: null, error: 'not_found' }
+  if (state.room.status !== 'lobby') return { state, error: 'not_in_lobby' }
 
   const mySeat = state.seats.find(s => s.user_id === user.id)
-  if (!mySeat || mySeat.seat_index !== state.room.host_seat) return { error: 'not_host' }
+  if (!mySeat || mySeat.seat_index !== state.room.host_seat) return { state, error: 'not_host' }
 
   await admin.from('tlmn_seats')
     .delete()
     .eq('room_id', roomId).eq('seat_index', seatIndex).eq('is_bot', true).is('user_id', null)
-  return null
+  return { state: await readState(admin, roomId) }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════

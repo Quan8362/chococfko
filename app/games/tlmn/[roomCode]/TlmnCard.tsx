@@ -115,7 +115,10 @@ export function CardFace({
               ? 'ring-1 ring-line shadow-[0_0_0_1.5px_rgba(201,154,61,0.55)]'
               : 'ring-1 ring-line shadow-card',
         raised ? '-translate-y-2' : '',
-        dim ? 'opacity-40 grayscale-[45%] contrast-[0.92]' : '',
+        // NOT-PLAYABLE dim: filter ONLY (grayscale + brightness), never opacity. The card
+        // stays fully OPAQUE so the overlapping neighbour in the hand fan can't show
+        // through it — opacity here is what produced the old "doubled/ghosted" card.
+        dim ? 'grayscale-[0.65] brightness-[0.78] saturate-[0.85]' : '',
       ].join(' ')}
       style={{ width: w, height: h, color }}
     >
@@ -186,50 +189,41 @@ export function CardBack({ w = 30, className = '' }: { w?: number; className?: s
   )
 }
 
-// ── Distinct bot avatars (Run 6) ───────────────────────────────────────────────────
-// Original SVG portraits so Bot 1/2/3/4 are visually different (not three identical
-// "B"). Each bot gets a unique hue + a unique accessory (glasses / hat / bowtie /
-// headphones). Deterministic by seed so a bot keeps its face across re-renders.
-// TODO(asset): a designer could replace these with richer illustrated mascots.
-const BOT_HUES = [12, 152, 268, 200] // warm-red, jade, violet, sky
+// ── Distinct bot avatars (Run 6.3) ──────────────────────────────────────────────────
+// Premium, on-theme medallions instead of generic smileys: a jewel-tone gradient disc
+// with a gold inner ring, a soft top sheen, and a single bold SUIT emblem. Each bot gets
+// a distinct hue + suit (garnet ♠ / emerald ♥ / amethyst ♦ / sapphire ♣), so Bot 1/2/3/4
+// are instantly distinguishable and stay consistent across rounds (deterministic by
+// seed = seat index). Vector + lightweight; sits cleanly on the green/red felt under the
+// existing gold frame ring + active glow.
+// TODO(asset): bot avatars can be swapped for commissioned illustrated mascots later.
+const BOT_THEMES = [
+  { c1: '#c0314b', c2: '#6e0f22', suit: 0, ink: '#f6d989' }, // garnet · spade · gold
+  { c1: '#1f8a57', c2: '#0f4a2c', suit: 3, ink: '#ffe1ea' }, // emerald · heart · blush
+  { c1: '#8a4ec0', c2: '#46226b', suit: 2, ink: '#f6d989' }, // amethyst · diamond · gold
+  { c1: '#2a8aa6', c2: '#0e4150', suit: 1, ink: '#eaf6ff' }, // sapphire · club · ice
+] as const
 export function BotAvatar({ seed, size = 46 }: { seed: number; size?: number }) {
-  const i = ((seed % BOT_HUES.length) + BOT_HUES.length) % BOT_HUES.length
-  const hue = BOT_HUES[i]
-  const bg = `hsl(${hue} 55% 42%)`
-  const bgDark = `hsl(${hue} 60% 28%)`
-  const skin = `hsl(${(hue + 30) % 360} 45% 78%)`
+  const i = ((seed % BOT_THEMES.length) + BOT_THEMES.length) % BOT_THEMES.length
+  const th = BOT_THEMES[i]
+  const gid = `bota-${i}`
   return (
     <svg width={size} height={size} viewBox="0 0 48 48" aria-hidden style={{ display: 'block', borderRadius: '9999px' }}>
       <defs>
-        <radialGradient id={`bg-${i}`} cx="50%" cy="35%" r="75%">
-          <stop offset="0%" stopColor={bg} />
-          <stop offset="100%" stopColor={bgDark} />
+        <radialGradient id={gid} cx="50%" cy="30%" r="82%">
+          <stop offset="0%" stopColor={th.c1} />
+          <stop offset="100%" stopColor={th.c2} />
         </radialGradient>
       </defs>
-      <rect width="48" height="48" rx="24" fill={`url(#bg-${i})`} />
-      {/* head + body */}
-      <circle cx="24" cy="20" r="9" fill={skin} />
-      <path d="M10 44c0-8 6.5-13 14-13s14 5 14 13z" fill={skin} opacity="0.95" />
-      {/* eyes */}
-      <circle cx="20.5" cy="19" r="1.5" fill="#23202b" />
-      <circle cx="27.5" cy="19" r="1.5" fill="#23202b" />
-      {/* per-bot accessory */}
-      {i === 0 && /* glasses */ (
-        <g stroke="#23202b" strokeWidth="1.1" fill="none">
-          <circle cx="20.5" cy="19" r="3" /><circle cx="27.5" cy="19" r="3" /><path d="M23.5 19h1" />
-        </g>
-      )}
-      {i === 1 && /* hat */ (
-        <path d="M13 13c0-5 5-8 11-8s11 3 11 8z" fill={bgDark} />
-      )}
-      {i === 2 && /* bowtie */ (
-        <path d="M24 31l-4-2.5v5zM24 31l4-2.5v5z" fill={bgDark} />
-      )}
-      {i === 3 && /* headphones */ (
-        <g fill={bgDark}><path d="M13 20a11 11 0 0122 0" fill="none" stroke={bgDark} strokeWidth="2" /><rect x="11.5" y="19" width="3.5" height="6" rx="1.5" /><rect x="33" y="19" width="3.5" height="6" rx="1.5" /></g>
-      )}
-      {/* smile */}
-      <path d="M21 23.5c1 1.3 5 1.3 6 0" stroke="#23202b" strokeWidth="1.1" fill="none" strokeLinecap="round" />
+      <circle cx="24" cy="24" r="24" fill={`url(#${gid})`} />
+      {/* soft top sheen for depth */}
+      <ellipse cx="24" cy="13" rx="15" ry="8" fill="#ffffff" opacity="0.12" />
+      {/* gold inner ring */}
+      <circle cx="24" cy="24" r="20.5" fill="none" stroke="rgba(246,217,137,0.5)" strokeWidth="1.2" />
+      {/* bold suit emblem (24×24 path centred + scaled) */}
+      <g transform="translate(24 24.5) scale(0.82) translate(-12 -12)">
+        <path d={SUIT_PATH[th.suit]} fill={th.ink} />
+      </g>
     </svg>
   )
 }

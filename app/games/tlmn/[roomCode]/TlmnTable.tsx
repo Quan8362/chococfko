@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import {
@@ -21,6 +22,17 @@ import { useFullscreenLandscape } from '@/hooks/useFullscreenLandscape'
 
 const cardKey = (c: Card) => `${c.rank}-${c.suit}`
 const comboKeys = (cs: Card[]) => cs.map(cardKey)
+
+// ── Custom table-board art (Run 6.3) ────────────────────────────────────────────────
+// NOTE: the painted felt surface used for desktop / landscape / fullscreen. It is the
+// ONLY place the asset path lives — swap this one constant to replace the board art. The
+// board is sized in JS to BOARD_RATIO (its exact pixel ratio) so % anchors stay precise,
+// and the scalable oval `.tlmn-felt` remains the working fallback (portrait + if the art
+// is ever removed). Served from web/public/ → /tien-len-game-board-bg.webp.
+const BOARD_SRC = '/tien-len-game-board-bg.webp'
+const BOARD_W = 1672
+const BOARD_H = 941
+const BOARD_RATIO = BOARD_W / BOARD_H // ≈ 1.777 (16:9)
 
 // ── Virtual chips (social-casino flavour) — DISPLAY ONLY, not real money. ───────────
 // Each seat starts at CHIP_SEED; the running balance is derived from the seat's
@@ -86,6 +98,24 @@ function useMeasuredWidth<T extends HTMLElement>() {
   return [ref, w] as const
 }
 
+// Measure an element's content box (width + height). Used to size the board-image to the
+// real available area so it can be fit to BOARD_RATIO with no distortion / no layout shift.
+function useMeasuredSize<T extends HTMLElement>() {
+  const ref = useRef<T>(null)
+  const [size, setSize] = useState({ w: 0, h: 0 })
+  useEffect(() => {
+    const el = ref.current
+    if (!el || typeof ResizeObserver === 'undefined') return
+    const ro = new ResizeObserver(entries => {
+      const cr = entries[0].contentRect
+      setSize({ w: cr.width, h: cr.height })
+    })
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+  return [ref, size] as const
+}
+
 // Slot placement around the oval table, by number of OTHER players (clockwise from
 // the seat after me). Spectators (no "me") fall back to the 4-slot ring.
 const SLOTS: Record<number, string[]> = {
@@ -100,6 +130,23 @@ const SLOT_POS: Record<string, string> = {
   right: 'top-1/2 right-[2.5%] -translate-y-1/2',
   bottom: 'bottom-[5%] left-1/2 -translate-x-1/2',
 }
+// Anchors tuned to the BOARD IMAGE's painted seat slots (top / left / right panels). The
+// real elements win over the art, but these land them inside the painted recesses. The
+// bottom slot is the human's dock overlay, so it's only used for a spectator's 4th seat.
+const SLOT_POS_IMAGE: Record<string, string> = {
+  top: 'top-[8%] left-1/2 -translate-x-1/2',
+  left: 'top-[47%] left-[7.5%] -translate-x-1/2 -translate-y-1/2',
+  right: 'top-[47%] right-[7.5%] translate-x-1/2 -translate-y-1/2',
+  bottom: 'bottom-[18%] left-1/2 -translate-x-1/2',
+}
+// Short-landscape phones (vh < 520): the dock overlay eats the lower half, so the seats +
+// pile cluster into the upper band to stay clear of it.
+const SLOT_POS_IMAGE_SHORT: Record<string, string> = {
+  top: 'top-[7%] left-1/2 -translate-x-1/2',
+  left: 'top-[30%] left-[6.5%] -translate-x-1/2 -translate-y-1/2',
+  right: 'top-[30%] right-[6.5%] translate-x-1/2 -translate-y-1/2',
+  bottom: 'bottom-[26%] left-1/2 -translate-x-1/2',
+}
 
 export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, onLeave }: Props) {
   const t = useTranslations('games.tlmn')
@@ -110,6 +157,8 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
   const [nudgeDismissed, setNudgeDismissed] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [trayRef, trayW] = useMeasuredWidth<HTMLDivElement>()
+  // Live size of the play area — drives the aspect-correct board-image sizing (Run 6.3).
+  const [areaRef, area] = useMeasuredSize<HTMLDivElement>()
   const [game, setGame] = useState<TlmnPublicGame | null>(null)
   const [hand, setHand] = useState<Card[]>([])
   const [selected, setSelected] = useState<Set<string>>(new Set())
@@ -520,7 +569,7 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
   // is derived from these so proportions stay correct at every width.
   const shortVp = vh < 520 // landscape phones
   const handW = shortVp
-    ? Math.min(64, Math.round(vh * 0.16))
+    ? Math.min(46, Math.round(vh * 0.13))
     : vw < 400 ? 60 : vw < 560 ? 64 : vw < 768 ? 70 : vw < 1024 ? 78 : 88
   const pileW = Math.round(handW * 0.82)
   const seatBackW = vw < 768 ? 15 : 18
@@ -528,6 +577,23 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
   const tableHByWidth = vw < 560 ? 300 : vw < 768 ? 360 : vw < 1024 ? 420 : 480
   // Never let the table grow taller than the viewport can hold (landscape phones).
   const tableH = Math.min(tableHByWidth, Math.max(220, Math.round(vh * 0.52)))
+
+  // ── Board surface mode (Run 6.3) ───────────────────────────────────────────────
+  // Landscape / desktop / fullscreen ⇒ the custom WebP board (premium felt). Portrait
+  // (clearly taller than wide) ⇒ the scalable oval `.tlmn-felt` fallback, re-tuned to
+  // the board's green palette. The fixed-ratio image can't fit portrait, so this is the
+  // one real limitation (Feature 7) — the rotate hint + fullscreen nudge it to landscape.
+  const portrait = vh > vw * 1.05
+  const useImage = !portrait
+  // Fit the board to the live play area at the image's exact ratio (no distortion). The
+  // area starts at 0 before the ResizeObserver fires; a viewport-based default keeps the
+  // first paint sane (zero layout shift once measured, since the box already has its size).
+  const board = useMemo(() => {
+    const aw = area.w || Math.min(vw * 0.92, 1180)
+    const ah = area.h || Math.max(240, vh * 0.62)
+    if (aw / ah > BOARD_RATIO) return { w: Math.round(ah * BOARD_RATIO), h: Math.round(ah) }
+    return { w: Math.round(aw), h: Math.round(aw / BOARD_RATIO) }
+  }, [area.w, area.h, vw, vh])
 
   // Hand fan: spread cards across the measured tray, overlapping only as much as
   // needed so faces stay legible (never shrink the cards to fit). The fit formula
@@ -676,10 +742,384 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
   // instead of an empty tray + dead action buttons.
   const myFinished = mySeat != null && (game.card_counts?.[String(mySeat)] ?? 1) === 0
 
+  // ── Surface-mode placement (Run 6.3) ───────────────────────────────────────────
+  // The SAME seat/center/FX layer renders over either surface; only the % anchors, the
+  // deal-cascade dimensions, and the centre block's vertical band change per mode. In
+  // image mode the hand-dock overlays the board's bottom, so the centre sits in the
+  // upper band (clear of the dock); in oval mode the dock is a flow bar below the felt.
+  const compactDock = useImage && shortVp
+  const anchors = !useImage ? SLOT_POS : shortVp ? SLOT_POS_IMAGE_SHORT : SLOT_POS_IMAGE
+  const dealW = useImage ? board.w : feltW
+  const dealH = useImage ? board.h : tableH
+  const centerWrapClass = !useImage
+    ? 'absolute inset-0 flex items-center justify-center px-4 pointer-events-none'
+    : shortVp
+      ? 'absolute left-0 right-0 top-[4%] bottom-[48%] flex items-center justify-center px-4 pointer-events-none'
+      : 'absolute left-0 right-0 top-[14%] bottom-[27%] flex items-center justify-center px-4 pointer-events-none'
+  const boardEntrance = reduced ? false : { opacity: 0, scale: 0.975 }
+  const boardTransition = reduced ? { duration: 0 } : { duration: DURATIONS.SETTLE, ease: EASINGS.settle }
+
+  // Seats + centre pile + transient FX — positioned by % so they scale exactly with the
+  // surface (board image OR oval felt). Real elements win over the painted slots.
+  const boardContents = (
+    <>
+      {/* Opponent / other seats. data-seat-slot drives the portrait corner-seat CSS
+          (oval mode only); in image mode the anchors land seats in the painted slots. */}
+      {orderedOthers.map((idx, i) => (
+        <div key={idx} data-seat-slot={slotList[i] ?? 'top'} className={`tlmn-seat absolute z-10 ${anchors[slotList[i]] ?? anchors.top}`}>
+          <SeatPod
+            seat={seatOf(idx)}
+            name={seatName(idx)}
+            isMe={false}
+            count={game.card_counts?.[String(idx)] ?? 0}
+            chips={chipsFromScore(seatOf(idx)?.cumulative_score ?? 0)}
+            isTurn={game.turn_seat === idx && playing}
+            isNhat={game.nhat_seat === idx}
+            isWinner={winnerSeat === idx}
+            passed={!!passStamp && passStamp.seat === idx}
+            passKey={passStamp?.key}
+            secondsLeft={game.turn_seat === idx ? secondsLeft : null}
+            turnFrac={game.turn_seat === idx ? turnFrac : 0}
+            av={vw < 560 ? 42 : vw < 1024 ? 50 : 58}
+            backW={seatBackW}
+            place={slotList[i] ?? 'top'}
+            lastPlayed={lastPlayed[idx] ?? null}
+            lastW={lastPlayW}
+            reduced={reducedRef.current}
+            t={t}
+          />
+        </div>
+      ))}
+
+      {/* Center: current trick / lead hint / round result */}
+      <div className={centerWrapClass}>
+        {ended ? (
+          <CenterEnd game={game} seatName={seatName} t={t} />
+        ) : game.trick ? (
+          <div key={comboKeys(game.trick.cards).join()} className="flex flex-col items-center gap-1.5">
+            {/* Stacking order (top → bottom), each on its own flex row with a gap so a card
+                can NEVER cover the banner or the actor label:
+                  actor label · combo banner · PILE · chặt hint. */}
+            <p className="text-[10.5px] font-bold text-white/75 uppercase tracking-[1.5px]">
+              {t('table_play_by', { name: seatName(game.trick.by_seat) })}
+            </p>
+            {/* Gold combo banner — above the pile, raised (z-10) so the top pile card can
+                never occlude it; driven by the combo type (no recompute of rules). */}
+            {tableCombo && (() => {
+              const b = comboBanner(tableCombo, t)
+              return (
+                <span
+                  className={`relative z-10 tlmn-banner-in inline-flex items-center rounded-full px-3.5 py-1 text-[13px] font-black uppercase ${
+                    b.special ? 'tlmn-combo-banner tlmn-banner-shine' : 'tlmn-combo-banner--plain'
+                  }`}
+                >
+                  {b.label}
+                </span>
+              )
+            })()}
+            {/* Faint ghost of the prior stacked plays, giving the pile depth. */}
+            <div className="relative flex justify-center mt-0.5" style={{ perspective: 700 }}>
+              <span aria-hidden className="absolute left-1/2 top-1 rounded-[7px] bg-black/25" style={{ width: pileW, height: Math.round(pileW * 1.4), transform: 'translateX(-50%) rotate(-7deg) translateY(4px)' }} />
+              <span aria-hidden className="absolute left-1/2 top-1 rounded-[7px] bg-black/20" style={{ width: pileW, height: Math.round(pileW * 1.4), transform: 'translateX(-50%) rotate(6deg) translateY(4px)' }} />
+              {sortHand(game.trick.cards).map((c, i) => {
+                const mine = mySeat != null && game.trick!.by_seat === mySeat
+                const ml = i === 0 ? 0 : -Math.round(pileW * 0.28)
+                if (reduced) {
+                  return <span key={cardKey(c)} style={{ marginLeft: ml }}><CardFace card={c} w={pileW} /></span>
+                }
+                // Each card flies in from its actor's seat and settles. Opponent cards
+                // (face-down) also flip face-up mid-flight; my own cards are already
+                // face-up so they just fly. A small mini settles by the actor in parallel.
+                const o = flyOrigin(placeOfSeat(game.trick!.by_seat))
+                return (
+                  <motion.span
+                    key={cardKey(c)}
+                    initial={{ x: o.x, y: o.y, rotateY: mine ? 0 : 90, scale: 0.82, opacity: mine ? 0.85 : 0.5 }}
+                    animate={{ x: 0, y: 0, rotateY: 0, scale: 1, opacity: 1 }}
+                    transition={mine ? TRANSITIONS.fly : { ...TRANSITIONS.fly, rotateY: { duration: DURATIONS.FLIP } }}
+                    style={{ marginLeft: ml, transformStyle: 'preserve-3d' }}
+                  >
+                    <CardFace card={c} w={pileW} />
+                  </motion.span>
+                )
+              })}
+            </div>
+            <p className="text-[10px] text-white/70">{t('to_beat')}</p>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center gap-1.5">
+            <span className="text-[32px] opacity-80">🃏</span>
+            <p className="text-[12px] text-white/75 text-center">
+              {game.turn_seat != null ? t('lead_free_by', { name: seatName(game.turn_seat) }) : ''}
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* Chặt! signature overlay */}
+      {chac && (
+        <>
+          <div className="absolute inset-0 bg-white tlmn-flash pointer-events-none" />
+          <div key={chac.key} className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+            <div className="tlmn-stamp tlmn-combo-banner tlmn-banner-shine px-5 py-2 rounded-2xl shadow-2xl">
+              <span className="font-serif font-black text-[clamp(26px,5vw,38px)] tracking-tight">
+                ✂️ {t(chac.kind === 'heo' ? 'banner_chat_heo' : 'banner_chat_bom')}
+              </span>
+            </div>
+            {chac.amount > 0 && (
+              <p className="mt-2 text-[13px] font-bold text-rose-deep bg-white/90 px-3 py-1 rounded-full tlmn-banner-pop">
+                {t('den_line', { victim: seatName(chac.victim), cutter: seatName(chac.cutter), amount: chac.amount })}
+              </p>
+            )}
+          </div>
+        </>
+      )}
+
+      {/* Premium round-deal cascade — cards fan from the centre deck out to every seat,
+          staggered around the table. Reduced-motion never triggers it. Cosmetic only. */}
+      {dealFxOn && <DealFx places={dealPlaces} feltW={dealW} feltH={dealH} cardW={dealBackW} />}
+
+      {/* Win celebration — on-brand emoji burst + geometric confetti. */}
+      {confettiOn && (
+        <>
+          <Confetti seed={confettiKey} />
+          <EmojiBurst seed={confettiKey} />
+        </>
+      )}
+
+      {/* Gold star burst — special combos (tứ quý / đôi thông) + chặt. */}
+      {starOn && <GoldStars seed={starKey} />}
+
+      {/* Instant-win (tới trắng) — crown sweep + screen-edge gold glow. */}
+      {crownOn && ended && game.result?.instant && (
+        <>
+          <span className="tlmn-edge-glow" />
+          <div className="absolute inset-0 flex items-start justify-center pt-[8%] pointer-events-none z-30">
+            <span className="tlmn-crown-sweep text-[clamp(44px,9vw,72px)]" aria-hidden>👑</span>
+          </div>
+        </>
+      )}
+
+      {/* Penalty (thối heo / đền / cóng) — a brief, NON-celebratory muted toast by the
+          affected seat. No gold; just enough to explain what happened. */}
+      {penaltyToast && (
+        <div key={penaltyToast.key} className={`absolute z-30 pointer-events-none ${anchors[mySeat != null && penaltyToast.seat === mySeat ? 'bottom' : placeOfSeat(penaltyToast.seat)] ?? anchors.top}`}>
+          <span className="tlmn-banner-pop inline-flex items-center gap-1 rounded-lg bg-black/70 border border-white/20 px-2.5 py-1 text-[10.5px] font-bold text-white/90 whitespace-nowrap">
+            ⚠️ {penaltyToast.label}
+          </span>
+        </div>
+      )}
+    </>
+  )
+
+  // The bottom content: human dock (plate + hand + decision + actions) / finished / spectator
+  // / end-of-round podium. In image mode this overlays the board's bottom; in oval mode it
+  // sits in flow below the felt. Identical markup either way (zero-cutoff hand preserved).
+  const bottomContent = (
+    <>
+      {mySeat != null && playing && myFinished && (
+        <div className="relative z-20 px-3 sm:px-6 pt-1 pb-6" style={{ paddingBottom: 'calc(1.5rem + env(safe-area-inset-bottom))' }}>
+          <div role="status" className="max-w-[680px] mx-auto rounded-2xl bg-emerald-500/15 border border-emerald-300/30 px-5 py-6 text-center tlmn-banner-pop">
+            <p className="text-[28px] leading-none">✓</p>
+            <p className="text-[15px] font-bold text-emerald-100 mt-2">{t('you_finished')}</p>
+          </div>
+        </div>
+      )}
+
+      {mySeat != null && playing && !myFinished && (
+        <div className={`relative z-20 px-3 sm:px-6 pt-1 ${compactDock ? 'tlmn-dock-compact' : ''}`} aria-busy={busy} style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}>
+          {/* Human seat (bottom-left) + sort pill */}
+          <div className="flex items-end justify-between gap-2 mb-1.5 max-w-[760px] mx-auto">
+            <div className="flex items-center gap-2.5">
+              <span className={`relative inline-flex rounded-full p-[3px] tlmn-frame-gold ${isMyTurn && !reduced ? 'tlmn-frame-active' : ''}`}>
+                <PodAvatar name={seatName(mySeat)} url={seatOf(mySeat)?.avatar_url ?? null} size={compactDock ? 34 : vw < 560 ? 38 : 46} />
+                {isMyTurn && secondsLeft != null && (
+                  <span
+                    className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center ${secondsLeft <= 5 ? 'tlmn-timer-warn' : ''}`}
+                    style={{ background: `conic-gradient(${secondsLeft <= 5 ? '#ff5a8c' : '#7fe3f0'} ${turnFrac * 360}deg, rgba(0,0,0,0.45) 0deg)` }}
+                  >
+                    <span className="absolute inset-[2px] rounded-full bg-ink flex items-center justify-center text-[10px] font-bold text-white">{secondsLeft}</span>
+                  </span>
+                )}
+              </span>
+              <div className="min-w-0 tlmn-hide-compact">
+                <p className="text-[13px] font-bold text-white truncate max-w-[44vw] flex items-center gap-1.5">
+                  {game.nhat_seat === mySeat && <span className="text-gold">🏆</span>}
+                  {seatName(mySeat)}
+                  <span className="tlmn-hide-compact text-[10px] font-bold text-white/60 bg-white/15 rounded-full px-1.5 py-0.5">{t('you_badge')}</span>
+                  <span className="tlmn-chip-balance text-[10px] font-black inline-flex items-center gap-0.5"><span aria-hidden className="text-[9px]">🪙</span>{formatChips(myBalance ?? chipsFromScore(seatOf(mySeat)?.cumulative_score ?? 0))}</span>
+                </p>
+                {isMyTurn ? (
+                  <span className="tlmn-hide-compact text-[11px] font-bold text-rose-200 flex items-center gap-1 mt-0.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-rose-200 animate-pulse" />{t('your_turn')}
+                  </span>
+                ) : (
+                  <span className="tlmn-hide-compact text-[11px] text-white/70 italic mt-0.5 inline-block">{t('thinking')}</span>
+                )}
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setSortMode(m => (m === 'rank' ? 'suit' : 'rank'))}
+              className="tlmn-btn-gold flex-none text-[12px] font-black uppercase tracking-wide rounded-full px-3.5 py-1.5 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            >
+              ↕ {t('sort_btn')}
+            </button>
+          </div>
+
+          {/* Cream hand tray with the fanned cards. Extra top room so the arced middle
+              cards + any selected lift are never clipped. */}
+          <div className="tlmn-tray rounded-2xl px-3 sm:px-5 max-w-[860px] mx-auto" style={{ minHeight: Math.round(handW * 1.4) + (compactDock ? 24 : 46) }}>
+            <div
+              key={invalidKey}
+              ref={trayRef}
+              className={`relative flex justify-center items-end h-full pb-3 pt-7 ${invalidKey ? 'tlmn-invalid' : ''}`}
+            >
+              {displayHand.map((c, i) => {
+                const sel = selected.has(cardKey(c))
+                const isPlayable = playableKeys ? playableKeys.has(cardKey(c)) : false
+                const dim = playableKeys ? !isPlayable && !sel : false
+                // Fan geometry: evenly tilt −maxArc → +maxArc across the hand, with a
+                // parabolic lift peaking at the centre. Pivot at bottom-centre so the
+                // cards splay like a held fan. A selected card lifts further + comes to
+                // the front. The OUTER motion.button owns layout (so a Sắp xếp reflow
+                // slides cards to their new slot); the INNER motion.span owns the deal
+                // entrance + arc/lift transform — keeping the two transform spaces apart.
+                const n = displayHand.length
+                const mid = (n - 1) / 2
+                const norm = mid === 0 ? 0 : (i - mid) / mid // −1 … +1
+                const angle = norm * maxArc
+                const lift = Math.round((1 - norm * norm) * (handW * 0.16))
+                const ty = -lift - (sel ? 18 : 0)
+                return (
+                  <motion.button
+                    key={`${game.id}-${cardKey(c)}`}
+                    layout
+                    type="button"
+                    onClick={() => toggleCard(c)}
+                    aria-label={cardAria(c, t)}
+                    aria-pressed={sel}
+                    transition={{ layout: reduced ? { duration: 0 } : { duration: DURATIONS.SETTLE, ease: EASINGS.settle } }}
+                    className="relative focus:outline-none focus-visible:ring-2 focus-visible:ring-rose rounded-[8px]"
+                    style={{ marginLeft: i === 0 ? 0 : fanStep - handW, zIndex: sel ? 50 : i }}
+                  >
+                    {/* Selected card is raised to the top (z-50): widen its hit area past
+                        the fan overlap so re-tapping to deselect stays ≥44px. */}
+                    {sel && <span aria-hidden className="absolute -inset-x-2 -bottom-3 top-0" />}
+                    <motion.span
+                      className="relative block"
+                      initial={reduced ? false : { opacity: 0, y: -150, scale: 0.7, rotate: -6 }}
+                      animate={{ opacity: 1, y: ty, scale: 1, rotate: angle }}
+                      transition={reduced ? { duration: 0 } : { ...TRANSITIONS.lift, delay: dealing ? Math.min(i * 0.022, 0.34) : 0 }}
+                      style={{ transformOrigin: 'bottom center' }}
+                    >
+                      <CardFace card={c} w={handW} selected={sel} dim={dim} playable={isPlayable && !sel} interactive />
+                      {sel && <span className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 h-1.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.7)]" style={{ width: Math.round(handW * 0.7) }} />}
+                    </motion.span>
+                  </motion.button>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* Decision bar: required combo chip (left) + live selection feedback (right).
+              Hidden in the compact (short-landscape) dock — the play button echoes the
+              detected combo, so the feedback is still surfaced. */}
+          <div className="tlmn-dock-decision flex items-center justify-between gap-2 mt-2 min-h-[26px] max-w-[680px] mx-auto">
+            {isMyTurn && requiredLabel ? (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-black/35 px-2.5 py-1 text-[11px] font-bold whitespace-nowrap">
+                <span className="text-white/45 uppercase tracking-wide text-[9.5px]">{t('req_prefix')}</span>
+                <span className={tableCombo ? 'text-rose-200' : 'text-emerald-200'}>{requiredLabel}</span>
+              </span>
+            ) : <span />}
+            {selectionInfo && (
+              <span
+                className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold whitespace-nowrap ${
+                  selectionInfo.valid ? 'bg-emerald-500/25 text-emerald-100' : 'bg-rose/25 text-rose-100'
+                }`}
+              >
+                {selectionInfo.name && <span>{selectionInfo.name}</span>}
+                {selectionInfo.valid ? (
+                  <span aria-hidden>✓</span>
+                ) : (
+                  <span className="font-medium opacity-90">· {t(selectionInfo.reason as Parameters<typeof t>[0])}</span>
+                )}
+              </span>
+            )}
+          </div>
+
+          {error && <p className="text-[12px] text-rose-200 mt-1.5 text-center font-semibold">{tErr(t, error)}</p>}
+
+          {/* Action buttons */}
+          <div className="tlmn-action-row flex gap-2 mt-2 max-w-[680px] mx-auto">
+            <button
+              type="button"
+              onClick={doHint}
+              disabled={!isMyTurn || busy}
+              className="tlmn-btn-ghost font-bold text-[13px] px-4 py-3 rounded-xl transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--tg-gold-bright)]"
+            >
+              💡 {t('hint_btn')}
+            </button>
+            <button
+              type="button"
+              onClick={doPlay}
+              disabled={!isMyTurn || selectedCards.length === 0 || busy || !canPlay}
+              className={`tlmn-btn-primary flex-1 font-bold text-[15px] px-5 py-3 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--tg-gold-bright)] ${
+                isMyTurn && canPlay && !busy ? 'tlmn-play-pulse' : ''
+              }`}
+            >
+              {t('play_btn')}
+              {canPlay && selectionInfo?.name ? ` · ${selectionInfo.name}` : selectedCards.length ? ` · ${selectedCards.length}` : ''}
+            </button>
+            <button
+              type="button"
+              onClick={doPass}
+              disabled={!canPass || busy}
+              className="tlmn-btn-ghost font-bold text-[14px] px-5 py-3 rounded-xl transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--tg-gold-bright)]"
+            >
+              {t('pass_btn')}
+            </button>
+          </div>
+
+          {/* Landscape-for-better-play hint (portrait phones only) */}
+          <p className="tlmn-rotate-hint text-center text-[11px] text-white/60 mt-2">↺ {t('rotate_hint')}</p>
+        </div>
+      )}
+
+      {/* Spectator hint */}
+      {mySeat == null && playing && (
+        <p className="relative z-20 text-center text-[13px] text-white/75 py-4">{t('spectating')}</p>
+      )}
+
+      {/* ── End-of-round: banner, scoreboard, next round ─────────────────── */}
+      {ended && (
+        <div className="relative z-20 w-full max-w-[600px] mx-auto px-3 sm:px-4 flex flex-col gap-3" style={{ paddingBottom: 'calc(1.25rem + env(safe-area-inset-bottom))' }}>
+          {game.result?.instant && <ToiTrangBanner game={game} seatName={seatName} t={t} />}
+          <Podium game={game} seats={seats} seatName={seatName} reduced={reduced} mySeat={mySeat} myBalance={myBalance} myRoundDelta={myRoundDelta} t={t} />
+          <div className="text-center">
+            {isHost ? (
+              <button
+                type="button"
+                onClick={doNextRound}
+                disabled={busy}
+                className="tlmn-btn-gold font-black text-[15px] uppercase tracking-wide px-8 py-3.5 rounded-xl transition-all disabled:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+              >
+                🃏 {t('new_round_btn')}
+              </button>
+            ) : (
+              <p className="text-[12.5px] text-white/75">{t('waiting_host_next')}</p>
+            )}
+            {error && <p className="text-[12px] text-rose-200 mt-2">{tErr(t, error)}</p>}
+          </div>
+        </div>
+      )}
+    </>
+  )
+
   // ── Render ───────────────────────────────────────────────────────────────────
   return (
     // Full-bleed breakout: the table escapes the page's narrow column to become an
-    // immersive deep-red surface — the dominant element on the page. In fullscreen /
+    // immersive green-felt surface — the dominant element on the page. In fullscreen /
     // pseudo-fullscreen (Run 5) the .tlmn-fs-root rules make this fill 100dvh/dvw.
     <div ref={fs.rootRef} className="tlmn-fs-root relative w-screen left-1/2 -translate-x-1/2">
       <div
@@ -753,355 +1193,56 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
           </div>
         )}
 
-        {/* ── Table region ─────────────────────────────────────────────────── */}
-        <div className="relative flex-1 flex items-center justify-center px-3 sm:px-6 py-2">
-          <div
-            className="tlmn-felt relative w-full"
-            style={{ maxWidth: 'min(88vw, 1000px)', height: tableH }}
-          >
-            {/* Opponent / other seats around the oval. data-seat-slot lets the CSS
-                pull the left/right seats into the upper corners (and shrink them) on
-                mobile portrait, where the felt is too narrow for mid-edge side seats. */}
-            {orderedOthers.map((idx, i) => (
-              <div key={idx} data-seat-slot={slotList[i] ?? 'top'} className={`tlmn-seat absolute z-10 ${SLOT_POS[slotList[i]] ?? SLOT_POS.top}`}>
-                <SeatPod
-                  seat={seatOf(idx)}
-                  name={seatName(idx)}
-                  isMe={false}
-                  count={game.card_counts?.[String(idx)] ?? 0}
-                  chips={chipsFromScore(seatOf(idx)?.cumulative_score ?? 0)}
-                  isTurn={game.turn_seat === idx && playing}
-                  isNhat={game.nhat_seat === idx}
-                  isWinner={winnerSeat === idx}
-                  passed={!!passStamp && passStamp.seat === idx}
-                  passKey={passStamp?.key}
-                  secondsLeft={game.turn_seat === idx ? secondsLeft : null}
-                  turnFrac={game.turn_seat === idx ? turnFrac : 0}
-                  av={vw < 560 ? 42 : vw < 1024 ? 50 : 58}
-                  backW={seatBackW}
-                  place={slotList[i] ?? 'top'}
-                  lastPlayed={lastPlayed[idx] ?? null}
-                  lastW={lastPlayW}
-                  reduced={reducedRef.current}
-                  t={t}
-                />
+        {/* ── Table region (custom board image OR scalable oval fallback) ────────
+            Run 6.3: landscape/desktop/fullscreen use the painted WebP board; portrait
+            falls back to the scalable oval felt. Same seats/center/FX layer (boardContents)
+            renders over either surface — the image is just the backdrop. */}
+        {useImage ? (
+          <div ref={areaRef} className="relative flex-1 flex items-center justify-center min-h-0 px-2 sm:px-4 py-2 overflow-hidden">
+            <motion.div
+              className="tlmn-board--image relative"
+              style={{ width: board.w, height: board.h }}
+              initial={boardEntrance}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={boardTransition}
+            >
+              {/* The painted felt — aspect-locked to its exact ratio (no distortion),
+                  priority-loaded so it's ready above the fold with zero layout shift. */}
+              <Image
+                src={BOARD_SRC}
+                alt=""
+                fill
+                priority
+                sizes="(max-width: 1180px) 100vw, 1180px"
+                className="object-contain select-none pointer-events-none"
+                draggable={false}
+              />
+              <div className="tlmn-center-scrim" aria-hidden />
+              {boardContents}
+              {/* Hand-dock overlay anchored to the board's bottom seat region. */}
+              <div className="absolute inset-x-0 bottom-0 z-20">
+                <div className="tlmn-dock-scrim" aria-hidden />
+                <div className="relative">{bottomContent}</div>
               </div>
-            ))}
-
-            {/* Center: current trick / lead hint / round result */}
-            <div className="absolute inset-0 flex items-center justify-center px-4 pointer-events-none">
-              {ended ? (
-                <CenterEnd game={game} seatName={seatName} t={t} />
-              ) : game.trick ? (
-                <div key={comboKeys(game.trick.cards).join()} className="flex flex-col items-center gap-2">
-                  {/* Gold combo banner — driven by the combo type (no recompute of rules). */}
-                  {tableCombo && (() => {
-                    const b = comboBanner(tableCombo, t)
-                    return (
-                      <span
-                        className={`tlmn-banner-in inline-flex items-center rounded-full px-3.5 py-1 text-[13px] font-black uppercase ${
-                          b.special ? 'tlmn-combo-banner tlmn-banner-shine' : 'tlmn-combo-banner--plain'
-                        }`}
-                      >
-                        {b.label}
-                      </span>
-                    )
-                  })()}
-                  <p className="text-[10.5px] font-bold text-white/70 uppercase tracking-[1.5px]">
-                    {t('table_play_by', { name: seatName(game.trick.by_seat) })}
-                  </p>
-                  {/* Faint ghost of the prior stacked plays, giving the pile depth. */}
-                  <div className="relative flex justify-center" style={{ perspective: 700 }}>
-                    <span aria-hidden className="absolute left-1/2 top-1 rounded-[7px] bg-black/25" style={{ width: pileW, height: Math.round(pileW * 1.4), transform: 'translateX(-50%) rotate(-7deg) translateY(4px)' }} />
-                    <span aria-hidden className="absolute left-1/2 top-1 rounded-[7px] bg-black/20" style={{ width: pileW, height: Math.round(pileW * 1.4), transform: 'translateX(-50%) rotate(6deg) translateY(4px)' }} />
-                    {sortHand(game.trick.cards).map((c, i) => {
-                      const mine = mySeat != null && game.trick!.by_seat === mySeat
-                      const ml = i === 0 ? 0 : -Math.round(pileW * 0.28)
-                      if (reduced) {
-                        return <span key={cardKey(c)} style={{ marginLeft: ml }}><CardFace card={c} w={pileW} /></span>
-                      }
-                      // Each card flies in from its actor's seat and settles. Opponent
-                      // cards (face-down) also flip face-up mid-flight; my own cards are
-                      // already face-up so they just fly (no duplicate pop — the card has
-                      // already left my hand). A small mini settles by the actor in parallel.
-                      const o = flyOrigin(placeOfSeat(game.trick!.by_seat))
-                      return (
-                        <motion.span
-                          key={cardKey(c)}
-                          initial={{ x: o.x, y: o.y, rotateY: mine ? 0 : 90, scale: 0.82, opacity: mine ? 0.85 : 0.5 }}
-                          animate={{ x: 0, y: 0, rotateY: 0, scale: 1, opacity: 1 }}
-                          transition={mine ? TRANSITIONS.fly : { ...TRANSITIONS.fly, rotateY: { duration: DURATIONS.FLIP } }}
-                          style={{ marginLeft: ml, transformStyle: 'preserve-3d' }}
-                        >
-                          <CardFace card={c} w={pileW} />
-                        </motion.span>
-                      )
-                    })}
-                  </div>
-                  <p className="text-[10px] text-white/70">{t('to_beat')}</p>
-                </div>
-              ) : (
-                <div className="flex flex-col items-center gap-1.5">
-                  <span className="text-[32px] opacity-80">🃏</span>
-                  <p className="text-[12px] text-white/75 text-center">
-                    {game.turn_seat != null ? t('lead_free_by', { name: seatName(game.turn_seat) }) : ''}
-                  </p>
-                </div>
-              )}
-            </div>
-
-            {/* Chặt! signature overlay */}
-            {chac && (
-              <>
-                <div className="absolute inset-0 bg-white tlmn-flash pointer-events-none" />
-                <div key={chac.key} className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                  <div className="tlmn-stamp tlmn-combo-banner tlmn-banner-shine px-5 py-2 rounded-2xl shadow-2xl">
-                    <span className="font-serif font-black text-[clamp(26px,5vw,38px)] tracking-tight">
-                      ✂️ {t(chac.kind === 'heo' ? 'banner_chat_heo' : 'banner_chat_bom')}
-                    </span>
-                  </div>
-                  {chac.amount > 0 && (
-                    <p className="mt-2 text-[13px] font-bold text-rose-deep bg-white/90 px-3 py-1 rounded-full tlmn-banner-pop">
-                      {t('den_line', { victim: seatName(chac.victim), cutter: seatName(chac.cutter), amount: chac.amount })}
-                    </p>
-                  )}
-                </div>
-              </>
-            )}
-
-            {/* Premium round-deal cascade — cards fan from the centre deck out to
-                every seat, staggered around the table. Reduced-motion never triggers
-                it (guarded at the trigger site). Purely cosmetic, behind the pile. */}
-            {dealFxOn && <DealFx places={dealPlaces} feltW={feltW} feltH={tableH} cardW={dealBackW} />}
-
-            {/* Win celebration — on-brand emoji burst + geometric confetti. */}
-            {confettiOn && (
-              <>
-                <Confetti seed={confettiKey} />
-                <EmojiBurst seed={confettiKey} />
-              </>
-            )}
-
-            {/* Gold star burst — special combos (tứ quý / đôi thông) + chặt. */}
-            {starOn && <GoldStars seed={starKey} />}
-
-            {/* Instant-win (tới trắng) — crown sweep + screen-edge gold glow. */}
-            {crownOn && ended && game.result?.instant && (
-              <>
-                <span className="tlmn-edge-glow" />
-                <div className="absolute inset-0 flex items-start justify-center pt-[8%] pointer-events-none z-30">
-                  <span className="tlmn-crown-sweep text-[clamp(44px,9vw,72px)]" aria-hidden>👑</span>
-                </div>
-              </>
-            )}
-
-            {/* Penalty (thối heo / đền / cóng) — a brief, NON-celebratory muted toast by
-                the affected seat. No gold; just enough to explain what happened. */}
-            {penaltyToast && (
-              <div key={penaltyToast.key} className={`absolute z-30 pointer-events-none ${SLOT_POS[mySeat != null && penaltyToast.seat === mySeat ? 'bottom' : placeOfSeat(penaltyToast.seat)] ?? SLOT_POS.top}`}>
-                <span className="tlmn-banner-pop inline-flex items-center gap-1 rounded-lg bg-black/70 border border-white/20 px-2.5 py-1 text-[10.5px] font-bold text-white/90 whitespace-nowrap">
-                  ⚠️ {penaltyToast.label}
-                </span>
-              </div>
-            )}
+            </motion.div>
           </div>
-        </div>
-
-        {/* ── Bottom dock ──────────────────────────────────────────────────── */}
-        {mySeat != null && playing && myFinished && (
-          <div className="relative z-20 px-3 sm:px-6 pt-1 pb-6" style={{ paddingBottom: 'calc(1.5rem + env(safe-area-inset-bottom))' }}>
-            <div role="status" className="max-w-[680px] mx-auto rounded-2xl bg-emerald-500/15 border border-emerald-300/30 px-5 py-6 text-center tlmn-banner-pop">
-              <p className="text-[28px] leading-none">✓</p>
-              <p className="text-[15px] font-bold text-emerald-100 mt-2">{t('you_finished')}</p>
-            </div>
+        ) : (
+          <div className="relative flex-1 flex items-center justify-center px-3 sm:px-6 py-2">
+            <motion.div
+              className="tlmn-felt relative w-full"
+              style={{ maxWidth: 'min(88vw, 1000px)', height: tableH }}
+              initial={boardEntrance}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={boardTransition}
+            >
+              {boardContents}
+            </motion.div>
           </div>
         )}
 
-        {mySeat != null && playing && !myFinished && (
-          <div className="relative z-20 px-3 sm:px-6 pt-1" aria-busy={busy} style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}>
-            {/* Human seat (bottom-left) + sort pill */}
-            <div className="flex items-end justify-between gap-2 mb-1.5">
-              <div className="flex items-center gap-2.5">
-                <span className={`relative inline-flex rounded-full p-[3px] tlmn-frame-gold ${isMyTurn && !reduced ? 'tlmn-frame-active' : ''}`}>
-                  <PodAvatar name={seatName(mySeat)} url={seatOf(mySeat)?.avatar_url ?? null} size={vw < 560 ? 38 : 46} />
-                  {isMyTurn && secondsLeft != null && (
-                    <span
-                      className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center ${secondsLeft <= 5 ? 'tlmn-timer-warn' : ''}`}
-                      style={{ background: `conic-gradient(${secondsLeft <= 5 ? '#ff5a8c' : '#7fe3f0'} ${turnFrac * 360}deg, rgba(0,0,0,0.45) 0deg)` }}
-                    >
-                      <span className="absolute inset-[2px] rounded-full bg-ink flex items-center justify-center text-[10px] font-bold text-white">{secondsLeft}</span>
-                    </span>
-                  )}
-                </span>
-                <div className="min-w-0">
-                  <p className="text-[13px] font-bold text-white truncate max-w-[44vw] flex items-center gap-1.5">
-                    {game.nhat_seat === mySeat && <span className="text-gold">🏆</span>}
-                    {seatName(mySeat)}
-                    <span className="text-[10px] font-bold text-white/60 bg-white/15 rounded-full px-1.5 py-0.5">{t('you_badge')}</span>
-                    <span className="tlmn-chip-balance text-[10px] font-black inline-flex items-center gap-0.5"><span aria-hidden className="text-[9px]">🪙</span>{formatChips(myBalance ?? chipsFromScore(seatOf(mySeat)?.cumulative_score ?? 0))}</span>
-                  </p>
-                  {isMyTurn ? (
-                    <span className="text-[11px] font-bold text-rose-200 flex items-center gap-1 mt-0.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-rose-200 animate-pulse" />{t('your_turn')}
-                    </span>
-                  ) : (
-                    <span className="text-[11px] text-white/70 italic mt-0.5 inline-block">{t('thinking')}</span>
-                  )}
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setSortMode(m => (m === 'rank' ? 'suit' : 'rank'))}
-                className="tlmn-btn-gold flex-none text-[12px] font-black uppercase tracking-wide rounded-full px-3.5 py-1.5 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
-              >
-                ↕ {t('sort_btn')}
-              </button>
-            </div>
-
-            {/* Cream hand tray with the fanned cards. Extra top room so the arced
-                middle cards + any selected lift are never clipped. */}
-            <div className="tlmn-tray rounded-2xl px-3 sm:px-5" style={{ minHeight: Math.round(handW * 1.4) + 46 }}>
-              <div
-                key={invalidKey}
-                ref={trayRef}
-                className={`relative flex justify-center items-end h-full pb-3 pt-7 ${invalidKey ? 'tlmn-invalid' : ''}`}
-              >
-                {displayHand.map((c, i) => {
-                  const sel = selected.has(cardKey(c))
-                  const isPlayable = playableKeys ? playableKeys.has(cardKey(c)) : false
-                  const dim = playableKeys ? !isPlayable && !sel : false
-                  // Fan geometry: evenly tilt −maxArc → +maxArc across the hand, with a
-                  // parabolic lift peaking at the centre. Pivot at bottom-centre so the
-                  // cards splay like a held fan. A selected card lifts further + comes
-                  // to the front. The OUTER motion.button owns layout (so a Sắp xếp reflow
-                  // slides cards to their new slot); the INNER motion.span owns the deal
-                  // entrance + arc/lift transform — keeping the two transform spaces apart.
-                  const n = displayHand.length
-                  const mid = (n - 1) / 2
-                  const norm = mid === 0 ? 0 : (i - mid) / mid // −1 … +1
-                  const angle = norm * maxArc
-                  const lift = Math.round((1 - norm * norm) * (handW * 0.16))
-                  const ty = -lift - (sel ? 18 : 0)
-                  return (
-                    <motion.button
-                      key={`${game.id}-${cardKey(c)}`}
-                      layout
-                      type="button"
-                      onClick={() => toggleCard(c)}
-                      aria-label={cardAria(c, t)}
-                      aria-pressed={sel}
-                      transition={{ layout: reduced ? { duration: 0 } : { duration: DURATIONS.SETTLE, ease: EASINGS.settle } }}
-                      className="relative focus:outline-none focus-visible:ring-2 focus-visible:ring-rose rounded-[8px]"
-                      style={{ marginLeft: i === 0 ? 0 : fanStep - handW, zIndex: sel ? 50 : i }}
-                    >
-                      {/* Selected card is raised to the top (z-50): widen its hit area
-                          past the fan overlap so re-tapping to deselect stays ≥44px. */}
-                      {sel && <span aria-hidden className="absolute -inset-x-2 -bottom-3 top-0" />}
-                      <motion.span
-                        className="relative block"
-                        initial={reduced ? false : { opacity: 0, y: -150, scale: 0.7, rotate: -6 }}
-                        animate={{ opacity: 1, y: ty, scale: 1, rotate: angle }}
-                        transition={reduced ? { duration: 0 } : { ...TRANSITIONS.lift, delay: dealing ? Math.min(i * 0.022, 0.34) : 0 }}
-                        style={{ transformOrigin: 'bottom center' }}
-                      >
-                        <CardFace card={c} w={handW} selected={sel} dim={dim} playable={isPlayable && !sel} interactive />
-                        {sel && <span className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 h-1.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.7)]" style={{ width: Math.round(handW * 0.7) }} />}
-                      </motion.span>
-                    </motion.button>
-                  )
-                })}
-              </div>
-            </div>
-
-            {/* Decision bar: required combo chip (left) + live selection feedback (right) */}
-            <div className="flex items-center justify-between gap-2 mt-2 min-h-[26px] max-w-[680px] mx-auto">
-              {isMyTurn && requiredLabel ? (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-black/35 px-2.5 py-1 text-[11px] font-bold whitespace-nowrap">
-                  <span className="text-white/45 uppercase tracking-wide text-[9.5px]">{t('req_prefix')}</span>
-                  <span className={tableCombo ? 'text-rose-200' : 'text-emerald-200'}>{requiredLabel}</span>
-                </span>
-              ) : <span />}
-              {selectionInfo && (
-                <span
-                  className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold whitespace-nowrap ${
-                    selectionInfo.valid ? 'bg-emerald-500/25 text-emerald-100' : 'bg-rose/25 text-rose-100'
-                  }`}
-                >
-                  {selectionInfo.name && <span>{selectionInfo.name}</span>}
-                  {selectionInfo.valid ? (
-                    <span aria-hidden>✓</span>
-                  ) : (
-                    <span className="font-medium opacity-90">· {t(selectionInfo.reason as Parameters<typeof t>[0])}</span>
-                  )}
-                </span>
-              )}
-            </div>
-
-            {error && <p className="text-[12px] text-rose-200 mt-1.5 text-center font-semibold">{tErr(t, error)}</p>}
-
-            {/* Action buttons */}
-            <div className="flex gap-2 mt-2 max-w-[680px] mx-auto">
-              <button
-                type="button"
-                onClick={doHint}
-                disabled={!isMyTurn || busy}
-                className="tlmn-btn-ghost font-bold text-[13px] px-4 py-3 rounded-xl transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--tg-gold-bright)]"
-              >
-                💡 {t('hint_btn')}
-              </button>
-              <button
-                type="button"
-                onClick={doPlay}
-                disabled={!isMyTurn || selectedCards.length === 0 || busy || !canPlay}
-                className={`tlmn-btn-primary flex-1 font-bold text-[15px] px-5 py-3 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--tg-gold-bright)] ${
-                  isMyTurn && canPlay && !busy ? 'tlmn-play-pulse' : ''
-                }`}
-              >
-                {t('play_btn')}
-                {canPlay && selectionInfo?.name ? ` · ${selectionInfo.name}` : selectedCards.length ? ` · ${selectedCards.length}` : ''}
-              </button>
-              <button
-                type="button"
-                onClick={doPass}
-                disabled={!canPass || busy}
-                className="tlmn-btn-ghost font-bold text-[14px] px-5 py-3 rounded-xl transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--tg-gold-bright)]"
-              >
-                {t('pass_btn')}
-              </button>
-            </div>
-
-            {/* Landscape-for-better-play hint (portrait phones only) */}
-            <p className="tlmn-rotate-hint text-center text-[11px] text-white/60 mt-2">↺ {t('rotate_hint')}</p>
-          </div>
-        )}
-
-        {/* Spectator hint */}
-        {mySeat == null && playing && (
-          <p className="relative z-20 text-center text-[13px] text-white/75 py-4">{t('spectating')}</p>
-        )}
-
-        {/* ── End-of-round: banner, scoreboard, next round ─────────────────── */}
-        {ended && (
-          <div className="relative z-20 w-full max-w-[600px] mx-auto px-3 sm:px-4 flex flex-col gap-3" style={{ paddingBottom: 'calc(1.25rem + env(safe-area-inset-bottom))' }}>
-            {game.result?.instant && <ToiTrangBanner game={game} seatName={seatName} t={t} />}
-            <Podium game={game} seats={seats} seatName={seatName} reduced={reduced} mySeat={mySeat} myBalance={myBalance} myRoundDelta={myRoundDelta} t={t} />
-            <div className="text-center">
-              {isHost ? (
-                <button
-                  type="button"
-                  onClick={doNextRound}
-                  disabled={busy}
-                  className="tlmn-btn-gold font-black text-[15px] uppercase tracking-wide px-8 py-3.5 rounded-xl transition-all disabled:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
-                >
-                  🃏 {t('new_round_btn')}
-                </button>
-              ) : (
-                <p className="text-[12.5px] text-white/75">{t('waiting_host_next')}</p>
-              )}
-              {error && <p className="text-[12px] text-rose-200 mt-2">{tErr(t, error)}</p>}
-            </div>
-          </div>
-        )}
+        {/* Bottom content — image mode renders it as the board's bottom overlay
+            (above); oval mode renders it here in flow below the felt. */}
+        {!useImage && bottomContent}
 
         {/* ── Run 5: portrait rotate prompt (active game only) ─────────────────
             Full-cover, on-brand. Encourages landscape while a hand is in play — it
@@ -1109,7 +1250,7 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
             blocked. iOS-critical: it's all we can do where orientation.lock no-ops.
             Includes its own leave control so a portrait player is never trapped. */}
         {playing && fs.isMobileOrTablet && !fs.isLandscape && (
-          <div role="dialog" aria-label={t('rotate_hint')} className="absolute inset-0 z-[60] flex flex-col items-center justify-center gap-5 px-8 text-center" style={{ background: 'rgba(22,3,9,0.96)' }}>
+          <div role="dialog" aria-label={t('rotate_hint')} className="absolute inset-0 z-[60] flex flex-col items-center justify-center gap-5 px-8 text-center" style={{ background: 'rgba(8,18,12,0.96)' }}>
             <span className="tlmn-rotate-icon text-[64px] leading-none" aria-hidden>📱</span>
             <p className="font-serif font-black text-[22px] text-white">{t('rotate_hint')}</p>
             <p className="text-[13.5px] text-white/70 max-w-[280px] leading-relaxed">{t('rotate_subtext')}</p>

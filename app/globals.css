@@ -232,23 +232,65 @@ body::before {
   .tlmn-stage { --card-w: 58px; --card-h: 81px; --pile-card-w: 48px; --fan-arc: 8deg; }
 }
 
-/* ── Immersive table surface (Phase 4 visual redesign) ──────────────────────────── */
-/* Full-bleed deep-red radial: brighter crimson center fading to near-black edges. */
+/* ── Immersive table surface (Run 6 — social-casino red/gold re-skin) ──────────────
+   SCOPED THEME: every red/gold token below lives only under .tlmn-stage, so the rest
+   of chococfko stays magenta/cream. Global brand tokens are never touched. */
 .tlmn-stage {
+  /* Warm-gold accent palette (Run 6) — accents/banners only, never a solid slab. */
+  --tg-gold: #e3b23c;
+  --tg-gold-deep: #b8860b;
+  --tg-gold-bright: #f6d989;
+  --tg-cream: #f7eccf;
+  --tg-rail-dark: #3a1208;
+  /* The room around the table: a dark vignette so the felt reads as a lit object. */
   background:
-    radial-gradient(ellipse 80% 75% at 50% 40%, #8a0f3f 0%, #5e0a2b 36%, #350717 66%, #160309 100%);
+    radial-gradient(ellipse 120% 120% at 50% 35%, #2a0710 0%, #1a040a 55%, #0c0205 100%);
   border-radius: 18px;
 }
-/* The oval table outline traced over the surface, like a real table edge. */
+/* Deep-red OVAL felt: bright crimson centre → dark maroon rim, with a raised GOLD
+   rail (outer gold/cream hairline + inner dark bevel), soft inner shadow + a faint
+   weave texture. The watermark + texture ride on ::before so the felt face stays clean. */
 .tlmn-felt {
   border-radius: 9999px / 46%;
   background:
-    radial-gradient(ellipse 75% 70% at 50% 44%, rgba(176,22,80,0.55) 0%, rgba(120,12,52,0.35) 48%, rgba(40,6,22,0.15) 100%);
-  border: 2px solid rgba(255,210,225,0.18);
+    radial-gradient(ellipse 76% 72% at 50% 42%, #a8142a 0%, #8a1024 38%, #6a0c1c 66%, #5a0a18 100%);
+  /* The gold rail: a stack of rings — dark bevel, bright gold hairline, cream sheen,
+     dark outer edge — reading as a polished raised table border. */
   box-shadow:
-    inset 0 0 0 8px rgba(255,255,255,0.04),
-    inset 0 0 70px rgba(0,0,0,0.55),
-    0 0 0 12px rgba(0,0,0,0.18);
+    inset 0 0 0 3px rgba(0,0,0,0.35),
+    inset 0 0 0 5px var(--tg-gold-deep),
+    inset 0 0 0 8px var(--tg-gold),
+    inset 0 0 0 10px var(--tg-gold-bright),
+    inset 0 0 0 13px var(--tg-rail-dark),
+    inset 0 6px 38px rgba(0,0,0,0.5),
+    inset 0 0 90px rgba(120,8,30,0.4),
+    0 18px 50px -12px rgba(0,0,0,0.7),
+    0 0 0 2px rgba(0,0,0,0.4);
+  border: none;
+}
+/* Felt texture + faint centre watermark (the brand suit mark), low opacity. */
+.tlmn-felt::before {
+  content: "";
+  position: absolute;
+  inset: 13px;
+  border-radius: inherit;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle, rgba(247,236,207,0.05) 0.5px, transparent 0.6px);
+  background-size: 7px 7px;
+  opacity: 0.55;
+}
+.tlmn-felt::after {
+  content: "";
+  position: absolute;
+  left: 50%; top: 42%;
+  width: 34%; aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  opacity: 0.045;
+  background:
+    radial-gradient(circle at 50% 50%, transparent 38%, rgba(247,236,207,0.9) 39% 41%, transparent 42%),
+    radial-gradient(circle at 50% 50%, transparent 26%, rgba(247,236,207,0.9) 27% 29%, transparent 30%);
 }
 /* Minimal dark chrome buttons (close / menu / sound / leave). */
 .tlmn-chrome {
@@ -333,6 +375,200 @@ body::before {
 .tlmn-rotate-hint { display: none; }
 @media (max-width: 640px) and (orientation: portrait) {
   .tlmn-rotate-hint { display: block; }
+}
+
+/* ── TLMN fullscreen-landscape (Run 5) ──────────────────────────────────────────
+   The table's full-bleed wrapper (.tlmn-fs-root) is the fullscreen root. In BOTH
+   native fullscreen and CSS pseudo-fullscreen it fills the DYNAMIC viewport and the
+   site nav/footer are hidden — natively the browser paints only this subtree; in
+   pseudo mode the fixed overlay sits above the z-[100] sticky nav. 100dvh/dvw (not
+   100vh) so mobile browser toolbars don't crop the felt. Safe-area insets keep cards
+   clear of the notch / home indicator — critical in landscape, where the notch sits
+   on the LEFT or RIGHT edge (needs viewport-fit=cover, set on the root viewport). */
+.tlmn-fs-root:fullscreen,
+.tlmn-fs-root:-webkit-full-screen {
+  width: 100vw;
+  height: 100dvh;
+  left: 0;
+  transform: none;          /* neutralise the full-bleed -translate-x-1/2 breakout */
+  background: #160309;
+}
+.tlmn-fs-root.pseudo-fullscreen {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100dvh;
+  left: 0;
+  transform: none;
+  z-index: 200;             /* above the sticky nav (z-[100]) so it reads as fullscreen */
+  background: #160309;
+  /* NOTE (pseudo mode = iOS Safari / iPad): we CANNOT hide the OS status bar or force
+     rotation here — only a real Fullscreen API could, and iOS exposes none for non-
+     video elements. The container fills 100dvh UNDER the status bar, which stays
+     visible. This is the best achievable result on iOS; future-you, don't be surprised. */
+}
+.tlmn-fs-root:fullscreen > .tlmn-stage,
+.tlmn-fs-root:-webkit-full-screen > .tlmn-stage,
+.tlmn-fs-root.pseudo-fullscreen > .tlmn-stage {
+  min-height: 100dvh;
+  border-radius: 0;
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+/* Lock body scroll while a pseudo-fullscreen game is active (stop iOS rubber-band
+   bounce behind the felt). Native fullscreen handles this itself. */
+body.tlmn-scroll-lock {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+/* Rotate-phone nudge icon (used in the portrait full-cover prompt). The site-wide
+   reduced-motion kill-switch above already freezes this animation. */
+@keyframes tlmnRotateNudge {
+  0%, 40%   { transform: rotate(0deg); }
+  55%, 100% { transform: rotate(-90deg); }
+}
+.tlmn-rotate-icon { animation: tlmnRotateNudge 2.4s ease-in-out infinite; transform-origin: center; }
+
+/* ════════════════════════════════════════════════════════════════════════════════
+   Run 6 — social-casino RED/GOLD presentation layer (all scoped under .tlmn-stage).
+   Art-direction only: gold avatar frames, gold combo banners, star burst, crown,
+   podium results, premium pill buttons. No gameplay logic touched.
+   ════════════════════════════════════════════════════════════════════════════════ */
+
+/* Decorative gold avatar frame — a metallic ring (conic gold sheen) around a seat. */
+.tlmn-frame-gold {
+  background: conic-gradient(from 140deg, #8a5a12, #f6d989, #b8860b, #f6d989, #8a5a12, #f6d989, #8a5a12);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.45), inset 0 0 3px rgba(255,255,255,0.5);
+}
+/* Active player's gold frame gains a warm glow pulse. */
+@keyframes tlmnFrameGlow {
+  0%,100% { box-shadow: 0 0 0 0 rgba(246,217,137,0.0), 0 2px 8px rgba(0,0,0,0.45); }
+  50%     { box-shadow: 0 0 0 4px rgba(246,217,137,0.35), 0 0 22px 4px rgba(246,217,137,0.55); }
+}
+.tlmn-frame-active { animation: tlmnFrameGlow 1.4s ease-in-out infinite; }
+
+/* Seat name plate (dark rounded pill) + virtual-chip balance line. */
+.tlmn-plate {
+  background: linear-gradient(180deg, rgba(20,4,10,0.78), rgba(8,2,5,0.85));
+  border: 1px solid rgba(246,217,137,0.28);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
+}
+.tlmn-chip-balance {
+  color: var(--tg-gold-bright);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+}
+
+/* ── Gold combo banner (above the centre pile) ──────────────────────────────────── */
+.tlmn-combo-banner {
+  font-family: var(--font-serif-display), Georgia, serif;
+  letter-spacing: 0.04em;
+  color: #3a1c02;
+  background: linear-gradient(180deg, #f6d989 0%, #e3b23c 46%, #b8860b 100%);
+  border: 1.5px solid rgba(255,247,224,0.85);
+  box-shadow: 0 6px 18px -6px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.7), inset 0 -2px 4px rgba(120,80,0,0.4);
+  text-shadow: 0 1px 0 rgba(255,247,224,0.5);
+}
+/* Subtle banner for plain combos (single/pair/etc.) — gold-trimmed, not full gold. */
+.tlmn-combo-banner--plain {
+  color: var(--tg-gold-bright);
+  background: rgba(12,2,6,0.55);
+  border: 1px solid rgba(246,217,137,0.5);
+  box-shadow: 0 4px 12px -6px rgba(0,0,0,0.6);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+@keyframes tlmnBannerIn {
+  0%   { opacity: 0; transform: translateY(8px) scale(0.8); }
+  55%  { opacity: 1; transform: translateY(0) scale(1.06); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.tlmn-banner-in { animation: tlmnBannerIn 0.5s cubic-bezier(.22,.68,0,1.2) both; }
+/* Shine sweep that crosses a SPECIAL gold banner once. */
+.tlmn-banner-shine { position: relative; overflow: hidden; }
+.tlmn-banner-shine::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.85) 48%, transparent 62%);
+  transform: translateX(-130%);
+  animation: tlmnShineSweep 1.1s ease-out 0.18s both;
+}
+@keyframes tlmnShineSweep { to { transform: translateX(130%); } }
+
+/* ── Gold star burst (special combos) ───────────────────────────────────────────── */
+@keyframes tlmnStarPop {
+  0%   { opacity: 0; transform: translate(0,0) scale(0.2) rotate(0deg); }
+  35%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--sx), var(--sy)) scale(1) rotate(var(--sr)); }
+}
+.tlmn-star { animation: tlmnStarPop 1.1s cubic-bezier(.2,.7,.2,1) both; filter: drop-shadow(0 1px 3px rgba(180,120,0,0.6)); }
+
+/* ── Crown sweep (tới trắng / round win) ─────────────────────────────────────────── */
+@keyframes tlmnCrownSweep {
+  0%   { opacity: 0; transform: translateY(-26px) scale(0.4) rotate(-12deg); }
+  55%  { opacity: 1; transform: translateY(0) scale(1.15) rotate(0deg); }
+  100% { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); }
+}
+.tlmn-crown-sweep { animation: tlmnCrownSweep 0.7s cubic-bezier(.22,.68,0,1.2) both; }
+/* Screen-edge gold glow for an instant win. */
+@keyframes tlmnEdgeGlow { 0%,100% { opacity: 0; } 40% { opacity: 1; } }
+.tlmn-edge-glow {
+  position: absolute; inset: 0; pointer-events: none; z-index: 25; border-radius: inherit;
+  box-shadow: inset 0 0 60px 12px rgba(246,217,137,0.55), inset 0 0 140px 30px rgba(227,178,60,0.35);
+  animation: tlmnEdgeGlow 2.2s ease-in-out both;
+}
+
+/* ── Premium pill buttons (red/gold) ────────────────────────────────────────────── */
+.tlmn-btn-primary {
+  background: linear-gradient(180deg, #d6184e 0%, #b01040 100%);
+  color: #fff;
+  border: 1px solid rgba(246,217,137,0.7);
+  box-shadow: 0 6px 18px -6px rgba(176,16,64,0.9), inset 0 1px 0 rgba(255,255,255,0.3);
+  transition: transform .1s, box-shadow .15s, filter .15s;
+}
+.tlmn-btn-primary:hover:not(:disabled) { filter: brightness(1.08); box-shadow: 0 8px 22px -6px rgba(176,16,64,1), inset 0 1px 0 rgba(255,255,255,0.35); }
+.tlmn-btn-primary:active:not(:disabled) { transform: translateY(1px) scale(0.99); }
+.tlmn-btn-primary:disabled { opacity: 0.4; filter: grayscale(0.3); }
+.tlmn-btn-gold {
+  background: linear-gradient(180deg, #f6d989 0%, #e3b23c 50%, #b8860b 100%);
+  color: #3a1c02;
+  border: 1px solid rgba(255,247,224,0.8);
+  box-shadow: 0 6px 16px -6px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.6);
+  transition: transform .1s, filter .15s;
+}
+.tlmn-btn-gold:hover:not(:disabled) { filter: brightness(1.06); }
+.tlmn-btn-gold:active:not(:disabled) { transform: translateY(1px) scale(0.99); }
+.tlmn-btn-ghost {
+  background: rgba(12,2,6,0.5);
+  color: rgba(255,255,255,0.92);
+  border: 1px solid rgba(246,217,137,0.32);
+  transition: background .15s, transform .1s;
+}
+.tlmn-btn-ghost:hover:not(:disabled) { background: rgba(20,4,10,0.7); border-color: rgba(246,217,137,0.55); }
+.tlmn-btn-ghost:active:not(:disabled) { transform: translateY(1px) scale(0.99); }
+.tlmn-btn-ghost:disabled { opacity: 0.3; }
+
+/* Gold-trimmed chrome + round badge. */
+.tlmn-chrome { border-color: rgba(246,217,137,0.22); }
+.tlmn-chrome:hover { border-color: rgba(246,217,137,0.45); }
+.tlmn-badge-gold {
+  background: rgba(12,2,6,0.55);
+  border: 1px solid rgba(246,217,137,0.4);
+  color: var(--tg-gold-bright);
+}
+
+/* ── Results podium ─────────────────────────────────────────────────────────────── */
+.tlmn-podium-1 {
+  background: linear-gradient(180deg, rgba(246,217,137,0.18), rgba(184,134,11,0.08));
+  border: 1.5px solid rgba(246,217,137,0.7);
+  box-shadow: 0 10px 30px -10px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.15);
+}
+.tlmn-podium-row {
+  background: linear-gradient(180deg, rgba(20,4,10,0.72), rgba(8,2,5,0.8));
+  border: 1px solid rgba(246,217,137,0.22);
+}
+.tlmn-results-card {
+  background: radial-gradient(ellipse 120% 100% at 50% 0%, #2a0710 0%, #1a040a 70%, #120308 100%);
+  border: 1.5px solid rgba(246,217,137,0.3);
+  box-shadow: 0 20px 60px -16px rgba(0,0,0,0.8);
 }
 
 /* Scrollbar */

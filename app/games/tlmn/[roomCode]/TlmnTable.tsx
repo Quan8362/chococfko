@@ -792,10 +792,12 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
   const dealH = fullBleed ? (area.h || vh) : useImage ? board.h : tableH
   const centerWrapClass = fullBleed
     ? (shortVp
-        // Short-landscape phones: little vertical room, so the centre sits in the lower-
-        // middle band — clearly BELOW the top seat and ABOVE the bottom hand dock.
-        ? 'absolute left-0 right-0 top-[28%] bottom-[34%] flex items-center justify-center px-3 pointer-events-none'
-        : 'absolute left-0 right-0 top-[8%] bottom-[35%] flex items-center justify-center px-4 pointer-events-none')
+        // Short-landscape phones: the centre owns an UPPER-MIDDLE band — clearly BELOW
+        // the top seat and well ABOVE the (now short) bottom hand dock, so the pile +
+        // banner never share space with the human cluster. The dock's top sits ≥ ~66%,
+        // so this band stops at 53% to keep a clear gap.
+        ? 'absolute left-0 right-0 top-[20%] bottom-[47%] flex items-center justify-center px-3 pointer-events-none'
+        : 'absolute left-0 right-0 top-[18%] bottom-[42%] flex items-center justify-center px-4 pointer-events-none')
     : !useImage
       ? 'absolute inset-0 flex items-center justify-center px-4 pointer-events-none'
       : shortVp
@@ -957,6 +959,33 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
     </>
   )
 
+  // Human (bottom-seat) avatar + turn-timer + the Sắp xếp pill, factored out so the
+  // SAME nodes serve the normal portrait/desktop info row AND the compact short-landscape
+  // corner layout (where they move into the hand-tray's bottom corners, out of the dock's
+  // vertical flow). Only rendered inside the `mySeat != null` dock, so the mySeat! is safe.
+  const humanAvatar = mySeat == null ? null : (
+    <span className={`relative inline-flex rounded-full p-[3px] tlmn-frame-gold ${isMyTurn && !reduced ? 'tlmn-frame-active' : ''}`}>
+      <PodAvatar name={seatName(mySeat)} url={seatOf(mySeat)?.avatar_url ?? null} size={compactDock ? 34 : vw < 560 ? 38 : 46} />
+      {isMyTurn && secondsLeft != null && (
+        <span
+          className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center ${secondsLeft <= 5 ? 'tlmn-timer-warn' : ''}`}
+          style={{ background: `conic-gradient(${secondsLeft <= 5 ? '#ff5a8c' : '#7fe3f0'} ${turnFrac * 360}deg, rgba(0,0,0,0.45) 0deg)` }}
+        >
+          <span className="absolute inset-[2px] rounded-full bg-ink flex items-center justify-center text-[10px] font-bold text-white">{secondsLeft}</span>
+        </span>
+      )}
+    </span>
+  )
+  const sortButton = (
+    <button
+      type="button"
+      onClick={() => setSortMode(m => (m === 'rank' ? 'suit' : 'rank'))}
+      className="tlmn-btn-gold flex-none text-[12px] font-black uppercase tracking-wide rounded-full px-3.5 py-1.5 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+    >
+      ↕ {t('sort_btn')}
+    </button>
+  )
+
   // The bottom content: human dock (plate + hand + decision + actions) / finished / spectator
   // / end-of-round podium. In image mode this overlays the board's bottom; in oval mode it
   // sits in flow below the felt. Identical markup either way (zero-cutoff hand preserved).
@@ -973,57 +1002,56 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
 
       {mySeat != null && playing && !myFinished && (
         <div className={`tlmn-dock-safe relative z-20 px-3 sm:px-6 pt-1 ${compactDock ? 'tlmn-dock-compact' : ''}`} aria-busy={busy} style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}>
-          {/* Human (bottom-seat) info cluster — a slim bar pinned LOW, hugging the top of the
-              hand fan (a small negative margin tucks it over the tray's empty top so it reads as
-              part of the bottom dock, NOT floating up in the centre play area). Flanking flex-1
-              zones keep it horizontally centred so it never drifts left into Bot 3 / the pile /
-              the combo banner; the Sắp xếp pill lives in the right zone. The z-[2] keeps the bar
-              above the tray as they overlap. Consistent across desktop / tablet / mobile /
-              fullscreen. */}
-          <div className="relative z-[2] flex items-end gap-2 -mb-4 max-w-[760px] mx-auto">
-            <div className="flex-1 min-w-0" aria-hidden />
-            <div className="flex items-center gap-2.5 min-w-0 rounded-[22px] bg-black/40 py-1 pl-1 pr-3 backdrop-blur-[1px]">
-              <span className={`relative inline-flex rounded-full p-[3px] tlmn-frame-gold ${isMyTurn && !reduced ? 'tlmn-frame-active' : ''}`}>
-                <PodAvatar name={seatName(mySeat)} url={seatOf(mySeat)?.avatar_url ?? null} size={compactDock ? 34 : vw < 560 ? 38 : 46} />
-                {isMyTurn && secondsLeft != null && (
-                  <span
-                    className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center ${secondsLeft <= 5 ? 'tlmn-timer-warn' : ''}`}
-                    style={{ background: `conic-gradient(${secondsLeft <= 5 ? '#ff5a8c' : '#7fe3f0'} ${turnFrac * 360}deg, rgba(0,0,0,0.45) 0deg)` }}
-                  >
-                    <span className="absolute inset-[2px] rounded-full bg-ink flex items-center justify-center text-[10px] font-bold text-white">{secondsLeft}</span>
-                  </span>
-                )}
-              </span>
-              <div className="min-w-0 tlmn-hide-compact">
-                <p className="text-[13px] font-bold text-white truncate max-w-[44vw] flex items-center gap-1.5">
-                  {game.nhat_seat === mySeat && <span className="text-gold">🏆</span>}
-                  {seatName(mySeat)}
-                  <span className="tlmn-hide-compact text-[10px] font-bold text-white/60 bg-white/15 rounded-full px-1.5 py-0.5">{t('you_badge')}</span>
-                  <span className="tlmn-chip-balance text-[10px] font-black inline-flex items-center gap-0.5"><span aria-hidden className="text-[9px]">🪙</span>{formatChips(myBalance ?? chipsFromScore(seatOf(mySeat)?.cumulative_score ?? 0))}</span>
-                </p>
-                {isMyTurn ? (
-                  <span className="tlmn-hide-compact text-[11px] font-bold text-rose-200 flex items-center gap-1 mt-0.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-rose-200 animate-pulse" />{t('your_turn')}
-                  </span>
-                ) : (
-                  <span className="tlmn-hide-compact text-[11px] text-white/70 italic mt-0.5 inline-block">{t('thinking')}</span>
-                )}
+          {/* Human (bottom-seat) info cluster — NORMAL (portrait / tablet / desktop /
+              fullscreen): a slim bar pinned LOW, hugging the top of the hand fan (a small
+              negative margin tucks it over the tray's empty top so it reads as part of the
+              bottom dock, NOT floating up in the centre). Flanking flex-1 zones keep it
+              centred; the Sắp xếp pill lives in the right zone. OMITTED in the compact
+              short-landscape dock — there the avatar/timer + Sắp xếp move into the tray's
+              bottom corners (below) so the dock stays short and the cluster can never ride
+              up into the centre play zone. */}
+          {!compactDock && (
+            <div className="relative z-[2] flex items-end gap-2 -mb-4 max-w-[760px] mx-auto">
+              <div className="flex-1 min-w-0" aria-hidden />
+              <div className="flex items-center gap-2.5 min-w-0 rounded-[22px] bg-black/40 py-1 pl-1 pr-3 backdrop-blur-[1px]">
+                {humanAvatar}
+                <div className="min-w-0">
+                  <p className="text-[13px] font-bold text-white truncate max-w-[44vw] flex items-center gap-1.5">
+                    {game.nhat_seat === mySeat && <span className="text-gold">🏆</span>}
+                    {seatName(mySeat)}
+                    <span className="text-[10px] font-bold text-white/60 bg-white/15 rounded-full px-1.5 py-0.5">{t('you_badge')}</span>
+                    <span className="tlmn-chip-balance text-[10px] font-black inline-flex items-center gap-0.5"><span aria-hidden className="text-[9px]">🪙</span>{formatChips(myBalance ?? chipsFromScore(seatOf(mySeat)?.cumulative_score ?? 0))}</span>
+                  </p>
+                  {isMyTurn ? (
+                    <span className="text-[11px] font-bold text-rose-200 flex items-center gap-1 mt-0.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-rose-200 animate-pulse" />{t('your_turn')}
+                    </span>
+                  ) : (
+                    <span className="text-[11px] text-white/70 italic mt-0.5 inline-block">{t('thinking')}</span>
+                  )}
+                </div>
               </div>
+              <div className="flex-1 min-w-0 flex justify-end">{sortButton}</div>
             </div>
-            <div className="flex-1 min-w-0 flex justify-end">
-              <button
-                type="button"
-                onClick={() => setSortMode(m => (m === 'rank' ? 'suit' : 'rank'))}
-                className="tlmn-btn-gold flex-none text-[12px] font-black uppercase tracking-wide rounded-full px-3.5 py-1.5 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
-              >
-                ↕ {t('sort_btn')}
-              </button>
-            </div>
-          </div>
+          )}
 
           {/* Cream hand tray with the fanned cards. Extra top room so the arced middle
-              cards + any selected lift are never clipped. */}
+              cards + any selected lift are never clipped. Also the positioned context for
+              the COMPACT corner widgets. */}
           <div className="tlmn-tray relative z-[1] rounded-xl px-2 sm:px-4 max-w-[760px] mx-auto" style={{ minHeight: Math.round(handW * 1.4) + (compactDock ? 14 : 22) }}>
+            {/* COMPACT short-landscape dock — the human avatar/timer sits in the tray's
+                bottom-LEFT and Sắp xếp in the bottom-RIGHT, overlapping the empty ends of
+                the centred fan. They add ZERO vertical height, so the human cluster stays
+                at the BOTTOM with the hand and never collides with the centre pile. */}
+            {compactDock && (
+              <>
+                <span className="absolute left-0 bottom-0 z-[5] flex items-center gap-1.5 rounded-full bg-black/45 p-[3px] pr-2 backdrop-blur-[1px]">
+                  {humanAvatar}
+                  <span className="tlmn-chip-balance text-[10px] font-black inline-flex items-center gap-0.5"><span aria-hidden className="text-[9px]">🪙</span>{formatChips(myBalance ?? chipsFromScore(seatOf(mySeat)?.cumulative_score ?? 0))}</span>
+                </span>
+                <span className="absolute right-0 bottom-0 z-[5]">{sortButton}</span>
+              </>
+            )}
             <div
               key={invalidKey}
               ref={trayRef}

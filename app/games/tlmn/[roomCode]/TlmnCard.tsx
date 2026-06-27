@@ -2,6 +2,19 @@
 
 import { RANKS, R2, type Card } from '@/lib/games/tlmn/engine'
 
+// ── Court figures (J/Q/K) — vendored open-license artwork ────────────────────────────
+// NOTE(asset): the J/Q/K central FIGURE illustrations live in
+// public/games/tlmn/cards/<RANK><SUIT>.svg and come from Byron Knoll's PUBLIC-DOMAIN
+// "Vector Playing Cards" deck (github.com/notpeter/Vector-Playing-Cards). Each was
+// cropped (viewBox) to the figure box so the source deck's OWN border + indices are
+// gone and only OUR uniform corner index shows. See cards/LICENSE.txt. The number
+// cards 2–10 + Ace below are custom inline SVG (not from that deck).
+const COURT_RANK = ['J', 'Q', 'K'] as const // RANKS index 8,9,10
+const SUIT_CODE = ['S', 'C', 'D', 'H'] as const // matches SUITS in engine.ts
+// How far the court figure sits inside the shared frame, so OUR corner index keeps a
+// clear white margin. Tuned so J/Q/K read naturally and never collide with the index.
+const COURT_INSET = '17.5% 16%'
+
 // ── Suit pips as inline SVG ──────────────────────────────────────────────────────
 // Vector paths (24×24 viewBox) so suits stay razor-crisp at every card size and never
 // fall back to the OS emoji renderer (which turns ♥♦ into coloured glyphs and breaks
@@ -29,6 +42,23 @@ function SuitPip({ suit, size, color }: { suit: number; size: number; color: str
   )
 }
 
+// Ace centre — a larger ornamental pip framed by a thin laurel-style double ring so the
+// Ace reads as special (the Ace of Spades gets the grandest pip). One opaque face.
+function AcePip({ suit, w, color }: { suit: number; w: number; color: string }) {
+  const isSpade = suit === 0
+  const ring = Math.round(w * (isSpade ? 0.66 : 0.6))
+  const pip = Math.round(w * (isSpade ? 0.4 : 0.36))
+  return (
+    <span className="relative inline-flex items-center justify-center" style={{ width: ring, height: ring }}>
+      <svg viewBox="0 0 100 100" width={ring} height={ring} aria-hidden className="absolute inset-0" style={{ stroke: color, fill: 'none', opacity: 0.5 }}>
+        <circle cx="50" cy="50" r="46" strokeWidth="2.5" />
+        <circle cx="50" cy="50" r="40" strokeWidth="1" strokeDasharray="2 3" />
+      </svg>
+      <SuitPip suit={suit} size={pip} color={color} />
+    </span>
+  )
+}
+
 // Lightweight CSS+SVG playing card — crisp at any size, legible down to ~360px. Red
 // for ♦♥ (brand magenta), ink for ♠♣. Aspect 5:7. The "2" (heo) gets a subtle gold
 // accent since it's the top single. Soft, flat-ish shadow — depth, not heaviness.
@@ -52,20 +82,30 @@ export function CardFace({
 }) {
   const red = card.suit >= 2
   const isHeo = card.rank === R2
+  const isCourt = card.rank >= 8 && card.rank <= 10 // J, Q, K
+  const isAce = card.rank === 11
   const h = Math.round(w * 1.4) // 5:7
   const rank = RANKS[card.rank]
   const color = red ? CARD_RED : INK
-  // ONE clean face: a compact corner index (rank over suit) + a single 180° mirror +
-  // a small OPAQUE central pip. Sizes are tuned so the corner index and the centre pip
-  // never overlap (the previous 0.56·w centre pip swallowed the corners → ghosting).
-  const rankSize = Math.round(w * 0.34)
-  const cornerSuit = Math.round(w * 0.22)
-  const centerSuit = Math.round(w * 0.24)
+  // ONE clean opaque face, UNIFORM across the whole deck: a bold corner index (rank
+  // over a small suit pip) mirrored 180°. The CENTRE differs by rank only:
+  //   2–10 → one large central pip · Ace → a larger ornamental pip · J/Q/K → the
+  //   vendored court figure. Sizes are tuned so the index never overlaps the centre.
+  const rankSize = Math.round(w * 0.3)
+  const cornerSuit = Math.round(w * 0.18)
+  const centerSuit = Math.round(w * 0.46)
+
+  const corner = (
+    <>
+      <span className="font-black" style={{ fontSize: rankSize }}>{rank}</span>
+      <SuitPip suit={card.suit} size={cornerSuit} color={color} />
+    </>
+  )
 
   return (
     <span
       className={[
-        'relative inline-flex flex-col select-none rounded-[7px] bg-white leading-none transition-all duration-150',
+        'relative inline-flex flex-col select-none rounded-[7px] bg-white leading-none transition-all duration-150 overflow-hidden',
         interactive && !dim ? 'tlmn-card-int' : '',
         selected
           ? 'ring-2 ring-rose shadow-[0_10px_22px_-6px_rgba(214,0,108,0.6)]'
@@ -79,22 +119,34 @@ export function CardFace({
       ].join(' ')}
       style={{ width: w, height: h, color }}
     >
-      {/* top-left corner */}
-      <span className="absolute top-[3px] left-[4px] flex flex-col items-center leading-[0.9]">
-        <span className="font-black" style={{ fontSize: rankSize }}>{rank}</span>
-        <SuitPip suit={card.suit} size={cornerSuit} color={color} />
-      </span>
-      {/* center pip — single, fully opaque (no translucent watermark / ghost) */}
-      <span className="absolute inset-0 flex items-center justify-center">
-        <SuitPip suit={card.suit} size={centerSuit} color={color} />
-      </span>
+      {/* top-left corner — the UNIFORM index reused on every rank incl. courts */}
+      <span className="absolute top-[3px] left-[4px] z-10 flex flex-col items-center leading-[0.85]">{corner}</span>
+
+      {/* CENTRE — court figure OR a single opaque central pip (no translucent ghost) */}
+      {isCourt ? (
+        <span className="absolute pointer-events-none" style={{ inset: COURT_INSET }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={`/games/tlmn/cards/${COURT_RANK[card.rank - 8]}${SUIT_CODE[card.suit]}.svg`}
+            alt=""
+            aria-hidden
+            draggable={false}
+            className="w-full h-full object-contain select-none"
+          />
+        </span>
+      ) : (
+        <span className="absolute inset-0 flex items-center justify-center">
+          {isAce
+            ? <AcePip suit={card.suit} w={w} color={color} />
+            : <SuitPip suit={card.suit} size={centerSuit} color={color} />}
+        </span>
+      )}
+
       {/* bottom-right corner (mirrored 180°) */}
-      <span className="absolute bottom-[3px] right-[4px] flex flex-col items-center leading-[0.9] rotate-180">
-        <span className="font-black" style={{ fontSize: rankSize }}>{rank}</span>
-        <SuitPip suit={card.suit} size={cornerSuit} color={color} />
-      </span>
+      <span className="absolute bottom-[3px] right-[4px] z-10 flex flex-col items-center leading-[0.85] rotate-180">{corner}</span>
+
       {isHeo && !dim && (
-        <span className="absolute top-[3px] right-[4px] text-gold" style={{ fontSize: Math.round(w * 0.22) }}>★</span>
+        <span className="absolute top-[3px] right-[4px] z-10 text-gold" style={{ fontSize: Math.round(w * 0.22) }}>★</span>
       )}
     </span>
   )

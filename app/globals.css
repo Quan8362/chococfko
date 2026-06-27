@@ -202,6 +202,36 @@ body::before {
 }
 .tlmn-ring { border: 2px solid #ffd1e0; border-radius: 9999px; animation: tlmnRing 1.4s ease-out infinite; }
 
+/* ── TLMN design tokens (single source — referenced everywhere, no magic numbers) ──
+   Card geometry, fan overlap/arc and ring widths. The base values target desktop;
+   the media queries below step them down for tablet / phone / landscape-phone.
+   Components read these via var(--card-w) etc. so the whole board scales as one. */
+.tlmn-stage {
+  --card-w: 88px;            /* your-hand card width  (h = w * 1.4) */
+  --card-h: 123px;
+  --card-radius: 7px;
+  --pile-card-w: 72px;       /* a card in the centre pile */
+  --back-w: 18px;            /* an opponent face-down back */
+  --fan-overlap: 0.65;       /* fraction of a card hidden under its neighbour */
+  --fan-arc: 12deg;          /* max ± tilt at the ends of YOUR hand fan */
+  --opp-fan-arc: 6deg;       /* gentler arc for opponent side/top fans */
+  --ring-w: 2.5px;           /* avatar active/nhat ring thickness */
+  --lastplay-w: 22px;        /* per-seat last-played mini card width */
+}
+@media (max-width: 1023px) {
+  .tlmn-stage { --card-w: 78px; --card-h: 109px; --pile-card-w: 64px; --back-w: 17px; }
+}
+@media (max-width: 767px) {
+  .tlmn-stage { --card-w: 70px; --card-h: 98px;  --pile-card-w: 58px; --back-w: 16px; --fan-arc: 10deg; --lastplay-w: 20px; }
+}
+@media (max-width: 559px) {
+  .tlmn-stage { --card-w: 60px; --card-h: 84px;  --pile-card-w: 50px; --back-w: 15px; --fan-arc: 8deg; --opp-fan-arc: 5deg; }
+}
+/* Landscape phones: keep cards short enough to clear the bottom dock. */
+@media (max-height: 520px) {
+  .tlmn-stage { --card-w: 58px; --card-h: 81px; --pile-card-w: 48px; --fan-arc: 8deg; }
+}
+
 /* ── Immersive table surface (Phase 4 visual redesign) ──────────────────────────── */
 /* Full-bleed deep-red radial: brighter crimson center fading to near-black edges. */
 .tlmn-stage {
@@ -241,6 +271,64 @@ body::before {
   50%     { box-shadow: 0 0 0 4px rgba(255,77,148,0.25), 0 0 26px 6px rgba(255,77,148,0.7); }
 }
 .tlmn-glow { animation: tlmnGlow 1.5s ease-in-out infinite; }
+
+/* Winner-seat celebration ring (round end). Warm gold, slightly grander than the
+   turn glow. Reduced-motion callers drop the class so the ring is steady gold. */
+@keyframes tlmnWinGlow {
+  0%,100% { box-shadow: 0 0 0 0 rgba(201,154,61,0.55), 0 0 18px 3px rgba(201,154,61,0.5); }
+  50%     { box-shadow: 0 0 0 5px rgba(201,154,61,0.3), 0 0 30px 8px rgba(201,154,61,0.85); }
+}
+.tlmn-win-glow { animation: tlmnWinGlow 1.2s ease-in-out infinite; }
+
+/* ── Phase 6: mobile-portrait seat matrix ────────────────────────────────────────
+   On a narrow portrait felt the mid-edge left/right seats would push their vertical
+   fans off the surface. Pull them into the UPPER corners and shrink them (smaller
+   footprint; the count badge + last-played mini stay legible) so they never overflow.
+   The top seat stays centred; the centre pile and the bottom hand are untouched. */
+@media (max-width: 559px) and (orientation: portrait) {
+  .tlmn-felt > .tlmn-seat[data-seat-slot="left"] {
+    top: 15% !important;
+    left: 0.5% !important;
+    transform: scale(0.78) !important;
+    transform-origin: top left;
+  }
+  .tlmn-felt > .tlmn-seat[data-seat-slot="right"] {
+    top: 15% !important;
+    right: 0.5% !important;
+    transform: scale(0.78) !important;
+    transform-origin: top right;
+  }
+}
+
+/* ── Phase 4: card hover / turn clarity helpers ──────────────────────────────── */
+/* Desktop-only hover lift on an interactive hand card (no sticky hover on touch).
+   The arc/lift transform lives on the parent, so this child transform is independent. */
+@media (hover: hover) and (pointer: fine) {
+  .tlmn-card-int { cursor: pointer; }
+  .tlmn-card-int:hover {
+    transform: translateY(-7px);
+    box-shadow: 0 14px 26px -8px rgba(0,0,0,0.5);
+  }
+}
+/* Countdown ring warning pulse — last ~5 seconds of a turn. */
+@keyframes tlmnTimerWarn {
+  0%,100% { box-shadow: 0 0 0 0 rgba(255,90,140,0.0); }
+  50%     { box-shadow: 0 0 0 3px rgba(255,90,140,0.45); }
+}
+.tlmn-timer-warn { animation: tlmnTimerWarn 0.85s ease-in-out infinite; }
+/* Your-turn "Đánh" button gentle pulse (only when a valid play is selected). */
+@keyframes tlmnPlayPulse {
+  0%,100% { box-shadow: 0 6px 22px -6px rgba(214,0,108,0.8); }
+  50%     { box-shadow: 0 6px 22px -2px rgba(214,0,108,0.95), 0 0 0 4px rgba(214,0,108,0.25); }
+}
+.tlmn-play-pulse { animation: tlmnPlayPulse 1.3s ease-in-out infinite; }
+/* Opponent "đang suy nghĩ…" 3-dot. */
+@keyframes tlmnDot {
+  0%,80%,100% { opacity: 0.25; transform: translateY(0); }
+  40%         { opacity: 1; transform: translateY(-2px); }
+}
+.tlmn-think-dot { animation: tlmnDot 1.1s ease-in-out infinite; }
+
 /* "Rotate for a better experience" hint — portrait phones only. */
 .tlmn-rotate-hint { display: none; }
 @media (max-width: 640px) and (orientation: portrait) {

@@ -30,6 +30,7 @@
     "@types/leaflet.markercluster": "^1.5.4",
     "@types/sanitize-html": "^2.16.1",
     "@types/web-push": "^3.6.4",
+    "framer-motion": "^12.42.0",
     "hanzi-writer": "^3.7.3",
     "jimp": "^0.22.12",
     "leaflet": "^1.9.4",

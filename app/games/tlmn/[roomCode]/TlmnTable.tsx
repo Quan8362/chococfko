@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
@@ -117,7 +117,14 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
   const [error, setError] = useState<string | null>(null)
   const [dealing, setDealing] = useState(false)
   const [now, setNow] = useState(() => Date.now())
-  const [isPending, startTransition] = useTransition()
+  // In-flight lock for play / pass / next-round. A plain boolean (NOT useTransition):
+  // a server action wrapped in startTransition(async …) has no guaranteed release path,
+  // so a rejected/slow/interrupted action could strand isPending TRUE and disable
+  // EVERY action regardless of turn ("first play works, then stuck forever"). Here the
+  // lock is set right before the request and ALWAYS cleared in finally + a safety
+  // timeout, so it can only be true for the actual in-flight request.
+  const [busy, setBusy] = useState(false)
+  const busyTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   // Phase 7 — a polite ARIA live message (plays / passes / turn changes), localized.
   const [liveMsg, setLiveMsg] = useState('')
   // Phase 8 — realtime connection health for the in-play surface (the lobby has its
@@ -549,26 +556,41 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
     })
   }
 
+  // Run a server action behind the in-flight lock. The lock is GUARANTEED to release:
+  // finally clears it on success AND error/reject, and a safety timeout force-clears it
+  // if the request hangs — so a missed realtime event or a thrown action can never
+  // strand the buttons disabled. refreshAll() runs in finally so our own move advances
+  // without waiting on realtime.
+  const runLocked = useCallback((fn: () => Promise<{ error?: string } | null | void>) => {
+    setBusy(true)
+    if (busyTimer.current) clearTimeout(busyTimer.current)
+    busyTimer.current = setTimeout(() => { if (mountedRef.current) setBusy(false) }, 6000)
+    ;(async () => {
+      try {
+        const res = await fn()
+        if (res && 'error' in res && res.error) { setError(res.error); setInvalidKey(k => k + 1); return }
+        setSelected(new Set())
+      } catch {
+        setError('play_err_generic'); setInvalidKey(k => k + 1)
+      } finally {
+        if (busyTimer.current) { clearTimeout(busyTimer.current); busyTimer.current = null }
+        if (mountedRef.current) setBusy(false)
+        refreshAll()
+      }
+    })()
+  }, [refreshAll])
+
   const doPlay = () => {
-    if (!isMyTurn || selectedCards.length === 0 || isPending) return
+    if (!isMyTurn || selectedCards.length === 0 || busy) return
     if (!canPlay) { setInvalidKey(k => k + 1); setError('illegal_move'); sound.vibrate(20); return }
     setError(null)
-    startTransition(async () => {
-      const res = await playCards(roomId, selectedCards)
-      if (res?.error) { setError(res.error); setInvalidKey(k => k + 1) }
-      else setSelected(new Set())
-      refreshAll() // don't wait on realtime to advance my own move
-    })
+    runLocked(() => playCards(roomId, selectedCards))
   }
 
   const doPass = () => {
-    if (!canPass || isPending) return
+    if (!canPass || busy) return
     setError(null)
-    startTransition(async () => {
-      const res = await passTurn(roomId)
-      if (res?.error) setError(res.error)
-      refreshAll()
-    })
+    runLocked(() => passTurn(roomId))
   }
 
   const doHint = () => {
@@ -582,12 +604,29 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
   }
 
   const doNextRound = () => {
-    startTransition(async () => {
-      const res = await startNextRound(roomId)
-      if (res?.error) setError(res.error)
-      refreshAll()
-    })
+    if (busy) return
+    runLocked(() => startNextRound(roomId))
   }
+
+  // Clear the safety timer on unmount.
+  useEffect(() => () => { if (busyTimer.current) clearTimeout(busyTimer.current) }, [])
+
+  // TEMP DIAGNOSTIC (Run-7 action-bar fix) — remove after verification. Fires only at a
+  // genuinely-stuck moment: it's my turn yet BOTH actions are disabled while the lock is
+  // held OR an active pile exists (i.e. NOT the legitimate "I lead, nothing selected"
+  // state). Captures every gating boolean + the server turn vs my seat.
+  useEffect(() => {
+    if (!isMyTurn) return
+    const playDisabled = selectedCards.length === 0 || busy || !canPlay
+    const passDisabled = !canPass || busy
+    if (playDisabled && passDisabled && (busy || !!game?.trick)) {
+      // eslint-disable-next-line no-console
+      console.warn('[TLMN action-bar STUCK]', {
+        isMyTurn, busy, canPlay, canPass, selected: selectedCards.length,
+        turn_seat: game?.turn_seat, mySeat, hasTrick: !!game?.trick, status: game?.status,
+      })
+    }
+  }, [isMyTurn, busy, canPlay, canPass, selectedCards.length, game, mySeat])
 
   // ── Loading ────────────────────────────────────────────────────────────────────
   if (!game) {
@@ -879,7 +918,7 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
         )}
 
         {mySeat != null && playing && !myFinished && (
-          <div className="relative z-20 px-3 sm:px-6 pt-1" aria-busy={isPending} style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}>
+          <div className="relative z-20 px-3 sm:px-6 pt-1" aria-busy={busy} style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}>
             {/* Human seat (bottom-left) + sort pill */}
             <div className="flex items-end justify-between gap-2 mb-1.5">
               <div className="flex items-center gap-2.5">
@@ -1005,7 +1044,7 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
               <button
                 type="button"
                 onClick={doHint}
-                disabled={!isMyTurn || isPending}
+                disabled={!isMyTurn || busy}
                 className="tlmn-btn-ghost font-bold text-[13px] px-4 py-3 rounded-xl transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--tg-gold-bright)]"
               >
                 💡 {t('hint_btn')}
@@ -1013,9 +1052,9 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
               <button
                 type="button"
                 onClick={doPlay}
-                disabled={!isMyTurn || selectedCards.length === 0 || isPending || !canPlay}
+                disabled={!isMyTurn || selectedCards.length === 0 || busy || !canPlay}
                 className={`tlmn-btn-primary flex-1 font-bold text-[15px] px-5 py-3 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--tg-gold-bright)] ${
-                  isMyTurn && canPlay && !isPending ? 'tlmn-play-pulse' : ''
+                  isMyTurn && canPlay && !busy ? 'tlmn-play-pulse' : ''
                 }`}
               >
                 {t('play_btn')}
@@ -1024,7 +1063,7 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
               <button
                 type="button"
                 onClick={doPass}
-                disabled={!canPass || isPending}
+                disabled={!canPass || busy}
                 className="tlmn-btn-ghost font-bold text-[14px] px-5 py-3 rounded-xl transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--tg-gold-bright)]"
               >
                 {t('pass_btn')}
@@ -1051,7 +1090,7 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
                 <button
                   type="button"
                   onClick={doNextRound}
-                  disabled={isPending}
+                  disabled={busy}
                   className="tlmn-btn-gold font-black text-[15px] uppercase tracking-wide px-8 py-3.5 rounded-xl transition-all disabled:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
                 >
                   🃏 {t('new_round_btn')}

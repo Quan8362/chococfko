@@ -55,10 +55,12 @@ export function CardFace({
   const h = Math.round(w * 1.4) // 5:7
   const rank = RANKS[card.rank]
   const color = red ? CARD_RED : INK
-  // Oversized, bold index (reads from across the table). Suit pip sits below the rank.
-  const cornerSuit = Math.round(w * 0.30)
-  const centerSuit = Math.round(w * 0.56)
-  const rankSize = Math.round(w * 0.42)
+  // ONE clean face: a compact corner index (rank over suit) + a single 180° mirror +
+  // a small OPAQUE central pip. Sizes are tuned so the corner index and the centre pip
+  // never overlap (the previous 0.56·w centre pip swallowed the corners → ghosting).
+  const rankSize = Math.round(w * 0.34)
+  const cornerSuit = Math.round(w * 0.22)
+  const centerSuit = Math.round(w * 0.24)
 
   return (
     <span
@@ -82,8 +84,8 @@ export function CardFace({
         <span className="font-black" style={{ fontSize: rankSize }}>{rank}</span>
         <SuitPip suit={card.suit} size={cornerSuit} color={color} />
       </span>
-      {/* center pip */}
-      <span className="absolute inset-0 flex items-center justify-center opacity-90">
+      {/* center pip — single, fully opaque (no translucent watermark / ghost) */}
+      <span className="absolute inset-0 flex items-center justify-center">
         <SuitPip suit={card.suit} size={centerSuit} color={color} />
       </span>
       {/* bottom-right corner (mirrored 180°) */}

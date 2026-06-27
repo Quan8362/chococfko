@@ -7,6 +7,7 @@ import {
   type HostRulesOverride, type HostConfigurableKey,
 } from '@/lib/games/tlmn/engine'
 import { updateRules } from '../actions'
+import { TlmnSettings, TlmnReset } from '../icons'
 
 // Host rule-config panel (lobby only). Every control is pre-filled with the full
 // DEFAULT_RULES; the host's edits are diffed back to a PARTIAL override (only the
@@ -53,19 +54,19 @@ export default function TlmnRulesPanel({ roomId, isHost, override, disabled }: P
   const isCustom = !!override && Object.keys(override).length > 0
 
   return (
-    <div className="bg-paper border border-line rounded-2xl p-4">
+    <div className="tl-panel p-4">
       <div className="flex items-center justify-between mb-3">
-        <p className="text-[11px] font-bold text-muted uppercase tracking-[1.5px]">
-          ⚙️ {t('settings_heading')}
+        <p className="inline-flex items-center gap-1.5 text-[11px] font-bold text-[var(--tl-red)] uppercase tracking-[1.5px]">
+          <TlmnSettings className="w-4 h-4" /> {t('settings_heading')}
         </p>
         {isHost && !disabled && isCustom && (
           <button
             type="button"
             onClick={reset}
             disabled={isPending}
-            className="text-[11.5px] font-semibold text-rose hover:underline disabled:opacity-50"
+            className="inline-flex items-center gap-1 text-[11.5px] font-semibold text-[var(--tl-red)] hover:underline disabled:opacity-50"
           >
-            ↺ {t('rules_reset')}
+            <TlmnReset className="w-3.5 h-3.5" /> {t('rules_reset')}
           </button>
         )}
       </div>
@@ -75,17 +76,17 @@ export default function TlmnRulesPanel({ roomId, isHost, override, disabled }: P
         {TOGGLE_KEYS.map(key => (
           <label
             key={key}
-            className={`flex items-center justify-between gap-2 rounded-xl border px-3 py-2 text-[12.5px] ${
-              effective[key] ? 'border-rose/30 bg-rose/5' : 'border-line bg-cream/40'
+            className={`flex items-center justify-between gap-2 rounded-xl border px-3 py-2 text-[12.5px] transition-colors ${
+              effective[key] ? 'border-[var(--tl-gold)]/50 bg-[var(--tl-gold)]/10' : 'border-[var(--tl-cream-line)] bg-white/40'
             } ${readOnly ? 'opacity-90' : 'cursor-pointer'}`}
           >
-            <span className="font-semibold text-ink">{t(`rule_${key}` as Parameters<typeof t>[0])}</span>
+            <span className="font-semibold text-[var(--tl-text)]">{t(`rule_${key}` as Parameters<typeof t>[0])}</span>
             <input
               type="checkbox"
               checked={!!effective[key]}
               disabled={readOnly}
               onChange={e => commit(key, e.target.checked)}
-              className="w-4 h-4 accent-rose disabled:cursor-not-allowed"
+              className="tl-check w-4 h-4 disabled:cursor-not-allowed"
             />
           </label>
         ))}
@@ -95,7 +96,7 @@ export default function TlmnRulesPanel({ roomId, isHost, override, disabled }: P
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
         {NUMBER_KEYS.map(key => (
           <label key={key} className="flex flex-col gap-1">
-            <span className="text-[10.5px] font-semibold text-muted leading-tight">
+            <span className="text-[10.5px] font-semibold text-[var(--tl-text-soft)] leading-tight">
               {t(`rule_${key}` as Parameters<typeof t>[0])}
             </span>
             <input
@@ -107,17 +108,17 @@ export default function TlmnRulesPanel({ roomId, isHost, override, disabled }: P
                 const v = Number(e.target.value)
                 if (Number.isFinite(v) && v >= 0) commit(key, v)
               }}
-              className="w-full rounded-lg border border-line bg-white px-2 py-1.5 text-[13px] font-mono text-ink disabled:bg-cream/50 disabled:text-muted disabled:cursor-not-allowed focus:border-rose/50 focus:outline-none"
+              className="w-full rounded-lg border border-[var(--tl-cream-line)] bg-white px-2 py-1.5 text-[13px] font-mono text-[var(--tl-text)] disabled:bg-black/5 disabled:text-[var(--tl-text-soft)] disabled:cursor-not-allowed focus:border-[var(--tl-gold)] focus:ring-2 focus:ring-[var(--tl-gold)]/20 focus:outline-none transition-all"
             />
           </label>
         ))}
       </div>
 
       {!isHost && (
-        <p className="text-[11.5px] text-muted/60 mt-2.5">{t('settings_host_only')}</p>
+        <p className="text-[11.5px] text-[var(--tl-text-soft)]/70 mt-2.5">{t('settings_host_only')}</p>
       )}
       {disabled && isHost && (
-        <p className="text-[11.5px] text-muted/60 mt-2.5">{t('settings_locked')}</p>
+        <p className="text-[11.5px] text-[var(--tl-text-soft)]/70 mt-2.5">{t('settings_locked')}</p>
       )}
     </div>
   )

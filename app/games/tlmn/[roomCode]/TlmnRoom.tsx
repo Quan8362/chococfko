@@ -14,6 +14,9 @@ import {
 import TlmnRulesPanel from './TlmnRulesPanel'
 import TlmnTable from './TlmnTable'
 import { useTlmnSound } from './useTlmnSound'
+import {
+  TlmnInvite, TlmnShare, TlmnBot, TlmnCrown, TlmnCheck, TlmnSeat as TlmnSeatIcon, TlmnWave, TlmnSuits,
+} from '../icons'
 
 const MAX_SEATS = 4
 const MIN_READY_TO_START = 2
@@ -298,13 +301,15 @@ export default function TlmnRoom({ initialState, userId, joinError = null }: Pro
   // ── Render ───────────────────────────────────────────────────────────────────
   if (kicked) {
     return (
-      <div className="flex flex-col items-center text-center gap-4 rounded-2xl border border-rose/30 bg-gradient-to-br from-[#fdeef5] to-cream p-8">
-        <span className="text-[34px]" aria-hidden>👋</span>
-        <h2 className="font-serif font-bold text-[20px] text-rose">{t('kicked_title')}</h2>
-        <p className="text-[13.5px] text-muted leading-relaxed max-w-[420px]">{t('kicked_desc')}</p>
+      <div className="tlmn-lobby flex flex-col items-center text-center gap-4">
+        <span className="w-16 h-16 rounded-2xl bg-black/20 text-[var(--tl-gold-bright)] flex items-center justify-center ring-1 ring-[var(--tl-gold)]/30" aria-hidden>
+          <TlmnWave className="w-9 h-9" />
+        </span>
+        <h2 className="font-serif font-bold text-[20px] text-[#fdeedd]">{t('kicked_title')}</h2>
+        <p className="text-[13.5px] tl-section-sub leading-relaxed max-w-[420px]">{t('kicked_desc')}</p>
         <Link
           href="/games/tlmn"
-          className="mt-1 inline-flex items-center justify-center gap-2 font-semibold text-[14px] px-6 py-3 rounded-xl bg-rose text-white hover:bg-rose-deep transition-all"
+          className="tl-btn-gold mt-1 inline-flex items-center justify-center gap-2 text-[14px] px-6 py-3"
         >
           {t('kicked_back_btn')}
         </Link>
@@ -313,7 +318,7 @@ export default function TlmnRoom({ initialState, userId, joinError = null }: Pro
   }
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className={`flex flex-col gap-5 ${isPlaying ? '' : 'tlmn-lobby'}`}>
 
       {/* ── Activity toasts (live presence: join / leave / ready / kick / host) ── */}
       {toasts.length > 0 && (
@@ -333,30 +338,31 @@ export default function TlmnRoom({ initialState, userId, joinError = null }: Pro
 
       {/* Room code banner (lobby only — the immersive table carries its own chrome) */}
       {!isPlaying && (
-      <div className="w-full bg-gradient-to-r from-ink to-[#3a2d22] rounded-2xl px-5 py-4 flex items-center justify-between gap-3 shadow-lg">
-        <div>
-          <p className="text-[10.5px] font-bold uppercase tracking-[2px] text-white/50 mb-0.5">{t('room_code_label')}</p>
-          <p className="font-mono font-black text-[28px] text-white tracking-[0.2em] leading-none">
+      <div className="tl-panel-dark w-full px-5 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <TlmnSuits className="absolute right-2 -top-2 w-24 h-24 text-[var(--tl-gold-bright)] opacity-[0.08] pointer-events-none rotate-6" />
+        <div className="relative">
+          <p className="text-[10.5px] font-bold uppercase tracking-[2px] text-[var(--tl-gold-bright)]/60 mb-1">{t('room_code_label')}</p>
+          <p className="font-mono font-black text-[30px] text-[var(--tl-gold-bright)] tracking-[0.2em] leading-none [text-shadow:0_2px_10px_rgba(0,0,0,0.4)]">
             {room.invite_code}
           </p>
         </div>
-        <div className="flex items-center gap-2 flex-none">
+        <div className="relative flex items-center gap-2 flex-none">
           <button
             onClick={copyLink}
-            className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-all border border-white/15"
+            className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold px-4 py-2.5 rounded-xl bg-[var(--tl-gold)]/12 hover:bg-[var(--tl-gold)]/22 text-[var(--tl-gold-bright)] transition-all border border-[var(--tl-gold)]/30"
           >
             {copied ? (
-              <><svg className="w-3.5 h-3.5 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7"/></svg>{t('copied')}</>
+              <><TlmnCheck className="w-3.5 h-3.5 text-emerald-300" />{t('copied')}</>
             ) : (
-              <><svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>{t('copy_link')}</>
+              <><TlmnInvite className="w-4 h-4" />{t('copy_link')}</>
             )}
           </button>
           <button
             onClick={shareLink}
             aria-label={t('share_link')}
-            className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-all border border-white/15"
+            className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-[var(--tl-gold)]/12 hover:bg-[var(--tl-gold)]/22 text-[var(--tl-gold-bright)] transition-all border border-[var(--tl-gold)]/30"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
+            <TlmnShare className="w-4 h-4" />
           </button>
         </div>
       </div>
@@ -376,8 +382,14 @@ export default function TlmnRoom({ initialState, userId, joinError = null }: Pro
 
       {/* Status line (lobby only — the table shows its own status when playing) */}
       {!isPlaying && (
-        <div className="rounded-xl px-4 py-3 text-center border text-[13.5px] font-semibold bg-cream border-line text-ink">
-          {t('status_lobby', { ready: readyCount, total: seats.length })}
+        <div className="rounded-xl px-4 py-2.5 flex items-center justify-center gap-3 text-[13.5px] font-semibold bg-black/20 border border-[var(--tl-gold)]/25 text-[#fdeedd]">
+          <span className="flex-1 max-w-[160px] h-2 rounded-full bg-black/30 overflow-hidden">
+            <span
+              className="block h-full rounded-full bg-gradient-to-r from-[var(--tl-gold)] to-[var(--tl-gold-bright)] transition-[width] duration-300"
+              style={{ width: `${Math.min(100, (readyCount / Math.max(MIN_READY_TO_START, seats.length || 1)) * 100)}%` }}
+            />
+          </span>
+          <span className="whitespace-nowrap">{t('status_lobby', { ready: readyCount, total: seats.length })}</span>
         </div>
       )}
 
@@ -412,52 +424,50 @@ export default function TlmnRoom({ initialState, userId, joinError = null }: Pro
           return (
             <div
               key={i}
-              className={`rounded-2xl border p-4 flex items-center gap-3 min-h-[78px] transition-all ${
-                seat
-                  ? isMe ? 'border-rose/40 bg-rose/5' : 'border-line bg-paper'
-                  : 'border-dashed border-line bg-cream/40'
+              className={`p-4 flex items-center gap-3 min-h-[82px] ${
+                seat ? (isMe ? 'tl-seat tl-seat--me' : 'tl-seat') : 'tl-seat tl-seat--empty'
               }`}
             >
               {seat ? (
                 <>
-                  <Avatar name={seat.display_name} url={seat.avatar_url} />
+                  <Avatar name={seat.display_name} url={seat.avatar_url} host={!!isSeatHost} />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5 flex-wrap">
-                      <p className="text-[14px] font-semibold text-ink truncate max-w-[150px]">
+                      <p className="text-[14px] font-semibold text-[var(--tl-text)] truncate max-w-[150px]">
                         {seat.display_name || t('player_fallback', { n: i + 1 })}
                       </p>
                       {isSeatHost && (
-                        <span className="text-[9.5px] font-bold px-1.5 py-0.5 rounded-full bg-gold/15 text-gold flex-none">
-                          👑 {t('host_badge')}
+                        <span className="inline-flex items-center gap-0.5 text-[9.5px] font-bold px-1.5 py-0.5 rounded-full bg-[var(--tl-gold)]/20 text-[var(--tl-gold-deep)] border border-[var(--tl-gold)]/40 flex-none">
+                          <TlmnCrown className="w-3 h-3" /> {t('host_badge')}
                         </span>
                       )}
                       {isMe && (
-                        <span className="text-[9.5px] font-bold px-1.5 py-0.5 rounded-full bg-rose/10 text-rose flex-none">
+                        <span className="text-[9.5px] font-bold px-1.5 py-0.5 rounded-full bg-[var(--tl-red)]/10 text-[var(--tl-red)] flex-none">
                           {t('you_badge')}
                         </span>
                       )}
                       {seat.is_bot && (
-                        <span className="text-[9.5px] font-bold px-1.5 py-0.5 rounded-full bg-ink/10 text-ink/70 flex-none">
-                          🤖 {t('bot_badge')}
+                        <span className="inline-flex items-center gap-0.5 text-[9.5px] font-bold px-1.5 py-0.5 rounded-full bg-[var(--tl-ink)]/10 text-[var(--tl-text-soft)] flex-none">
+                          <TlmnBot className="w-3 h-3" /> {t('bot_badge')}
                         </span>
                       )}
                     </div>
-                    <p className="text-[11px] text-muted/60 mt-0.5">
+                    <p className="text-[11px] text-[var(--tl-text-soft)]/70 mt-0.5">
                       {t('seat_label', { n: i + 1 })}
                     </p>
                   </div>
                   <div className="flex flex-col items-end gap-1 flex-none">
-                    <span className={`text-[10.5px] font-bold px-2.5 py-1 rounded-full ${
-                      seatReady(seat) ? 'bg-emerald-100 text-emerald-700' : 'bg-line text-muted'
+                    <span className={`inline-flex items-center gap-1 text-[10.5px] font-bold px-2.5 py-1 rounded-full ${
+                      seatReady(seat) ? 'bg-emerald-100 text-emerald-700 ring-1 ring-emerald-300/60' : 'bg-[var(--tl-text-soft)]/15 text-[var(--tl-text-soft)]'
                     }`}>
-                      {seatReady(seat) ? `✓ ${t('ready')}` : t('not_ready')}
+                      {seatReady(seat) ? <><TlmnCheck className="w-3 h-3" /> {t('ready')}</> : t('not_ready')}
                     </span>
                     {isHost && seat.is_bot && (
                       <button
                         type="button"
                         onClick={() => handleRemoveBot(seat.seat_index)}
                         disabled={isBotPending}
-                        className="text-[10.5px] font-semibold text-rose hover:text-rose-deep border border-rose/30 rounded-lg px-2 py-0.5 transition-colors disabled:opacity-50"
+                        className="text-[10.5px] font-semibold text-[var(--tl-red)] hover:text-[var(--tl-red-deep)] border border-[var(--tl-red)]/30 rounded-lg px-2 py-0.5 transition-colors disabled:opacity-50"
                       >
                         {t('remove_bot')}
                       </button>
@@ -467,7 +477,7 @@ export default function TlmnRoom({ initialState, userId, joinError = null }: Pro
                         type="button"
                         onClick={() => handleKick(seat.seat_index)}
                         disabled={isBotPending}
-                        className="text-[10.5px] font-semibold text-rose hover:text-rose-deep border border-rose/30 rounded-lg px-2 py-0.5 transition-colors disabled:opacity-50"
+                        className="text-[10.5px] font-semibold text-[var(--tl-red)] hover:text-[var(--tl-red-deep)] border border-[var(--tl-red)]/30 rounded-lg px-2 py-0.5 transition-colors disabled:opacity-50"
                       >
                         {t('kick')}
                       </button>
@@ -476,34 +486,34 @@ export default function TlmnRoom({ initialState, userId, joinError = null }: Pro
                 </>
               ) : (
                 <>
-                  <div className="w-11 h-11 rounded-full border-2 border-dashed border-line flex items-center justify-center text-muted/30 text-[20px] flex-none">
-                    +
+                  <div className="w-12 h-12 rounded-full border-2 border-dashed border-[var(--tl-gold)]/45 flex items-center justify-center text-[var(--tl-gold-bright)]/70 flex-none">
+                    <TlmnSeatIcon className="w-6 h-6" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-[12.5px] text-muted/70 leading-snug">{t('empty_seat')}</p>
+                    <p className="text-[12.5px] text-[#fdeedd]/75 leading-snug font-medium">{t('empty_seat')}</p>
                     {isHost ? (
                       <div className="mt-1.5 flex items-center gap-1.5 flex-wrap">
                         {/* PRIMARY: invite a real player. SECONDARY: fill with a bot. */}
                         <button
                           type="button"
                           onClick={copyLink}
-                          className="inline-flex items-center gap-1 text-[11.5px] font-bold text-white bg-rose hover:bg-rose-deep rounded-lg px-2.5 py-1 transition-colors"
+                          className="tl-btn-primary inline-flex items-center gap-1 text-[11.5px] px-2.5 py-1.5"
                         >
                           {copied ? (
-                            <><svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7"/></svg>{t('copied')}</>
-                          ) : <>🔗 {t('invite_friends')}</>}
+                            <><TlmnCheck className="w-3 h-3" />{t('copied')}</>
+                          ) : <><TlmnInvite className="w-3.5 h-3.5" /> {t('invite_friends')}</>}
                         </button>
                         <button
                           type="button"
                           onClick={handleAddBot}
                           disabled={isBotPending}
-                          className="text-[11.5px] font-semibold text-ink/70 hover:text-rose border border-line hover:border-rose/30 rounded-lg px-2.5 py-1 transition-colors disabled:opacity-50"
+                          className="inline-flex items-center gap-1 text-[11.5px] font-semibold text-[var(--tl-gold-bright)] hover:text-white border border-[var(--tl-gold)]/35 hover:border-[var(--tl-gold)]/60 rounded-lg px-2.5 py-1.5 transition-colors disabled:opacity-50"
                         >
-                          🤖 {t('add_bot')}
+                          <TlmnBot className="w-3.5 h-3.5" /> {t('add_bot')}
                         </button>
                       </div>
                     ) : (
-                      <p className="mt-1 text-[11px] text-muted/50">{t('waiting_players')}</p>
+                      <p className="mt-1 text-[11px] text-[#fdeedd]/45">{t('waiting_players')}</p>
                     )}
                   </div>
                 </>
@@ -527,13 +537,13 @@ export default function TlmnRoom({ initialState, userId, joinError = null }: Pro
           <button
             onClick={handleReady}
             disabled={isPending}
-            className={`flex-1 font-semibold text-[14px] px-6 py-3 rounded-xl transition-all disabled:opacity-60 ${
+            className={`flex-1 inline-flex items-center justify-center gap-1.5 font-bold text-[14px] px-6 py-3.5 rounded-2xl transition-all disabled:opacity-60 ${
               mySeat.is_ready
-                ? 'bg-emerald-50 border border-emerald-200 text-emerald-700 hover:bg-emerald-100'
-                : 'bg-ink text-white hover:bg-ink/85'
+                ? 'bg-emerald-50 border border-emerald-300 text-emerald-700 hover:bg-emerald-100'
+                : 'tl-btn-gold'
             }`}
           >
-            {mySeat.is_ready ? `✓ ${t('unready_btn')}` : t('ready_btn')}
+            {mySeat.is_ready ? <><TlmnCheck className="w-4 h-4" /> {t('unready_btn')}</> : t('ready_btn')}
           </button>
         )}
 
@@ -541,12 +551,20 @@ export default function TlmnRoom({ initialState, userId, joinError = null }: Pro
           <button
             onClick={handleStart}
             disabled={!canStart || isPending}
-            className="flex-1 font-semibold text-[14px] px-6 py-3 rounded-xl bg-rose text-white hover:bg-rose-deep transition-all disabled:opacity-50 disabled:hover:bg-rose shadow-[0_4px_18px_-4px_rgba(194,24,91,0.45)]"
+            className="tl-btn-primary flex-1 text-[15px] px-6 py-3.5 disabled:opacity-50"
           >
-            {canStart ? t('start_btn') : t('start_btn_need_ready', { n: MIN_READY_TO_START })}
+            {t('start_btn')}
           </button>
         )}
       </div>
+
+      {/* Disabled-start hint as a friendly note (host can't start yet) */}
+      {isHost && !canStart && (
+        <div className="-mt-1 flex items-start justify-center gap-2 rounded-xl bg-black/20 border border-[var(--tl-gold)]/25 px-4 py-2.5 text-[12px] font-medium text-[#fdeedd]/80 text-center">
+          <TlmnSuits className="w-4 h-4 mt-px text-[var(--tl-gold-bright)]/70 flex-none" />
+          <span>{t('start_btn_need_ready', { n: MIN_READY_TO_START })}</span>
+        </div>
+      )}
       </>
       )}
 
@@ -556,14 +574,14 @@ export default function TlmnRoom({ initialState, userId, joinError = null }: Pro
           <button
             onClick={handleLeave}
             disabled={isPending}
-            className="self-center font-medium text-[13px] px-5 py-2.5 rounded-xl border border-line text-muted hover:bg-line transition-all disabled:opacity-60"
+            className="self-center font-medium text-[13px] px-5 py-2.5 rounded-xl border border-[var(--tl-gold)]/30 text-[#fdeedd]/80 hover:bg-black/20 transition-all disabled:opacity-60"
           >
             {t('leave_btn')}
           </button>
 
           <Link
             href="/games/tlmn"
-            className="text-[12.5px] text-muted/70 hover:text-rose transition-colors text-center"
+            className="text-[12.5px] text-[#fdeedd]/55 hover:text-[var(--tl-gold-bright)] transition-colors text-center"
           >
             ← {t('back_lobby')}
           </Link>
@@ -574,14 +592,15 @@ export default function TlmnRoom({ initialState, userId, joinError = null }: Pro
 }
 
 // ── Avatar ──────────────────────────────────────────────────────────────────────
-function Avatar({ name, url }: { name: string; url: string | null }) {
+function Avatar({ name, url, host = false }: { name: string; url: string | null; host?: boolean }) {
   const initial = (name?.trim()?.[0] ?? '?').toUpperCase()
+  const ring = host ? 'tl-avatar-ring' : 'border-2 border-[var(--tl-cream-line)]'
   if (url) {
     // eslint-disable-next-line @next/next/no-img-element
-    return <img src={url} alt={name} className="w-11 h-11 rounded-full object-cover flex-none border border-line" />
+    return <img src={url} alt={name} className={`w-12 h-12 rounded-full object-cover flex-none ${ring}`} />
   }
   return (
-    <div className="w-11 h-11 rounded-full bg-gradient-to-br from-rose/20 to-gold/10 flex items-center justify-center font-serif font-bold text-[18px] text-rose flex-none">
+    <div className={`w-12 h-12 rounded-full bg-gradient-to-br from-[var(--tl-red)]/15 to-[var(--tl-gold)]/15 flex items-center justify-center font-serif font-bold text-[18px] text-[var(--tl-red)] flex-none ${ring}`}>
       {initial}
     </div>
   )

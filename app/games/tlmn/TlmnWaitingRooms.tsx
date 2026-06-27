@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { fetchWaitingRooms, joinRoomFromLobby, type WaitingRoom } from './actions'
+import { TlmnHourglass, TlmnSuits } from './icons'
 
 const MAX_SEATS = 4
 
@@ -73,48 +74,54 @@ export default function TlmnWaitingRooms({ initialRooms, userId }: Props) {
   }
 
   return (
-    <div className="mt-10">
-      <h2 className="font-serif font-bold text-[20px] text-ink mb-1 flex items-center gap-2">
-        ⏳ {t('lobby_title')}
+    <div className="mt-8">
+      <h2 className="font-serif font-bold text-[20px] tl-section-title mb-1 flex items-center gap-2.5">
+        <span className="w-9 h-9 rounded-xl bg-black/20 text-[var(--tl-gold-bright)] flex items-center justify-center ring-1 ring-[var(--tl-gold)]/30">
+          <TlmnHourglass className="w-5 h-5" />
+        </span>
+        {t('lobby_title')}
       </h2>
-      <p className="text-[13.5px] text-muted mb-4 leading-relaxed">{t('lobby_section_desc')}</p>
+      <p className="text-[13.5px] tl-section-sub mb-4 leading-relaxed">{t('lobby_section_desc')}</p>
 
       {error && (
-        <p className="text-[13px] text-red-600 bg-red-50 px-4 py-2.5 rounded-xl border border-red-100 text-center mb-4">
+        <p className="text-[13px] text-white bg-[var(--tl-red-bright)]/90 px-4 py-2.5 rounded-xl border border-[var(--tl-gold)]/30 text-center mb-4">
           {error}
         </p>
       )}
 
       {rooms.length === 0 ? (
-        <div className="bg-paper border border-line rounded-2xl px-5 py-10 text-center text-[13.5px] text-muted/60 leading-relaxed">
-          {t('lobby_empty')}
+        <div className="tl-panel px-5 py-10 text-center relative overflow-hidden">
+          <TlmnSuits className="w-12 h-12 mx-auto mb-3 text-[var(--tl-red)] opacity-25" />
+          <p className="text-[13.5px] text-[var(--tl-text-soft)] leading-relaxed max-w-[360px] mx-auto">
+            {t('lobby_empty')}
+          </p>
         </div>
       ) : (
         <div className="space-y-2.5">
           {rooms.map(room => (
             <div
               key={room.id}
-              className="flex items-center gap-4 px-4 py-3.5 rounded-xl border border-line bg-paper hover:border-rose/30 transition-colors"
+              className="tl-panel flex items-center gap-4 px-4 py-3.5 hover:border-[var(--tl-gold)] transition-colors"
             >
               <Avatar name={room.host_name} url={room.host_avatar} />
 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-0.5 flex-wrap">
-                  <span className="font-mono font-black text-[16px] text-ink tracking-[0.15em]">
+                  <span className="font-mono font-black text-[16px] text-[var(--tl-text)] tracking-[0.15em]">
                     {room.invite_code}
                   </span>
-                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 border border-amber-200 flex-none">
+                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-[var(--tl-gold)]/15 text-[var(--tl-gold-deep)] border border-[var(--tl-gold)]/40 flex-none">
                     {t('lobby_waiting_badge')}
                   </span>
-                  <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-full bg-cream border border-line text-ink flex-none">
+                  <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-full bg-[var(--tl-red)]/8 border border-[var(--tl-red)]/20 text-[var(--tl-red)] flex-none">
                     {t('lobby_seat_count', { count: room.seat_count, max: MAX_SEATS })}
                   </span>
                 </div>
-                <p className="text-[12.5px] text-muted/70 truncate">
-                  <span className="text-muted/50">{t('lobby_host')}: </span>
-                  <span className="font-medium">{room.host_name || t('player_fallback', { n: 1 })}</span>
+                <p className="text-[12.5px] text-[var(--tl-text-soft)] truncate">
+                  <span className="text-[var(--tl-text-soft)]/70">{t('lobby_host')}: </span>
+                  <span className="font-medium text-[var(--tl-text)]">{room.host_name || t('player_fallback', { n: 1 })}</span>
                 </p>
-                <p className="text-[11px] text-muted/40 mt-0.5">
+                <p className="text-[11px] text-[var(--tl-text-soft)]/60 mt-0.5">
                   {timeAgo(room.updated_at, t('just_created'))}
                 </p>
               </div>
@@ -123,14 +130,14 @@ export default function TlmnWaitingRooms({ initialRooms, userId }: Props) {
                 <button
                   onClick={() => handleJoin(room.invite_code)}
                   disabled={isPending && joining === room.invite_code}
-                  className="flex-none text-[13px] font-semibold px-4 py-2.5 rounded-xl bg-rose text-white hover:bg-rose-deep transition-all disabled:opacity-50 shadow-sm whitespace-nowrap"
+                  className="tl-btn-primary flex-none text-[13px] px-5 py-2.5 disabled:opacity-50 whitespace-nowrap"
                 >
                   {isPending && joining === room.invite_code ? '…' : t('lobby_join_btn')}
                 </button>
               ) : (
                 <a
                   href="/login"
-                  className="flex-none text-[12.5px] font-semibold px-4 py-2.5 rounded-xl border border-rose/30 text-rose hover:bg-rose/5 transition-all whitespace-nowrap"
+                  className="tl-btn-ghost flex-none text-[12.5px] px-4 py-2.5 whitespace-nowrap"
                 >
                   {t('lobby_login_to_join')}
                 </a>
@@ -147,10 +154,10 @@ function Avatar({ name, url }: { name: string; url: string | null }) {
   const initial = (name?.trim()?.[0] ?? '?').toUpperCase()
   if (url) {
     // eslint-disable-next-line @next/next/no-img-element
-    return <img src={url} alt="" className="w-10 h-10 rounded-full object-cover flex-none border border-line" />
+    return <img src={url} alt="" className="tl-avatar-ring w-11 h-11 rounded-full object-cover flex-none" />
   }
   return (
-    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-rose/20 to-gold/10 flex items-center justify-center font-serif font-bold text-[16px] text-rose flex-none">
+    <div className="tl-avatar-ring w-11 h-11 rounded-full bg-gradient-to-br from-[var(--tl-red)]/15 to-[var(--tl-gold)]/15 flex items-center justify-center font-serif font-bold text-[16px] text-[var(--tl-red)] flex-none">
       {initial}
     </div>
   )

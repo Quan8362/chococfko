@@ -8,6 +8,7 @@ import { ensureWallet, getWallet, claimDailyCoins, type WalletState } from './wa
 import {
   ENTRY_MIN_BALANCE, DAILY_GRANT, SIGNUP_GRANT, formatCoins, formatCountdown,
 } from '@/lib/game/economy'
+import { TlmnBot, TlmnPeople, TlmnCoin, TlmnGift, TlmnCards, TlmnEmptyWallet } from './icons'
 
 function CreateBtn() {
   const { pending } = useFormStatus()
@@ -16,7 +17,7 @@ function CreateBtn() {
     <button
       type="submit"
       disabled={pending}
-      className="w-full inline-flex items-center justify-center gap-2 font-semibold text-[15px] px-6 py-3.5 rounded-2xl bg-rose text-white hover:bg-rose-deep transition-all disabled:opacity-60 shadow-[0_4px_18px_-4px_rgba(194,24,91,0.45)]"
+      className="tl-btn-primary w-full inline-flex items-center justify-center gap-2 text-[15px] px-6 py-3.5"
     >
       {pending ? (
         <>
@@ -38,7 +39,7 @@ function JoinBtn() {
     <button
       type="submit"
       disabled={pending}
-      className="flex-none font-semibold text-[14px] px-5 py-3 rounded-xl bg-ink text-white hover:bg-ink/85 transition-all disabled:opacity-60"
+      className="tl-btn-gold flex-none text-[14px] px-5 py-3 disabled:opacity-60"
     >
       {pending ? '…' : t('join_btn')}
     </button>
@@ -57,19 +58,21 @@ function PracticeCard() {
   }
 
   return (
-    <div className="rounded-2xl border border-rose/25 bg-gradient-to-br from-[#fdeef5] to-cream p-6 flex flex-col gap-4">
-      <div className="flex items-start gap-3">
-        <span className="text-[30px] leading-none flex-none" aria-hidden>🤖</span>
+    <div className="tl-panel tl-panel--accent p-6 flex flex-col gap-4 overflow-hidden">
+      <div className="flex items-start gap-3.5">
+        <span className="flex-none w-14 h-14 rounded-2xl bg-gradient-to-br from-[var(--tl-red-bright)] to-[var(--tl-red)] text-[var(--tl-gold-bright)] flex items-center justify-center shadow-[0_8px_20px_-8px_rgba(124,18,38,0.6)]" aria-hidden>
+          <TlmnBot className="w-8 h-8" />
+        </span>
         <div className="min-w-0">
-          <h2 className="font-serif font-bold text-[20px] text-ink mb-0.5">{t('mode_a_heading')}</h2>
-          <p className="text-[13.5px] text-muted leading-relaxed">{t('mode_a_subtitle')}</p>
+          <h2 className="font-serif font-bold text-[20px] text-[var(--tl-text)] mb-0.5">{t('mode_a_heading')}</h2>
+          <p className="text-[13.5px] text-[var(--tl-text-soft)] leading-relaxed">{t('mode_a_subtitle')}</p>
         </div>
       </div>
 
       <button
         onClick={play}
         disabled={isPending}
-        className="w-full inline-flex items-center justify-center gap-2 font-bold text-[15.5px] px-6 py-3.5 rounded-2xl bg-rose text-white hover:bg-rose-deep transition-all disabled:opacity-60 shadow-[0_4px_18px_-4px_rgba(194,24,91,0.45)]"
+        className="tl-btn-primary w-full inline-flex items-center justify-center gap-2 text-[15.5px] px-6 py-3.5"
       >
         {isPending ? (
           <>
@@ -79,14 +82,14 @@ function PracticeCard() {
             </svg>
             {t('mode_a_starting')}
           </>
-        ) : <>🎮 {t('mode_a_btn')}</>}
+        ) : <><TlmnCards className="w-5 h-5" /> {t('mode_a_btn')}</>}
       </button>
 
       <div className="flex flex-col gap-2.5">
         <button
           type="button"
           onClick={() => setShowConfig(v => !v)}
-          className="self-start text-[12px] font-semibold text-muted hover:text-rose transition-colors inline-flex items-center gap-1"
+          className="self-start text-[12px] font-semibold text-[var(--tl-text-soft)] hover:text-[var(--tl-red)] transition-colors inline-flex items-center gap-1"
         >
           <svg className={`w-3 h-3 transition-transform ${showConfig ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -95,7 +98,7 @@ function PracticeCard() {
         </button>
         {showConfig && (
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-[12.5px] font-medium text-muted">{t('mode_a_bot_count')}:</span>
+            <span className="text-[12.5px] font-medium text-[var(--tl-text-soft)]">{t('mode_a_bot_count')}:</span>
             {[1, 2, 3].map(n => (
               <button
                 key={n}
@@ -103,8 +106,8 @@ function PracticeCard() {
                 onClick={() => setBotCount(n)}
                 className={`w-9 h-9 rounded-xl text-[14px] font-bold transition-all border ${
                   botCount === n
-                    ? 'bg-rose text-white border-rose'
-                    : 'bg-white text-ink border-line hover:border-rose/40'
+                    ? 'bg-[var(--tl-red)] text-white border-[var(--tl-red)] shadow-[0_4px_12px_-4px_rgba(124,18,38,0.5)]'
+                    : 'bg-white/70 text-[var(--tl-text)] border-[var(--tl-cream-line)] hover:border-[var(--tl-gold)]'
                 }`}
               >
                 {n}
@@ -193,8 +196,8 @@ export default function TlmnLobby() {
       {/* Celebratory toasts — welcome grant + daily claim. */}
       {welcome && (
         <div className="fixed inset-x-0 top-4 z-50 flex justify-center px-4 pointer-events-none">
-          <div className="pointer-events-auto bg-gradient-to-r from-gold/95 to-rose text-white rounded-2xl px-5 py-3 shadow-2xl flex items-center gap-3 max-w-[460px]">
-            <span className="text-[22px]" aria-hidden>🎁</span>
+          <div className="pointer-events-auto bg-gradient-to-r from-[#e3b23c] to-[#ad1f37] text-white rounded-2xl px-5 py-3 shadow-2xl flex items-center gap-3 max-w-[460px] ring-1 ring-[#f6d989]/40">
+            <TlmnGift className="w-6 h-6 flex-none text-[#fff5e4]" aria-hidden />
             <p className="text-[13.5px] font-semibold leading-snug flex-1">
               {t('coin_welcome_toast', { amount: formatCoins(SIGNUP_GRANT) })}
             </p>
@@ -204,8 +207,8 @@ export default function TlmnLobby() {
       )}
       {claimToast && (
         <div className="fixed inset-x-0 top-4 z-50 flex justify-center px-4 pointer-events-none">
-          <div className="pointer-events-auto bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-2xl px-5 py-3 shadow-2xl flex items-center gap-3 max-w-[460px]">
-            <span className="text-[22px]" aria-hidden>🪙</span>
+          <div className="pointer-events-auto bg-gradient-to-r from-[#e3b23c] to-[#b07d1c] text-[#4a2c05] rounded-2xl px-5 py-3 shadow-2xl flex items-center gap-3 max-w-[460px] ring-1 ring-[#f6d989]/60">
+            <TlmnCoin className="w-6 h-6 flex-none" aria-hidden />
             <p className="text-[13.5px] font-semibold leading-snug">
               {t('coin_daily_toast', { amount: formatCoins(DAILY_GRANT) })}
             </p>
@@ -214,15 +217,19 @@ export default function TlmnLobby() {
       )}
 
       {/* Balance header — the REAL persisted "xu" balance (survives re-login). */}
-      <div className="mb-5 rounded-2xl bg-gradient-to-r from-ink to-[#3a2d22] px-5 py-3.5 flex items-center justify-between gap-3">
-        <div>
-          <p className="text-[10px] font-bold uppercase tracking-[2px] text-white/45 mb-0.5">{t('coin_balance_label')}</p>
-          <p className="font-black text-[22px] text-gold leading-none inline-flex items-center gap-1.5">
-            <span aria-hidden className="text-[16px]">🪙</span>
-            {wallet ? formatCoins(wallet.balance) : '…'}
-          </p>
+      <div className="tl-panel-dark mb-5 px-5 py-3.5 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <span className="flex-none w-11 h-11 rounded-full bg-[var(--tl-gold)]/15 text-[var(--tl-gold-bright)] flex items-center justify-center ring-1 ring-[var(--tl-gold)]/40">
+            <TlmnCoin className="w-7 h-7" aria-hidden />
+          </span>
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[2px] text-[var(--tl-gold-bright)]/60 mb-0.5">{t('coin_balance_label')}</p>
+            <p className="font-black text-[22px] text-[var(--tl-gold-bright)] leading-none tabular-nums">
+              {wallet ? formatCoins(wallet.balance) : '…'}
+            </p>
+          </div>
         </div>
-        <p className="text-[10.5px] text-white/40 leading-snug text-right max-w-[180px]">{t('coin_play_money')}</p>
+        <p className="text-[10.5px] text-[#fdeedd]/40 leading-snug text-right max-w-[180px]">{t('coin_play_money')}</p>
       </div>
 
       <div className="flex flex-col gap-5">
@@ -233,25 +240,27 @@ export default function TlmnLobby() {
         {broke ? (
           /* "Hết xu" panel — hosting/joining a real-stakes room is blocked until the
              daily refill is claimed. Practice (above) stays available regardless. */
-          <div className="rounded-2xl border border-rose/30 bg-gradient-to-br from-[#fdeef5] to-cream p-6 flex flex-col items-center text-center gap-3">
-            <span className="text-[34px]" aria-hidden>😵‍💫</span>
-            <h2 className="font-serif font-bold text-[20px] text-rose">{t('coin_broke_title')}</h2>
-            <p className="text-[13.5px] text-muted leading-relaxed max-w-[420px]">
+          <div className="tl-panel tl-panel--accent p-6 flex flex-col items-center text-center gap-3">
+            <span className="w-16 h-16 rounded-2xl bg-[var(--tl-red)]/8 text-[var(--tl-red)] flex items-center justify-center" aria-hidden>
+              <TlmnEmptyWallet className="w-9 h-9" />
+            </span>
+            <h2 className="font-serif font-bold text-[20px] text-[var(--tl-red)]">{t('coin_broke_title')}</h2>
+            <p className="text-[13.5px] text-[var(--tl-text-soft)] leading-relaxed max-w-[420px]">
               {t('coin_broke_desc', { min: formatCoins(ENTRY_MIN_BALANCE) })}
             </p>
             {claimable ? (
               <button
                 onClick={handleClaim}
                 disabled={claiming}
-                className="mt-1 inline-flex items-center justify-center gap-2 font-bold text-[15px] px-7 py-3.5 rounded-2xl bg-gradient-to-r from-gold to-rose text-white hover:brightness-105 transition-all disabled:opacity-60 shadow-[0_6px_22px_-6px_rgba(194,24,91,0.55)]"
+                className="tl-btn-gold mt-1 inline-flex items-center justify-center gap-2 text-[15px] px-7 py-3.5 disabled:opacity-60"
               >
-                <span aria-hidden>🪙</span>
+                <TlmnCoin className="w-5 h-5" aria-hidden />
                 {claiming ? t('creating') : t('coin_claim_btn')}
               </button>
             ) : (
               <div className="mt-1 inline-flex flex-col items-center gap-1">
-                <p className="text-[12px] text-muted">{t('coin_next_claim_label')}</p>
-                <p className="font-mono font-black text-[26px] text-ink tabular-nums tracking-wide">
+                <p className="text-[12px] text-[var(--tl-text-soft)]">{t('coin_next_claim_label')}</p>
+                <p className="font-mono font-black text-[26px] text-[var(--tl-text)] tabular-nums tracking-wide">
                   {nextClaimMs ? formatCountdown(nextClaimMs - now) : '—'}
                 </p>
               </div>
@@ -264,12 +273,14 @@ export default function TlmnLobby() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            <div className="bg-paper border border-line rounded-2xl p-6 flex flex-col gap-4">
-              <div className="flex items-start gap-3">
-                <span className="text-[26px] leading-none flex-none" aria-hidden>👥</span>
+            <div className="tl-panel p-6 flex flex-col gap-4 overflow-hidden">
+              <div className="flex items-start gap-3.5">
+                <span className="flex-none w-14 h-14 rounded-2xl bg-gradient-to-br from-[var(--tl-gold)] to-[var(--tl-gold-deep)] text-[#3d1117] flex items-center justify-center shadow-[0_8px_20px_-8px_rgba(176,125,28,0.6)]" aria-hidden>
+                  <TlmnPeople className="w-8 h-8" />
+                </span>
                 <div className="min-w-0">
-                  <h2 className="font-serif font-bold text-[20px] text-ink mb-0.5">{t('mode_b_heading')}</h2>
-                  <p className="text-[13.5px] text-muted leading-relaxed">{t('mode_b_subtitle')}</p>
+                  <h2 className="font-serif font-bold text-[20px] text-[var(--tl-text)] mb-0.5">{t('mode_b_heading')}</h2>
+                  <p className="text-[13.5px] text-[var(--tl-text-soft)] leading-relaxed">{t('mode_b_subtitle')}</p>
                 </div>
               </div>
               <form action={createRoom} className="mt-auto">
@@ -277,10 +288,10 @@ export default function TlmnLobby() {
               </form>
             </div>
 
-            <div className="bg-paper border border-line rounded-2xl p-6 flex flex-col gap-4">
+            <div className="tl-panel p-6 flex flex-col gap-4">
               <div>
-                <h2 className="font-serif font-bold text-[20px] text-ink mb-1">{t('join_heading')}</h2>
-                <p className="text-[13.5px] text-muted leading-relaxed">{t('join_desc')}</p>
+                <h2 className="font-serif font-bold text-[20px] text-[var(--tl-text)] mb-1">{t('join_heading')}</h2>
+                <p className="text-[13.5px] text-[var(--tl-text-soft)] leading-relaxed">{t('join_desc')}</p>
               </div>
               <form action={joinAction} className="flex gap-2 mt-auto">
                 <input
@@ -289,7 +300,7 @@ export default function TlmnLobby() {
                   placeholder={t('join_placeholder')}
                   maxLength={5}
                   autoComplete="off"
-                  className="flex-1 text-[14px] px-3.5 py-3 border border-line rounded-xl bg-white focus:outline-none focus:border-rose/60 focus:ring-2 focus:ring-rose/10 uppercase placeholder:normal-case placeholder:text-muted/40 font-mono tracking-widest text-ink transition-all"
+                  className="flex-1 text-[14px] px-3.5 py-3 border border-[var(--tl-cream-line)] rounded-xl bg-white/80 focus:outline-none focus:border-[var(--tl-gold)] focus:ring-2 focus:ring-[var(--tl-gold)]/20 uppercase placeholder:normal-case placeholder:text-[var(--tl-text-soft)]/50 font-mono tracking-widest text-[var(--tl-text)] transition-all"
                 />
                 <JoinBtn />
               </form>

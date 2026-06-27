@@ -56,6 +56,37 @@ test('deal: only dealt cards are in play; the remainder is dropped (3 players �
   assert.equal(total, 39) // 3×13, the other 13 are removed and never revealed
 })
 
+test('deal round 2: previous winner leads with no 3♠ requirement', () => {
+  const s = dealRound({ seats: [0, 1, 2, 3], roundNo: 2, rules: { ...RULES, toiTrangEnabled: false }, deck: createDeck(), previousWinner: 2 })
+  assert.equal(s.turnSeat, 2)
+  assert.equal(s.mustIncludeThreeSpade, false)
+})
+
+// ── Chained chop follows seat order (§11.5) ───────────────────────────────────────
+test('chained chop: single 2 → 3-pairs-run → tứ quý, each victim/cutter logged in turn order', () => {
+  // Seat 0 leads a single 2; seat 1 cuts with a 3-pairs-run; seat 2 cuts with a tứ quý.
+  const s = buildState(
+    {
+      0: '2H 5D',
+      1: '3S 3C 4S 4C 5S 5C 9D',
+      2: '7S 7C 7D 7H 9H',
+      3: 'KD KH',
+    },
+    { turnSeat: 0 },
+  )
+  const r1 = applyPlay(s, 0, parseHand('2H'))
+  assert.ok(r1.ok && r1.state.turnSeat === 1)
+  const r2 = applyPlay(r1.ok ? r1.state : s, 1, parseHand('3S 3C 4S 4C 5S 5C'))
+  assert.ok(r2.ok, r2.ok ? '' : r2.error)
+  assert.equal(r2.ok && r2.state.turnSeat, 2)
+  const r3 = applyPlay(r2.ok ? r2.state : s, 2, parseHand('7S 7C 7D 7H'))
+  assert.ok(r3.ok, r3.ok ? '' : r3.error)
+  if (r3.ok) {
+    assert.equal(r3.state.cutEvents.length, 2)
+    assert.deepEqual(r3.state.cutEvents.map(e => [e.cutVictim, e.cutter]), [[0, 1], [1, 2]])
+  }
+})
+
 // ── Trick flow ───────────────────────────────────────────────────────────────────
 test('trick: lead → all others pass → leader wins and re-leads a fresh trick', () => {
   let s = buildState({ 0: '5S 6S 7S', 1: '8S 9S 10S', 2: 'JS QS KS' }, { turnSeat: 0 })

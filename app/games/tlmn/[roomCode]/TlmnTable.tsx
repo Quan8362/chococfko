@@ -2006,6 +2006,7 @@ function requiredComboLabel(table: Combo | null, t: ReturnType<typeof useTransla
 function tErr(t: ReturnType<typeof useTranslations>, code: string): string {
   const known = [
     'not_your_turn', 'turn_expired', 'illegal_move', 'invalid_combo', 'cards_not_held',
+    'wrong_combo_type', 'wrong_combo_length', 'play_not_high_enough', 'invalid_chop',
     'must_include_three_spade', 'cannot_pass_leading', 'no_active_game', 'conflict',
     'round_in_progress', 'not_enough_players', 'hint_none',
   ]

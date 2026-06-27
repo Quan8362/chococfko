@@ -12,8 +12,8 @@ import {
   type Card, type Combo, type Rules, type InstantWinType,
   type CutEvent, type SettlementState,
   R2, R3, SUIT_SPADE,
-  strength, cardsEqual, parseCombo, beats, legalMoves, sortHand,
-  createDeck, shuffle, checkInstantWin, settleRound, resolveRules,
+  strength, cardsEqual, parseCombo, beats, explainBeat, legalMoves, sortHand,
+  createDeck, shuffle, checkInstantWin, instantWinStrength, settleRound, resolveRules,
 } from './engine.ts'
 
 // Full, server-internal round state — includes the SECRET hands. Never sent whole
@@ -114,16 +114,22 @@ export function dealRound(opts: {
 
   // ── Tới trắng: round ends instantly on a qualifying dealt hand. ───────────────
   if (rules.toiTrangEnabled) {
-    let best: { seat: number; type: InstantWinType } | null = null
+    let best: { seat: number; type: InstantWinType; strength: number } | null = null
     for (const s of ordered) {
       const iw = checkInstantWin(hands[s], rules)
       if (!iw) continue
-      if (!best || rules.instantWinOrder.indexOf(iw.type) < rules.instantWinOrder.indexOf(best.type)) {
-        best = { seat: s, type: iw.type }
+      const cat = rules.instantWinOrder.indexOf(iw.type)
+      const str = instantWinStrength(hands[s], iw.type)
+      if (!best) { best = { seat: s, type: iw.type, strength: str }; continue }
+      const bestCat = rules.instantWinOrder.indexOf(best.type)
+      // §13.7: higher category first; same category → stronger hand; equal → lower seat
+      // (seats are iterated ascending, so we only replace on a STRICT improvement).
+      if (cat < bestCat || (cat === bestCat && str > best.strength)) {
+        best = { seat: s, type: iw.type, strength: str }
       }
     }
     if (best) {
-      state.instantWin = best
+      state.instantWin = { seat: best.seat, type: best.type }
       state.winner = best.seat
       state.status = 'ended'
       state.deltas = settleRound(buildSettlement(state), rules)
@@ -177,7 +183,11 @@ export function applyPlay(state: RoundState, seat: number, cards: Card[]): PlayR
     if (!hasThreeSpade) return { ok: false, error: 'must_include_three_spade' }
   }
 
-  if (!beats(combo, table, state.rules)) return { ok: false, error: 'illegal_move' }
+  if (!beats(combo, table, state.rules)) {
+    // table is non-null here (a null table = leading is always legal) → granular reason.
+    const reason = table ? explainBeat(combo, table, state.rules) : null
+    return { ok: false, error: reason ?? 'illegal_move' }
+  }
 
   // Detect a chặt (cross-type cut): legal but NOT same-shape ⇒ a bomb cut.
   const next = clone(state)

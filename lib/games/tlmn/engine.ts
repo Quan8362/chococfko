@@ -337,6 +337,25 @@ export function beats(candidate: Combo | null, table: Combo | null, rules: Rules
   return canCut(candidate, table, rules)
 }
 
+// ── explainBeat — structured reason a follow is rejected (for granular errors) ─────
+// Returns null when `candidate` legally beats `table`; otherwise a stable code. Kept
+// in lock-step with beats() so it never disagrees on legality. `table` must be non-null
+// (leading is always legal — there is nothing to beat).
+export type BeatError =
+  | 'wrong_combo_type'    // different shape and not a valid bomb cut
+  | 'wrong_combo_length'  // same shape, different card count (e.g. 3-straight vs 4-straight)
+  | 'play_not_high_enough'// same shape & length but not strictly higher
+  | 'invalid_chop'        // a bomb that cannot legally cut this table play
+export function explainBeat(candidate: Combo, table: Combo, rules: Rules = DEFAULT_RULES): BeatError | null {
+  if (candidate.type === table.type && candidate.count === table.count) {
+    return strength(candidate.high) > strength(table.high) ? null : 'play_not_high_enough'
+  }
+  if (canCut(candidate, table, rules)) return null
+  if (isBomb(candidate)) return 'invalid_chop'
+  if (candidate.type !== table.type) return 'wrong_combo_type'
+  return 'wrong_combo_length'
+}
+
 // ── legalMoves ────────────────────────────────────────────────────────────────────
 // Generate a representative set of legal combos in `hand` that beat `table`
 // (every legal combo when leading). Singles/pairs/triples/fours are enumerated
@@ -443,9 +462,45 @@ function detectInstantWin(hand: Card[], type: InstantWinType): boolean {
     case 'namDoiThong':
       return hasNConsecutivePairs(counts, 5)
     case 'sauDoi':
-      return counts.filter(c => c >= 2).length >= 6
+      // §13.3: six DISJOINT pairs. A tứ quý (count 4) yields two pairs; no physical
+      // card is counted twice (floor(count/2) per rank). 2s are allowed to form pairs.
+      return counts.reduce((acc, c) => acc + Math.floor(c / 2), 0) >= 6
     case 'baSamCo':
       return counts.filter(c => c >= 3).length >= 3
+  }
+}
+
+// ── Instant-win tie-break (§13.7) — deterministic, never random ────────────────────
+// A comparable strength for two hands that matched the SAME instant-win category, so a
+// deal with several qualifiers resolves deterministically. Higher = stronger; ties
+// (e.g. four 2s, identical by construction) are broken by the caller via seat order.
+//   • consecutive pairs / six pairs → strength of the highest participating pair card
+//   • dragon straight → strength of the highest Ace (its suit)
+//   • flush (đồng hoa) / others → strength of the single highest card
+function highestPairCardStrength(hand: Card[]): number {
+  const counts = rankCounts(hand)
+  let best = -1
+  counts.forEach(arr => { if (arr.length >= 2) best = Math.max(best, strength(arr[arr.length - 1])) })
+  return best
+}
+export function instantWinStrength(hand: Card[], type: InstantWinType): number {
+  switch (type) {
+    case 'namDoiThong':
+    case 'sauDoi':
+      return highestPairCardStrength(hand)
+    case 'sanhRong': {
+      // highest Ace present (rank index 11) — its suit is the documented tie-breaker
+      const aces = hand.filter(c => c.rank === R2 - 1)
+      return aces.length ? Math.max(...aces.map(strength)) : -1
+    }
+    case 'baSamCo': {
+      const counts = rankCounts(hand)
+      let best = -1
+      counts.forEach(arr => { if (arr.length >= 3) best = Math.max(best, strength(arr[arr.length - 1])) })
+      return best
+    }
+    default: // dongHoa, tuQuyHeo
+      return hand.length ? Math.max(...hand.map(strength)) : -1
   }
 }
 
@@ -496,6 +551,61 @@ function countHeldBoms(cards: Card[]): number {
 
 function heldTwos(cards: Card[]): number {
   return cards.filter(c => c.rank === R2).length
+}
+
+// ── calculateRemainingHandPenalties — itemized thối for the result UI ───────────────
+// Pure, descriptive decomposition of a loser's remaining hand into penalty units, with
+// the EXACT cards in each. Black/red 2s (thối heo) are reported separately from bom bộ
+// (thối bom). `bomUnits` is kept in lock-step with countHeldBoms so the badge count and
+// the settlement penalty never disagree. Bom decomposition is deterministic: complete
+// tứ quý first, then each maximal run of ≥3 consecutive pair-ranks (3..A, never 2);
+// within a run no physical card is reused.
+export type HandPenalties = {
+  redTwos: Card[]      // 2♦ / 2♥ still held (thối 2 đỏ)
+  blackTwos: Card[]    // 2♠ / 2♣ still held (thối 2 đen)
+  fours: Card[][]      // each held tứ quý (4 cards) — thối tứ quý
+  pairRuns: Card[][]   // each maximal held đôi-thông run (≥3 pairs) — thối đôi thông
+  bomUnits: number     // total bom bộ (== countHeldBoms) → drives thoiBomPenalty
+}
+export function calculateRemainingHandPenalties(cards: Card[]): HandPenalties {
+  const byRank = rankCounts(cards) // suit-ascending within each rank
+  const redTwos: Card[] = []
+  const blackTwos: Card[] = []
+  for (const c of cards) {
+    if (c.rank !== R2) continue
+    if (c.suit === 2 /* ♦ */ || c.suit === 3 /* ♥ */) redTwos.push(c)
+    else blackTwos.push(c)
+  }
+
+  // Tứ quý: a full rank of 4. These cards are then excluded from pairs-run building so
+  // no physical card is counted in two bom bộ at once.
+  const fours: Card[][] = []
+  const usedInFour = new Set<RankIndex>()
+  byRank.forEach((arr, rank) => {
+    if (arr.length === 4) { fours.push(arr.slice()); usedInFour.add(rank) }
+  })
+
+  // Pairs-runs over ranks 3..A (exclude 2 and any rank already consumed by a tứ quý).
+  const pairRuns: Card[][] = []
+  let run: Card[] = []
+  let runLen = 0
+  const flush = () => {
+    if (runLen >= 3) pairRuns.push(run.slice())
+    run = []
+    runLen = 0
+  }
+  for (let r = R3; r < R2; r++) {
+    const arr = byRank.get(r)
+    if (arr && arr.length >= 2 && !usedInFour.has(r)) {
+      run.push(arr[0], arr[1])
+      runLen++
+    } else {
+      flush()
+    }
+  }
+  flush()
+
+  return { redTwos, blackTwos, fours, pairRuns, bomUnits: countHeldBoms(cards) }
 }
 
 /**

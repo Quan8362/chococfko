@@ -53,6 +53,36 @@ export default async function TlmnPage() {
         </div>
       </div>
 
+      {/* ── Luật chơi — full active-profile rule guide (§27, CHOCOCFKO_TLMN_CLASSIC) ── */}
+      <details className="group bg-paper border border-line rounded-2xl px-5 py-4 mb-8">
+        <summary className="cursor-pointer select-none font-serif font-semibold text-[15px] text-ink flex items-center justify-between gap-2">
+          {t('guide_title')}
+          <span aria-hidden className="text-muted text-[12px] transition-transform group-open:rotate-180">▾</span>
+        </summary>
+        <div className="mt-4 space-y-3 text-[13px] text-muted leading-relaxed">
+          <p>{t('guide_objective')}</p>
+          {([
+            ['guide_order_title', 'guide_order'],
+            ['guide_combos_title', 'guide_combos'],
+            ['guide_open_title', 'guide_open'],
+            ['guide_pass_title', 'guide_pass'],
+            ['guide_chop_title', 'guide_chop'],
+            ['guide_toitrang_title', 'guide_toitrang'],
+            ['guide_cong_title', 'guide_cong'],
+            ['guide_thoi_title', 'guide_thoi'],
+            ['guide_count_title', 'guide_count'],
+          ] as const).map(([titleKey, bodyKey]) => (
+            <div key={titleKey}>
+              <p className="font-semibold text-ink">{t(titleKey)}</p>
+              <p>{t(bodyKey)}</p>
+            </div>
+          ))}
+          <p>{t('guide_two_ok')}</p>
+          <p className="text-[12px] text-amber-700">{t('guide_fairplay')}</p>
+          <p className="text-[12px] text-muted/70 italic">{t('guide_variants')}</p>
+        </div>
+      </details>
+
       {user ? (
         <TlmnLobby />
       ) : (

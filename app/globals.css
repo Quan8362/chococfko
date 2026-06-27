@@ -335,6 +335,15 @@ body::before {
 .tlmn-dock-compact .tlmn-action-row { margin-top: 6px; }
 .tlmn-dock-compact .tlmn-hide-compact { display: none; }
 .tlmn-dock-compact .tlmn-tray { margin-top: 2px; }
+/* Landscape phones: inset the hand-dock from the notch (which sits on the LEFT/RIGHT
+   edge in landscape) so cards + action buttons never hide under it. Higher specificity
+   than Tailwind's px-* so it wins. Portrait/desktop keep their normal padding. */
+@media (max-height: 520px) {
+  .tlmn-stage .tlmn-dock-safe {
+    padding-left: max(0.75rem, env(safe-area-inset-left));
+    padding-right: max(0.75rem, env(safe-area-inset-right));
+  }
+}
 /* Bottom-up scrim behind the hand-dock overlay (image mode) so the cream tray + buttons
    separate cleanly from the felt without a hard edge. */
 .tlmn-dock-scrim {
@@ -355,11 +364,13 @@ body::before {
 }
 .tlmn-chrome:hover { background: rgba(0,0,0,0.5); color: #fff; }
 .tlmn-chrome:focus-visible { outline: 2px solid #ffd1e0; outline-offset: 2px; }
-/* Cream hand tray. */
+/* Hand tray (Run 8) — NO heavy cream panel. The hand is a low fan sitting directly on
+   the felt; the dock-scrim behind it gives just enough separation. A whisper-thin dark
+   strip keeps the cards grouped without reading as a slab pasted over the board. */
 .tlmn-tray {
-  background: linear-gradient(180deg, #fffdf8 0%, #faf2e6 100%);
-  box-shadow: 0 -6px 26px -10px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.7);
-  border: 1px solid rgba(255,255,255,0.15);
+  background: transparent;
+  box-shadow: none;
+  border: none;
 }
 /* Active-seat / your-turn glow. */
 @keyframes tlmnGlow {

@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
@@ -156,6 +157,11 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
   const fs = useFullscreenLandscape()
   const [nudgeDismissed, setNudgeDismissed] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  // The rotate-overlay is portalled to <body> so it escapes the table's transformed +
+  // overflow-clipped ancestors (iOS Safari mis-hit-tests an absolute layer inside those,
+  // which made "Rời phòng" untappable). Portals need the DOM, so gate on mount.
+  const [portalReady, setPortalReady] = useState(false)
+  useEffect(() => { setPortalReady(true) }, [])
   const [trayRef, trayW] = useMeasuredWidth<HTMLDivElement>()
   // Live size of the play area — drives the aspect-correct board-image sizing (Run 6.3).
   const [areaRef, area] = useMeasuredSize<HTMLDivElement>()
@@ -568,10 +574,13 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
   // Card sizes grow with the viewport; the whole board (table, seats, pile, tray)
   // is derived from these so proportions stay correct at every width.
   const shortVp = vh < 520 // landscape phones
+  // Run 8 — the bottom hand is a LOW, shallow fan tucked under the play area, so the
+  // cards are deliberately smaller than the table props (pile/seats) and never dominate
+  // the felt. Pile width is decoupled (≈ a touch larger) so the centre still reads big.
   const handW = shortVp
-    ? Math.min(46, Math.round(vh * 0.13))
-    : vw < 400 ? 60 : vw < 560 ? 64 : vw < 768 ? 70 : vw < 1024 ? 78 : 88
-  const pileW = Math.round(handW * 0.82)
+    ? Math.min(40, Math.round(vh * 0.115))
+    : vw < 400 ? 46 : vw < 560 ? 50 : vw < 768 ? 54 : vw < 1024 ? 60 : 66
+  const pileW = shortVp ? Math.round(handW * 0.9) : vw < 768 ? 54 : vw < 1024 ? 60 : 66
   const seatBackW = vw < 768 ? 15 : 18
   const lastPlayW = vw < 560 ? 18 : vw < 1024 ? 20 : 22 // per-seat last-played mini
   const tableHByWidth = vw < 560 ? 300 : vw < 768 ? 360 : vw < 1024 ? 420 : 480
@@ -604,12 +613,14 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
   const FAN_SAFE = 14 // reserve px for rotation overhang at the fan's ends
   const fanStep = useMemo(() => {
     if (handCount <= 1) return handW
-    const fit = trayW > 0 ? (trayW - handW - FAN_SAFE) / (handCount - 1) : handW * 0.7
-    // minStrip keeps a tappable sliver even when packed; max keeps a pleasant spread.
-    return Math.max(handW * 0.28, Math.min(handW * 0.72, fit))
+    const fit = trayW > 0 ? (trayW - handW - FAN_SAFE) / (handCount - 1) : handW * 0.62
+    // minStrip keeps a tappable sliver even when packed; max keeps a tight, compact fan
+    // (smaller cards ⇒ tighter overlap so the hand stays a slim strip, not a wide banner).
+    return Math.max(handW * 0.26, Math.min(handW * 0.6, fit))
   }, [trayW, handW, handCount])
-  // Arc + parabolic lift, capped tighter on small screens (token --fan-arc).
-  const maxArc = vw < 560 ? 8 : vw < 768 ? 10 : 12
+  // Arc + parabolic lift — kept SHALLOW so the hand reads as a low fan along the bottom
+  // edge, never an arc that bows up into the play area (token --fan-arc).
+  const maxArc = vw < 560 ? 5 : vw < 768 ? 6 : 7
 
   // ── Handlers ──────────────────────────────────────────────────────────────────
   const toggleCard = (c: Card) => {
@@ -927,7 +938,7 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
       )}
 
       {mySeat != null && playing && !myFinished && (
-        <div className={`relative z-20 px-3 sm:px-6 pt-1 ${compactDock ? 'tlmn-dock-compact' : ''}`} aria-busy={busy} style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}>
+        <div className={`tlmn-dock-safe relative z-20 px-3 sm:px-6 pt-1 ${compactDock ? 'tlmn-dock-compact' : ''}`} aria-busy={busy} style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}>
           {/* Human seat (bottom-left) + sort pill */}
           <div className="flex items-end justify-between gap-2 mb-1.5 max-w-[760px] mx-auto">
             <div className="flex items-center gap-2.5">
@@ -969,11 +980,11 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
 
           {/* Cream hand tray with the fanned cards. Extra top room so the arced middle
               cards + any selected lift are never clipped. */}
-          <div className="tlmn-tray rounded-2xl px-3 sm:px-5 max-w-[860px] mx-auto" style={{ minHeight: Math.round(handW * 1.4) + (compactDock ? 24 : 46) }}>
+          <div className="tlmn-tray rounded-xl px-2 sm:px-4 max-w-[760px] mx-auto" style={{ minHeight: Math.round(handW * 1.4) + (compactDock ? 14 : 22) }}>
             <div
               key={invalidKey}
               ref={trayRef}
-              className={`relative flex justify-center items-end h-full pb-3 pt-7 ${invalidKey ? 'tlmn-invalid' : ''}`}
+              className={`relative flex justify-center items-end h-full pb-1.5 pt-4 ${invalidKey ? 'tlmn-invalid' : ''}`}
             >
               {displayHand.map((c, i) => {
                 const sel = selected.has(cardKey(c))
@@ -989,8 +1000,8 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
                 const mid = (n - 1) / 2
                 const norm = mid === 0 ? 0 : (i - mid) / mid // −1 … +1
                 const angle = norm * maxArc
-                const lift = Math.round((1 - norm * norm) * (handW * 0.16))
-                const ty = -lift - (sel ? 18 : 0)
+                const lift = Math.round((1 - norm * norm) * (handW * 0.1))
+                const ty = -lift - (sel ? 12 : 0)
                 return (
                   <motion.button
                     key={`${game.id}-${cardKey(c)}`}
@@ -1131,8 +1142,13 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
           {liveMsg}
         </div>
 
-        {/* ── Minimal dark chrome ──────────────────────────────────────────── */}
-        <div className="relative z-30 flex items-center justify-between px-3 sm:px-5 pt-3">
+        {/* ── Minimal dark chrome ──────────────────────────────────────────────
+            z-[90]: ALWAYS above the dock/hand so the X / exit / fullscreen controls
+            stay tappable in every orientation (a safety exit even if anything below
+            misbehaves). The rotate-overlay is portalled to <body> and intentionally
+            leaves this top strip uncovered so the X stays reachable in portrait too. */}
+        <div className="relative z-[90] flex items-center justify-between px-3 sm:px-5 pt-3"
+          style={{ paddingLeft: 'max(0.75rem, env(safe-area-inset-left))', paddingRight: 'max(0.75rem, env(safe-area-inset-right))', paddingTop: 'max(0.75rem, env(safe-area-inset-top))' }}>
           <div className="flex items-center gap-2">
             <Link href="/games/tlmn" aria-label={t('close_label')} title={t('close_label')} className="tlmn-chrome">
               <svg className="w-4.5 h-4.5" width={18} height={18} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M6 18L18 6M6 6l12 12" /></svg>
@@ -1188,7 +1204,7 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
 
         {/* Menu panel (rules summary) */}
         {menuOpen && (
-          <div className="absolute z-40 top-14 left-3 sm:left-5 w-[280px] max-w-[calc(100vw-24px)] rounded-2xl bg-paper shadow-2xl border border-line p-3 tlmn-banner-pop">
+          <div className="absolute z-[95] top-14 left-3 sm:left-5 w-[280px] max-w-[calc(100vw-24px)] rounded-2xl bg-paper shadow-2xl border border-line p-3 tlmn-banner-pop">
             <RulesSummary game={game} t={t} />
           </div>
         )}
@@ -1244,20 +1260,41 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
             (above); oval mode renders it here in flow below the felt. */}
         {!useImage && bottomContent}
 
-        {/* ── Run 5: portrait rotate prompt (active game only) ─────────────────
-            Full-cover, on-brand. Encourages landscape while a hand is in play — it
-            covers only the table; the lobby/menus live in TlmnRoom and are never
-            blocked. iOS-critical: it's all we can do where orientation.lock no-ops.
-            Includes its own leave control so a portrait player is never trapped. */}
-        {playing && fs.isMobileOrTablet && !fs.isLandscape && (
-          <div role="dialog" aria-label={t('rotate_hint')} className="absolute inset-0 z-[60] flex flex-col items-center justify-center gap-5 px-8 text-center" style={{ background: 'rgba(8,18,12,0.96)' }}>
+        {/* ── Run 5/8: portrait rotate prompt (active game only) ───────────────
+            PORTALLED TO <body>: rendered as a position:fixed top layer OUTSIDE the
+            table's transformed (.tlmn-fs-root) + overflow-clipped (.tlmn-stage)
+            ancestors. That ancestor combo made iOS Safari mis-hit-test an absolute
+            overlay, so "Rời phòng" silently swallowed taps and trapped the player.
+            As a portal the buttons reliably receive taps. It starts BELOW the top
+            chrome strip so the page X / exit stay reachable in portrait too — two
+            independent, always-working exits. iOS-critical: orientation.lock no-ops
+            here, so the rotate guidance is the best we can offer. */}
+        {playing && portalReady && fs.isMobileOrTablet && !fs.isLandscape && createPortal(
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label={t('rotate_hint')}
+            className="fixed left-0 right-0 bottom-0 flex flex-col items-center justify-center gap-5 px-8 text-center"
+            style={{
+              zIndex: 2147483000,
+              top: 'calc(env(safe-area-inset-top) + 56px)',
+              background: 'rgba(8,18,12,0.97)',
+              pointerEvents: 'auto',
+              paddingBottom: 'calc(env(safe-area-inset-bottom) + 20px)',
+            }}
+          >
             <span className="tlmn-rotate-icon text-[64px] leading-none" aria-hidden>📱</span>
             <p className="font-serif font-black text-[22px] text-white">{t('rotate_hint')}</p>
             <p className="text-[13.5px] text-white/70 max-w-[280px] leading-relaxed">{t('rotate_subtext')}</p>
-            <button type="button" onClick={onLeave} className="mt-2 text-[12.5px] font-semibold text-white/60 hover:text-white border border-white/20 rounded-xl px-4 py-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white">
+            <button
+              type="button"
+              onClick={onLeave}
+              className="mt-2 inline-flex items-center justify-center min-h-[48px] font-bold text-[14px] text-white bg-rose hover:bg-rose-deep active:bg-rose-deep rounded-xl px-7 py-3 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            >
               {t('leave_btn')}
             </button>
-          </div>
+          </div>,
+          document.body,
         )}
 
         {/* ── Run 5: landscape one-tap fullscreen nudge ────────────────────────

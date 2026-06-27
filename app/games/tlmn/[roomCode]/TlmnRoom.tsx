@@ -482,14 +482,26 @@ export default function TlmnRoom({ initialState, userId, joinError = null }: Pro
                   <div className="min-w-0 flex-1">
                     <p className="text-[12.5px] text-muted/70 leading-snug">{t('empty_seat')}</p>
                     {isHost ? (
-                      <button
-                        type="button"
-                        onClick={handleAddBot}
-                        disabled={isBotPending}
-                        className="mt-1 text-[11.5px] font-semibold text-ink hover:text-rose border border-line hover:border-rose/30 rounded-lg px-2.5 py-1 transition-colors disabled:opacity-50"
-                      >
-                        🤖 {t('add_bot')}
-                      </button>
+                      <div className="mt-1.5 flex items-center gap-1.5 flex-wrap">
+                        {/* PRIMARY: invite a real player. SECONDARY: fill with a bot. */}
+                        <button
+                          type="button"
+                          onClick={copyLink}
+                          className="inline-flex items-center gap-1 text-[11.5px] font-bold text-white bg-rose hover:bg-rose-deep rounded-lg px-2.5 py-1 transition-colors"
+                        >
+                          {copied ? (
+                            <><svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7"/></svg>{t('copied')}</>
+                          ) : <>🔗 {t('invite_friends')}</>}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleAddBot}
+                          disabled={isBotPending}
+                          className="text-[11.5px] font-semibold text-ink/70 hover:text-rose border border-line hover:border-rose/30 rounded-lg px-2.5 py-1 transition-colors disabled:opacity-50"
+                        >
+                          🤖 {t('add_bot')}
+                        </button>
+                      </div>
                     ) : (
                       <p className="mt-1 text-[11px] text-muted/50">{t('waiting_players')}</p>
                     )}

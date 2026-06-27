@@ -2,6 +2,8 @@ import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import TlmnLobby from './TlmnLobby'
+import TlmnWaitingRooms from './TlmnWaitingRooms'
+import { fetchWaitingRooms } from './actions'
 
 export const dynamic = 'force-dynamic'
 
@@ -11,9 +13,10 @@ export async function generateMetadata() {
 }
 
 export default async function TlmnPage() {
-  const [t, supabase] = await Promise.all([
+  const [t, supabase, waitingRooms] = await Promise.all([
     getTranslations('games.tlmn'),
     Promise.resolve(createClient()),
+    fetchWaitingRooms(),
   ])
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -66,6 +69,9 @@ export default async function TlmnPage() {
           </Link>
         </div>
       )}
+
+      {/* ── Public "Phòng chờ" — find real opponents (mirror Cờ Caro) ── */}
+      <TlmnWaitingRooms initialRooms={waitingRooms} userId={user?.id ?? null} />
     </div>
   )
 }

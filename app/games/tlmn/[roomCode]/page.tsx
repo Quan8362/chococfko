@@ -55,6 +55,10 @@ export default async function TlmnRoomPage({
   const isSeated = !!(user && state.seats.some(s => s.user_id === user.id))
   const spectate = searchParams?.spectate === '1'
 
+  // MODE A (practice) is private to its single human owner — nobody else can view,
+  // spectate, or join it. A non-occupant gets a plain 404.
+  if (state.room.mode === 'practice' && !isSeated) notFound()
+
   // Already in the room (host, joined player, or returning reconnect) → the room view.
   // An explicit spectate link lets a non-seated visitor watch an in-progress game.
   if (isSeated || spectate) {

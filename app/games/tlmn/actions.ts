@@ -16,6 +16,8 @@ import { ensureWallet } from './wallet'
 
 // ── Types ───────────────────────────────────────────────────────────────────────
 export type TlmnStatus = 'lobby' | 'playing' | 'ended'
+// MODE A = 'practice' (solo vs bots, no stakes, private); MODE B = 'multiplayer'.
+export type TlmnMode = 'multiplayer' | 'practice'
 
 export type TlmnSettings = {
   // Host rule override — ONLY the changed fields are stored (untouched ⇒ full ruleset).
@@ -27,6 +29,7 @@ export type TlmnRoom = {
   invite_code: string
   host_seat: number
   status: TlmnStatus
+  mode: TlmnMode
   settings: TlmnSettings
   created_at: string
   updated_at: string
@@ -173,7 +176,7 @@ export async function createRoom(): Promise<never> {
 
   const { data: room, error } = await admin
     .from('tlmn_rooms')
-    .insert({ invite_code: code, host_seat: 0, status: 'lobby', settings: {} })
+    .insert({ invite_code: code, host_seat: 0, status: 'lobby', mode: 'multiplayer', settings: {} })
     .select('id')
     .single()
   if (error || !room) throw new Error(error?.message ?? 'create_failed')
@@ -189,6 +192,72 @@ export async function createRoom(): Promise<never> {
     connected: true,
     last_seen: new Date().toISOString(),
   })
+
+  redirect(`/games/tlmn/${code}`)
+}
+
+// ── createPracticeRoom (MODE A — instant Practice vs Bots) ─────────────────────────
+// One-tap: open a PRIVATE single-player session, seat the host + N bots (default 3),
+// deal, and jump straight into the game. NO coin entry-gate and NO settlement — it's
+// practice (see settleRoundCoins, which skips mode='practice'). The room is never
+// listed in the public "Phòng chờ" lobby and is not joinable by anyone else (the room
+// page 404s a non-host visitor). Always available, including at 0 coins.
+export async function createPracticeRoom(
+  botCount = 3,
+  override: HostRulesOverride | null = null,
+): Promise<never> {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
+
+  const admin = createAdminClient()
+
+  let code = genCode()
+  for (let i = 0; i < 5; i++) {
+    const { data } = await admin.from('tlmn_rooms').select('id').eq('invite_code', code).maybeSingle()
+    if (!data) break
+    code = genCode()
+  }
+
+  const clean = override ? pickHostOverride(override) : {}
+  const rules = resolveRules(clean)
+
+  // Open the room already in 'playing' so it never surfaces in the waiting-room list
+  // and the page routes straight to the table.
+  const { data: room, error } = await admin
+    .from('tlmn_rooms')
+    .insert({ invite_code: code, host_seat: 0, status: 'playing', mode: 'practice', settings: { rules: clean } })
+    .select('id')
+    .single()
+  if (error || !room) throw new Error(error?.message ?? 'create_failed')
+
+  const info = await getProfileInfo(admin, user.id)
+  await admin.from('tlmn_seats').insert({
+    room_id: room.id,
+    seat_index: 0,
+    user_id: user.id,
+    display_name: info.name,
+    avatar_url: info.avatar,
+    is_ready: true,
+    connected: true,
+    last_seen: new Date().toISOString(),
+  })
+
+  const bots = Math.min(MAX_SEATS - 1, Math.max(1, Math.floor(botCount)))
+  const botRows = Array.from({ length: bots }, (_, i) => ({
+    room_id: room.id,
+    seat_index: i + 1,
+    user_id: null,
+    display_name: `Bot ${i + 1}`,
+    avatar_url: null,
+    is_ready: true,
+    is_bot: true,
+    connected: true,
+  }))
+  await admin.from('tlmn_seats').insert(botRows)
+
+  const seats = Array.from({ length: bots + 1 }, (_, i) => i)
+  await dealAndPersist(admin, room.id, seats, 1, rules, null)
 
   redirect(`/games/tlmn/${code}`)
 }
@@ -262,6 +331,94 @@ export async function getRoomState(code: string): Promise<TlmnRoomState | null> 
     .from('tlmn_rooms').select('id').eq('invite_code', code.toUpperCase()).maybeSingle()
   if (!room) return null
   return readState(admin, room.id)
+}
+
+// ── Public "Phòng chờ" list (mirror Cờ Caro's fetchWaitingRooms) ───────────────────
+export type WaitingRoom = {
+  id: string
+  invite_code: string
+  host_name: string
+  host_avatar: string | null
+  seat_count: number
+  created_at: string
+  updated_at: string
+}
+
+// A waiting room's host is considered ONLINE while their seat heart-beats (every 15s
+// via heartbeatRoom). ~3 missed beats ⇒ ghost room, excluded from the list.
+const LOBBY_HOST_STALE_MS = 50_000
+
+// fetchWaitingRooms — MODE-B rooms still gathering players: multiplayer + in the lobby
+// (not started) + not full + host still online. MODE-A practice sessions are mode!=
+// 'multiplayer' so they can never appear here. Newest-first, like Cờ Caro.
+export async function fetchWaitingRooms(): Promise<WaitingRoom[]> {
+  const admin = createAdminClient()
+  const { data: rooms } = await admin
+    .from('tlmn_rooms')
+    .select('id, invite_code, host_seat, created_at, updated_at')
+    .eq('mode', 'multiplayer')
+    .eq('status', 'lobby')
+    .order('updated_at', { ascending: false })
+    .limit(30)
+  if (!rooms || rooms.length === 0) return []
+
+  const roomIds = rooms.map(r => r.id)
+  const { data: seats } = await admin
+    .from('tlmn_seats')
+    .select('room_id, seat_index, user_id, is_bot, display_name, avatar_url, last_seen')
+    .in('room_id', roomIds)
+  type SeatRow = {
+    room_id: string; seat_index: number; user_id: string | null; is_bot: boolean
+    display_name: string; avatar_url: string | null; last_seen: string | null
+  }
+  const byRoom = new Map<string, SeatRow[]>()
+  for (const s of (seats ?? []) as SeatRow[]) {
+    const arr = byRoom.get(s.room_id) ?? []
+    arr.push(s)
+    byRoom.set(s.room_id, arr)
+  }
+
+  const cutoff = Date.now() - LOBBY_HOST_STALE_MS
+  const out: WaitingRoom[] = []
+  for (const r of rooms) {
+    const rs = byRoom.get(r.id) ?? []
+    if (rs.length === 0 || rs.length >= MAX_SEATS) continue // empty/ghost or already full
+    const host = rs.find(s => s.seat_index === r.host_seat) ?? rs[0]
+    if (!host.user_id || host.is_bot) continue // host must be a real player
+    if (!host.last_seen || new Date(host.last_seen).getTime() < cutoff) continue // ghost — host offline
+    out.push({
+      id: r.id,
+      invite_code: r.invite_code,
+      host_name: host.display_name || '',
+      host_avatar: host.avatar_url,
+      seat_count: rs.length,
+      created_at: r.created_at,
+      updated_at: r.updated_at,
+    })
+  }
+  return out
+}
+
+// joinRoomFromLobby — join a public waiting room by code WITHOUT redirecting (the
+// client routes on success, mirroring Cờ Caro). Enforces the coin entry-gate and the
+// same full / in-progress guards as the lobby form.
+export async function joinRoomFromLobby(code: string): Promise<ActionResult> {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'not_logged_in' }
+
+  const { balance } = await ensureWallet()
+  if (balance < ENTRY_MIN_BALANCE) return { error: 'insufficient_coins' }
+
+  const admin = createAdminClient()
+  const { data: room } = await admin
+    .from('tlmn_rooms').select('id, mode').eq('invite_code', code.toUpperCase()).maybeSingle()
+  if (!room || room.mode === 'practice') return { error: 'not_found' } // practice is private
+
+  const err = await seatUser(admin, room.id, user.id)
+  if (err === 'full') return { error: 'full' }
+  if (err === 'in_progress') return { error: 'in_progress' }
+  return null
 }
 
 // ── toggleReady ─────────────────────────────────────────────────────────────────
@@ -361,7 +518,16 @@ export async function leaveSeat(roomId: string): Promise<ActionResult> {
   if (!seat) return null // already gone
 
   const { data: room } = await admin
-    .from('tlmn_rooms').select('host_seat, status').eq('id', roomId).maybeSingle()
+    .from('tlmn_rooms').select('host_seat, status, mode').eq('id', roomId).maybeSingle()
+
+  // A practice session belongs to its single human — when they leave, there's nobody
+  // (only bots) to keep it alive, so tear the whole room down rather than handing it
+  // to a bot. The CASCADE on tlmn_seats/tlmn_games/tlmn_hands cleans up the rest.
+  if (room?.mode === 'practice') {
+    await admin.from('tlmn_rooms').delete().eq('id', roomId)
+    return null
+  }
+
   const playing = room?.status === 'playing'
 
   if (playing) {
@@ -687,6 +853,11 @@ async function settleRoundCoins(
   roundNo: number,
   deltas: Record<number, number>,
 ): Promise<void> {
+  // MODE A (practice) is play-only: round results display but never touch the
+  // persisted "xu" balance. Settlement runs ONLY for real multiplayer rooms.
+  const { data: room } = await admin.from('tlmn_rooms').select('mode').eq('id', roomId).maybeSingle()
+  if (room?.mode === 'practice') return
+
   const { data: seats } = await admin
     .from('tlmn_seats').select('seat_index, user_id, is_bot').eq('room_id', roomId)
   const results: Array<{ user_id: string; delta: number }> = []
@@ -964,8 +1135,11 @@ export async function startNextRound(roomId: string): Promise<ActionResult> {
   if (!mySeat || mySeat.seat_index !== state.room.host_seat) return { error: 'not_host' }
 
   // Entry gate also applies to "Ván mới": the host needs coins to open the next round.
-  const { balance } = await ensureWallet()
-  if (balance < ENTRY_MIN_BALANCE) return { error: 'insufficient_coins' }
+  // Practice (MODE A) never charges, so it can always re-deal — even at 0 coins.
+  if (state.room.mode !== 'practice') {
+    const { balance } = await ensureWallet()
+    if (balance < ENTRY_MIN_BALANCE) return { error: 'insufficient_coins' }
+  }
 
   const prev = await latestGame(admin, roomId)
   if (!prev) return { error: 'no_game' }

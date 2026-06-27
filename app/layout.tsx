@@ -27,6 +27,11 @@ const SITE_URL  = 'https://chococfko.com'
 // tránh tình trạng lộ nội dung trang chạy phía sau ở mép trên khi cuộn.
 export const viewport: Viewport = {
   themeColor: '#faf4ea',
+  // Let content extend under the notch / home indicator so env(safe-area-inset-*)
+  // resolves to real values — needed by the TLMN fullscreen-landscape mode (cards
+  // must clear the side notch in landscape). Pages already pad with the safe-area
+  // insets where it matters, so the rest of the site is unaffected.
+  viewportFit: 'cover',
 }
 
 const OG_LOCALE: Record<string, string> = {

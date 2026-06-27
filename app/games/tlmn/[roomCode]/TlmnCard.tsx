@@ -18,7 +18,8 @@ const SUIT_PATH = [
 ] as const
 
 const INK = '#1a1a1a'
-const MAGENTA = '#d6006c'
+// Run 6 — true playing-card red for ♥♦ (casino look), near-black for ♠♣.
+const CARD_RED = '#d32f2f'
 
 function SuitPip({ suit, size, color }: { suit: number; size: number; color: string }) {
   return (
@@ -53,10 +54,11 @@ export function CardFace({
   const isHeo = card.rank === R2
   const h = Math.round(w * 1.4) // 5:7
   const rank = RANKS[card.rank]
-  const color = red ? MAGENTA : INK
-  const cornerSuit = Math.round(w * 0.26)
-  const centerSuit = Math.round(w * 0.52)
-  const rankSize = Math.round(w * 0.34)
+  const color = red ? CARD_RED : INK
+  // Oversized, bold index (reads from across the table). Suit pip sits below the rank.
+  const cornerSuit = Math.round(w * 0.30)
+  const centerSuit = Math.round(w * 0.56)
+  const rankSize = Math.round(w * 0.42)
 
   return (
     <span
@@ -96,37 +98,85 @@ export function CardFace({
   )
 }
 
-// Face-down card back with a subtle chococfko motif: a warm magenta field, a fine
-// double frame and a centred diamond monogram on a soft tonal lattice. Consistent
-// radius/shadow with CardFace; clearly distinct from the deep-red felt.
+// Face-down card back (Run 6) — a blue/indigo field with a clean geometric lattice,
+// a gold double frame and a centred diamond monogram. Consistent radius/shadow with
+// CardFace; clearly distinct from the deep-red felt and the white faces.
 export function CardBack({ w = 30, className = '' }: { w?: number; className?: string }) {
   const h = Math.round(w * 1.4)
   return (
     <span
-      className={`relative inline-block rounded-[6px] ring-1 ring-rose-deep/40 shadow-card overflow-hidden ${className}`}
+      className={`relative inline-block rounded-[6px] ring-1 ring-[#0c1a44]/60 shadow-card overflow-hidden ${className}`}
       style={{
         width: w,
         height: h,
         background:
-          'radial-gradient(120% 120% at 50% 0%, #e0307f 0%, #d6006c 45%, #b00c58 100%)',
+          'radial-gradient(120% 120% at 50% 0%, #3a55c8 0%, #243b9c 45%, #16236b 100%)',
       }}
     >
-      {/* fine cross-lattice */}
+      {/* fine geometric cross-lattice */}
       <span
-        className="absolute inset-0 opacity-30"
+        className="absolute inset-0 opacity-35"
         style={{
           backgroundImage:
-            'repeating-linear-gradient(45deg, rgba(255,255,255,0.5) 0 1px, transparent 1px 6px), repeating-linear-gradient(-45deg, rgba(255,255,255,0.5) 0 1px, transparent 1px 6px)',
+            'repeating-linear-gradient(45deg, rgba(255,255,255,0.55) 0 1px, transparent 1px 6px), repeating-linear-gradient(-45deg, rgba(255,255,255,0.55) 0 1px, transparent 1px 6px)',
         }}
       />
-      {/* double frame */}
-      <span className="absolute inset-[2px] rounded-[4px] border border-white/30" />
+      {/* gold double frame */}
+      <span className="absolute inset-[2px] rounded-[4px] border" style={{ borderColor: 'rgba(227,178,60,0.7)' }} />
       <span className="absolute inset-[4px] rounded-[3px] border border-white/15" />
       {/* monogram */}
       <span className="absolute inset-0 flex items-center justify-center">
-        <SuitPip suit={2} size={Math.round(w * 0.5)} color="rgba(255,255,255,0.92)" />
+        <SuitPip suit={2} size={Math.round(w * 0.5)} color="rgba(246,217,137,0.92)" />
       </span>
     </span>
+  )
+}
+
+// ── Distinct bot avatars (Run 6) ───────────────────────────────────────────────────
+// Original SVG portraits so Bot 1/2/3/4 are visually different (not three identical
+// "B"). Each bot gets a unique hue + a unique accessory (glasses / hat / bowtie /
+// headphones). Deterministic by seed so a bot keeps its face across re-renders.
+// TODO(asset): a designer could replace these with richer illustrated mascots.
+const BOT_HUES = [12, 152, 268, 200] // warm-red, jade, violet, sky
+export function BotAvatar({ seed, size = 46 }: { seed: number; size?: number }) {
+  const i = ((seed % BOT_HUES.length) + BOT_HUES.length) % BOT_HUES.length
+  const hue = BOT_HUES[i]
+  const bg = `hsl(${hue} 55% 42%)`
+  const bgDark = `hsl(${hue} 60% 28%)`
+  const skin = `hsl(${(hue + 30) % 360} 45% 78%)`
+  return (
+    <svg width={size} height={size} viewBox="0 0 48 48" aria-hidden style={{ display: 'block', borderRadius: '9999px' }}>
+      <defs>
+        <radialGradient id={`bg-${i}`} cx="50%" cy="35%" r="75%">
+          <stop offset="0%" stopColor={bg} />
+          <stop offset="100%" stopColor={bgDark} />
+        </radialGradient>
+      </defs>
+      <rect width="48" height="48" rx="24" fill={`url(#bg-${i})`} />
+      {/* head + body */}
+      <circle cx="24" cy="20" r="9" fill={skin} />
+      <path d="M10 44c0-8 6.5-13 14-13s14 5 14 13z" fill={skin} opacity="0.95" />
+      {/* eyes */}
+      <circle cx="20.5" cy="19" r="1.5" fill="#23202b" />
+      <circle cx="27.5" cy="19" r="1.5" fill="#23202b" />
+      {/* per-bot accessory */}
+      {i === 0 && /* glasses */ (
+        <g stroke="#23202b" strokeWidth="1.1" fill="none">
+          <circle cx="20.5" cy="19" r="3" /><circle cx="27.5" cy="19" r="3" /><path d="M23.5 19h1" />
+        </g>
+      )}
+      {i === 1 && /* hat */ (
+        <path d="M13 13c0-5 5-8 11-8s11 3 11 8z" fill={bgDark} />
+      )}
+      {i === 2 && /* bowtie */ (
+        <path d="M24 31l-4-2.5v5zM24 31l4-2.5v5z" fill={bgDark} />
+      )}
+      {i === 3 && /* headphones */ (
+        <g fill={bgDark}><path d="M13 20a11 11 0 0122 0" fill="none" stroke={bgDark} strokeWidth="2" /><rect x="11.5" y="19" width="3.5" height="6" rx="1.5" /><rect x="33" y="19" width="3.5" height="6" rx="1.5" /></g>
+      )}
+      {/* smile */}
+      <path d="M21 23.5c1 1.3 5 1.3 6 0" stroke="#23202b" strokeWidth="1.1" fill="none" strokeLinecap="round" />
+    </svg>
   )
 }
 

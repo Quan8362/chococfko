@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useRef, useState, useTransition, type ReactNode } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
@@ -13,12 +13,29 @@ import {
   type TlmnPublicGame, type TlmnSeat,
 } from '../actions'
 import { motion } from 'framer-motion'
-import { CardFace, CardBack, OpponentFan } from './TlmnCard'
+import { CardFace, CardBack, OpponentFan, BotAvatar } from './TlmnCard'
 import { useTlmnSound } from './useTlmnSound'
 import { TRANSITIONS, DURATIONS, EASINGS, MS } from '@/lib/games/motion'
+import { useFullscreenLandscape } from '@/hooks/useFullscreenLandscape'
 
 const cardKey = (c: Card) => `${c.rank}-${c.suit}`
 const comboKeys = (cs: Card[]) => cs.map(cardKey)
+
+// ── Virtual chips (social-casino flavour) — DISPLAY ONLY, not real money. ───────────
+// Each seat starts at CHIP_SEED; the running balance is derived from the seat's
+// persisted cumulative đếm-lá score × a fixed chip rate, so it's idempotent and
+// survives reconnects with no new gameplay/economy rules. TODO(persist-chips): if a
+// dedicated chip column is ever added, read it instead of deriving from the score.
+const CHIP_SEED = 1_000_000
+const CHIP_RATE = 1000
+const chipsFromScore = (cumulativeScore: number) => Math.max(0, CHIP_SEED + cumulativeScore * CHIP_RATE)
+
+// Compact social-casino formatting: 4.35M / 269K / 9.3K / 940.
+function formatChips(n: number): string {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(n >= 10_000_000 ? 1 : 2)}M`.replace(/\.0+M$/, 'M')
+  if (n >= 1_000) return `${(n / 1_000).toFixed(n >= 100_000 ? 0 : 1)}K`.replace(/\.0K$/, 'K')
+  return `${Math.round(n)}`
+}
 
 // Localized screen-reader label for a card (rank + suit), e.g. "7 Cơ" / "7 of Hearts".
 // Suit index: 0 ♠ bích, 1 ♣ chuồn, 2 ♦ rô, 3 ♥ cơ.
@@ -87,6 +104,9 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
   const t = useTranslations('games.tlmn')
   const sound = useTlmnSound()
   const { w: vw, h: vh } = useViewport()
+  // Run 5 — fullscreen + landscape immersive mode (single source of truth).
+  const fs = useFullscreenLandscape()
+  const [nudgeDismissed, setNudgeDismissed] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [trayRef, trayW] = useMeasuredWidth<HTMLDivElement>()
   const [game, setGame] = useState<TlmnPublicGame | null>(null)
@@ -103,15 +123,20 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
   // own; once the table mounts we track the game channel so a dropped socket shows).
   const [connState, setConnState] = useState<'connecting' | 'connected' | 'reconnecting'>('connecting')
   const mountedRef = useRef(true)
-  const tickRef = useRef<string | null>(null)
-  const botRef = useRef<string | null>(null)
+  // Latest game/seats mirrored into refs so the bot/timeout DRIVER (a steady interval)
+  // always reads fresh values — no stale closure, no fire-once dedup.
+  const gameRef = useRef<TlmnPublicGame | null>(null)
+  const seatsRef = useRef(seats)
 
   // ── Transient FX state ───────────────────────────────────────────────────────
-  const [chac, setChac] = useState<{ cutter: number; victim: number; amount: number; key: number } | null>(null)
+  const [chac, setChac] = useState<{ cutter: number; victim: number; amount: number; kind: 'heo' | 'bom'; key: number } | null>(null)
   const [shakeKey, setShakeKey] = useState(0)
   const [passStamp, setPassStamp] = useState<{ seat: number; key: number } | null>(null)
   const [invalidKey, setInvalidKey] = useState(0)
   const [confettiKey, setConfettiKey] = useState(0)
+  const [starKey, setStarKey] = useState(0)   // gold star burst (special combos / chặt)
+  const [crownKey, setCrownKey] = useState(0)  // crown sweep + edge glow (tới trắng / win)
+  const [penaltyToast, setPenaltyToast] = useState<{ seat: number; label: string; key: number } | null>(null)
   const [dealFxKey, setDealFxKey] = useState(0) // premium round-deal overlay trigger
   // Phase 2 — per-seat last-played mirror. Read-only: derived purely by observing
   // public trick transitions (no DB / game-logic change). Cleared on a new round.
@@ -193,31 +218,53 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
     return () => clearTimeout(id)
   }, [game?.id])
 
-  // ── Timeout reaper nudge ───────────────────────────────────────────────────────
-  useEffect(() => {
-    if (!game || game.status !== 'playing' || !game.turn_deadline || !game.turn_started_at) return
-    const expired = now > new Date(game.turn_deadline).getTime() + 3500
-    if (!expired) return
-    if (tickRef.current === game.turn_started_at) return
-    tickRef.current = game.turn_started_at
-    tickTurnTimer(roomId).catch(() => {})
-  }, [now, game, roomId])
+  // Mirror the latest game + seats into refs for the driver below (read-only).
+  useEffect(() => { gameRef.current = game }, [game])
+  useEffect(() => { seatsRef.current = seats }, [seats])
 
-  // ── Bot-turn nudge ──────────────────────────────────────────────────────────────
-  // When the current turn belongs to a bot seat (a real lobby bot OR a human under
-  // AFK takeover), prompt the server to make its move. The server re-checks the seat
-  // + gates on its own randomized think delay, so this just needs to fire once per
-  // turn after that window has comfortably passed. (If it's ever missed, the timeout
-  // reaper above still auto-moves the bot — so bots always progress.)
+  // ── Bot-turn + timeout DRIVER (retrying — the fix for the turn-state stall) ──────
+  // Bots have no browser and there is NO long-lived server, so seated clients must
+  // nudge the server to (a) play a bot / AFK-takeover seat and (b) reap a timed-out
+  // turn. The previous version fired each nudge exactly ONCE per turn and then
+  // dedup-blocked it forever (keyed by turn_started_at). A single no-op — e.g. minor
+  // client-AHEAD clock skew makes the server's randomized think-delay gate reject the
+  // call as "too early" — or one dropped request therefore STRANDED the bot's turn
+  // permanently: the turn never came back to the human and "Đánh" stayed disabled
+  // ("Chưa tới lượt bạn"). We now RETRY on a steady interval until the turn actually
+  // advances. Both server actions are idempotent and guarded (commitRound updates only
+  // when status='playing' AND turn_seat=actingSeat), so repeats are safe — exactly one
+  // application ever wins. Reads game/seats from refs ⇒ no stale closure.
   useEffect(() => {
-    if (!game || game.status !== 'playing' || game.turn_seat == null || !game.turn_started_at) return
-    const turnSeat = seats.find(s => s.seat_index === game.turn_seat)
-    if (!turnSeat || !(turnSeat.is_bot || turnSeat.bot_takeover)) return
-    if (now - new Date(game.turn_started_at).getTime() < 1500) return // ≥ server max delay
-    if (botRef.current === game.turn_started_at) return
-    botRef.current = game.turn_started_at
-    runBotTurn(roomId).catch(() => {})
-  }, [now, game, seats, roomId])
+    let lastKey = ''   // turn_started_at we last nudged
+    let lastAt = 0     // when we last nudged (throttle, but always retry next window)
+    const RETRY_MS = 1100
+    const id = setInterval(() => {
+      if (!mountedRef.current) return
+      const g = gameRef.current
+      if (!g || g.status !== 'playing' || g.turn_seat == null || !g.turn_started_at) return
+      const key = g.turn_started_at
+      const startedAt = new Date(key).getTime()
+      const elapsed = Date.now() - startedAt
+      // One nudge per RETRY_MS for a given turn — but as soon as RETRY_MS elapses and
+      // the turn still hasn't moved, nudge again (this is what guarantees progress).
+      if (key === lastKey && Date.now() - lastAt < RETRY_MS) return
+
+      const turnSeat = seatsRef.current.find(s => s.seat_index === g.turn_seat)
+      const isBotSeat = !!turnSeat && (turnSeat.is_bot || turnSeat.bot_takeover)
+      const deadlinePassed = !!g.turn_deadline && Date.now() > new Date(g.turn_deadline).getTime() + 3500
+
+      if (isBotSeat && elapsed >= 1500) {
+        lastKey = key; lastAt = Date.now()
+        runBotTurn(roomId).then(() => { if (mountedRef.current) refreshAll() }).catch(() => {})
+      } else if (deadlinePassed) {
+        // Works for a timed-out HUMAN seat too (auto-pass / AFK takeover), exactly as
+        // before — just retried instead of fired once.
+        lastKey = key; lastAt = Date.now()
+        tickTurnTimer(roomId).then(() => { if (mountedRef.current) refreshAll() }).catch(() => {})
+      }
+    }, 600)
+    return () => clearInterval(id)
+  }, [roomId, refreshAll])
 
   // ── React to game transitions: sounds, haptics, FX ─────────────────────────────
   useEffect(() => {
@@ -248,13 +295,16 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
     if (game.chat_events.length > prev.chat_events.length) {
       const ev = game.chat_events[game.chat_events.length - 1]
       const amount = !game.rules.denEnabled ? 0 : ev.kind === 'heo' ? game.rules.denHeo : game.rules.denBom
-      setChac({ cutter: ev.cutter, victim: ev.cutVictim, amount, key: Date.now() })
+      setChac({ cutter: ev.cutter, victim: ev.cutVictim, amount, kind: ev.kind, key: Date.now() })
       setShakeKey(k => k + 1)
+      setStarKey(Date.now()) // chặt heo / chặt bom → gold star burst
       sound.play('chat')
       sound.vibrate([0, 40, 30, 60])
     } else if (!newRound && game.trick && (!prev.trick || prev.trick.by_seat !== game.trick.by_seat || comboKeys(prev.trick.cards).join() !== comboKeys(game.trick.cards).join())) {
-      // A normal play hit the table.
+      // A normal play hit the table — bombs (tứ quý / đôi thông) also burst gold stars.
       sound.play('play')
+      const c = parseCombo(game.trick.cards)
+      if (c && isBomb(c)) setStarKey(Date.now())
     }
 
     // Someone passed (pass_flags grew within the same trick).
@@ -290,11 +340,24 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
     const justEnded = (newRound || prev.status === 'playing') && game.status === 'ended'
     if (justEnded) {
       const instant = game.result?.instant
-      if (instant) { sound.play('toitrang'); sound.vibrate([0, 60, 40, 90]) }
-      else if (game.result?.winner != null) sound.play('win')
+      if (instant) { sound.play('toitrang'); sound.vibrate([0, 60, 40, 90]); setCrownKey(Date.now()) }
+      else if (game.result?.winner != null) { sound.play('win'); setCrownKey(Date.now()) }
       if (!reducedRef.current) setConfettiKey(Date.now())
       const w = game.result?.winner ?? game.nhat_seat
       setLiveMsg(w != null ? t('a11y_round_over', { name: seatName(w) }) : t('round_over'))
+
+      // A brief NON-celebratory toast by a penalised seat (cóng / thối heo / thối bom)
+      // so the player understands what happened. Derived from the đếm-lá breakdown only.
+      const bd = game.result?.breakdown
+      if (bd) {
+        for (const r of bd.seats) {
+          const label = r.cong ? t('penalty_cong')
+            : (r.heldTwos > 0 && r.thoiHeoMult > 1) ? t('penalty_thoiheo')
+            : r.thoiBomUnits > 0 ? t('penalty_thoibom')
+            : null
+          if (label) { setPenaltyToast({ seat: r.seat, label, key: Date.now() }); break }
+        }
+      }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [game, mySeat, sound, t])
@@ -330,6 +393,32 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
     const id = setTimeout(() => { if (mountedRef.current) setConfettiOn(false) }, 1900)
     return () => clearTimeout(id)
   }, [confettiKey])
+
+  // Auto-clear the gold star burst.
+  const [starOn, setStarOn] = useState(false)
+  useEffect(() => {
+    if (!starKey) return
+    if (reducedRef.current) return
+    setStarOn(true)
+    const id = setTimeout(() => { if (mountedRef.current) setStarOn(false) }, 1250)
+    return () => clearTimeout(id)
+  }, [starKey])
+
+  // Auto-clear the crown sweep + edge glow.
+  const [crownOn, setCrownOn] = useState(false)
+  useEffect(() => {
+    if (!crownKey) return
+    setCrownOn(true)
+    const id = setTimeout(() => { if (mountedRef.current) setCrownOn(false) }, 2300)
+    return () => clearTimeout(id)
+  }, [crownKey])
+
+  // Auto-clear the penalty toast.
+  useEffect(() => {
+    if (!penaltyToast) return
+    const id = setTimeout(() => { if (mountedRef.current) setPenaltyToast(null) }, 2600)
+    return () => clearTimeout(id)
+  }, [penaltyToast])
 
   // ── Derived state ──────────────────────────────────────────────────────────────
   const rules = game?.rules
@@ -519,8 +608,9 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
   // ── Render ───────────────────────────────────────────────────────────────────
   return (
     // Full-bleed breakout: the table escapes the page's narrow column to become an
-    // immersive deep-red surface — the dominant element on the page.
-    <div className="relative w-screen left-1/2 -translate-x-1/2">
+    // immersive deep-red surface — the dominant element on the page. In fullscreen /
+    // pseudo-fullscreen (Run 5) the .tlmn-fs-root rules make this fill 100dvh/dvw.
+    <div ref={fs.rootRef} className="tlmn-fs-root relative w-screen left-1/2 -translate-x-1/2">
       <div
         key={shakeKey}
         className={`tlmn-stage relative flex flex-col min-h-[86vh] overflow-hidden ${shakeKey ? 'tlmn-shake' : ''}`}
@@ -550,9 +640,28 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
                 {t(connState === 'connecting' ? 'connecting' : 'reconnecting')}
               </span>
             )}
-            <span className="rounded-full bg-black/30 px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-[1.5px] text-white/70">
+            <span className="tlmn-badge-gold rounded-full px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-[1.5px]">
               {t('round_label', { n: game.round_no })}
             </span>
+            {/* Fullscreen toggle — expand ⇄ compress. Shown wherever the hook can act
+                (native on Android/desktop, pseudo on iOS); hidden on desktop browsers
+                with no Fullscreen API. enter() runs inside this tap (gesture-safe). */}
+            {fs.mode !== 'unsupported' && (
+              <button
+                type="button"
+                onClick={() => { void fs.toggle() }}
+                aria-label={fs.isFullscreen ? t('fullscreen_exit') : t('fullscreen_enter')}
+                title={fs.isFullscreen ? t('fullscreen_exit') : t('fullscreen_enter')}
+                aria-pressed={fs.isFullscreen}
+                className="tlmn-chrome"
+              >
+                {fs.isFullscreen ? (
+                  <svg width={18} height={18} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 9V5H5m0 0l4 4m6-4v4h4m0 0l-4-4M9 15v4H5m0 0l4-4m6 4v-4h4m0 0l-4 4" /></svg>
+                ) : (
+                  <svg width={18} height={18} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4h4M4 4l5 5m11-5h-4m4 0v4m0-4l-5 5M4 16v4h4m-4 0l5-5m11 5h-4m4 0v-4m0 4l-5-5" /></svg>
+                )}
+              </button>
+            )}
             <button type="button" onClick={sound.toggleMute} aria-label={sound.muted ? t('sound_off') : t('sound_on')} title={sound.muted ? t('sound_off') : t('sound_on')} className="tlmn-chrome">
               {sound.muted ? (
                 <svg width={18} height={18} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z M17 9l4 4m0-4l-4 4" /></svg>
@@ -589,6 +698,7 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
                   name={seatName(idx)}
                   isMe={false}
                   count={game.card_counts?.[String(idx)] ?? 0}
+                  chips={chipsFromScore(seatOf(idx)?.cumulative_score ?? 0)}
                   isTurn={game.turn_seat === idx && playing}
                   isNhat={game.nhat_seat === idx}
                   isWinner={winnerSeat === idx}
@@ -613,10 +723,26 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
                 <CenterEnd game={game} seatName={seatName} t={t} />
               ) : game.trick ? (
                 <div key={comboKeys(game.trick.cards).join()} className="flex flex-col items-center gap-2">
+                  {/* Gold combo banner — driven by the combo type (no recompute of rules). */}
+                  {tableCombo && (() => {
+                    const b = comboBanner(tableCombo, t)
+                    return (
+                      <span
+                        className={`tlmn-banner-in inline-flex items-center rounded-full px-3.5 py-1 text-[13px] font-black uppercase ${
+                          b.special ? 'tlmn-combo-banner tlmn-banner-shine' : 'tlmn-combo-banner--plain'
+                        }`}
+                      >
+                        {b.label}
+                      </span>
+                    )
+                  })()}
                   <p className="text-[10.5px] font-bold text-white/70 uppercase tracking-[1.5px]">
                     {t('table_play_by', { name: seatName(game.trick.by_seat) })}
                   </p>
-                  <div className="flex justify-center" style={{ perspective: 700 }}>
+                  {/* Faint ghost of the prior stacked plays, giving the pile depth. */}
+                  <div className="relative flex justify-center" style={{ perspective: 700 }}>
+                    <span aria-hidden className="absolute left-1/2 top-1 rounded-[7px] bg-black/25" style={{ width: pileW, height: Math.round(pileW * 1.4), transform: 'translateX(-50%) rotate(-7deg) translateY(4px)' }} />
+                    <span aria-hidden className="absolute left-1/2 top-1 rounded-[7px] bg-black/20" style={{ width: pileW, height: Math.round(pileW * 1.4), transform: 'translateX(-50%) rotate(6deg) translateY(4px)' }} />
                     {sortHand(game.trick.cards).map((c, i) => {
                       const mine = mySeat != null && game.trick!.by_seat === mySeat
                       const ml = i === 0 ? 0 : -Math.round(pileW * 0.28)
@@ -658,8 +784,10 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
               <>
                 <div className="absolute inset-0 bg-white tlmn-flash pointer-events-none" />
                 <div key={chac.key} className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                  <div className="tlmn-stamp px-5 py-2 rounded-2xl bg-rose text-white shadow-2xl border-2 border-white/70">
-                    <span className="font-serif font-black text-[clamp(26px,5vw,38px)] tracking-tight">✂️ {t('chat_word')}</span>
+                  <div className="tlmn-stamp tlmn-combo-banner tlmn-banner-shine px-5 py-2 rounded-2xl shadow-2xl">
+                    <span className="font-serif font-black text-[clamp(26px,5vw,38px)] tracking-tight">
+                      ✂️ {t(chac.kind === 'heo' ? 'banner_chat_heo' : 'banner_chat_bom')}
+                    </span>
                   </div>
                   {chac.amount > 0 && (
                     <p className="mt-2 text-[13px] font-bold text-rose-deep bg-white/90 px-3 py-1 rounded-full tlmn-banner-pop">
@@ -675,13 +803,35 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
                 it (guarded at the trigger site). Purely cosmetic, behind the pile. */}
             {dealFxOn && <DealFx places={dealPlaces} feltW={feltW} feltH={tableH} cardW={dealBackW} />}
 
-            {/* Win celebration — an on-brand emoji burst (the site's design language)
-                plus the geometric confetti behind it. */}
+            {/* Win celebration — on-brand emoji burst + geometric confetti. */}
             {confettiOn && (
               <>
                 <Confetti seed={confettiKey} />
                 <EmojiBurst seed={confettiKey} />
               </>
+            )}
+
+            {/* Gold star burst — special combos (tứ quý / đôi thông) + chặt. */}
+            {starOn && <GoldStars seed={starKey} />}
+
+            {/* Instant-win (tới trắng) — crown sweep + screen-edge gold glow. */}
+            {crownOn && ended && game.result?.instant && (
+              <>
+                <span className="tlmn-edge-glow" />
+                <div className="absolute inset-0 flex items-start justify-center pt-[8%] pointer-events-none z-30">
+                  <span className="tlmn-crown-sweep text-[clamp(44px,9vw,72px)]" aria-hidden>👑</span>
+                </div>
+              </>
+            )}
+
+            {/* Penalty (thối heo / đền / cóng) — a brief, NON-celebratory muted toast by
+                the affected seat. No gold; just enough to explain what happened. */}
+            {penaltyToast && (
+              <div key={penaltyToast.key} className={`absolute z-30 pointer-events-none ${SLOT_POS[mySeat != null && penaltyToast.seat === mySeat ? 'bottom' : placeOfSeat(penaltyToast.seat)] ?? SLOT_POS.top}`}>
+                <span className="tlmn-banner-pop inline-flex items-center gap-1 rounded-lg bg-black/70 border border-white/20 px-2.5 py-1 text-[10.5px] font-bold text-white/90 whitespace-nowrap">
+                  ⚠️ {penaltyToast.label}
+                </span>
+              </div>
             )}
           </div>
         </div>
@@ -701,7 +851,7 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
             {/* Human seat (bottom-left) + sort pill */}
             <div className="flex items-end justify-between gap-2 mb-1.5">
               <div className="flex items-center gap-2.5">
-                <span className={`relative inline-flex rounded-full p-[2px] ${isMyTurn ? 'tlmn-glow bg-rose' : 'bg-white/20'}`}>
+                <span className={`relative inline-flex rounded-full p-[3px] tlmn-frame-gold ${isMyTurn && !reduced ? 'tlmn-frame-active' : ''}`}>
                   <PodAvatar name={seatName(mySeat)} url={seatOf(mySeat)?.avatar_url ?? null} size={vw < 560 ? 38 : 46} />
                   {isMyTurn && secondsLeft != null && (
                     <span
@@ -717,6 +867,7 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
                     {game.nhat_seat === mySeat && <span className="text-gold">🏆</span>}
                     {seatName(mySeat)}
                     <span className="text-[10px] font-bold text-white/60 bg-white/15 rounded-full px-1.5 py-0.5">{t('you_badge')}</span>
+                    <span className="tlmn-chip-balance text-[10px] font-black inline-flex items-center gap-0.5"><span aria-hidden className="text-[9px]">🪙</span>{formatChips(chipsFromScore(seatOf(mySeat)?.cumulative_score ?? 0))}</span>
                   </p>
                   {isMyTurn ? (
                     <span className="text-[11px] font-bold text-rose-200 flex items-center gap-1 mt-0.5">
@@ -730,7 +881,7 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
               <button
                 type="button"
                 onClick={() => setSortMode(m => (m === 'rank' ? 'suit' : 'rank'))}
-                className="flex-none text-[12px] font-bold text-ink bg-cream hover:bg-white rounded-full px-3.5 py-1.5 shadow-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                className="tlmn-btn-gold flex-none text-[12px] font-black uppercase tracking-wide rounded-full px-3.5 py-1.5 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
               >
                 ↕ {t('sort_btn')}
               </button>
@@ -783,7 +934,7 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
                         style={{ transformOrigin: 'bottom center' }}
                       >
                         <CardFace card={c} w={handW} selected={sel} dim={dim} playable={isPlayable && !sel} interactive />
-                        {sel && <span className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 h-1.5 rounded-full bg-rose" style={{ width: Math.round(handW * 0.7) }} />}
+                        {sel && <span className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 h-1.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.7)]" style={{ width: Math.round(handW * 0.7) }} />}
                       </motion.span>
                     </motion.button>
                   )
@@ -823,7 +974,7 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
                 type="button"
                 onClick={doHint}
                 disabled={!isMyTurn || isPending}
-                className="font-bold text-[13px] px-4 py-3 rounded-xl bg-white/10 border border-white/15 text-white hover:bg-white/20 transition-all disabled:opacity-30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                className="tlmn-btn-ghost font-bold text-[13px] px-4 py-3 rounded-xl transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--tg-gold-bright)]"
               >
                 💡 {t('hint_btn')}
               </button>
@@ -831,17 +982,18 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
                 type="button"
                 onClick={doPlay}
                 disabled={!isMyTurn || selectedCards.length === 0 || isPending || !canPlay}
-                className={`flex-1 font-bold text-[15px] px-5 py-3 rounded-xl bg-rose text-white hover:bg-rose-deep transition-all disabled:opacity-30 disabled:hover:bg-rose shadow-[0_6px_22px_-6px_rgba(214,0,108,0.8)] focus:outline-none focus-visible:ring-2 focus-visible:ring-white ${
+                className={`tlmn-btn-primary flex-1 font-bold text-[15px] px-5 py-3 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--tg-gold-bright)] ${
                   isMyTurn && canPlay && !isPending ? 'tlmn-play-pulse' : ''
                 }`}
               >
-                {t('play_btn')}{selectedCards.length ? ` · ${selectedCards.length}` : ''}
+                {t('play_btn')}
+                {canPlay && selectionInfo?.name ? ` · ${selectionInfo.name}` : selectedCards.length ? ` · ${selectedCards.length}` : ''}
               </button>
               <button
                 type="button"
                 onClick={doPass}
                 disabled={!canPass || isPending}
-                className="font-bold text-[14px] px-5 py-3 rounded-xl bg-white/10 border border-white/15 text-white hover:bg-white/20 transition-all disabled:opacity-30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                className="tlmn-btn-ghost font-bold text-[14px] px-5 py-3 rounded-xl transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--tg-gold-bright)]"
               >
                 {t('pass_btn')}
               </button>
@@ -861,14 +1013,14 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
         {ended && (
           <div className="relative z-20 w-full max-w-[600px] mx-auto px-3 sm:px-4 flex flex-col gap-3" style={{ paddingBottom: 'calc(1.25rem + env(safe-area-inset-bottom))' }}>
             {game.result?.instant && <ToiTrangBanner game={game} seatName={seatName} t={t} />}
-            <Scoreboard game={game} seats={seats} seatName={seatName} t={t} />
+            <Podium game={game} seats={seats} seatName={seatName} reduced={reduced} t={t} />
             <div className="text-center">
               {isHost ? (
                 <button
                   type="button"
                   onClick={doNextRound}
                   disabled={isPending}
-                  className="font-bold text-[14px] px-6 py-3 rounded-xl bg-rose text-white hover:bg-rose-deep transition-all disabled:opacity-60 shadow-[0_6px_22px_-6px_rgba(214,0,108,0.8)] focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                  className="tlmn-btn-gold font-black text-[15px] uppercase tracking-wide px-8 py-3.5 rounded-xl transition-all disabled:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
                 >
                   🃏 {t('new_round_btn')}
                 </button>
@@ -877,6 +1029,38 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
               )}
               {error && <p className="text-[12px] text-rose-200 mt-2">{tErr(t, error)}</p>}
             </div>
+          </div>
+        )}
+
+        {/* ── Run 5: portrait rotate prompt (active game only) ─────────────────
+            Full-cover, on-brand. Encourages landscape while a hand is in play — it
+            covers only the table; the lobby/menus live in TlmnRoom and are never
+            blocked. iOS-critical: it's all we can do where orientation.lock no-ops.
+            Includes its own leave control so a portrait player is never trapped. */}
+        {playing && fs.isMobileOrTablet && !fs.isLandscape && (
+          <div role="dialog" aria-label={t('rotate_hint')} className="absolute inset-0 z-[60] flex flex-col items-center justify-center gap-5 px-8 text-center" style={{ background: 'rgba(22,3,9,0.96)' }}>
+            <span className="tlmn-rotate-icon text-[64px] leading-none" aria-hidden>📱</span>
+            <p className="font-serif font-black text-[22px] text-white">{t('rotate_hint')}</p>
+            <p className="text-[13.5px] text-white/70 max-w-[280px] leading-relaxed">{t('rotate_subtext')}</p>
+            <button type="button" onClick={onLeave} className="mt-2 text-[12.5px] font-semibold text-white/60 hover:text-white border border-white/20 rounded-xl px-4 py-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white">
+              {t('leave_btn')}
+            </button>
+          </div>
+        )}
+
+        {/* ── Run 5: landscape one-tap fullscreen nudge ────────────────────────
+            The closest we can get to "auto-fullscreen on rotate": auto-entering
+            fullscreen without a user gesture is blocked, so we surface a one-tap
+            prompt whose tap calls enter(). Dismissible. */}
+        {playing && fs.isMobileOrTablet && fs.isLandscape && !fs.isFullscreen && !nudgeDismissed && (
+          <div className="absolute left-1/2 -translate-x-1/2 z-[55] flex items-center gap-1.5 tlmn-banner-pop" style={{ bottom: 'calc(1rem + env(safe-area-inset-bottom))' }}>
+            <button type="button" onClick={() => { void fs.enter() }} className="inline-flex items-center gap-2 rounded-full bg-rose text-white font-semibold text-[12.5px] px-4 py-2.5 shadow-[0_6px_22px_-6px_rgba(214,0,108,0.8)] hover:bg-rose-deep transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white">
+              <svg width={15} height={15} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4h4M4 4l5 5m11-5h-4m4 0v4m0-4l-5 5M4 16v4h4m-4 0l5-5m11 5h-4m4 0v-4m0 4l-5-5" /></svg>
+              {t('tap_fullscreen')}
+            </button>
+            <button type="button" onClick={() => setNudgeDismissed(true)} aria-label={t('close_label')} title={t('close_label')} className="tlmn-chrome" style={{ width: 34, height: 34 }}>
+              <svg width={15} height={15} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
           </div>
         )}
       </div>
@@ -889,13 +1073,14 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
 // a count badge beside it. NO money/score number is ever shown under the name — the
 // only number on a seat is the card-count badge on the face-down stack.
 function SeatPod({
-  seat, name, isMe, count, isTurn, isNhat, isWinner = false, passed, passKey,
+  seat, name, isMe, count, chips, isTurn, isNhat, isWinner = false, passed, passKey,
   secondsLeft, turnFrac, av, backW, place, lastPlayed, lastW, reduced, t,
 }: {
   seat: TlmnSeat | undefined
   name: string
   isMe: boolean
   count: number
+  chips: number
   isTurn: boolean
   isNhat: boolean
   isWinner?: boolean
@@ -919,11 +1104,13 @@ function SeatPod({
   const finished = count === 0 && !isNhat
   // The winner of a finished round gets the celebratory gold ring (steady when the
   // user has asked for reduced motion, a soft pulse otherwise).
+  // Every seat wears a decorative gold frame; the active player's frame glows, the
+  // round winner's gets the grander celebration ring.
   const ringCls = isWinner
-    ? `bg-gold ${reduced ? '' : 'tlmn-win-glow'}`
+    ? `tlmn-frame-gold ${reduced ? '' : 'tlmn-win-glow'}`
     : isTurn
-      ? 'tlmn-glow bg-rose'
-      : isNhat ? 'bg-gold' : 'bg-white/20'
+      ? `tlmn-frame-gold ${reduced ? '' : 'tlmn-frame-active'}`
+      : 'tlmn-frame-gold'
   const fanOrientation: 'top' | 'left' | 'right' = place === 'left' ? 'left' : place === 'right' ? 'right' : 'top'
   // The whole seat is ONE positioned block: avatar/name/count cluster + the hand-fan,
   // arranged so the fan sits toward the table CENTER (below a top seat, to the inner
@@ -937,8 +1124,8 @@ function SeatPod({
     <div className="relative flex flex-col items-center gap-1 flex-none" style={{ width: av + 30 }}>
       {isTurn && !isWinner && <span className="absolute left-1/2 -translate-x-1/2 -top-1 rounded-full tlmn-ring pointer-events-none" style={{ width: av + 8, height: av + 8 }} />}
       {isWinner && <span className="absolute left-1/2 -translate-x-1/2 -top-5 text-[18px] tlmn-banner-pop pointer-events-none z-20" aria-hidden>👑</span>}
-      <span className={`relative inline-flex rounded-full p-[2.5px] ${ringCls}`}>
-        <PodAvatar name={name} url={seat?.avatar_url ?? null} size={av} />
+      <span className={`relative inline-flex rounded-full p-[3px] ${ringCls}`}>
+        <PodAvatar name={name} url={seat?.avatar_url ?? null} size={av} isBot={!!seat?.is_bot} seed={seat?.seat_index ?? 0} />
         {isTurn && secondsLeft != null && (
           <span
             className={`absolute -bottom-1 -right-1 rounded-full flex items-center justify-center ${secondsLeft <= 5 ? 'tlmn-timer-warn' : ''}`}
@@ -954,9 +1141,15 @@ function SeatPod({
           {count}
         </span>
       </span>
-      <span className="max-w-full inline-flex items-center gap-1 rounded-full bg-black/35 backdrop-blur px-2.5 py-0.5 text-[11.5px] font-semibold text-white/95">
-        {isNhat && <span className="text-gold flex-none">🏆</span>}
-        <span className="truncate">{name}</span>
+      <span className="max-w-full inline-flex flex-col items-center rounded-xl tlmn-plate px-2.5 py-0.5 leading-tight">
+        <span className="inline-flex items-center gap-1 text-[11.5px] font-semibold text-white/95">
+          {isNhat && <span className="text-gold flex-none">🏆</span>}
+          <span className="truncate max-w-[12ch]">{name}</span>
+        </span>
+        {/* Virtual chips — social-casino style. DISPLAY ONLY, not real money. */}
+        <span className="tlmn-chip-balance inline-flex items-center gap-0.5 text-[10px] font-black tracking-wide">
+          <span aria-hidden className="text-[9px]">🪙</span>{formatChips(chips)}
+        </span>
       </span>
       {(offline || finished) && (
         <span
@@ -1027,12 +1220,14 @@ function SeatLastPlayed({ cards, w, reduced }: { cards: Card[]; w: number; reduc
   )
 }
 
-function PodAvatar({ name, url, size = 28 }: { name: string; url: string | null; size?: number }) {
+function PodAvatar({ name, url, size = 28, isBot = false, seed = 0 }: { name: string; url: string | null; size?: number; isBot?: boolean; seed?: number }) {
   const initial = (name?.trim()?.[0] ?? '?').toUpperCase()
   if (url) {
     // eslint-disable-next-line @next/next/no-img-element
     return <img src={url} alt={name} className="rounded-full object-cover flex-none" style={{ width: size, height: size }} />
   }
+  // Bots (no real avatar) get a DISTINCT generated portrait so Bot 1/2/3/4 differ.
+  if (isBot) return <span className="flex-none"><BotAvatar seed={seed} size={size} /></span>
   return (
     <div
       className="rounded-full bg-gradient-to-br from-rose/80 to-rose-deep flex items-center justify-center font-serif font-bold text-white flex-none"
@@ -1078,71 +1273,86 @@ function ToiTrangBanner({
   )
 }
 
-// ── Scoreboard (đếm lá) ──────────────────────────────────────────────────────────────
-function Scoreboard({
-  game, seats, seatName, t,
+// ── Results podium (đếm lá — gold podium ranking) ─────────────────────────────────────
+// Replaces the flat scoreboard: 1st place is raised + gold + crowned; the rest step
+// down. Each row shows avatar, name, "Còn N lá", the round delta, running total and the
+// animated virtual-CHIP delta. The đếm-lá MATH is unchanged — display only.
+function Podium({
+  game, seats, seatName, reduced, t,
 }: {
   game: TlmnPublicGame
   seats: TlmnSeat[]
   seatName: (i: number) => string
+  reduced: boolean
   t: ReturnType<typeof useTranslations>
 }) {
   const breakdown = game.result?.breakdown
   const deltas = game.result?.deltas ?? {}
-  const cumulativeOf = (idx: number) => seats.find(s => s.seat_index === idx)?.cumulative_score ?? 0
+  const seatOf = (idx: number) => seats.find(s => s.seat_index === idx)
+  const cumulativeOf = (idx: number) => seatOf(idx)?.cumulative_score ?? 0
 
-  const rows = breakdown
-    ? breakdown.seats
+  const rawRows = breakdown
+    ? breakdown.seats.map(r => ({ seat: r.seat, isWinner: r.isWinner, cardsLeft: r.cardsLeft, cong: r.cong, heldTwos: r.heldTwos, thoiHeoMult: r.thoiHeoMult, thoiBomUnits: r.thoiBomUnits, total: r.total }))
     : game.seats.map(seat => ({
         seat, isWinner: game.result?.winner === seat,
         cardsLeft: game.card_counts?.[String(seat)] ?? 0,
         cong: false, heldTwos: 0, thoiHeoMult: 1, thoiBomUnits: 0,
-        thoiBomPenalty: 0, cardPayment: 0, denDelta: 0,
         total: deltas[String(seat)] ?? 0,
       }))
 
+  // Rank: winner first, then fewest cards left, then highest round delta.
+  const rows = rawRows.slice().sort((a, b) =>
+    Number(b.isWinner) - Number(a.isWinner) || a.cardsLeft - b.cardsLeft || b.total - a.total)
+  const medals = ['🥇', '🥈', '🥉', '🏅']
+
   return (
-    <div className="rounded-2xl border border-line bg-paper overflow-hidden">
-      <p className="text-[11px] font-bold text-muted uppercase tracking-[1.5px] px-4 py-2.5 border-b border-line bg-cream/50">
-        🧮 {t('score_title')}
+    <div className="tlmn-results-card rounded-2xl overflow-hidden p-3 sm:p-4">
+      <p className="text-[11px] font-black text-[var(--tg-gold-bright)] uppercase tracking-[2px] text-center pb-3">
+        {t('podium_title')}
       </p>
-      <div className="divide-y divide-line">
-        {rows.map(r => {
+      <div className="flex flex-col gap-2">
+        {rows.map((r, rank) => {
           const cum = cumulativeOf(r.seat)
+          const chips = chipsFromScore(cum)
+          const chipDelta = r.total * CHIP_RATE
+          const first = rank === 0
           return (
-            <div key={r.seat} className="px-4 py-2.5 flex items-center gap-3">
+            <div
+              key={r.seat}
+              className={`flex items-center gap-3 rounded-xl px-3 py-2.5 ${first ? 'tlmn-podium-1' : 'tlmn-podium-row'}`}
+            >
+              <span className="relative inline-flex flex-none">
+                {first && <span className="absolute left-1/2 -translate-x-1/2 -top-4 text-[18px] tlmn-crown-sweep z-10" aria-hidden>👑</span>}
+                <span className={`inline-flex rounded-full p-[2.5px] ${first ? 'tlmn-frame-gold' : 'bg-white/15'}`}>
+                  <PodAvatar name={seatName(r.seat)} url={seatOf(r.seat)?.avatar_url ?? null} size={first ? 46 : 38} isBot={!!seatOf(r.seat)?.is_bot} seed={r.seat} />
+                </span>
+              </span>
               <div className="min-w-0 flex-1">
-                <p className="text-[13px] font-semibold text-ink truncate flex items-center gap-1.5">
-                  {r.isWinner && <span className="text-gold">🏆</span>}
-                  {seatName(r.seat)}
+                <p className={`font-bold truncate flex items-center gap-1.5 ${first ? 'text-[15px] text-[var(--tg-gold-bright)]' : 'text-[13px] text-white/90'}`}>
+                  <span aria-hidden>{medals[rank] ?? '🏅'}</span>
+                  <span className="truncate">{seatName(r.seat)}</span>
                 </p>
-                <div className="flex flex-wrap gap-1 mt-1">
-                  {r.isWinner ? (
-                    <Chip tone="gold">{t('score_winner')}</Chip>
-                  ) : (
-                    <>
-                      <Chip>{t('score_cards', { n: r.cardsLeft })}</Chip>
-                      {r.cong && <Chip tone="rose">{t('score_cong')}</Chip>}
-                      {r.heldTwos > 0 && r.thoiHeoMult > 1 && (
-                        <Chip tone="rose">{t('score_thoiheo')} ×{r.thoiHeoMult}</Chip>
-                      )}
-                      {r.thoiBomUnits > 0 && (
-                        <Chip tone="rose">{t('score_thoibom')} −{r.thoiBomPenalty}</Chip>
-                      )}
-                    </>
-                  )}
-                  {r.denDelta !== 0 && (
-                    <Chip tone={r.denDelta > 0 ? 'emerald' : 'rose'}>
-                      {t('score_den')} {r.denDelta > 0 ? `+${r.denDelta}` : r.denDelta}
-                    </Chip>
-                  )}
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-0.5 text-[10px] text-white/55">
+                  {r.isWinner ? <span className="text-[var(--tg-gold-bright)] font-bold">{t('score_winner')}</span> : <span>{t('score_cards', { n: r.cardsLeft })}</span>}
+                  {r.cong && <span className="text-rose-200">{t('score_cong')}</span>}
+                  {r.heldTwos > 0 && r.thoiHeoMult > 1 && <span className="text-rose-200">{t('score_thoiheo')} ×{r.thoiHeoMult}</span>}
+                  {r.thoiBomUnits > 0 && <span className="text-rose-200">{t('score_thoibom')}</span>}
                 </div>
               </div>
               <div className="text-right flex-none">
-                <p className={`text-[16px] font-black leading-none ${r.total > 0 ? 'text-emerald-600' : r.total < 0 ? 'text-rose' : 'text-muted'}`}>
+                <p className={`font-black leading-none ${r.total > 0 ? 'text-emerald-300' : r.total < 0 ? 'text-rose-300' : 'text-white/60'} ${first ? 'text-[18px]' : 'text-[15px]'}`}>
                   {r.total > 0 ? `+${r.total}` : r.total}
                 </p>
-                <p className="text-[10px] text-muted mt-0.5">{t('score_total')}: {cum}</p>
+                <p className="text-[9.5px] text-white/45 mt-0.5">{t('score_total')}: {cum}</p>
+                <p className="tlmn-chip-balance text-[10px] font-black mt-0.5 inline-flex items-center gap-0.5">
+                  <span aria-hidden className="text-[8px]">🪙</span>
+                  <CountUp to={chips} reduced={reduced} format={formatChips} />
+                  {chipDelta !== 0 && (
+                    <span className={`ml-0.5 text-[9px] ${chipDelta > 0 ? 'text-emerald-300' : 'text-rose-300'}`}>
+                      {chipDelta > 0 ? '+' : ''}{formatChips(Math.abs(chipDelta)).replace(/^/, chipDelta < 0 ? '−' : '')}
+                    </span>
+                  )}
+                </p>
               </div>
             </div>
           )
@@ -1152,14 +1362,26 @@ function Scoreboard({
   )
 }
 
-function Chip({ children, tone = 'neutral' }: { children: ReactNode; tone?: 'neutral' | 'rose' | 'gold' | 'emerald' }) {
-  const cls = {
-    neutral: 'bg-cream text-muted',
-    rose: 'bg-rose-soft text-rose',
-    gold: 'bg-gold-light/60 text-gold',
-    emerald: 'bg-emerald-50 text-emerald-700',
-  }[tone]
-  return <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-md ${cls}`}>{children}</span>
+// Animated number tally (counts up/down to `to`). Reduced-motion shows it instantly.
+function CountUp({ to, reduced, format }: { to: number; reduced: boolean; format: (n: number) => string }) {
+  const [val, setVal] = useState(reduced ? to : Math.max(0, to - to * 0.04))
+  useEffect(() => {
+    if (reduced) { setVal(to); return }
+    const from = val
+    const start = performance.now()
+    const dur = 900
+    let raf = 0
+    const tick = (now: number) => {
+      const p = Math.min(1, (now - start) / dur)
+      const eased = 1 - Math.pow(1 - p, 3)
+      setVal(from + (to - from) * eased)
+      if (p < 1) raf = requestAnimationFrame(tick)
+    }
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [to, reduced])
+  return <>{format(Math.round(val))}</>
 }
 
 // ── Confetti (gated behind reduced-motion by the caller) ────────────────────────────
@@ -1227,6 +1449,46 @@ function EmojiBurst({ seed }: { seed: number }) {
         >
           {p.glyph}
         </motion.span>
+      ))}
+    </div>
+  )
+}
+
+// ── Gold star burst (special combos / chặt — gated behind reduced-motion) ───────────
+// A row of gold stars arcs up above the centre pile, like the reference's stars over
+// a big play. Pure transform/opacity, capped count; reduced-motion never mounts it.
+function GoldStars({ seed }: { seed: number }) {
+  const stars = useMemo(() =>
+    Array.from({ length: 9 }, (_, i) => {
+      const t = (i / 8) - 0.5 // −0.5 … +0.5 across the arc
+      return {
+        sx: Math.round(t * 240),
+        sy: Math.round(-90 - (1 - t * t * 4 > 0 ? (1 - t * t * 4) : 0) * 46), // parabola peak in the middle
+        sr: ((seed + i * 53) % 90) - 45,
+        size: 18 + ((i * 5) % 12),
+        delay: (i % 5) * 0.035,
+      }
+    }),
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  [seed])
+  return (
+    <div className="absolute inset-0 flex items-center justify-center overflow-visible pointer-events-none z-30">
+      {stars.map((s, i) => (
+        <span
+          key={i}
+          className="tlmn-star absolute"
+          style={{
+            // CSS custom props drive the keyframe end-state.
+            ['--sx' as string]: `${s.sx}px`,
+            ['--sy' as string]: `${s.sy}px`,
+            ['--sr' as string]: `${s.sr}deg`,
+            fontSize: s.size,
+            animationDelay: `${s.delay}s`,
+            color: '#f6d989',
+          }}
+        >
+          ★
+        </span>
       ))}
     </div>
   )
@@ -1304,6 +1566,20 @@ function comboName(c: Combo, t: ReturnType<typeof useTranslations>): string {
       return t('comboname_straight', { lo: RANKS[s[0].rank], hi: RANKS[s[s.length - 1].rank] })
     }
     case 'pairsRun': return t('comboname_pairsRun', { n: c.count / 2 })
+  }
+}
+
+// Gold combo banner copy + whether it's a SPECIAL (full-gold + shine + stars) combo.
+// Driven purely by the engine's combo TYPE — no rules are recomputed here. Bombs
+// (tứ quý / đôi-thông) are the special ones; chặt-heo + tới-trắng get their own FX.
+function comboBanner(c: Combo, t: ReturnType<typeof useTranslations>): { label: string; special: boolean } {
+  switch (c.type) {
+    case 'single': return { label: t('banner_single'), special: false }
+    case 'pair': return { label: t('banner_pair'), special: false }
+    case 'triple': return { label: t('banner_triple'), special: false }
+    case 'straight': return { label: t('banner_straight', { n: c.count }), special: false }
+    case 'four': return { label: t('banner_four'), special: true }
+    case 'pairsRun': return { label: t('banner_pairsRun', { n: c.count / 2 }), special: true }
   }
 }
 

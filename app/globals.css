@@ -404,7 +404,9 @@ body::before {
   background: radial-gradient(ellipse at center, rgba(4,12,8,0.55) 0%, rgba(4,12,8,0.30) 46%, transparent 72%);
 }
 @media (max-height: 519px) {
-  .tlmn-center-scrim { top: 30%; }
+  /* Short-landscape: the centre band sits in the upper-middle strip (GEOMETRY.short),
+     so the scrim follows the pile up to stay under it. */
+  .tlmn-center-scrim { top: 46%; }
 }
 /* Compact hand-dock for short-landscape phones (board-image mode): trim the vertical
    footprint so the dock overlay never swallows the centre pile or top seat. */
@@ -467,25 +469,10 @@ body::before {
 }
 .tlmn-win-glow { animation: tlmnWinGlow 1.2s ease-in-out infinite; }
 
-/* ── Phase 6: mobile-portrait seat matrix ────────────────────────────────────────
-   On a narrow portrait felt the mid-edge left/right seats would push their vertical
-   fans off the surface. Pull them into the UPPER corners and shrink them (smaller
-   footprint; the count badge + last-played mini stay legible) so they never overflow.
-   The top seat stays centred; the centre pile and the bottom hand are untouched. */
-@media (max-width: 559px) and (orientation: portrait) {
-  .tlmn-felt > .tlmn-seat[data-seat-slot="left"] {
-    top: 15% !important;
-    left: 0.5% !important;
-    transform: scale(0.78) !important;
-    transform-origin: top left;
-  }
-  .tlmn-felt > .tlmn-seat[data-seat-slot="right"] {
-    top: 15% !important;
-    right: 0.5% !important;
-    transform: scale(0.78) !important;
-    transform-origin: top right;
-  }
-}
+/* NOTE (Run 9): the old mobile-portrait seat override lived here. Seat placement for
+   EVERY breakpoint — including the narrow portrait oval — is now driven by the single
+   GEOMETRY source of truth in TlmnTable.tsx (the `oval` mode shrinks + corners the side
+   seats), so this !important override was removed to keep one source of seat anchors. */
 
 /* ── Phase 4: card hover / turn clarity helpers ──────────────────────────────── */
 /* Desktop-only hover lift on an interactive hand card (no sticky hover on touch).

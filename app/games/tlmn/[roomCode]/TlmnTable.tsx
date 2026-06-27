@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { createPortal } from 'react-dom'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -125,50 +125,44 @@ const SLOTS: Record<number, string[]> = {
   3: ['right', 'top', 'left'],
   4: ['right', 'top', 'left', 'bottom'],
 }
-const SLOT_POS: Record<string, string> = {
-  top: 'top-[5%] left-1/2 -translate-x-1/2',
-  left: 'top-1/2 left-[2.5%] -translate-y-1/2',
-  right: 'top-1/2 right-[2.5%] -translate-y-1/2',
-  bottom: 'bottom-[5%] left-1/2 -translate-x-1/2',
+// ── Unified seat geometry — the SINGLE source of truth (Run 9 rebuild) ───────────────
+// Every seat is placed by its AVATAR CENTRE as a breakpoint-aware % of the positioned
+// stage box and consumed via translate(-50%,-50%), so the avatar sits ON its point — never
+// above/below it (kills the "top avatar drifts to centre" / "side avatars drift up" bugs).
+// The `band` is the EXCLUSIVE vertical strip the centre zone (pile + banner + label + hint)
+// lives in, derived here so it can never overlap the top seat or the bottom hand dock. No
+// element gets ad-hoc per-breakpoint coordinates anywhere else; they all derive from this.
+type LayoutMode = 'desktop' | 'oval' | 'bleed' | 'short'
+type SeatAnchor = { x: number; y: number; s?: number } // % centre (+ optional scale)
+type SeatGeometry = {
+  seats: Record<'top' | 'left' | 'right' | 'bottom', SeatAnchor>
+  band: { top: number; bottom: number } // centre zone, % from the top edge
 }
-// Anchors tuned to the BOARD IMAGE's painted seat slots (top / left / right panels). The
-// real elements win over the art, but these land them inside the painted recesses. The
-// bottom slot is the human's dock overlay, so it's only used for a spectator's 4th seat.
-// The side seats now anchor on the AVATAR's own centre (SeatPod's left/right layout shrink-
-// wraps the avatar; the fan + plate hang off it absolutely), so translate(-50%,-50%) drops
-// the avatar's MIDDLE straight onto the painted LOTUS seat-marker — board-size-independent
-// (no fan/plate drift). Measured lotus centres on the art: L 8%/49%, R 92%/49%.
-const SLOT_POS_IMAGE: Record<string, string> = {
-  top: 'top-[8%] left-1/2 -translate-x-1/2',
-  left: 'top-[49%] left-[8%] -translate-x-1/2 -translate-y-1/2',
-  right: 'top-[49%] right-[8%] translate-x-1/2 -translate-y-1/2',
-  bottom: 'bottom-[18%] left-1/2 -translate-x-1/2',
+const GEOMETRY: Record<LayoutMode, SeatGeometry> = {
+  // Desktop / landscape board image — roomy 16:9 felt.
+  desktop: {
+    seats: { top: { x: 50, y: 15 }, left: { x: 9, y: 47 }, right: { x: 91, y: 47 }, bottom: { x: 50, y: 86 } },
+    band: { top: 30, bottom: 54 },
+  },
+  // Portrait oval fallback — sides pulled toward the upper corners + shrunk so their
+  // vertical fans never spill off the narrow felt.
+  oval: {
+    seats: { top: { x: 50, y: 13 }, left: { x: 12, y: 33, s: 0.82 }, right: { x: 88, y: 33, s: 0.82 }, bottom: { x: 50, y: 88 } },
+    band: { top: 30, bottom: 64 },
+  },
+  // Full-bleed mobile/tablet (edge-to-edge felt) — normal height.
+  bleed: {
+    seats: { top: { x: 50, y: 12 }, left: { x: 9, y: 45 }, right: { x: 91, y: 45 }, bottom: { x: 50, y: 88 } },
+    band: { top: 29, bottom: 58 },
+  },
+  // Short-landscape phones (vh < 520) — the compact hand dock eats the lower band, so the
+  // seats hug the edges and the centre band sits in a tight upper-middle strip clear of both.
+  short: {
+    seats: { top: { x: 50, y: 13 }, left: { x: 8, y: 41 }, right: { x: 92, y: 41 }, bottom: { x: 50, y: 84 } },
+    band: { top: 30, bottom: 66 },
+  },
 }
-// Short-landscape phones (vh < 520): the dock overlay eats the lower half, so the seats +
-// pile cluster into the upper band to stay clear of it.
-const SLOT_POS_IMAGE_SHORT: Record<string, string> = {
-  top: 'top-[7%] left-1/2 -translate-x-1/2',
-  left: 'top-[30%] left-[6.5%] -translate-x-1/2 -translate-y-1/2',
-  right: 'top-[30%] right-[6.5%] translate-x-1/2 -translate-y-1/2',
-  bottom: 'bottom-[26%] left-1/2 -translate-x-1/2',
-}
-// Full-bleed (mobile/tablet, Approach A): the felt fills the whole screen, so the seats are
-// pulled to the screen edges/corners with clear gaps. Resolved against the safe-area-padded
-// content box, so these % land cleanly INSIDE the rail (never under the notch).
-const SLOT_POS_BLEED: Record<string, string> = {
-  top: 'top-[6%] left-1/2 -translate-x-1/2',
-  left: 'top-[40%] left-[3%] -translate-y-1/2',
-  right: 'top-[40%] right-[3%] -translate-y-1/2',
-  bottom: 'bottom-[3%] left-1/2 -translate-x-1/2',
-}
-// Full-bleed short-landscape phones: the hand dock eats the lower band, so cluster the
-// seats high (mirrors SLOT_POS_IMAGE_SHORT, tuned for the edge-to-edge felt).
-const SLOT_POS_BLEED_SHORT: Record<string, string> = {
-  top: 'top-[5%] left-1/2 -translate-x-1/2',
-  left: 'top-[26%] left-[2%] -translate-y-1/2',
-  right: 'top-[26%] right-[2%] -translate-y-1/2',
-  bottom: 'bottom-[30%] left-1/2 -translate-x-1/2',
-}
+const seatTransform = (a: SeatAnchor) => `translate(-50%, -50%)${a.s ? ` scale(${a.s})` : ''}`
 
 export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, onLeave }: Props) {
   const t = useTranslations('games.tlmn')
@@ -785,24 +779,20 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
   // image mode the hand-dock overlays the board's bottom, so the centre sits in the
   // upper band (clear of the dock); in oval mode the dock is a flow bar below the felt.
   const compactDock = (fullBleed || useImage) && shortVp
-  const anchors = fullBleed
-    ? (shortVp ? SLOT_POS_BLEED_SHORT : SLOT_POS_BLEED)
-    : !useImage ? SLOT_POS : shortVp ? SLOT_POS_IMAGE_SHORT : SLOT_POS_IMAGE
+  // One layout mode selects ONE geometry; seats + centre band both derive from it.
+  const mode: LayoutMode = fullBleed
+    ? (shortVp ? 'short' : 'bleed')
+    : !useImage ? 'oval' : shortVp ? 'short' : 'desktop'
+  const geom = GEOMETRY[mode]
+  const seatStyle = (place: string): CSSProperties => {
+    const a = geom.seats[(place as 'top' | 'left' | 'right' | 'bottom')] ?? geom.seats.top
+    return { left: `${a.x}%`, top: `${a.y}%`, transform: seatTransform(a) }
+  }
+  // The exclusive centre band: a flex strip whose top sits below the top seat and whose
+  // bottom stays above the hand dock, so the pile/banner own their own vertical space.
+  const centerWrapStyle: CSSProperties = { top: `${geom.band.top}%`, bottom: `${100 - geom.band.bottom}%` }
   const dealW = fullBleed ? (area.w || vw) : useImage ? board.w : feltW
   const dealH = fullBleed ? (area.h || vh) : useImage ? board.h : tableH
-  const centerWrapClass = fullBleed
-    ? (shortVp
-        // Short-landscape phones: the centre owns an UPPER-MIDDLE band — clearly BELOW
-        // the top seat and well ABOVE the (now short) bottom hand dock, so the pile +
-        // banner never share space with the human cluster. The dock's top sits ≥ ~66%,
-        // so this band stops at 53% to keep a clear gap.
-        ? 'absolute left-0 right-0 top-[20%] bottom-[47%] flex items-center justify-center px-3 pointer-events-none'
-        : 'absolute left-0 right-0 top-[18%] bottom-[42%] flex items-center justify-center px-4 pointer-events-none')
-    : !useImage
-      ? 'absolute inset-0 flex items-center justify-center px-4 pointer-events-none'
-      : shortVp
-        ? 'absolute left-0 right-0 top-[4%] bottom-[48%] flex items-center justify-center px-4 pointer-events-none'
-        : 'absolute left-0 right-0 top-[14%] bottom-[27%] flex items-center justify-center px-4 pointer-events-none'
   const boardEntrance = reduced ? false : { opacity: 0, scale: 0.975 }
   const boardTransition = reduced ? { duration: 0 } : { duration: DURATIONS.SETTLE, ease: EASINGS.settle }
 
@@ -813,7 +803,7 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
       {/* Opponent / other seats. data-seat-slot drives the portrait corner-seat CSS
           (oval mode only); in image mode the anchors land seats in the painted slots. */}
       {orderedOthers.map((idx, i) => (
-        <div key={idx} data-seat-slot={slotList[i] ?? 'top'} className={`tlmn-seat absolute z-10 ${anchors[slotList[i]] ?? anchors.top}`}>
+        <div key={idx} data-seat-slot={slotList[i] ?? 'top'} className="tlmn-seat absolute z-10" style={seatStyle(slotList[i] ?? 'top')}>
           <SeatPod
             seat={seatOf(idx)}
             name={seatName(idx)}
@@ -838,8 +828,10 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
         </div>
       ))}
 
-      {/* Center: current trick / lead hint / round result */}
-      <div className={centerWrapClass}>
+      {/* Center: current trick / lead hint. Its own exclusive band (z-20, above the seat
+          wrappers at z-10) so the pile + banner + actor label + hint are never covered by
+          an avatar, chip stack or opponent fan. The round result is a separate overlay. */}
+      <div className="tlmn-center-zone absolute left-0 right-0 z-20 flex items-center justify-center px-4 pointer-events-none" style={centerWrapStyle}>
         {ended ? (
           <CenterEnd game={game} seatName={seatName} t={t} />
         ) : game.trick ? (
@@ -950,7 +942,7 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
       {/* Penalty (thối heo / đền / cóng) — a brief, NON-celebratory muted toast by the
           affected seat. No gold; just enough to explain what happened. */}
       {penaltyToast && (
-        <div key={penaltyToast.key} className={`absolute z-30 pointer-events-none ${anchors[mySeat != null && penaltyToast.seat === mySeat ? 'bottom' : placeOfSeat(penaltyToast.seat)] ?? anchors.top}`}>
+        <div key={penaltyToast.key} className="absolute z-30 pointer-events-none" style={seatStyle(mySeat != null && penaltyToast.seat === mySeat ? 'bottom' : placeOfSeat(penaltyToast.seat))}>
           <span className="tlmn-banner-pop inline-flex items-center gap-1 rounded-lg bg-black/70 border border-white/20 px-2.5 py-1 text-[10.5px] font-bold text-white/90 whitespace-nowrap">
             ⚠️ {penaltyToast.label}
           </span>
@@ -1132,13 +1124,15 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
 
           {error && <p className="text-[12px] text-rose-200 mt-1.5 text-center font-semibold">{tErr(t, error)}</p>}
 
-          {/* Action buttons */}
-          <div className="tlmn-action-row flex gap-2 mt-2 max-w-[680px] mx-auto">
+          {/* Action buttons — balanced row: Gợi ý + Bỏ lượt are equal secondaries (flex-1,
+              capped), Đánh is the wider primary but NOT absurdly wide (flex-[1.7], and the
+              whole row is capped at max-w so it never sprawls). All ≥44px tall. */}
+          <div className="tlmn-action-row flex items-stretch gap-2 mt-2 max-w-[520px] mx-auto">
             <button
               type="button"
               onClick={doHint}
               disabled={!isMyTurn || busy}
-              className="tlmn-btn-ghost font-bold text-[13px] px-4 py-3 rounded-xl transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--tg-gold-bright)]"
+              className="tlmn-btn-ghost flex-1 basis-0 min-w-0 max-w-[140px] font-bold text-[13px] px-3 py-3 rounded-xl transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--tg-gold-bright)]"
             >
               💡 {t('hint_btn')}
             </button>
@@ -1146,7 +1140,7 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
               type="button"
               onClick={doPlay}
               disabled={!isMyTurn || selectedCards.length === 0 || busy || !canPlay}
-              className={`tlmn-btn-primary flex-1 font-bold text-[15px] px-5 py-3 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--tg-gold-bright)] ${
+              className={`tlmn-btn-primary flex-[1.7] basis-0 min-w-0 font-bold text-[15px] px-4 py-3 rounded-xl truncate focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--tg-gold-bright)] ${
                 isMyTurn && canPlay && !busy ? 'tlmn-play-pulse' : ''
               }`}
             >
@@ -1157,7 +1151,7 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
               type="button"
               onClick={doPass}
               disabled={!canPass || busy}
-              className="tlmn-btn-ghost font-bold text-[14px] px-5 py-3 rounded-xl transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--tg-gold-bright)]"
+              className="tlmn-btn-ghost flex-1 basis-0 min-w-0 max-w-[140px] font-bold text-[14px] px-3 py-3 rounded-xl transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--tg-gold-bright)]"
             >
               {t('pass_btn')}
             </button>
@@ -1172,31 +1166,46 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
       {mySeat == null && playing && (
         <p className="relative z-20 text-center text-[13px] text-white/75 py-4">{t('spectating')}</p>
       )}
-
-      {/* ── End-of-round: banner, scoreboard, next round ─────────────────── */}
-      {ended && (
-        <div className="relative z-20 w-full max-w-[600px] mx-auto px-3 sm:px-4 flex flex-col gap-3" style={{ paddingBottom: 'calc(1.25rem + env(safe-area-inset-bottom))' }}>
-          {game.result?.instant && <ToiTrangBanner game={game} seatName={seatName} t={t} />}
-          <Podium game={game} seats={seats} seatName={seatName} reduced={reduced} mySeat={mySeat} myBalance={myBalance} myRoundDelta={myRoundDelta} t={t} />
-          <div className="text-center">
-            {isHost ? (
-              <button
-                type="button"
-                onClick={doNextRound}
-                disabled={busy}
-                className="tlmn-btn-gold font-black text-[15px] uppercase tracking-wide px-8 py-3.5 rounded-xl transition-all disabled:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
-              >
-                🃏 {t('new_round_btn')}
-              </button>
-            ) : (
-              <p className="text-[12.5px] text-white/75">{t('waiting_host_next')}</p>
-            )}
-            {error && <p className="text-[12px] text-rose-200 mt-2">{tErr(t, error)}</p>}
-          </div>
-        </div>
-      )}
     </>
   )
+
+  // ── End-of-round result — a CENTERED, scrollable overlay over the whole stage ───────
+  // Decoupled from the bottom dock (which used to pin it to the bottom edge and let the
+  // top of a tall podium overflow under the chrome). As an inset-0 flex overlay it is
+  // always fully on-screen: vertically centred when it fits, top-aligned + internally
+  // scrollable when it doesn't, so "VÁN MỚI" is always reachable. z-[60] sits above the
+  // table (seats/centre/dock ≤ z-30) yet BELOW the top chrome (z-[90]) so the X stays
+  // tappable. Safe-area padded top + bottom; never cut off by the table frame.
+  const resultOverlay = ended ? (
+    <div
+      className="absolute inset-0 z-[60] flex items-start sm:items-center justify-center overflow-y-auto overscroll-contain px-3"
+      style={{
+        paddingTop: 'calc(env(safe-area-inset-top) + 54px)',
+        paddingBottom: 'calc(env(safe-area-inset-bottom) + 16px)',
+        background: 'rgba(6,14,10,0.55)',
+      }}
+    >
+      <div className="w-full max-w-[600px] my-auto flex flex-col gap-3">
+        {game.result?.instant && <ToiTrangBanner game={game} seatName={seatName} t={t} />}
+        <Podium game={game} seats={seats} seatName={seatName} reduced={reduced} mySeat={mySeat} myBalance={myBalance} myRoundDelta={myRoundDelta} t={t} />
+        <div className="text-center pb-1">
+          {isHost ? (
+            <button
+              type="button"
+              onClick={doNextRound}
+              disabled={busy}
+              className="tlmn-btn-gold font-black text-[15px] uppercase tracking-wide px-8 py-3.5 rounded-xl transition-all disabled:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            >
+              🃏 {t('new_round_btn')}
+            </button>
+          ) : (
+            <p className="text-[12.5px] text-white/75">{t('waiting_host_next')}</p>
+          )}
+          {error && <p className="text-[12px] text-rose-200 mt-2">{tErr(t, error)}</p>}
+        </div>
+      </div>
+    </div>
+  ) : null
 
   // ── Render ───────────────────────────────────────────────────────────────────
   return (
@@ -1367,6 +1376,9 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
             (above); oval mode renders it here in flow below the felt. */}
         {!fullBleed && !useImage && bottomContent}
 
+        {/* End-of-round result — centered, scrollable, fully on-screen (all modes). */}
+        {resultOverlay}
+
         {/* ── Run 5/8: portrait rotate prompt (active game only) ───────────────
             PORTALLED TO <body>: rendered as a position:fixed top layer OUTSIDE the
             table's transformed (.tlmn-fs-root) + overflow-clipped (.tlmn-stage)
@@ -1492,13 +1504,6 @@ function SeatPod({
       : 'tlmn-frame-gold'
   const fanOrientation: 'top' | 'left' | 'right' = place === 'left' ? 'left' : place === 'right' ? 'right' : 'top'
   const isSide = place === 'left' || place === 'right'
-  // The whole seat is ONE positioned block: avatar/name/count cluster + the hand-fan,
-  // arranged so the fan sits toward the table CENTER (below a top seat, to the inner
-  // side of left/right). The count badge stays UPRIGHT in the non-rotated cluster.
-  const blockDir =
-    place === 'left' ? 'flex-row' :
-    place === 'right' ? 'flex-row-reverse' :
-    place === 'bottom' ? 'flex-col-reverse' : 'flex-col'
 
   // Avatar + its decorations (gold frame, active/winner ring, turn timer, count badge) as
   // ONE self-contained unit. For LEFT/RIGHT seats this unit is the geometric centre of the
@@ -1580,7 +1585,7 @@ function SeatPod({
         <span className={`absolute top-1/2 -translate-y-1/2 inline-flex items-center justify-center ${place === 'left' ? 'left-full ml-1.5' : 'right-full mr-1.5'}`}>
           <OpponentFan count={count} w={backW} orientation={fanOrientation} />
         </span>
-        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 flex flex-col items-center gap-1 w-max">
+        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 flex flex-col items-center gap-1 w-max z-30">
           {plateUnit}
           {statusUnit}
           {lastPlayedUnit}
@@ -1595,26 +1600,28 @@ function SeatPod({
     )
   }
 
-  // ── TOP / BOTTOM seats ─ vertical cluster + fan toward the centre ──────────────────
-  const cluster = (
-    <div className="relative flex flex-col items-center gap-1 flex-none" style={{ width: av + 30 }}>
-      {avatarUnit}
-      {plateUnit}
-      {statusUnit}
-      {dotsUnit && (
-        <span className="absolute left-1/2 -translate-x-1/2 -bottom-3">{dotsUnit}</span>
-      )}
-      {lastPlayedUnit}
-    </div>
-  )
-
+  // ── TOP / BOTTOM seats ─ avatar IS the anchored centroid (same discipline as sides) ──
+  // The root shrink-wraps the avatar, so the wrapper's translate(-50%,-50%) lands the
+  // AVATAR on its point near the top edge — it never drifts toward the centre because the
+  // plate/fan/last-played hang OFF it absolutely (downward for a top seat, upward for the
+  // bottom spectator seat) instead of growing the anchored box. The name plate is z-30 so a
+  // card can never sit on top of the label.
+  const hangBelow = place !== 'bottom'
   return (
-    <div className={`relative flex items-center gap-2 ${blockDir}`}>
-      {cluster}
-      {/* Opponent hand fan (vertical on sides, horizontal on top). */}
-      <span className="relative inline-flex items-center justify-center flex-none">
-        <OpponentFan count={count} w={backW} orientation={fanOrientation} />
-      </span>
+    <div className="relative inline-flex flex-none">
+      {avatarUnit}
+      <div
+        className={`absolute left-1/2 -translate-x-1/2 ${hangBelow ? 'top-full mt-1 flex-col' : 'bottom-full mb-1 flex-col-reverse'} flex items-center gap-1 w-max z-30`}
+      >
+        {plateUnit}
+        {statusUnit}
+        {/* Opponent face-down fan (horizontal), hung toward the table centre. */}
+        <span className="relative inline-flex items-center justify-center flex-none">
+          <OpponentFan count={count} w={backW} orientation="top" />
+        </span>
+        {lastPlayedUnit}
+        {dotsUnit}
+      </div>
 
       {/* Bỏ lượt stamp */}
       {passed && (

@@ -34,7 +34,10 @@ export default function TlmnRoom({ initialState, userId }: Props) {
   const seatByIndex = (i: number): TlmnSeat | undefined => seats.find(s => s.seat_index === i)
   const mySeat = userId ? seats.find(s => s.user_id === userId) : undefined
   const isHost = !!mySeat && mySeat.seat_index === room.host_seat
-  const readyCount = seats.filter(s => s.is_ready).length
+  // The host is always a participant (never needs to self-ready); everyone else
+  // counts only when ready. Used for the counter, seat badges, and the start gate.
+  const seatReady = (s: TlmnSeat) => s.is_ready || s.seat_index === room.host_seat
+  const readyCount = seats.filter(seatReady).length
   const canStart = isHost && room.status === 'lobby' && readyCount >= MIN_READY_TO_START
 
   const inviteUrl = typeof window !== 'undefined'
@@ -247,9 +250,9 @@ export default function TlmnRoom({ initialState, userId }: Props) {
                   </div>
                   <div className="flex flex-col items-end gap-1 flex-none">
                     <span className={`text-[10.5px] font-bold px-2.5 py-1 rounded-full ${
-                      seat.is_ready ? 'bg-emerald-100 text-emerald-700' : 'bg-line text-muted'
+                      seatReady(seat) ? 'bg-emerald-100 text-emerald-700' : 'bg-line text-muted'
                     }`}>
-                      {seat.is_ready ? `✓ ${t('ready')}` : t('not_ready')}
+                      {seatReady(seat) ? `✓ ${t('ready')}` : t('not_ready')}
                     </span>
                     {isHost && seat.is_bot && (
                       <button
@@ -300,7 +303,7 @@ export default function TlmnRoom({ initialState, userId }: Props) {
 
       {/* Lobby actions */}
       <div className="flex flex-col sm:flex-row gap-3">
-        {mySeat && (
+        {mySeat && !isHost && (
           <button
             onClick={handleReady}
             disabled={isPending}

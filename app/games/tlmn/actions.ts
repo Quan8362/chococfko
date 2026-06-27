@@ -266,8 +266,10 @@ export async function startGame(roomId: string): Promise<ActionResult> {
   const mySeat = state.seats.find(s => s.user_id === user.id)
   if (!mySeat || mySeat.seat_index !== state.room.host_seat) return { error: 'not_host' }
 
-  const readySeats = state.seats.filter(s => s.is_ready)
-  if (readySeats.length < 2) return { error: 'not_enough_ready' }
+  // The host is always a player (no self-ready needed); everyone else joins the deal
+  // only once they've marked ready. Bots are always ready, so host + bots just works.
+  const playingSeats = state.seats.filter(s => s.is_ready || s.seat_index === state.room.host_seat)
+  if (playingSeats.length < 2) return { error: 'not_enough_ready' }
 
   // Claim the lobby→playing transition first so a double Start can't double-deal.
   const { data: claimed } = await admin
@@ -276,7 +278,7 @@ export async function startGame(roomId: string): Promise<ActionResult> {
   if (!claimed || claimed.length === 0) return { error: 'already_started' }
 
   const rules = resolveRules(state.room.settings?.rules)
-  const seats = readySeats.map(s => s.seat_index).sort((a, b) => a - b)
+  const seats = playingSeats.map(s => s.seat_index).sort((a, b) => a - b)
   await dealAndPersist(admin, roomId, seats, 1, rules, null)
   return null
 }

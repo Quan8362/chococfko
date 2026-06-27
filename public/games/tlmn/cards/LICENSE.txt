@@ -1,0 +1,25 @@
+TLMN court-card figures (J / Q / K, all four suits)
+====================================================
+
+Source deck : "Vector Playing Cards" by Byron Knoll
+Upstream    : https://github.com/notpeter/Vector-Playing-Cards
+              (mirror of the original http://code.google.com/p/vector-playing-cards/)
+License     : PUBLIC DOMAIN — free for any use, commercial or otherwise,
+              no attribution required.
+
+What was vendored
+-----------------
+Only the twelve court cards (JS JC JD JH QS QC QD QH KS KC KD KH) were taken.
+Each source SVG was processed for this project:
+  1. Optimised with SVGO (floatPrecision 1, metadata/editor data stripped).
+  2. The viewBox was cropped to the central FIGURE box ("21 18 125 207"),
+     which removes the source deck's own card border AND its own rank/suit
+     indices — so that ONLY our uniform corner index (drawn in TlmnCard.tsx)
+     identifies the card. This keeps the number cards and the court cards
+     reading as one cohesive deck.
+  3. width/height attributes were removed so the figure scales to its frame.
+
+The number cards (2–10 + Ace) are NOT from this deck — they are drawn
+inline as custom SVG in app/games/tlmn/[roomCode]/TlmnCard.tsx.
+
+Credit (optional, given here as a courtesy): playing-card figures by Byron Knoll.

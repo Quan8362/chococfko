@@ -153,17 +153,19 @@ const GEOMETRY: Record<LayoutMode, SeatGeometry> = {
   // Full-bleed mobile/tablet (edge-to-edge felt) — normal height. On these breakpoints the
   // top + side seats render in COMPACT mode (avatar + a horizontal info row that hangs to the
   // side, NOT a tall downward column), so the top seat hugs the top edge with ~one avatar's
-  // height and the band below it is a clean, exclusive centre strip with a real gap.
+  // height and the band below it is a clean, exclusive centre strip with a real gap. The band
+  // is pushed DOWN to ≈ the true centre of the usable felt (below the top seat, above the
+  // taller dock) so there's a generous empty gap under Bot 2 and the pile reads as the focus.
   bleed: {
-    seats: { top: { x: 50, y: 11 }, left: { x: 9, y: 44 }, right: { x: 91, y: 44 }, bottom: { x: 50, y: 89 } },
-    band: { top: 30, bottom: 57 },
+    seats: { top: { x: 50, y: 11 }, left: { x: 9, y: 45 }, right: { x: 91, y: 45 }, bottom: { x: 50, y: 90 } },
+    band: { top: 39, bottom: 57 },
   },
-  // Short-landscape phones (vh < 520) — the compact hand dock eats the lower band, so the
-  // seats hug the edges and the centre band sits in a tight upper-middle strip clear of both.
-  // Top seat raised to roughly match the side seats' edge distance (compact horizontal layout).
+  // Short-landscape phones (vh < 520) — the compact hand dock (decision bar hidden) leaves
+  // more lower room, so the centre band sits LOW-CENTRE with a large empty gap under the top
+  // seat, while still clearing the dock. Top seat hugs the top edge.
   short: {
-    seats: { top: { x: 50, y: 12 }, left: { x: 8, y: 42 }, right: { x: 92, y: 42 }, bottom: { x: 50, y: 85 } },
-    band: { top: 33, bottom: 64 },
+    seats: { top: { x: 50, y: 11 }, left: { x: 8, y: 47 }, right: { x: 92, y: 47 }, bottom: { x: 50, y: 86 } },
+    band: { top: 40, bottom: 62 },
   },
 }
 const seatTransform = (a: SeatAnchor) => `translate(-50%, -50%)${a.s ? ` scale(${a.s})` : ''}`
@@ -220,9 +222,6 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
   const [crownKey, setCrownKey] = useState(0)  // crown sweep + edge glow (tới trắng / win)
   const [penaltyToast, setPenaltyToast] = useState<{ seat: number; label: string; key: number } | null>(null)
   const [dealFxKey, setDealFxKey] = useState(0) // premium round-deal overlay trigger
-  // Phase 2 — per-seat last-played mirror. Read-only: derived purely by observing
-  // public trick transitions (no DB / game-logic change). Cleared on a new round.
-  const [lastPlayed, setLastPlayed] = useState<Record<number, Card[]>>({})
   const prevGameRef = useRef<TlmnPublicGame | null>(null)
   const reducedRef = useRef(false)
 
@@ -376,18 +375,11 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
 
     const newRound = game.id !== prev.id
     if (newRound) {
-      setChac(null); setPassStamp(null); setLastPlayed({})
+      setChac(null); setPassStamp(null)
       if (game.status === 'playing') {
         sound.play('deal')
         if (!reducedRef.current) setDealFxKey(Date.now()) // premium deal cascade
       }
-    }
-
-    // Mirror the latest play to its actor's seat (read-only attribution slot).
-    if (!newRound && game.trick && (!prev.trick || prev.trick.by_seat !== game.trick.by_seat || comboKeys(prev.trick.cards).join() !== comboKeys(game.trick.cards).join())) {
-      const by = game.trick.by_seat
-      const cards = game.trick.cards
-      setLastPlayed(p => ({ ...p, [by]: cards }))
     }
 
     // A chặt event landed → the signature moment.
@@ -601,7 +593,6 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
     : vw < 400 ? 46 : vw < 560 ? 50 : vw < 768 ? 54 : vw < 1024 ? 60 : 66
   const pileW = shortVp ? Math.round(handW * 0.9) : vw < 768 ? 54 : vw < 1024 ? 60 : 66
   const seatBackW = vw < 768 ? 15 : 18
-  const lastPlayW = vw < 560 ? 18 : vw < 1024 ? 20 : 22 // per-seat last-played mini
   const tableHByWidth = vw < 560 ? 300 : vw < 768 ? 360 : vw < 1024 ? 420 : 480
   // Never let the table grow taller than the viewport can hold (landscape phones).
   const tableH = Math.min(tableHByWidth, Math.max(220, Math.round(vh * 0.52)))
@@ -824,8 +815,6 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
             av={vw < 560 ? 42 : vw < 1024 ? 50 : 58}
             backW={seatBackW}
             place={slotList[i] ?? 'top'}
-            lastPlayed={lastPlayed[idx] ?? null}
-            lastW={lastPlayW}
             compact={fullBleed}
             reduced={reducedRef.current}
             t={t}
@@ -833,39 +822,21 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
         </div>
       ))}
 
-      {/* Center: current trick / lead hint. Its own exclusive band (z-20, above the seat
-          wrappers at z-10) so the pile + banner + actor label + hint are never covered by
-          an avatar, chip stack or opponent fan. The round result is a separate overlay. */}
+      {/* PROTECTED CENTRE PILE — the SINGLE place any played card renders. Its own exclusive
+          band (z-20, above the seat wrappers at z-10) so the pile is never covered by an
+          avatar, chip stack or opponent fan, and never extends up into the top seat or down
+          into the hand (the band's top/bottom are derived to sit clear of both). The round
+          result is a separate overlay. */}
       <div className="tlmn-center-zone absolute left-0 right-0 z-20 flex items-center justify-center px-4 pointer-events-none" style={centerWrapStyle}>
         {ended ? (
           <CenterEnd game={game} seatName={seatName} t={t} />
         ) : game.trick ? (
-          <div key={comboKeys(game.trick.cards).join()} className="flex flex-col items-center gap-1.5">
-            {/* Stacking order (top → bottom), each on its own flex row with a gap so a card
-                can NEVER cover the banner or the actor label:
-                  actor label · combo banner · PILE · chặt hint.
-                On mobile/tablet (full-bleed) the actor label is OMITTED here — the per-seat
-                last-played mini + the active-seat "thinking" dots already attribute the play
-                right at the player's seat, so the centre stays reserved for the cards alone. */}
-            {!fullBleed && (
-              <p className="text-[10.5px] font-bold text-white/75 uppercase tracking-[1.5px]">
-                {t('table_play_by', { name: seatName(game.trick.by_seat) })}
-              </p>
-            )}
-            {/* Gold combo banner — above the pile, raised (z-10) so the top pile card can
-                never occlude it; driven by the combo type (no recompute of rules). */}
-            {tableCombo && (() => {
-              const b = comboBanner(tableCombo, t)
-              return (
-                <span
-                  className={`relative z-10 tlmn-banner-in inline-flex items-center rounded-full px-3.5 py-1 text-[13px] font-black uppercase ${
-                    b.special ? 'tlmn-combo-banner tlmn-banner-shine' : 'tlmn-combo-banner--plain'
-                  }`}
-                >
-                  {b.label}
-                </span>
-              )
-            })()}
+          <div key={comboKeys(game.trick.cards).join()} className="flex flex-col items-center gap-1">
+            {/* PROTECTED CENTRE ZONE — only the played cards live here. No actor label, no
+                "to beat" hint, no big combo pill. Attribution is handled at each seat (turn
+                ring + thinking dots), and the cards themselves communicate the combo. The
+                ONLY chrome allowed is a tiny, low-emphasis badge for SPECIAL combos (tứ quý
+                / đôi thông), rendered BELOW the pile so it never overlaps a card. */}
             {/* Faint ghost of the prior stacked plays, giving the pile depth. */}
             <div className="relative flex justify-center mt-0.5" style={{ perspective: 700 }}>
               <span aria-hidden className="absolute left-1/2 top-1 rounded-[7px] bg-black/25" style={{ width: pileW, height: Math.round(pileW * 1.4), transform: 'translateX(-50%) rotate(-7deg) translateY(4px)' }} />
@@ -893,7 +864,16 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
                 )
               })}
             </div>
-            {!fullBleed && <p className="text-[10px] text-white/70">{t('to_beat')}</p>}
+            {/* Tiny special-combo badge — outside the played-card box, low emphasis. */}
+            {tableCombo && (() => {
+              const b = comboBanner(tableCombo, t)
+              if (!b.special) return null
+              return (
+                <span className="tlmn-combo-banner tlmn-banner-shine tlmn-banner-in inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-black uppercase tracking-wide opacity-90">
+                  {b.label}
+                </span>
+              )
+            })()}
           </div>
         ) : (
           <div className="flex flex-col items-center gap-1.5">
@@ -1475,7 +1455,7 @@ function BleedCorners() {
 // only number on a seat is the card-count badge on the face-down stack.
 function SeatPod({
   seat, name, isMe, count, chips, isTurn, isNhat, isWinner = false, passed, passKey,
-  secondsLeft, turnFrac, av, backW, place, lastPlayed, lastW, compact = false, reduced, t,
+  secondsLeft, turnFrac, av, backW, place, compact = false, reduced, t,
 }: {
   seat: TlmnSeat | undefined
   name: string
@@ -1492,8 +1472,6 @@ function SeatPod({
   av: number
   backW: number
   place: string
-  lastPlayed: Card[] | null
-  lastW: number
   // Mobile/tablet (full-bleed): render the plate as a compact horizontal name+coin row and,
   // for the TOP seat, lay the whole pod out horizontally so it hugs the top edge instead of
   // hanging a tall column down into the protected centre zone.
@@ -1596,10 +1574,6 @@ function SeatPod({
     </span>
   ) : null
 
-  const lastPlayedUnit = (lastPlayed && lastPlayed.length > 0)
-    ? <SeatLastPlayed cards={lastPlayed} w={lastW} reduced={reduced} />
-    : null
-
   // ── LEFT / RIGHT seats ─ avatar IS the anchored centroid ──────────────────────────
   // The root shrink-wraps the avatar unit, so the wrapper's translate(-50%,-50%) centres
   // the AVATAR on the lotus. The fan hangs to the INNER side (table centre) and the plate /
@@ -1615,7 +1589,6 @@ function SeatPod({
         <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 flex flex-col items-center gap-1 w-max z-30">
           {plateUnit}
           {statusUnit}
-          {lastPlayedUnit}
           {dotsUnit}
         </div>
         {passed && (
@@ -1628,11 +1601,11 @@ function SeatPod({
   }
 
   // ── TOP seat, COMPACT (mobile/tablet) ─ horizontal pod hugging the top edge ──────────
-  // Instead of hanging a tall column (plate → fan → last-played) straight DOWN into the
-  // protected centre, the compact top seat lays out HORIZONTALLY — avatar beside a slim
-  // info column (name+coin row, then a short face-down fan + last-played row). Its total
-  // height is ≈ one avatar, so it stays anchored near the top edge (matching the side seats'
-  // edge distance) and can never droop into the centre play zone.
+  // Instead of hanging a tall column (plate → fan) straight DOWN into the protected centre,
+  // the compact top seat lays out HORIZONTALLY — avatar beside a slim info column (name+coin
+  // row, then a short face-down fan). Its total height is ≈ one avatar, so it stays anchored
+  // near the top edge (matching the side seats' edge distance) and can never droop into the
+  // centre play zone. Played cards NEVER render here — only in the centre pile.
   if (compact && place === 'top') {
     return (
       <div className="relative inline-flex items-center gap-2 flex-none">
@@ -1641,7 +1614,6 @@ function SeatPod({
           {plateUnit}
           <div className="inline-flex items-center gap-1.5">
             <OpponentFan count={count} w={backW} orientation="top" />
-            {lastPlayedUnit}
             {statusUnit}
             {dotsUnit}
           </div>
@@ -1674,7 +1646,6 @@ function SeatPod({
         <span className="relative inline-flex items-center justify-center flex-none">
           <OpponentFan count={count} w={backW} orientation="top" />
         </span>
-        {lastPlayedUnit}
         {dotsUnit}
       </div>
 
@@ -1684,28 +1655,6 @@ function SeatPod({
           {t('passed')}
         </span>
       )}
-    </div>
-  )
-}
-
-// ── Per-seat last-played mini ───────────────────────────────────────────────────────
-// A small overlapped row of the actor's most recent play, sitting beside the avatar.
-// Shares a framer-motion layoutId with the centre pile so the SAME element morphs
-// seat → centre (no duplicate-pop). Face-up, tiny; reduced-motion = instant.
-function SeatLastPlayed({ cards, w, reduced }: { cards: Card[]; w: number; reduced: boolean }) {
-  return (
-    <div className="flex justify-center -mt-0.5">
-      {sortHand(cards).map((c, i) => (
-        <motion.span
-          key={cardKey(c)}
-          initial={reduced ? false : { scale: 0.6, opacity: 0, y: -6 }}
-          animate={{ scale: 1, opacity: 1, y: 0 }}
-          transition={TRANSITIONS.settle}
-          style={{ marginLeft: i === 0 ? 0 : -Math.round(w * 0.42) }}
-        >
-          <CardFace card={c} w={w} />
-        </motion.span>
-      ))}
     </div>
   )
 }

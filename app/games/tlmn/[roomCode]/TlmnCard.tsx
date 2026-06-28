@@ -15,7 +15,7 @@ const SUIT_CODE = ['S', 'C', 'D', 'H'] as const // matches SUITS in engine.ts
 // clear white margin. Tuned so J/Q/K read naturally and never collide with the index.
 // Bumped (Run — card polish) in step with the larger corner inset below so the figure
 // keeps a premium, un-squeezed margin from the now-roomier indices.
-const COURT_INSET = '19% 17.5%'
+const COURT_INSET = '20.5% 18.5%'
 
 // ── Suit pips as inline SVG ──────────────────────────────────────────────────────
 // Clean, SYMMETRIC playing-card suit shapes authored in a SHARED square 48×48 viewBox
@@ -116,10 +116,11 @@ export function CardFace({
   const cornerSuit = Math.round(w * 0.17)
   const centerSuit = Math.round(w * 0.46)
   // Breathing room between the card edge and the corner index — proportional to the card
-  // so it stays balanced at every size (fanned hand → large play). Larger than the old
-  // fixed 3/4px so the rank+suit no longer hug the rounded corner. (Run — card polish.)
-  const padX = Math.max(4, Math.round(w * 0.13))
-  const padY = Math.max(4, Math.round(w * 0.105))
+  // so it stays balanced at every size (fanned hand → large play). Pushed further IN so the
+  // rank + suit pip sit clearly on the WHITE field, never on the coloured ring / rounded
+  // corner (the index used to hug the inner edge line). (Run — card polish.)
+  const padX = Math.max(5, Math.round(w * 0.16))
+  const padY = Math.max(5, Math.round(w * 0.13))
 
   const corner = (
     <>

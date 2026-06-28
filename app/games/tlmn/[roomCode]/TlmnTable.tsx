@@ -200,6 +200,10 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
   const [trayRef, trayW] = useMeasuredWidth<HTMLDivElement>()
   // Live size of the play area — drives the aspect-correct board-image sizing (Run 6.3).
   const [areaRef, area] = useMeasuredSize<HTMLDivElement>()
+  // Live height of the top chrome row. The seats layer is the flex sibling BELOW it, so on
+  // wide landscape we lift the (horizontally-centred) top seat UP into the chrome band's
+  // empty centre — between the left/right control clusters — to hug the table's top rail.
+  const [chromeRef, chrome] = useMeasuredSize<HTMLDivElement>()
   const [game, setGame] = useState<TlmnPublicGame | null>(null)
   const [hand, setHand] = useState<Card[]>([])
   const [selected, setSelected] = useState<Set<string>>(new Set())
@@ -852,8 +856,20 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
   // top-right). Mobile/tablet (bleed) and portrait (oval) keep their existing docks.
   const isDesktop = mode === 'desktop'
   const geom = GEOMETRY[mode]
+  // Wide landscape (phone OR tablet, full-bleed): the top control cluster sits at the two
+  // top CORNERS, leaving the top-centre empty. The top seat is horizontally centred, so we
+  // lift it UP into that empty centre band to hug the inner top rail — matching how the
+  // left/right/bottom seats hug their own rails. Portrait stays put (the chrome row fills
+  // the whole top width there, so there's no clear centre to lift into).
+  const liftTop = fullBleed && vw >= 700 && vw > vh
   const seatStyle = (place: string): CSSProperties => {
     const a = geom.seats[(place as 'top' | 'left' | 'right' | 'bottom')] ?? geom.seats.top
+    if (place === 'top' && liftTop) {
+      // Avatar centre sits a small, viewport-scaled margin below the table's top rail
+      // (stage top), i.e. level with the corner controls but in the clear centre. The
+      // seats layer starts just below the chrome row, so we subtract its measured height.
+      return { left: `${a.x}%`, top: `calc(clamp(22px, 6.5vh, 44px) - ${chrome.h}px)`, transform: seatTransform(a) }
+    }
     return { left: `${a.x}%`, top: `${a.y}%`, transform: seatTransform(a) }
   }
   // The exclusive centre band: a flex strip whose top sits below the top seat and whose
@@ -1465,7 +1481,7 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
             stay tappable in every orientation (a safety exit even if anything below
             misbehaves). The rotate-overlay is portalled to <body> and intentionally
             leaves this top strip uncovered so the X stays reachable in portrait too. */}
-        <div className="relative z-[90] flex items-center justify-between px-3 sm:px-5 pt-3"
+        <div ref={chromeRef} className="relative z-[90] flex items-center justify-between px-3 sm:px-5 pt-3"
           style={{ paddingLeft: 'max(0.75rem, env(safe-area-inset-left))', paddingRight: 'max(0.75rem, env(safe-area-inset-right))', paddingTop: 'max(0.75rem, env(safe-area-inset-top))' }}>
           <div className="flex items-center gap-2">
             <Link href="/games/tlmn" aria-label={t('close_label')} title={t('close_label')} className="tlmn-chrome">
@@ -1775,6 +1791,17 @@ function SeatPod({
           {count}
         </span>
       </span>
+      {/* "Bỏ lượt" stamp — anchored to the AVATAR (centred over it) with the highest seat
+          z-index so it is never covered by the name plate / fan / a neighbouring seat and
+          never clipped by a parent. Identical for left / right / top seats. Transient. */}
+      {passed && (
+        <span
+          key={passKey}
+          className="tlmn-stamp absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-40 text-[9px] sm:text-[10px] font-black uppercase text-white bg-rose/95 border border-white/55 rounded-md px-1.5 py-0.5 tracking-wide whitespace-nowrap shadow-lg pointer-events-none"
+        >
+          {t('passed')}
+        </span>
+      )}
     </span>
   )
 
@@ -1844,11 +1871,6 @@ function SeatPod({
           {statusUnit}
           {dotsUnit}
         </div>
-        {passed && (
-          <span key={passKey} className="absolute -bottom-2 left-1/2 -translate-x-1/2 tlmn-stamp text-[10px] font-black uppercase text-white bg-rose/90 border border-white/40 rounded-md px-1.5 py-0.5 tracking-wide whitespace-nowrap z-20">
-            {t('passed')}
-          </span>
-        )}
       </div>
     )
   }
@@ -1871,11 +1893,6 @@ function SeatPod({
             {dotsUnit}
           </div>
         </div>
-        {passed && (
-          <span key={passKey} className="absolute -bottom-2 left-1/2 -translate-x-1/2 tlmn-stamp text-[10px] font-black uppercase text-white bg-rose/90 border border-white/40 rounded-md px-1.5 py-0.5 tracking-wide whitespace-nowrap z-20">
-            {t('passed')}
-          </span>
-        )}
       </div>
     )
   }
@@ -1901,13 +1918,6 @@ function SeatPod({
         </span>
         {dotsUnit}
       </div>
-
-      {/* Bỏ lượt stamp */}
-      {passed && (
-        <span key={passKey} className="absolute -bottom-2 left-1/2 -translate-x-1/2 tlmn-stamp text-[10px] font-black uppercase text-white bg-rose/90 border border-white/40 rounded-md px-1.5 py-0.5 tracking-wide whitespace-nowrap z-20">
-          {t('passed')}
-        </span>
-      )}
     </div>
   )
 }

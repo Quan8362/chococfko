@@ -7,7 +7,7 @@ import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import {
-  parseCombo, beats, sortHand, legalMoves, strength, isBomb, RANKS, DEFAULT_RULES,
+  parseCombo, beats, sortHand, legalMoves, isBomb, RANKS, DEFAULT_RULES,
   type Card, type Combo,
 } from '@/lib/games/tlmn/engine'
 import {
@@ -161,15 +161,18 @@ const GEOMETRY: Record<LayoutMode, SeatGeometry> = {
   // is pushed DOWN to ≈ the true centre of the usable felt (below the top seat, above the
   // taller dock) so there's a generous empty gap under Bot 2 and the pile reads as the focus.
   bleed: {
-    seats: { top: { x: 50, y: 11 }, left: { x: 9, y: 45 }, right: { x: 91, y: 45 }, bottom: { x: 50, y: 90 } },
-    band: { top: 39, bottom: 57 },
+    seats: { top: { x: 50, y: 10 }, left: { x: 9, y: 44 }, right: { x: 91, y: 44 }, bottom: { x: 50, y: 90 } },
+    // Pile centred at ≈43% of the felt — the TRUE midpoint between Bot 2 (hugging the top
+    // edge) and the bottom hand dock, with a clean empty gap under Bot 2 above it and clear
+    // air below it before the hand. Run 11: mobile/tablet pile-centring fix.
+    band: { top: 32, bottom: 54 },
   },
   // Short-landscape phones (vh < 520) — the compact hand dock (decision bar hidden) leaves
-  // more lower room, so the centre band sits LOW-CENTRE with a large empty gap under the top
-  // seat, while still clearing the dock. Top seat hugs the top edge.
+  // more lower room, so the centre band sits at low-centre with a large empty gap under the
+  // top seat, while still clearing the dock. Top seat hugs the top edge.
   short: {
-    seats: { top: { x: 50, y: 11 }, left: { x: 8, y: 47 }, right: { x: 92, y: 47 }, bottom: { x: 50, y: 86 } },
-    band: { top: 40, bottom: 62 },
+    seats: { top: { x: 50, y: 10 }, left: { x: 8, y: 46 }, right: { x: 92, y: 46 }, bottom: { x: 50, y: 86 } },
+    band: { top: 32, bottom: 56 },
   },
 }
 const seatTransform = (a: SeatAnchor) => `translate(-50%, -50%)${a.s ? ` scale(${a.s})` : ''}`
@@ -689,16 +692,6 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
     runLocked(() => passTurn(roomId))
   }
 
-  const doHint = () => {
-    if (!isMyTurn || !rules) return
-    const moves = legalMoves(hand, tableCombo, rules)
-    if (moves.length === 0) { setError('hint_none'); return }
-    // Lowest legal play: fewest cards, then weakest high card.
-    moves.sort((a, b) => a.count - b.count || strength(a.high) - strength(b.high))
-    setError(null)
-    setSelected(new Set(comboKeys(moves[0].cards)))
-  }
-
   const doNextRound = () => {
     if (busy) return
     runLocked(() => startNextRound(roomId))
@@ -979,12 +972,16 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
     </button>
   )
 
-  // Desktop-only local-player info panel — lives in the bottom-left of the action row
-  // (replacing the removed "Gợi ý" button), NOT floating in the centre play zone. A flat
-  // pill (not a button) so it can never be mistaken for an action control; the name
-  // truncates with ellipsis and the balance + turn status sit beneath it.
-  const desktopInfoPanel = mySeat == null ? null : (
-    <div className="flex items-center gap-2.5 min-w-0 w-full rounded-2xl bg-black/40 py-1.5 pl-1.5 pr-3 backdrop-blur-[1px]">
+  // Unified local-player info panel — lives in the bottom-left of the action row on EVERY
+  // surface (desktop, mobile/tablet bleed, portrait oval, short-landscape), permanently
+  // REPLACING the removed "Gợi ý" button. A flat pill (not a button) so it can never be
+  // mistaken for an action control; the name truncates with ellipsis and the balance sits
+  // beneath it. The turn-status line is dropped in the compact short-landscape dock so the
+  // panel stays single-row and the dock never grows tall. This is the single place the
+  // local player's identity renders inside the bottom control zone — it never floats up
+  // beside Bot 3 or into the centre play zone.
+  const localInfoPanel = mySeat == null ? null : (
+    <div className={`flex items-center min-w-0 w-full rounded-2xl bg-black/40 backdrop-blur-[1px] ${compactDock ? 'gap-2 py-1 pl-1 pr-2.5' : 'gap-2.5 py-1.5 pl-1.5 pr-3'}`}>
       {humanAvatar}
       <div className="min-w-0 leading-tight">
         <p className="text-[13px] font-bold text-white truncate flex items-center gap-1">
@@ -995,13 +992,13 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
           <span aria-hidden className="text-[9px]">🪙</span>
           {formatChips(myBalance ?? chipsFromScore(seatOf(mySeat)?.cumulative_score ?? 0))}
         </span>
-        {isMyTurn ? (
+        {!compactDock && (isMyTurn ? (
           <span className="text-[10px] font-bold text-rose-200 flex items-center gap-1 mt-0.5">
             <span className="w-1.5 h-1.5 rounded-full bg-rose-200 animate-pulse" />{t('your_turn')}
           </span>
         ) : (
           <span className="text-[10px] text-white/60 italic mt-0.5 block">{t('thinking')}</span>
-        )}
+        ))}
       </div>
     </div>
   )
@@ -1022,62 +1019,24 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
 
       {mySeat != null && playing && !myFinished && (
         <div className={`tlmn-dock-safe relative z-20 px-3 sm:px-6 pt-1 ${compactDock ? 'tlmn-dock-compact' : ''}`} aria-busy={busy} style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}>
-          {/* Human (bottom-seat) info cluster — NORMAL (portrait / tablet / desktop /
-              fullscreen): a slim bar pinned LOW, hugging the top of the hand fan (a small
-              negative margin tucks it over the tray's empty top so it reads as part of the
-              bottom dock, NOT floating up in the centre). Flanking flex-1 zones keep it
-              centred; the Sắp xếp pill lives in the right zone. OMITTED in the compact
-              short-landscape dock — there the avatar/timer + Sắp xếp move into the tray's
-              bottom corners (below) so the dock stays short and the cluster can never ride
-              up into the centre play zone. Also OMITTED on desktop — there the player info
-              moves into the action row's bottom-left and Sắp xếp anchors to the hand's
-              top-right corner. */}
-          {!compactDock && !isDesktop && (
-            <div className="relative z-[2] flex items-end gap-2 -mb-4 max-w-[760px] mx-auto">
-              <div className="flex-1 min-w-0" aria-hidden />
-              <div className="flex items-center gap-2.5 min-w-0 rounded-[22px] bg-black/40 py-1 pl-1 pr-3 backdrop-blur-[1px]">
-                {humanAvatar}
-                <div className="min-w-0">
-                  <p className="text-[13px] font-bold text-white truncate max-w-[44vw] flex items-center gap-1.5">
-                    {game.nhat_seat === mySeat && <span className="text-gold">🏆</span>}
-                    {seatName(mySeat)}
-                    <span className="text-[10px] font-bold text-white/60 bg-white/15 rounded-full px-1.5 py-0.5">{t('you_badge')}</span>
-                    <span className="tlmn-chip-balance text-[10px] font-black inline-flex items-center gap-0.5"><span aria-hidden className="text-[9px]">🪙</span>{formatChips(myBalance ?? chipsFromScore(seatOf(mySeat)?.cumulative_score ?? 0))}</span>
-                  </p>
-                  {isMyTurn ? (
-                    <span className="text-[11px] font-bold text-rose-200 flex items-center gap-1 mt-0.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-rose-200 animate-pulse" />{t('your_turn')}
-                    </span>
-                  ) : (
-                    <span className="text-[11px] text-white/70 italic mt-0.5 inline-block">{t('thinking')}</span>
-                  )}
-                </div>
-              </div>
-              <div className="flex-1 min-w-0 flex justify-end">{sortButton}</div>
-            </div>
-          )}
+          {/* The local-player identity no longer renders as a free-floating cluster above the
+              hand (which read as belonging next to Bot 3). On EVERY surface it lives ONLY in
+              the action row's bottom-left, where "Gợi ý" used to be — see localInfoPanel
+              below. Sắp xếp anchors to the hand tray's corner (below) on every surface. */}
 
           {/* Cream hand tray with the fanned cards. Extra top room so the arced middle
               cards + any selected lift are never clipped. Also the positioned context for
               the COMPACT corner widgets. */}
           <div className="tlmn-tray relative z-[1] rounded-xl px-2 sm:px-4 max-w-[760px] mx-auto" style={{ minHeight: Math.round(handW * 1.4) + (compactDock ? 14 : 22) }}>
-            {/* COMPACT short-landscape dock — the human avatar/timer sits in the tray's
-                bottom-LEFT and Sắp xếp in the bottom-RIGHT, overlapping the empty ends of
-                the centred fan. They add ZERO vertical height, so the human cluster stays
-                at the BOTTOM with the hand and never collides with the centre pile. */}
-            {compactDock && (
-              <>
-                <span className="absolute left-0 bottom-0 z-[5] flex items-center gap-1.5 rounded-full bg-black/45 p-[3px] pr-2 backdrop-blur-[1px]">
-                  {humanAvatar}
-                  <span className="tlmn-chip-balance text-[10px] font-black inline-flex items-center gap-0.5"><span aria-hidden className="text-[9px]">🪙</span>{formatChips(myBalance ?? chipsFromScore(seatOf(mySeat)?.cumulative_score ?? 0))}</span>
-                </span>
-                <span className="absolute right-0 bottom-0 z-[5]">{sortButton}</span>
-              </>
-            )}
-            {/* DESKTOP — Sắp xếp anchored to the hand zone's top-right corner (above the
-                fan's lower right edge, never near Bot 1). The fan dips at its ends, so the
-                top-right strip stays clear even with a full 13-card hand or lifted cards. */}
-            {isDesktop && (
+            {/* Sắp xếp stays welded to the local hand (never drifts toward Bot 1). COMPACT
+                short-landscape: it sits in the tray's bottom-RIGHT corner, overlapping the
+                empty end of the centred fan so it adds ZERO vertical height. Every other
+                surface: anchored to the hand zone's top-right corner (above the fan's lower
+                right edge). The local avatar/identity is NOT here anymore — it lives in the
+                action row's bottom-left (localInfoPanel), replacing the removed Gợi ý. */}
+            {compactDock ? (
+              <span className="absolute right-0 bottom-0 z-[6]">{sortButton}</span>
+            ) : (
               <span className="absolute right-0 -top-1 z-[6]">{sortButton}</span>
             )}
             <div
@@ -1160,25 +1119,15 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
 
           {error && <p className="text-[12px] text-rose-200 mt-1.5 text-center font-semibold">{tErr(t, error)}</p>}
 
-          {/* Action buttons — balanced row. DESKTOP: bottom-left is the local-player info
-              panel (replacing the removed Gợi ý), centre is the primary Đánh, right is Bỏ
-              lượt. Mobile/tablet keep Gợi ý as the left secondary. Đánh is the wider primary
-              but NOT absurdly wide, and the whole row is capped so it never sprawls. */}
-          <div className={`tlmn-action-row flex items-stretch gap-2 mt-2 mx-auto ${isDesktop ? 'max-w-[600px]' : 'max-w-[520px]'}`}>
-            {isDesktop ? (
-              <div className="flex-1 basis-0 min-w-0 flex items-center">
-                {desktopInfoPanel}
-              </div>
-            ) : (
-              <button
-                type="button"
-                onClick={doHint}
-                disabled={!isMyTurn || busy}
-                className="tlmn-btn-ghost flex-1 basis-0 min-w-0 max-w-[140px] font-bold text-[13px] px-3 py-3 rounded-xl transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--tg-gold-bright)]"
-              >
-                💡 {t('hint_btn')}
-              </button>
-            )}
+          {/* Action buttons — balanced row, identical on EVERY surface: bottom-left is the
+              local-player info panel (permanently replacing the removed Gợi ý button — it
+              no longer renders anywhere), centre is the primary Đánh, right is Bỏ lượt. Đánh
+              is the wider primary but NOT absurdly wide, and the whole row is capped so it
+              never sprawls. */}
+          <div className={`tlmn-action-row flex items-stretch gap-2 mt-2 mx-auto ${isDesktop ? 'max-w-[600px]' : 'max-w-[560px]'}`}>
+            <div className="flex-1 basis-0 min-w-0 flex items-center">
+              {localInfoPanel}
+            </div>
             <button
               type="button"
               onClick={doPlay}

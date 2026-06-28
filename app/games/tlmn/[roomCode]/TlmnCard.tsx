@@ -26,8 +26,11 @@ const COURT_INSET = '17.5% 16%'
 const SPADE_PATH =
   'M24 5C24 5 9 16 9 27 9 32 12 35 16 35 18.5 35 20.5 34 22 32.5 21.5 36 20 39.5 17 42L31 42C28 39.5 26.5 36 26 32.5 27.5 34 29.5 35 32 35 36 35 39 32 39 27 39 16 24 5 24 5Z'
 const DIAMOND_PATH = 'M24 3 41 24 24 45 7 24Z'
+// Balanced, symmetric heart authored in the shared 48×48 viewBox: bbox 34 wide × 36 tall,
+// centred on (24,24) so it scales/positions identically on cards, pips AND the bot medallion
+// (the old path was 40×36 — visibly wide/flattened, "méo", at the large avatar size).
 const HEART_PATH =
-  'M24 42C8 30 4 18.5 4 13 4 8 8 6 12 6c4.5 0 8 3 12 8 4-5 7.5-8 12-8 4 0 8 2 8 7 0 5.5-4 17-20 29Z'
+  'M24 42C24 42 7 30 7 17 7 10.8 11.6 6 16.5 6 20 6 22.8 8.3 24 11.2 25.2 8.3 28 6 31.5 6 36.4 6 41 10.8 41 17 41 30 24 42 24 42Z'
 
 const INK = '#1a1a1a'
 // Run 6 — true playing-card red for ♥♦ (casino look), near-black for ♠♣.

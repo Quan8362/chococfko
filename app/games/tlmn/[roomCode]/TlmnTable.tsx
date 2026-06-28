@@ -1196,24 +1196,31 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
   // local player's identity renders inside the bottom control zone — it never floats up
   // beside Bot 3 or into the centre play zone.
   const localInfoPanel = mySeat == null ? null : (
-    <div className={`flex items-center min-w-0 w-full rounded-2xl bg-black/40 backdrop-blur-[1px] ${compactDock ? 'gap-2 py-1 pl-1 pr-2.5' : 'gap-2.5 py-1.5 pl-1.5 pr-3'}`}>
+    // Horizontal pill: avatar on the left, then a min-w-0 column holding TWO compact rows —
+    // (1) name (ellipsis), (2) balance · turn-status inline. It grows in WIDTH (flex child of
+    // the widened action-row cell), never in height, so it can never drive the action buttons
+    // taller. Fixed compact height keeps it level with the buttons via the row's items-center.
+    <div className={`flex items-center min-w-0 w-full rounded-2xl bg-black/40 backdrop-blur-[1px] ${compactDock ? 'gap-2 h-[42px] pl-1 pr-2.5' : 'gap-2.5 h-[48px] pl-1.5 pr-3'}`}>
       {humanAvatar}
-      <div className="min-w-0 leading-tight">
+      <div className="min-w-0 leading-tight flex-1">
         <p className="text-[13px] font-bold text-white truncate flex items-center gap-1">
-          {game.nhat_seat === mySeat && <span className="text-gold">🏆</span>}
+          {game.nhat_seat === mySeat && <span className="shrink-0 text-gold">🏆</span>}
           <span className="truncate">{seatName(mySeat)}</span>
         </p>
-        <span className="tlmn-chip-balance text-[11px] font-black inline-flex items-center gap-0.5 mt-0.5">
-          <span aria-hidden className="text-[9px]">🪙</span>
-          {formatChips(myBalance ?? chipsFromScore(seatOf(mySeat)?.cumulative_score ?? 0))}
-        </span>
-        {!compactDock && (isMyTurn ? (
-          <span className="text-[10px] font-bold text-rose-200 flex items-center gap-1 mt-0.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-rose-200 animate-pulse" />{t('your_turn')}
+        <div className="flex items-center gap-1.5 mt-0.5 min-w-0">
+          <span className="tlmn-chip-balance text-[11px] font-black inline-flex items-center gap-0.5 shrink-0">
+            <span aria-hidden className="text-[9px]">🪙</span>
+            {formatChips(myBalance ?? chipsFromScore(seatOf(mySeat)?.cumulative_score ?? 0))}
           </span>
-        ) : (
-          <span className="text-[10px] text-white/60 italic mt-0.5 block">{t('thinking')}</span>
-        ))}
+          {!compactDock && (isMyTurn ? (
+            <span className="text-[10px] font-bold text-rose-200 flex items-center gap-1 min-w-0">
+              <span className="shrink-0 w-1.5 h-1.5 rounded-full bg-rose-200 animate-pulse" />
+              <span className="truncate">{t('your_turn')}</span>
+            </span>
+          ) : (
+            <span className="text-[10px] text-white/60 italic truncate min-w-0">{t('thinking')}</span>
+          ))}
+        </div>
       </div>
     </div>
   )
@@ -1339,26 +1346,34 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
               no longer renders anywhere), centre is the primary Đánh, right is Bỏ lượt. Đánh
               is the wider primary but NOT absurdly wide, and the whole row is capped so it
               never sprawls. */}
-          <div className={`tlmn-action-row flex items-stretch gap-2 mt-2 mx-auto ${isDesktop ? 'max-w-[600px]' : 'max-w-[560px]'}`}>
-            <div className="flex-1 basis-0 min-w-0 flex items-center">
+          {/* items-center (NOT stretch): the buttons own an explicit compact height and never
+              stretch to match the info panel — the panel can NEVER make them taller. The panel
+              cell is the WIDEST region (flex-[1.6]) so the info expands horizontally toward the
+              left; Đánh stays the dominant centre action; Bỏ lượt stays the narrow secondary. */}
+          <div className={`tlmn-action-row flex items-center gap-2 mt-2 mx-auto ${isDesktop ? 'max-w-[680px]' : 'max-w-[560px]'}`}>
+            <div className="flex-[1.6] basis-0 min-w-0 flex items-center">
               {localInfoPanel}
             </div>
             <button
               type="button"
               onClick={doPlay}
               disabled={!isMyTurn || selectedCards.length === 0 || busy || !canPlay}
-              className={`tlmn-btn-primary flex-[1.7] basis-0 min-w-0 font-bold text-[15px] px-4 py-3 rounded-xl truncate focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--tg-gold-bright)] ${
-                isMyTurn && canPlay && !busy ? 'tlmn-play-pulse' : ''
-              }`}
+              className={`tlmn-btn-primary flex-[1.3] basis-0 min-w-0 flex items-center justify-center font-bold text-[15px] px-4 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--tg-gold-bright)] ${
+                compactDock ? 'h-[42px]' : 'h-[48px]'
+              } ${isMyTurn && canPlay && !busy ? 'tlmn-play-pulse' : ''}`}
             >
-              {t('play_btn')}
-              {canPlay && selectionInfo?.name ? ` · ${selectionInfo.name}` : selectedCards.length ? ` · ${selectedCards.length}` : ''}
+              <span className="truncate">
+                {t('play_btn')}
+                {canPlay && selectionInfo?.name ? ` · ${selectionInfo.name}` : selectedCards.length ? ` · ${selectedCards.length}` : ''}
+              </span>
             </button>
             <button
               type="button"
               onClick={doPass}
               disabled={!canPass || busy}
-              className="tlmn-btn-ghost flex-1 basis-0 min-w-0 max-w-[140px] font-bold text-[14px] px-3 py-3 rounded-xl transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--tg-gold-bright)]"
+              className={`tlmn-btn-ghost flex-1 basis-0 min-w-0 max-w-[140px] flex items-center justify-center font-bold text-[14px] px-3 rounded-xl transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--tg-gold-bright)] ${
+                compactDock ? 'h-[42px]' : 'h-[48px]'
+              }`}
             >
               {t('pass_btn')}
             </button>

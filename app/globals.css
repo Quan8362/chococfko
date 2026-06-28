@@ -396,7 +396,7 @@ body::before {
    the pile sits per mode (lower on desktop/tablet, higher on short-landscape phones). */
 .tlmn-center-scrim {
   position: absolute;
-  left: 50%; top: 43%;
+  left: 50%; top: 47%;
   width: 42%; aspect-ratio: 1.5;
   transform: translate(-50%, -50%);
   pointer-events: none;

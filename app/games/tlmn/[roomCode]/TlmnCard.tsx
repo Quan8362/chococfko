@@ -119,8 +119,8 @@ export function CardFace({
   // so it stays balanced at every size (fanned hand → large play). Tuned so the rank + suit
   // pip sit at the OUTER edge of the white field, near the corner (just clear of the ring),
   // not drifting toward the centre. (Run — card polish.)
-  const padX = Math.max(3, Math.round(w * 0.085))
-  const padY = Math.max(3, Math.round(w * 0.06))
+  const padX = Math.max(2, Math.round(w * 0.05))
+  const padY = Math.max(2, Math.round(w * 0.035))
 
   const corner = (
     <>

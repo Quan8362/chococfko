@@ -77,7 +77,7 @@ export default function TlmnRulesPanel({ roomId, isHost, override, disabled }: P
           <label
             key={key}
             className={`flex items-center justify-between gap-2 rounded-xl border px-3 py-2 text-[12.5px] transition-colors ${
-              effective[key] ? 'border-[var(--tl-gold)]/50 bg-[var(--tl-gold)]/10' : 'border-[var(--tl-cream-line)] bg-white/40'
+              effective[key] ? 'border-[var(--tl-red)]/35 bg-[var(--tl-red)]/[0.06]' : 'border-[var(--tl-border)] bg-[var(--tl-surface-muted)]'
             } ${readOnly ? 'opacity-90' : 'cursor-pointer'}`}
           >
             <span className="font-semibold text-[var(--tl-text)]">{t(`rule_${key}` as Parameters<typeof t>[0])}</span>
@@ -108,7 +108,7 @@ export default function TlmnRulesPanel({ roomId, isHost, override, disabled }: P
                 const v = Number(e.target.value)
                 if (Number.isFinite(v) && v >= 0) commit(key, v)
               }}
-              className="w-full rounded-lg border border-[var(--tl-cream-line)] bg-white px-2 py-1.5 text-[13px] font-mono text-[var(--tl-text)] disabled:bg-black/5 disabled:text-[var(--tl-text-soft)] disabled:cursor-not-allowed focus:border-[var(--tl-gold)] focus:ring-2 focus:ring-[var(--tl-gold)]/20 focus:outline-none transition-all"
+              className="w-full rounded-lg border border-[var(--tl-border)] bg-[var(--tl-surface)] px-2 py-1.5 text-[13px] font-mono text-[var(--tl-text)] disabled:bg-black/5 disabled:text-[var(--tl-text-soft)] disabled:cursor-not-allowed focus:border-[var(--tl-red)] focus:ring-2 focus:ring-[var(--tl-red)]/15 focus:outline-none transition-all"
             />
           </label>
         ))}

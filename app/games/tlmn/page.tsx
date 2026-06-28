@@ -22,7 +22,7 @@ export default async function TlmnPage() {
   const { data: { user } } = await supabase.auth.getUser()
 
   return (
-    <div className="max-w-[860px] mx-auto px-5 sm:px-6 py-10 pb-20">
+    <div className="max-w-[960px] mx-auto px-5 sm:px-6 py-10 pb-20">
       <Link
         href="/games"
         className="inline-flex items-center gap-1.5 text-[12.5px] font-medium text-muted hover:text-rose transition-colors group mb-6"

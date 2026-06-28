@@ -39,7 +39,7 @@ function JoinBtn() {
     <button
       type="submit"
       disabled={pending}
-      className="tl-btn-gold flex-none text-[14px] px-5 py-3 disabled:opacity-60"
+      className="tl-btn-secondary flex-none text-[14px] px-5 py-3 disabled:opacity-60"
     >
       {pending ? '…' : t('join_btn')}
     </button>
@@ -60,7 +60,7 @@ function PracticeCard() {
   return (
     <div className="tl-panel tl-panel--accent p-6 flex flex-col gap-4 overflow-hidden">
       <div className="flex items-start gap-3.5">
-        <span className="flex-none w-14 h-14 rounded-2xl bg-gradient-to-br from-[var(--tl-red-bright)] to-[var(--tl-red)] text-[var(--tl-gold-bright)] flex items-center justify-center shadow-[0_8px_20px_-8px_rgba(124,18,38,0.6)]" aria-hidden>
+        <span className="flex-none w-14 h-14 rounded-2xl bg-[var(--tl-red)] text-white flex items-center justify-center shadow-[0_6px_16px_-9px_rgba(138,26,48,0.5)]" aria-hidden>
           <TlmnBot className="w-8 h-8" />
         </span>
         <div className="min-w-0">
@@ -275,7 +275,7 @@ export default function TlmnLobby() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div className="tl-panel p-6 flex flex-col gap-4 overflow-hidden">
               <div className="flex items-start gap-3.5">
-                <span className="flex-none w-14 h-14 rounded-2xl bg-gradient-to-br from-[var(--tl-gold)] to-[var(--tl-gold-deep)] text-[#3d1117] flex items-center justify-center shadow-[0_8px_20px_-8px_rgba(176,125,28,0.6)]" aria-hidden>
+                <span className="flex-none w-14 h-14 rounded-2xl bg-[var(--tl-gold)]/15 text-[var(--tl-gold-deep)] ring-1 ring-[var(--tl-gold)]/30 flex items-center justify-center" aria-hidden>
                   <TlmnPeople className="w-8 h-8" />
                 </span>
                 <div className="min-w-0">
@@ -300,7 +300,7 @@ export default function TlmnLobby() {
                   placeholder={t('join_placeholder')}
                   maxLength={5}
                   autoComplete="off"
-                  className="flex-1 text-[14px] px-3.5 py-3 border border-[var(--tl-cream-line)] rounded-xl bg-white/80 focus:outline-none focus:border-[var(--tl-gold)] focus:ring-2 focus:ring-[var(--tl-gold)]/20 uppercase placeholder:normal-case placeholder:text-[var(--tl-text-soft)]/50 font-mono tracking-widest text-[var(--tl-text)] transition-all"
+                  className="flex-1 text-[14px] px-3.5 py-3 border border-[var(--tl-border)] rounded-xl bg-[var(--tl-surface)] focus:outline-none focus:border-[var(--tl-red)] focus:ring-2 focus:ring-[var(--tl-red)]/15 uppercase placeholder:normal-case placeholder:text-[var(--tl-text-soft)]/50 font-mono tracking-widest text-[var(--tl-text)] transition-all"
                 />
                 <JoinBtn />
               </form>

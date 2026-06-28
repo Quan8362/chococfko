@@ -302,14 +302,14 @@ export default function TlmnRoom({ initialState, userId, joinError = null }: Pro
   if (kicked) {
     return (
       <div className="tlmn-lobby flex flex-col items-center text-center gap-4">
-        <span className="w-16 h-16 rounded-2xl bg-black/20 text-[var(--tl-gold-bright)] flex items-center justify-center ring-1 ring-[var(--tl-gold)]/30" aria-hidden>
+        <span className="w-16 h-16 rounded-2xl bg-[var(--tl-red)]/8 text-[var(--tl-red)] flex items-center justify-center ring-1 ring-[var(--tl-red)]/15" aria-hidden>
           <TlmnWave className="w-9 h-9" />
         </span>
-        <h2 className="font-serif font-bold text-[20px] text-[#fdeedd]">{t('kicked_title')}</h2>
+        <h2 className="font-serif font-bold text-[20px] text-[var(--tl-red)]">{t('kicked_title')}</h2>
         <p className="text-[13.5px] tl-section-sub leading-relaxed max-w-[420px]">{t('kicked_desc')}</p>
         <Link
           href="/games/tlmn"
-          className="tl-btn-gold mt-1 inline-flex items-center justify-center gap-2 text-[14px] px-6 py-3"
+          className="tl-btn-secondary mt-1 inline-flex items-center justify-center gap-2 text-[14px] px-6 py-3"
         >
           {t('kicked_back_btn')}
         </Link>
@@ -382,10 +382,10 @@ export default function TlmnRoom({ initialState, userId, joinError = null }: Pro
 
       {/* Status line (lobby only — the table shows its own status when playing) */}
       {!isPlaying && (
-        <div className="rounded-xl px-4 py-2.5 flex items-center justify-center gap-3 text-[13.5px] font-semibold bg-black/20 border border-[var(--tl-gold)]/25 text-[#fdeedd]">
-          <span className="flex-1 max-w-[160px] h-2 rounded-full bg-black/30 overflow-hidden">
+        <div className="rounded-xl px-4 py-2.5 flex items-center justify-center gap-3 text-[13.5px] font-semibold bg-[var(--tl-surface-muted)] border border-[var(--tl-border)] text-[var(--tl-text)]">
+          <span className="flex-1 max-w-[160px] h-2 rounded-full bg-[var(--tl-red)]/12 overflow-hidden">
             <span
-              className="block h-full rounded-full bg-gradient-to-r from-[var(--tl-gold)] to-[var(--tl-gold-bright)] transition-[width] duration-300"
+              className="block h-full rounded-full bg-[var(--tl-red)] transition-[width] duration-300"
               style={{ width: `${Math.min(100, (readyCount / Math.max(MIN_READY_TO_START, seats.length || 1)) * 100)}%` }}
             />
           </span>
@@ -486,11 +486,11 @@ export default function TlmnRoom({ initialState, userId, joinError = null }: Pro
                 </>
               ) : (
                 <>
-                  <div className="w-12 h-12 rounded-full border-2 border-dashed border-[var(--tl-gold)]/45 flex items-center justify-center text-[var(--tl-gold-bright)]/70 flex-none">
+                  <div className="w-12 h-12 rounded-full border-2 border-dashed border-[var(--tl-border-strong)] flex items-center justify-center text-[var(--tl-text-soft)]/60 flex-none">
                     <TlmnSeatIcon className="w-6 h-6" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-[12.5px] text-[#fdeedd]/75 leading-snug font-medium">{t('empty_seat')}</p>
+                    <p className="text-[12.5px] text-[var(--tl-text-soft)] leading-snug font-medium">{t('empty_seat')}</p>
                     {isHost ? (
                       <div className="mt-1.5 flex items-center gap-1.5 flex-wrap">
                         {/* PRIMARY: invite a real player. SECONDARY: fill with a bot. */}
@@ -507,13 +507,13 @@ export default function TlmnRoom({ initialState, userId, joinError = null }: Pro
                           type="button"
                           onClick={handleAddBot}
                           disabled={isBotPending}
-                          className="inline-flex items-center gap-1 text-[11.5px] font-semibold text-[var(--tl-gold-bright)] hover:text-white border border-[var(--tl-gold)]/35 hover:border-[var(--tl-gold)]/60 rounded-lg px-2.5 py-1.5 transition-colors disabled:opacity-50"
+                          className="tl-btn-secondary inline-flex items-center gap-1 text-[11.5px] px-2.5 py-1.5 disabled:opacity-50"
                         >
                           <TlmnBot className="w-3.5 h-3.5" /> {t('add_bot')}
                         </button>
                       </div>
                     ) : (
-                      <p className="mt-1 text-[11px] text-[#fdeedd]/45">{t('waiting_players')}</p>
+                      <p className="mt-1 text-[11px] text-[var(--tl-text-soft)]/70">{t('waiting_players')}</p>
                     )}
                   </div>
                 </>
@@ -540,7 +540,7 @@ export default function TlmnRoom({ initialState, userId, joinError = null }: Pro
             className={`flex-1 inline-flex items-center justify-center gap-1.5 font-bold text-[14px] px-6 py-3.5 rounded-2xl transition-all disabled:opacity-60 ${
               mySeat.is_ready
                 ? 'bg-emerald-50 border border-emerald-300 text-emerald-700 hover:bg-emerald-100'
-                : 'tl-btn-gold'
+                : 'tl-btn-primary'
             }`}
           >
             {mySeat.is_ready ? <><TlmnCheck className="w-4 h-4" /> {t('unready_btn')}</> : t('ready_btn')}
@@ -560,8 +560,8 @@ export default function TlmnRoom({ initialState, userId, joinError = null }: Pro
 
       {/* Disabled-start hint as a friendly note (host can't start yet) */}
       {isHost && !canStart && (
-        <div className="-mt-1 flex items-start justify-center gap-2 rounded-xl bg-black/20 border border-[var(--tl-gold)]/25 px-4 py-2.5 text-[12px] font-medium text-[#fdeedd]/80 text-center">
-          <TlmnSuits className="w-4 h-4 mt-px text-[var(--tl-gold-bright)]/70 flex-none" />
+        <div className="-mt-1 flex items-start justify-center gap-2 rounded-xl bg-[var(--tl-surface-muted)] border border-[var(--tl-border)] px-4 py-2.5 text-[12px] font-medium text-[var(--tl-text-soft)] text-center">
+          <TlmnSuits className="w-4 h-4 mt-px text-[var(--tl-red)]/50 flex-none" />
           <span>{t('start_btn_need_ready', { n: MIN_READY_TO_START })}</span>
         </div>
       )}
@@ -574,14 +574,14 @@ export default function TlmnRoom({ initialState, userId, joinError = null }: Pro
           <button
             onClick={handleLeave}
             disabled={isPending}
-            className="self-center font-medium text-[13px] px-5 py-2.5 rounded-xl border border-[var(--tl-gold)]/30 text-[#fdeedd]/80 hover:bg-black/20 transition-all disabled:opacity-60"
+            className="self-center font-medium text-[13px] px-5 py-2.5 rounded-xl border border-[var(--tl-border-strong)] text-[var(--tl-text-soft)] hover:bg-[var(--tl-surface-muted)] hover:text-[var(--tl-red)] transition-all disabled:opacity-60"
           >
             {t('leave_btn')}
           </button>
 
           <Link
             href="/games/tlmn"
-            className="text-[12.5px] text-[#fdeedd]/55 hover:text-[var(--tl-gold-bright)] transition-colors text-center"
+            className="text-[12.5px] text-[var(--tl-text-soft)]/80 hover:text-[var(--tl-red)] transition-colors text-center"
           >
             ← {t('back_lobby')}
           </Link>

@@ -1030,33 +1030,43 @@ img {
    touches + playing-card suit motifs, harmonised with the in-game table (.tlmn-stage).
    ════════════════════════════════════════════════════════════════════════════════ */
 .tlmn-lobby {
-  --tl-red:         #7c1226;
-  --tl-red-deep:    #520915;
-  --tl-red-bright:  #ad1f37;
-  --tl-gold:        #e3b23c;
-  --tl-gold-deep:   #b07d1c;
-  --tl-gold-bright: #f6d989;
-  --tl-cream:       #fbf2db;
-  --tl-cream-line:  #ead8b0;
+  /* Brand burgundy — used as an ACCENT (buttons, headings, active states), not as a
+     full-page fill. Cleaner/slightly brighter than the old near-black red so it reads
+     well as text + small accents on the ivory surfaces. */
+  --tl-red:         #8a1a30;
+  --tl-red-deep:    #6a1224;
+  --tl-red-bright:  #a8324a;
+  --tl-primary-soft: rgba(138,26,48,0.08);
+  /* Muted antique gold — RARE premium accent only (coins, host badge, hairlines). */
+  --tl-gold:        #c89b3c;
+  --tl-gold-deep:   #9c7322;
+  --tl-gold-bright: #e6c668;
+  /* Warm ivory / cream surface system (the dominant ~70%). */
+  --tl-page:        #fbf4e6;
+  --tl-surface:     #fffdf8;
+  --tl-surface-muted: #f4ecd9;
+  --tl-cream:       #fbf4e6;
+  --tl-cream-line:  #e7dcc4;
+  --tl-border:      #e7dcc4;
+  --tl-border-strong: #d8c8a6;
   --tl-felt:        #1f5638;
   --tl-ink:         #2a0c12;
-  --tl-text:        #3d1117;
-  --tl-text-soft:   #8a5b50;
+  /* Warm espresso text (neutral-leaning, not red) for comfortable long reading. */
+  --tl-text:        #3a2519;
+  --tl-text-soft:   #8a7464;
 
   position: relative;
   isolation: isolate;
-  border-radius: 26px;
+  border-radius: 24px;
   padding: clamp(16px, 3vw, 30px);
   color: var(--tl-text);
-  background:
-    radial-gradient(120% 90% at 50% -10%, #9a1c33 0%, #7c1226 38%, #5c0d1c 72%, #470a16 100%);
-  box-shadow:
-    inset 0 0 0 1px rgba(246,217,137,0.28),
-    inset 0 0 0 4px rgba(82,9,21,0.55),
-    inset 0 0 0 5px rgba(246,217,137,0.16),
-    0 30px 70px -32px rgba(50,6,14,0.7);
+  /* Light ivory page surface — a calm warm card, NOT a saturated red block. Separated
+     from the page behind it by one restrained warm border + a single soft ambient shadow. */
+  background: linear-gradient(180deg, #fdf9f0 0%, var(--tl-page) 100%);
+  border: 1px solid var(--tl-cream-line);
+  box-shadow: 0 18px 46px -30px rgba(74,40,20,0.30);
 }
-/* Faint card-suit damask + a centre medallion, very low opacity — premium texture. */
+/* One faint card-suit dot texture — barely-there premium warmth, no red wash. */
 .tlmn-lobby::before {
   content: "";
   position: absolute;
@@ -1064,146 +1074,134 @@ img {
   z-index: -1;
   border-radius: inherit;
   pointer-events: none;
-  opacity: 0.6;
+  opacity: 0.5;
   background-image:
-    radial-gradient(circle, rgba(246,217,137,0.07) 0.6px, transparent 0.7px);
-  background-size: 9px 9px;
-}
-.tlmn-lobby::after {
-  content: "";
-  position: absolute;
-  left: 50%; top: 0;
-  width: min(360px, 60%); aspect-ratio: 1;
-  transform: translate(-50%, -42%);
-  z-index: -1;
-  pointer-events: none;
-  opacity: 0.07;
-  background:
-    radial-gradient(circle at 50% 50%, transparent 40%, var(--tl-gold-bright) 41% 43%, transparent 44%),
-    radial-gradient(circle at 50% 50%, transparent 28%, var(--tl-gold-bright) 29% 31%, transparent 32%);
+    radial-gradient(circle, rgba(138,26,48,0.04) 0.6px, transparent 0.7px);
+  background-size: 11px 11px;
 }
 
 /* ── Hero band — deep red felt with a gold filigree frame + suit-motif corner art ── */
+/* ── Hero band — the ONE restrained burgundy brand moment (single solid wash + a thin
+   gold hairline). No stacked inset rings, no heavy glow. ── */
 .tl-hero {
   position: relative;
   overflow: hidden;
   border-radius: 20px;
-  padding: clamp(20px, 4vw, 34px);
-  background:
-    linear-gradient(135deg, #8e1830 0%, #6f0f22 55%, #560b18 100%);
-  box-shadow:
-    inset 0 0 0 1.5px var(--tl-gold-deep),
-    inset 0 0 0 3px rgba(246,217,137,0.22),
-    inset 0 1px 0 rgba(255,255,255,0.08),
-    0 12px 34px -18px rgba(0,0,0,0.6);
+  padding: clamp(20px, 4vw, 32px);
+  background: linear-gradient(135deg, #8a1a30 0%, #6a1224 100%);
+  border: 1px solid rgba(200,155,60,0.30);
+  box-shadow: 0 14px 30px -22px rgba(74,10,22,0.55);
 }
 .tl-hero__suit {
   position: absolute;
   right: -14px; top: -14px;
   width: clamp(110px, 22vw, 168px);
   color: var(--tl-gold-bright);
-  opacity: 0.12;
+  opacity: 0.10;
   pointer-events: none;
   transform: rotate(8deg);
 }
 
-/* ── Cream panel — warm parchment surface with gold trim (content cards) ── */
+/* ── Standard light card — warm white, one warm border, a single soft shadow ── */
 .tl-panel {
   position: relative;
-  border-radius: 18px;
-  background: linear-gradient(180deg, #fdf7e8 0%, var(--tl-cream) 100%);
-  border: 1px solid var(--tl-cream-line);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.7),
-    0 10px 26px -16px rgba(50,6,14,0.45);
+  border-radius: 16px;
+  background: var(--tl-surface);
+  border: 1px solid var(--tl-border);
+  box-shadow: 0 4px 14px -10px rgba(74,40,20,0.22);
 }
+/* Subtle secondary card — a touch warmer + a faint burgundy-tinted border. No gold ring. */
 .tl-panel--accent {
-  border-color: rgba(227,178,60,0.55);
-  box-shadow:
-    inset 0 0 0 1px rgba(246,217,137,0.5),
-    0 14px 32px -16px rgba(50,6,14,0.5);
+  background: linear-gradient(180deg, var(--tl-surface) 0%, var(--tl-cream) 100%);
+  border-color: rgba(138,26,48,0.16);
 }
 
-/* ── Dark felt panel — the wallet & code bars (gold text on deep wood) ── */
+/* ── Dark utility surface — wallet balance + room-code bars only (espresso, calm) ── */
 .tl-panel-dark {
   position: relative;
   overflow: hidden;
-  border-radius: 18px;
-  background:
-    radial-gradient(120% 140% at 100% 0%, #3a1410 0%, #2a0c12 55%, #1c0509 100%);
-  box-shadow:
-    inset 0 0 0 1px rgba(246,217,137,0.32),
-    inset 0 0 0 4px rgba(0,0,0,0.25),
-    0 12px 30px -16px rgba(0,0,0,0.55);
+  border-radius: 16px;
+  background: linear-gradient(155deg, #3c2a20 0%, #2a1c15 100%);
+  border: 1px solid rgba(230,198,104,0.22);
+  box-shadow: 0 8px 22px -16px rgba(40,20,10,0.5);
 }
 
-/* ── Primary CTA — red→gold gradient with a gold rim + warm glow ── */
+/* ── Primary CTA — solid muted burgundy, white text, one small refined shadow ── */
 .tl-btn-primary {
   position: relative;
-  border-radius: 16px;
-  color: #fff5e4;
-  font-weight: 800;
-  background: linear-gradient(135deg, var(--tl-red-bright) 0%, var(--tl-red) 60%, #6a0f20 100%);
-  box-shadow:
-    inset 0 0 0 1px var(--tl-gold-deep),
-    inset 0 1px 0 rgba(255,255,255,0.18),
-    0 10px 26px -8px rgba(124,18,38,0.6);
-  transition: filter .18s ease, transform .18s ease, box-shadow .18s ease;
+  border-radius: 14px;
+  color: #fff;
+  font-weight: 700;
+  background: var(--tl-red);
+  box-shadow: 0 6px 16px -9px rgba(138,26,48,0.5);
+  transition: background .16s ease, transform .16s ease, box-shadow .16s ease;
 }
-.tl-btn-primary:hover:not(:disabled) { filter: brightness(1.07); transform: translateY(-1px); }
-.tl-btn-primary:disabled { opacity: 0.55; }
+.tl-btn-primary:hover:not(:disabled) { background: var(--tl-red-bright); transform: translateY(-1px); }
+.tl-btn-primary:active:not(:disabled) { transform: translateY(0); }
+.tl-btn-primary:disabled { opacity: 0.45; }
+.tl-btn-primary:focus-visible { outline: 2px solid var(--tl-gold-deep); outline-offset: 2px; }
+
+/* ── Secondary — warm neutral surface, burgundy text, subtle border ── */
+.tl-btn-secondary {
+  border-radius: 14px;
+  font-weight: 700;
+  color: var(--tl-red);
+  background: var(--tl-surface);
+  border: 1px solid var(--tl-border-strong);
+  transition: background .15s ease, border-color .15s ease, transform .16s ease;
+}
+.tl-btn-secondary:hover:not(:disabled) { background: var(--tl-surface-muted); border-color: rgba(138,26,48,0.4); }
+.tl-btn-secondary:disabled { opacity: 0.5; }
+.tl-btn-secondary:focus-visible { outline: 2px solid var(--tl-red); outline-offset: 2px; }
+
+/* ── Gold — RESERVED for genuinely premium/coin actions (e.g. claim daily xu) ── */
 .tl-btn-gold {
-  border-radius: 16px;
-  color: #4a2c05;
-  font-weight: 800;
-  background: linear-gradient(135deg, var(--tl-gold-bright) 0%, var(--tl-gold) 55%, var(--tl-gold-deep) 100%);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.55),
-    0 10px 26px -8px rgba(176,125,28,0.55);
-  transition: filter .18s ease, transform .18s ease;
+  border-radius: 14px;
+  color: #43330f;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--tl-gold-bright) 0%, var(--tl-gold) 100%);
+  box-shadow: 0 6px 16px -9px rgba(156,115,34,0.45);
+  transition: filter .16s ease, transform .16s ease;
 }
-.tl-btn-gold:hover:not(:disabled) { filter: brightness(1.05); transform: translateY(-1px); }
-/* Secondary / outline action on the cream panels. */
+.tl-btn-gold:hover:not(:disabled) { filter: brightness(1.04); transform: translateY(-1px); }
+/* Tertiary / outline action. */
 .tl-btn-ghost {
   border-radius: 14px;
   font-weight: 700;
   color: var(--tl-red);
-  background: rgba(255,255,255,0.7);
-  border: 1px solid rgba(173,31,55,0.3);
+  background: transparent;
+  border: 1px solid var(--tl-border-strong);
   transition: background .15s ease, border-color .15s ease;
 }
-.tl-btn-ghost:hover:not(:disabled) { background: #fff; border-color: rgba(173,31,55,0.5); }
+.tl-btn-ghost:hover:not(:disabled) { background: var(--tl-surface-muted); border-color: rgba(138,26,48,0.4); }
 
-/* ── Section heading on the red felt (white serif + gold accent) ── */
-.tl-section-title { color: #fdeedd; }
-.tl-section-sub { color: rgba(253,238,221,0.7); }
+/* ── Section headings — dark espresso on the ivory surface ── */
+.tl-section-title { color: var(--tl-text); }
+.tl-section-sub { color: var(--tl-text-soft); }
 
 /* ── Seat cards (waiting room centerpiece) ── */
 .tl-seat {
   position: relative;
-  border-radius: 18px;
-  background: linear-gradient(180deg, #fdf7e8 0%, var(--tl-cream) 100%);
-  border: 1px solid var(--tl-cream-line);
-  box-shadow: 0 10px 24px -16px rgba(50,6,14,0.5);
+  border-radius: 16px;
+  background: var(--tl-surface);
+  border: 1px solid var(--tl-border);
+  box-shadow: 0 4px 14px -10px rgba(74,40,20,0.20);
   transition: border-color .18s ease, box-shadow .18s ease;
 }
 .tl-seat--me {
-  border-color: rgba(227,178,60,0.7);
-  box-shadow:
-    inset 0 0 0 1.5px rgba(246,217,137,0.6),
-    0 12px 28px -14px rgba(124,18,38,0.45);
+  border-color: rgba(138,26,48,0.45);
+  box-shadow: 0 6px 18px -12px rgba(138,26,48,0.32);
 }
+/* Empty slot — quiet, available-looking (muted surface + soft neutral dashed border). */
 .tl-seat--empty {
-  background:
-    repeating-linear-gradient(135deg, rgba(255,255,255,0.05) 0 10px, transparent 10px 20px),
-    rgba(255,253,247,0.06);
-  border: 1.5px dashed rgba(246,217,137,0.45);
+  background: var(--tl-surface-muted);
+  border: 1.5px dashed var(--tl-border-strong);
   box-shadow: none;
 }
-/* Gold avatar ring for seated players / host. */
+/* Gold avatar ring for seated players / host (a meaningful, rare gold accent). */
 .tl-avatar-ring {
   background:
-    linear-gradient(var(--tl-cream), var(--tl-cream)) padding-box,
+    linear-gradient(var(--tl-surface), var(--tl-surface)) padding-box,
     linear-gradient(135deg, var(--tl-gold-bright), var(--tl-gold-deep)) border-box;
   border: 2px solid transparent;
 }

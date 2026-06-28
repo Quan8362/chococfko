@@ -76,7 +76,7 @@ export default function TlmnWaitingRooms({ initialRooms, userId }: Props) {
   return (
     <div className="mt-8">
       <h2 className="font-serif font-bold text-[20px] tl-section-title mb-1 flex items-center gap-2.5">
-        <span className="w-9 h-9 rounded-xl bg-black/20 text-[var(--tl-gold-bright)] flex items-center justify-center ring-1 ring-[var(--tl-gold)]/30">
+        <span className="w-9 h-9 rounded-xl bg-[var(--tl-red)]/8 text-[var(--tl-red)] flex items-center justify-center ring-1 ring-[var(--tl-red)]/15">
           <TlmnHourglass className="w-5 h-5" />
         </span>
         {t('lobby_title')}
@@ -101,7 +101,7 @@ export default function TlmnWaitingRooms({ initialRooms, userId }: Props) {
           {rooms.map(room => (
             <div
               key={room.id}
-              className="tl-panel flex items-center gap-4 px-4 py-3.5 hover:border-[var(--tl-gold)] transition-colors"
+              className="tl-panel flex items-center gap-4 px-4 py-3.5 hover:border-[var(--tl-red)]/40 transition-colors"
             >
               <Avatar name={room.host_name} url={room.host_avatar} />
 

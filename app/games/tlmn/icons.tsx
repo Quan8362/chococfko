@@ -93,13 +93,18 @@ export function TlmnHourglass({ className }: IconProps) {
   )
 }
 
-// ── Empty-seat chair / "+" (open seat at the table) ──
+// ── Empty seat — a clean "open player" silhouette + a small "+" badge, reading as a
+// seat waiting for a person (clearer than the old tiny chair). Filled so it stays crisp
+// at small sizes inside the dashed seat ring. ──
 export function TlmnSeat({ className }: IconProps) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path d="M6 4.5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v6H6v-6Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
-      <path d="M4.5 10.5h15a1.5 1.5 0 0 1 1.5 1.5c0 1.7-1.4 3-3 3H6a3 3 0 0 1-3-3 1.5 1.5 0 0 1 1.5-1.5Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
-      <path d="M6.5 15v4.5M17.5 15v4.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+      <circle cx="11" cy="8" r="3.6" fill="currentColor" />
+      <path d="M4.4 18.8c0-3.5 2.95-6 6.6-6 1.5 0 2.86.42 3.96 1.14a5.2 5.2 0 0 0-.96 6.16c-.18.36-.55.6-.99.6H5.5c-.6 0-1.1-.48-1.1-1.06v-.84Z" fill="currentColor" />
+      <g>
+        <circle cx="18" cy="16.5" r="4.4" fill="currentColor" />
+        <path d="M18 14.4v4.2M15.9 16.5h4.2" stroke="var(--tl-red-deep, #520915)" strokeWidth="1.5" strokeLinecap="round" />
+      </g>
     </svg>
   )
 }

@@ -341,7 +341,7 @@ export default function TlmnRoom({ initialState, userId, joinError = null }: Pro
       <div className="tl-panel-dark w-full px-5 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <TlmnSuits className="absolute right-2 -top-2 w-24 h-24 text-[var(--tl-gold-bright)] opacity-[0.08] pointer-events-none rotate-6" />
         <div className="relative">
-          <p className="text-[10.5px] font-bold uppercase tracking-[2px] text-[var(--tl-gold-bright)]/60 mb-1">{t('room_code_label')}</p>
+          <p className="text-[11px] font-bold uppercase tracking-[2px] text-[#fdeedd]/85 mb-1">{t('room_code_label')}</p>
           <p className="font-mono font-black text-[30px] text-[var(--tl-gold-bright)] tracking-[0.2em] leading-none [text-shadow:0_2px_10px_rgba(0,0,0,0.4)]">
             {room.invite_code}
           </p>

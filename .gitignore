@@ -17,3 +17,8 @@ data/source/JMdict_e.gz
 # Python bytecode cache
 __pycache__/
 *.pyc
+
+# Playwright test artifacts (generated; do not commit)
+/test-results/
+/playwright-report/
+/e2e/screenshots/

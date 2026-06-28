@@ -9,7 +9,8 @@ import { useCallback, useEffect, useSyncExternalStore } from 'react'
 const LS_KEY = 'tlmn-muted'
 
 export type TlmnSoundName =
-  | 'deal' | 'play' | 'pass' | 'turn' | 'chat' | 'win' | 'toitrang'
+  | 'deal' | 'play' | 'pass' | 'turn' | 'chat' | 'win' | 'toitrang' | 'react'
+  | 'sparkle' | 'pop' | 'splat'
 
 type ToneSpec = { f: number; t: number; dur: number; type?: OscillatorType; vol?: number; slideTo?: number }
 
@@ -37,6 +38,20 @@ const SOUNDS: Record<TlmnSoundName, ToneSpec[]> = {
     { f: 784, t: 0.24, dur: 0.14, type: 'triangle', vol: 0.2 },
     { f: 1047, t: 0.36, dur: 0.3, type: 'triangle', vol: 0.22 },
   ],
+  // light, friendly two-note blip for a player reaction/emote — quieter than gameplay
+  react: [
+    { f: 660, t: 0, dur: 0.07, type: 'sine', vol: 0.1, slideTo: 880 },
+    { f: 990, t: 0.06, dur: 0.08, type: 'sine', vol: 0.09 },
+  ],
+  // bright shimmer — flower bloom
+  sparkle: [
+    { f: 1320, t: 0, dur: 0.08, type: 'sine', vol: 0.09, slideTo: 1760 },
+    { f: 1980, t: 0.07, dur: 0.1, type: 'sine', vol: 0.08, slideTo: 2640 },
+  ],
+  // soft rounded pop — heart / laugh
+  pop: [{ f: 520, t: 0, dur: 0.09, type: 'sine', vol: 0.12, slideTo: 760 }],
+  // short wet thud — tomato / egg splat
+  splat: [{ f: 240, t: 0, dur: 0.12, type: 'sawtooth', vol: 0.14, slideTo: 90 }],
   // distinct tới-trắng sting — brighter, sparkly, longer
   toitrang: [
     { f: 784, t: 0, dur: 0.13, type: 'sine', vol: 0.22 },

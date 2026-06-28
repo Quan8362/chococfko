@@ -446,6 +446,116 @@ body::before {
 }
 .tlmn-chrome:hover { background: rgba(0,0,0,0.5); color: #fff; }
 .tlmn-chrome:focus-visible { outline: 2px solid #ffd1e0; outline-offset: 2px; }
+/* Player-interaction phrase bubble (Phase 1) — a compact speech bubble that pops near a
+   seat's avatar. pointer-events:none is set on the wrapper; this is purely visual. */
+.tlmn-react-bubble {
+  display: inline-flex; align-items: center; gap: 5px;
+  max-width: 150px; padding: 5px 10px; border-radius: 14px;
+  background: rgba(255,255,255,0.97); color: #2a1a22;
+  font-size: 12px; font-weight: 700; line-height: 1.15;
+  box-shadow: 0 6px 18px -6px rgba(0,0,0,0.55), 0 0 0 1px rgba(0,0,0,0.06);
+  transform-origin: center bottom;
+  animation: tlmnReactBubble 3.2s ease-out both;
+}
+@keyframes tlmnReactBubble {
+  0%   { opacity: 0; transform: translateY(6px) scale(0.8); }
+  8%   { opacity: 1; transform: translateY(0) scale(1.04); }
+  16%  { transform: translateY(0) scale(1); }
+  85%  { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-4px) scale(0.96); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tlmn-react-bubble { animation: tlmnReactBubbleRM 3.2s linear both; }
+  @keyframes tlmnReactBubbleRM { 0%,90% { opacity: 1; } 100% { opacity: 0; } }
+}
+
+/* ── Throwable impact bursts (Phase 2) ──────────────────────────────────────────────
+   Rendered centred on the target avatar (parent applies translate(-50%,-50%)). A zero-
+   size positioned anchor whose children (ring, core glyph, particles) animate outward. */
+.tlmn-impact { position: relative; display: inline-block; width: 0; height: 0; }
+.tlmn-impact-core {
+  position: absolute; left: 0; top: 0; font-size: 30px; line-height: 1;
+  transform: translate(-50%, -50%); animation: tlmnImpactCore .72s ease-out both;
+}
+@keyframes tlmnImpactCore {
+  0%   { opacity: 0; transform: translate(-50%,-50%) scale(.3); }
+  25%  { opacity: 1; transform: translate(-50%,-50%) scale(1.25); }
+  60%  { transform: translate(-50%,-50%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%,-50%) scale(1.05); }
+}
+.tlmn-impact-ring {
+  position: absolute; left: 0; top: 0; width: 12px; height: 12px; border-radius: 999px;
+  transform: translate(-50%, -50%); border: 3px solid rgba(255,255,255,.85);
+  animation: tlmnImpactRing .62s ease-out both;
+}
+@keyframes tlmnImpactRing {
+  0%   { opacity: .9; width: 10px; height: 10px; }
+  100% { opacity: 0; width: 92px; height: 92px; }
+}
+.tlmn-impact--bloom    .tlmn-impact-ring { border-color: rgba(255,180,210,.9); }
+.tlmn-impact--hearts   .tlmn-impact-ring { border-color: rgba(255,120,150,.9); }
+.tlmn-impact--boom     .tlmn-impact-ring { border-color: rgba(255,170,60,.95); }
+.tlmn-impact--splat    .tlmn-impact-ring { border-color: rgba(220,70,60,.85); }
+.tlmn-impact--confetti .tlmn-impact-ring { border-color: rgba(255,215,120,.9); }
+.tlmn-impact--flash    .tlmn-impact-ring { border-color: rgba(255,255,200,.95); }
+.tlmn-impact--emoji    .tlmn-impact-ring { border-color: rgba(255,255,255,.7); }
+/* Bomb: a brief shake on the burst (the "shake the target" beat). */
+.tlmn-impact--boom .tlmn-impact-core { animation: tlmnImpactBoom .72s ease-out both; }
+@keyframes tlmnImpactBoom {
+  0%   { opacity: 0; transform: translate(-50%,-50%) scale(.3); }
+  18%  { opacity: 1; transform: translate(-50%,-50%) scale(1.5); }
+  30%  { transform: translate(-54%,-50%) scale(1.3) rotate(-7deg); }
+  42%  { transform: translate(-46%,-50%) scale(1.3) rotate(7deg); }
+  60%  { transform: translate(-50%,-50%) scale(1.1); }
+  100% { opacity: 0; transform: translate(-50%,-50%) scale(1.15); }
+}
+.tlmn-impact-particle {
+  position: absolute; left: 0; top: 0; font-size: 14px; line-height: 1; opacity: 0;
+  transform: translate(-50%, -50%);
+}
+.tlmn-impact-particle--0 { animation: tlmnPart0 .72s ease-out both; }
+.tlmn-impact-particle--1 { animation: tlmnPart1 .72s ease-out both; }
+.tlmn-impact-particle--2 { animation: tlmnPart2 .72s ease-out both; }
+@keyframes tlmnPart0 { 0% { opacity: 0; transform: translate(-50%,-50%) scale(.4); } 25% { opacity: 1; } 100% { opacity: 0; transform: translate(-150%,-185%) scale(1); } }
+@keyframes tlmnPart1 { 0% { opacity: 0; transform: translate(-50%,-50%) scale(.4); } 25% { opacity: 1; } 100% { opacity: 0; transform: translate(55%,-205%) scale(1); } }
+@keyframes tlmnPart2 { 0% { opacity: 0; transform: translate(-50%,-50%) scale(.4); } 25% { opacity: 1; } 100% { opacity: 0; transform: translate(-205%,-55%) scale(1); } }
+/* Reduced-motion: a brief static glyph, no movement. */
+.tlmn-impact-static { display: inline-block; transform: translate(-50%,-50%); animation: tlmnImpactStatic .72s linear both; }
+@keyframes tlmnImpactStatic { 0%,70% { opacity: 1; } 100% { opacity: 0; } }
+
+/* ── Target-selection pick ring (Phase 2) ───────────────────────────────────────────
+   A ≥44px circular tap target centred on an opponent avatar (parent supplies the seat
+   transform). The dashed cyan ring pulses to signal "tap to send here". */
+.tlmn-target-pick {
+  width: 64px; height: 64px; border-radius: 999px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: transparent; cursor: pointer; border: 0; padding: 0;
+}
+.tlmn-target-pick:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.tlmn-target-ring {
+  width: 56px; height: 56px; border-radius: 999px;
+  border: 3px dashed rgba(127,227,240,.95); box-shadow: 0 0 16px rgba(127,227,240,.55);
+  animation: tlmnTargetPulse 1s ease-in-out infinite;
+}
+@keyframes tlmnTargetPulse {
+  0%, 100% { transform: scale(1); opacity: .8; }
+  50%      { transform: scale(1.12); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tlmn-target-ring { animation: none; }
+}
+
+/* Opponent seat menu trigger (Phase 4) — a small ⋯ button at the seat corner. */
+.tlmn-seat-menu-btn {
+  width: 22px; height: 22px; border-radius: 999px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.5); color: rgba(255,255,255,0.9);
+  font-size: 13px; font-weight: 900; line-height: 1; padding-bottom: 4px;
+  border: 1px solid rgba(255,255,255,0.2); cursor: pointer;
+}
+.tlmn-seat-menu-btn:hover { background: rgba(0,0,0,0.72); color: #fff; }
+.tlmn-seat-menu-btn:focus-visible { outline: 2px solid #fff; outline-offset: 1px; }
+
 /* Hand tray (Run 8) — NO heavy cream panel. The hand is a low fan sitting directly on
    the felt; the dock-scrim behind it gives just enough separation. A whisper-thin dark
    strip keeps the cards grouped without reading as a slab pasted over the board. */

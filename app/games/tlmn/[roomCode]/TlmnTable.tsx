@@ -12,12 +12,18 @@ import {
 } from '@/lib/games/tlmn/engine'
 import {
   fetchGameState, fetchMyHand, playCards, passTurn, tickTurnTimer, startNextRound, runBotTurn,
+  fetchInteractionCatalog, spendInteraction, reportPlayer,
   type TlmnPublicGame, type TlmnSeat,
 } from '../actions'
 import { getWallet } from '../wallet'
 import { motion } from 'framer-motion'
 import { CardFace, CardBack, OpponentFan, BotAvatar } from './TlmnCard'
-import { useTlmnSound } from './useTlmnSound'
+import { useTlmnSound, type TlmnSoundName } from './useTlmnSound'
+import { useTlmnInteractions, usePlayerMutes } from './useTlmnInteractions'
+import { ReactionControl, PhraseBubbleLayer, ThrowableLayer, OpponentMenu, ReportDialog } from './TlmnInteractions'
+import {
+  getThrowable, resolveConfig, type CatalogConfig, type ReportReason,
+} from '@/lib/games/tlmn/interactions'
 import { TRANSITIONS, DURATIONS, EASINGS, MS } from '@/lib/games/motion'
 import { useFullscreenLandscape } from '@/hooks/useFullscreenLandscape'
 
@@ -252,6 +258,71 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
     }).catch(() => {})
   }, [])
   useEffect(() => { refreshBalance() }, [refreshBalance])
+
+  // ── Phase 3 — admin-configurable interaction economy ────────────────────────────────
+  // Fetch the catalog config (cost / free-limit / enabled) once; visuals stay in code. A
+  // key absent from the map is treated as enabled + free. Disabled items are hidden in the
+  // panel. Empty map (pre-migration / error) ⇒ everything free, so the feature degrades safely.
+  const [catalogMap, setCatalogMap] = useState<Map<string, CatalogConfig>>(new Map())
+  useEffect(() => {
+    let alive = true
+    fetchInteractionCatalog()
+      .then(rows => { if (alive && mountedRef.current) setCatalogMap(new Map(rows.map(r => [r.key, r]))) })
+      .catch(() => {})
+    return () => { alive = false }
+  }, [])
+
+  // Phase 4 — per-player mute (client-only) + the opponent context menu / report dialog.
+  const playerMutes = usePlayerMutes()
+  const seatUserId = (seat: number): string | null => {
+    const s = seats.find(x => x.seat_index === seat)
+    return s && !s.is_bot ? (s.user_id ?? null) : null
+  }
+  const [menuSeat, setMenuSeat] = useState<number | null>(null)
+  const [reportSeat, setReportSeat] = useState<number | null>(null)
+  const [reportSent, setReportSent] = useState(false)
+
+  // ── Player interactions (Phase 1 bubbles + Phase 2 throwables + Phase 3 coin gate) ──
+  // A transient broadcast layer kept fully separate from the authoritative game channel
+  // (a reaction can never reorder a trick or delay a turn). onSpend server-validates a PAID
+  // throwable BEFORE it's broadcast; always-free items skip the round-trip (instant).
+  const interactions = useTlmnInteractions({
+    roomId,
+    mySeat,
+    // Per-player mute: drop incoming events from a seat whose (human) user is muted by me.
+    isSeatMuted: (seat: number) => playerMutes.isMuted(seatUserId(seat)),
+    onSound: () => { if (!sound.muted && !reducedRef.current) sound.play('react') },
+    onThrowImpact: (key: string) => {
+      const def = getThrowable(key)
+      if (!def) return
+      if (!sound.muted) sound.play(def.sound as TlmnSoundName)
+      if (def.vibrate && !reducedRef.current) sound.vibrate([0, 40, 30, 60])
+    },
+    onSpend: async (key, eventId) => {
+      const cfg = resolveConfig(key, catalogMap)
+      if (cfg.alwaysFree) return { ok: true } // no server round-trip for always-free items
+      const res = await spendInteraction(roomId, key, eventId)
+      if (res.ok) {
+        if (mountedRef.current) { setMyBalance(res.balance); balanceRef.current = res.balance }
+        return { ok: true }
+      }
+      return { ok: false, reason: res.error === 'insufficient_coins' ? 'insufficient' : 'error' }
+    },
+  })
+  // Phase 2 — throwable target-selection mode (the picked item key, or null) + a brief
+  // localized cooldown / insufficient-coins flash.
+  const [targetingKey, setTargetingKey] = useState<string | null>(null)
+  const [reactCooldown, setReactCooldown] = useState(false)
+  const [reactNotice, setReactNotice] = useState<string | null>(null)
+  const reactCdTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  useEffect(() => () => { if (reactCdTimer.current) clearTimeout(reactCdTimer.current) }, [])
+  // Escape cancels target-selection cleanly (parity with the panel's Escape/outside-close).
+  useEffect(() => {
+    if (!targetingKey) return
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setTargetingKey(null) }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [targetingKey])
 
   const refreshHand = useCallback(() => {
     fetchMyHand(roomId).then(h => {
@@ -787,6 +858,60 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
   // The exclusive centre band: a flex strip whose top sits below the top seat and whose
   // bottom stays above the hand dock, so the pile/banner own their own vertical space.
   const centerWrapStyle: CSSProperties = { top: `${geom.band.top}%`, bottom: `${100 - geom.band.bottom}%` }
+  // Phrase bubbles reuse the SAME seat geometry as the pods, so a bubble always hangs off
+  // the correct avatar at every breakpoint (my seat → bottom dock, others → their felt edge).
+  const bubblePlace = (seat: number): string => (mySeat != null && seat === mySeat ? 'bottom' : placeOfSeat(seat))
+  const bubbleAnchor = (seat: number): CSSProperties => seatStyle(bubblePlace(seat))
+  // Pixel coords of a seat's avatar within the board box — the SAME % geometry the pods
+  // use, scaled by the board's measured pixel size (dealW/dealH). Feeds the throwable arc.
+  const throwCoord = (seat: number): { x: number; y: number } => {
+    const a = geom.seats[(bubblePlace(seat) as 'top' | 'left' | 'right' | 'bottom')] ?? geom.seats.top
+    return { x: (a.x / 100) * dealW, y: (a.y / 100) * dealH }
+  }
+  const flashReactCooldown = (notice?: string) => {
+    setReactNotice(notice ?? null)
+    setReactCooldown(true)
+    if (reactCdTimer.current) clearTimeout(reactCdTimer.current)
+    reactCdTimer.current = setTimeout(() => { if (mountedRef.current) { setReactCooldown(false); setReactNotice(null) } }, 1800)
+  }
+  const throwAt = (seat: number) => {
+    if (!targetingKey) return
+    const key = targetingKey
+    setTargetingKey(null)
+    void interactions.sendThrowable(key, seat).then(res => {
+      if (!mountedRef.current) return
+      if (res === 'insufficient') flashReactCooldown(t('react_insufficient'))
+      else if (res === 'error') flashReactCooldown(t('react_send_failed'))
+      else if (res === 'cooldown') flashReactCooldown()
+    })
+  }
+  // ── Phase 4: opponent context menu + report ──────────────────────────────────────────
+  const openSeatMenu = (seat: number) => {
+    if (targetingKey) return                       // targeting owns the seats during a throw
+    if (mySeat != null && seat === mySeat) return  // not my own seat
+    if (!seatUserId(seat)) return                  // human opponents only (no bots)
+    setMenuSeat(seat)
+  }
+  const handleMutePlayer = (seat: number) => {
+    const uid = seatUserId(seat)
+    if (uid) playerMutes.toggle(uid)
+    setMenuSeat(null)
+  }
+  const handleSubmitReport = (reason: ReportReason) => {
+    const seat = reportSeat
+    setReportSeat(null)
+    if (seat == null) return
+    const uid = seatUserId(seat)
+    if (!uid) return
+    // Attach ONLY recent interaction keys/seats from this player — no chat, no PII.
+    const recent = { keys: interactions.getRecentForSeat(seat) }
+    void reportPlayer(uid, roomId, reason, recent).then(res => {
+      if (mountedRef.current && res.ok) {
+        setReportSent(true)
+        setTimeout(() => { if (mountedRef.current) setReportSent(false) }, 2400)
+      }
+    })
+  }
   const dealW = fullBleed ? (area.w || vw) : useImage ? board.w : feltW
   const dealH = fullBleed ? (area.h || vh) : useImage ? board.h : tableH
   const boardEntrance = reduced ? false : { opacity: 0, scale: 0.975 }
@@ -798,7 +923,10 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
     <>
       {/* Opponent / other seats. data-seat-slot drives the portrait corner-seat CSS
           (oval mode only); in image mode the anchors land seats in the painted slots. */}
-      {orderedOthers.map((idx, i) => (
+      {orderedOthers.map((idx, i) => {
+        const human = !!seatUserId(idx)
+        const playerMuted = human && playerMutes.isMuted(seatUserId(idx))
+        return (
         <div key={idx} data-seat-slot={slotList[i] ?? 'top'} className="tlmn-seat absolute z-10" style={seatStyle(slotList[i] ?? 'top')}>
           <SeatPod
             seat={seatOf(idx)}
@@ -820,8 +948,21 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
             reduced={reducedRef.current}
             t={t}
           />
+          {/* Phase 4: tap to mute/report this opponent (human seats only, not while targeting). */}
+          {human && !targetingKey && (
+            <button
+              type="button"
+              onClick={() => openSeatMenu(idx)}
+              aria-label={t('react_player_menu', { name: seatName(idx) })}
+              className="tlmn-seat-menu-btn absolute -top-1 -right-1 z-20"
+            >⋯</button>
+          )}
+          {playerMuted && (
+            <span className="absolute -bottom-0.5 -right-0.5 z-20 text-[12px] drop-shadow" title={t('react_muted_player')} aria-hidden>🔇</span>
+          )}
         </div>
-      ))}
+        )
+      })}
 
       {/* PROTECTED CENTRE PILE — the SINGLE place any played card renders. Its own exclusive
           band (z-20, above the seat wrappers at z-10) so the pile is never covered by an
@@ -937,6 +1078,80 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
           <span className="tlmn-banner-pop inline-flex items-center gap-1 rounded-lg bg-black/70 border border-white/20 px-2.5 py-1 text-[10.5px] font-bold text-white/90 whitespace-nowrap">
             ⚠️ {penaltyToast.label}
           </span>
+        </div>
+      )}
+
+      {/* Player-interaction phrase bubbles — anchored to each sender's avatar, transient,
+          pointer-events:none (never blocks card/button taps or shifts the layout). */}
+      <PhraseBubbleLayer bubbles={interactions.bubbles} anchorStyle={bubbleAnchor} placeOf={bubblePlace} t={t} />
+
+      {/* Throwables in flight + their impact bursts (Phase 2). */}
+      <ThrowableLayer throws={interactions.throws} coordOf={throwCoord} reduced={reduced} />
+
+      {/* Target-selection mode: dim backdrop (tap to cancel) + a pulsing pick ring over
+          each opponent avatar. Only opponents are selectable; tapping sends the item. */}
+      {targetingKey && (
+        <>
+          <button
+            type="button"
+            aria-label={t('react_cancel')}
+            onClick={() => setTargetingKey(null)}
+            className="absolute inset-0 z-[56] bg-black/45 backdrop-blur-[1px] cursor-pointer"
+          />
+          <div className="absolute left-1/2 -translate-x-1/2 z-[59] flex items-center gap-2 tlmn-banner-pop" style={{ top: '5%' }}>
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-paper/95 px-3 py-1.5 text-[12px] font-bold text-ink shadow-lg">
+              <span aria-hidden>{getThrowable(targetingKey)?.emoji}</span>
+              {t('react_pick_target')}
+            </span>
+            <button
+              type="button"
+              onClick={() => setTargetingKey(null)}
+              className="rounded-full bg-rose text-white px-3.5 py-1.5 text-[12px] font-bold hover:bg-rose-deep transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            >
+              {t('react_cancel')}
+            </button>
+          </div>
+          {orderedOthers.map((idx, i) => (
+            <button
+              key={idx}
+              type="button"
+              onClick={e => { e.stopPropagation(); throwAt(idx) }}
+              aria-label={t('react_send_item_to', { item: t(`react_item_${targetingKey}` as Parameters<typeof t>[0]), name: seatName(idx) })}
+              className="tlmn-target-pick absolute z-[58]"
+              style={seatStyle(slotList[i] ?? 'top')}
+            >
+              <span className="tlmn-target-ring" aria-hidden />
+            </button>
+          ))}
+        </>
+      )}
+
+      {/* Throwable notice flash — cooldown (rate-limited) or insufficient-coins/failed. */}
+      {reactCooldown && (
+        <div className="absolute left-1/2 -translate-x-1/2 z-[59] rounded-full bg-black/75 text-white text-[12px] font-semibold px-3.5 py-1.5 tlmn-banner-pop whitespace-nowrap" style={{ bottom: '16%' }}>
+          {reactNotice ?? t('react_cooldown')}
+        </div>
+      )}
+
+      {/* Phase 4: opponent context menu (mute / report) anchored at the seat. */}
+      {menuSeat != null && (
+        <OpponentMenu
+          style={seatStyle(bubblePlace(menuSeat))}
+          name={seatName(menuSeat)}
+          muted={playerMutes.isMuted(seatUserId(menuSeat))}
+          onMute={() => handleMutePlayer(menuSeat)}
+          onReport={() => { const s = menuSeat; setMenuSeat(null); setReportSeat(s) }}
+          onClose={() => setMenuSeat(null)}
+          t={t}
+        />
+      )}
+      {/* Report dialog (reason picker) — centered modal, kept below the chrome z so the exit stays usable. */}
+      {reportSeat != null && (
+        <ReportDialog name={seatName(reportSeat)} onSubmit={handleSubmitReport} onClose={() => setReportSeat(null)} t={t} />
+      )}
+      {reportSent && (
+        <div className="absolute left-1/2 -translate-x-1/2 z-[60] rounded-full bg-emerald-600 text-white text-[12px] font-semibold px-3.5 py-1.5 tlmn-banner-pop" style={{ bottom: '16%' }}>
+          {t('react_report_sent')}
         </div>
       )}
     </>
@@ -1272,6 +1487,21 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
                   <svg width={18} height={18} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4h4M4 4l5 5m11-5h-4m4 0v4m0-4l-5 5M4 16v4h4m-4 0l5-5m11 5h-4m4 0v-4m0 4l-5-5" /></svg>
                 )}
               </button>
+            )}
+            {/* Player reactions (taunts / emotes). Lives in the chrome toolbar so it never
+                overlaps cards, the centre pile, the sort/play/pass controls, or any seat.
+                HIDDEN for spectators (mySeat == null): they have no seat to anchor a bubble
+                to and sending would no-op, so we never show a clickable control that does
+                nothing — they still RECEIVE others' bubbles + can mute via... (n/a, hidden). */}
+            {mySeat != null && (
+              <ReactionControl
+                t={t}
+                sendPhrase={interactions.sendPhrase}
+                onPickThrowable={key => setTargetingKey(key)}
+                catalog={catalogMap}
+                muted={interactions.muted}
+                onToggleMuted={interactions.toggleMuted}
+              />
             )}
             <button type="button" onClick={sound.toggleMute} aria-label={sound.muted ? t('sound_off') : t('sound_on')} title={sound.muted ? t('sound_off') : t('sound_on')} className="tlmn-chrome">
               {sound.muted ? (

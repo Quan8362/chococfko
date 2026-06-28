@@ -1161,3 +1161,80 @@ async function seatIndexOf(admin: Admin, roomId: string, userId: string): Promis
     .from('tlmn_seats').select('seat_index').eq('room_id', roomId).eq('user_id', userId).maybeSingle()
   return data ? (data.seat_index as number) : null
 }
+
+// ── Phase 3: interaction economy (server-validated coin spend) ──────────────────────
+export type InteractionCatalogRow = {
+  key: string; coin_cost: number; free_daily_limit: number; is_enabled: boolean
+}
+
+// Public config (enabled AND disabled rows) so the client can hide disabled items and show
+// prices. Visuals live in code; only economy/enable fields come from the DB. Empty on any
+// error or before the migration is applied ⇒ the client falls back to "all items free".
+export async function fetchInteractionCatalog(): Promise<InteractionCatalogRow[]> {
+  const supabase = createClient()
+  const { data, error } = await supabase
+    .from('game_interaction_catalog')
+    .select('key, coin_cost, free_daily_limit, is_enabled')
+  if (error || !data) return []
+  return data.map(r => ({
+    key: r.key as string,
+    coin_cost: Number(r.coin_cost ?? 0),
+    free_daily_limit: Number(r.free_daily_limit ?? 0),
+    is_enabled: !!r.is_enabled,
+  }))
+}
+
+// Server-authoritative spend for a paid interaction. Called BEFORE the client broadcasts a
+// throwable; the client only emits on { ok }. Deduction is atomic + idempotent (event id)
+// inside spend_interaction(). Never deducts on a failed validation.
+export async function spendInteraction(
+  roomId: string, key: string, eventId: string,
+): Promise<
+  | { ok: true; wasFree: boolean; cost: number; balance: number }
+  | { ok: false; error: string }
+> {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { ok: false, error: 'not_logged_in' }
+  const { data, error } = await supabase.rpc('spend_interaction', {
+    p_event_id: eventId, p_room_id: roomId, p_key: key,
+  })
+  if (error) {
+    const m = error.message || ''
+    if (m.includes('insufficient_coins')) return { ok: false, error: 'insufficient_coins' }
+    if (m.includes('item_disabled')) return { ok: false, error: 'item_disabled' }
+    if (m.includes('not_authenticated')) return { ok: false, error: 'not_logged_in' }
+    return { ok: false, error: 'spend_failed' }
+  }
+  const row = data as { was_free: boolean; cost: number; balance: number }
+  return { ok: true, wasFree: !!row.was_free, cost: Number(row.cost ?? 0), balance: Number(row.balance ?? 0) }
+}
+
+// ── Phase 4: moderation — report a player ───────────────────────────────────────────
+// Files a report as the caller (server resolves auth.uid()). recentEvent carries ONLY
+// interaction keys/seats (no chat, no PII). Rate-limited inside report_player(). The
+// reported user id comes from the (already public) seat list, never private account data.
+export async function reportPlayer(
+  reportedUserId: string,
+  roomId: string,
+  reason: string,
+  recentEvent: unknown,
+): Promise<{ ok: boolean; error?: string }> {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { ok: false, error: 'not_logged_in' }
+  const { error } = await supabase.rpc('report_player', {
+    p_reported_user_id: reportedUserId,
+    p_room_id: roomId,
+    p_reason: reason,
+    p_recent_event: (recentEvent ?? null) as never,
+  })
+  if (error) {
+    const m = error.message || ''
+    if (m.includes('invalid_target')) return { ok: false, error: 'invalid_target' }
+    if (m.includes('invalid_reason')) return { ok: false, error: 'invalid_reason' }
+    if (m.includes('not_authenticated')) return { ok: false, error: 'not_logged_in' }
+    return { ok: false, error: 'report_failed' }
+  }
+  return { ok: true }
+}

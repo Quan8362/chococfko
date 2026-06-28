@@ -223,7 +223,7 @@ export default function TlmnLobby() {
             <TlmnCoin className="w-7 h-7" aria-hidden />
           </span>
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[2px] text-[var(--tl-gold-bright)]/60 mb-0.5">{t('coin_balance_label')}</p>
+            <p className="text-[11px] font-bold uppercase tracking-[2px] text-[#fdeedd]/85 mb-1">{t('coin_balance_label')}</p>
             <p className="font-black text-[22px] text-[var(--tl-gold-bright)] leading-none tabular-nums">
               {wallet ? formatCoins(wallet.balance) : '…'}
             </p>

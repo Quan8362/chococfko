@@ -18,8 +18,13 @@ export function TlmnSuits({ className }: IconProps) {
       <path d="M34 8.4c1.2-1.6 4.6-1.9 5.6.6 1 2.5-1.4 5.2-5.6 8.4-4.2-3.2-6.6-5.9-5.6-8.4 1-2.5 4.4-2.2 5.6-.6Z" fill="currentColor" />
       {/* diamond */}
       <path d="M14 24l5 7-5 7-5-7 5-7Z" fill="currentColor" />
-      {/* club */}
-      <path d="M34 24a3 3 0 0 1 2 5.3 3 3 0 1 1-3.4 4.4c.2 1.6 1.1 2.7 2.4 3.8h-7.6c1.3-1.1 2.2-2.2 2.4-3.8A3 3 0 1 1 30 29.3 3 3 0 0 1 34 24Z" fill="currentColor" />
+      {/* club — three round lobes (top / lower-left / lower-right) + a flared stem */}
+      <g fill="currentColor">
+        <circle cx="34" cy="27.2" r="2.8" />
+        <circle cx="30.7" cy="30.8" r="2.8" />
+        <circle cx="37.3" cy="30.8" r="2.8" />
+        <path d="M32.7 30.6c0 2.6-.7 4.7-2.4 6.6h7.4c-1.7-1.9-2.4-4-2.4-6.6Z" />
+      </g>
     </svg>
   )
 }

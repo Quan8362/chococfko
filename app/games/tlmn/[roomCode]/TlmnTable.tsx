@@ -954,7 +954,10 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
   // corner layout (where they move into the hand-tray's bottom corners, out of the dock's
   // vertical flow). Only rendered inside the `mySeat != null` dock, so the mySeat! is safe.
   const humanAvatar = mySeat == null ? null : (
-    <span className={`relative inline-flex rounded-full p-[3px] tlmn-frame-gold ${isMyTurn && !reduced ? 'tlmn-frame-active' : ''}`}>
+    // shrink-0 + aspect-square: the gold-frame wrapper is a flex child of the (width-
+    // constrained) desktop info panel, so without these it gets compressed horizontally
+    // into an oval when the name/balance competes for space. Keep it a fixed square circle.
+    <span className={`relative inline-flex shrink-0 aspect-square rounded-full p-[3px] tlmn-frame-gold ${isMyTurn && !reduced ? 'tlmn-frame-active' : ''}`}>
       <PodAvatar name={seatName(mySeat)} url={seatOf(mySeat)?.avatar_url ?? null} size={compactDock ? 34 : vw < 560 ? 38 : 46} />
       {isMyTurn && secondsLeft != null && (
         <span

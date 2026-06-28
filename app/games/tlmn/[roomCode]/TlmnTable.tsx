@@ -1347,20 +1347,26 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
               is the wider primary but NOT absurdly wide, and the whole row is capped so it
               never sprawls. */}
           {/* items-center (NOT stretch): the buttons own an explicit compact height and never
-              stretch to match the info panel — the panel can NEVER make them taller. The panel
-              cell is the WIDEST region (flex-[1.6]) so the info expands horizontally toward the
-              left; Đánh stays the dominant centre action; Bỏ lượt stays the narrow secondary. */}
-          <div className={`tlmn-action-row flex items-center gap-2 mt-2 mx-auto ${isDesktop ? 'max-w-[680px]' : 'max-w-[560px]'}`}>
-            <div className="flex-[1.6] basis-0 min-w-0 flex items-center">
+              stretch to match the info panel — the panel can NEVER make them taller.
+              DESKTOP: a 3-column grid [1fr | auto | 1fr] so Đánh (the auto centre column) sits
+              at the EXACT horizontal centre of the table edge; the info panel anchors to the
+              far left of col-1 and Bỏ lượt hugs Đánh's right in col-3. The whole cluster reads
+              as shifted left with Đánh dead-centre. MOBILE/TABLET keep the proven flex row. */}
+          <div className={`tlmn-action-row items-center gap-2 mt-2 mx-auto ${
+            isDesktop
+              ? 'grid w-full max-w-[760px] grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]'
+              : 'flex max-w-[560px]'
+          }`}>
+            <div className={`min-w-0 flex items-center ${isDesktop ? 'justify-self-start w-full max-w-[300px]' : 'flex-[1.6] basis-0'}`}>
               {localInfoPanel}
             </div>
             <button
               type="button"
               onClick={doPlay}
               disabled={!isMyTurn || selectedCards.length === 0 || busy || !canPlay}
-              className={`tlmn-btn-primary flex-[1.3] basis-0 min-w-0 flex items-center justify-center font-bold text-[15px] px-4 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--tg-gold-bright)] ${
-                compactDock ? 'h-[42px]' : 'h-[48px]'
-              } ${isMyTurn && canPlay && !busy ? 'tlmn-play-pulse' : ''}`}
+              className={`tlmn-btn-primary min-w-0 flex items-center justify-center font-bold text-[15px] px-4 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--tg-gold-bright)] ${
+                isDesktop ? 'justify-self-center w-[clamp(180px,24vw,240px)]' : 'flex-[1.3] basis-0'
+              } ${compactDock ? 'h-[42px]' : 'h-[48px]'} ${isMyTurn && canPlay && !busy ? 'tlmn-play-pulse' : ''}`}
             >
               <span className="truncate">
                 {t('play_btn')}
@@ -1371,9 +1377,9 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
               type="button"
               onClick={doPass}
               disabled={!canPass || busy}
-              className={`tlmn-btn-ghost flex-1 basis-0 min-w-0 max-w-[140px] flex items-center justify-center font-bold text-[14px] px-3 rounded-xl transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--tg-gold-bright)] ${
-                compactDock ? 'h-[42px]' : 'h-[48px]'
-              }`}
+              className={`tlmn-btn-ghost min-w-0 flex items-center justify-center font-bold text-[14px] px-3 rounded-xl transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--tg-gold-bright)] ${
+                isDesktop ? 'justify-self-start w-[clamp(110px,14vw,150px)]' : 'flex-1 basis-0 max-w-[140px]'
+              } ${compactDock ? 'h-[42px]' : 'h-[48px]'}`}
             >
               {t('pass_btn')}
             </button>

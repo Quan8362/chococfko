@@ -150,16 +150,20 @@ const GEOMETRY: Record<LayoutMode, SeatGeometry> = {
     seats: { top: { x: 50, y: 13 }, left: { x: 12, y: 33, s: 0.82 }, right: { x: 88, y: 33, s: 0.82 }, bottom: { x: 50, y: 88 } },
     band: { top: 30, bottom: 64 },
   },
-  // Full-bleed mobile/tablet (edge-to-edge felt) — normal height.
+  // Full-bleed mobile/tablet (edge-to-edge felt) — normal height. On these breakpoints the
+  // top + side seats render in COMPACT mode (avatar + a horizontal info row that hangs to the
+  // side, NOT a tall downward column), so the top seat hugs the top edge with ~one avatar's
+  // height and the band below it is a clean, exclusive centre strip with a real gap.
   bleed: {
-    seats: { top: { x: 50, y: 12 }, left: { x: 9, y: 45 }, right: { x: 91, y: 45 }, bottom: { x: 50, y: 88 } },
-    band: { top: 29, bottom: 58 },
+    seats: { top: { x: 50, y: 11 }, left: { x: 9, y: 44 }, right: { x: 91, y: 44 }, bottom: { x: 50, y: 89 } },
+    band: { top: 30, bottom: 57 },
   },
   // Short-landscape phones (vh < 520) — the compact hand dock eats the lower band, so the
   // seats hug the edges and the centre band sits in a tight upper-middle strip clear of both.
+  // Top seat raised to roughly match the side seats' edge distance (compact horizontal layout).
   short: {
-    seats: { top: { x: 50, y: 13 }, left: { x: 8, y: 41 }, right: { x: 92, y: 41 }, bottom: { x: 50, y: 84 } },
-    band: { top: 30, bottom: 66 },
+    seats: { top: { x: 50, y: 12 }, left: { x: 8, y: 42 }, right: { x: 92, y: 42 }, bottom: { x: 50, y: 85 } },
+    band: { top: 33, bottom: 64 },
   },
 }
 const seatTransform = (a: SeatAnchor) => `translate(-50%, -50%)${a.s ? ` scale(${a.s})` : ''}`
@@ -822,6 +826,7 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
             place={slotList[i] ?? 'top'}
             lastPlayed={lastPlayed[idx] ?? null}
             lastW={lastPlayW}
+            compact={fullBleed}
             reduced={reducedRef.current}
             t={t}
           />
@@ -838,10 +843,15 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
           <div key={comboKeys(game.trick.cards).join()} className="flex flex-col items-center gap-1.5">
             {/* Stacking order (top → bottom), each on its own flex row with a gap so a card
                 can NEVER cover the banner or the actor label:
-                  actor label · combo banner · PILE · chặt hint. */}
-            <p className="text-[10.5px] font-bold text-white/75 uppercase tracking-[1.5px]">
-              {t('table_play_by', { name: seatName(game.trick.by_seat) })}
-            </p>
+                  actor label · combo banner · PILE · chặt hint.
+                On mobile/tablet (full-bleed) the actor label is OMITTED here — the per-seat
+                last-played mini + the active-seat "thinking" dots already attribute the play
+                right at the player's seat, so the centre stays reserved for the cards alone. */}
+            {!fullBleed && (
+              <p className="text-[10.5px] font-bold text-white/75 uppercase tracking-[1.5px]">
+                {t('table_play_by', { name: seatName(game.trick.by_seat) })}
+              </p>
+            )}
             {/* Gold combo banner — above the pile, raised (z-10) so the top pile card can
                 never occlude it; driven by the combo type (no recompute of rules). */}
             {tableCombo && (() => {
@@ -883,7 +893,7 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
                 )
               })}
             </div>
-            <p className="text-[10px] text-white/70">{t('to_beat')}</p>
+            {!fullBleed && <p className="text-[10px] text-white/70">{t('to_beat')}</p>}
           </div>
         ) : (
           <div className="flex flex-col items-center gap-1.5">
@@ -1465,7 +1475,7 @@ function BleedCorners() {
 // only number on a seat is the card-count badge on the face-down stack.
 function SeatPod({
   seat, name, isMe, count, chips, isTurn, isNhat, isWinner = false, passed, passKey,
-  secondsLeft, turnFrac, av, backW, place, lastPlayed, lastW, reduced, t,
+  secondsLeft, turnFrac, av, backW, place, lastPlayed, lastW, compact = false, reduced, t,
 }: {
   seat: TlmnSeat | undefined
   name: string
@@ -1484,6 +1494,10 @@ function SeatPod({
   place: string
   lastPlayed: Card[] | null
   lastW: number
+  // Mobile/tablet (full-bleed): render the plate as a compact horizontal name+coin row and,
+  // for the TOP seat, lay the whole pod out horizontally so it hugs the top edge instead of
+  // hanging a tall column down into the protected centre zone.
+  compact?: boolean
   reduced: boolean
   t: ReturnType<typeof useTranslations>
 }) {
@@ -1533,7 +1547,20 @@ function SeatPod({
     </span>
   )
 
-  const plateUnit = (
+  // Compact (mobile/tablet): name + coin sit BESIDE each other on one short line, so the
+  // seat is a slim horizontal pill — [name] [🪙 1M] — that never grows tall toward the
+  // centre. Desktop keeps the original stacked plate (name over coin).
+  const plateUnit = compact ? (
+    <span className="max-w-full inline-flex items-center gap-1.5 rounded-xl tlmn-plate px-2 py-0.5 leading-tight">
+      <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-white/95 min-w-0">
+        {isNhat && <span className="text-gold flex-none">🏆</span>}
+        <span className="truncate max-w-[9ch]">{name}</span>
+      </span>
+      <span className="tlmn-chip-balance inline-flex items-center gap-0.5 text-[10px] font-black tracking-wide flex-none">
+        <span aria-hidden className="text-[9px]">🪙</span>{formatChips(chips)}
+      </span>
+    </span>
+  ) : (
     <span className="max-w-full inline-flex flex-col items-center rounded-xl tlmn-plate px-2.5 py-0.5 leading-tight">
       <span className="inline-flex items-center gap-1 text-[11.5px] font-semibold text-white/95">
         {isNhat && <span className="text-gold flex-none">🏆</span>}
@@ -1590,6 +1617,34 @@ function SeatPod({
           {statusUnit}
           {lastPlayedUnit}
           {dotsUnit}
+        </div>
+        {passed && (
+          <span key={passKey} className="absolute -bottom-2 left-1/2 -translate-x-1/2 tlmn-stamp text-[10px] font-black uppercase text-white bg-rose/90 border border-white/40 rounded-md px-1.5 py-0.5 tracking-wide whitespace-nowrap z-20">
+            {t('passed')}
+          </span>
+        )}
+      </div>
+    )
+  }
+
+  // ── TOP seat, COMPACT (mobile/tablet) ─ horizontal pod hugging the top edge ──────────
+  // Instead of hanging a tall column (plate → fan → last-played) straight DOWN into the
+  // protected centre, the compact top seat lays out HORIZONTALLY — avatar beside a slim
+  // info column (name+coin row, then a short face-down fan + last-played row). Its total
+  // height is ≈ one avatar, so it stays anchored near the top edge (matching the side seats'
+  // edge distance) and can never droop into the centre play zone.
+  if (compact && place === 'top') {
+    return (
+      <div className="relative inline-flex items-center gap-2 flex-none">
+        {avatarUnit}
+        <div className="inline-flex flex-col items-start gap-0.5 w-max z-30">
+          {plateUnit}
+          <div className="inline-flex items-center gap-1.5">
+            <OpponentFan count={count} w={backW} orientation="top" />
+            {lastPlayedUnit}
+            {statusUnit}
+            {dotsUnit}
+          </div>
         </div>
         {passed && (
           <span key={passKey} className="absolute -bottom-2 left-1/2 -translate-x-1/2 tlmn-stamp text-[10px] font-black uppercase text-white bg-rose/90 border border-white/40 rounded-md px-1.5 py-0.5 tracking-wide whitespace-nowrap z-20">

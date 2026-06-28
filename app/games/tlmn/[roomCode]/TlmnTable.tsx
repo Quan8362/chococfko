@@ -26,6 +26,7 @@ import {
 } from '@/lib/games/tlmn/interactions'
 import { TRANSITIONS, DURATIONS, EASINGS, MS } from '@/lib/games/motion'
 import { useFullscreenLandscape } from '@/hooks/useFullscreenLandscape'
+import { TlmnDeuce, TlmnCards } from '../icons'
 
 const cardKey = (c: Card) => `${c.rank}-${c.suit}`
 const comboKeys = (cs: Card[]) => cs.map(cardKey)
@@ -1019,7 +1020,7 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
           </div>
         ) : (
           <div className="flex flex-col items-center gap-1.5">
-            <span className="text-[32px] opacity-80">🃏</span>
+            <TlmnDeuce className="w-8 h-8 opacity-95 drop-shadow-[0_2px_6px_rgba(0,0,0,0.45)]" />
             <p className="text-[12px] text-white/75 text-center">
               {game.turn_seat != null ? t('lead_free_by', { name: seatName(game.turn_seat) }) : ''}
             </p>
@@ -1418,9 +1419,10 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
               type="button"
               onClick={doNextRound}
               disabled={busy}
-              className="tlmn-btn-gold font-black text-[15px] uppercase tracking-wide px-8 py-3.5 rounded-xl transition-all disabled:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+              className="tlmn-btn-gold inline-flex items-center gap-2 font-black text-[15px] uppercase tracking-wide px-8 py-3.5 rounded-xl transition-all disabled:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
             >
-              🃏 {t('new_round_btn')}
+              <TlmnCards className="w-5 h-5" />
+              {t('new_round_btn')}
             </button>
           ) : (
             <p className="text-[12.5px] text-white/75">{t('waiting_host_next')}</p>

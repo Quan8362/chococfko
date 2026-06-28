@@ -7,6 +7,32 @@
 
 type IconProps = { className?: string }
 
+// ── TLMN brand mark — a face-up 2♥ over a subtle supporting card (Run — identity) ──
+// Replaces the old Joker emoji, which on Windows rendered as a multicolour clown card
+// and wrongly implied Joker gameplay (Tiến Lên uses no Jokers). The 2♥ is the strongest
+// single card in Tiến Lên Miền Nam, so it reads as the game's true identity. Self-coloured
+// (ivory card + burgundy "2" + brand red heart) so it stays premium and legible on BOTH
+// the light lobby and the dark felt; crisp from ~16px up.
+export function TlmnDeuce({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden>
+      {/* supporting card behind, fanned left */}
+      <g transform="rotate(-15 7.5 13)">
+        <rect x="2.4" y="6.2" width="9" height="12.8" rx="1.9" fill="#f1e4c8" stroke="#c19a3e" strokeWidth="0.9" />
+      </g>
+      {/* face-up 2♥ card */}
+      <rect x="8.4" y="4.3" width="11.2" height="15.7" rx="2.2" fill="#fbf4e6" stroke="#b8902f" strokeWidth="1.1" />
+      {/* corner indices (mirrored), serif to match the brand */}
+      <text x="9.9" y="9.6" fontSize="4.5" fontWeight="800" fill="#8a1a30" fontFamily="Georgia,'Times New Roman',serif">2</text>
+      <text x="18.1" y="14.7" fontSize="4.5" fontWeight="800" fill="#8a1a30" fontFamily="Georgia,'Times New Roman',serif" transform="rotate(180 18.1 14.7)">2</text>
+      {/* central brand-red heart */}
+      <g transform="translate(9.9 8.6) scale(0.66)" fill="#d32f2f">
+        <path d="M6 10.5C6 10.5 1 6.8 1 3.7 1 2 2.3 1 3.6 1.45 4.5 1.75 5.3 2.6 6 3.6 6.7 2.6 7.5 1.75 8.4 1.45 9.7 1 11 2 11 3.7 11 6.8 6 10.5 6 10.5Z" />
+      </g>
+    </svg>
+  )
+}
+
 // ── Decorative four-suit cluster (♠♥♦♣) — used as a premium accent / texture mark ──
 export function TlmnSuits({ className }: IconProps) {
   return (

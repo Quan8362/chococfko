@@ -13,7 +13,9 @@ const COURT_RANK = ['J', 'Q', 'K'] as const // RANKS index 8,9,10
 const SUIT_CODE = ['S', 'C', 'D', 'H'] as const // matches SUITS in engine.ts
 // How far the court figure sits inside the shared frame, so OUR corner index keeps a
 // clear white margin. Tuned so J/Q/K read naturally and never collide with the index.
-const COURT_INSET = '17.5% 16%'
+// Bumped (Run — card polish) in step with the larger corner inset below so the figure
+// keeps a premium, un-squeezed margin from the now-roomier indices.
+const COURT_INSET = '19% 17.5%'
 
 // ── Suit pips as inline SVG ──────────────────────────────────────────────────────
 // Clean, SYMMETRIC playing-card suit shapes authored in a SHARED square 48×48 viewBox
@@ -110,9 +112,14 @@ export function CardFace({
   // over a small suit pip) mirrored 180°. The CENTRE differs by rank only:
   //   2–10 → one large central pip · Ace → a larger ornamental pip · J/Q/K → the
   //   vendored court figure. Sizes are tuned so the index never overlaps the centre.
-  const rankSize = Math.round(w * 0.3)
-  const cornerSuit = Math.round(w * 0.18)
+  const rankSize = Math.round(w * 0.295)
+  const cornerSuit = Math.round(w * 0.17)
   const centerSuit = Math.round(w * 0.46)
+  // Breathing room between the card edge and the corner index — proportional to the card
+  // so it stays balanced at every size (fanned hand → large play). Larger than the old
+  // fixed 3/4px so the rank+suit no longer hug the rounded corner. (Run — card polish.)
+  const padX = Math.max(4, Math.round(w * 0.13))
+  const padY = Math.max(4, Math.round(w * 0.105))
 
   const corner = (
     <>
@@ -142,7 +149,7 @@ export function CardFace({
       style={{ width: w, height: h, color }}
     >
       {/* top-left corner — the UNIFORM index reused on every rank incl. courts */}
-      <span className="absolute top-[3px] left-[4px] z-10 flex flex-col items-center leading-[0.85]">{corner}</span>
+      <span className="absolute z-10 flex flex-col items-center leading-[0.85]" style={{ top: padY, left: padX }}>{corner}</span>
 
       {/* CENTRE — court figure OR a single opaque central pip (no translucent ghost) */}
       {isCourt ? (
@@ -165,10 +172,10 @@ export function CardFace({
       )}
 
       {/* bottom-right corner (mirrored 180°) */}
-      <span className="absolute bottom-[3px] right-[4px] z-10 flex flex-col items-center leading-[0.85] rotate-180">{corner}</span>
+      <span className="absolute z-10 flex flex-col items-center leading-[0.85] rotate-180" style={{ bottom: padY, right: padX }}>{corner}</span>
 
       {isHeo && !dim && (
-        <span className="absolute top-[3px] right-[4px] z-10 text-gold" style={{ fontSize: Math.round(w * 0.22) }}>★</span>
+        <span className="absolute z-10 text-gold" style={{ top: padY, right: padX, fontSize: Math.round(w * 0.22) }}>★</span>
       )}
     </span>
   )

@@ -12,6 +12,17 @@ import type { Bubble, Throw } from './useTlmnInteractions'
 type T = ReturnType<typeof useTranslations>
 type TabKey = InteractionCategory | 'items'
 
+// Per-category accent — controlled, all within the burgundy/gold game palette. Each tab
+// gets its own character (warm rose / amber / festive gold / coral / premium plum) while
+// the panel surface keeps everything cohesive. Saturated enough that white tab text reads.
+const TAB_ACCENT: Record<TabKey, string> = {
+  friendly: '#d85f8f',
+  teasing: '#cf8330',
+  celebration: '#c79a2e',
+  frustrated: '#c85539',
+  items: '#9a63bf',
+}
+
 // ── Reaction control: chrome button + compact floating panel (Phase 1) ────────────────
 // Lives in the table's top chrome row (a small toolbar, beside the sound toggle) so it
 // never overlaps the cards, centre pile, sort/play/pass controls or any seat. The panel
@@ -89,10 +100,11 @@ export function ReactionControl({
         <div
           role="dialog"
           aria-label={t('react_panel_title')}
-          className="tlmn-banner-pop absolute right-0 top-full mt-2 z-[95] w-[300px] max-w-[calc(100vw-24px)] rounded-2xl bg-paper shadow-2xl border border-line p-2.5"
+          className="tlmn-banner-pop tlmn-rx-panel absolute right-0 top-full mt-2 z-[95] w-[312px] max-w-[calc(100vw-24px)] p-2.5"
+          style={{ ['--acc' as string]: TAB_ACCENT[tab] }}
         >
           {/* Tabs (4 phrase categories + the throwable items tab) */}
-          <div className="flex items-center gap-1 mb-2" role="tablist" aria-label={t('react_panel_title')}>
+          <div className="tlmn-rx-tabs flex items-center gap-0.5 p-1 mb-2.5" role="tablist" aria-label={t('react_panel_title')}>
             {([...CATEGORY_ORDER, 'items'] as TabKey[]).map(cat => (
               <button
                 key={cat}
@@ -100,9 +112,8 @@ export function ReactionControl({
                 role="tab"
                 aria-selected={tab === cat}
                 onClick={() => setTab(cat)}
-                className={`flex-1 rounded-lg px-1 py-1.5 text-[10.5px] font-bold transition-colors ${
-                  tab === cat ? 'bg-rose text-white' : 'bg-cream text-ink hover:bg-rose/10'
-                }`}
+                style={{ ['--acc' as string]: TAB_ACCENT[cat] }}
+                className="tlmn-rx-tab flex-1 px-1 py-1.5 text-[10.5px] font-bold leading-tight truncate"
               >
                 {t(`react_tab_${cat}` as Parameters<T>[0])}
               </button>
@@ -112,7 +123,7 @@ export function ReactionControl({
           {tab === 'items' ? (
             /* Throwable grid — picking an item arms target-selection (no immediate send).
                Disabled items (admin) are hidden; the cost badge shows Free or the xu price. */
-            <div className="grid grid-cols-2 gap-1.5 max-h-[240px] overflow-y-auto overscroll-contain">
+            <div className="grid grid-cols-2 gap-1.5 max-h-[244px] overflow-y-auto overscroll-contain pr-0.5">
               {THROWABLES.filter(it => resolveConfig(it.key, catalog).enabled).map(it => {
                 const label = t(`react_item_${it.key}` as Parameters<T>[0])
                 const cfg = resolveConfig(it.key, catalog)
@@ -123,11 +134,11 @@ export function ReactionControl({
                     type="button"
                     onClick={() => { onPickThrowable(it.key); setOpen(false) }}
                     aria-label={free ? label : `${label} · ${cfg.cost} xu`}
-                    className="flex items-center gap-1.5 rounded-xl border border-line bg-cream/60 px-2.5 py-2 text-left text-[12.5px] font-semibold text-ink hover:bg-rose/10 hover:border-rose/30 transition-colors min-h-[40px] focus:outline-none focus-visible:ring-2 focus-visible:ring-rose"
+                    className="tlmn-rx-opt px-2 py-1.5 text-[12.5px] font-semibold min-h-[42px]"
                   >
-                    <span aria-hidden className="text-[17px] leading-none flex-none">{it.emoji}</span>
+                    <span aria-hidden className="tlmn-rx-ico text-[16px]">{it.emoji}</span>
                     <span className="truncate flex-1">{label}</span>
-                    <span className={`flex-none text-[10px] font-black rounded-full px-1.5 py-0.5 ${free ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
+                    <span className={`flex-none text-[10px] font-black rounded-full px-1.5 py-0.5 ${free ? 'tlmn-rx-cost-free' : 'tlmn-rx-cost-paid'}`}>
                       {free ? t('react_free') : `🪙${cfg.cost >= 1000 ? `${(cfg.cost / 1000).toFixed(cfg.cost % 1000 ? 1 : 0)}K` : cfg.cost}`}
                     </span>
                   </button>
@@ -136,7 +147,7 @@ export function ReactionControl({
             </div>
           ) : (
             /* Phrase grid */
-            <div className="grid grid-cols-2 gap-1.5 max-h-[240px] overflow-y-auto overscroll-contain">
+            <div className="grid grid-cols-2 gap-1.5 max-h-[244px] overflow-y-auto overscroll-contain pr-0.5">
               {tabPhrases.map(p => {
                 const label = t(`react_phrase_${p.key}` as Parameters<T>[0])
                 return (
@@ -145,10 +156,10 @@ export function ReactionControl({
                     type="button"
                     onClick={() => pick(p.key)}
                     aria-label={label}
-                    className="flex items-center gap-1.5 rounded-xl border border-line bg-cream/60 px-2.5 py-2 text-left text-[12.5px] font-semibold text-ink hover:bg-rose/10 hover:border-rose/30 transition-colors min-h-[40px] focus:outline-none focus-visible:ring-2 focus-visible:ring-rose"
+                    className="tlmn-rx-opt px-2 py-1.5 text-[12.5px] font-semibold min-h-[42px]"
                   >
-                    <span aria-hidden className="text-[15px] leading-none flex-none">{p.emoji}</span>
-                    <span className="truncate">{label}</span>
+                    <span aria-hidden className="tlmn-rx-ico text-[15px]">{p.emoji}</span>
+                    <span className="truncate flex-1">{label}</span>
                   </button>
                 )
               })}
@@ -156,14 +167,14 @@ export function ReactionControl({
           )}
 
           {/* Footer: cooldown hint + mute toggle */}
-          <div className="flex items-center justify-between gap-2 mt-2 pt-2 border-t border-line">
-            <span className={`text-[11px] font-semibold text-rose transition-opacity ${cooling ? 'opacity-100' : 'opacity-0'}`}>
+          <div className="flex items-center justify-between gap-2 mt-2.5 pt-2.5 border-t border-[rgba(246,217,137,0.16)]">
+            <span className={`text-[11px] font-bold text-[#f1d68c] transition-opacity ${cooling ? 'opacity-100' : 'opacity-0'}`}>
               {t('react_cooldown')}
             </span>
             <button
               type="button"
               onClick={onToggleMuted}
-              className="text-[11px] font-bold text-muted hover:text-rose transition-colors whitespace-nowrap"
+              className="tlmn-rx-foot text-[11px] font-bold px-2.5 py-1 whitespace-nowrap"
             >
               {muted ? t('react_unmute_all') : t('react_mute_all')}
             </button>

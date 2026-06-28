@@ -446,6 +446,81 @@ body::before {
 }
 .tlmn-chrome:hover { background: rgba(0,0,0,0.5); color: #fff; }
 .tlmn-chrome:focus-visible { outline: 2px solid #ffd1e0; outline-offset: 2px; }
+
+/* ── Reaction / taunt / emote panel (Run — game-overlay redesign) ────────────────────
+   A premium dark, wine-tinted glass surface that sits over the felt instead of the old
+   white "article-editor" sheet. Each category tab carries its own controlled accent
+   (driven by --acc) while the panel stays one cohesive burgundy/gold system. */
+.tlmn-rx-panel {
+  background:
+    radial-gradient(120% 80% at 50% -10%, rgba(246,217,137,0.10) 0%, transparent 60%),
+    linear-gradient(168deg, rgba(60,19,30,0.97) 0%, rgba(34,12,18,0.98) 100%);
+  border: 1px solid rgba(246,217,137,0.30);
+  border-radius: 18px;
+  box-shadow: 0 22px 55px -14px rgba(0,0,0,0.78), inset 0 1px 0 rgba(255,255,255,0.08);
+  -webkit-backdrop-filter: blur(10px) saturate(1.12);
+  backdrop-filter: blur(10px) saturate(1.12);
+}
+/* Tab track — an inset dark rail holding the category selectors. */
+.tlmn-rx-tabs {
+  background: rgba(0,0,0,0.28);
+  border: 1px solid rgba(0,0,0,0.35);
+  border-radius: 12px;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.4);
+}
+.tlmn-rx-tab {
+  position: relative;
+  color: rgba(246,231,210,0.62);
+  border-radius: 9px;
+  transition: color .15s, background .15s, box-shadow .15s, transform .1s;
+}
+.tlmn-rx-tab:hover { color: rgba(246,231,210,0.92); background: rgba(255,255,255,0.05); }
+.tlmn-rx-tab[aria-selected="true"] {
+  color: #fff;
+  background: linear-gradient(180deg, var(--acc) 0%, color-mix(in srgb, var(--acc) 78%, #3a0f18) 100%);
+  box-shadow: 0 4px 12px -3px color-mix(in srgb, var(--acc) 70%, transparent), inset 0 1px 0 rgba(255,255,255,0.35);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+}
+.tlmn-rx-tab:focus-visible { outline: 2px solid #ffd1e0; outline-offset: 2px; }
+/* Option button (phrase / throwable) — a deliberate dark "chip card". */
+.tlmn-rx-opt {
+  display: flex; align-items: center; gap: 8px;
+  border-radius: 12px; text-align: left;
+  background: rgba(255,255,255,0.055);
+  border: 1px solid rgba(246,217,137,0.16);
+  color: #f3e7d0;
+  transition: background .14s, border-color .14s, transform .1s, box-shadow .14s;
+}
+.tlmn-rx-opt:hover {
+  background: rgba(255,255,255,0.11);
+  border-color: color-mix(in srgb, var(--acc) 55%, rgba(246,217,137,0.3));
+  box-shadow: 0 6px 16px -8px color-mix(in srgb, var(--acc) 60%, transparent);
+}
+.tlmn-rx-opt:active { transform: translateY(1px) scale(0.985); }
+.tlmn-rx-opt:focus-visible { outline: 2px solid #ffd1e0; outline-offset: 2px; }
+/* Expressive icon chip in front of each option's label. */
+.tlmn-rx-ico {
+  flex: none; display: grid; place-items: center;
+  width: 28px; height: 28px; border-radius: 9px; line-height: 1;
+  background: linear-gradient(160deg, color-mix(in srgb, var(--acc) 26%, rgba(0,0,0,0.35)) 0%, rgba(0,0,0,0.4) 100%);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
+}
+/* Cost / free pills on throwables. */
+.tlmn-rx-cost-free { background: rgba(46,160,110,0.22); color: #82e3b4; box-shadow: inset 0 0 0 1px rgba(46,160,110,0.4); }
+.tlmn-rx-cost-paid { background: rgba(230,198,104,0.18); color: #f1d68c; box-shadow: inset 0 0 0 1px rgba(230,198,104,0.4); }
+/* Footer secondary control (mute-all toggle). */
+.tlmn-rx-foot {
+  color: rgba(246,231,210,0.66);
+  border: 1px solid rgba(246,217,137,0.22);
+  border-radius: 999px;
+  transition: color .15s, background .15s, border-color .15s;
+}
+.tlmn-rx-foot:hover { color: #fff; background: rgba(255,255,255,0.06); border-color: rgba(246,217,137,0.4); }
+.tlmn-rx-foot:focus-visible { outline: 2px solid #ffd1e0; outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  .tlmn-rx-tab, .tlmn-rx-opt { transition: none; }
+}
+
 /* Player-interaction phrase bubble (Phase 1) — a compact speech bubble that pops near a
    seat's avatar. pointer-events:none is set on the wrapper; this is purely visual. */
 .tlmn-react-bubble {

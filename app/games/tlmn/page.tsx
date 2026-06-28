@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import TlmnLobby from './TlmnLobby'
 import TlmnWaitingRooms from './TlmnWaitingRooms'
 import { fetchWaitingRooms } from './actions'
-import { TlmnSuits, TlmnCards } from './icons'
+import { TlmnSuits, TlmnCards, TlmnDeuce } from './icons'
 
 export const dynamic = 'force-dynamic'
 
@@ -40,7 +40,7 @@ export default async function TlmnPage() {
           <TlmnSuits className="tl-hero__suit" />
           <div className="relative">
             <span className="inline-flex items-center gap-1.5 text-[10.5px] font-bold tracking-[2.5px] uppercase text-[var(--tl-gold-bright)] bg-black/25 border border-[var(--tl-gold)]/40 px-3 py-1.5 rounded-full mb-4">
-              <TlmnSuits className="w-3.5 h-3.5" />
+              <TlmnDeuce className="w-4 h-4 -my-0.5" />
               {t('badge')}
             </span>
             <h1 className="font-serif font-bold text-[clamp(27px,4.4vw,42px)] leading-tight tracking-[-0.4px] text-[#fdeedd] mb-2 [text-shadow:0_2px_14px_rgba(0,0,0,0.35)]">

@@ -38,14 +38,19 @@ const TC = {
   blushSpark: '#f1c2d6',
 } as const
 
-// One geometry, shared by all variants. Same proportions, radius and overlap.
+// One restrained geometry shared by all variants: two slim, near-vertical cards
+// (≈5:7) with a subtle corner radius, a small rotation difference and a light
+// overlap — the front card fanned right over a back card fanned left. Only stroke
+// weight, fill, opacity, size and pip detail change per context; the proportions,
+// radius and overlap direction never do.
 const CARD = {
-  back: { x: 3.4, y: 5.6, w: 10.2, h: 14, rx: 2, rot: -13, cx: 8.5, cy: 12.6 },
-  front: { x: 9.2, y: 4, w: 10.2, h: 14, rx: 2, rot: 11, cx: 14.3, cy: 11 },
+  back: { x: 5.7, y: 4.9, w: 8.6, h: 12.2, rx: 1.3, rot: -8, cx: 10, cy: 11 },
+  front: { x: 9.1, y: 6.3, w: 8.6, h: 12.2, rx: 1.3, rot: 7, cx: 13.4, cy: 12.4 },
 } as const
-const HEART = 'M0 -1.6C-1 -3.3 -3.5 -2.4 -3.5 -0.4 -3.5 1.5 -1.1 2.6 0 3.9 1.1 2.6 3.5 1.5 3.5 -0.4 3.5 -2.4 1 -3.3 0 -1.6Z'
-const SPADE = 'M0 -3.2C1.4 -1.4 3.4 -0.4 3.4 1.6 3.4 3 2.2 3.5 1.1 3 1.2 3.9 1.6 4.4 2.3 4.9L-2.3 4.9C-1.6 4.4 -1.2 3.9 -1.1 3 -2.2 3.5 -3.4 3 -3.4 1.6 -3.4 -0.4 -1.4 -1.4 0 -3.2Z'
-const SPARKLE = 'M0 -2.4C.25 -.8 .8 -.25 2.4 0 .8 .25 .25 .8 0 2.4 -.25 .8 -.8 .25 -2.4 0 -.8 -.25 -.25 -.8 0 -2.4Z'
+// Tiny corner suit marks only — no oversized central suit.
+const PIP_HEART = 'M0 -1.1C-.7 -2.2 -2.4 -1.6 -2.4 -.3 -2.4 1 -.75 1.75 0 2.6 .75 1.75 2.4 1 2.4 -.3 2.4 -1.6 .7 -2.2 0 -1.1Z'
+const PIP_SPADE = 'M0 -2.4C-.05 -.9 -2.5 -.15 -2.5 1.25 -2.5 2.1 -1.6 2.5 -.85 2.15 -.75 2.7 -1 3.05 -1.5 3.35L1.5 3.35C1 3.05 .75 2.7 .85 2.15 1.6 2.5 2.5 2.1 2.5 1.25 2.5 -.15 .05 -.9 0 -2.4Z'
+const SPARKLE = 'M0 -2C.2 -.65 .65 -.2 2 0 .65 .2 .2 .65 0 2 -.2 .65 -.65 .2 -2 0 -.65 -.2 -.2 -.65 0 -2Z'
 
 type CardGeom = { x: number; y: number; w: number; h: number; rx: number; rot: number; cx: number; cy: number }
 function CardRect({ c, fill, fillOpacity, stroke, strokeWidth }: {
@@ -60,17 +65,19 @@ function CardRect({ c, fill, fillOpacity, stroke, strokeWidth }: {
   )
 }
 
-// Per-variant palette: card body fill/opacity, edge stroke, and the pip/index "ink".
-// The motif is identical everywhere — a 2♠ front card over a peeking ♥ back card —
-// so each surface clearly reads as two playing cards; only the colour tokens change.
+// Per-variant treatment — same silhouette, different weight/colour/detail.
+//   hero  → thin tone-on-tone outline embossing, no fill (CSS dims it further)
+//   info  → cleaner two-card line icon, slightly stronger burgundy stroke
+//   pill  → tiny solid cream cards, one gold pip, monochrome so it stays crisp ~15px
+//   empty → soft pale-blush cards, a darker rose accent + one tiny sparkle
 const TWO_CARDS_STYLE: Record<TwoCardsVariant, {
-  backFill: string; backOpacity: number; frontFill: string; frontOpacity: number
-  edge: string; edgeW: number; ink: string; heart: string
+  backFill: string; frontFill: string; fillOpacity: number
+  stroke: string; strokeWidth: number; pipFront: string; pipBack: string; backPip: boolean
 }> = {
-  hero:  { backFill: 'currentColor', backOpacity: 0.28, frontFill: 'currentColor', frontOpacity: 0.5, edge: 'currentColor', edgeW: 1, ink: 'currentColor', heart: 'currentColor' },
-  info:  { backFill: 'currentColor', backOpacity: 0.1, frontFill: 'currentColor', frontOpacity: 0.16, edge: 'currentColor', edgeW: 1.6, ink: 'currentColor', heart: 'currentColor' },
-  pill:  { backFill: TC.ivory, backOpacity: 1, frontFill: TC.ivoryHi, frontOpacity: 1, edge: TC.goldDeep, edgeW: 1, ink: TC.red, heart: TC.red },
-  empty: { backFill: TC.blush, backOpacity: 1, frontFill: TC.blushHi, frontOpacity: 1, edge: TC.blushLine, edgeW: 1.3, ink: TC.blushHeart, heart: TC.blushHeart },
+  hero:  { backFill: 'none', frontFill: 'none', fillOpacity: 1, stroke: 'currentColor', strokeWidth: 0.9, pipFront: 'currentColor', pipBack: 'currentColor', backPip: true },
+  info:  { backFill: 'currentColor', frontFill: 'currentColor', fillOpacity: 0.07, stroke: 'currentColor', strokeWidth: 1.15, pipFront: 'currentColor', pipBack: 'currentColor', backPip: true },
+  pill:  { backFill: TC.ivory, frontFill: TC.ivoryHi, fillOpacity: 1, stroke: TC.goldDeep, strokeWidth: 0.9, pipFront: TC.goldDeep, pipBack: TC.goldDeep, backPip: false },
+  empty: { backFill: TC.blush, frontFill: TC.blushHi, fillOpacity: 1, stroke: TC.blushLine, strokeWidth: 1.15, pipFront: TC.blushHeart, pipBack: TC.blushHeart, backPip: true },
 }
 
 export function TlmnTwoCards({ variant, className }: { variant: TwoCardsVariant; className?: string }) {
@@ -80,22 +87,22 @@ export function TlmnTwoCards({ variant, className }: { variant: TwoCardsVariant;
 
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden>
-      {/* back card — fanned left, mostly hidden; only its corner peeks (a small ♥) */}
-      <CardRect c={B} fill={s.backFill} fillOpacity={s.backOpacity} stroke={s.edge} strokeWidth={s.edgeW} />
-      <g transform={`rotate(${B.rot} ${B.cx} ${B.cy})`}>
-        <path d={HEART} transform="translate(5.7 9.9) scale(0.46)" fill={s.heart} />
-      </g>
+      {/* back card — fanned left, behind; only its top-left corner peeks */}
+      <CardRect c={B} fill={s.backFill} fillOpacity={s.backFill === 'none' ? undefined : s.fillOpacity} stroke={s.stroke} strokeWidth={s.strokeWidth} />
+      {s.backPip && (
+        <g transform={`rotate(${B.rot} ${B.cx} ${B.cy})`}>
+          <path d={PIP_HEART} transform="translate(8 7.6) scale(0.78)" fill={s.pipBack} />
+        </g>
+      )}
 
-      {/* front card — fanned right, on top; a 2♠ corner index + a central spade pip so
-          the motif reads unmistakably as a playing card down to ~16px */}
-      <CardRect c={F} fill={s.frontFill} fillOpacity={s.frontOpacity} stroke={s.edge} strokeWidth={s.edgeW} />
+      {/* front card — fanned right, on top; a single small corner spade pip */}
+      <CardRect c={F} fill={s.frontFill} fillOpacity={s.frontFill === 'none' ? undefined : s.fillOpacity} stroke={s.stroke} strokeWidth={s.strokeWidth} />
       <g transform={`rotate(${F.rot} ${F.cx} ${F.cy})`}>
-        <text x="10.3" y="8.8" fontSize="4.8" fontWeight="800" fill={s.ink} fontFamily="Georgia,'Times New Roman',serif">2</text>
-        <path d={SPADE} transform="translate(14.4 13) scale(0.92)" fill={s.ink} />
+        <path d={PIP_SPADE} transform="translate(11.4 9.3) scale(0.78)" fill={s.pipFront} />
       </g>
 
       {variant === 'empty' && (
-        <path d={SPARKLE} transform="translate(20 4.4) scale(0.8)" fill={TC.blushSpark} />
+        <path d={SPARKLE} transform="translate(19.4 5) scale(0.85)" fill={TC.blushSpark} />
       )}
     </svg>
   )

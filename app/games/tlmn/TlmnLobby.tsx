@@ -8,7 +8,7 @@ import { ensureWallet, getWallet, claimDailyCoins, type WalletState } from './wa
 import {
   ENTRY_MIN_BALANCE, DAILY_GRANT, SIGNUP_GRANT, formatCoins, formatCountdown,
 } from '@/lib/game/economy'
-import { TlmnBot, TlmnPeople, TlmnCoin, TlmnGift, TlmnTwoCards, TlmnEmptyWallet } from './icons'
+import { TlmnBot, TlmnPeople, TlmnCoin, TlmnGift, TlmnCards, TlmnEmptyWallet } from './icons'
 
 function CreateBtn() {
   const { pending } = useFormStatus()
@@ -82,7 +82,7 @@ function PracticeCard() {
             </svg>
             {t('mode_a_starting')}
           </>
-        ) : <><TlmnTwoCards variant="pill" className="w-5 h-5" /> {t('mode_a_btn')}</>}
+        ) : <><TlmnCards className="w-5 h-5" /> {t('mode_a_btn')}</>}
       </button>
 
       <div className="flex flex-col gap-2.5">

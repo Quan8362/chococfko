@@ -9,7 +9,7 @@ import { R2, parseCombo } from '../engine.ts'
 import { type RoundState } from '../round.ts'
 import { buildLegalMoves } from '../ai/legalMoves.ts'
 import { type LegalMove } from '../ai/types.ts'
-import { type BotStrategyWeights } from '../ai/weights.ts'
+import { type BotStrategyWeights, POLICY_EXPERT } from '../ai/weights.ts'
 import { type BotDifficulty } from '../ai/policy.ts'
 import { chooseBotMoveAI } from '../ai/index.ts'
 import { chooseBotMove as legacyBot } from '../bot.ts'
@@ -19,7 +19,9 @@ import { type SimPolicy, type BotMove } from './simulator.ts'
 export type SimulationPolicyName =
   | 'randomLegal' | 'lowestLegal' | 'greedyCardReduction'
   | 'combinationPreserver' | 'defensive' | 'currentProduction'
-  | 'aiNormal' | 'aiHard' | 'aiExpert' | 'candidateTrained'
+  | 'aggressiveControl' | 'bombConserver' | 'bombAggressor'
+  | 'singleCardBlocker' | 'highCardConserver' | 'endgameSpecialist'
+  | 'aiNormal' | 'aiHard' | 'aiExpert' | 'expertV1' | 'candidateTrained'
 
 function movesFor(state: RoundState, seat: number): LegalMove[] {
   const table = state.trick ? parseCombo(state.trick.cards) : null
@@ -87,6 +89,95 @@ function defensive(state: RoundState, seat: number): BotMove {
   return { type: 'pass' }
 }
 
+const minOpp = (state: RoundState, seat: number): number => {
+  const others = state.seats.filter(s => s !== seat)
+  return others.length ? Math.min(...others.map(s => state.hands[s].length)) : Infinity
+}
+
+// aggressiveControl — seize/keep the lead with the biggest non-bomb shapes; when
+// following, answer with the lowest sufficient beat. Conserves bombs for chops.
+function aggressiveControl(state: RoundState, seat: number): BotMove {
+  const moves = movesFor(state, seat)
+  if (moves.length === 0) return { type: 'pass' }
+  const goOut = moves.filter(m => m.cardCount === state.hands[seat].length)
+  if (goOut.length) return { type: 'play', cards: goOut[0].cards }
+  if (!canPass(state)) {
+    const nonBomb = moves.filter(m => !m.isBomb)
+    const pool = nonBomb.length ? nonBomb : moves
+    const m = pool.slice().sort((a, b) => b.cardCount - a.cardCount || a.primaryRank - b.primaryRank)[0]
+    return { type: 'play', cards: m.cards }
+  }
+  const nonBomb = moves.filter(m => !m.isBomb)
+  const pool = nonBomb.length ? nonBomb : moves
+  return { type: 'play', cards: pool.slice().sort((a, b) => a.primaryRank - b.primaryRank)[0].cards }
+}
+
+// bombConserver — never spend a bomb unless it finishes or is the only legal move.
+function bombConserver(state: RoundState, seat: number): BotMove {
+  const moves = movesFor(state, seat)
+  if (moves.length === 0) return { type: 'pass' }
+  const goOut = moves.filter(m => m.cardCount === state.hands[seat].length)
+  if (goOut.length) return { type: 'play', cards: goOut.sort((a, b) => a.primaryRank - b.primaryRank)[0].cards }
+  const nonBomb = moves.filter(m => !m.isBomb)
+  if (nonBomb.length === 0) return canPass(state) ? { type: 'pass' } : { type: 'play', cards: moves[0].cards }
+  return { type: 'play', cards: nonBomb.slice().sort((a, b) => a.primaryRank - b.primaryRank || a.cardCount - b.cardCount)[0].cards }
+}
+
+// bombAggressor — chop with a bomb whenever following lets one, else lowest lead.
+function bombAggressor(state: RoundState, seat: number): BotMove {
+  const moves = movesFor(state, seat)
+  if (moves.length === 0) return { type: 'pass' }
+  if (canPass(state)) {
+    const bomb = moves.filter(m => m.isBomb)
+    if (bomb.length && minOpp(state, seat) <= 4) return { type: 'play', cards: bomb.sort((a, b) => a.primaryRank - b.primaryRank)[0].cards }
+  }
+  return { type: 'play', cards: moves.slice().sort((a, b) => a.primaryRank - b.primaryRank || a.cardCount - b.cardCount)[0].cards }
+}
+
+// singleCardBlocker — when an opponent is low (≤2) and we lead, lead a hard combo
+// (multi-card, else the highest single) so they cannot cheaply win; else lowest.
+function singleCardBlocker(state: RoundState, seat: number): BotMove {
+  const moves = movesFor(state, seat)
+  if (moves.length === 0) return { type: 'pass' }
+  const goOut = moves.filter(m => m.cardCount === state.hands[seat].length)
+  if (goOut.length) return { type: 'play', cards: goOut[0].cards }
+  if (!canPass(state) && minOpp(state, seat) <= 2) {
+    const multi = moves.filter(m => m.cardCount >= 2)
+    if (multi.length) return { type: 'play', cards: multi.sort((a, b) => b.primaryRank - a.primaryRank)[0].cards }
+    return { type: 'play', cards: moves.sort((a, b) => b.primaryRank - a.primaryRank)[0].cards }
+  }
+  const nonPrem = moves.filter(m => !isPremium(m))
+  const pool = nonPrem.length ? nonPrem : moves
+  if (canPass(state) && !nonPrem.length && minOpp(state, seat) > 2) return { type: 'pass' }
+  return { type: 'play', cards: pool.sort((a, b) => a.primaryRank - b.primaryRank)[0].cards }
+}
+
+// highCardConserver — hoard 2s/high cards; dump lowest, pass on premium when calm.
+function highCardConserver(state: RoundState, seat: number): BotMove {
+  const moves = movesFor(state, seat)
+  if (moves.length === 0) return { type: 'pass' }
+  const goOut = moves.filter(m => m.cardCount === state.hands[seat].length)
+  if (goOut.length) return { type: 'play', cards: goOut.sort((a, b) => a.primaryRank - b.primaryRank)[0].cards }
+  const cheap = moves.filter(m => !isPremium(m) && m.primaryRank < R2)
+  if (cheap.length) return { type: 'play', cards: cheap.sort((a, b) => a.primaryRank - b.primaryRank)[0].cards }
+  if (canPass(state)) return { type: 'pass' }
+  return { type: 'play', cards: moves.sort((a, b) => a.primaryRank - b.primaryRank)[0].cards }
+}
+
+// endgameSpecialist — calm early (lowest singles), but in the endgame (any opponent
+// ≤3 or own hand ≤5) shed the most cards per turn and spend premiums to finish.
+function endgameSpecialist(state: RoundState, seat: number): BotMove {
+  const moves = movesFor(state, seat)
+  if (moves.length === 0) return { type: 'pass' }
+  const goOut = moves.filter(m => m.cardCount === state.hands[seat].length)
+  if (goOut.length) return { type: 'play', cards: goOut.sort((a, b) => a.primaryRank - b.primaryRank)[0].cards }
+  const endgame = minOpp(state, seat) <= 3 || state.hands[seat].length <= 5
+  if (endgame) return { type: 'play', cards: moves.slice().sort((a, b) => b.cardCount - a.cardCount || a.primaryRank - b.primaryRank)[0].cards }
+  const nonPrem = moves.filter(m => !isPremium(m))
+  if (nonPrem.length) return { type: 'play', cards: nonPrem.sort((a, b) => a.primaryRank - b.primaryRank)[0].cards }
+  return canPass(state) ? { type: 'pass' } : { type: 'play', cards: moves.sort((a, b) => a.primaryRank - b.primaryRank)[0].cards }
+}
+
 // ── Policy registry ──────────────────────────────────────────────────────────
 export function makePolicy(
   name: SimulationPolicyName,
@@ -99,9 +190,16 @@ export function makePolicy(
     case 'combinationPreserver': return { name, decide: (s, seat) => combinationPreserver(s, seat) }
     case 'defensive': return { name, decide: (s, seat) => defensive(s, seat) }
     case 'currentProduction': return { name, decide: (s, seat) => legacyBot(s, seat) }
+    case 'aggressiveControl': return { name, decide: (s, seat) => aggressiveControl(s, seat) }
+    case 'bombConserver': return { name, decide: (s, seat) => bombConserver(s, seat) }
+    case 'bombAggressor': return { name, decide: (s, seat) => bombAggressor(s, seat) }
+    case 'singleCardBlocker': return { name, decide: (s, seat) => singleCardBlocker(s, seat) }
+    case 'highCardConserver': return { name, decide: (s, seat) => highCardConserver(s, seat) }
+    case 'endgameSpecialist': return { name, decide: (s, seat) => endgameSpecialist(s, seat) }
     case 'aiNormal': return aiPolicy('aiNormal', 'normal', opts.weights)
     case 'aiHard': return aiPolicy('aiHard', 'hard', opts.weights)
     case 'aiExpert': return aiPolicy('aiExpert', 'expert', opts.weights)
+    case 'expertV1': return aiPolicy('expertV1', 'expert', opts.weights ?? POLICY_EXPERT.weights)
     case 'candidateTrained': return aiPolicy('candidateTrained', opts.difficulty ?? 'hard', opts.weights)
   }
 }

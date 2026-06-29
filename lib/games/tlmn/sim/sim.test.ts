@@ -72,7 +72,7 @@ test('expert policy passes every strategic scenario', () => {
 
 // Fitness disqualifies a policy that produces illegal moves.
 test('fitness hard-rejects illegal-move policies', () => {
-  const clean = { games: 100, winRate: 0.3, winRateBySeat: {}, winRateVsField: {}, avgFinishPosition: 1.5, avgRemainingOnLoss: 5, illegalMoveCount: 0, missedImmediateWinRate: 0, avoidableLossRate: 0, decisionTimeMeanMs: 1, decisionTimeP95Ms: 2 }
+  const clean = { games: 100, winRate: 0.3, firstPlaceRate: 0.3, winRateBySeat: {}, winRateVsField: {}, avgFinishPosition: 1.5, avgRemainingOnLoss: 5, illegalMoveCount: 0, missedImmediateWinRate: 0, avoidableLossRate: 0, forcedWinConversionRate: 0.8, oneCardBlockRate: 0.9, moveTypeDistribution: {}, passRate: 0.2, chopCount: 0, decisionTimeMeanMs: 1, decisionTimeMedianMs: 1, decisionTimeP95Ms: 2, decisionTimeP99Ms: 3, decisionTimeMaxMs: 4 }
   assert.ok(fitness(clean) > 0)
   assert.ok(fitness({ ...clean, illegalMoveCount: 1 }) < -1000)
 })

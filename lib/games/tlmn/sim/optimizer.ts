@@ -14,6 +14,7 @@ import { type SimPolicy } from './simulator.ts'
 import { makePolicy } from './policies.ts'
 import { runSelfPlay } from './selfPlay.ts'
 import { fitness } from './evaluation.ts'
+import { runScenarios } from './scenarios.ts'
 import {
   type BotStrategyWeights, DEFAULT_WEIGHTS, WEIGHT_SPECS, clampWeights, cloneWeights,
 } from '../ai/weights.ts'
@@ -47,6 +48,17 @@ export interface OptimizeOptions {
   seed?: string | number
   playerCount?: number
   ruleConfig?: Partial<Rules>
+  // Known-good weights to seed generation 0 with (warm start). Including the current
+  // production policy guarantees the search starts from a proven elite, so a promoted
+  // candidate never regresses below production by construction.
+  warmStarts?: BotStrategyWeights[]
+  // CONSTRAINED OPTIMIZATION — keep the safety behaviour the promotion gate requires,
+  // so the optimizer can't trade defensive correctness for raw win rate. Each failing
+  // strategic scenario, and any shortfall below the one-card-block floor, is penalised
+  // hard during training (scenarios are pure + cheap, run on the candidate per eval).
+  minOneCardBlock?: number      // floor for oneCardBlockRate (e.g. current production's level)
+  scenarioPenalty?: number      // fitness penalty per failing scenario (default 25)
+  blockFloorPenalty?: number    // fitness penalty per 1.0 of block-rate shortfall (default 300)
 }
 
 export interface OptimizeResult {
@@ -54,6 +66,9 @@ export interface OptimizeResult {
   bestTrainFitness: number
   bestValidationFitness: number
   history: Array<{ generation: number; bestFitness: number; meanFitness: number }>
+  // The validation-ranked finalists (best-ever + last-generation elites), so a caller
+  // can re-evaluate the top few on a larger UNSEEN holdout (staged evaluation).
+  finalists: Array<{ weights: BotStrategyWeights; validationFitness: number }>
 }
 
 export function optimizeWeights(opts: OptimizeOptions): OptimizeResult {
@@ -64,15 +79,32 @@ export function optimizeWeights(opts: OptimizeOptions): OptimizeResult {
   const mutationProb = opts.mutationProb ?? 0.4
   const rng = makeRng(opts.seed ?? 'optimizer')
 
+  const scenarioPenalty = opts.scenarioPenalty ?? 25
+  const blockFloorPenalty = opts.blockFloorPenalty ?? 300
+  const minBlock = opts.minOneCardBlock ?? 0
+  const scenRng = makeRng('opt-scenarios')
+
   const evalFitness = (w: BotStrategyWeights, seeds: string[]): number => {
     const candidate = makePolicy('candidateTrained', { difficulty: 'hard', weights: w })
     const report = runSelfPlay({ candidate, field: opts.field, seeds, playerCount: opts.playerCount, ruleConfig: opts.ruleConfig })
-    return fitness(report)
+    let f = fitness(report)
+    // Hard safety constraints (mirror the promotion gate so training stays admissible).
+    if (scenarioPenalty > 0 || minBlock > 0) {
+      const fails = runScenarios((s, seat) => candidate.decide(s, seat, scenRng, [])).filter(r => !r.pass).length
+      f -= fails * scenarioPenalty
+      f -= Math.max(0, minBlock - report.oneCardBlockRate) * blockFloorPenalty
+    }
+    return f
   }
 
-  // Generation 0: DEFAULT plus mutated variants.
-  let population: BotStrategyWeights[] = [cloneWeights(DEFAULT_WEIGHTS)]
-  while (population.length < populationSize) population.push(mutate(DEFAULT_WEIGHTS, rng, mutationScale * 1.5, 0.6))
+  // Generation 0: the warm-start elites (kept verbatim) + mutated variants of each.
+  const warm = [cloneWeights(DEFAULT_WEIGHTS), ...(opts.warmStarts ?? []).map(cloneWeights)]
+  let population: BotStrategyWeights[] = warm.map(cloneWeights)
+  let wi = 0
+  while (population.length < populationSize) {
+    const parent = warm[wi++ % warm.length]
+    population.push(mutate(parent, rng, mutationScale * 1.5, 0.6))
+  }
 
   const history: OptimizeResult['history'] = []
   let bestEver: { w: BotStrategyWeights; train: number } = { w: cloneWeights(DEFAULT_WEIGHTS), train: -Infinity }
@@ -97,17 +129,24 @@ export function optimizeWeights(opts: OptimizeOptions): OptimizeResult {
   }
 
   // Pick the final winner by VALIDATION fitness among the last elites + best-ever.
-  const finalists = [bestEver.w, ...population.slice(0, eliteCount)]
-  let chosen = { w: bestEver.w, valid: -Infinity }
-  for (const w of finalists) {
-    const v = evalFitness(w, opts.validationSeeds)
-    if (v > chosen.valid) chosen = { w, valid: v }
+  // Dedup by a stable signature so we don't validate the same weights twice.
+  const candidates = [bestEver.w, ...population.slice(0, eliteCount)]
+  const seen = new Set<string>()
+  const ranked: Array<{ weights: BotStrategyWeights; validationFitness: number }> = []
+  for (const w of candidates) {
+    const sig = KEYS.map(k => w[k].toFixed(3)).join(',')
+    if (seen.has(sig)) continue
+    seen.add(sig)
+    ranked.push({ weights: cloneWeights(w), validationFitness: evalFitness(w, opts.validationSeeds) })
   }
+  ranked.sort((a, b) => b.validationFitness - a.validationFitness)
+  const chosen = ranked[0]
 
   return {
-    best: chosen.w,
+    best: chosen.weights,
     bestTrainFitness: bestEver.train,
-    bestValidationFitness: chosen.valid,
+    bestValidationFitness: chosen.validationFitness,
     history,
+    finalists: ranked,
   }
 }

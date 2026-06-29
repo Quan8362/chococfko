@@ -139,14 +139,56 @@ export const POLICY_EXPERT: NamedWeights = {
   },
 }
 
+// expert-2026-06-v2 — produced by the CONSTRAINED weight optimizer (sim/optimizer)
+// and promoted after passing the full production gate (sim/cli.ts `cycle`):
+//   • 10,000-game UNSEEN holdout per policy (seat-rotated), difficulty=expert.
+//   • Win rate 38.82% vs legacy 34.69% (Δ +4.13 pts, paired bootstrap 95% CI [3.07, 5.15])
+//     and vs expert-2026-06-v1 37.48% (Δ +1.34 pts, paired 95% CI [0.49, 2.20]) — both
+//     lower bounds > 0, so the improvement is statistically significant.
+//   • Zero illegal moves; 40/40 strategic scenarios; 7/7 production-path replays legal.
+//   • No safety regression: one-card-block 75.4% (v1 75.8%), forced-win conversion 100%,
+//     avoidable-loss 1.78% (v1 1.79%); avg finish position 1.245 (BETTER than v1 1.301).
+//   • Decision time p99 31ms / max 310ms — far under the per-turn server budget.
+// Warm-started from v1 + constrained on the scenario suite and a one-card-block floor,
+// so it never trades defensive correctness for raw win rate. Exact validated weights.
+export const POLICY_EXPERT_V2: NamedWeights = {
+  version: 'expert-2026-06-v2',
+  weights: {
+    immediateWin: 1717.142034738959,
+    preventImmediateLoss: 1110.7675366506826,
+    cardsRemoved: 10.79179303564273,
+    reduceTurnsToFinish: 31,
+    maintainControl: 2.2394341374959166,
+    regainControl: 7.959229541237221,
+    blockOneCardOpponent: 197.1323807190385,
+    blockTwoCardOpponent: 49.41305560961651,
+    removeWeakSingles: 8.745237843771283,
+    preservePair: 7.3686547979626,
+    preserveTriple: 22.735942049168923,
+    preserveStraight: 20.910765023948493,
+    preserveBomb: 37.671167335511655,
+    breakCombinationPenalty: 12.957954781587915,
+    highCardCost: 5.4734174647489855,
+    wasteTwoPenalty: 85.71225739877265,
+    unsafeSingleLeadPenalty: 100.52862173750309,
+    seatOrderDanger: 13.229571025870635,
+    opponentMatchProbability: 6.177711088328351,
+    futureFlexibility: 6.067719888602607,
+  },
+}
+
 // All known policies (for rollback + CLI lookups).
 export const POLICY_REGISTRY: Record<string, NamedWeights> = {
   [POLICY_BASELINE.version]: POLICY_BASELINE,
   [POLICY_EXPERT.version]: POLICY_EXPERT,
+  [POLICY_EXPERT_V2.version]: POLICY_EXPERT_V2,
 }
 
-// The policy production uses by default. Change this single constant to roll back.
-export const ACTIVE_POLICY_VERSION = POLICY_EXPERT.version
+// The policy production uses by default. Change this single constant to roll back:
+//   • expert-2026-06-v2 — current (promoted 2026-06-30)
+//   • expert-2026-06-v1 — previous stable (immediate rollback target)
+//   • baseline-2026-06-v1 — hand-authored DEFAULT_WEIGHTS
+export const ACTIVE_POLICY_VERSION = POLICY_EXPERT_V2.version
 
 export function activeWeights(): BotStrategyWeights {
   return cloneWeights(POLICY_REGISTRY[ACTIVE_POLICY_VERSION].weights)

@@ -8,7 +8,7 @@
 // Every move is validated by the engine; an illegal policy move is counted and
 // replaced by the always-legal timeout move so a bad policy is flagged, not crashed.
 // ─────────────────────────────────────────────────────────────────────────────
-import { type Card, type Rules, parseCombo, resolveRules, createDeck, shuffle } from '../engine.ts'
+import { type Card, type Rules, R2, parseCombo, isBomb as engineIsBomb, resolveRules, createDeck, shuffle } from '../engine.ts'
 import { dealRound, applyPlay, applyPass, applyTimeout, type RoundState } from '../round.ts'
 import { makeRng } from '../ai/seededRandom.ts'
 import { buildLegalMoves } from '../ai/legalMoves.ts'
@@ -33,6 +33,15 @@ export interface SeatAudit {
   immediateWinsAvailable: number          // turns where a move would empty the hand
   immediateWinsTaken: number              // …and the seat took it
   riskySingleLeadsUnderThreat: number     // led a single while an opponent had 1 card and a safer multi-card lead existed
+  // Move-type distribution (the seat's own actual plays this game).
+  moveTypeCounts: Record<string, number>  // keyed by combinationType (single/pair/triple/straight/four/threePairRun/...)
+  passCount: number
+  chopCount: number                       // bomb plays that cut a non-bomb table (chặt)
+  // One-card-opponent blocking: lead-turns where some opponent holds exactly 1 card.
+  oneCardLeadOpportunities: number
+  oneCardLeadHardBlocks: number           // …and the seat led a "hard" combo (multi-card OR a 2/bomb single — not a beatable low single)
+  // Forced-win conversion: did the seat ever have an immediate-win opportunity this game?
+  hadImmediateWinOpportunity: boolean
 }
 
 export interface SimulatedGameResult {
@@ -79,7 +88,12 @@ export function runGame(opts: RunGameOptions): SimulatedGameResult {
   const maxTurns = opts.maxTurns ?? 600
   const auditSeat = opts.auditSeat ?? null
   const audit: SeatAudit | null = auditSeat != null
-    ? { immediateWinsAvailable: 0, immediateWinsTaken: 0, riskySingleLeadsUnderThreat: 0 }
+    ? {
+        immediateWinsAvailable: 0, immediateWinsTaken: 0, riskySingleLeadsUnderThreat: 0,
+        moveTypeCounts: {}, passCount: 0, chopCount: 0,
+        oneCardLeadOpportunities: 0, oneCardLeadHardBlocks: 0,
+        hadImmediateWinOpportunity: false,
+      }
     : null
 
   while (state.status === 'playing' && turns < maxTurns) {
@@ -97,6 +111,7 @@ export function runGame(opts: RunGameOptions): SimulatedGameResult {
       if (winAvailable) audit.immediateWinsAvailable++
       oppOneCard = state.seats.some(s => s !== seat && state.hands[s].length === 1)
       saferMultiExists = state.trick === null && moves.some(m => m.cardCount >= 2)
+      if (state.trick === null && oppOneCard) audit.oneCardLeadOpportunities++
     }
 
     const policy = opts.policies[seat]
@@ -110,9 +125,14 @@ export function runGame(opts: RunGameOptions): SimulatedGameResult {
     decisionTimeMs.push(performance.now() - t0)
 
     if (audit && seat === auditSeat) {
+      const leading = state.trick === null
       if (winAvailable && move.type === 'play' && move.cards.length === state.hands[seat].length) audit.immediateWinsTaken++
-      if (state.trick === null && oppOneCard && saferMultiExists && move.type === 'play' && move.cards.length === 1)
+      if (leading && oppOneCard && saferMultiExists && move.type === 'play' && move.cards.length === 1)
         audit.riskySingleLeadsUnderThreat++
+      if (leading && oppOneCard && move.type === 'play') {
+        const hard = move.cards.length >= 2 || move.cards.some(c => c.rank === R2)
+        if (hard) audit.oneCardLeadHardBlocks++
+      }
     }
 
     let res = move.type === 'play' ? applyPlay(state, seat, move.cards) : applyPass(state, seat)
@@ -131,8 +151,23 @@ export function runGame(opts: RunGameOptions): SimulatedGameResult {
     }
     if (applied.kind === 'play') for (const c of applied.cards) seen.push(c)
     plays.push(applied)
+
+    // Move-type distribution + chop counting for the audited seat (legal plays only).
+    if (audit && seat === auditSeat && !illegal) {
+      if (applied.kind === 'pass') audit.passCount++
+      else {
+        const combo = parseCombo(applied.cards)
+        const key = combo?.type ?? 'unknown'
+        audit.moveTypeCounts[key] = (audit.moveTypeCounts[key] ?? 0) + 1
+        const preTable = state.trick ? parseCombo(state.trick.cards) : null
+        if (combo && engineIsBomb(combo) && preTable && !engineIsBomb(preTable)) audit.chopCount++
+      }
+    }
+
     state = res.state
   }
+
+  if (audit) audit.hadImmediateWinOpportunity = audit.immediateWinsAvailable > 0
 
   const finalCardCounts: Record<number, number> = {}
   for (const s of seats) finalCardCounts[s] = state.hands[s].length

@@ -22,3 +22,6 @@ __pycache__/
 /test-results/
 /playwright-report/
 /e2e/screenshots/
+
+# TLMN training/eval reports (generated artifacts; do not commit)
+/lib/games/tlmn/sim/reports/

@@ -10,7 +10,11 @@
     "lint:explore": "next lint --dir lib --dir app/places --dir app/events --dir app/collections --dir app/plans --dir app/lists --dir app/api/cron --dir app/api/health --dir app/admin/places",
     "typecheck": "tsc --noEmit --skipLibCheck",
     "i18n:check": "node scripts/check-i18n-parity.mjs",
-    "test": "node --test \"lib/**/*.test.ts\""
+    "test": "node --test \"lib/**/*.test.ts\"",
+    "tlmn:scenarios": "node lib/games/tlmn/sim/cli.ts scenarios",
+    "tlmn:sim": "node lib/games/tlmn/sim/cli.ts sim",
+    "tlmn:eval": "node lib/games/tlmn/sim/cli.ts eval",
+    "tlmn:train": "node lib/games/tlmn/sim/cli.ts train"
   },
   "dependencies": {
     "@emoji-mart/data": "^1.2.1",

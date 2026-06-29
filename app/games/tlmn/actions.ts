@@ -12,7 +12,8 @@ import {
 import {
   dealRound, applyPlay, applyPass, applyTimeout, cardCounts, type RoundState,
 } from '@/lib/games/tlmn/round'
-import { chooseBotMove } from '@/lib/games/tlmn/bot'
+import { chooseBotMove, botMoveAudit } from '@/lib/games/tlmn/bot'
+import { chooseBotMoveAI, chooseAiMove, policyViewFromRound } from '@/lib/games/tlmn/ai'
 import { resolveAvatarUrl, resolveDisplayName, type AuthMetaLike } from '@/lib/games/tlmn/avatar'
 import { ENTRY_MIN_BALANCE } from '@/lib/game/economy'
 import { ensureWallet } from './wallet'
@@ -1388,10 +1389,35 @@ export async function runBotTurn(roomId: string): Promise<ActionResult> {
   const hands = await loadHands(admin, game.id)
   const round = roundFromDb(game, hands)
 
-  const move = chooseBotMove(round, actingSeat)
+  // PROMOTED policy: the trained expert AI (ai/weights ACTIVE_POLICY_VERSION) decides,
+  // building only a PUBLIC view (own hand + opponent COUNTS) — it never sees hidden
+  // hands. A per-turn deterministic seed makes every nudging client agree. Rollback:
+  // replace this line with `chooseBotMove(round, actingSeat)` (the legacy bot) — it
+  // stays fully intact and tested.
+  const turnSeed = `${game.id}|${actingSeat}|${game.turn_started_at}`
+  let move: { type: 'play'; cards: Card[] } | { type: 'pass' }
+  try {
+    move = chooseBotMoveAI(round, actingSeat, { difficulty: 'expert', seed: turnSeed })
+  } catch {
+    move = chooseBotMove(round, actingSeat) // never let an AI error wedge a bot turn
+  }
   let res = move.type === 'play' ? applyPlay(round, actingSeat, move.cards) : applyPass(round, actingSeat)
-  // chooseBotMove is provably legal, but never trust a single source: fall back to
-  // the always-legal timeout move so a bot turn can't wedge the round.
+
+  // Development-only AI audit (gated, off in production). Logs ONLY the bot's own
+  // hand + the public table — never another player's hidden cards.
+  if (process.env.TLMN_BOT_DEBUG === '1') {
+    const view = policyViewFromRound(round, actingSeat)
+    const ai = chooseAiMove(view, { difficulty: 'expert', seed: turnSeed })
+    console.log('[tlmn-bot]', JSON.stringify({
+      ...botMoveAudit(round, actingSeat),
+      aiExplanation: ai.explanation.text,
+      usedSearch: ai.usedSearch,
+      validationResult: res.ok ? 'ok' : res.error,
+    }))
+  }
+
+  // The AI is provably legal (picks from engine legalMoves), but never trust a single
+  // source: fall back to the always-legal timeout move so a bot turn can't wedge the round.
   if (!res.ok) res = applyTimeout(round)
   if (!res.ok) return { error: res.error }
 

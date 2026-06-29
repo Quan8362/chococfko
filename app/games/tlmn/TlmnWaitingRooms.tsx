@@ -76,9 +76,7 @@ export default function TlmnWaitingRooms({ initialRooms, userId }: Props) {
   return (
     <div className="mt-8">
       <h2 className="font-serif font-bold text-[20px] tl-section-title mb-1 flex items-center gap-2.5">
-        <span className="w-9 h-9 rounded-xl bg-[var(--tl-red)]/8 text-[var(--tl-red)] flex items-center justify-center ring-1 ring-[var(--tl-red)]/15">
-          <TlmnHourglass className="w-5 h-5" />
-        </span>
+        <TlmnHourglass className="flex-none w-[22px] h-[22px] text-[var(--tl-red)]" />
         {t('lobby_title')}
       </h2>
       <p className="text-[13.5px] tl-section-sub mb-4 leading-relaxed">{t('lobby_section_desc')}</p>
@@ -91,7 +89,7 @@ export default function TlmnWaitingRooms({ initialRooms, userId }: Props) {
 
       {rooms.length === 0 ? (
         <div className="tl-panel px-5 py-10 text-center relative overflow-hidden">
-          <TlmnTwoCards variant="empty" className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3.5" />
+          <TlmnTwoCards variant="empty" className="w-8 h-8 sm:w-9 sm:h-9 mx-auto mb-3.5" />
           <p className="text-[13.5px] text-[var(--tl-text-soft)] leading-relaxed max-w-[360px] mx-auto">
             {t('lobby_empty')}
           </p>

@@ -1170,12 +1170,12 @@ img {
 .tl-hero__suit {
   position: absolute;
   right: 20px; top: 20px;
-  width: clamp(96px, 16vw, 150px);
+  width: clamp(76px, 12vw, 112px);
   height: auto;
   /* Tone-on-tone burgundy embossing — a lighter shade of the hero red so it reads as
-     a subtle pressed-in motif, never a foreground illustration. */
+     subtle pressed-in background artwork, never a foreground illustration. */
   color: #cf7c92;
-  opacity: 0.2;
+  opacity: 0.12;
   pointer-events: none;
   transform: rotate(5deg);
 }

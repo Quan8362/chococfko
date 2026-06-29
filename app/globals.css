@@ -1169,14 +1169,18 @@ img {
 }
 .tl-hero__suit {
   position: absolute;
-  right: 16px; top: 18px;
-  width: clamp(88px, 17vw, 138px);
+  right: 20px; top: 20px;
+  width: clamp(96px, 16vw, 150px);
+  height: auto;
   /* Tone-on-tone burgundy embossing — a lighter shade of the hero red so it reads as
      a subtle pressed-in motif, never a foreground illustration. */
-  color: #c97188;
-  opacity: 0.16;
+  color: #cf7c92;
+  opacity: 0.2;
   pointer-events: none;
-  transform: rotate(6deg);
+  transform: rotate(5deg);
+}
+@media (min-width: 640px) {
+  .tl-hero__suit { right: 34px; top: 30px; }
 }
 
 /* ── Standard light card — warm white, one warm border, a single soft shadow ── */

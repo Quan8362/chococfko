@@ -53,9 +53,9 @@ export default async function TlmnPage() {
         </div>
 
         {/* How-to-play box */}
-        <div className="tl-panel tl-panel--accent px-5 py-4 mb-6 flex items-start gap-3.5">
-          <span className="flex-none mt-0.5 w-10 h-10 rounded-xl bg-[var(--tl-red)]/8 text-[var(--tl-red)] flex items-center justify-center">
-            <TlmnTwoCards variant="info" className="w-6 h-6" />
+        <div className="tl-panel tl-panel--accent px-5 py-4 mb-6 flex items-center gap-4">
+          <span className="flex-none w-11 h-11 rounded-xl bg-[var(--tl-red)]/8 text-[var(--tl-red)] flex items-center justify-center ring-1 ring-[var(--tl-red)]/12">
+            <TlmnTwoCards variant="info" className="w-[22px] h-[22px]" />
           </span>
           <div className="text-[13px] text-[var(--tl-text)] leading-relaxed space-y-0.5">
             <p><strong className="text-[var(--tl-red)]">{t('rules_title')}:</strong> {t('rules_players')}</p>

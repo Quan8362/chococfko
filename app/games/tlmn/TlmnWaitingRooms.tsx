@@ -91,7 +91,7 @@ export default function TlmnWaitingRooms({ initialRooms, userId }: Props) {
 
       {rooms.length === 0 ? (
         <div className="tl-panel px-5 py-10 text-center relative overflow-hidden">
-          <TlmnTwoCards variant="empty" className="w-11 h-11 mx-auto mb-3" />
+          <TlmnTwoCards variant="empty" className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3.5" />
           <p className="text-[13.5px] text-[var(--tl-text-soft)] leading-relaxed max-w-[360px] mx-auto">
             {t('lobby_empty')}
           </p>

@@ -10,16 +10,17 @@ type IconProps = { className?: string }
 // ════════════════════════════════════════════════════════════════════════════════
 //  Unified TWO-CARD motif — one visual system, four contexts (front-door art)
 //  ─────────────────────────────────────────────────────────────────────────────
-//  A single silhouette — two lightly overlapping playing cards: a front card fanned
-//  RIGHT (rotated CW) laid over a back card fanned LEFT (rotated CCW) — reused across
-//  the TLMN lobby so the hero, the "Cách chơi" info icon, the brand pill and the
-//  "Phòng chờ" empty state read as ONE family. Every variant shares identical card
-//  proportions (≈5:7), corner radius, overlap direction and core silhouette; only the
-//  colour tokens, stroke weight, opacity and incidental detail change per context:
-//    hero  → decorative background art   (currentColor, low contrast, no outline)
-//    info  → functional outline icon     (currentColor, the strongest outline)
-//    pill  → ultra-compact brand mark    (self-coloured ivory/gold, pure silhouette)
-//    empty → soft, friendly illustration (pale blush, faint heart + a tiny sparkle)
+//  Two lightly overlapping playing cards — a FRONT card fanned right (rotated CW) laid
+//  over a REAR card fanned left (rotated CCW) — reused across the TLMN lobby so the hero
+//  decoration, the brand pill, the "Cách chơi" info icon and the "Phòng chờ" empty state
+//  read as ONE family. Every variant shares the same DNA: card proportions (≈5:7),
+//  corner radius, overlap direction and rotation relationship. They are NOT one SVG
+//  mechanically scaled — each variant is purpose-built for its real rendered size, with
+//  its own geometry / stroke / opacity / detail so it stays crisp from 14px to ~150px:
+//    hero  → large decorative emboss   (tone-on-tone outline, faint, subtle inner index)
+//    pill  → ultra-compact brand mark  (larger + more separated cards, NO pip, solid)
+//    info  → functional line icon      (strongest burgundy stroke, ONE front corner mark)
+//    empty → soft friendly illustration(pale blush, one rose heart accent + a sparkle)
 // ════════════════════════════════════════════════════════════════════════════════
 
 export type TwoCardsVariant = 'hero' | 'info' | 'pill' | 'empty'
@@ -38,21 +39,28 @@ const TC = {
   blushSpark: '#f1c2d6',
 } as const
 
-// One restrained geometry shared by all variants: two slim, near-vertical cards
-// (≈5:7) with a subtle corner radius, a small rotation difference and a light
-// overlap — the front card fanned right over a back card fanned left. Only stroke
-// weight, fill, opacity, size and pip detail change per context; the proportions,
-// radius and overlap direction never do.
-const CARD = {
-  back: { x: 5.7, y: 4.9, w: 8.6, h: 12.2, rx: 1.3, rot: -8, cx: 10, cy: 11 },
-  front: { x: 9.1, y: 6.3, w: 8.6, h: 12.2, rx: 1.3, rot: 7, cx: 13.4, cy: 12.4 },
+type CardGeom = { x: number; y: number; w: number; h: number; rx: number; rot: number; cx: number; cy: number }
+
+// Two purpose-built geometries inside a shared 24×24 box. Both keep the ≈5:7 card
+// proportions, the rear-left (−8°) / front-right (+7–8°) fan and a restrained radius —
+// only the size + overlap differ so each reads optimally at its target rendered size.
+//   STD  → hero / info / empty: a light (~32%) overlap; a small corner index reads at ≥20px
+//   PILL → brand pill: larger, MORE separated cards (≈18% overlap) and no internal pip,
+//          so two distinct card silhouettes survive at 14–16px on hi-dpi screens
+const STD = {
+  back:  { x: 5.0,  y: 6.0, w: 8.4, h: 11.8, rx: 1.3, rot: -8, cx: 9.2,  cy: 11.9 },
+  front: { x: 10.8, y: 5.4, w: 8.4, h: 11.8, rx: 1.3, rot: 7,  cx: 15.0, cy: 11.3 },
 } as const
+const PILL = {
+  back:  { x: 3.6,  y: 4.6, w: 9.2, h: 12.8, rx: 1.6, rot: -8, cx: 8.2,  cy: 11.0 },
+  front: { x: 11.2, y: 5.2, w: 9.2, h: 12.8, rx: 1.6, rot: 8,  cx: 15.8, cy: 11.6 },
+} as const
+
 // Tiny corner suit marks only — no oversized central suit.
 const PIP_HEART = 'M0 -1.1C-.7 -2.2 -2.4 -1.6 -2.4 -.3 -2.4 1 -.75 1.75 0 2.6 .75 1.75 2.4 1 2.4 -.3 2.4 -1.6 .7 -2.2 0 -1.1Z'
 const PIP_SPADE = 'M0 -2.4C-.05 -.9 -2.5 -.15 -2.5 1.25 -2.5 2.1 -1.6 2.5 -.85 2.15 -.75 2.7 -1 3.05 -1.5 3.35L1.5 3.35C1 3.05 .75 2.7 .85 2.15 1.6 2.5 2.5 2.1 2.5 1.25 2.5 -.15 .05 -.9 0 -2.4Z'
 const SPARKLE = 'M0 -2C.2 -.65 .65 -.2 2 0 .65 .2 .2 .65 0 2 -.2 .65 -.65 .2 -2 0 -.65 -.2 -.2 -.65 0 -2Z'
 
-type CardGeom = { x: number; y: number; w: number; h: number; rx: number; rot: number; cx: number; cy: number }
 function CardRect({ c, fill, fillOpacity, stroke, strokeWidth }: {
   c: CardGeom; fill?: string; fillOpacity?: number; stroke?: string; strokeWidth?: number
 }) {
@@ -61,49 +69,53 @@ function CardRect({ c, fill, fillOpacity, stroke, strokeWidth }: {
       x={c.x} y={c.y} width={c.w} height={c.h} rx={c.rx}
       transform={`rotate(${c.rot} ${c.cx} ${c.cy})`}
       fill={fill} fillOpacity={fillOpacity} stroke={stroke} strokeWidth={strokeWidth}
+      strokeLinejoin="round"
     />
   )
 }
 
-// Per-variant treatment — same silhouette, different weight/colour/detail.
-//   hero  → thin tone-on-tone outline embossing, no fill (CSS dims it further)
-//   info  → cleaner two-card line icon, slightly stronger burgundy stroke
-//   pill  → tiny solid cream cards, one gold pip, monochrome so it stays crisp ~15px
-//   empty → soft pale-blush cards, a darker rose accent + one tiny sparkle
-const TWO_CARDS_STYLE: Record<TwoCardsVariant, {
+// Per-variant treatment — same DNA, purpose-tuned geometry / weight / colour / detail.
+type VariantStyle = {
+  geom: typeof STD | typeof PILL
   backFill: string; frontFill: string; fillOpacity: number
-  stroke: string; strokeWidth: number; pipFront: string; pipBack: string; backPip: boolean
-}> = {
-  hero:  { backFill: 'none', frontFill: 'none', fillOpacity: 1, stroke: 'currentColor', strokeWidth: 0.9, pipFront: 'currentColor', pipBack: 'currentColor', backPip: true },
-  info:  { backFill: 'currentColor', frontFill: 'currentColor', fillOpacity: 0.07, stroke: 'currentColor', strokeWidth: 1.15, pipFront: 'currentColor', pipBack: 'currentColor', backPip: true },
-  pill:  { backFill: TC.ivory, frontFill: TC.ivoryHi, fillOpacity: 1, stroke: TC.goldDeep, strokeWidth: 0.9, pipFront: TC.goldDeep, pipBack: TC.goldDeep, backPip: false },
-  empty: { backFill: TC.blush, frontFill: TC.blushHi, fillOpacity: 1, stroke: TC.blushLine, strokeWidth: 1.15, pipFront: TC.blushHeart, pipBack: TC.blushHeart, backPip: true },
+  stroke: string; strokeWidth: number
+  pip: string; pipShape: string
+  frontPip: boolean; backPip: boolean; frontIndex2: boolean; sparkle: boolean
+}
+const TWO_CARDS_STYLE: Record<TwoCardsVariant, VariantStyle> = {
+  // thin tone-on-tone outline emboss; a faint two-corner index makes it read as cards
+  hero:  { geom: STD,  backFill: 'none', frontFill: 'none', fillOpacity: 1, stroke: 'currentColor', strokeWidth: 0.8, pip: 'currentColor', pipShape: PIP_SPADE, frontPip: true, backPip: true, frontIndex2: true, sparkle: false },
+  // strongest burgundy line icon, faint wash, ONE corner mark on the front card only
+  info:  { geom: STD,  backFill: 'currentColor', frontFill: 'currentColor', fillOpacity: 0.06, stroke: 'currentColor', strokeWidth: 1.2, pip: 'currentColor', pipShape: PIP_SPADE, frontPip: true, backPip: false, frontIndex2: false, sparkle: false },
+  // pure ivory/gold silhouette — no pip, two clearly separated cards, crisp at ~15px
+  pill:  { geom: PILL, backFill: TC.ivory, frontFill: TC.ivoryHi, fillOpacity: 1, stroke: TC.goldDeep, strokeWidth: 0.9, pip: TC.goldDeep, pipShape: PIP_SPADE, frontPip: false, backPip: false, frontIndex2: false, sparkle: false },
+  // soft pale-blush cards, a darker rose heart accent + one tiny sparkle for warmth
+  empty: { geom: STD,  backFill: TC.blush, frontFill: TC.blushHi, fillOpacity: 1, stroke: TC.blushLine, strokeWidth: 1.15, pip: TC.blushHeart, pipShape: PIP_HEART, frontPip: true, backPip: false, frontIndex2: false, sparkle: true },
 }
 
 export function TlmnTwoCards({ variant, className }: { variant: TwoCardsVariant; className?: string }) {
-  const B = CARD.back
-  const F = CARD.front
   const s = TWO_CARDS_STYLE[variant]
+  const B = s.geom.back
+  const F = s.geom.front
 
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden>
-      {/* back card — fanned left, behind; only its top-left corner peeks */}
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
+      {/* rear card — fanned left, behind; its left edge peeks out */}
       <CardRect c={B} fill={s.backFill} fillOpacity={s.backFill === 'none' ? undefined : s.fillOpacity} stroke={s.stroke} strokeWidth={s.strokeWidth} />
       {s.backPip && (
         <g transform={`rotate(${B.rot} ${B.cx} ${B.cy})`}>
-          <path d={PIP_HEART} transform="translate(8 7.6) scale(0.78)" fill={s.pipBack} />
+          <path d={s.pipShape} transform="translate(6.8 8.4) scale(0.74)" fill={s.pip} />
         </g>
       )}
 
-      {/* front card — fanned right, on top; a single small corner spade pip */}
+      {/* front card — fanned right, on top */}
       <CardRect c={F} fill={s.frontFill} fillOpacity={s.frontFill === 'none' ? undefined : s.fillOpacity} stroke={s.stroke} strokeWidth={s.strokeWidth} />
       <g transform={`rotate(${F.rot} ${F.cx} ${F.cy})`}>
-        <path d={PIP_SPADE} transform="translate(11.4 9.3) scale(0.78)" fill={s.pipFront} />
+        {s.frontPip && <path d={s.pipShape} transform="translate(12.6 7.9) scale(0.74)" fill={s.pip} />}
+        {s.frontIndex2 && <path d={s.pipShape} transform="translate(17.4 14.7) scale(0.74) rotate(180)" fill={s.pip} />}
       </g>
 
-      {variant === 'empty' && (
-        <path d={SPARKLE} transform="translate(19.4 5) scale(0.85)" fill={TC.blushSpark} />
-      )}
+      {s.sparkle && <path d={SPARKLE} transform="translate(20 4.8) scale(0.8)" fill={TC.blushSpark} />}
     </svg>
   )
 }
@@ -303,6 +315,15 @@ export function TlmnCards({ className }: IconProps) {
       <rect x="11" y="5" width="9" height="13" rx="1.6" transform="rotate(8 11 5)" fill="currentColor" opacity="0.2" />
       <rect x="11" y="5" width="9" height="13" rx="1.6" transform="rotate(8 11 5)" stroke="currentColor" strokeWidth="1.5" />
       <path d="M16 9.4l1.3 2.2-1.3 2.2-1.3-2.2L16 9.4Z" fill="currentColor" />
+    </svg>
+  )
+}
+
+// ── Play (Chơi ngay với máy — the practice CTA's true action) ──
+export function TlmnPlay({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
+      <path d="M8 5.6c0-1 1.1-1.6 1.95-1.1l9.2 5.6a1.3 1.3 0 0 1 0 2.2l-9.2 5.6C9.1 18.4 8 17.8 8 16.8V5.6Z" fill="currentColor" />
     </svg>
   )
 }

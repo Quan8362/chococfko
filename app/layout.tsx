@@ -91,8 +91,18 @@ export async function generateMetadata(): Promise<Metadata> {
       title: SITE_NAME,
       statusBarStyle: 'default',
     },
+    // Authoritative, site-wide icon set. We declare these explicitly (root-relative)
+    // because a partial `icons` object — previously only `apple` — makes Next.js drop
+    // the auto-generated browser favicon link from the file convention, so every route
+    // (e.g. /games/tlmn) shipped with no <link rel="icon"> and browsers fell back to a
+    // non-existent /favicon.ico (404 → default globe). Keep the browser favicon first.
     icons: {
-      apple: [{ url: '/icon-512.png' }],
+      // `/favicon.ico` is auto-linked by the app/favicon.ico file convention; we only
+      // add the higher-res PNG as an alternative here (without it, declaring `icons`
+      // would suppress the file-convention PNG link).
+      icon: [{ url: '/icon.png', type: 'image/png' }],
+      shortcut: '/favicon.ico',
+      apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
     },
   }
 }

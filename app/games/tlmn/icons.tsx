@@ -7,6 +7,108 @@
 
 type IconProps = { className?: string }
 
+// ════════════════════════════════════════════════════════════════════════════════
+//  Unified TWO-CARD motif — one visual system, four contexts (front-door art)
+//  ─────────────────────────────────────────────────────────────────────────────
+//  A single silhouette — two lightly overlapping playing cards: a front card fanned
+//  RIGHT (rotated CW) laid over a back card fanned LEFT (rotated CCW) — reused across
+//  the TLMN lobby so the hero, the "Cách chơi" info icon, the brand pill and the
+//  "Phòng chờ" empty state read as ONE family. Every variant shares identical card
+//  proportions (≈5:7), corner radius, overlap direction and core silhouette; only the
+//  colour tokens, stroke weight, opacity and incidental detail change per context:
+//    hero  → decorative background art   (currentColor, low contrast, no outline)
+//    info  → functional outline icon     (currentColor, the strongest outline)
+//    pill  → ultra-compact brand mark    (self-coloured ivory/gold, pure silhouette)
+//    empty → soft, friendly illustration (pale blush, faint heart + a tiny sparkle)
+// ════════════════════════════════════════════════════════════════════════════════
+
+export type TwoCardsVariant = 'hero' | 'info' | 'pill' | 'empty'
+
+// Shared color tokens (mirror the scoped .tlmn-lobby CSS variables so the inline
+// SVG fills stay cohesive with the burgundy / blush / cream / muted-gold UI).
+const TC = {
+  ivory: '#efe1c2',
+  ivoryHi: '#fffdf8',
+  goldDeep: '#9c7322',
+  red: '#8a1a30',
+  blush: '#fbe7ef',
+  blushHi: '#fef3f8',
+  blushLine: '#ecb9cd',
+  blushHeart: '#e3a0bd',
+  blushSpark: '#f1c2d6',
+} as const
+
+// One geometry, shared by all variants. Same proportions, radius and overlap.
+const CARD = {
+  back: { x: 3.4, y: 5.6, w: 10.2, h: 14, rx: 2, rot: -13, cx: 8.5, cy: 12.6 },
+  front: { x: 9.2, y: 4, w: 10.2, h: 14, rx: 2, rot: 11, cx: 14.3, cy: 11 },
+} as const
+const HEART = 'M0 -1.6C-1 -3.3 -3.5 -2.4 -3.5 -0.4 -3.5 1.5 -1.1 2.6 0 3.9 1.1 2.6 3.5 1.5 3.5 -0.4 3.5 -2.4 1 -3.3 0 -1.6Z'
+const SPARKLE = 'M0 -2.4C.25 -.8 .8 -.25 2.4 0 .8 .25 .25 .8 0 2.4 -.25 .8 -.8 .25 -2.4 0 -.8 -.25 -.25 -.8 0 -2.4Z'
+
+type CardGeom = { x: number; y: number; w: number; h: number; rx: number; rot: number; cx: number; cy: number }
+function CardRect({ c, fill, fillOpacity, stroke, strokeWidth }: {
+  c: CardGeom; fill?: string; fillOpacity?: number; stroke?: string; strokeWidth?: number
+}) {
+  return (
+    <rect
+      x={c.x} y={c.y} width={c.w} height={c.h} rx={c.rx}
+      transform={`rotate(${c.rot} ${c.cx} ${c.cy})`}
+      fill={fill} fillOpacity={fillOpacity} stroke={stroke} strokeWidth={strokeWidth}
+    />
+  )
+}
+
+export function TlmnTwoCards({ variant, className }: { variant: TwoCardsVariant; className?: string }) {
+  const B = CARD.back
+  const F = CARD.front
+  const heartOnFront = (fill: string, scale = 0.6) => (
+    <g transform={`rotate(${F.rot} ${F.cx} ${F.cy})`}>
+      <path d={HEART} transform={`translate(${F.cx} ${F.cy}) scale(${scale})`} fill={fill} />
+    </g>
+  )
+
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden>
+      {variant === 'hero' && (
+        <>
+          {/* Decorative, low-contrast — the parent CSS dials overall opacity right down */}
+          <CardRect c={B} fill="currentColor" fillOpacity={0.45} />
+          <CardRect c={F} fill="currentColor" fillOpacity={0.85} />
+        </>
+      )}
+
+      {variant === 'info' && (
+        <>
+          {/* Functional — the strongest outline of the family, one minimal heart pip */}
+          <CardRect c={B} fill="currentColor" fillOpacity={0.1} stroke="currentColor" strokeWidth={1.5} />
+          <CardRect c={F} fill="currentColor" fillOpacity={0.18} stroke="currentColor" strokeWidth={1.7} />
+          {heartOnFront('currentColor', 0.6)}
+        </>
+      )}
+
+      {variant === 'pill' && (
+        <>
+          {/* Ultra-compact — self-coloured ivory + gold edge, pure silhouette so it
+              stays crisp at ~16px on the dark brand pill */}
+          <CardRect c={B} fill={TC.ivory} stroke={TC.goldDeep} strokeWidth={1} />
+          <CardRect c={F} fill={TC.ivoryHi} stroke={TC.goldDeep} strokeWidth={1.1} />
+        </>
+      )}
+
+      {variant === 'empty' && (
+        <>
+          {/* Soft + friendly — pale blush, a faint heart and one tiny sparkle */}
+          <CardRect c={B} fill={TC.blush} stroke={TC.blushLine} strokeWidth={1.3} />
+          <CardRect c={F} fill={TC.blushHi} stroke={TC.blushLine} strokeWidth={1.4} />
+          {heartOnFront(TC.blushHeart, 0.58)}
+          <path d={SPARKLE} transform="translate(19.6 4.9) scale(0.8)" fill={TC.blushSpark} />
+        </>
+      )}
+    </svg>
+  )
+}
+
 // ── TLMN brand mark — a face-up 2♥ over a subtle supporting card (Run — identity) ──
 // Replaces the old Joker emoji, which on Windows rendered as a multicolour clown card
 // and wrongly implied Joker gameplay (Tiến Lên uses no Jokers). The 2♥ is the strongest

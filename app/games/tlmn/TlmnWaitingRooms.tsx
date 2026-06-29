@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { fetchWaitingRooms, joinRoomFromLobby, type WaitingRoom } from './actions'
-import { TlmnHourglass, TlmnSuits } from './icons'
+import { TlmnHourglass, TlmnTwoCards } from './icons'
 
 const MAX_SEATS = 4
 
@@ -91,7 +91,7 @@ export default function TlmnWaitingRooms({ initialRooms, userId }: Props) {
 
       {rooms.length === 0 ? (
         <div className="tl-panel px-5 py-10 text-center relative overflow-hidden">
-          <TlmnSuits className="w-12 h-12 mx-auto mb-3 text-[var(--tl-red)] opacity-25" />
+          <TlmnTwoCards variant="empty" className="w-14 h-14 mx-auto mb-3" />
           <p className="text-[13.5px] text-[var(--tl-text-soft)] leading-relaxed max-w-[360px] mx-auto">
             {t('lobby_empty')}
           </p>

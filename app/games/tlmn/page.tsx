@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import TlmnLobby from './TlmnLobby'
 import TlmnWaitingRooms from './TlmnWaitingRooms'
 import { fetchWaitingRooms } from './actions'
-import { TlmnSuits, TlmnCards, TlmnDeuce } from './icons'
+import { TlmnTwoCards } from './icons'
 
 export const dynamic = 'force-dynamic'
 
@@ -37,10 +37,10 @@ export default async function TlmnPage() {
       <div className="tlmn-lobby">
         {/* Hero band */}
         <div className="tl-hero mb-6">
-          <TlmnSuits className="tl-hero__suit" />
+          <TlmnTwoCards variant="hero" className="tl-hero__suit" />
           <div className="relative">
             <span className="inline-flex items-center gap-1.5 text-[10.5px] font-bold tracking-[2.5px] uppercase text-[var(--tl-gold-bright)] bg-black/25 border border-[var(--tl-gold)]/40 px-3 py-1.5 rounded-full mb-4">
-              <TlmnDeuce className="w-4 h-4 -my-0.5" />
+              <TlmnTwoCards variant="pill" className="w-4 h-4 -my-0.5" />
               {t('badge')}
             </span>
             <h1 className="font-serif font-bold text-[clamp(27px,4.4vw,42px)] leading-tight tracking-[-0.4px] text-[#fdeedd] mb-2 [text-shadow:0_2px_14px_rgba(0,0,0,0.35)]">
@@ -55,7 +55,7 @@ export default async function TlmnPage() {
         {/* How-to-play box */}
         <div className="tl-panel tl-panel--accent px-5 py-4 mb-6 flex items-start gap-3.5">
           <span className="flex-none mt-0.5 w-10 h-10 rounded-xl bg-[var(--tl-red)]/8 text-[var(--tl-red)] flex items-center justify-center">
-            <TlmnCards className="w-6 h-6" />
+            <TlmnTwoCards variant="info" className="w-6 h-6" />
           </span>
           <div className="text-[13px] text-[var(--tl-text)] leading-relaxed space-y-0.5">
             <p><strong className="text-[var(--tl-red)]">{t('rules_title')}:</strong> {t('rules_players')}</p>

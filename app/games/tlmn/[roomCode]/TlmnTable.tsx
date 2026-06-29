@@ -1591,25 +1591,29 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
   // tappable. Safe-area padded top + bottom; never cut off by the table frame.
   const resultOverlay = ended ? (
     <div
-      className="absolute inset-0 z-[60] flex items-start sm:items-center justify-center overflow-y-auto overscroll-contain px-3"
+      className="tlmn-result-overlay absolute inset-0 z-[60] flex items-start sm:items-center justify-center overflow-y-auto overscroll-contain px-3"
       style={{
         paddingTop: 'calc(env(safe-area-inset-top) + 54px)',
         paddingBottom: 'calc(env(safe-area-inset-bottom) + 16px)',
         background: 'rgba(6,14,10,0.55)',
       }}
     >
-      <div className="w-full max-w-[600px] my-auto flex flex-col gap-3">
+      {/* In short / landscape viewports tlmn-result-modal caps the height + owns the
+          scroll (globals.css) so the page body never scrolls and the footer stays put. */}
+      <div className="tlmn-result-modal w-full max-w-[600px] my-auto flex flex-col gap-3">
         {game.result?.instant && <ToiTrangBanner game={game} seatName={seatName} t={t} />}
-        <Podium game={game} seats={seats} seatName={seatName} reduced={reduced} mySeat={mySeat} myBalance={myBalance} myRoundDelta={myRoundDelta} t={t} />
-        <div className="text-center pb-1">
+        <Podium game={game} seats={seats} seatName={seatName} reduced={reduced} mySeat={mySeat} myBalance={myBalance} myRoundDelta={myRoundDelta} compact={shortVp} t={t} />
+        <div className="tlmn-result-footer text-center pb-1">
           {isHost ? (
             <button
               type="button"
               onClick={doNextRound}
               disabled={busy}
-              className="tlmn-btn-gold inline-flex items-center gap-2 font-black text-[15px] uppercase tracking-wide px-8 py-3.5 rounded-xl transition-all disabled:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+              className={`tlmn-btn-gold inline-flex items-center gap-2 font-black uppercase tracking-wide rounded-xl transition-all disabled:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-white ${
+                shortVp ? 'text-[13.5px] px-6 py-2.5' : 'text-[15px] px-8 py-3.5'
+              }`}
             >
-              <TlmnCards className="w-5 h-5" />
+              <TlmnCards className={shortVp ? 'w-4 h-4' : 'w-5 h-5'} />
               {t('new_round_btn')}
             </button>
           ) : (
@@ -2156,7 +2160,7 @@ function ToiTrangBanner({
 // down. Each row shows avatar, name, "Còn N lá", the round delta, running total and the
 // animated virtual-CHIP delta. The đếm-lá MATH is unchanged — display only.
 function Podium({
-  game, seats, seatName, reduced, mySeat, myBalance, myRoundDelta, t,
+  game, seats, seatName, reduced, mySeat, myBalance, myRoundDelta, compact = false, t,
 }: {
   game: TlmnPublicGame
   seats: TlmnSeat[]
@@ -2165,6 +2169,9 @@ function Podium({
   mySeat: number | null
   myBalance: number | null
   myRoundDelta: number | null
+  // Short / landscape viewports: tighter rows, smaller avatars + fonts so all results
+  // + the sticky "VÁN MỚI" footer fit the cramped height. Portrait passes false (default).
+  compact?: boolean
   t: ReturnType<typeof useTranslations>
 }) {
   const breakdown = game.result?.breakdown
@@ -2187,11 +2194,11 @@ function Podium({
   const medals = ['🥇', '🥈', '🥉', '🏅']
 
   return (
-    <div className="tlmn-results-card rounded-2xl overflow-hidden p-3 sm:p-4">
-      <p className="text-[11px] font-black text-[var(--tg-gold-bright)] uppercase tracking-[2px] text-center pb-3">
+    <div className={`tlmn-results-card rounded-2xl overflow-hidden ${compact ? 'p-2.5' : 'p-3 sm:p-4'}`}>
+      <p className={`font-black text-[var(--tg-gold-bright)] uppercase tracking-[2px] text-center ${compact ? 'text-[10px] pb-2' : 'text-[11px] pb-3'}`}>
         {t('podium_title')}
       </p>
-      <div className="flex flex-col gap-2">
+      <div className={`flex flex-col ${compact ? 'gap-1.5' : 'gap-2'}`}>
         {rows.map((r, rank) => {
           const cum = cumulativeOf(r.seat)
           // My seat shows the REAL persisted wallet balance + REAL applied delta;
@@ -2200,23 +2207,24 @@ function Podium({
           const chips = isMyRow && myBalance != null ? myBalance : chipsFromScore(cum)
           const chipDelta = isMyRow && myRoundDelta != null ? myRoundDelta : r.total * CHIP_RATE
           const first = rank === 0
+          const avSize = first ? (compact ? 42 : 46) : (compact ? 34 : 38)
           return (
             <div
               key={r.seat}
-              className={`flex items-center gap-3 rounded-xl px-3 py-2.5 ${first ? 'tlmn-podium-1' : 'tlmn-podium-row'}`}
+              className={`flex items-center rounded-xl ${compact ? 'gap-2 px-2.5 py-1.5' : 'gap-3 px-3 py-2.5'} ${first ? 'tlmn-podium-1' : 'tlmn-podium-row'}`}
             >
               <span className="relative inline-flex flex-none">
-                {first && <span className="absolute left-1/2 -translate-x-1/2 -top-4 text-[18px] tlmn-crown-sweep z-10" aria-hidden>👑</span>}
+                {first && <span className={`absolute left-1/2 -translate-x-1/2 text-[18px] tlmn-crown-sweep z-10 ${compact ? '-top-3' : '-top-4'}`} aria-hidden>👑</span>}
                 <span className={`inline-flex rounded-full p-[2.5px] ${first ? 'tlmn-frame-gold' : 'bg-white/15'}`}>
-                  <PodAvatar name={seatName(r.seat)} url={seatOf(r.seat)?.avatar_url ?? null} size={first ? 46 : 38} isBot={!!seatOf(r.seat)?.is_bot} seed={r.seat} />
+                  <PodAvatar name={seatName(r.seat)} url={seatOf(r.seat)?.avatar_url ?? null} size={avSize} isBot={!!seatOf(r.seat)?.is_bot} seed={r.seat} />
                 </span>
               </span>
               <div className="min-w-0 flex-1">
-                <p className={`font-bold truncate flex items-center gap-1.5 ${first ? 'text-[15px] text-[var(--tg-gold-bright)]' : 'text-[13px] text-white/90'}`}>
+                <p className={`font-bold truncate flex items-center gap-1.5 ${first ? `${compact ? 'text-[14px]' : 'text-[15px]'} text-[var(--tg-gold-bright)]` : `${compact ? 'text-[12px]' : 'text-[13px]'} text-white/90`}`}>
                   <span aria-hidden>{medals[rank] ?? '🏅'}</span>
                   <span className="truncate">{seatName(r.seat)}</span>
                 </p>
-                <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-0.5 text-[10px] text-white/55">
+                <div className={`flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-0.5 text-white/55 ${compact ? 'text-[9.5px]' : 'text-[10px]'}`}>
                   {r.isWinner ? <span className="text-[var(--tg-gold-bright)] font-bold">{t('score_winner')}</span> : <span>{t('score_cards', { n: r.cardsLeft })}</span>}
                   {r.cong && <span className="text-rose-200">{t('score_cong')}</span>}
                   {r.heldTwos > 0 && r.thoiHeoMult > 1 && <span className="text-rose-200">{t('score_thoiheo')} ×{r.thoiHeoMult}</span>}
@@ -2224,11 +2232,11 @@ function Podium({
                 </div>
               </div>
               <div className="text-right flex-none">
-                <p className={`font-black leading-none ${r.total > 0 ? 'text-emerald-300' : r.total < 0 ? 'text-rose-300' : 'text-white/60'} ${first ? 'text-[18px]' : 'text-[15px]'}`}>
+                <p className={`font-black leading-none ${r.total > 0 ? 'text-emerald-300' : r.total < 0 ? 'text-rose-300' : 'text-white/60'} ${first ? (compact ? 'text-[16px]' : 'text-[18px]') : (compact ? 'text-[14px]' : 'text-[15px]')}`}>
                   {r.total > 0 ? `+${r.total}` : r.total}
                 </p>
-                <p className="text-[9.5px] text-white/45 mt-0.5">{t('score_total')}: {cum}</p>
-                <p className="tlmn-chip-balance text-[10px] font-black mt-0.5 inline-flex items-center gap-0.5">
+                <p className={`text-white/45 mt-0.5 ${compact ? 'text-[9px]' : 'text-[9.5px]'}`}>{t('score_total')}: {cum}</p>
+                <p className={`tlmn-chip-balance font-black mt-0.5 inline-flex items-center gap-0.5 ${compact ? 'text-[9.5px]' : 'text-[10px]'}`}>
                   <span aria-hidden className="text-[8px]">🪙</span>
                   <CountUp to={chips} reduced={reduced} format={formatChips} />
                   {chipDelta !== 0 && (

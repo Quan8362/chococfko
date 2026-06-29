@@ -888,6 +888,44 @@ body.tlmn-scroll-lock {
   box-shadow: 0 20px 60px -16px rgba(0,0,0,0.8);
 }
 
+/* ── End-of-round result panel: compact bounded modal for short / landscape
+   viewports (mobile + small tablet in landscape, or any limited-height screen).
+   PORTRAIT IS UNTOUCHED — these rules apply ONLY when the viewport is both
+   landscape AND short. The panel is centred, capped to the safe viewport height,
+   owns its OWN vertical scroll (the page/body never scrolls), and pins the
+   "VÁN MỚI" footer so it is always reachable without being cut off. The matching
+   row/avatar/font compaction is driven in TSX by `shortVp` (vh < 520). */
+@media (orientation: landscape) and (max-height: 520px) {
+  .tlmn-result-overlay {
+    /* the modal — not the overlay — owns the scroll, so it stays centred */
+    align-items: center;
+    overflow: hidden;
+  }
+  .tlmn-result-modal {
+    width: min(78vw, 760px);
+    max-width: 760px;
+    /* fit within the safe viewport, clear of the top game controls (~54px) and a
+       small bottom margin; 100dvh tracks the live Safari toolbar height */
+    max-height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 70px);
+    margin: 0;
+    gap: 0.5rem;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+  /* Sticky compact footer: keeps "VÁN MỚI" visible while the result list scrolls
+     beneath it; the opaque felt wash hides content passing under the button. */
+  .tlmn-result-footer {
+    position: sticky;
+    bottom: 0;
+    margin-top: 0.25rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.25rem;
+    background: linear-gradient(180deg, rgba(18,3,8,0) 0%, rgba(18,3,8,0.92) 38%, rgba(18,3,8,0.98) 100%);
+  }
+}
+
 /* Scrollbar */
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { scrollbar-width: none; }

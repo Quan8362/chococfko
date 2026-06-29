@@ -1172,7 +1172,7 @@ img {
   right: -14px; top: -14px;
   width: clamp(110px, 22vw, 168px);
   color: var(--tl-gold-bright);
-  opacity: 0.10;
+  opacity: 0.18;
   pointer-events: none;
   transform: rotate(8deg);
 }

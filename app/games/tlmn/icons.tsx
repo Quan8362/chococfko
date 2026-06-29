@@ -44,6 +44,7 @@ const CARD = {
   front: { x: 9.2, y: 4, w: 10.2, h: 14, rx: 2, rot: 11, cx: 14.3, cy: 11 },
 } as const
 const HEART = 'M0 -1.6C-1 -3.3 -3.5 -2.4 -3.5 -0.4 -3.5 1.5 -1.1 2.6 0 3.9 1.1 2.6 3.5 1.5 3.5 -0.4 3.5 -2.4 1 -3.3 0 -1.6Z'
+const SPADE = 'M0 -3.2C1.4 -1.4 3.4 -0.4 3.4 1.6 3.4 3 2.2 3.5 1.1 3 1.2 3.9 1.6 4.4 2.3 4.9L-2.3 4.9C-1.6 4.4 -1.2 3.9 -1.1 3 -2.2 3.5 -3.4 3 -3.4 1.6 -3.4 -0.4 -1.4 -1.4 0 -3.2Z'
 const SPARKLE = 'M0 -2.4C.25 -.8 .8 -.25 2.4 0 .8 .25 .25 .8 0 2.4 -.25 .8 -.8 .25 -2.4 0 -.8 -.25 -.25 -.8 0 -2.4Z'
 
 type CardGeom = { x: number; y: number; w: number; h: number; rx: number; rot: number; cx: number; cy: number }
@@ -59,51 +60,42 @@ function CardRect({ c, fill, fillOpacity, stroke, strokeWidth }: {
   )
 }
 
+// Per-variant palette: card body fill/opacity, edge stroke, and the pip/index "ink".
+// The motif is identical everywhere — a 2♠ front card over a peeking ♥ back card —
+// so each surface clearly reads as two playing cards; only the colour tokens change.
+const TWO_CARDS_STYLE: Record<TwoCardsVariant, {
+  backFill: string; backOpacity: number; frontFill: string; frontOpacity: number
+  edge: string; edgeW: number; ink: string; heart: string
+}> = {
+  hero:  { backFill: 'currentColor', backOpacity: 0.28, frontFill: 'currentColor', frontOpacity: 0.5, edge: 'currentColor', edgeW: 1, ink: 'currentColor', heart: 'currentColor' },
+  info:  { backFill: 'currentColor', backOpacity: 0.1, frontFill: 'currentColor', frontOpacity: 0.16, edge: 'currentColor', edgeW: 1.6, ink: 'currentColor', heart: 'currentColor' },
+  pill:  { backFill: TC.ivory, backOpacity: 1, frontFill: TC.ivoryHi, frontOpacity: 1, edge: TC.goldDeep, edgeW: 1, ink: TC.red, heart: TC.red },
+  empty: { backFill: TC.blush, backOpacity: 1, frontFill: TC.blushHi, frontOpacity: 1, edge: TC.blushLine, edgeW: 1.3, ink: TC.blushHeart, heart: TC.blushHeart },
+}
+
 export function TlmnTwoCards({ variant, className }: { variant: TwoCardsVariant; className?: string }) {
   const B = CARD.back
   const F = CARD.front
-  const heartOnFront = (fill: string, scale = 0.6) => (
-    <g transform={`rotate(${F.rot} ${F.cx} ${F.cy})`}>
-      <path d={HEART} transform={`translate(${F.cx} ${F.cy}) scale(${scale})`} fill={fill} />
-    </g>
-  )
+  const s = TWO_CARDS_STYLE[variant]
 
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden>
-      {variant === 'hero' && (
-        <>
-          {/* Decorative, low-contrast — the parent CSS dials overall opacity right down */}
-          <CardRect c={B} fill="currentColor" fillOpacity={0.45} />
-          <CardRect c={F} fill="currentColor" fillOpacity={0.85} />
-        </>
-      )}
+      {/* back card — fanned left, mostly hidden; only its corner peeks (a small ♥) */}
+      <CardRect c={B} fill={s.backFill} fillOpacity={s.backOpacity} stroke={s.edge} strokeWidth={s.edgeW} />
+      <g transform={`rotate(${B.rot} ${B.cx} ${B.cy})`}>
+        <path d={HEART} transform="translate(5.7 9.9) scale(0.46)" fill={s.heart} />
+      </g>
 
-      {variant === 'info' && (
-        <>
-          {/* Functional — the strongest outline of the family, one minimal heart pip */}
-          <CardRect c={B} fill="currentColor" fillOpacity={0.1} stroke="currentColor" strokeWidth={1.5} />
-          <CardRect c={F} fill="currentColor" fillOpacity={0.18} stroke="currentColor" strokeWidth={1.7} />
-          {heartOnFront('currentColor', 0.6)}
-        </>
-      )}
-
-      {variant === 'pill' && (
-        <>
-          {/* Ultra-compact — self-coloured ivory + gold edge, pure silhouette so it
-              stays crisp at ~16px on the dark brand pill */}
-          <CardRect c={B} fill={TC.ivory} stroke={TC.goldDeep} strokeWidth={1} />
-          <CardRect c={F} fill={TC.ivoryHi} stroke={TC.goldDeep} strokeWidth={1.1} />
-        </>
-      )}
+      {/* front card — fanned right, on top; a 2♠ corner index + a central spade pip so
+          the motif reads unmistakably as a playing card down to ~16px */}
+      <CardRect c={F} fill={s.frontFill} fillOpacity={s.frontOpacity} stroke={s.edge} strokeWidth={s.edgeW} />
+      <g transform={`rotate(${F.rot} ${F.cx} ${F.cy})`}>
+        <text x="10.3" y="8.8" fontSize="4.8" fontWeight="800" fill={s.ink} fontFamily="Georgia,'Times New Roman',serif">2</text>
+        <path d={SPADE} transform="translate(14.4 13) scale(0.92)" fill={s.ink} />
+      </g>
 
       {variant === 'empty' && (
-        <>
-          {/* Soft + friendly — pale blush, a faint heart and one tiny sparkle */}
-          <CardRect c={B} fill={TC.blush} stroke={TC.blushLine} strokeWidth={1.3} />
-          <CardRect c={F} fill={TC.blushHi} stroke={TC.blushLine} strokeWidth={1.4} />
-          {heartOnFront(TC.blushHeart, 0.58)}
-          <path d={SPARKLE} transform="translate(19.6 4.9) scale(0.8)" fill={TC.blushSpark} />
-        </>
+        <path d={SPARKLE} transform="translate(20 4.4) scale(0.8)" fill={TC.blushSpark} />
       )}
     </svg>
   )

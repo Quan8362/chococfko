@@ -6,6 +6,8 @@ import { useTranslations } from 'next-intl'
 import { signOut } from '@/app/auth/actions'
 import UserAvatar from './UserAvatar'
 import NavIcon from './NavIcon'
+import { useCoinBalance } from '@/lib/games/useCoinBalance'
+import { getCoinTier, coinTierAria, type CoinTierTranslate } from '@/lib/games/coinTier'
 
 interface UserMenuProps {
   displayName: string
@@ -16,8 +18,15 @@ interface UserMenuProps {
 
 export default function UserMenu({ displayName, isAdmin, avatarUrl }: UserMenuProps) {
   const t = useTranslations('nav')
+  const ct = useTranslations('coin_tier') as unknown as CoinTierTranslate
   const [open, setOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
+
+  // Live coin-rank badge on the header avatar (current balance → tier, realtime).
+  const balance = useCoinBalance()
+  const tierDef = getCoinTier(balance)
+  const tier = tierDef?.key ?? null
+  const tierLabel = tierDef ? coinTierAria(ct, tierDef) : undefined
 
   useEffect(() => {
     if (!open) return
@@ -38,7 +47,7 @@ export default function UserMenu({ displayName, isAdmin, avatarUrl }: UserMenuPr
         title={displayName}
         className="flex items-center gap-2 pl-1 pr-2.5 py-1 rounded-full hover:bg-line transition-colors"
       >
-        <UserAvatar src={avatarUrl} name={displayName} size={32} />
+        <UserAvatar src={avatarUrl} name={displayName} size={32} tier={tier} tierLabel={tierLabel} />
         <span className="hidden lg:block text-[13px] text-[#5c4d44] font-medium max-w-[88px] truncate leading-none">
           {displayName}
         </span>
@@ -54,7 +63,7 @@ export default function UserMenu({ displayName, isAdmin, avatarUrl }: UserMenuPr
         <div className="animate-fadein absolute right-0 top-[calc(100%+8px)] w-56 bg-paper border border-line rounded-2xl shadow-dropdown overflow-hidden z-[200]">
           {/* Dropdown header */}
           <div className="px-4 py-3 bg-cream/60 border-b border-line flex items-center gap-3">
-            <UserAvatar src={avatarUrl} name={displayName} size={36} />
+            <UserAvatar src={avatarUrl} name={displayName} size={36} tier={tier} tierLabel={tierLabel} />
             <div className="min-w-0">
               <p className="text-[12px] text-muted font-medium">{t('account')}</p>
               <p className="text-[13.5px] font-semibold text-ink truncate leading-snug">{displayName}</p>

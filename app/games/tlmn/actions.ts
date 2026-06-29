@@ -337,8 +337,10 @@ export async function getRoomState(code: string): Promise<TlmnRoomState | null> 
 export type WaitingRoom = {
   id: string
   invite_code: string
+  host_id: string
   host_name: string
   host_avatar: string | null
+  host_balance: number
   seat_count: number
   created_at: string
   updated_at: string
@@ -379,7 +381,7 @@ export async function fetchWaitingRooms(): Promise<WaitingRoom[]> {
   }
 
   const cutoff = Date.now() - LOBBY_HOST_STALE_MS
-  const out: WaitingRoom[] = []
+  const out: Array<WaitingRoom & { host_id: string }> = []
   for (const r of rooms) {
     const rs = byRoom.get(r.id) ?? []
     if (rs.length === 0 || rs.length >= MAX_SEATS) continue // empty/ghost or already full
@@ -389,12 +391,26 @@ export async function fetchWaitingRooms(): Promise<WaitingRoom[]> {
     out.push({
       id: r.id,
       invite_code: r.invite_code,
+      host_id: host.user_id,
       host_name: host.display_name || '',
       host_avatar: host.avatar_url,
+      host_balance: 0,
       seat_count: rs.length,
       created_at: r.created_at,
       updated_at: r.updated_at,
     })
+  }
+
+  // Host coin balance → drives the host's dynamic coin-rank badge in the lobby. One batched
+  // read of game_wallets (no N+1). Tier is derived from this CURRENT balance on the client.
+  if (out.length > 0) {
+    const { data: wallets } = await admin
+      .from('game_wallets').select('user_id, balance').in('user_id', out.map(o => o.host_id))
+    const bal = new Map<string, number>()
+    for (const w of (wallets ?? []) as Array<{ user_id: string; balance: number | string }>) {
+      bal.set(w.user_id, Number(w.balance ?? 0))
+    }
+    for (const o of out) o.host_balance = bal.get(o.host_id) ?? 0
   }
   return out
 }
@@ -877,6 +893,43 @@ async function settleRoundCoins(
   }
 }
 
+// ── Achievement stats (leaderboard) — server-authoritative, idempotent ─────────────
+// Fold a finished round into public.game_player_stats for every REAL (authenticated,
+// non-bot) participant: +1 game for each, +1 win for the round's winner. This is the ONLY
+// place wins are recorded and it runs ONLY from the trusted round-end path — the win count
+// can never be claimed by an untrusted client. The math, streaks and the once-only guard
+// (keyed on room_id + round_number) live in the record_tlmn_round SECURITY DEFINER
+// function, so a reconnect/retry can never double-count. Practice (vs bots) is unranked,
+// matching settleRoundCoins. A bot/AFK-takeover winner records no win (winner = null) but
+// the round still counts as a game for the humans. Best-effort: never wedge the round.
+async function recordRoundStats(
+  admin: Admin,
+  roomId: string,
+  roundNo: number,
+  round: RoundState,
+): Promise<void> {
+  const { data: room } = await admin.from('tlmn_rooms').select('mode').eq('id', roomId).maybeSingle()
+  if (room?.mode === 'practice') return // MODE A is unranked
+
+  const { data: seats } = await admin
+    .from('tlmn_seats').select('seat_index, user_id, is_bot').eq('room_id', roomId)
+  const players: string[] = []
+  let winner: string | null = null
+  for (const s of (seats ?? []) as Array<{ seat_index: number; user_id: string | null; is_bot: boolean }>) {
+    if (!s.user_id || s.is_bot) continue // bots / empty seats are not ranked
+    players.push(s.user_id)
+    if (round.winner != null && s.seat_index === round.winner) winner = s.user_id
+  }
+  if (players.length === 0) return
+  try {
+    await admin.rpc('record_tlmn_round', {
+      p_room_id: roomId, p_round_number: roundNo, p_winner: winner, p_players: players,
+    })
+  } catch {
+    // A stats hiccup must never break gameplay — the round result is already persisted.
+  }
+}
+
 // Deal a round and persist the public game row + all secret hands. Used by both the
 // initial Start and "Ván mới". Handles the tới-trắng instant end transparently.
 async function dealAndPersist(
@@ -910,6 +963,7 @@ async function dealAndPersist(
   if (round.status === 'ended' && round.deltas) {
     await applyScores(admin, roomId, round.deltas)
     await settleRoundCoins(admin, roomId, roundNo, round.deltas)
+    await recordRoundStats(admin, roomId, roundNo, round)
   }
 }
 
@@ -940,6 +994,7 @@ async function commitRound(
   if (round.status === 'ended' && round.deltas) {
     await applyScores(admin, roomId, round.deltas)
     await settleRoundCoins(admin, roomId, round.roundNo, round.deltas)
+    await recordRoundStats(admin, roomId, round.roundNo, round)
   }
   return null
 }
@@ -1237,4 +1292,77 @@ export async function reportPlayer(
     return { ok: false, error: 'report_failed' }
   }
   return { ok: true }
+}
+
+// ── Achievements / Leaderboard (public, paginated, ranked IN POSTGRES) ──────────────
+// Reads the SECURITY DEFINER leaderboard RPCs which return ONLY safe public fields
+// (no email / auth metadata) and rank + paginate server-side, so the browser never
+// fetches the whole user table. bigint/numeric columns arrive as strings over the wire
+// (PostgREST preserves precision) → coerced to numbers here. Balances ≤ ~9e15 are exact
+// in JS, far above any reachable "xu" balance.
+export type TlmnLeaderboardTab = 'wins' | 'coins'
+export type TlmnLeaderboardRow = {
+  user_id: string
+  display_name: string | null
+  avatar_url: string | null
+  total_games: number
+  total_wins: number
+  total_losses: number
+  win_rate: number
+  balance: number
+  rank: number
+}
+
+type RawLeaderboardRow = {
+  user_id: string
+  display_name: string | null
+  avatar_url: string | null
+  total_games: number | string | null
+  total_wins: number | string | null
+  total_losses: number | string | null
+  win_rate: number | string | null
+  balance: number | string | null
+  rank: number | string | null
+}
+
+export async function fetchTlmnLeaderboard(
+  tab: TlmnLeaderboardTab,
+  limit = 20,
+  offset = 0,
+): Promise<{ rows: TlmnLeaderboardRow[]; error?: string }> {
+  const supabase = createClient()
+  const fn = tab === 'coins' ? 'tlmn_coins_leaderboard' : 'tlmn_wins_leaderboard'
+  const safeLimit = Math.min(Math.max(1, Math.floor(limit)), 100)
+  const safeOffset = Math.max(0, Math.floor(offset))
+  const { data, error } = await supabase.rpc(fn, { p_limit: safeLimit, p_offset: safeOffset })
+  if (error) return { rows: [], error: 'load_failed' }
+  const rows = ((data ?? []) as RawLeaderboardRow[]).map(r => ({
+    user_id: r.user_id,
+    display_name: r.display_name ?? null,
+    avatar_url: r.avatar_url ?? null,
+    total_games: Number(r.total_games ?? 0),
+    total_wins: Number(r.total_wins ?? 0),
+    total_losses: Number(r.total_losses ?? 0),
+    win_rate: Number(r.win_rate ?? 0),
+    balance: Number(r.balance ?? 0),
+    rank: Number(r.rank ?? 0),
+  }))
+  return { rows }
+}
+
+// Batch current balances for a set of users → the caller derives each coin tier from the
+// CURRENT balance (single source of truth in lib/games/coinTier). Used to badge opponents
+// in the game room and other shared-avatar surfaces. Authenticated-only RPC; bots/empty
+// ids are simply absent from the result.
+export async function fetchCoinBalances(userIds: string[]): Promise<Record<string, number>> {
+  const ids = Array.from(new Set(userIds.filter(Boolean))).slice(0, 64)
+  if (ids.length === 0) return {}
+  const supabase = createClient()
+  const { data, error } = await supabase.rpc('tlmn_public_balances', { p_user_ids: ids })
+  if (error || !data) return {}
+  const out: Record<string, number> = {}
+  for (const row of data as Array<{ user_id: string; balance: number | string }>) {
+    out[row.user_id] = Number(row.balance ?? 0)
+  }
+  return out
 }

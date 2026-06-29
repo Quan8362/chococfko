@@ -22,6 +22,25 @@ export function formatCoins(n: number): string {
   return `${v}`
 }
 
+// Compact leaderboard/badge formatting WITH billions: 1_000 → "1K", 1_000_000 → "1M",
+// 1_000_000_000 → "1B", 1_500_000_000 → "1.5B". Trailing ".0" is trimmed so exact powers
+// read cleanly ("1B" not "1.0B"). Use formatCoinsFull() for the exact value in a tooltip.
+export function formatCoinsShort(n: number): string {
+  const v = Math.max(0, Math.round(n))
+  const trim = (val: number, suffix: string, decimals: number) =>
+    `${val.toFixed(decimals).replace(/\.?0+$/, '')}${suffix}`
+  if (v >= 1_000_000_000) return trim(v / 1_000_000_000, 'B', v >= 10_000_000_000 ? 1 : 2)
+  if (v >= 1_000_000) return trim(v / 1_000_000, 'M', v >= 10_000_000 ? 1 : 2)
+  if (v >= 1_000) return trim(v / 1_000, 'K', v >= 100_000 ? 0 : 1)
+  return `${v}`
+}
+
+// Exact value with thousands separators for tooltips / accessible labels, e.g.
+// 1_000_000_000 → "1,000,000,000". Fixed en-US grouping so it never varies by locale.
+export function formatCoinsFull(n: number): string {
+  return Math.max(0, Math.round(n)).toLocaleString('en-US')
+}
+
 // Format a remaining duration (ms) as a ticking countdown "HH:MM:SS" (display only —
 // eligibility is always re-checked server-side against now() in Postgres).
 export function formatCountdown(ms: number): string {

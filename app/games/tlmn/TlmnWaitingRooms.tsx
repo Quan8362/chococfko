@@ -6,6 +6,8 @@ import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { fetchWaitingRooms, joinRoomFromLobby, type WaitingRoom } from './actions'
 import { TlmnHourglass, TlmnTwoCards } from './icons'
+import UserAvatar from '@/components/UserAvatar'
+import { getCoinTier, coinTierAria, type CoinTierTranslate } from '@/lib/games/coinTier'
 
 const MAX_SEATS = 4
 
@@ -29,6 +31,7 @@ function timeAgo(iso: string, justNow: string): string {
 // a slow poll as a safety net. Only MODE-B waiting rooms appear (see fetchWaitingRooms).
 export default function TlmnWaitingRooms({ initialRooms, userId }: Props) {
   const t = useTranslations('games.tlmn')
+  const ct = useTranslations('coin_tier') as unknown as CoinTierTranslate
   const router = useRouter()
   const [rooms, setRooms] = useState<WaitingRoom[]>(initialRooms)
   const [error, setError] = useState<string | null>(null)
@@ -101,7 +104,7 @@ export default function TlmnWaitingRooms({ initialRooms, userId }: Props) {
               key={room.id}
               className="tl-panel flex items-center gap-4 px-4 py-3.5 hover:border-[var(--tl-red)]/40 transition-colors"
             >
-              <Avatar name={room.host_name} url={room.host_avatar} />
+              <HostAvatar name={room.host_name} url={room.host_avatar} balance={room.host_balance} ct={ct} />
 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-0.5 flex-wrap">
@@ -148,15 +151,20 @@ export default function TlmnWaitingRooms({ initialRooms, userId }: Props) {
   )
 }
 
-function Avatar({ name, url }: { name: string; url: string | null }) {
-  const initial = (name?.trim()?.[0] ?? '?').toUpperCase()
-  if (url) {
-    // eslint-disable-next-line @next/next/no-img-element
-    return <img src={url} alt="" className="tl-avatar-ring w-11 h-11 rounded-full object-cover flex-none" />
-  }
+// Host avatar with a dynamic coin-rank badge derived from the host's CURRENT balance.
+function HostAvatar({
+  name, url, balance, ct,
+}: { name: string; url: string | null; balance: number; ct: CoinTierTranslate }) {
+  const def = getCoinTier(balance)
   return (
-    <div className="tl-avatar-ring w-11 h-11 rounded-full bg-gradient-to-br from-[var(--tl-red)]/15 to-[var(--tl-gold)]/15 flex items-center justify-center font-serif font-bold text-[16px] text-[var(--tl-red)] flex-none">
-      {initial}
-    </div>
+    <span className="tl-avatar-ring rounded-full flex-none">
+      <UserAvatar
+        src={url}
+        name={name}
+        size={44}
+        tier={def?.key ?? null}
+        tierLabel={def ? coinTierAria(ct, def) : undefined}
+      />
+    </span>
   )
 }

@@ -12,10 +12,13 @@ import {
 } from '@/lib/games/tlmn/engine'
 import {
   fetchGameState, fetchMyHand, playCards, passTurn, tickTurnTimer, startNextRound, runBotTurn,
-  fetchInteractionCatalog, spendInteraction, reportPlayer,
+  fetchInteractionCatalog, spendInteraction, reportPlayer, fetchCoinBalances,
   type TlmnPublicGame, type TlmnSeat,
 } from '../actions'
 import { getWallet } from '../wallet'
+import { CoinTierBadge } from '@/components/CoinTierBadge'
+import CoinTierCelebration from '@/components/CoinTierCelebration'
+import { getCoinTier, coinTierAria, type CoinTierTranslate, type CoinTier } from '@/lib/games/coinTier'
 import { motion } from 'framer-motion'
 import { CardFace, CardBack, OpponentFan, BotAvatar } from './TlmnCard'
 import { useTlmnSound, type TlmnSoundName } from './useTlmnSound'
@@ -186,6 +189,7 @@ const seatTransform = (a: SeatAnchor) => `translate(-50%, -50%)${a.s ? ` scale($
 
 export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, onLeave }: Props) {
   const t = useTranslations('games.tlmn')
+  const ct = useTranslations('coin_tier') as unknown as CoinTierTranslate
   const sound = useTlmnSound()
   const { w: vw, h: vh } = useViewport()
   // Run 5 — fullscreen + landscape immersive mode (single source of truth).
@@ -205,6 +209,24 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
   const [game, setGame] = useState<TlmnPublicGame | null>(null)
   const [hand, setHand] = useState<Card[]>([])
   const [selected, setSelected] = useState<Set<string>>(new Set())
+  // Stable interaction layer for the hand. The hit zones live in their own DOM layer
+  // (hitLayerRef) with a fixed z-order, so a selected card's lift/z-index can never steal
+  // a neighbour's tap target. dragRef tracks one in-flight pointer gesture (tap vs
+  // horizontal drag-to-select) so each card toggles at most once per drag.
+  const hitLayerRef = useRef<HTMLDivElement>(null)
+  const dragRef = useRef<{
+    pointerId: number
+    card: Card
+    key: string
+    startX: number
+    startY: number
+    mode: 'pending' | 'drag'
+    setTo: boolean
+    toggled: Set<string>
+  } | null>(null)
+  // Hovered card index (mouse only) — drives a small desktop hover lift from the hit layer,
+  // since the visual layer is pointer-events:none and can't receive :hover itself.
+  const [hoverIdx, setHoverIdx] = useState<number | null>(null)
   const [sortMode, setSortMode] = useState<'rank' | 'suit'>('rank')
   const [error, setError] = useState<string | null>(null)
   const [dealing, setDealing] = useState(false)
@@ -249,6 +271,10 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
   // select-own), so other seats keep their session-derived display number. Loaded on
   // mount and re-fetched after each round settles so the display always matches the DB.
   const [myBalance, setMyBalance] = useState<number | null>(null)
+  // Coin-rank badges at the table: my own balance is live (myBalance); opponents' current
+  // balances are batch-read (authenticated RPC) and refreshed each new round. Tier is always
+  // derived from the CURRENT balance — never a stored entitlement.
+  const [seatBalances, setSeatBalances] = useState<Record<string, number>>({})
   // The REAL applied coin delta for my seat this round (post − pre balance, already
   // clamped server-side). Drives the podium delta; cleared when the next round deals.
   const [myRoundDelta, setMyRoundDelta] = useState<number | null>(null)
@@ -280,6 +306,26 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
   const seatUserId = (seat: number): string | null => {
     const s = seats.find(x => x.seat_index === seat)
     return s && !s.is_bot ? (s.user_id ?? null) : null
+  }
+  // Batch-fetch seated opponents' current balances (re-run when the seated humans change
+  // or a new round deals, so badges reflect post-settlement standings). My own seat uses the
+  // live myBalance instead. Spectators/anon get {} (RPC is authenticated-only) → no badges.
+  const seatHumanIdsKey = seats.filter(s => !s.is_bot && s.user_id).map(s => s.user_id).sort().join(',')
+  useEffect(() => {
+    const ids = seatHumanIdsKey ? seatHumanIdsKey.split(',') : []
+    if (ids.length === 0) return
+    let alive = true
+    fetchCoinBalances(ids).then(map => { if (alive && mountedRef.current) setSeatBalances(prev => ({ ...prev, ...map })) })
+    return () => { alive = false }
+  }, [seatHumanIdsKey, game?.round_no])
+  // Resolve a seat's coin tier (+ accessible label) from its CURRENT balance.
+  const seatTier = (idx: number): { tier: CoinTier | null; label?: string } => {
+    const uid = seatUserId(idx)
+    if (!uid) return { tier: null }
+    const bal = idx === mySeat && myBalance != null ? myBalance : seatBalances[uid]
+    if (bal == null) return { tier: null }
+    const def = getCoinTier(bal)
+    return def ? { tier: def.key, label: coinTierAria(ct, def) } : { tier: null }
   }
   const [menuSeat, setMenuSeat] = useState<number | null>(null)
   const [reportSeat, setReportSeat] = useState<number | null>(null)
@@ -707,26 +753,109 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
   // cutoff — at every breakpoint, while keeping each card's exposed strip tappable.
   const handCount = hand.length
   const FAN_SAFE = 14 // reserve px for rotation overhang at the fan's ends
+  // Minimum exposed tap strip per card, by device, so two adjacent cards always present a
+  // finger-sized target (mobile-landscape ≈28 · tablet ≈34 · desktop ≈38 px). The floor is
+  // capped to whatever actually fits (and to ≤82% of the card so a slight overlap remains),
+  // so the fan never overflows the tray on narrow screens.
+  const minStrip = vw < 768 ? 28 : vw < 1024 ? 34 : 38
   const fanStep = useMemo(() => {
     if (handCount <= 1) return handW
     const fit = trayW > 0 ? (trayW - handW - FAN_SAFE) / (handCount - 1) : handW * 0.62
-    // minStrip keeps a tappable sliver even when packed; max keeps a tight, compact fan
-    // (smaller cards ⇒ tighter overlap so the hand stays a slim strip, not a wide banner).
-    return Math.max(handW * 0.26, Math.min(handW * 0.6, fit))
-  }, [trayW, handW, handCount])
+    // compact: spread to fill the tray but cap the overlap so the fan stays a slim strip.
+    // floor: never tighter than the device's tappable minimum, unless that would overflow.
+    const compact = Math.min(handW * 0.62, fit)
+    const floor = Math.min(minStrip, handW * 0.82, fit)
+    return Math.max(compact, floor)
+  }, [trayW, handW, handCount, minStrip])
   // Arc + parabolic lift — kept SHALLOW so the hand reads as a low fan along the bottom
   // edge, never an arc that bows up into the play area (token --fan-arc).
   const maxArc = vw < 560 ? 5 : vw < 768 ? 6 : 7
+  // Restrained selected-card lift: enough to read as "raised + grouped", small enough that
+  // it never covers the next card's rank/suit (≈14px mobile · ≈18px desktop). Vertical only
+  // — no scale, no sideways shift — so the hit zone stays aligned under each card.
+  const liftSel = vw < 768 ? 14 : 18
 
   // ── Handlers ──────────────────────────────────────────────────────────────────
-  const toggleCard = (c: Card) => {
+  const setCardSelected = useCallback((c: Card, select: boolean) => {
     const k = cardKey(c)
     setError(null)
     setSelected(prev => {
+      if (prev.has(k) === select) return prev
+      const next = new Set(prev)
+      if (select) next.add(k); else next.delete(k)
+      return next
+    })
+  }, [])
+
+  const toggleCard = (c: Card) => {
+    setError(null)
+    setSelected(prev => {
+      const k = cardKey(c)
       const next = new Set(prev)
       if (next.has(k)) next.delete(k); else next.add(k)
       return next
     })
+  }
+
+  // ── Hand interaction: stable tap zones + horizontal drag-to-select ───────────────
+  // Pointer events (mouse/touch/stylus) drive the hit layer. A press that doesn't move is a
+  // plain tap (toggle on release); a press dragged horizontally paints every crossed card to
+  // the first card's new state (each card once per gesture). A vertical drag is left to the
+  // page (touch-action: pan-y) and abandons the gesture without selecting.
+  const cardAtClientX = useCallback((x: number, y: number): Card | null => {
+    const el = typeof document !== 'undefined' ? document.elementFromPoint(x, y) : null
+    const hit = (el as HTMLElement | null)?.closest('[data-tlmn-card]') as HTMLElement | null
+    if (!hit) return null
+    const idx = Number(hit.dataset.tlmnCard)
+    return Number.isInteger(idx) ? displayHand[idx] ?? null : null
+  }, [displayHand])
+
+  const onHitPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType === 'mouse' && e.button !== 0) return
+    const card = cardAtClientX(e.clientX, e.clientY)
+    if (!card) return
+    dragRef.current = {
+      pointerId: e.pointerId, card, key: cardKey(card),
+      startX: e.clientX, startY: e.clientY, mode: 'pending',
+      setTo: !selected.has(cardKey(card)), toggled: new Set([cardKey(card)]),
+    }
+    try { hitLayerRef.current?.setPointerCapture(e.pointerId) } catch { /* unsupported */ }
+  }
+
+  const onHitPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const d = dragRef.current
+    if (!d || e.pointerId !== d.pointerId) return
+    const dx = e.clientX - d.startX
+    const dy = e.clientY - d.startY
+    if (d.mode === 'pending') {
+      if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 10) { dragRef.current = null; return } // vertical → page scroll
+      if (Math.abs(dx) < 8) return // not yet a deliberate horizontal drag
+      d.mode = 'drag'
+      setCardSelected(d.card, d.setTo)
+      if (d.setTo) sound.vibrate(8)
+    }
+    e.preventDefault()
+    const card = cardAtClientX(e.clientX, e.clientY)
+    if (card) {
+      const k = cardKey(card)
+      if (!d.toggled.has(k)) {
+        d.toggled.add(k)
+        setCardSelected(card, d.setTo)
+        if (d.setTo) sound.vibrate(8)
+      }
+    }
+  }
+
+  const endHitGesture = (e: React.PointerEvent<HTMLDivElement>) => {
+    const d = dragRef.current
+    if (d && e.pointerId === d.pointerId) {
+      if (d.mode === 'pending' && e.type === 'pointerup') {
+        toggleCard(d.card) // plain tap
+        if (d.setTo) sound.vibrate(8)
+      }
+      try { hitLayerRef.current?.releasePointerCapture(d.pointerId) } catch { /* noop */ }
+    }
+    dragRef.current = null
   }
 
   // Run a server action behind the in-flight lock. The lock is GUARANTEED to release:
@@ -935,12 +1064,15 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
       {orderedOthers.map((idx, i) => {
         const human = !!seatUserId(idx)
         const playerMuted = human && playerMutes.isMuted(seatUserId(idx))
+        const st = seatTier(idx)
         return (
         <div key={idx} data-seat-slot={slotList[i] ?? 'top'} className="tlmn-seat absolute z-10" style={seatStyle(slotList[i] ?? 'top')}>
           <SeatPod
             seat={seatOf(idx)}
             name={seatName(idx)}
             isMe={false}
+            tier={st.tier}
+            tierLabel={st.label}
             count={game.card_counts?.[String(idx)] ?? 0}
             chips={chipsFromScore(seatOf(idx)?.cumulative_score ?? 0)}
             isTurn={game.turn_seat === idx && playing}
@@ -1176,6 +1308,15 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
     // into an oval when the name/balance competes for space. Keep it a fixed square circle.
     <span className={`relative inline-flex shrink-0 aspect-square rounded-full p-[3px] tlmn-frame-gold ${isMyTurn && !reduced ? 'tlmn-frame-active' : ''}`}>
       <PodAvatar name={seatName(mySeat)} url={seatOf(mySeat)?.avatar_url ?? null} size={compactDock ? 34 : vw < 560 ? 38 : 46} />
+      {/* My live coin-rank badge (top-left, clear of the turn timer at bottom-right). */}
+      {(() => {
+        const st = seatTier(mySeat)
+        return st.tier && st.label ? (
+          <span className="absolute -left-1.5 -top-1 z-20">
+            <CoinTierBadge tier={st.tier} size={compactDock ? 'xs' : 'sm'} label={st.label} />
+          </span>
+        ) : null
+      })()}
       {isMyTurn && secondsLeft != null && (
         <span
           className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center ${secondsLeft <= 5 ? 'tlmn-timer-warn' : ''}`}
@@ -1273,52 +1414,89 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
             <div
               key={invalidKey}
               ref={trayRef}
-              className={`relative flex justify-center items-end h-full pb-1.5 pt-4 ${invalidKey ? 'tlmn-invalid' : ''}`}
+              className={`relative h-full ${invalidKey ? 'tlmn-invalid' : ''}`}
             >
-              {displayHand.map((c, i) => {
-                const sel = selected.has(cardKey(c))
-                const isPlayable = playableKeys ? playableKeys.has(cardKey(c)) : false
-                const dim = playableKeys ? !isPlayable && !sel : false
-                // Fan geometry: evenly tilt −maxArc → +maxArc across the hand, with a
-                // parabolic lift peaking at the centre. Pivot at bottom-centre so the
-                // cards splay like a held fan. A selected card lifts further + comes to
-                // the front. The OUTER motion.button owns layout (so a Sắp xếp reflow
-                // slides cards to their new slot); the INNER motion.span owns the deal
-                // entrance + arc/lift transform — keeping the two transform spaces apart.
-                const n = displayHand.length
-                const mid = (n - 1) / 2
-                const norm = mid === 0 ? 0 : (i - mid) / mid // −1 … +1
-                const angle = norm * maxArc
-                const lift = Math.round((1 - norm * norm) * (handW * 0.1))
-                const ty = -lift - (sel ? 12 : 0)
-                return (
-                  <motion.button
-                    key={`${game.id}-${cardKey(c)}`}
-                    layout
-                    type="button"
-                    onClick={() => toggleCard(c)}
-                    aria-label={cardAria(c, t)}
-                    aria-pressed={sel}
-                    transition={{ layout: reduced ? { duration: 0 } : { duration: DURATIONS.SETTLE, ease: EASINGS.settle } }}
-                    className="relative focus:outline-none focus-visible:ring-2 focus-visible:ring-rose rounded-[8px]"
-                    style={{ marginLeft: i === 0 ? 0 : fanStep - handW, zIndex: sel ? 50 : i }}
-                  >
-                    {/* Selected card is raised to the top (z-50): widen its hit area past
-                        the fan overlap so re-tapping to deselect stays ≥44px. */}
-                    {sel && <span aria-hidden className="absolute -inset-x-2 -bottom-3 top-0" />}
-                    <motion.span
-                      className="relative block"
-                      initial={reduced ? false : { opacity: 0, y: -150, scale: 0.7, rotate: -6 }}
-                      animate={{ opacity: 1, y: ty, scale: 1, rotate: angle }}
-                      transition={reduced ? { duration: 0 } : { ...TRANSITIONS.lift, delay: dealing ? Math.min(i * 0.022, 0.34) : 0 }}
-                      style={{ transformOrigin: 'bottom center' }}
+              {/* VISUAL LAYER — the transformed card faces. Purely presentational
+                  (pointer-events: none): every tap / drag is owned by the hit layer below,
+                  so a selected card's upward lift + z-index can NEVER cover or steal a
+                  neighbouring card's tap target. */}
+              <div className="pointer-events-none flex justify-center items-end h-full pb-1.5 pt-4">
+                {displayHand.map((c, i) => {
+                  const sel = selected.has(cardKey(c))
+                  const isPlayable = playableKeys ? playableKeys.has(cardKey(c)) : false
+                  const dim = playableKeys ? !isPlayable && !sel : false
+                  // Fan geometry: evenly tilt −maxArc → +maxArc across the hand, with a
+                  // parabolic lift peaking at the centre. Pivot at bottom-centre so the
+                  // cards splay like a held fan. A selected card lifts a restrained amount
+                  // (liftSel) and comes to the front (z-50) — vertical only, never sideways,
+                  // so its slot (and the hit zone beneath it) stays put. The OUTER motion.div
+                  // owns layout (so a Sắp xếp reflow slides cards to their new slot); the
+                  // INNER motion.span owns the deal entrance + arc/lift transform.
+                  const n = displayHand.length
+                  const mid = (n - 1) / 2
+                  const norm = mid === 0 ? 0 : (i - mid) / mid // −1 … +1
+                  const angle = norm * maxArc
+                  const lift = Math.round((1 - norm * norm) * (handW * 0.1))
+                  const ty = -lift - (sel ? liftSel : hoverIdx === i ? 7 : 0)
+                  return (
+                    <motion.div
+                      key={`${game.id}-${cardKey(c)}`}
+                      layout
+                      transition={{ layout: reduced ? { duration: 0 } : { duration: DURATIONS.SETTLE, ease: EASINGS.settle } }}
+                      className="relative"
+                      style={{ marginLeft: i === 0 ? 0 : fanStep - handW, zIndex: sel ? 50 : i }}
                     >
-                      <CardFace card={c} w={handW} selected={sel} dim={dim} playable={isPlayable && !sel} interactive />
-                      {sel && <span className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 h-1.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.7)]" style={{ width: Math.round(handW * 0.7) }} />}
-                    </motion.span>
-                  </motion.button>
-                )
-              })}
+                      <motion.span
+                        className="relative block"
+                        initial={reduced ? false : { opacity: 0, y: -150, scale: 0.7, rotate: -6 }}
+                        animate={{ opacity: 1, y: ty, scale: 1, rotate: angle }}
+                        transition={reduced ? { duration: 0 } : { ...TRANSITIONS.lift, delay: dealing ? Math.min(i * 0.022, 0.34) : 0 }}
+                        style={{ transformOrigin: 'bottom center' }}
+                      >
+                        <CardFace card={c} w={handW} selected={sel} dim={dim} playable={isPlayable && !sel} interactive />
+                        {sel && <span className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 h-1.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.7)]" style={{ width: Math.round(handW * 0.7) }} />}
+                      </motion.span>
+                    </motion.div>
+                  )
+                })}
+              </div>
+              {/* HIT LAYER — one transparent tap zone per card, in the SAME flex layout +
+                  margins as the visuals so each zone sits exactly over its card's slot. The
+                  z-index is the stable fan order (never bumped by selection), so each card's
+                  exposed strip always resolves to that card. Owns tap + horizontal
+                  drag-to-select for mouse/touch/stylus; touch-action:pan-y lets vertical page
+                  scrolling pass through while we claim only the horizontal selection gesture. */}
+              <div
+                ref={hitLayerRef}
+                className="absolute inset-0 flex justify-center items-stretch"
+                onPointerDown={onHitPointerDown}
+                onPointerMove={onHitPointerMove}
+                onPointerUp={endHitGesture}
+                onPointerCancel={endHitGesture}
+              >
+                {displayHand.map((c, i) => {
+                  const sel = selected.has(cardKey(c))
+                  return (
+                    <button
+                      key={cardKey(c)}
+                      type="button"
+                      data-tlmn-card={i}
+                      aria-label={cardAria(c, t) + (sel ? `, ${t('card_selected')}` : '')}
+                      aria-pressed={sel}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+                          e.preventDefault()
+                          toggleCard(c)
+                        }
+                      }}
+                      onPointerEnter={e => { if (e.pointerType === 'mouse') setHoverIdx(i) }}
+                      onPointerLeave={e => { if (e.pointerType === 'mouse') setHoverIdx(h => (h === i ? null : h)) }}
+                      className="block h-full m-0 p-0 bg-transparent border-0 select-none cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-rose rounded-[8px]"
+                      style={{ width: handW, marginLeft: i === 0 ? 0 : fanStep - handW, zIndex: i, touchAction: 'pan-y' }}
+                    />
+                  )
+                })}
+              </div>
             </div>
           </div>
 
@@ -1447,6 +1625,8 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
     // immersive green-felt surface — the dominant element on the page. In fullscreen /
     // pseudo-fullscreen (Run 5) the .tlmn-fs-root rules make this fill 100dvh/dvw.
     <div ref={fs.rootRef} className="tlmn-fs-root relative w-screen left-1/2 -translate-x-1/2">
+      {/* Non-blocking coin-rank promotion / demotion notice, driven by my live balance. */}
+      <CoinTierCelebration balance={myBalance} />
       <div
         key={shakeKey}
         className={`tlmn-stage relative flex flex-col min-h-[86vh] overflow-hidden ${fullBleed ? 'tlmn-stage--bleed' : ''} ${shakeKey ? 'tlmn-shake' : ''}`}
@@ -1717,7 +1897,7 @@ function BleedCorners() {
 // only number on a seat is the card-count badge on the face-down stack.
 function SeatPod({
   seat, name, isMe, count, chips, isTurn, isNhat, isWinner = false, passed, passKey,
-  secondsLeft, turnFrac, av, backW, place, compact = false, reduced, t,
+  secondsLeft, turnFrac, av, backW, place, compact = false, reduced, t, tier = null, tierLabel,
 }: {
   seat: TlmnSeat | undefined
   name: string
@@ -1734,6 +1914,9 @@ function SeatPod({
   av: number
   backW: number
   place: string
+  /** Coin-rank tier (from the seat's CURRENT balance) + its localized badge label. */
+  tier?: CoinTier | null
+  tierLabel?: string
   // Mobile/tablet (full-bleed): render the plate as a compact horizontal name+coin row and,
   // for the TOP seat, lay the whole pod out horizontally so it hugs the top edge instead of
   // hanging a tall column down into the protected centre zone.
@@ -1783,6 +1966,13 @@ function SeatPod({
         <span className="absolute -right-1.5 -bottom-1 text-[10px] font-black text-ink bg-cream rounded-full px-1.5 py-0.5 shadow ring-1 ring-rose-deep/30 leading-none">
           {count}
         </span>
+        {/* Dynamic coin-rank badge — TOP-LEFT so it never covers the count badge / turn
+            timer (bottom-right) or the report menu (top-right). */}
+        {tier && tierLabel && (
+          <span className="absolute -left-1.5 -top-1 z-20">
+            <CoinTierBadge tier={tier} size={av >= 52 ? 'sm' : 'xs'} label={tierLabel} />
+          </span>
+        )}
       </span>
       {/* "Bỏ lượt" stamp — anchored to the AVATAR (centred over it) with the highest seat
           z-index so it is never covered by the name plate / fan / a neighbouring seat and

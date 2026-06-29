@@ -1,15 +1,26 @@
 'use client'
 
 import { useEffect, useRef, useState, useCallback, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
-import { makeMove, surrenderGame, heartbeatWaitingRoom, refetchRoom, type CaroRoom } from '../actions'
-import { mergeRoomUpdate, parseBoard, parseWinningCells } from '@/lib/caro/realtimePayload'
+import { makeMove, surrenderGame, heartbeatWaitingRoom, refetchRoom, resolveTimeout, joinCaroRoom, type CaroRoom } from '../actions'
+import { applyRoomUpdate, parseBoard, parseWinningCells } from '@/lib/caro/realtimePayload'
 import { setCaroRuntime } from '@/lib/caro/runtimeState'
 import CaroChat from './CaroChat'
 
 const SIZE = 15
 const TURN_SECONDS = 15
+// Client fires authoritative timeout resolution this long AFTER the displayed
+// deadline (a touch beyond the server's 2s grace) so the server reliably accepts
+// it; retried while still expired to absorb clock skew. The server re-validates.
+const CLIENT_TIMEOUT_GRACE_MS = 2500
+// Recovery watchdog: while a game is in progress, reconcile with the authoritative
+// row on this cadence so a silently-missed realtime event (mobile tab freeze,
+// brief network loss that never surfaces as CLOSED, the re-auth gap after an
+// hourly token refresh) is repaired without a manual page refresh. Realtime stays
+// primary; this is only a safety net, hence a slow 12s tick, not polling.
+const WATCHDOG_MS = 12000
 
 type Props = {
   initialRoom: CaroRoom
@@ -21,19 +32,50 @@ type Props = {
 
 export default function CaroGame({ initialRoom, userId, myName, playerXName, playerOName }: Props) {
   const t = useTranslations('games.caro')
+  const router = useRouter()
   const [room, setRoom] = useState<CaroRoom>(initialRoom)
   const [error, setError] = useState<string | null>(null)
+  const [joinError, setJoinError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
   const [pendingCell, setPendingCell] = useState<number | null>(null)
   const [copied, setCopied] = useState(false)
   const [timeLeft, setTimeLeft] = useState(TURN_SECONDS)
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const opponentJoinedNotifiedRef = useRef(initialRoom.player_o !== null)
   const opponentToastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [showOpponentToast, setShowOpponentToast] = useState(false)
-  // 'connected' once subscribed; 'reconnecting' if the channel drops mid-match.
+  // Transport state from the realtime channel; combined below with online/sync
+  // status into the user-facing connection state.
   const [connState, setConnState] = useState<'connecting' | 'connected' | 'reconnecting'>('connecting')
+  const [online, setOnline] = useState(true)
+  const [syncFailing, setSyncFailing] = useState(false)
   const mountedRef = useRef(true)
+  // Authoritative reconciliation plumbing. roomIdRef keeps the latest room id for
+  // async callbacks; reconcileInFlightRef collapses overlapping refetches into one.
+  const roomIdRef = useRef(room.id)
+  roomIdRef.current = room.id
+  const reconcileInFlightRef = useRef(false)
+
+  // Pull the authoritative room row and merge it on (monotonic-guarded so a lagging
+  // read can never regress newer state). Used on subscribe, on channel errors, by
+  // the watchdog, on tab-resume/online, and when a payload looks malformed.
+  const reconcile = useCallback(() => {
+    if (reconcileInFlightRef.current) return
+    reconcileInFlightRef.current = true
+    refetchRoom(roomIdRef.current)
+      .then((fresh) => {
+        if (!mountedRef.current) return
+        if (fresh) {
+          setRoom((prev) => {
+            const { room: next } = applyRoomUpdate(prev, fresh)
+            setCaroRuntime({ matchStatus: next.status })
+            return next
+          })
+        }
+        setSyncFailing(false)
+      })
+      .catch(() => { if (mountedRef.current) setSyncFailing(true) })
+      .finally(() => { reconcileInFlightRef.current = false })
+  }, [])
 
   const board = parseBoard(room.board)
   const winCells = new Set<number>(parseWinningCells(room.winning_cells))
@@ -41,6 +83,23 @@ export default function CaroGame({ initialRoom, userId, myName, playerXName, pla
   const mySymbol: 'X' | 'O' | null =
     userId === room.player_x ? 'X' : userId === room.player_o ? 'O' : null
   const isMyTurn = room.status === 'playing' && room.current_turn === mySymbol
+
+  // A logged-in viewer who isn't already a player may explicitly take the open O
+  // seat. The host (player X) can never join as O.
+  const canJoin =
+    !!userId && room.status === 'waiting' && !room.player_o && room.player_x !== userId
+
+  // User-facing connection state, derived from transport + network + sync health.
+  const conn: 'connecting' | 'connected' | 'reconnecting' | 'degraded' | 'offline' =
+    !online ? 'offline'
+    : connState === 'connecting' ? 'connecting'
+    : connState === 'reconnecting' ? 'reconnecting'
+    : syncFailing ? 'degraded'
+    : 'connected'
+  // Only block moves when we genuinely cannot confirm authoritative state: offline,
+  // or still establishing the first connection. While reconnecting/degraded we keep
+  // the last confirmed state and let the server reject anything stale.
+  const canConfirmState = online && conn !== 'connecting'
 
   const inviteUrl =
     typeof window !== 'undefined'
@@ -90,19 +149,6 @@ export default function CaroGame({ initialRoom, userId, myName, playerXName, pla
     const roomId = room.id
     const supabase = createClient()
 
-    const reconcile = () => {
-      refetchRoom(roomId)
-        .then((fresh) => {
-          if (!fresh || !mountedRef.current) return
-          setRoom((prev) => {
-            const next = mergeRoomUpdate(prev, fresh)
-            setCaroRuntime({ matchStatus: next.status })
-            return next
-          })
-        })
-        .catch(() => { /* transient — next reconnect will retry */ })
-    }
-
     const channel = supabase
       .channel(`caro:${roomId}`)
       .on(
@@ -110,9 +156,15 @@ export default function CaroGame({ initialRoom, userId, myName, playerXName, pla
         { event: 'UPDATE', schema: 'public', table: 'caro_rooms', filter: `id=eq.${roomId}` },
         (payload) => {
           if (!mountedRef.current) return
+          // Ignore events that somehow arrive for another room (defensive — the
+          // server filter already scopes to this id).
+          const incomingId = (payload.new as { id?: unknown } | null)?.id
+          if (typeof incomingId === 'string' && incomingId !== roomId) return
           setCaroRuntime({ lastRealtimeEvent: payload.eventType ?? 'UPDATE' })
+          let needsRefetch = false
           setRoom((prev) => {
-            const next = mergeRoomUpdate(prev, payload.new)
+            const { room: next, refetch } = applyRoomUpdate(prev, payload.new)
+            needsRefetch = refetch
             setCaroRuntime({ matchStatus: next.status })
             // Host-only: notify once when the first opponent actually joins.
             if (
@@ -133,6 +185,9 @@ export default function CaroGame({ initialRoom, userId, myName, playerXName, pla
             }
             return next
           })
+          // A malformed/unexpected board payload was rejected — pull authoritative
+          // state so the board can never get stuck on stale forever.
+          if (needsRefetch) reconcile()
           setPendingCell(null)
           setError(null)
         },
@@ -142,14 +197,69 @@ export default function CaroGame({ initialRoom, userId, myName, playerXName, pla
         if (!mountedRef.current) return
         if (status === 'SUBSCRIBED') {
           setConnState('connected')
+          // Reconcile any events missed between the server render and the channel
+          // being (re)established.
           reconcile()
         } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
           setConnState('reconnecting')
+          // Try to repair immediately; the watchdog keeps retrying while down.
+          reconcile()
         }
       })
 
-    return () => { supabase.removeChannel(channel) }
-  }, [room.id, userId])
+    // Keep the Realtime socket authenticated across token refreshes. supabase-js
+    // also does this internally, but doing it explicitly + reconciling closes the
+    // brief window where a refreshed JWT could otherwise stall the subscription.
+    // Never log the token.
+    const { data: { subscription: authSub } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'TOKEN_REFRESHED' || event === 'SIGNED_IN') {
+        if (session?.access_token) supabase.realtime.setAuth(session.access_token)
+        if (mountedRef.current) reconcile()
+      }
+    })
+
+    return () => {
+      authSub.unsubscribe()
+      supabase.removeChannel(channel)
+    }
+  }, [room.id, userId, reconcile])
+
+  // ── Recovery watchdog ─────────────────────────────────────────────────────
+  // Only while a game is in progress. Periodically reconciles, and also on
+  // tab-resume / network-restore, so a silently-missed event is repaired. Stops
+  // entirely once the game is no longer 'playing'. Reconcile itself is overlap-
+  // and regression-safe (in-flight guard + monotonic merge).
+  useEffect(() => {
+    if (room.status !== 'playing') return
+
+    const onVisible = () => { if (document.visibilityState === 'visible') reconcile() }
+    const onOnline = () => reconcile()
+    document.addEventListener('visibilitychange', onVisible)
+    window.addEventListener('online', onOnline)
+
+    const interval = setInterval(() => {
+      // Don't burn refetches while the tab is hidden; resume handles that.
+      if (document.visibilityState === 'visible') reconcile()
+    }, WATCHDOG_MS)
+
+    return () => {
+      document.removeEventListener('visibilitychange', onVisible)
+      window.removeEventListener('online', onOnline)
+      clearInterval(interval)
+    }
+  }, [room.status, room.id, reconcile])
+
+  // ── Online/offline tracking ────────────────────────────────────────────────
+  useEffect(() => {
+    const update = () => setOnline(typeof navigator === 'undefined' ? true : navigator.onLine)
+    update()
+    window.addEventListener('online', update)
+    window.addEventListener('offline', update)
+    return () => {
+      window.removeEventListener('online', update)
+      window.removeEventListener('offline', update)
+    }
+  }, [])
 
   // ── Heartbeat: keep waiting room alive in lobby ───────────────────────────
   // Fires every 25s while room is 'waiting' and current user is host (player X).
@@ -161,71 +271,77 @@ export default function CaroGame({ initialRoom, userId, myName, playerXName, pla
     return () => clearInterval(interval)
   }, [room.id, room.status, mySymbol])
 
-  // ── Auto-move on timeout ──────────────────────────────────────────────────
-  const boardRef = useRef(board)
-  boardRef.current = board
   const roomRef = useRef(room)
   roomRef.current = room
-  const mySymbolRef = useRef(mySymbol)
-  mySymbolRef.current = mySymbol
 
-  const doAutoMove = useCallback(() => {
-    const currentBoard = boardRef.current
-    const currentRoom = roomRef.current
-    const symbol = mySymbolRef.current
-    if (!symbol || currentRoom.status !== 'playing') return
-    const emptyCells = currentBoard
-      .map((c, i) => (c === null ? i : -1))
-      .filter((i) => i !== -1)
-    if (emptyCells.length === 0) return
-    const idx = emptyCells[Math.floor(Math.random() * emptyCells.length)]
-    setPendingCell(idx)
-    startTransition(async () => {
-      const result = await makeMove(currentRoom.id, idx)
-      if (result?.error) setPendingCell(null)
-    })
-  }, [])
-
+  // ── Server-authoritative turn timer ────────────────────────────────────────
+  // Both players derive the SAME countdown from the server `turn_deadline`. The
+  // browser never decides the outcome: when the deadline (+grace) passes, ANY
+  // open client requests authoritative resolution (caro_resolve_timeout), which
+  // the DB only honours if its own clock confirms expiry. A timed-out player
+  // loses. Refresh/reconnect cannot extend the deadline — it's a fixed server
+  // instant, reset only by a valid move or game start. Retried while expired so
+  // a skewed/slow request still lands.
+  const timeoutAttemptRef = useRef(0)
   useEffect(() => {
-    if (timerRef.current) clearInterval(timerRef.current)
-
-    if (!isMyTurn || room.status !== 'playing') {
+    if (room.status !== 'playing' || !room.turn_deadline) {
       setTimeLeft(TURN_SECONDS)
       return
     }
+    const deadlineMs = Date.parse(room.turn_deadline)
+    if (Number.isNaN(deadlineMs)) { setTimeLeft(TURN_SECONDS); return }
 
-    setTimeLeft(TURN_SECONDS)
-    timerRef.current = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          clearInterval(timerRef.current!)
-          timerRef.current = null
-          doAutoMove()
-          return 0
+    const tick = () => {
+      const remainMs = deadlineMs - Date.now()
+      setTimeLeft(Math.max(0, Math.min(TURN_SECONDS, Math.ceil(remainMs / 1000))))
+      if (remainMs <= -CLIENT_TIMEOUT_GRACE_MS && document.visibilityState === 'visible') {
+        const now = Date.now()
+        if (now - timeoutAttemptRef.current > 3000) {
+          timeoutAttemptRef.current = now
+          const cur = roomRef.current
+          startTransition(async () => { await resolveTimeout(cur.id, cur.state_version ?? null) })
         }
-        return prev - 1
-      })
-    }, 1000)
-
-    return () => {
-      if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null }
+      }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isMyTurn, room.status, room.current_turn])
+    tick()
+    const id = setInterval(tick, 500)
+    return () => clearInterval(id)
+  }, [room.status, room.turn_deadline, room.id])
 
   // ── Cell click ────────────────────────────────────────────────────────────
   const handleClick = useCallback((index: number) => {
     if (!isMyTurn || isPending || board[index] || room.status !== 'playing') return
+    // Don't submit a move we can't safely base on confirmed authoritative state.
+    if (!canConfirmState) { setError(t('conn_offline')); return }
     setPendingCell(index)
     setError(null)
     startTransition(async () => {
-      const result = await makeMove(room.id, index)
+      const result = await makeMove(room.id, index, roomRef.current.state_version ?? null)
       if (result?.error) {
         setError(t('error_move'))
         setPendingCell(null)
       }
     })
-  }, [isMyTurn, isPending, board, room.id, room.status])
+  }, [isMyTurn, isPending, board, room.id, room.status, canConfirmState, t])
+
+  // ── Explicit join ─────────────────────────────────────────────────────────
+  const handleJoin = () => {
+    setJoinError(null)
+    startTransition(async () => {
+      const result = await joinCaroRoom(room.id)
+      if (result?.error) {
+        setJoinError(
+          result.error === 'full' ? t('join_full')
+          : result.error === 'host_cannot_join' ? t('join_host')
+          : result.error === 'stale' ? t('join_stale')
+          : t('join_error'),
+        )
+      }
+      // Re-render from the server either way: success makes us O with names; a lost
+      // race drops us into spectating the now-playing room.
+      router.refresh()
+    })
+  }
 
   // ── Surrender ────────────────────────────────────────────────────────────
   const handleSurrender = () => {
@@ -330,7 +446,7 @@ export default function CaroGame({ initialRoom, userId, myName, playerXName, pla
               : 'bg-cream text-ink'
           }`}>
             <span>{statusLabel}</span>
-            {isMyTurn && room.status === 'playing' && room.player_o && (
+            {room.status === 'playing' && room.player_o && room.turn_deadline && (
               <span className={`font-mono text-[15px] font-black tabular-nums ${timerDanger ? 'text-red-500 animate-pulse' : 'text-ink/50'}`}>
                 {timeLeft}s
               </span>
@@ -338,17 +454,54 @@ export default function CaroGame({ initialRoom, userId, myName, playerXName, pla
           </div>
         </div>
 
-        {/* Waiting hint */}
+        {/* Waiting hint (host) */}
         {room.status === 'waiting' && mySymbol === 'X' && (
           <div className="w-full bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3 text-[13px] text-amber-800 text-center">
             {t('waiting_hint', { code: room.room_code })}
           </div>
         )}
 
-        {connState === 'reconnecting' && room.status === 'playing' && (
-          <p className="text-[13px] text-amber-700 bg-amber-50 px-4 py-2 rounded-xl border border-amber-200 w-full text-center flex items-center justify-center gap-2">
-            <span className="inline-block w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-            {t('reconnecting')}
+        {/* Explicit join panel — shown to an eligible viewer of a waiting room */}
+        {canJoin && (
+          <div className="w-full bg-gradient-to-br from-[#fdeef5] to-cream border border-rose/20 rounded-2xl px-5 py-4 flex flex-col items-center gap-3 text-center">
+            <p className="text-[14px] font-semibold text-ink">{t('join_room_prompt')}</p>
+            <button
+              onClick={handleJoin}
+              disabled={isPending}
+              className="font-semibold text-[14px] px-6 py-2.5 rounded-full bg-rose text-white hover:bg-rose-deep transition-all shadow-[0_2px_10px_-2px_rgba(194,24,91,0.35)] disabled:opacity-60"
+            >
+              {isPending ? '…' : t('join_room_btn')}
+            </button>
+            {joinError && <p className="text-[12.5px] text-red-600">{joinError}</p>}
+          </div>
+        )}
+
+        {/* Login prompt — logged-out viewer of an open waiting room */}
+        {!userId && room.status === 'waiting' && !room.player_o && (
+          <a
+            href="/login"
+            className="w-full bg-paper border border-rose/20 rounded-2xl px-5 py-4 text-center text-[13.5px] font-semibold text-rose hover:bg-rose/5 transition-all"
+          >
+            {t('lobby_login_to_join')}
+          </a>
+        )}
+
+        {/* Connection state — small, non-blocking */}
+        {conn !== 'connected' && room.status !== 'finished' && (
+          <p className={`text-[13px] px-4 py-2 rounded-xl border w-full text-center flex items-center justify-center gap-2 ${
+            conn === 'offline'
+              ? 'text-red-600 bg-red-50 border-red-100'
+              : conn === 'connecting'
+              ? 'text-muted bg-cream border-line'
+              : 'text-amber-700 bg-amber-50 border-amber-200'
+          }`}>
+            <span className={`inline-block w-2 h-2 rounded-full ${
+              conn === 'offline' ? 'bg-red-500' : conn === 'connecting' ? 'bg-muted/40' : 'bg-amber-500 animate-pulse'
+            }`} />
+            {conn === 'offline' ? t('conn_offline')
+              : conn === 'connecting' ? t('conn_connecting')
+              : conn === 'reconnecting' ? t('conn_reconnecting')
+              : t('conn_degraded')}
           </p>
         )}
 
@@ -373,7 +526,7 @@ export default function CaroGame({ initialRoom, userId, myName, playerXName, pla
               const cell = i === pendingCell && !board[i] ? mySymbol : board[i]
               const isWin = winCells.has(i)
               // Highlight the undo-able cell (last move, if canUndo)
-              const canClick = isMyTurn && !board[i] && i !== pendingCell && room.status === 'playing'
+              const canClick = isMyTurn && !board[i] && i !== pendingCell && room.status === 'playing' && canConfirmState
               return (
                 <button
                   key={i}

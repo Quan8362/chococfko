@@ -4,10 +4,8 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { handleMatchFinished } from '@/app/admin/caro/actions'
-import { decideMoveOutcome, type Mark, type Cell } from '@/lib/caro/winner'
 import { getTranslations } from 'next-intl/server'
 import { type CaroHistoryRow } from './CaroHistoryClient'
-import { parseBoard } from '@/lib/caro/realtimePayload'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 export type CaroRoom = {
@@ -23,6 +21,9 @@ export type CaroRoom = {
   created_at: string
   updated_at: string
   finished_at: string | null
+  state_version?: number
+  turn_started_at?: string | null
+  turn_deadline?: string | null
 }
 
 export type ActionResult = { error: string } | null
@@ -88,7 +89,10 @@ export async function createRoom(): Promise<never> {
   redirect(`/games/caro/${roomCode}`)
 }
 
-// ── joinRoom ──────────────────────────────────────────────────────────────────
+// ── joinRoom (by code) ──────────────────────────────────────────────────────────
+// Navigates to a room by its code WITHOUT mutating it. Occupying the Player O seat
+// is an explicit in-room action (joinCaroRoom) — opening/landing on a room must
+// never auto-join. Here we only validate the code exists, then redirect.
 export async function joinRoom(
   _prev: ActionResult,
   formData: FormData,
@@ -103,27 +107,54 @@ export async function joinRoom(
   const admin = createAdminClient()
   const { data: room } = await admin
     .from('caro_rooms')
-    .select('*')
+    .select('id')
     .eq('room_code', code)
     .maybeSingle()
 
   if (!room) return { error: 'not_found' }
 
-  // Already in room → go in
-  if (room.player_x === user.id || room.player_o === user.id) {
-    redirect(`/games/caro/${code}`)
-  }
-
-  if (room.status !== 'waiting' || room.player_o) {
-    return { error: 'full' }
-  }
-
-  await admin.from('caro_rooms').update({
-    player_o: user.id,
-    status: 'playing',
-  }).eq('id', room.id)
-
   redirect(`/games/caro/${code}`)
+}
+
+// ── joinCaroRoom ──────────────────────────────────────────────────────────────
+// The single explicit, atomic join mutation. Triggered by the in-room
+// "Tham gia phòng" button. Occupies the Player O seat only if it is still free,
+// transitions the room to 'playing' (which initializes turn_started_at /
+// turn_deadline via the caro_rooms_initial_deadline trigger), and rejects the
+// host trying to take O or a seat already taken by someone else.
+export async function joinCaroRoom(roomId: string): Promise<ActionResult> {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'not_logged_in' }
+
+  const admin = createAdminClient()
+  const { data: room } = await admin
+    .from('caro_rooms')
+    .select('id, player_x, player_o, status, updated_at')
+    .eq('id', roomId)
+    .maybeSingle()
+
+  if (!room) return { error: 'not_found' }
+  if (room.player_x === user.id) return { error: 'host_cannot_join' }
+  if (room.player_o === user.id) return null // already joined
+  if (room.status !== 'waiting' || room.player_o) return { error: 'full' }
+
+  const since = new Date(Date.now() - LOBBY_STALE_MS).toISOString()
+  if (room.updated_at < since) return { error: 'stale' }
+
+  // Atomicity: only the first caller whose `player_o` is still null wins the seat.
+  const { data: updated, error } = await admin
+    .from('caro_rooms')
+    .update({ player_o: user.id, status: 'playing' })
+    .eq('id', room.id)
+    .is('player_o', null)
+    .eq('status', 'waiting')
+    .select('id')
+
+  if (error) return { error: error.message }
+  if (!updated || updated.length === 0) return { error: 'full' }
+
+  return null
 }
 
 // ── refetchRoom ───────────────────────────────────────────────────────────────
@@ -142,65 +173,46 @@ export async function refetchRoom(roomId: string): Promise<CaroRoom | null> {
 }
 
 // ── makeMove ──────────────────────────────────────────────────────────────────
+// Single authoritative path: the move is validated and written by the
+// SECURITY DEFINER RPC `caro_make_move` (migration_caro_secure_moves.sql), called
+// with the user's own JWT so auth.uid() identifies the actor. The RPC checks
+// ownership/turn/cell/version and writes atomically under a row lock; direct
+// table UPDATE is revoked from authenticated, so this is the ONLY way to move.
+// The RPC returns { ok, error?, room? } with stable error codes — never a raw
+// DB error.
 export async function makeMove(
   roomId: string,
   cellIndex: number,
+  expectedStateVersion?: number | null,
 ): Promise<ActionResult> {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'not_logged_in' }
 
-  const admin = createAdminClient()
-  const { data: room } = await admin
-    .from('caro_rooms')
-    .select('*')
-    .eq('id', roomId)
-    .single()
-
-  if (!room) return { error: 'room_not_found' }
-  if (room.status !== 'playing') return { error: 'game_not_active' }
-
-  const mySymbol: Mark | null = room.player_x === user.id ? 'X' : room.player_o === user.id ? 'O' : null
-  if (!mySymbol) return { error: 'not_a_player' }
-  if (room.current_turn !== mySymbol) return { error: 'not_your_turn' }
-
-  // Resolve the authoritative outcome from a normalized board (guards a malformed
-  // / partially-stored board) and reject occupied/out-of-range cells.
-  const outcome = decideMoveOutcome(parseBoard(room.board) as Cell[], cellIndex, mySymbol)
-  if (!outcome.ok) return { error: outcome.reason }
-
-  // Atomic, idempotent write: the conditional `current_turn`/`status` guards mean a
-  // concurrent move or a duplicate submit (e.g. double click, two tabs) cannot be
-  // applied twice — once the turn advances, the second write matches 0 rows.
-  const { data: updated, error } = await admin.from('caro_rooms').update({
-    board: outcome.board,
-    current_turn: outcome.nextTurn,
-    winner: outcome.winner,
-    winning_cells: outcome.winningCells,
-    status: outcome.status,
-    finished_at: outcome.isFinished ? new Date().toISOString() : null,
+  const { data, error } = await supabase.rpc('caro_make_move', {
+    p_room_id: roomId,
+    p_cell_index: cellIndex,
+    p_expected_state_version: expectedStateVersion ?? null,
   })
-    .eq('id', roomId)
-    .eq('current_turn', mySymbol)
-    .eq('status', 'playing')
-    .select('id')
 
   if (error) {
-    const incidentId = logResultError('makeMove', roomId, room.status, error)
+    const incidentId = logResultError('makeMove', roomId, 'rpc', error)
     return { error: `write_failed:${incidentId}` }
   }
-  // 0 rows → another move already advanced the turn; benign, realtime will resync.
-  if (!updated || updated.length === 0) return { error: 'move_superseded' }
 
-  // If this room belongs to a tournament match and the game just finished, record the
-  // result. Best-effort: the room is already finalized in the DB, so a tournament
-  // linkage failure must NOT roll it back or report the move as failed.
-  if (outcome.isFinished) {
-    const won = outcome.winner === 'X' || outcome.winner === 'O'
-    const winnerId = won ? (mySymbol === 'X' ? room.player_x : room.player_o) : null
-    const loserId = won ? (mySymbol === 'X' ? room.player_o : room.player_x) : null
+  const result = (data ?? null) as { ok: boolean; error?: string; room?: CaroRoom } | null
+  if (!result || !result.ok) return { error: result?.error ?? 'move_failed' }
+
+  // If this room belongs to a tournament match and the game just finished, record
+  // the result. Best-effort: the room is already finalized authoritatively in the
+  // DB, so a tournament linkage failure must NOT report the move as failed.
+  const room = result.room
+  if (room && room.status === 'finished') {
+    const won = room.winner === 'X' || room.winner === 'O'
+    const winnerId = won ? (room.winner === 'X' ? room.player_x : room.player_o) : null
+    const loserId = won ? (room.winner === 'X' ? room.player_o : room.player_x) : null
     try {
-      await recordTournamentResult(admin, room.room_code, winnerId, loserId)
+      await recordTournamentResult(createAdminClient(), room.room_code, winnerId, loserId)
     } catch (e) {
       logResultError('makeMove.tournament', roomId, 'finished', e)
     }
@@ -448,38 +460,87 @@ export async function heartbeatWaitingRoom(roomId: string): Promise<void> {
     .eq('player_x', user.id)  // only the host can heartbeat their own room
 }
 
-// ── joinRoomFromLobby ──────────────────────────────────────────────────────────
-// Joins a waiting room from the lobby. Uses .is('player_o', null) guard to
-// prevent two players joining the same slot simultaneously.
-export async function joinRoomFromLobby(roomCode: string): Promise<ActionResult> {
+// ── resolveTimeout ──────────────────────────────────────────────────────────────
+// Single-room authoritative timeout resolution. Any player's browser calls this
+// when its deadline-derived countdown expires; the DB (caro_resolve_timeout)
+// re-confirms the real deadline has passed (+grace) before finalizing the
+// current-turn owner as the loser. Idempotent — duplicate requests are no-ops.
+export async function resolveTimeout(
+  roomId: string,
+  expectedStateVersion?: number | null,
+): Promise<ActionResult> {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'not_logged_in' }
 
-  const admin = createAdminClient()
-  const { data: room } = await admin
-    .from('caro_rooms')
-    .select('id, player_x, player_o, status, updated_at')
-    .eq('room_code', roomCode)
-    .maybeSingle()
+  const { data, error } = await supabase.rpc('caro_resolve_timeout', {
+    p_room_id: roomId,
+    p_expected_state_version: expectedStateVersion ?? null,
+  })
 
-  if (!room) return { error: 'not_found' }
-  if (room.player_x === user.id || room.player_o === user.id) return null  // already in room
-  if (room.status !== 'waiting' || room.player_o) return { error: 'full' }
+  if (error) {
+    const incidentId = logResultError('resolveTimeout', roomId, 'rpc', error)
+    return { error: `write_failed:${incidentId}` }
+  }
 
-  // Reject if host has been inactive for longer than the lobby timeout
-  const since = new Date(Date.now() - LOBBY_STALE_MS).toISOString()
-  if (room.updated_at < since) return { error: 'stale' }
+  const result = (data ?? null) as { ok: boolean; error?: string; room?: CaroRoom } | null
+  if (!result || !result.ok) return { error: result?.error ?? 'timeout_failed' }
 
-  const { data: updated, error } = await admin
-    .from('caro_rooms')
-    .update({ player_o: user.id, status: 'playing' })
-    .eq('id', room.id)
-    .is('player_o', null)  // atomicity: only succeeds if slot is still free
-    .select('id')
-
-  if (error) return { error: error.message }
-  if (!updated || updated.length === 0) return { error: 'full' }
+  const room = result.room
+  if (room && room.status === 'finished' && room.winner) {
+    const winnerId = room.winner === 'X' ? room.player_x : room.player_o
+    const loserId = room.winner === 'X' ? room.player_o : room.player_x
+    try {
+      await recordTournamentResult(createAdminClient(), room.room_code, winnerId, loserId)
+    } catch (e) {
+      logResultError('resolveTimeout.tournament', roomId, 'finished', e)
+    }
+  }
 
   return null
+}
+
+// ── resolveExpiredCaroGames ─────────────────────────────────────────────────────
+// Browser-independent bulk timeout sweep. Finalizes every 'playing' room whose
+// turn_deadline has passed (+grace) as an opponent win, in one atomic statement,
+// then records any tournament results. Triggered on lobby load and by the cron
+// route (see app/api/cron/caro-maintenance). Idempotent.
+export async function resolveExpiredCaroGames(): Promise<{ resolved: number }> {
+  const admin = createAdminClient()
+  const { data, error } = await admin.rpc('caro_resolve_expired', { p_grace_seconds: 2 })
+  if (error) {
+    logResultError('resolveExpiredCaroGames', '-', 'playing', error)
+    return { resolved: 0 }
+  }
+  const rows = (data ?? []) as { room_code: string; winner_id: string | null; loser_id: string | null }[]
+  for (const r of rows) {
+    try {
+      await recordTournamentResult(admin, r.room_code, r.winner_id, r.loser_id)
+    } catch (e) {
+      logResultError('resolveExpiredCaroGames.tournament', r.room_code, 'finished', e)
+    }
+  }
+  return { resolved: rows.length }
+}
+
+// ── cleanupStaleWaitingRooms ────────────────────────────────────────────────────
+// Removes waiting rooms whose host has gone silent (no heartbeat within the lobby
+// window). Only deletes rooms that NEVER started (status='waiting' AND player_o IS
+// NULL), so active games and completed match history (status finished/cancelled)
+// are never touched. Idempotent and bounded.
+export async function cleanupStaleWaitingRooms(): Promise<{ removed: number }> {
+  const admin = createAdminClient()
+  const cutoff = new Date(Date.now() - LOBBY_STALE_MS).toISOString()
+  const { data, error } = await admin
+    .from('caro_rooms')
+    .delete()
+    .eq('status', 'waiting')
+    .is('player_o', null)
+    .lt('updated_at', cutoff)
+    .select('id')
+  if (error) {
+    logResultError('cleanupStaleWaitingRooms', '-', 'waiting', error)
+    return { removed: 0 }
+  }
+  return { removed: data?.length ?? 0 }
 }

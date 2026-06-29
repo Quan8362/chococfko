@@ -47,15 +47,9 @@ export default async function CaroRoomPage({ params }: { params: { roomCode: str
   const spectatorLabel = tCommon('spectator_label')
   const playerOFallback = tCaro('player_o_label_fallback')
 
-  // Auto-join as player O if eligible
-  let finalRoom = room as CaroRoom
-  if (user && room.status === 'waiting' && !room.player_o && room.player_x !== user.id) {
-    await admin.from('caro_rooms').update({
-      player_o: user.id,
-      status: 'playing',
-    }).eq('id', room.id)
-    finalRoom = { ...finalRoom, player_o: user.id, status: 'playing' } as CaroRoom
-  }
+  // Read-only render: opening a waiting room must NOT occupy Player O. Joining is an
+  // explicit in-room action (joinCaroRoom via the "Tham gia phòng" button).
+  const finalRoom = room as CaroRoom
 
   const [playerXName, playerOName] = await Promise.all([
     getPlayerName(admin, finalRoom.player_x, playerFallback),

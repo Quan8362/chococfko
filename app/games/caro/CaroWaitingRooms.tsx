@@ -4,7 +4,7 @@ import { useEffect, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
-import { fetchWaitingRooms, joinRoomFromLobby, type WaitingRoom } from './actions'
+import { fetchWaitingRooms, type WaitingRoom } from './actions'
 
 type Props = {
   initialRooms: WaitingRoom[]
@@ -24,7 +24,6 @@ export default function CaroWaitingRooms({ initialRooms, userId }: Props) {
   const t = useTranslations('games.caro')
   const router = useRouter()
   const [rooms, setRooms] = useState<WaitingRoom[]>(initialRooms)
-  const [error, setError] = useState<string | null>(null)
   const [joiningRoom, setJoiningRoom] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
 
@@ -50,22 +49,12 @@ export default function CaroWaitingRooms({ initialRooms, userId }: Props) {
     return () => clearInterval(interval)
   }, [])
 
+  // Opening a room must not auto-join: navigate to the room (read-only) where an
+  // explicit "Tham gia phòng" button performs the actual atomic join.
   const handleJoin = (roomCode: string) => {
-    setError(null)
     setJoiningRoom(roomCode)
-    startTransition(async () => {
-      const result = await joinRoomFromLobby(roomCode)
-      if (result?.error) {
-        const msg =
-          result.error === 'full' ? t('lobby_room_full') :
-          result.error === 'stale' ? t('lobby_room_stale') :
-          result.error === 'not_logged_in' ? t('lobby_login_required') :
-          t('lobby_join_error')
-        setError(msg)
-        setJoiningRoom(null)
-      } else {
-        router.push(`/games/caro/${roomCode}`)
-      }
+    startTransition(() => {
+      router.push(`/games/caro/${roomCode}`)
     })
   }
 
@@ -75,12 +64,6 @@ export default function CaroWaitingRooms({ initialRooms, userId }: Props) {
         ⏳ {t('lobby_title')}
       </h2>
       <p className="text-[13.5px] text-muted mb-4 leading-relaxed">{t('lobby_section_desc')}</p>
-
-      {error && (
-        <p className="text-[13px] text-red-600 bg-red-50 px-4 py-2.5 rounded-xl border border-red-100 text-center mb-4">
-          {error}
-        </p>
-      )}
 
       {rooms.length === 0 ? (
         <div className="bg-paper border border-line rounded-2xl px-5 py-10 text-center text-[13.5px] text-muted/60 leading-relaxed">

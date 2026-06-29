@@ -5,7 +5,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import CaroLobby from './CaroLobby'
 import CaroWaitingRooms from './CaroWaitingRooms'
 import CaroHistoryClient, { type CaroHistoryRow } from './CaroHistoryClient'
-import { fetchWaitingRooms, finalizeStaleGames } from './actions'
+import { fetchWaitingRooms, finalizeStaleGames, resolveExpiredCaroGames, cleanupStaleWaitingRooms } from './actions'
 
 export const dynamic = 'force-dynamic'
 
@@ -43,10 +43,18 @@ export default async function CaroPage() {
     Promise.resolve(createAdminClient()),
   ])
 
-  // Server-authoritative safety net: finalize abandoned 'playing' rooms (crashed /
-  // closed tabs) BEFORE reading history, so completed-but-stranded matches surface
-  // immediately rather than being lost forever. Browser-independent and idempotent.
-  await finalizeStaleGames().catch(() => { /* never block the lobby on this */ })
+  // Server-authoritative, browser-independent maintenance BEFORE reading history /
+  // waiting rooms, so the lobby reflects authoritative state. All idempotent and
+  // best-effort — never block the lobby on them. Also runnable via the cron route
+  // (app/api/cron/caro-maintenance) for zero-traffic periods.
+  //  • resolveExpiredCaroGames — finalize timed-out games (opponent wins) via deadline
+  //  • finalizeStaleGames      — close deadline-less abandoned 'playing' rooms (no-contest)
+  //  • cleanupStaleWaitingRooms — remove never-started waiting rooms with a silent host
+  await Promise.all([
+    resolveExpiredCaroGames().catch(() => { /* best-effort */ }),
+    finalizeStaleGames().catch(() => { /* best-effort */ }),
+    cleanupStaleWaitingRooms().catch(() => { /* best-effort */ }),
+  ])
 
   const [{ data: { user } }, { data: history }, waitingRooms] = await Promise.all([
     supabase.auth.getUser(),

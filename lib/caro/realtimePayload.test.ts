@@ -6,6 +6,7 @@ import {
   parseBoard,
   parseWinningCells,
   mergeRoomUpdate,
+  applyRoomUpdate,
   countMoves,
   BOARD_CELLS,
   type CaroRoomState,
@@ -140,4 +141,66 @@ test('mergeRoomUpdate applies a winning update with winning_cells', () => {
   })
   assert.deepEqual(next.winning_cells, [0, 1, 2, 3, 4])
   assert.equal(next.winner, 'X')
+})
+
+// ── applyRoomUpdate: stale / refetch signals ──────────────────────────────────
+
+test('applyRoomUpdate carries state_version forward and applies newer versions', () => {
+  const prev = { ...baseRoom(), state_version: 5 }
+  const board = emptyBoard()
+  board[0] = 'X'; board[1] = 'O'; board[2] = 'X'
+  const res = applyRoomUpdate(prev, { id: 'room-1', board, current_turn: 'O', state_version: 6 })
+  assert.equal(res.stale, false)
+  assert.equal(res.refetch, false)
+  assert.equal(res.room.state_version, 6)
+  assert.equal(countMoves(res.room.board), 3)
+})
+
+test('applyRoomUpdate rejects an OLDER state_version (no regression)', () => {
+  const prev = { ...baseRoom(), state_version: 10 }
+  // A late/out-of-order payload that would otherwise erase a move.
+  const res = applyRoomUpdate(prev, {
+    id: 'room-1',
+    board: emptyBoard(), // empty → would wipe both placed marks if accepted
+    state_version: 9,
+  })
+  assert.equal(res.stale, true)
+  assert.equal(res.room, prev) // unchanged reference
+  assert.equal(countMoves(res.room.board), 2)
+})
+
+test('applyRoomUpdate accepts an equal state_version (idempotent reapply)', () => {
+  const prev = { ...baseRoom(), state_version: 7 }
+  const res = applyRoomUpdate(prev, { id: 'room-1', current_turn: 'O', state_version: 7 })
+  assert.equal(res.stale, false)
+  assert.equal(res.room.current_turn, 'O')
+})
+
+test('applyRoomUpdate flags refetch on a present-but-malformed board', () => {
+  const prev = baseRoom()
+  const res = applyRoomUpdate(prev, { id: 'room-1', board: 'not-an-array', status: 'playing' })
+  assert.equal(res.refetch, true)
+  // prev board preserved rather than wiped
+  assert.equal(countMoves(res.room.board), 2)
+})
+
+test('applyRoomUpdate flags refetch on a wrong-length board', () => {
+  const prev = baseRoom()
+  const res = applyRoomUpdate(prev, { id: 'room-1', board: [1, 2, 3] })
+  assert.equal(res.refetch, true)
+  assert.equal(countMoves(res.room.board), 2)
+})
+
+test('applyRoomUpdate does NOT flag refetch for a null/omitted board (TOAST case)', () => {
+  const prev = baseRoom()
+  assert.equal(applyRoomUpdate(prev, { id: 'room-1', board: null, status: 'finished' }).refetch, false)
+  assert.equal(applyRoomUpdate(prev, { id: 'room-1', status: 'finished' }).refetch, false)
+})
+
+test('applyRoomUpdate ignores a payload for a different room (no refetch, no stale)', () => {
+  const prev = baseRoom()
+  const res = applyRoomUpdate(prev, { id: 'other-room', board: 'garbage' })
+  assert.equal(res.room, prev)
+  assert.equal(res.refetch, false)
+  assert.equal(res.stale, false)
 })

@@ -11,6 +11,7 @@ import {
   dealRound, applyPlay, applyPass, applyTimeout, cardCounts, type RoundState,
 } from '@/lib/games/tlmn/round'
 import { chooseBotMove } from '@/lib/games/tlmn/bot'
+import { resolveAvatarUrl, resolveDisplayName, type AuthMetaLike } from '@/lib/games/tlmn/avatar'
 import { ENTRY_MIN_BALANCE } from '@/lib/game/economy'
 import { ensureWallet } from './wallet'
 
@@ -81,25 +82,95 @@ function genCode(): string {
 
 type Admin = ReturnType<typeof createAdminClient>
 
-async function getProfileInfo(
-  admin: Admin,
-  userId: string,
-): Promise<{ name: string; avatar: string | null }> {
+type ProfileInfo = { name: string; avatar: string | null }
+
+// Fetch a single user's auth metadata (OAuth picture / name) — used only as a fallback
+// when the application profile is missing a field. Bounded to the handful of real seats
+// per room, never per leaderboard row.
+async function getAuthMeta(admin: Admin, userId: string): Promise<AuthMetaLike | null> {
+  const { data: { user } } = await admin.auth.admin.getUserById(userId)
+  if (!user) return null
+  const m = (user.user_metadata ?? {}) as Record<string, unknown>
+  return {
+    display_name: (m.display_name as string) ?? null,
+    name: (m.name as string) ?? null,
+    full_name: (m.full_name as string) ?? null,
+    avatar_url: (m.avatar_url as string) ?? null,
+    picture: (m.picture as string) ?? null,
+    email: user.email ?? null,
+  }
+}
+
+// Resolve ONE user's authoritative identity (name + avatar). Source of truth is the
+// application profile; OAuth metadata fills any gap (avatar/name) using the player's
+// OWN account only. Used when snapshotting a seat at create/join time.
+async function getProfileInfo(admin: Admin, userId: string): Promise<ProfileInfo> {
   const { data: profile } = await admin
     .from('profiles')
     .select('display_name, avatar_url')
     .eq('id', userId)
     .maybeSingle()
-  if (profile?.display_name) return { name: profile.display_name, avatar: profile.avatar_url ?? null }
+  // Only reach for auth metadata when the profile leaves a field empty (common for
+  // OAuth users onboarded before the trigger copied their picture into profiles).
+  const needsMeta = !profile?.display_name || !profile?.avatar_url
+  const meta = needsMeta ? await getAuthMeta(admin, userId) : null
+  return {
+    name: resolveDisplayName(profile, meta),
+    avatar: resolveAvatarUrl(profile, meta),
+  }
+}
 
-  const { data: { user } } = await admin.auth.admin.getUserById(userId)
-  const name =
-    user?.user_metadata?.full_name ||
-    user?.user_metadata?.name ||
-    user?.email?.split('@')[0] ||
-    ''
-  const avatar = (user?.user_metadata?.avatar_url as string | undefined) ?? null
-  return { name, avatar }
+// Batch-resolve the CURRENT authoritative identity for many real users at once — the
+// single hydration primitive behind room seats, the waiting-room host list and the
+// leaderboard. ONE profiles query for everyone (no N+1); bounded auth-metadata lookups
+// ONLY for the users still missing an avatar after the profile read. Keyed strictly by
+// user_id, so a player always resolves to their own avatar regardless of seat/order/who
+// is logged in. Bots / null ids are simply absent from the map.
+const META_FALLBACK_CAP = 24
+async function resolveProfiles(
+  admin: Admin,
+  userIds: Array<string | null | undefined>,
+): Promise<Map<string, ProfileInfo>> {
+  const ids = Array.from(new Set(userIds.filter((id): id is string => !!id)))
+  const out = new Map<string, ProfileInfo>()
+  if (ids.length === 0) return out
+
+  const { data: profiles } = await admin
+    .from('profiles')
+    .select('id, display_name, avatar_url')
+    .in('id', ids)
+  const byId = new Map<string, { display_name: string | null; avatar_url: string | null }>()
+  for (const p of (profiles ?? []) as Array<{ id: string; display_name: string | null; avatar_url: string | null }>) {
+    byId.set(p.id, { display_name: p.display_name, avatar_url: p.avatar_url })
+  }
+
+  // Anyone whose profile lacks an avatar gets a bounded auth-metadata fallback (their
+  // own OAuth picture). Capped so a large leaderboard page can never fan out unbounded.
+  const missing = ids.filter(id => !byId.get(id)?.avatar_url).slice(0, META_FALLBACK_CAP)
+  const metas = new Map<string, AuthMetaLike | null>()
+  await Promise.all(missing.map(async id => { metas.set(id, await getAuthMeta(admin, id)) }))
+
+  for (const id of ids) {
+    const profile = byId.get(id) ?? null
+    const meta = metas.get(id) ?? null
+    out.set(id, { name: resolveDisplayName(profile, meta), avatar: resolveAvatarUrl(profile, meta) })
+  }
+  return out
+}
+
+// Overlay the freshly-resolved profile (name + avatar) onto a set of seats, keyed by
+// user_id. Bots and empty seats are returned untouched — their stored display_name /
+// null avatar is authoritative. avatar_url on a seat is therefore DISPLAY data refreshed
+// on every read, never the source of truth.
+async function hydrateSeatProfiles(admin: Admin, seats: TlmnSeat[]): Promise<TlmnSeat[]> {
+  const profiles = await resolveProfiles(admin, seats.filter(s => !s.is_bot).map(s => s.user_id))
+  if (profiles.size === 0) return seats
+  return seats.map(s => {
+    if (s.is_bot || !s.user_id) return s
+    const p = profiles.get(s.user_id)
+    if (!p) return s
+    return { ...s, display_name: p.name || s.display_name, avatar_url: p.avatar }
+  })
 }
 
 async function readState(admin: Admin, roomId: string): Promise<TlmnRoomState | null> {
@@ -108,7 +179,11 @@ async function readState(admin: Admin, roomId: string): Promise<TlmnRoomState | 
     admin.from('tlmn_seats').select('*').eq('room_id', roomId).order('seat_index', { ascending: true }),
   ])
   if (!room) return null
-  return { room: room as TlmnRoom, seats: (seats ?? []) as TlmnSeat[] }
+  // Refresh every real seat's name + avatar from the authoritative profile on each read
+  // (initial load, realtime reconcile, reconnect) so a stale join-time snapshot — or a
+  // profile updated mid-room — never sticks. Keyed by user_id; bots are left untouched.
+  const hydrated = await hydrateSeatProfiles(admin, (seats ?? []) as TlmnSeat[])
+  return { room: room as TlmnRoom, seats: hydrated }
 }
 
 // Seat the current user into the lowest free seat. Idempotent: a user already in
@@ -404,13 +479,21 @@ export async function fetchWaitingRooms(): Promise<WaitingRoom[]> {
   // Host coin balance → drives the host's dynamic coin-rank badge in the lobby. One batched
   // read of game_wallets (no N+1). Tier is derived from this CURRENT balance on the client.
   if (out.length > 0) {
-    const { data: wallets } = await admin
-      .from('game_wallets').select('user_id, balance').in('user_id', out.map(o => o.host_id))
+    const [{ data: wallets }, profiles] = await Promise.all([
+      admin.from('game_wallets').select('user_id, balance').in('user_id', out.map(o => o.host_id)),
+      // Refresh each host's name + avatar from the authoritative profile (the seat row may
+      // hold a stale join-time snapshot). Keyed by host_id → never another player's avatar.
+      resolveProfiles(admin, out.map(o => o.host_id)),
+    ])
     const bal = new Map<string, number>()
     for (const w of (wallets ?? []) as Array<{ user_id: string; balance: number | string }>) {
       bal.set(w.user_id, Number(w.balance ?? 0))
     }
-    for (const o of out) o.host_balance = bal.get(o.host_id) ?? 0
+    for (const o of out) {
+      o.host_balance = bal.get(o.host_id) ?? 0
+      const p = profiles.get(o.host_id)
+      if (p) { o.host_name = p.name || o.host_name; o.host_avatar = p.avatar }
+    }
   }
   return out
 }
@@ -1336,17 +1419,30 @@ export async function fetchTlmnLeaderboard(
   const safeOffset = Math.max(0, Math.floor(offset))
   const { data, error } = await supabase.rpc(fn, { p_limit: safeLimit, p_offset: safeOffset })
   if (error) return { rows: [], error: 'load_failed' }
-  const rows = ((data ?? []) as RawLeaderboardRow[]).map(r => ({
-    user_id: r.user_id,
-    display_name: r.display_name ?? null,
-    avatar_url: r.avatar_url ?? null,
-    total_games: Number(r.total_games ?? 0),
-    total_wins: Number(r.total_wins ?? 0),
-    total_losses: Number(r.total_losses ?? 0),
-    win_rate: Number(r.win_rate ?? 0),
-    balance: Number(r.balance ?? 0),
-    rank: Number(r.rank ?? 0),
-  }))
+  const raw = (data ?? []) as RawLeaderboardRow[]
+
+  // The RPC already joins profiles fresh; fill any remaining gaps (OAuth users whose
+  // profiles.avatar_url is still null) from auth metadata via the same resolver the room
+  // uses, so the board shows each user's CURRENT account avatar — never a stale snapshot.
+  let resolved = new Map<string, ProfileInfo>()
+  try {
+    resolved = await resolveProfiles(createAdminClient(), raw.map(r => r.user_id))
+  } catch { /* leaderboard still renders with the RPC's profile fields */ }
+
+  const rows = raw.map(r => {
+    const p = resolved.get(r.user_id)
+    return {
+      user_id: r.user_id,
+      display_name: (p?.name || r.display_name) ?? null,
+      avatar_url: p?.avatar ?? r.avatar_url ?? null,
+      total_games: Number(r.total_games ?? 0),
+      total_wins: Number(r.total_wins ?? 0),
+      total_losses: Number(r.total_losses ?? 0),
+      win_rate: Number(r.win_rate ?? 0),
+      balance: Number(r.balance ?? 0),
+      rank: Number(r.rank ?? 0),
+    }
+  })
   return { rows }
 }
 

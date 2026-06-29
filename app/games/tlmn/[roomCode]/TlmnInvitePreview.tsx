@@ -6,6 +6,9 @@ import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { seatIntoRoom, type TlmnRoomState } from '../actions'
 import { resolveRules } from '@/lib/games/tlmn/engine'
+import UserAvatar from '@/components/UserAvatar'
+import { BotAvatar } from './TlmnCard'
+import { botThemeIndex } from '@/lib/games/tlmn/avatar'
 
 const MAX_SEATS = 4
 
@@ -89,7 +92,7 @@ export default function TlmnInvitePreview({ state, userId, code }: Props) {
             const seat = seats.find(s => s.seat_index === i)
             return seat ? (
               <div key={i} className="flex items-center gap-1.5 rounded-full bg-cream border border-line pl-1 pr-3 py-1">
-                <Avatar name={seat.display_name || '?'} url={seat.avatar_url} size={24} />
+                <Avatar name={seat.display_name || '?'} url={seat.avatar_url} size={24} isBot={seat.is_bot} seatIndex={seat.seat_index} />
                 <span className="text-[12px] font-semibold text-ink truncate max-w-[96px]">
                   {seat.is_bot ? `🤖 ${seat.display_name}` : (seat.display_name || t('player_fallback', { n: i + 1 }))}
                 </span>
@@ -172,19 +175,16 @@ export default function TlmnInvitePreview({ state, userId, code }: Props) {
 }
 
 // ── Avatar ──────────────────────────────────────────────────────────────────────
-function Avatar({ name, url, size }: { name: string; url: string | null; size: number }) {
-  const initial = (name?.trim()?.[0] ?? '?').toUpperCase()
-  const style = { width: size, height: size }
-  if (url) {
-    // eslint-disable-next-line @next/next/no-img-element
-    return <img src={url} alt={name} style={style} className="rounded-full object-cover flex-none border border-line" />
-  }
+// Real players via the canonical site renderer (proxy + safe initials fallback); bots
+// keep their fixed card-suit emblem — never a profile image.
+function Avatar({
+  name, url, size, isBot = false, seatIndex = 0,
+}: { name: string; url: string | null; size: number; isBot?: boolean; seatIndex?: number }) {
   return (
-    <div
-      style={style}
-      className="rounded-full bg-gradient-to-br from-rose/20 to-gold/10 flex items-center justify-center font-serif font-bold text-rose flex-none"
-    >
-      <span style={{ fontSize: Math.round(size * 0.42) }}>{initial}</span>
-    </div>
+    <span className="inline-flex rounded-full flex-none border border-line overflow-hidden">
+      {isBot
+        ? <BotAvatar seed={botThemeIndex(name, seatIndex)} size={size} />
+        : <UserAvatar src={url} name={name} size={size} />}
+    </span>
   )
 }

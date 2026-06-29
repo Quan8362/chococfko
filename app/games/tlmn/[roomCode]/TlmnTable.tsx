@@ -21,6 +21,8 @@ import CoinTierCelebration from '@/components/CoinTierCelebration'
 import { getCoinTier, coinTierAria, type CoinTierTranslate, type CoinTier } from '@/lib/games/coinTier'
 import { motion } from 'framer-motion'
 import { CardFace, CardBack, OpponentFan, BotAvatar } from './TlmnCard'
+import UserAvatar from '@/components/UserAvatar'
+import { botThemeIndex } from '@/lib/games/tlmn/avatar'
 import { useTlmnSound, type TlmnSoundName } from './useTlmnSound'
 import { useTlmnInteractions, usePlayerMutes } from './useTlmnInteractions'
 import { ReactionControl, PhraseBubbleLayer, ThrowableLayer, OpponentMenu, ReportDialog } from './TlmnInteractions'
@@ -2106,21 +2108,12 @@ function SeatPod({
 }
 
 function PodAvatar({ name, url, size = 28, isBot = false, seed = 0 }: { name: string; url: string | null; size?: number; isBot?: boolean; seed?: number }) {
-  const initial = (name?.trim()?.[0] ?? '?').toUpperCase()
-  if (url) {
-    // eslint-disable-next-line @next/next/no-img-element
-    return <img src={url} alt={name} className="rounded-full object-cover flex-none" style={{ width: size, height: size }} />
-  }
-  // Bots (no real avatar) get a DISTINCT generated portrait so Bot 1/2/3/4 differ.
-  if (isBot) return <span className="flex-none"><BotAvatar seed={seed} size={size} /></span>
-  return (
-    <div
-      className="rounded-full bg-gradient-to-br from-rose/80 to-rose-deep flex items-center justify-center font-serif font-bold text-white flex-none"
-      style={{ width: size, height: size, fontSize: Math.round(size * 0.42) }}
-    >
-      {initial}
-    </div>
-  )
+  // Bots NEVER use a profile image — a fixed card-suit emblem keyed on the bot number
+  // (Bot 1 spade · Bot 2 diamond · Bot 3 club), resolved from its own name/seat.
+  if (isBot) return <span className="flex-none"><BotAvatar seed={botThemeIndex(name, seed)} size={size} /></span>
+  // Real players go through the canonical site avatar: provider-proxy, retina bump,
+  // referrer-less load, and a deterministic initials fallback on missing/broken images.
+  return <UserAvatar src={url} name={name} size={size} className="flex-none" />
 }
 
 // ── Center: end-of-round headline ──────────────────────────────────────────────────

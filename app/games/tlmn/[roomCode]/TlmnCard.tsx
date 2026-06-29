@@ -223,11 +223,14 @@ export function CardBack({ w = 30, className = '' }: { w?: number; className?: s
 // Indexed by seat_index (stable player identity): seat 0 = human dock, so the bot suits are
 // seat 1 → ♠ (Bot 1), seat 2 → ♦ (Bot 2), seat 3 → ♣ (Bot 3).
 // TODO(asset): bot avatars can be swapped for commissioned illustrated mascots later.
+// Ordered by bot number (index 0 = Bot 1): the suit emblem is a fixed identity —
+// Bot 1 → spade · Bot 2 → diamond · Bot 3 → club · Bot 4 → heart (suit ids: 0 spade,
+// 1 club, 2 diamond, 3 heart). Pass botThemeIndex(name, seat) as `seed` (see avatar.ts).
 const BOT_THEMES = [
-  { c1: '#c0314b', c2: '#6e0f22', suit: 0, ink: '#f6d989' }, // garnet · spade · gold
-  { c1: '#1f8a57', c2: '#0f4a2c', suit: 0, ink: '#ffe1ea' }, // emerald · spade · blush
-  { c1: '#8a4ec0', c2: '#46226b', suit: 2, ink: '#f6d989' }, // amethyst · diamond · gold
-  { c1: '#2a8aa6', c2: '#0e4150', suit: 1, ink: '#eaf6ff' }, // sapphire · club · ice
+  { c1: '#c0314b', c2: '#6e0f22', suit: 0, ink: '#f6d989' }, // Bot 1 · garnet · spade · gold
+  { c1: '#8a4ec0', c2: '#46226b', suit: 2, ink: '#f6d989' }, // Bot 2 · amethyst · diamond · gold
+  { c1: '#2a8aa6', c2: '#0e4150', suit: 1, ink: '#eaf6ff' }, // Bot 3 · sapphire · club · ice
+  { c1: '#1f8a57', c2: '#0f4a2c', suit: 3, ink: '#ffe1ea' }, // Bot 4 · emerald · heart · blush
 ] as const
 export function BotAvatar({ seed, size = 46 }: { seed: number; size?: number }) {
   const i = ((seed % BOT_THEMES.length) + BOT_THEMES.length) % BOT_THEMES.length

@@ -13,6 +13,9 @@ import {
 } from '../actions'
 import TlmnRulesPanel from './TlmnRulesPanel'
 import TlmnTable from './TlmnTable'
+import UserAvatar from '@/components/UserAvatar'
+import { BotAvatar } from './TlmnCard'
+import { botThemeIndex } from '@/lib/games/tlmn/avatar'
 import { useTlmnSound } from './useTlmnSound'
 import {
   TlmnInvite, TlmnShare, TlmnBot, TlmnCrown, TlmnCheck, TlmnSeat as TlmnSeatIcon, TlmnWave, TlmnSuits,
@@ -430,7 +433,7 @@ export default function TlmnRoom({ initialState, userId, joinError = null }: Pro
             >
               {seat ? (
                 <>
-                  <Avatar name={seat.display_name} url={seat.avatar_url} host={!!isSeatHost} />
+                  <Avatar name={seat.display_name} url={seat.avatar_url} host={!!isSeatHost} isBot={seat.is_bot} seatIndex={seat.seat_index} />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5 flex-wrap">
                       <p className="text-[14px] font-semibold text-[var(--tl-text)] truncate max-w-[150px]">
@@ -592,30 +595,27 @@ export default function TlmnRoom({ initialState, userId, joinError = null }: Pro
 }
 
 // ── Avatar ──────────────────────────────────────────────────────────────────────
-function Avatar({ name, url, host = false }: { name: string; url: string | null; host?: boolean }) {
-  const initial = (name?.trim()?.[0] ?? '?').toUpperCase()
+// Real-player avatar via the canonical site renderer (provider-proxy + retina + safe
+// initials fallback). The host keeps its gold ring; the wrapper carries the ring so the
+// circle clipping stays perfect at every size.
+function Avatar({
+  name, url, host = false, isBot = false, seatIndex = 0,
+}: { name: string; url: string | null; host?: boolean; isBot?: boolean; seatIndex?: number }) {
   const ring = host ? 'tl-avatar-ring' : 'border-2 border-[var(--tl-cream-line)]'
-  if (url) {
-    // eslint-disable-next-line @next/next/no-img-element
-    return <img src={url} alt={name} className={`w-12 h-12 rounded-full object-cover flex-none ${ring}`} />
-  }
   return (
-    <div className={`w-12 h-12 rounded-full bg-gradient-to-br from-[var(--tl-red)]/15 to-[var(--tl-gold)]/15 flex items-center justify-center font-serif font-bold text-[18px] text-[var(--tl-red)] flex-none ${ring}`}>
-      {initial}
-    </div>
+    <span className={`inline-flex rounded-full flex-none overflow-hidden ${ring}`}>
+      {isBot
+        ? <BotAvatar seed={botThemeIndex(name, seatIndex)} size={48} />
+        : <UserAvatar src={url} name={name} size={48} />}
+    </span>
   )
 }
 
 // ── ToastAvatar (compact, for the activity toasts) ──────────────────────────────
 function ToastAvatar({ name, url }: { name: string; url: string | null }) {
-  const initial = (name?.trim()?.[0] ?? '?').toUpperCase()
-  if (url) {
-    // eslint-disable-next-line @next/next/no-img-element
-    return <img src={url} alt="" className="w-8 h-8 rounded-full object-cover flex-none border border-line" />
-  }
   return (
-    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-rose/20 to-gold/10 flex items-center justify-center font-serif font-bold text-[14px] text-rose flex-none">
-      {initial}
-    </div>
+    <span className="inline-flex rounded-full flex-none border border-line overflow-hidden">
+      <UserAvatar src={url} name={name} size={32} />
+    </span>
   )
 }

@@ -8,94 +8,117 @@
 type IconProps = { className?: string }
 
 // ════════════════════════════════════════════════════════════════════════════════
-//  TWO-CARD motif — one simple silhouette, four contexts (front-door art)
+//  TWO-CARD motif — one card system, four contexts (front-door art)
 //  ─────────────────────────────────────────────────────────────────────────────
-//  Two upright playing cards, lightly overlapping (~35%) with slight opposite rotations.
-//  Recognition comes from the overlapping card SILHOUETTE only — deliberately NO central
-//  suit, NO pips, NO characters, NO arrows, NO shadows, NO coloured containers. Variants
-//  share the same card proportions + overlap geometry, but a tiny pill gets its own,
-//  more-separated geometry so two card tops survive at ~12–14px instead of merging:
-//    hero  → faint tone-on-tone outline emboss (colour + opacity come from CSS)
-//    info  → burgundy line icon (~18–20px), surface-filled so the rear edge stays clean
-//    pill  → solid cream silhouette, single colour, crisp at ~12–14px
-//    empty → soft blush silhouette + one tiny sparkle (~32–38px), gently restrained
+//  Two lightly overlapping standard playing cards: portrait proportions, restrained
+//  corners, slight opposite rotations. Card-ness comes from a few RESTRAINED cues, not
+//  detail — a thin outer outline, a subtle inner inset border, and ONE tiny corner suit
+//  pip on the front card (mirrored on larger variants). Deliberately NO central suit,
+//  NO face art, NO thick cartoon strokes, NO emoji, NO shadows. All variants share the
+//  same proportions / overlap direction / rotation logic; only size, opacity, stroke
+//  weight and detail level change. PILL gets its own more-separated geometry so two card
+//  tops survive at ~12–14px.
+//    hero  → faint tone-on-tone emboss (colour + opacity from CSS) + inset + mirrored pip
+//    info  → burgundy line icon (~18–22px), surface-filled, inset + one front pip
+//    pill  → solid cream silhouette (~12–14px), one tiny gold corner cue
+//    empty → soft blush cards (~32–38px), inset + one rose heart corner cue (mirrored)
 // ════════════════════════════════════════════════════════════════════════════════
 
 export type TwoCardsVariant = 'hero' | 'info' | 'pill' | 'empty'
 
 // Only the existing TLMN lobby palette (burgundy / cream / muted-gold / blush). No blue.
 const TC = {
-  surface:    '#fffdf8', // panel surface — fills info cards so the rear edge is occluded
-  ivory:      '#efe1c2', // warm cream silhouette (pill)
-  blush:      '#fbe7ef',
-  blushHi:    '#fdf2f7',
-  blushLine:  '#e3a0bd',
-  blushSpark: '#f1c2d6',
+  surface:   '#fffdf8', // panel surface — fills info cards so the rear edge is occluded
+  ivory:     '#efe1c2', // warm cream silhouette (pill)
+  ivoryPip:  '#9c7322', // muted-gold corner cue on the cream pill
+  blush:     '#fbe7ef',
+  blushHi:   '#fdf2f7',
+  blushLine: '#e3a0bd',
+  blushPip:  '#d98ab0', // rose corner heart on the empty-state cards
 } as const
 
 type CardGeom = { x: number; y: number; w: number; h: number; rx: number; rot: number; cx: number; cy: number }
 
-// Shared silhouette: two upright cards (≈5:7), restrained radius, ~35% overlap, slight
-// opposite rotations. PILL is a separate, more-separated build for the tiny brand mark.
+// Shared silhouette: two upright cards (≈2.5:3.5 portrait), restrained radius, ~30%
+// overlap, slight opposite rotations. PILL is a separate, more-separated build.
 const LARGE = {
-  back:  { x: 4.6,  y: 5.3, w: 9,   h: 13.4, rx: 1.4, rot: -7, cx: 9.1,  cy: 12 },
-  front: { x: 10.4, y: 5.3, w: 9,   h: 13.4, rx: 1.4, rot: 7,  cx: 14.9, cy: 12 },
+  back:  { x: 4.4,  y: 5.0, w: 9,   h: 13.6, rx: 1.5, rot: -7, cx: 8.9,  cy: 11.8 },
+  front: { x: 10.6, y: 5.0, w: 9,   h: 13.6, rx: 1.5, rot: 7,  cx: 15.1, cy: 11.8 },
 } as const
 const PILL = {
-  back:  { x: 3.6,  y: 4.4, w: 9.2, h: 14,   rx: 1.5, rot: -8, cx: 8.2,  cy: 11.4 },
-  front: { x: 10.6, y: 4.4, w: 9.2, h: 14,   rx: 1.5, rot: 8,  cx: 15.2, cy: 11.4 },
+  back:  { x: 3.6,  y: 4.4, w: 9.2, h: 14,   rx: 1.6, rot: -8, cx: 8.2,  cy: 11.4 },
+  front: { x: 10.6, y: 4.4, w: 9.2, h: 14,   rx: 1.6, rot: 8,  cx: 15.2, cy: 11.4 },
 } as const
 
-const SPARKLE = 'M0 -2C.18 -.7 .7 -.18 2 0 .7 .18 .18 .7 0 2 -.18 .7 -.7 .18 -2 0 -.7 -.18 -.18 -.7 0 -2Z'
+// Tiny corner cues — small suit glyphs centred on the origin so they scale/rotate cleanly.
+const SPADE = 'M0 -2C1.25 -.55 2 .1 2 1.05 2 1.9 1.15 2.2 .45 1.75 .6 2.25 .95 2.55 1.25 2.75L-1.25 2.75C-.95 2.55 -.6 2.25 -.45 1.75 -1.15 2.2 -2 1.9 -2 1.05 -2 .1 -1.25 -.55 0 -2Z'
+const HEART = 'M0 2.1C-1.7 .5 -2.3 -.45 -1.45 -1.25 -.8 -1.85 0 -1.35 0 -.6 0 -1.35 .8 -1.85 1.45 -1.25 2.3 -.45 1.7 .5 0 2.1Z'
 
-function Card({ c, fill, stroke, sw }: { c: CardGeom; fill?: string; stroke?: string; sw?: number }) {
+const INSET = 1.15 // inner inset-border margin (local units)
+
+type CardProps = {
+  c: CardGeom; fill?: string; stroke?: string; sw?: number
+  inset?: boolean; insetSw?: number; insetOpacity?: number
+  pip?: string; pipFill?: string; pipScale?: number; mirror?: boolean
+}
+
+// One card: outer outline + optional subtle inset border + optional tiny corner pip(s).
+// Everything is drawn in the card's own rotated frame so the cues sit in true corners.
+function Card({ c, fill, stroke, sw, inset, insetSw = 0.6, insetOpacity = 0.5, pip, pipFill, pipScale = 0.5, mirror }: CardProps) {
+  const px = c.x + INSET + 1.3, py = c.y + INSET + 1.65
+  const mx = c.x + c.w - INSET - 1.3, my = c.y + c.h - INSET - 1.65
   return (
-    <rect
-      x={c.x} y={c.y} width={c.w} height={c.h} rx={c.rx}
-      transform={`rotate(${c.rot} ${c.cx} ${c.cy})`}
-      fill={fill ?? 'none'} stroke={stroke} strokeWidth={sw} strokeLinejoin="round"
-    />
+    <g transform={`rotate(${c.rot} ${c.cx} ${c.cy})`}>
+      <rect x={c.x} y={c.y} width={c.w} height={c.h} rx={c.rx} fill={fill ?? 'none'} stroke={stroke} strokeWidth={sw} strokeLinejoin="round" />
+      {inset && (
+        <rect
+          x={c.x + INSET} y={c.y + INSET} width={c.w - 2 * INSET} height={c.h - 2 * INSET} rx={Math.max(c.rx - 0.6, 0.4)}
+          fill="none" stroke={stroke} strokeWidth={insetSw} strokeOpacity={insetOpacity} strokeLinejoin="round"
+        />
+      )}
+      {pip && <path d={pip} transform={`translate(${px} ${py}) scale(${pipScale})`} fill={pipFill} />}
+      {pip && mirror && <path d={pip} transform={`translate(${mx} ${my}) scale(${pipScale}) rotate(180)`} fill={pipFill} />}
+    </g>
   )
 }
 
 export function TlmnTwoCards({ variant, className }: { variant: TwoCardsVariant; className?: string }) {
   if (variant === 'pill') {
-    // Solid cream silhouette — single colour, no internal outlines to merge at tiny size.
+    // Solid cream silhouette + one tiny gold corner cue — crisp at ~12–14px.
     return (
       <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
         <Card c={PILL.back} fill={TC.ivory} />
-        <Card c={PILL.front} fill={TC.ivory} />
+        <Card c={PILL.front} fill={TC.ivory} pip={SPADE} pipFill={TC.ivoryPip} pipScale={0.46} />
       </svg>
     )
   }
 
   if (variant === 'empty') {
-    // Soft blush silhouette + one tiny sparkle; group opacity keeps it gently restrained.
+    // Soft blush cards + inset border + one rose heart corner cue (mirrored); restrained.
     return (
-      <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false" opacity={0.7}>
-        <Card c={LARGE.back} fill={TC.blush} stroke={TC.blushLine} sw={1.3} />
-        <Card c={LARGE.front} fill={TC.blushHi} stroke={TC.blushLine} sw={1.3} />
-        <path d={SPARKLE} transform="translate(19.4 4.6) scale(0.85)" fill={TC.blushSpark} />
+      <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false" opacity={0.72}>
+        <Card c={LARGE.back} fill={TC.blush} stroke={TC.blushLine} sw={1.2} inset insetSw={0.6} insetOpacity={0.55} />
+        <Card c={LARGE.front} fill={TC.blushHi} stroke={TC.blushLine} sw={1.2} inset insetSw={0.6} insetOpacity={0.55} pip={HEART} pipFill={TC.blushPip} pipScale={0.55} mirror />
       </svg>
     )
   }
 
   if (variant === 'info') {
-    // Burgundy line icon — the near-white surface fill (invisible on the cream panel)
-    // occludes the rear card's hidden edge so the pair reads as two clean cards.
+    // Burgundy line icon — surface fill (invisible on the cream panel) occludes the rear
+    // edge; inset border + one front spade pip make it read unmistakably as two cards.
     return (
       <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
-        <Card c={LARGE.back} fill={TC.surface} stroke="currentColor" sw={1.4} />
-        <Card c={LARGE.front} fill={TC.surface} stroke="currentColor" sw={1.4} />
+        <Card c={LARGE.back} fill={TC.surface} stroke="currentColor" sw={1.3} inset insetSw={0.7} insetOpacity={0.4} />
+        <Card c={LARGE.front} fill={TC.surface} stroke="currentColor" sw={1.3} inset insetSw={0.7} insetOpacity={0.4} pip={SPADE} pipFill="currentColor" pipScale={0.5} />
       </svg>
     )
   }
 
-  // hero — two clean outlines only; colour + opacity supplied by the .tl-hero__suit CSS.
+  // hero — faint tone-on-tone emboss; colour + opacity supplied by the .tl-hero__suit CSS.
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
-      <Card c={LARGE.back} stroke="currentColor" sw={0.9} />
-      <Card c={LARGE.front} stroke="currentColor" sw={0.9} />
+      <Card c={LARGE.back} stroke="currentColor" sw={0.9} inset insetSw={0.6} insetOpacity={0.7} />
+      <Card c={LARGE.front} stroke="currentColor" sw={0.9} inset insetSw={0.6} insetOpacity={0.7} pip={SPADE} pipFill="currentColor" pipScale={0.5} mirror />
     </svg>
   )
 }

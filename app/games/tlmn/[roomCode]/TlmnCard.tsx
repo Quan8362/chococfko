@@ -88,7 +88,9 @@ function AcePip({ suit, w, color }: { suit: number; w: number; color: string }) 
 //   default      — ring-line + shadow-card
 //   interactive  — desktop hover lifts + deepens the shadow (touch: no sticky hover)
 //   playable     — subtle magenta outline (a card that appears in a legal play)
-//   selected     — magenta ring + soft magenta shadow (the lift is applied by the parent)
+//   selected     — NO border/ring/underline: the card keeps its normal hairline edge and
+//                  gains only a soft NEUTRAL drop shadow for separation; the upward lift is
+//                  applied by the parent (a card-game pickup feel, not a form-field outline)
 //   dim          — desaturated + lower contrast (not playable this turn)
 export function CardFace({
   card, w = 46, selected = false, dim = false, playable = false, interactive = false, raised = false,
@@ -135,7 +137,7 @@ export function CardFace({
         'relative inline-flex flex-col select-none rounded-[7px] bg-white leading-none transition-all duration-150 overflow-hidden',
         interactive && !dim ? 'tlmn-card-int' : '',
         selected
-          ? 'ring-2 ring-rose shadow-[0_10px_22px_-6px_rgba(214,0,108,0.6)]'
+          ? 'ring-1 ring-line shadow-[0_12px_22px_-8px_rgba(0,0,0,0.55)]'
           : playable && !dim
             ? 'ring-[1.5px] ring-rose/55 shadow-card'
             : isHeo && !dim

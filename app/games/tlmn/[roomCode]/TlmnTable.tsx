@@ -150,10 +150,20 @@ type SeatGeometry = {
   seats: Record<'top' | 'left' | 'right' | 'bottom', SeatAnchor>
   band: { top: number; bottom: number } // centre zone, % from the top edge
 }
+// Shared vertical centre for the desktop board's LEFT/RIGHT seats. Measured from the board
+// artwork (web/public/tien-len-game-board-bg.webp, 1672×941): BOTH side-panel lotus emblems
+// are radially symmetric about y ≈ 50.05% of the board image (verified independently per
+// panel by vertical mirror-symmetry; the central mandala lands on the same line). Anchoring
+// both side avatars to this ONE value lands each avatar's visual centre on its lotus and
+// guarantees Bot 1 (right) and Bot 3 (left) share an identical Y. The previous value (47%)
+// floated both avatars ~3% (≈14px rendered) above the lotuses. Consumed via the seat
+// wrapper's translate(-50%,-50%) — the side-seat pod shrink-wraps to its avatar unit, so this
+// is the avatar's true visual centre, not the cluster's. Only the horizontal x is mirrored.
+const DESKTOP_SIDE_SEAT_CENTER_Y = 50
 const GEOMETRY: Record<LayoutMode, SeatGeometry> = {
   // Desktop / landscape board image — roomy 16:9 felt.
   desktop: {
-    seats: { top: { x: 50, y: 15 }, left: { x: 9, y: 47 }, right: { x: 91, y: 47 }, bottom: { x: 50, y: 86 } },
+    seats: { top: { x: 50, y: 15 }, left: { x: 9, y: DESKTOP_SIDE_SEAT_CENTER_Y }, right: { x: 91, y: DESKTOP_SIDE_SEAT_CENTER_Y }, bottom: { x: 50, y: 86 } },
     // Centre band lowered so the pile sits at the felt's TRUE vertical centre (~47%),
     // level with the left/right seats (y:47) — not floating high above them. The lower
     // top (39%) also opens a clean gap under Bot 2, and the bottom (55%) still clears the
@@ -368,6 +378,19 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
   // Phase 2 — throwable target-selection mode (the picked item key, or null) + a brief
   // localized cooldown / insufficient-coins flash.
   const [targetingKey, setTargetingKey] = useState<string | null>(null)
+  // A transient "this seat was just hit by a throwable" pulse — drives the avatar recoil on
+  // the REAL target pod (synced to the burst's impact moment via ThrowableLayer.onImpact).
+  // nonce re-triggers the CSS animation even when the same seat is hit twice in a row.
+  const [hitPulse, setHitPulse] = useState<{ seat: number; impact: 'splat' | 'boom'; nonce: number } | null>(null)
+  const hitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  useEffect(() => () => { if (hitTimerRef.current) clearTimeout(hitTimerRef.current) }, [])
+  const onThrowImpactSeat = useCallback((toSeat: number, key: string) => {
+    const def = getThrowable(key)
+    if (!def || (def.impact !== 'splat' && def.impact !== 'boom')) return
+    setHitPulse({ seat: toSeat, impact: def.impact, nonce: (typeof performance !== 'undefined' ? performance.now() : Date.now()) })
+    if (hitTimerRef.current) clearTimeout(hitTimerRef.current)
+    hitTimerRef.current = setTimeout(() => { if (mountedRef.current) setHitPulse(null) }, def.impact === 'boom' ? 620 : 520)
+  }, [])
   const [reactCooldown, setReactCooldown] = useState(false)
   const [reactNotice, setReactNotice] = useState<string | null>(null)
   const reactCdTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -1124,6 +1147,7 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
             place={slotList[i] ?? 'top'}
             compact={fullBleed}
             reduced={reducedRef.current}
+            hit={hitPulse && hitPulse.seat === idx ? { impact: hitPulse.impact, nonce: hitPulse.nonce } : null}
             t={t}
           />
           {/* Phase 4: tap to mute/report this opponent (human seats only, not while targeting). */}
@@ -1264,7 +1288,7 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
       <PhraseBubbleLayer bubbles={interactions.bubbles} anchorStyle={bubbleAnchor} placeOf={bubblePlace} t={t} />
 
       {/* Throwables in flight + their impact bursts (Phase 2). */}
-      <ThrowableLayer throws={interactions.throws} coordOf={throwCoord} reduced={reduced} />
+      <ThrowableLayer throws={interactions.throws} coordOf={throwCoord} reduced={reduced} onImpact={onThrowImpactSeat} />
 
       {/* Target-selection mode: dim backdrop (tap to cancel) + a pulsing pick ring over
           each opponent avatar. Only opponents are selectable; tapping sends the item. */}
@@ -1523,7 +1547,6 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
                         style={{ transformOrigin: 'bottom center' }}
                       >
                         <CardFace card={c} w={handW} selected={sel} dim={dim} playable={isPlayable && !sel} interactive />
-                        {sel && <span className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 h-1.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.7)]" style={{ width: Math.round(handW * 0.7) }} />}
                       </motion.span>
                     </motion.div>
                   )
@@ -1970,7 +1993,7 @@ function BleedCorners() {
 // only number on a seat is the card-count badge on the face-down stack.
 function SeatPod({
   seat, name, isMe, count, chips, isTurn, isNhat, isWinner = false, passed, passKey,
-  secondsLeft, turnFrac, av, backW, place, compact = false, reduced, t, tier = null, tierLabel,
+  secondsLeft, turnFrac, av, backW, place, compact = false, reduced, t, tier = null, tierLabel, hit = null,
 }: {
   seat: TlmnSeat | undefined
   name: string
@@ -1995,6 +2018,9 @@ function SeatPod({
   // hanging a tall column down into the protected centre zone.
   compact?: boolean
   reduced: boolean
+  // Transient throwable-hit recoil ('splat' = tomato, 'boom' = bomb). nonce re-triggers the
+  // shake when the same seat is hit again. null = no active hit.
+  hit?: { impact: 'splat' | 'boom'; nonce: number } | null
   t: ReturnType<typeof useTranslations>
 }) {
   void isMe
@@ -2019,8 +2045,11 @@ function SeatPod({
   // ONE self-contained unit. For LEFT/RIGHT seats this unit is the geometric centre of the
   // positioned block, so the wrapper's translate(-50%,-50%) lands the AVATAR's middle — not
   // the cluster's — on the painted lotus seat-marker, identically at every board size.
+  // Throwable-hit recoil: a transform-only shake on the avatar (never moves layout). Skipped
+  // entirely under reduced motion. Keyed by nonce so a repeat hit re-fires the animation.
+  const hitCls = !reduced && hit ? (hit.impact === 'boom' ? 'tlmn-hit-boom' : 'tlmn-hit-splat') : ''
   const avatarUnit = (
-    <span className="relative inline-flex flex-none">
+    <span key={hit?.nonce ?? 'still'} className={`relative inline-flex flex-none ${hitCls}`}>
       {isTurn && !isWinner && <span className="absolute left-1/2 -translate-x-1/2 -top-1 rounded-full tlmn-ring pointer-events-none" style={{ width: av + 8, height: av + 8 }} />}
       {isWinner && <span className="absolute left-1/2 -translate-x-1/2 -top-5 text-[18px] tlmn-banner-pop pointer-events-none z-20" aria-hidden>👑</span>}
       <span className={`relative inline-flex rounded-full p-[3px] ${ringCls}`}>

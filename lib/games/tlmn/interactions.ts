@@ -150,7 +150,8 @@ export const RATE_LIMITS = {
 // Throwable animation timing + concurrency cap (spec §19: ≤3 active throws at once).
 export const THROW_TIMING = {
   flyMs: 660,               // sender → target flight
-  impactMs: 720,            // impact burst at the target
+  impactMs: 1300,           // impact burst at the target (long enough for the tomato splatter
+                            // decal to linger ~1.2s and the bomb smoke to dissipate naturally)
   maxConcurrent: 3,         // drop the oldest when a 4th arrives
 } as const
 

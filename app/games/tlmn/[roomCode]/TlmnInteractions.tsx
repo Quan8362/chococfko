@@ -313,32 +313,44 @@ export function ReportDialog({
 // (resolved by the table from the SAME seat geometry the pods use). Concurrency is already
 // capped in the hook; this just renders whatever is active.
 export function ThrowableLayer({
-  throws, coordOf, reduced,
+  throws, coordOf, reduced, onImpact,
 }: {
   throws: Throw[]
   coordOf: (seat: number) => { x: number; y: number }
   reduced: boolean
+  // Fired the instant a throw reaches its target (flight done), so the table can recoil the
+  // real target-avatar DOM in sync with the burst. Cosmetic only.
+  onImpact?: (toSeat: number, key: string) => void
 }) {
   return (
     <div data-throwable-layer className="absolute inset-0 z-[35] pointer-events-none overflow-hidden">
       {throws.map(thr => (
-        <ThrowableItem key={thr.id} thr={thr} from={coordOf(thr.fromSeat)} to={coordOf(thr.toSeat)} reduced={reduced} />
+        <ThrowableItem key={thr.id} thr={thr} from={coordOf(thr.fromSeat)} to={coordOf(thr.toSeat)} reduced={reduced} onImpact={onImpact} />
       ))}
     </div>
   )
 }
 
 function ThrowableItem({
-  thr, from, to, reduced,
+  thr, from, to, reduced, onImpact,
 }: {
   thr: Throw
   from: { x: number; y: number }
   to: { x: number; y: number }
   reduced: boolean
+  onImpact?: (toSeat: number, key: string) => void
 }) {
   const def = getThrowable(thr.key)
   // Reduced-motion (or before flight finishes) gate: skip the flight, show only the impact.
   const [phase, setPhase] = useState<'fly' | 'impact'>(reduced ? 'impact' : 'fly')
+  const firedRef = useRef(false)
+  const fireImpact = () => {
+    if (firedRef.current) return // one recoil per throw, never twice
+    firedRef.current = true
+    if (def) onImpact?.(thr.toSeat, thr.key)
+  }
+  // Reduced motion starts directly in the impact phase → fire the recoil on mount.
+  useEffect(() => { if (reduced) fireImpact() }, []) // eslint-disable-line react-hooks/exhaustive-deps
   if (!def) return null
 
   const flySec = THROW_TIMING.flyMs / 1000
@@ -359,7 +371,7 @@ function ThrowableItem({
             rotate: def.spin ? [0, 220, 430] : 0,
           }}
           transition={{ duration: flySec, ease: 'easeInOut', times: [0, 0.5, 1] }}
-          onAnimationComplete={() => setPhase('impact')}
+          onAnimationComplete={() => { fireImpact(); setPhase('impact') }}
         >
           <span className="block text-[30px] leading-none" style={{ transform: 'translate(-50%, -50%)' }} aria-hidden>
             {def.emoji}
@@ -378,18 +390,100 @@ function ThrowableItem({
 }
 
 // CSS-driven impact burst. Archetypes reuse a small set of polished effects (core glyph +
-// expanding ring + a few floating particles) so all 10 items feel distinct without 10
-// bespoke animations. Reduced-motion shows a brief static glyph only.
+// expanding ring + a few floating particles) so the lighter items feel distinct without 10
+// bespoke animations. The two "prank" hits — tomato (splat) and bomb (boom) — get bespoke,
+// particle-based effects anchored to the target avatar (real geometry, no pasted emoji).
+// Reduced-motion shows a brief static glyph only.
 const IMPACT_PARTICLES: Partial<Record<ThrowImpact, string[]>> = {
   hearts: ['💗', '💕', '💗'],
   bloom: ['🌸', '✨', '🌼'],
   confetti: ['🎉', '✨', '🎊'],
 }
+
+// Pre-computed radial spreads so each droplet/spark/smoke puff flies a different way without
+// a bespoke keyframe per particle (direction is fed in as CSS custom props --tx/--ty/--rot).
+function radial(n: number, dist: number, jitter = 0): { tx: number; ty: number; ang: number }[] {
+  return Array.from({ length: n }, (_, i) => {
+    const ang = (i / n) * Math.PI * 2 + (i % 2 ? 0.5 : 0)
+    const d = dist * (1 - jitter + jitter * ((i * 37) % 100) / 100)
+    return { tx: Math.cos(ang) * d, ty: Math.sin(ang) * d - 6, ang: (ang * 180) / Math.PI }
+  })
+}
+const TOMATO_DROPS = radial(7, 46, 0.45)
+const TOMATO_SEEDS = radial(5, 30, 0.5)
+const BOMB_SPARKS = radial(10, 60, 0.55)
+const BOMB_SMOKE = radial(5, 26, 0.4)
+const BOMB_DEBRIS = radial(6, 50, 0.6)
+
+// Tomato: a wet squash-and-burst — irregular red splatter decal across the avatar, flying
+// pulp droplets + a few seeds. Playful, not violent; clears in ~1.2s.
+function SplatImpact() {
+  return (
+    <span className="tlmn-splat" aria-hidden>
+      <span className="tlmn-splat-decal" />
+      <span className="tlmn-splat-core" />
+      <span className="tlmn-impact-ring tlmn-impact--splat-ring" />
+      {TOMATO_DROPS.map((p, i) => (
+        <span
+          key={`d${i}`}
+          className="tlmn-splat-drop"
+          style={{ ['--tx' as string]: `${p.tx}px`, ['--ty' as string]: `${p.ty}px`, ['--d' as string]: `${0.06 * (i % 4)}s` }}
+        />
+      ))}
+      {TOMATO_SEEDS.map((p, i) => (
+        <span
+          key={`s${i}`}
+          className="tlmn-splat-seed"
+          style={{ ['--tx' as string]: `${p.tx}px`, ['--ty' as string]: `${p.ty}px`, ['--rot' as string]: `${p.ang}deg` }}
+        />
+      ))}
+    </span>
+  )
+}
+
+// Bomb: flash → fireball → shockwave + drifting smoke + sparks/debris. Noticeably stronger
+// than the tomato; smoke dissipates over ~1.2s while the bright burst is ~0.5s.
+function BoomImpact() {
+  return (
+    <span className="tlmn-boom" aria-hidden>
+      <span className="tlmn-boom-flash" />
+      <span className="tlmn-boom-shock" />
+      <span className="tlmn-boom-shock tlmn-boom-shock--2" />
+      <span className="tlmn-boom-fire" />
+      {BOMB_SMOKE.map((p, i) => (
+        <span
+          key={`sm${i}`}
+          className="tlmn-boom-smoke"
+          style={{ ['--tx' as string]: `${p.tx}px`, ['--ty' as string]: `${p.ty - 14}px`, ['--d' as string]: `${0.04 * i}s` }}
+        />
+      ))}
+      {BOMB_SPARKS.map((p, i) => (
+        <span
+          key={`sp${i}`}
+          className="tlmn-boom-spark"
+          style={{ ['--tx' as string]: `${p.tx}px`, ['--ty' as string]: `${p.ty}px`, ['--rot' as string]: `${p.ang}deg` }}
+        />
+      ))}
+      {BOMB_DEBRIS.map((p, i) => (
+        <span
+          key={`db${i}`}
+          className="tlmn-boom-debris"
+          style={{ ['--tx' as string]: `${p.tx}px`, ['--ty' as string]: `${p.ty}px`, ['--rot' as string]: `${p.ang}deg` }}
+        />
+      ))}
+    </span>
+  )
+}
+
 function ImpactBurst({ impact, emoji, reduced }: { impact: ThrowImpact; emoji: string; reduced: boolean }) {
   const core = impact === 'boom' ? '💥' : impact === 'flash' ? '⚡' : emoji
   if (reduced) {
-    return <span className="text-[30px] leading-none tlmn-impact-static" aria-hidden>{core}</span>
+    // Reduced motion: a brief, calm static cue (no flying particles / repeated flashing).
+    const glyph = impact === 'splat' ? '🍅' : impact === 'boom' ? '💥' : core
+    return <span className="text-[30px] leading-none tlmn-impact-static" aria-hidden>{glyph}</span>
   }
+  if (impact === 'splat') return <SplatImpact />
+  if (impact === 'boom') return <BoomImpact />
   const particles = IMPACT_PARTICLES[impact]
   return (
     <span className={`tlmn-impact tlmn-impact--${impact}`} aria-hidden>

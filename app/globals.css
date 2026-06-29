@@ -598,6 +598,163 @@ body::before {
 .tlmn-impact-static { display: inline-block; transform: translate(-50%,-50%); animation: tlmnImpactStatic .72s linear both; }
 @keyframes tlmnImpactStatic { 0%,70% { opacity: 1; } 100% { opacity: 0; } }
 
+/* ── Tomato splat (bespoke prank impact) ─────────────────────────────────────────────
+   A wet squash-and-burst centred on the target avatar: an irregular red splatter decal
+   that covers part of the avatar, flying pulp droplets + a few seeds. Anchored at 0,0 =
+   avatar centre (parent applies translate(-50%,-50%)); every child re-centres itself. */
+.tlmn-splat { position: absolute; left: 0; top: 0; width: 0; height: 0; }
+.tlmn-splat-decal {
+  position: absolute; left: 0; top: 0; width: 78px; height: 70px;
+  transform: translate(-50%,-50%) scale(.2);
+  border-radius: 46% 54% 58% 42% / 52% 44% 56% 48%;
+  background:
+    radial-gradient(circle at 32% 36%, #ff6a4d 0 15%, transparent 17%),
+    radial-gradient(circle at 72% 30%, #e23b28 0 13%, transparent 15%),
+    radial-gradient(circle at 62% 74%, #ff6a4d 0 17%, transparent 19%),
+    radial-gradient(circle at 24% 70%, #d8331f 0 11%, transparent 13%),
+    radial-gradient(circle at 50% 50%, #e8412c 0 50%, #c92a18 60%, transparent 72%);
+  filter: drop-shadow(0 2px 3px rgba(120,10,0,.4));
+  animation: tlmnSplatDecal 1.25s cubic-bezier(.2,.9,.25,1) both;
+}
+@keyframes tlmnSplatDecal {
+  0%   { opacity: 0; transform: translate(-50%,-50%) scale(.2); }
+  14%  { opacity: 1; transform: translate(-50%,-50%) scale(1.18); }
+  26%  { transform: translate(-50%,-50%) scale(.97); }
+  36%  { transform: translate(-50%,-50%) scale(1.03); }
+  48%  { transform: translate(-50%,-50%) scale(1); }
+  74%  { opacity: .92; }
+  100% { opacity: 0; transform: translate(-50%,-50%) scale(1.02); }
+}
+.tlmn-splat-core {
+  position: absolute; left: 0; top: 0; width: 30px; height: 26px; border-radius: 50%;
+  transform: translate(-50%,-50%) scale(.2);
+  background: radial-gradient(circle at 40% 34%, rgba(255,214,196,.92), rgba(255,120,90,.5) 52%, transparent 72%);
+  animation: tlmnSplatCore .5s ease-out both;
+}
+@keyframes tlmnSplatCore {
+  0%   { opacity: 0; transform: translate(-50%,-50%) scale(.2); }
+  30%  { opacity: .9; transform: translate(-50%,-50%) scale(1.1); }
+  100% { opacity: 0; transform: translate(-50%,-50%) scale(1.25); }
+}
+.tlmn-impact--splat-ring { border-color: rgba(220,70,60,.85); }
+.tlmn-splat-drop {
+  position: absolute; left: 0; top: 0; width: 8px; height: 8px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #ff6a4d, #c92a18 70%);
+  transform: translate(-50%,-50%) scale(.4);
+  animation: tlmnSplatDrop .72s ease-out both; animation-delay: var(--d, 0s);
+}
+@keyframes tlmnSplatDrop {
+  0%   { opacity: 0; transform: translate(-50%,-50%) scale(.4); }
+  20%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(.7); }
+}
+.tlmn-splat-seed {
+  position: absolute; left: 0; top: 0; width: 5px; height: 3px; border-radius: 50%;
+  background: #f4e3b0;
+  transform: translate(-50%,-50%) rotate(var(--rot,0deg)) scale(.4);
+  animation: tlmnSplatSeed .8s ease-out both;
+}
+@keyframes tlmnSplatSeed {
+  0%   { opacity: 0; }
+  25%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) rotate(var(--rot,0deg)) scale(.9); }
+}
+
+/* ── Bomb explosion (bespoke prank impact) ───────────────────────────────────────────
+   Noticeably stronger than the tomato: flash → fireball → expanding shockwaves, drifting
+   smoke puffs + sparks/debris. Bright burst ~0.5s; smoke dissipates over ~1.2s. */
+.tlmn-boom { position: absolute; left: 0; top: 0; width: 0; height: 0; }
+.tlmn-boom-flash {
+  position: absolute; left: 0; top: 0; width: 84px; height: 84px; border-radius: 50%;
+  transform: translate(-50%,-50%) scale(.3);
+  background: radial-gradient(circle, rgba(255,255,255,.95) 0 30%, rgba(255,240,170,.7) 46%, transparent 70%);
+  animation: tlmnBoomFlash .22s ease-out both;
+}
+@keyframes tlmnBoomFlash {
+  0%   { opacity: 0; transform: translate(-50%,-50%) scale(.3); }
+  25%  { opacity: 1; transform: translate(-50%,-50%) scale(1.1); }
+  100% { opacity: 0; transform: translate(-50%,-50%) scale(1.25); }
+}
+.tlmn-boom-fire {
+  position: absolute; left: 0; top: 0; width: 64px; height: 64px; border-radius: 50%;
+  transform: translate(-50%,-50%) scale(.2);
+  background: radial-gradient(circle at 50% 45%, #fff3b0 0 17%, #ffb43a 33%, #ff6a1a 55%, #d8351a 74%, transparent 82%);
+  animation: tlmnBoomFire .5s ease-out both;
+}
+@keyframes tlmnBoomFire {
+  0%   { opacity: 0; transform: translate(-50%,-50%) scale(.2); }
+  18%  { opacity: 1; transform: translate(-50%,-50%) scale(1.15); }
+  45%  { opacity: .85; transform: translate(-50%,-50%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%,-50%) scale(1.05); }
+}
+.tlmn-boom-shock {
+  position: absolute; left: 0; top: 0; width: 14px; height: 14px; border-radius: 50%;
+  transform: translate(-50%,-50%); border: 3px solid rgba(255,180,70,.9);
+  animation: tlmnBoomShock .55s cubic-bezier(.2,.7,.3,1) both;
+}
+.tlmn-boom-shock--2 { border-color: rgba(255,120,40,.6); animation-delay: .07s; }
+@keyframes tlmnBoomShock {
+  0%   { opacity: .9; width: 12px; height: 12px; }
+  100% { opacity: 0; width: 122px; height: 122px; }
+}
+.tlmn-boom-smoke {
+  position: absolute; left: 0; top: 0; width: 26px; height: 26px; border-radius: 50%;
+  transform: translate(-50%,-50%) scale(.3);
+  background: radial-gradient(circle, rgba(92,86,82,.85), rgba(58,54,52,.5) 60%, transparent 76%);
+  animation: tlmnBoomSmoke 1.2s ease-out both; animation-delay: var(--d, 0s);
+}
+@keyframes tlmnBoomSmoke {
+  0%   { opacity: 0; transform: translate(-50%,-50%) scale(.3); }
+  25%  { opacity: .8; }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(1.6); }
+}
+.tlmn-boom-spark {
+  position: absolute; left: 0; top: 0; width: 3px; height: 11px; border-radius: 2px;
+  transform: translate(-50%,-50%) rotate(var(--rot,0deg)) scaleY(.4);
+  background: linear-gradient(#fff6c0, #ffae3a);
+  box-shadow: 0 0 6px rgba(255,190,80,.9);
+  animation: tlmnBoomSpark .42s ease-out both;
+}
+@keyframes tlmnBoomSpark {
+  0%   { opacity: 0; transform: translate(-50%,-50%) rotate(var(--rot,0deg)) scaleY(.4); }
+  20%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) rotate(var(--rot,0deg)) scaleY(1); }
+}
+.tlmn-boom-debris {
+  position: absolute; left: 0; top: 0; width: 6px; height: 6px; border-radius: 1px;
+  transform: translate(-50%,-50%) rotate(var(--rot,0deg));
+  background: #3a3330;
+  animation: tlmnBoomDebris .6s ease-out both;
+}
+@keyframes tlmnBoomDebris {
+  0%   { opacity: 0; }
+  20%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) rotate(calc(var(--rot,0deg) + 180deg)); }
+}
+
+/* Avatar-recoil shake on the REAL target pod (transform-only — never moves layout). */
+.tlmn-hit-splat { animation: tlmnHitSplat .5s ease-out both; }
+@keyframes tlmnHitSplat {
+  0%   { transform: translate(0,0) rotate(0) scale(1); }
+  15%  { transform: translate(-2px,1px) rotate(-2deg) scale(.97); }
+  35%  { transform: translate(2px,-1px) rotate(2deg) scale(1); }
+  55%  { transform: translate(-1px,1px) rotate(-1deg); }
+  100% { transform: translate(0,0) rotate(0) scale(1); }
+}
+.tlmn-hit-boom { animation: tlmnHitBoom .6s cubic-bezier(.3,.8,.3,1) both; }
+@keyframes tlmnHitBoom {
+  0%   { transform: translate(0,0) rotate(0) scale(1); }
+  8%   { transform: translate(0,0) rotate(0) scale(1.12); }
+  20%  { transform: translate(-4px,2px) rotate(-5deg) scale(1.04); }
+  34%  { transform: translate(4px,-2px) rotate(5deg) scale(1.02); }
+  48%  { transform: translate(-3px,1px) rotate(-3deg) scale(1); }
+  62%  { transform: translate(2px,-1px) rotate(2deg); }
+  100% { transform: translate(0,0) rotate(0) scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tlmn-hit-splat, .tlmn-hit-boom { animation: none; }
+}
+
 /* ── Target-selection pick ring (Phase 2) ───────────────────────────────────────────
    A ≥44px circular tap target centred on an opponent avatar (parent supplies the seat
    transform). The dashed cyan ring pulses to signal "tap to send here". */

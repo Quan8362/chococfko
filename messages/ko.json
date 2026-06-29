@@ -2021,6 +2021,7 @@
       "rotate_subtext": "가로 모드에서 가장 보기 좋습니다.",
       "fullscreen_enter": "전체 화면",
       "fullscreen_exit": "전체 화면 종료",
+      "pwa_hint": "홈 화면의 앱으로 열면 가장 넓은 게임 화면을 사용할 수 있어요.",
       "tap_fullscreen": "탭하여 전체 화면으로 플레이",
       "req_prefix": "필요",
       "req_free": "자유 내기",

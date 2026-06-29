@@ -2021,6 +2021,7 @@
       "rotate_subtext": "The game looks best in landscape.",
       "fullscreen_enter": "Fullscreen",
       "fullscreen_exit": "Exit fullscreen",
+      "pwa_hint": "Open the app from your Home Screen for the largest game area.",
       "tap_fullscreen": "Tap to play fullscreen",
       "req_prefix": "Need",
       "req_free": "Free play",

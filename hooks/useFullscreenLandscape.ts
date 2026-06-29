@@ -21,12 +21,14 @@ export type FullscreenMode = 'native' | 'pseudo' | 'unsupported'
 export interface FullscreenLandscape {
   /** Attach to the element that should fill the screen (the TLMN table wrapper). */
   rootRef: RefObject<HTMLDivElement>
-  /** True when a standard OR webkit-prefixed Fullscreen API exists. */
+  /** True when the STANDARD element Fullscreen API is usable (Chrome desktop / Android). */
   isSupported: boolean
   /** Native fullscreen element OR pseudo-fullscreen currently active. */
   isFullscreen: boolean
   isLandscape: boolean
   isMobileOrTablet: boolean
+  /** Running as an installed PWA (Home-Screen web app) — display-mode standalone. */
+  isStandalone: boolean
   mode: FullscreenMode
   /** Must be called from inside a tap handler. */
   enter: () => Promise<void>
@@ -49,11 +51,27 @@ function detectMobileOrTablet(): boolean {
   return coarse || touch
 }
 
-function nativeFullscreenSupported(): boolean {
+// STANDARD feature-detection only (no UA sniffing): the element Fullscreen API must be
+// BOTH enabled on the document AND present on a real element. This is the single gate the
+// spec asks for —
+//   supportsFullscreen = Boolean(document.fullscreenEnabled) && Boolean(el.requestFullscreen)
+// — and it is exactly what correctly routes Chrome on iPhone/iPad (which expose NEITHER for
+// non-video elements) to the in-page immersive fallback, while Chrome desktop / Android get
+// real fullscreen. We deliberately do NOT count the webkit-prefixed element API: on iOS that
+// only exists for <video>, and treating it as "supported" is the classic iOS fullscreen bug.
+function nativeFullscreenSupported(el?: Element | null): boolean {
   if (typeof document === 'undefined') return false
-  const d = document as unknown as Record<string, unknown>
-  const el = document.documentElement as unknown as Record<string, unknown>
-  return !!(d.fullscreenEnabled || d.webkitFullscreenEnabled || el.requestFullscreen || el.webkitRequestFullscreen)
+  if (!document.fullscreenEnabled) return false
+  const target = (el ?? document.documentElement) as unknown as { requestFullscreen?: unknown }
+  return typeof target.requestFullscreen === 'function'
+}
+
+// Installed-PWA / Home-Screen web-app detection (display-mode standalone, or the legacy
+// iOS Safari navigator.standalone flag).
+function detectStandalone(): boolean {
+  if (typeof window === 'undefined') return false
+  const navStandalone = (window.navigator as Navigator & { standalone?: boolean }).standalone === true
+  return mq('(display-mode: standalone)') || mq('(display-mode: fullscreen)') || navStandalone
 }
 
 function currentFullscreenEl(): Element | null {
@@ -67,6 +85,7 @@ export function useFullscreenLandscape(): FullscreenLandscape {
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [isLandscape, setIsLandscape] = useState(false)
   const [isMobileOrTablet, setIsMobileOrTablet] = useState(false)
+  const [isStandalone, setIsStandalone] = useState(false)
   const [supported, setSupported] = useState(false)
   const [mode, setMode] = useState<FullscreenMode>('unsupported')
   const pseudoRef = useRef(false) // currently in CSS pseudo-fullscreen?
@@ -79,6 +98,27 @@ export function useFullscreenLandscape(): FullscreenLandscape {
     setIsMobileOrTablet(mobile)
     setSupported(nativeOk)
     setMode(nativeOk ? 'native' : mobile ? 'pseudo' : 'unsupported')
+    setIsStandalone(detectStandalone())
+    // The PWA display-mode can change at runtime (e.g. launched from Home Screen).
+    if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
+      const sm = window.matchMedia('(display-mode: standalone)')
+      const onSm = () => setIsStandalone(detectStandalone())
+      sm.addEventListener?.('change', onSm)
+      return () => sm.removeEventListener?.('change', onSm)
+    }
+  }, [])
+
+  const applyPseudo = useCallback((on: boolean) => {
+    const el = rootRef.current
+    if (!el || typeof document === 'undefined') return
+    if (on) {
+      el.classList.add('pseudo-fullscreen')
+      document.body.classList.add('tlmn-scroll-lock')
+    } else {
+      el.classList.remove('pseudo-fullscreen')
+      document.body.classList.remove('tlmn-scroll-lock')
+    }
+    pseudoRef.current = on
   }, [])
 
   // Keep isLandscape + isFullscreen in sync with the system. Covers Esc / system-back /
@@ -96,6 +136,13 @@ export function useFullscreenLandscape(): FullscreenLandscape {
       }
       setIsFullscreen(!!fsEl || pseudoRef.current)
     }
+    // A real-fullscreen REQUEST that the browser rejects asynchronously fires this. On a
+    // phone/tablet, degrade to the in-page immersive fallback so the game still fills the
+    // viewport; on desktop just stay windowed.
+    const onFsError = () => {
+      if (!currentFullscreenEl() && detectMobileOrTablet()) applyPseudo(true)
+      setIsFullscreen(!!currentFullscreenEl() || pseudoRef.current)
+    }
     syncLandscape()
     syncFs()
 
@@ -105,6 +152,8 @@ export function useFullscreenLandscape(): FullscreenLandscape {
     window.addEventListener('orientationchange', syncLandscape)
     document.addEventListener('fullscreenchange', syncFs)
     document.addEventListener('webkitfullscreenchange', syncFs as EventListener)
+    document.addEventListener('fullscreenerror', onFsError)
+    document.addEventListener('webkitfullscreenerror', onFsError as EventListener)
 
     return () => {
       mql.removeEventListener?.('change', syncLandscape)
@@ -112,31 +161,21 @@ export function useFullscreenLandscape(): FullscreenLandscape {
       window.removeEventListener('orientationchange', syncLandscape)
       document.removeEventListener('fullscreenchange', syncFs)
       document.removeEventListener('webkitfullscreenchange', syncFs as EventListener)
+      document.removeEventListener('fullscreenerror', onFsError)
+      document.removeEventListener('webkitfullscreenerror', onFsError as EventListener)
     }
-  }, [])
-
-  const applyPseudo = useCallback((on: boolean) => {
-    const el = rootRef.current
-    if (!el || typeof document === 'undefined') return
-    if (on) {
-      el.classList.add('pseudo-fullscreen')
-      document.body.classList.add('tlmn-scroll-lock')
-    } else {
-      el.classList.remove('pseudo-fullscreen')
-      document.body.classList.remove('tlmn-scroll-lock')
-    }
-    pseudoRef.current = on
-  }, [])
+  }, [applyPseudo])
 
   const enter = useCallback(async () => {
     const el = rootRef.current
     if (!el || typeof document === 'undefined') return
-    if (nativeFullscreenSupported()) {
-      // Native path (Android + desktop). MUST run inside a user gesture.
+    // Feature-detect against the ACTUAL element (not just documentElement) — this is the
+    // gate that decides REAL fullscreen vs the in-page immersive fallback.
+    if (nativeFullscreenSupported(el)) {
+      // Native path (Android + desktop). MUST run inside a user gesture. navigationUI:'hide'
+      // asks the browser to drop its own UI where permitted (ignored where it can't).
       try {
-        const req = (el as unknown as { requestFullscreen?: () => Promise<void>; webkitRequestFullscreen?: () => Promise<void> })
-        const fn = req.requestFullscreen ?? req.webkitRequestFullscreen
-        if (fn) await fn.call(el)
+        await el.requestFullscreen({ navigationUI: 'hide' })
       } catch {
         // Fullscreen refused (rare) — on mobile fall back to pseudo so it still fills.
         if (detectMobileOrTablet()) applyPseudo(true)
@@ -190,5 +229,5 @@ export function useFullscreenLandscape(): FullscreenLandscape {
     }
   }, [])
 
-  return { rootRef, isSupported: supported, isFullscreen, isLandscape, isMobileOrTablet, mode, enter, exit, toggle }
+  return { rootRef, isSupported: supported, isFullscreen, isLandscape, isMobileOrTablet, isStandalone, mode, enter, exit, toggle }
 }

@@ -2021,6 +2021,7 @@
       "rotate_subtext": "横向きにすると最適な表示でプレイできます。",
       "fullscreen_enter": "全画面表示",
       "fullscreen_exit": "全画面を終了",
+      "pwa_hint": "ホーム画面のアプリから開くと、最大のプレイ画面になります。",
       "tap_fullscreen": "タップして全画面でプレイ",
       "req_prefix": "必要",
       "req_free": "自由出し",

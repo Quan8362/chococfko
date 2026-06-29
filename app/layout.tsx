@@ -82,6 +82,18 @@ export async function generateMetadata(): Promise<Metadata> {
     alternates: {
       canonical: SITE_URL,
     },
+    // Installed / Home-Screen web-app support — gives iPhone & iPad the largest possible
+    // game area (real fullscreen for elements is unavailable there). Next auto-links the
+    // manifest from app/manifest.ts; these add the Apple-specific standalone meta tags.
+    manifest: '/manifest.webmanifest',
+    appleWebApp: {
+      capable: true,
+      title: SITE_NAME,
+      statusBarStyle: 'default',
+    },
+    icons: {
+      apple: [{ url: '/icon-512.png' }],
+    },
   }
 }
 

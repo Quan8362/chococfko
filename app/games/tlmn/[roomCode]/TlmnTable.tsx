@@ -191,6 +191,7 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
   // Run 5 — fullscreen + landscape immersive mode (single source of truth).
   const fs = useFullscreenLandscape()
   const [nudgeDismissed, setNudgeDismissed] = useState(false)
+  const [pwaHintDismissed, setPwaHintDismissed] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   // The rotate-overlay is portalled to <body> so it escapes the table's transformed +
   // overflow-clipped ancestors (iOS Safari mis-hit-tests an absolute layer inside those,
@@ -1687,6 +1688,25 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
             </button>
             <button type="button" onClick={() => setNudgeDismissed(true)} aria-label={t('close_label')} title={t('close_label')} className="tlmn-chrome" style={{ width: 34, height: 34 }}>
               <svg width={15} height={15} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+          </div>
+        )}
+
+        {/* ── iPhone/iPad: install-to-Home-Screen hint ─────────────────────────
+            On Chrome/Safari for iOS/iPadOS the element Fullscreen API is unavailable,
+            so the expand button gives the in-page immersive fallback (which canNOT remove
+            the browser toolbar). A small, non-blocking, dismissible note tells the player
+            that launching the installed web app yields the largest game area. Shown only
+            when not already running standalone. */}
+        {playing && fs.mode === 'pseudo' && fs.isMobileOrTablet && !fs.isStandalone && !pwaHintDismissed && (
+          <div
+            className="absolute left-1/2 -translate-x-1/2 z-[55] flex items-center gap-2 rounded-full bg-black/72 backdrop-blur-sm border border-white/15 pl-3.5 pr-1.5 py-1.5 tlmn-banner-pop max-w-[calc(100vw-24px)]"
+            style={{ top: 'calc(env(safe-area-inset-top) + 0.4rem)' }}
+            role="status"
+          >
+            <span className="text-[11.5px] font-medium text-white/90 leading-snug">{t('pwa_hint')}</span>
+            <button type="button" onClick={() => setPwaHintDismissed(true)} aria-label={t('close_label')} title={t('close_label')} className="tlmn-chrome flex-none" style={{ width: 28, height: 28 }}>
+              <svg width={13} height={13} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M6 18L18 6M6 6l12 12" /></svg>
             </button>
           </div>
         )}

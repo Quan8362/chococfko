@@ -553,6 +553,36 @@ function heldTwos(cards: Card[]): number {
   return cards.filter(c => c.rank === R2).length
 }
 
+/**
+ * The đếm-lá payment a SINGLE non-winner owes for the hand they still hold:
+ * card-count base (or 13× cóng when they played nothing) × thối-heo multiplier,
+ * + flat thối-bom per held tứ quý / đôi-thông bộ. This is EXACTLY the per-loser term
+ * inside settleRound (đền/chặt transfers excluded — those are victim↔cutter interactions,
+ * not a self penalty), factored out so the voluntary-exit forfeit (lib actions) charges a
+ * quitter identically to a normal round-end loss for the same remaining hand. Pure; gated
+ * by the same on/off flags (congEnabled, thoiHeoEnabled, thoiBomEnabled).
+ */
+export function loserHandPayment(
+  hand: Card[],
+  playedZeroCards: boolean,
+  rules: Partial<Rules> = DEFAULT_RULES,
+): number {
+  const R = resolveRules(rules)
+  let cardPayment = (playedZeroCards && R.congEnabled)
+    ? 13 * R.basePerCard * R.congMultiplier
+    : hand.length * R.basePerCard
+
+  const twos = heldTwos(hand)
+  if (twos > 0 && R.thoiHeoEnabled) {
+    cardPayment *= R.thoiHeoPerCard
+      ? Math.pow(R.thoiHeoMultiplier, twos)
+      : R.thoiHeoMultiplier
+  }
+
+  const bomPenalty = R.thoiBomEnabled ? countHeldBoms(hand) * R.thoiBomPenalty : 0
+  return cardPayment + bomPenalty
+}
+
 // ── calculateRemainingHandPenalties — itemized thối for the result UI ───────────────
 // Pure, descriptive decomposition of a loser's remaining hand into penalty units, with
 // the EXACT cards in each. Black/red 2s (thối heo) are reported separately from bom bộ
@@ -635,27 +665,11 @@ export function settleRound(state: SettlementState, rules: Partial<Rules> = DEFA
   for (const s of state.seats) {
     if (s === w) continue
     const hand = state.hands[s] ?? []
-    const n = hand.length
     const cong = (state.playedCount[s] ?? 0) === 0
 
-    // Card-count payment. Cóng (played 0) multiplies the full 13 when enabled;
-    // otherwise it's base per remaining card.
-    let cardPayment = (cong && R.congEnabled)
-      ? 13 * R.basePerCard * R.congMultiplier
-      : n * R.basePerCard
-
-    // Thối-heo: still holding a 2 multiplies the card-count payment (stacks on cóng).
-    const twos = heldTwos(hand)
-    if (twos > 0 && R.thoiHeoEnabled) {
-      cardPayment *= R.thoiHeoPerCard
-        ? Math.pow(R.thoiHeoMultiplier, twos)
-        : R.thoiHeoMultiplier
-    }
-
-    // Thối-bom: flat penalty per held tứ quý / đôi-thông bộ (added, not multiplied).
-    const bomPenalty = R.thoiBomEnabled ? countHeldBoms(hand) * R.thoiBomPenalty : 0
-
-    const payment = cardPayment + bomPenalty
+    // Card-count payment (cóng / thối-heo) + thối-bom — the SAME shared formula the
+    // voluntary-exit forfeit reuses, so a quit and a round-end loss never diverge.
+    const payment = loserHandPayment(hand, cong, R)
     delta[s] -= payment
     delta[w] += payment
   }

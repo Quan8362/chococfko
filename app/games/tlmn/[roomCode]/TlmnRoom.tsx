@@ -7,7 +7,7 @@ import { useTranslations } from 'next-intl'
 import type { RealtimeChannel } from '@supabase/supabase-js'
 import { createClient } from '@/lib/supabase/client'
 import {
-  refetchRoomState, toggleReady, startGame, leaveSeat, heartbeatRoom,
+  refetchRoomState, toggleReady, startGame, leaveTable, heartbeatRoom,
   addBot, removeBot, kickSeat, pruneStaleLobbySeats,
   type TlmnRoomState, type TlmnSeat,
 } from '../actions'
@@ -267,12 +267,20 @@ export default function TlmnRoom({ initialState, userId, joinError = null }: Pro
     startTransition(async () => { await startGame(room.id); reconcileNow() })
   }
 
+  // Lobby leave button: never a forfeit (no live round) — leaveTable settles nothing and
+  // just frees the seat, then we navigate. The in-game table owns its own forfeit-confirm
+  // flow and calls leaveTable itself, so its onLeave only needs to navigate away.
   const handleLeave = () => {
     leavingRef.current = true
     startTransition(async () => {
-      await leaveSeat(room.id)
+      await leaveTable(room.id)
       router.push('/games/tlmn')
     })
+  }
+
+  const handleLeaveNavigate = () => {
+    leavingRef.current = true
+    router.push('/games/tlmn')
   }
 
   const handleAddBot = () => {
@@ -411,7 +419,7 @@ export default function TlmnRoom({ initialState, userId, joinError = null }: Pro
           mySeat={mySeat ? mySeat.seat_index : null}
           isHost={isHost}
           inviteCode={room.invite_code}
-          onLeave={handleLeave}
+          onLeave={handleLeaveNavigate}
         />
       )}
 

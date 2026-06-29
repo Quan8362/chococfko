@@ -4,7 +4,9 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import {
-  resolveRules, pickHostOverride, explainSettlement, type Card, type Rules,
+  resolveRules, pickHostOverride, explainSettlement, settleRound,
+  loserHandPayment, calculateRemainingHandPenalties,
+  type Card, type Rules,
   type HostRulesOverride, type CutEvent, type InstantWinType, type RoundBreakdown,
 } from '@/lib/games/tlmn/engine'
 import {
@@ -657,6 +659,102 @@ export async function leaveSeat(roomId: string): Promise<ActionResult> {
   return null
 }
 
+// ── leaveTable (the single client-facing "exit" path) ──────────────────────────────
+// Decides — SERVER-SIDE, never trusting the client — whether leaving is a plain departure
+// or a VOLUNTARY-EXIT forfeit, then performs the matching settlement atomically.
+//
+// A forfeit (coin penalty) is charged ONLY when ALL of these hold:
+//   • a round is actively in progress (latest tlmn_games row status='playing'),
+//   • the caller owns a seat in it,
+//   • that seat still HOLDS cards (not already out / on the result screen),
+//   • the caller has NOT already forfeited this round (idempotent — the RPC double-guards).
+// Refresh / disconnect / backgrounding never reach here (no leaveTable call — those go
+// stale via the heartbeat and become a bot takeover). Lobby / ended-round / practice exits
+// fall through to the normal leaveSeat departure with NO penalty.
+//
+// The penalty is computed HERE in trusted server code from the AUTHORITATIVE hidden hand
+// (tlmn_hands via the service role) using the SAME engine formula as a round-end loss
+// (loserHandPayment). The browser supplies only roomId. The deduction + once-only forfeit
+// record + ledger row commit atomically inside settle_tlmn_voluntary_exit (service_role
+// only). After settling we run the normal departure (bot takeover keeps the round alive;
+// host migrates) so remaining players continue uninterrupted.
+export type ForfeitOutcome = {
+  cardsLeft: number
+  penaltyPoints: number
+  coinPenalty: number
+  balance: number
+}
+export type LeaveTableResult =
+  | { ok: true; outcome: 'left' }
+  | { ok: true; outcome: 'forfeited'; forfeit: ForfeitOutcome }
+  | { error: string }
+
+export async function leaveTable(roomId: string): Promise<LeaveTableResult> {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'not_logged_in' }
+
+  const admin = createAdminClient()
+
+  // Is there an active round AND do I hold cards in it AND have I not already forfeited?
+  const game = await latestGame(admin, roomId, true) // status='playing' only
+  let forfeit: ForfeitOutcome | null = null
+
+  if (game) {
+    const mySeat = await seatIndexOf(admin, roomId, user.id)
+    if (mySeat != null) {
+      const { data: already } = await admin
+        .from('tlmn_forfeits').select('coin_penalty')
+        .eq('room_id', roomId).eq('round_no', game.round_no).eq('user_id', user.id).maybeSingle()
+
+      if (!already) {
+        const hands = await loadHands(admin, game.id)
+        const myHand = hands[mySeat] ?? []
+        if (myHand.length > 0) {
+          // ── VOLUNTARY EXIT — settle the forfeit BEFORE the seat departs. ──────────
+          const rules: Rules = game.rules
+          // played_counts is JSON so its keys are strings; 0 (or absent) ⇒ cóng.
+          const playedZero = (((game.played_counts ?? {}) as Record<string, number>)[String(mySeat)] ?? 0) === 0
+          const points = loserHandPayment(myHand, playedZero, rules)
+          const pen = calculateRemainingHandPenalties(myHand)
+          // COUNTS only — never card identities (the row is self-readable history).
+          const breakdown = {
+            cardsLeft: myHand.length,
+            cong: playedZero,
+            redTwos: pen.redTwos.length,
+            blackTwos: pen.blackTwos.length,
+            bomUnits: pen.bomUnits,
+            points,
+          }
+          const { data, error } = await admin.rpc('settle_tlmn_voluntary_exit', {
+            p_room_id: roomId,
+            p_round_no: game.round_no,
+            p_user_id: user.id,
+            p_seat_index: mySeat,
+            p_cards_left: myHand.length,
+            p_penalty_points: points,
+            p_breakdown: breakdown,
+          })
+          if (error) return { error: 'settle_failed' }
+          const row = (data ?? {}) as { coin_penalty?: number; balance?: number }
+          forfeit = {
+            cardsLeft: myHand.length,
+            penaltyPoints: points,
+            coinPenalty: Number(row.coin_penalty ?? 0),
+            balance: Number(row.balance ?? 0),
+          }
+        }
+      }
+    }
+  }
+
+  // Normal departure: frees a lobby seat or hands a live seat to a bot (keeping the round
+  // going) and migrates the host. Reused so there is ONE departure code path.
+  await leaveSeat(roomId)
+
+  return forfeit ? { ok: true, outcome: 'forfeited', forfeit } : { ok: true, outcome: 'left' }
+}
+
 // ── heartbeatRoom ────────────────────────────────────────────────────────────────
 // Keep the caller's seat marked connected while the tab is open (mirrors the
 // caro/chess waiting-room heartbeat). Also drives RECONNECT: if the seat had been
@@ -946,22 +1044,66 @@ async function applyScores(admin: Admin, roomId: string, deltas: Record<number, 
 // function; idempotency is keyed on (game_code = room_id, round_number) so a reconnect
 // or retry can never double-apply. Bots have no wallet and are skipped. Best-effort:
 // a settlement hiccup must never break gameplay (scores are already applied).
+// Seat indices that already settled a VOLUNTARY-EXIT forfeit this round (a coin sink,
+// charged the instant they confirmed leaving). They are excluded from the round-end
+// zero-sum settlement so they are never charged twice. Degrade-safe: if the forfeit
+// migration is not yet applied the query errors → treated as "no forfeits" (the game
+// keeps working exactly as before).
+async function forfeitedSeats(admin: Admin, roomId: string, roundNo: number): Promise<Set<number>> {
+  const { data, error } = await admin
+    .from('tlmn_forfeits').select('seat_index').eq('room_id', roomId).eq('round_no', roundNo)
+  if (error || !data) return new Set()
+  return new Set((data as Array<{ seat_index: number }>).map(r => r.seat_index))
+}
+
+// Coin deltas to apply at round-end, with any forfeited seats removed. When nobody
+// forfeited (the overwhelmingly common case) this is exactly the round's authoritative
+// deltas — zero behaviour change. When a seat forfeited, the zero-sum đếm-lá is RE-derived
+// over only the live (non-forfeited) seats so the winner's payout stays balanced and no
+// coins are created or destroyed beyond the separate forfeit sink. If the round's winner
+// is itself a forfeited (bot-piloted) seat — i.e. nobody live "won" — the live players keep
+// their coins (no movement), which is also balanced.
+function coinDeltasFor(round: RoundState, forfeited: Set<number>): Record<number, number> {
+  const full = (round.deltas ?? {}) as Record<number, number>
+  if (forfeited.size === 0) return full
+  // Tới trắng ends the round at the deal, before anyone can leave — a forfeit can't
+  // co-occur, so fall back to the stored deltas unchanged.
+  if (round.instantWin) return full
+
+  const live = round.seats.filter(s => !forfeited.has(s))
+  const winner = round.winner
+  if (winner == null || !live.includes(winner)) return {}
+
+  const hands: Record<number, Card[]> = {}
+  const played: Record<number, number> = {}
+  for (const s of live) { hands[s] = round.hands[s] ?? []; played[s] = round.playedCount[s] ?? 0 }
+  const cuts = round.cutEvents.filter(e => !forfeited.has(e.cutVictim) && !forfeited.has(e.cutter))
+  return settleRound(
+    { seats: live, winner, hands, playedCount: played, cutEvents: cuts, instantWin: null },
+    round.rules,
+  )
+}
+
 async function settleRoundCoins(
   admin: Admin,
   roomId: string,
   roundNo: number,
-  deltas: Record<number, number>,
+  round: RoundState,
 ): Promise<void> {
   // MODE A (practice) is play-only: round results display but never touch the
   // persisted "xu" balance. Settlement runs ONLY for real multiplayer rooms.
   const { data: room } = await admin.from('tlmn_rooms').select('mode').eq('id', roomId).maybeSingle()
   if (room?.mode === 'practice') return
 
+  const forfeited = await forfeitedSeats(admin, roomId, roundNo)
+  const deltas = coinDeltasFor(round, forfeited)
+
   const { data: seats } = await admin
     .from('tlmn_seats').select('seat_index, user_id, is_bot').eq('room_id', roomId)
   const results: Array<{ user_id: string; delta: number }> = []
   for (const s of (seats ?? []) as Array<{ seat_index: number; user_id: string | null; is_bot: boolean }>) {
     if (!s.user_id || s.is_bot) continue // bots / empty seats have no wallet
+    if (forfeited.has(s.seat_index)) continue // already settled via the forfeit sink — never twice
     const d = deltas[s.seat_index]
     if (!d) continue // skip unaffected (0 / undefined) seats
     results.push({ user_id: s.user_id, delta: d })
@@ -994,6 +1136,12 @@ async function recordRoundStats(
   const { data: room } = await admin.from('tlmn_rooms').select('mode').eq('id', roomId).maybeSingle()
   if (room?.mode === 'practice') return // MODE A is unranked
 
+  // A seat that voluntarily forfeited this round is still a real participant (+1 game,
+  // counted as a loss because it is never the recorded winner) — but if a bot piloting
+  // that abandoned hand happens to go out first, that "win" must NOT be credited to the
+  // quitter. Treat a forfeited winner as no winner (like an AFK/bot-takeover winner).
+  const forfeited = await forfeitedSeats(admin, roomId, roundNo)
+
   const { data: seats } = await admin
     .from('tlmn_seats').select('seat_index, user_id, is_bot').eq('room_id', roomId)
   const players: string[] = []
@@ -1001,7 +1149,7 @@ async function recordRoundStats(
   for (const s of (seats ?? []) as Array<{ seat_index: number; user_id: string | null; is_bot: boolean }>) {
     if (!s.user_id || s.is_bot) continue // bots / empty seats are not ranked
     players.push(s.user_id)
-    if (round.winner != null && s.seat_index === round.winner) winner = s.user_id
+    if (round.winner != null && !forfeited.has(round.winner) && s.seat_index === round.winner) winner = s.user_id
   }
   if (players.length === 0) return
   try {
@@ -1045,7 +1193,7 @@ async function dealAndPersist(
 
   if (round.status === 'ended' && round.deltas) {
     await applyScores(admin, roomId, round.deltas)
-    await settleRoundCoins(admin, roomId, roundNo, round.deltas)
+    await settleRoundCoins(admin, roomId, roundNo, round)
     await recordRoundStats(admin, roomId, roundNo, round)
   }
 }
@@ -1076,7 +1224,7 @@ async function commitRound(
   }
   if (round.status === 'ended' && round.deltas) {
     await applyScores(admin, roomId, round.deltas)
-    await settleRoundCoins(admin, roomId, round.roundNo, round.deltas)
+    await settleRoundCoins(admin, roomId, round.roundNo, round)
     await recordRoundStats(admin, roomId, round.roundNo, round)
   }
   return null

@@ -12,7 +12,7 @@ import {
 } from '@/lib/games/tlmn/engine'
 import {
   fetchGameState, fetchMyHand, playCards, passTurn, tickTurnTimer, startNextRound, runBotTurn,
-  fetchInteractionCatalog, spendInteraction, reportPlayer, fetchCoinBalances,
+  fetchInteractionCatalog, spendInteraction, reportPlayer, fetchCoinBalances, leaveTable,
   type TlmnPublicGame, type TlmnSeat,
 } from '../actions'
 import { getWallet } from '../wallet'
@@ -241,6 +241,11 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
   // timeout, so it can only be true for the actual in-flight request.
   const [busy, setBusy] = useState(false)
   const busyTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  // Voluntary-exit (forfeit) confirm flow: open the dialog only when leaving NOW would be
+  // a penalised forfeit; track the in-flight settle so the confirm button can't double-fire.
+  const [exitConfirm, setExitConfirm] = useState(false)
+  const [exitBusy, setExitBusy] = useState(false)
+  const [exitError, setExitError] = useState(false)
   // Phase 7 — a polite ARIA live message (plays / passes / turn changes), localized.
   const [liveMsg, setLiveMsg] = useState('')
   // Phase 8 — realtime connection health for the in-play surface (the lobby has its
@@ -902,6 +907,36 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
     runLocked(() => startNextRound(roomId))
   }
 
+  // Leaving NOW is a penalised forfeit iff a round is live AND I still hold cards (so NOT
+  // on the result screen, NOT already out). Mirrors the server's authoritative check; the
+  // server re-verifies and is idempotent, so this only decides whether to warn first.
+  const exitWouldForfeit =
+    !!game && game.status === 'playing' && mySeat != null &&
+    (game.card_counts?.[String(mySeat)] ?? 0) > 0
+
+  // Run the actual leave: settle on the server FIRST (forfeit or plain), and only navigate
+  // away once it succeeds. On failure keep the player at the table and surface the error.
+  const runExit = useCallback(async () => {
+    if (exitBusy) return
+    setExitBusy(true)
+    setExitError(false)
+    try {
+      const res = await leaveTable(roomId)
+      if ('error' in res) { setExitError(true); setExitBusy(false); return }
+      onLeave()
+    } catch {
+      setExitError(true)
+      setExitBusy(false)
+    }
+  }, [roomId, onLeave, exitBusy])
+
+  // Exit button entry point: warn before a forfeit, leave straight away otherwise.
+  const requestExit = useCallback(() => {
+    if (exitBusy) return
+    if (exitWouldForfeit) { setExitError(false); setExitConfirm(true) }
+    else void runExit()
+  }, [exitBusy, exitWouldForfeit, runExit])
+
   // Clear the safety timer on unmount.
   useEffect(() => () => { if (busyTimer.current) clearTimeout(busyTimer.current) }, [])
 
@@ -1291,6 +1326,38 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
       {/* Report dialog (reason picker) — centered modal, kept below the chrome z so the exit stays usable. */}
       {reportSeat != null && (
         <ReportDialog name={seatName(reportSeat)} onSubmit={handleSubmitReport} onClose={() => setReportSeat(null)} t={t} />
+      )}
+
+      {/* Voluntary-exit confirm — shown ONLY when leaving now would forfeit (live round, cards in hand). */}
+      {exitConfirm && (
+        <div role="dialog" aria-modal="true" aria-label={t('leave_confirm_title')} className="absolute inset-0 z-[100] flex items-center justify-center px-4" style={{ background: 'rgba(6,14,10,0.6)' }}>
+          <button type="button" aria-label={t('leave_confirm_stay')} onClick={() => { if (!exitBusy) setExitConfirm(false) }} className="absolute inset-0" />
+          <div className="tlmn-banner-pop relative w-full max-w-[340px] rounded-2xl bg-paper shadow-2xl border border-line p-4">
+            <p className="text-[15px] font-bold text-ink mb-1.5">{t('leave_confirm_title')}</p>
+            <p className="text-[12.5px] text-muted mb-3 leading-relaxed">{t('leave_confirm_desc')}</p>
+            {exitError && (
+              <p className="text-[12px] font-semibold text-rose bg-rose/10 border border-rose/25 rounded-lg px-3 py-2 mb-3">{t('leave_confirm_error')}</p>
+            )}
+            <div className="flex flex-col gap-2">
+              <button
+                type="button"
+                onClick={runExit}
+                disabled={exitBusy}
+                className="w-full rounded-xl bg-rose hover:bg-rose-deep text-white text-[13.5px] font-bold py-2.5 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {exitBusy ? t('leave_confirm_processing') : t('leave_confirm_leave')}
+              </button>
+              <button
+                type="button"
+                onClick={() => { if (!exitBusy) setExitConfirm(false) }}
+                disabled={exitBusy}
+                className="w-full rounded-xl bg-ink/5 text-muted text-[13.5px] font-bold py-2.5 hover:bg-ink/10 disabled:opacity-60"
+              >
+                {t('leave_confirm_stay')}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
       {reportSent && (
         <div className="absolute left-1/2 -translate-x-1/2 z-[60] rounded-full bg-emerald-600 text-white text-[12px] font-semibold px-3.5 py-1.5 tlmn-banner-pop" style={{ bottom: '16%' }}>
@@ -1725,7 +1792,7 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
                 <svg width={18} height={18} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z M15.536 8.464a5 5 0 010 7.072M18.364 5.636a9 9 0 010 12.728" /></svg>
               )}
             </button>
-            <button type="button" onClick={onLeave} aria-label={t('leave_btn')} title={t('leave_btn')} className="tlmn-chrome">
+            <button type="button" onClick={requestExit} aria-label={t('leave_btn')} title={t('leave_btn')} className="tlmn-chrome">
               <svg width={18} height={18} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
             </button>
           </div>
@@ -1844,7 +1911,7 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
             <p className="text-[13.5px] text-white/70 max-w-[280px] leading-relaxed">{t('rotate_subtext')}</p>
             <button
               type="button"
-              onClick={onLeave}
+              onClick={requestExit}
               className="mt-2 inline-flex items-center justify-center min-h-[48px] font-bold text-[14px] text-white bg-rose hover:bg-rose-deep active:bg-rose-deep rounded-xl px-7 py-3 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
             >
               {t('leave_btn')}

@@ -215,14 +215,17 @@ export function CardBack({ w = 30, className = '' }: { w?: number; className?: s
 // ── Distinct bot avatars (Run 6.3) ──────────────────────────────────────────────────
 // Premium, on-theme medallions instead of generic smileys: a jewel-tone gradient disc
 // with a gold inner ring, a soft top sheen, and a single bold SUIT emblem. Each bot gets
-// a distinct hue + suit (garnet ♠ / emerald ♥ / amethyst ♦ / sapphire ♣), so Bot 1/2/3/4
+// a distinct hue + suit (garnet ♠ / emerald ♠ / amethyst ♦ / sapphire ♣), so Bot 1/2/3/4
 // are instantly distinguishable and stay consistent across rounds (deterministic by
 // seed = seat index). Vector + lightweight; sits cleanly on the green/red felt under the
 // existing gold frame ring + active glow.
+// Suit index: ♠ spade(0), ♣ club(1), ♦ diamond(2), ♥ heart(3) — matches SUITS in engine.ts.
+// Indexed by seat_index (stable player identity): seat 0 = human dock, so the bot suits are
+// seat 1 → ♠ (Bot 1), seat 2 → ♦ (Bot 2), seat 3 → ♣ (Bot 3).
 // TODO(asset): bot avatars can be swapped for commissioned illustrated mascots later.
 const BOT_THEMES = [
   { c1: '#c0314b', c2: '#6e0f22', suit: 0, ink: '#f6d989' }, // garnet · spade · gold
-  { c1: '#1f8a57', c2: '#0f4a2c', suit: 3, ink: '#ffe1ea' }, // emerald · heart · blush
+  { c1: '#1f8a57', c2: '#0f4a2c', suit: 0, ink: '#ffe1ea' }, // emerald · spade · blush
   { c1: '#8a4ec0', c2: '#46226b', suit: 2, ink: '#f6d989' }, // amethyst · diamond · gold
   { c1: '#2a8aa6', c2: '#0e4150', suit: 1, ink: '#eaf6ff' }, // sapphire · club · ice
 ] as const

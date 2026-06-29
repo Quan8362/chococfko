@@ -7,6 +7,7 @@ import {
   fetchTlmnLeaderboard, type TlmnLeaderboardRow, type TlmnLeaderboardTab,
 } from './actions'
 import { formatCoinsShort, formatCoinsFull } from '@/lib/game/economy'
+import { formatWinRate } from '@/lib/games/winRate'
 import {
   getCoinTier, coinTierName, coinTierAria, type CoinTierTranslate, type CoinTier,
 } from '@/lib/games/coinTier'
@@ -203,7 +204,7 @@ export default function TlmnLeaderboard({
                           <td className="text-center px-3 py-3 text-[var(--tl-text-soft)] tabular-nums">{row.total_games}</td>
                           <td className="text-center px-3 py-3 font-bold text-[var(--tl-red)] tabular-nums">{row.total_wins}</td>
                           <td className="text-center px-3 py-3 tabular-nums">
-                            <WinRate rate={row.win_rate} dash={t('lb_dash')} />
+                            <WinRate rate={row.win_rate} games={row.total_games} dash={t('lb_dash')} />
                           </td>
                           <td className="text-right px-3 py-3">
                             <span className="font-black text-[var(--tl-gold-deep)] tabular-nums" title={`${formatCoinsFull(row.balance)} ${t('lb_coins_unit')}`}>
@@ -238,7 +239,7 @@ export default function TlmnLeaderboard({
                           <span aria-hidden>·</span>
                           <span>{t('lb_col_matches')}: <span className="tabular-nums">{row.total_games}</span></span>
                           <span aria-hidden>·</span>
-                          <WinRate rate={row.win_rate} dash={t('lb_dash')} inline />
+                          <WinRate rate={row.win_rate} games={row.total_games} dash={t('lb_dash')} inline />
                         </p>
                       </div>
                       {/* Primary metric for the active tab */}
@@ -316,12 +317,14 @@ function RankCell({ rank }: { rank: number }) {
   return <span className="inline-block w-7 text-center font-semibold text-[var(--tl-text-soft)]/50 tabular-nums">{rank}</span>
 }
 
-function WinRate({ rate, dash, inline = false }: { rate: number; dash: string; inline?: boolean }) {
-  if (rate <= 0) return <span className={inline ? '' : 'text-[var(--tl-text-soft)]/40'}>{inline ? `${dash}` : dash}</span>
+// Dash (–) means "no games yet" — keyed on the match count, NOT on the rate, so a player
+// who has played but never won correctly shows 0% (not –). Formatting in lib/games/winRate.
+function WinRate({ rate, games, dash, inline = false }: { rate: number; games: number; dash: string; inline?: boolean }) {
+  if (games <= 0) return <span className={inline ? '' : 'text-[var(--tl-text-soft)]/40'}>{dash}</span>
   const color = rate >= 60 ? 'text-emerald-600' : rate >= 40 ? 'text-[var(--tl-text)]' : 'text-[var(--tl-text-soft)]/70'
   return (
     <span className={inline ? '' : `font-bold ${color}`}>
-      {inline ? <>{Math.round(rate)}%</> : `${rate}%`}
+      {formatWinRate(rate)}
     </span>
   )
 }

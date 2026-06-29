@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import TlmnLobby from './TlmnLobby'
 import TlmnWaitingRooms from './TlmnWaitingRooms'
 import { fetchWaitingRooms } from './actions'
-import { TlmnTwoCards } from './icons'
+import { TlmnTwoCards, TlmnSuits } from './icons'
 
 export const dynamic = 'force-dynamic'
 
@@ -37,7 +37,9 @@ export default async function TlmnPage() {
       <div className="tlmn-lobby">
         {/* Hero band */}
         <div className="tl-hero mb-6">
-          <TlmnTwoCards variant="hero" className="tl-hero__suit" />
+          {/* Hero top-right decoration — tone-on-tone ♠♥♦♣ suit cluster (TlmnSuits),
+              reused unmodified; the shared TlmnTwoCards motif stays on pill/info/empty. */}
+          <TlmnSuits className="tl-hero__suit" />
           <div className="relative">
             <span className="inline-flex items-center gap-1.5 text-[10.5px] font-bold tracking-[2.5px] uppercase text-[var(--tl-gold-bright)] bg-black/25 border border-[var(--tl-gold)]/40 px-3 py-1.5 rounded-full mb-4">
               <TlmnTwoCards variant="pill" className="w-4 h-4 -my-0.5" />

@@ -2203,8 +2203,10 @@ function SeatPod({
       >
         {plateUnit}
         {statusUnit}
-        {/* Opponent face-down fan (horizontal), hung toward the table centre. */}
-        <span className="relative inline-flex items-center justify-center flex-none">
+        {/* Opponent face-down fan (horizontal), hung toward the table centre. The TOP seat's
+            fan is flipped 180° so its concave arc curves UP into the avatar above it (a player
+            sitting across the table); the bottom spectator's avatar is below, so it stays. */}
+        <span className={`relative inline-flex items-center justify-center flex-none ${place === 'top' ? 'rotate-180' : ''}`}>
           <OpponentFan count={count} w={backW} orientation="top" />
         </span>
         {dotsUnit}

@@ -1194,8 +1194,6 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
                 / đôi thông), rendered BELOW the pile so it never overlaps a card. */}
             {/* Faint ghost of the prior stacked plays, giving the pile depth. */}
             <div className="relative flex justify-center mt-0.5" style={{ perspective: 700 }}>
-              <span aria-hidden className="absolute left-1/2 top-1 rounded-[7px] bg-black/25" style={{ width: pileW, height: Math.round(pileW * 1.4), transform: 'translateX(-50%) rotate(-7deg) translateY(4px)' }} />
-              <span aria-hidden className="absolute left-1/2 top-1 rounded-[7px] bg-black/20" style={{ width: pileW, height: Math.round(pileW * 1.4), transform: 'translateX(-50%) rotate(6deg) translateY(4px)' }} />
               {sortHand(game.trick.cards).map((c, i) => {
                 const mine = mySeat != null && game.trick!.by_seat === mySeat
                 const ml = i === 0 ? 0 : -Math.round(pileW * 0.28)
@@ -1364,9 +1362,13 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
         <ReportDialog name={seatName(reportSeat)} onSubmit={handleSubmitReport} onClose={() => setReportSeat(null)} t={t} />
       )}
 
-      {/* Voluntary-exit confirm — shown ONLY when leaving now would forfeit (live round, cards in hand). */}
-      {exitConfirm && (
-        <div role="dialog" aria-modal="true" aria-label={t('leave_confirm_title')} className="absolute inset-0 z-[100] flex items-center justify-center px-4" style={{ background: 'rgba(6,14,10,0.6)' }}>
+      {/* Voluntary-exit confirm — shown ONLY when leaving now would forfeit (live round, cards
+          in hand). PORTALLED to <body> at a z ABOVE the portrait rotate overlay (which is also
+          a body portal at ~2.1e9): otherwise this dialog rendered INSIDE the transformed stage
+          at z-[100] and was hidden BEHIND the rotate overlay, so "Rời phòng" looked dead and
+          trapped the player in portrait. As a body portal it's always visible + tappable. */}
+      {exitConfirm && portalReady && createPortal(
+        <div role="dialog" aria-modal="true" aria-label={t('leave_confirm_title')} className="fixed inset-0 flex items-center justify-center px-4" style={{ zIndex: 2147483600, background: 'rgba(6,14,10,0.72)' }}>
           <button type="button" aria-label={t('leave_confirm_stay')} onClick={() => { if (!exitBusy) setExitConfirm(false) }} className="absolute inset-0" />
           <div className="tlmn-banner-pop relative w-full max-w-[340px] rounded-2xl bg-paper shadow-2xl border border-line p-4">
             <p className="text-[15px] font-bold text-ink mb-1.5">{t('leave_confirm_title')}</p>
@@ -1393,7 +1395,8 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
       {reportSent && (
         <div className="absolute left-1/2 -translate-x-1/2 z-[60] rounded-full bg-emerald-600 text-white text-[12px] font-semibold px-3.5 py-1.5 tlmn-banner-pop" style={{ bottom: '16%' }}>
@@ -1749,7 +1752,6 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
           <>
             <div className="tlmn-bleed-felt-tex" aria-hidden />
             <div className="tlmn-bleed-rail" aria-hidden />
-            <BleedCorners />
           </>
         )}
 
@@ -1978,29 +1980,6 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
   )
 }
 
-// ── Full-bleed rail corner flourishes (Approach A) ──────────────────────────────────
-// Four gold corner ornaments that hug the screen-hugging rail, echoing the board art's
-// painted gold filigree. One base SVG (top-left shape) flipped per corner via CSS, so it
-// scales to any aspect ratio. Purely decorative (aria-hidden, pointer-events:none).
-function BleedCorners() {
-  const corner = (
-    <svg viewBox="0 0 64 64" fill="none" aria-hidden>
-      <path d="M5 32 Q5 5 32 5" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
-      <path d="M12 32 Q12 12 32 12" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" opacity="0.65" />
-      <path d="M17 19 q6 -2 8.5 -8.5 q2.5 6.5 8.5 8.5 q-6 2 -8.5 8.5 q-2.5 -6.5 -8.5 -8.5 z" fill="currentColor" opacity="0.5" />
-      <circle cx="32" cy="32" r="1.5" fill="currentColor" />
-    </svg>
-  )
-  return (
-    <>
-      <span className="tlmn-bleed-corner tlmn-bleed-corner--tl" aria-hidden>{corner}</span>
-      <span className="tlmn-bleed-corner tlmn-bleed-corner--tr" aria-hidden>{corner}</span>
-      <span className="tlmn-bleed-corner tlmn-bleed-corner--bl" aria-hidden>{corner}</span>
-      <span className="tlmn-bleed-corner tlmn-bleed-corner--br" aria-hidden>{corner}</span>
-    </>
-  )
-}
-
 // ── Seat pod ──────────────────────────────────────────────────────────────────────
 // A circular avatar with a ring/frame, a name plate, and a face-down card stack with
 // a count badge beside it. NO money/score number is ever shown under the name — the
@@ -2162,20 +2141,11 @@ function SeatPod({
   // below layout (its side seats are locked to the painted board-art lotus markers). All
   // mirrored identically L/R.
   if (isSide) {
-    if (compact) {
-      const innerSide = place === 'left' ? 'left-full ml-2 items-start' : 'right-full mr-2 items-end'
-      return (
-        <div className="relative inline-flex flex-none">
-          {avatarUnit}
-          <div className={`absolute top-1/2 -translate-y-1/2 ${innerSide} flex flex-col gap-0.5 w-max z-30`}>
-            {plateUnit}
-            <OpponentFan count={count} w={backW} orientation="top" />
-            {statusUnit}
-            {dotsUnit}
-          </div>
-        </div>
-      )
-    }
+    // Avatar IS the anchored centroid (root shrink-wraps it) → it NEVER moves. The face-down
+    // fan is VERTICAL (cards held sideways), centred on the avatar toward the table centre.
+    // The name plate hangs BELOW via `top-full` (TOP-anchored), so when transient bits
+    // (status / thinking dots) appear they grow DOWNWARD and never push the avatar or the
+    // name/coin. Mirrored identically L/R.
     return (
       <div className="relative inline-flex flex-none">
         {avatarUnit}
@@ -2203,12 +2173,17 @@ function SeatPod({
         {avatarUnit}
         <div className="inline-flex flex-col items-start gap-0.5 w-max z-30">
           {plateUnit}
-          <div className="inline-flex items-center gap-1.5">
-            <OpponentFan count={count} w={backW} orientation="top" />
+          {/* Bot 2 sits ACROSS the table → its face-down fan faces the other way (180°). */}
+          <span className="inline-flex rotate-180"><OpponentFan count={count} w={backW} orientation="top" /></span>
+        </div>
+        {/* Transient status / thinking dots as an absolute overlay so they never resize the
+            pod (which would re-centre it via the wrapper translate and shift the avatar). */}
+        {(statusUnit || dotsUnit) && (
+          <div className="absolute top-full left-0 mt-0.5 flex items-center gap-1.5 z-30">
             {statusUnit}
             {dotsUnit}
           </div>
-        </div>
+        )}
       </div>
     )
   }

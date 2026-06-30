@@ -31,7 +31,7 @@ import {
 } from '@/lib/games/tlmn/interactions'
 import { TRANSITIONS, DURATIONS, EASINGS, MS } from '@/lib/games/motion'
 import { useFullscreenLandscape } from '@/hooks/useFullscreenLandscape'
-import { TlmnDeuce, TlmnCards } from '../icons'
+import { TlmnCards } from '../icons'
 
 const cardKey = (c: Card) => `${c.rank}-${c.suit}`
 const comboKeys = (cs: Card[]) => cs.map(cardKey)
@@ -183,18 +183,24 @@ const GEOMETRY: Record<LayoutMode, SeatGeometry> = {
   // is pushed DOWN to ≈ the true centre of the usable felt (below the top seat, above the
   // taller dock) so there's a generous empty gap under Bot 2 and the pile reads as the focus.
   bleed: {
-    seats: { top: { x: 50, y: 10 }, left: { x: 9, y: 44 }, right: { x: 91, y: 44 }, bottom: { x: 50, y: 90 } },
-    // Pile centred at ≈43% of the felt — the TRUE midpoint between Bot 2 (hugging the top
-    // edge) and the bottom hand dock, with a clean empty gap under Bot 2 above it and clear
-    // air below it before the hand. Run 11: mobile/tablet pile-centring fix.
-    band: { top: 32, bottom: 54 },
+    // Run 12 — opponents lifted into the upper third so the centre pile + bottom hand own the
+    // lower two-thirds (the felt read as too crowded with the sides at the vertical middle).
+    // top nudged up to ≈8% (still clear of the chrome strip the play area starts below) and
+    // the LEFT/RIGHT seats raised from 44% → 30% (≈45px on a large-phone landscape, scaling
+    // by % on bigger surfaces). The avatar (x:9 / x:91) sits at the edge so even at this
+    // height it never reaches the centred pile's column.
+    seats: { top: { x: 50, y: 8 }, left: { x: 9, y: 30 }, right: { x: 91, y: 30 }, bottom: { x: 50, y: 90 } },
+    // Pile centred at ≈45% of the felt — the TRUE midpoint between the lifted top seat and the
+    // bottom hand dock, with a clean empty gap under Bot 2 above it and clear air below it
+    // before the hand. Run 12: mobile/tablet pile-centring fix.
+    band: { top: 34, bottom: 56 },
   },
   // Short-landscape phones (vh < 520) — the compact hand dock (decision bar hidden) leaves
   // more lower room, so the centre band sits at low-centre with a large empty gap under the
-  // top seat, while still clearing the dock. Top seat hugs the top edge.
+  // top seat, while still clearing the dock. Top seat hugs the top edge; sides lifted (Run 12).
   short: {
-    seats: { top: { x: 50, y: 10 }, left: { x: 8, y: 46 }, right: { x: 92, y: 46 }, bottom: { x: 50, y: 86 } },
-    band: { top: 32, bottom: 56 },
+    seats: { top: { x: 50, y: 8 }, left: { x: 8, y: 32 }, right: { x: 92, y: 32 }, bottom: { x: 50, y: 86 } },
+    band: { top: 34, bottom: 56 },
   },
 }
 const seatTransform = (a: SeatAnchor) => `translate(-50%, -50%)${a.s ? ` scale(${a.s})` : ''}`
@@ -1225,12 +1231,13 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
             })()}
           </div>
         ) : (
-          <div className="flex flex-col items-center gap-1.5">
-            <TlmnDeuce className="w-8 h-8 opacity-95 drop-shadow-[0_2px_6px_rgba(0,0,0,0.45)]" />
-            <p className="text-[12px] text-white/75 text-center">
-              {game.turn_seat != null ? t('lead_free_by', { name: seatName(game.turn_seat) }) : ''}
-            </p>
-          </div>
+          // Lead / no-trick state: ONLY the localized "X ra bài tự do" status, centred in the
+          // same protected band the pile uses. The decorative 2♥ deuce graphic (a two-card
+          // icon) was removed — it read as two stray miniature cards floating by the centre
+          // pile. Attribution is already carried by the active seat's turn ring + thinking dots.
+          <p className="text-[12px] text-white/75 text-center">
+            {game.turn_seat != null ? t('lead_free_by', { name: seatName(game.turn_seat) }) : ''}
+          </p>
         )}
       </div>
 

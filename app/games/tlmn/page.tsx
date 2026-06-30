@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import TlmnLobby from './TlmnLobby'
 import TlmnWaitingRooms from './TlmnWaitingRooms'
 import TlmnLeaderboard from './TlmnLeaderboard'
-import { fetchWaitingRooms, fetchTlmnLeaderboard } from './actions'
+import { fetchWaitingRooms, fetchTlmnLeaderboard, reapAbandonedGames } from './actions'
 import { TlmnTwoCards, TlmnSuits } from './icons'
 
 export const dynamic = 'force-dynamic'
@@ -15,11 +15,15 @@ export async function generateMetadata() {
 }
 
 export default async function TlmnPage() {
+  // Browser-independent backstop: any visitor to the lobby sweeps + finalizes matches
+  // stranded in 'playing' after every human left (the cron is the zero-traffic backstop).
+  // Bounded + idempotent; never let it block or break the lobby render.
   const [t, supabase, waitingRooms, leaderboard] = await Promise.all([
     getTranslations('games.tlmn'),
     Promise.resolve(createClient()),
     fetchWaitingRooms(),
     fetchTlmnLeaderboard('wins', 20, 0),
+    reapAbandonedGames().catch(() => ({ abandoned: 0 })),
   ])
   const { data: { user } } = await supabase.auth.getUser()
 

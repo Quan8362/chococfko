@@ -8,6 +8,10 @@
     {
       "path": "/api/cron/enrich-places",
       "schedule": "0 3 * * 1"
+    },
+    {
+      "path": "/api/cron/tlmn-maintenance",
+      "schedule": "* * * * *"
     }
   ]
 }

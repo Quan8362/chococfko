@@ -87,6 +87,11 @@ export default function TlmnRoom({ initialState, userId, joinError = null }: Pro
     ? `${window.location.origin}/games/tlmn/${room.invite_code}`
     : ''
   const isPlaying = room.status === 'playing'
+  // The server reaper finalizes a match stranded in 'playing' after every human left
+  // (no live client to drive the bots) → 'abandoned'. A reconnecting player must see this
+  // authoritative ended state instead of a frozen table; the room-row UPDATE arrives over
+  // the same realtime channel, so this flips live without a refresh.
+  const isAbandoned = room.status === 'abandoned'
 
   // ── Realtime: room + seats ──────────────────────────────────────────────────
   // Mirrors the caro/chess layer: one postgres_changes channel per room. The room
@@ -310,6 +315,24 @@ export default function TlmnRoom({ initialState, userId, joinError = null }: Pro
   }
 
   // ── Render ───────────────────────────────────────────────────────────────────
+  if (isAbandoned) {
+    return (
+      <div className="tlmn-lobby flex flex-col items-center text-center gap-4">
+        <span className="w-16 h-16 rounded-2xl bg-[var(--tl-red)]/8 text-[var(--tl-red)] flex items-center justify-center ring-1 ring-[var(--tl-red)]/15" aria-hidden>
+          <TlmnWave className="w-9 h-9" />
+        </span>
+        <h2 className="font-serif font-bold text-[20px] text-[var(--tl-red)]">{t('abandoned_title')}</h2>
+        <p className="text-[13.5px] tl-section-sub leading-relaxed max-w-[420px]">{t('abandoned_desc')}</p>
+        <Link
+          href="/games/tlmn"
+          className="tl-btn-secondary mt-1 inline-flex items-center justify-center gap-2 text-[14px] px-6 py-3"
+        >
+          {t('abandoned_back_btn')}
+        </Link>
+      </div>
+    )
+  }
+
   if (kicked) {
     return (
       <div className="tlmn-lobby flex flex-col items-center text-center gap-4">

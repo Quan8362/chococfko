@@ -13,13 +13,14 @@ import {
   dealRound, applyPlay, applyPass, applyTimeout, cardCounts, type RoundState,
 } from '@/lib/games/tlmn/round'
 import { chooseBotMove, botMoveAudit } from '@/lib/games/tlmn/bot'
+import { isMatchAbandoned, type SeatPresence } from '@/lib/games/tlmn/lifecycle'
 import { chooseBotMoveAI, chooseAiMove, policyViewFromRound } from '@/lib/games/tlmn/ai'
 import { resolveAvatarUrl, resolveDisplayName, type AuthMetaLike } from '@/lib/games/tlmn/avatar'
 import { ENTRY_MIN_BALANCE } from '@/lib/game/economy'
 import { ensureWallet } from './wallet'
 
 // ── Types ───────────────────────────────────────────────────────────────────────
-export type TlmnStatus = 'lobby' | 'playing' | 'ended'
+export type TlmnStatus = 'lobby' | 'playing' | 'ended' | 'abandoned'
 // MODE A = 'practice' (solo vs bots, no stakes, private); MODE B = 'multiplayer'.
 export type TlmnMode = 'multiplayer' | 'practice'
 
@@ -915,6 +916,96 @@ export async function pruneStaleLobbySeats(roomId: string): Promise<void> {
   }
 }
 
+// ── reapAbandonedGames ───────────────────────────────────────────────────────────
+// SERVER-AUTHORITATIVE abandonment safety net. The TLMN turn loop is entirely client-
+// NUDGED (runBotTurn / tickTurnTimer / startNextRound are called by seated browsers —
+// there is no long-lived server). A multiplayer room only ever LEAVES 'lobby' (via Start)
+// and NEVER returns: between rounds it sits in status='playing' with an 'ended' game,
+// waiting for the host's "Ván mới"; mid-round it depends on a live client to drive the
+// bots. So when EVERY human leaves or disconnects, NOTHING transitions the room out of
+// 'playing' and it is stranded forever. Confirmed in production for room YXWLK: room
+// 'playing', round-1 game 'ended' (0/11 — seat 0 out), both humans gone, no client to
+// resolve it. This finalizes such rooms independently of any open tab.
+//
+// A 'playing' ROOM is abandoned ONLY when it has NO live human — every real player has
+// explicitly left (bot_takeover) OR stopped heart-beating past the reconnection grace. A
+// reload / transient drop keeps a seat's last_seen fresh, so a room is NEVER abandoned
+// within the grace window; a single remaining human keeps it alive (they can still start
+// the next round). Scanning ROOMS (not games) covers BOTH a stranded between-rounds room
+// and a frozen mid-round one.
+//
+// No invented winner, no settlement, no stats, no coin/ranking change — an abandoned room
+// has no NEW result. A round that already legitimately ended keeps its 'ended' game row
+// (real winner + settlement + stats) untouched as history; only a still-'playing' round
+// is closed to 'abandoned' (no winner). Any voluntary-exit penalty already charged stays
+// (it lives in tlmn_forfeits / coin_ledger). Every write is guarded on status='playing',
+// so concurrent reaps, two players leaving at once, or a returning player can never
+// double-finalize or re-open. Bounded per call. NUDGED from the TLMN lobby page load and
+// the cron backstop (parity with caro's finalizeStaleGames) — never tab-dependent.
+const ABANDON_SWEEP_LIMIT = 50
+
+export async function reapAbandonedGames(): Promise<{ abandoned: number }> {
+  const admin = createAdminClient()
+  const now = Date.now()
+
+  const { data: rooms, error } = await admin
+    .from('tlmn_rooms')
+    .select('id')
+    .eq('status', 'playing')
+    .limit(ABANDON_SWEEP_LIMIT)
+  if (error || !rooms || rooms.length === 0) return { abandoned: 0 }
+
+  const roomIds = rooms.map(r => r.id as string)
+  const { data: seats } = await admin
+    .from('tlmn_seats')
+    .select('room_id, user_id, is_bot, bot_takeover, last_seen')
+    .in('room_id', roomIds)
+
+  const byRoom = new Map<string, SeatPresence[]>()
+  for (const s of (seats ?? []) as Array<SeatPresence & { room_id: string }>) {
+    const arr = byRoom.get(s.room_id) ?? []
+    arr.push({ user_id: s.user_id, is_bot: s.is_bot, bot_takeover: s.bot_takeover, last_seen: s.last_seen })
+    byRoom.set(s.room_id, arr)
+  }
+
+  let abandoned = 0
+  for (const r of rooms as Array<{ id: string }>) {
+    const rs = byRoom.get(r.id) ?? []
+    if (!isMatchAbandoned(rs, now)) continue // a human is still present / within grace
+    if (await abandonRoom(admin, r.id)) abandoned++
+  }
+  return { abandoned }
+}
+
+// Finalize ONE stranded room. First close any STILL-LIVE round (mid-round abandonment) to
+// 'abandoned' — no result — leaving a normally-'ended' round's row untouched as history.
+// Then claim the room transition out of 'playing', guarded on status='playing' so
+// concurrent reaps / a returning player can never double-finalize or re-open it; the room
+// claim is the once-only anchor for the count. Runs NO settlement / stats / score write.
+// Returns true only when THIS call performed the close. Degrade-safe: if the 'abandoned'
+// migration is not yet applied the CHECK rejects the writes → caught and treated as a
+// no-op (the room stays exactly as it is today, no regression) until the migration lands.
+async function abandonRoom(admin: Admin, roomId: string): Promise<boolean> {
+  try {
+    // Stop the clock + close a frozen mid-round game (idempotent; an 'ended' game is skipped).
+    await admin
+      .from('tlmn_games')
+      .update({ status: 'abandoned', turn_seat: null, turn_deadline: null, turn_started_at: null })
+      .eq('room_id', roomId)
+      .eq('status', 'playing')
+    const { data: closed, error } = await admin
+      .from('tlmn_rooms')
+      .update({ status: 'abandoned' })
+      .eq('id', roomId)
+      .eq('status', 'playing')
+      .select('id')
+    if (error || !closed || closed.length === 0) return false // already finalized, or status not yet allowed
+    return true
+  } catch {
+    return false // pre-migration CHECK violation or transient error — never wedge the sweep
+  }
+}
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // Phase 3 — server-authoritative play (hidden hands).
 // The engine (lib/games/tlmn) is the single source of truth. All hand writes go
@@ -938,7 +1029,10 @@ export type TlmnPublicGame = {
   id: string
   room_id: string
   round_no: number
-  status: 'playing' | 'ended'
+  // 'abandoned' = a frozen mid-round game closed by the reaper (no result/winner). It
+  // never reaches the play paths (those fetch onlyPlaying='playing') — it only surfaces
+  // to a reconnecting client's fetchGameState, which renders the abandoned room state.
+  status: 'playing' | 'ended' | 'abandoned'
   seats: number[]
   turn_seat: number | null
   trick: TlmnTrick
@@ -981,7 +1075,9 @@ function roundFromDb(row: TlmnPublicGame, hands: Record<number, Card[]>): RoundS
     playedCount: (row.played_counts ?? {}) as unknown as Record<number, number>,
     cutEvents: row.chat_events ?? [],
     mustIncludeThreeSpade: row.must_three_spade,
-    status: row.status,
+    // The play paths only ever feed a 'playing' game here (latestGame onlyPlaying); a
+    // closed game never reaches this mapping, so the round model's playing|ended is exact.
+    status: row.status === 'abandoned' ? 'ended' : row.status,
     winner: row.nhat_seat,
     instantWin: row.result?.instant ?? null,
     deltas: (row.result?.deltas ?? null) as unknown as Record<number, number> | null,

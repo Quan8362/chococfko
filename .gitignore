@@ -25,3 +25,10 @@ __pycache__/
 
 # TLMN training/eval reports (generated artifacts; do not commit)
 /lib/games/tlmn/sim/reports/
+
+# TLMN E2E auth states (contain session tokens) + run artifacts — never commit
+/e2e/tlmn/.auth/
+/e2e/tlmn/.artifacts/
+
+# FUSE mount artifacts (appear when an open file is deleted)
+.fuse_hidden*

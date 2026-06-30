@@ -1,0 +1,114 @@
+name: TLMN Full Two-Player E2E (gated)
+
+# Live two-player write flow. WRITES game data to the configured Supabase database.
+# Defense-in-depth so it can NEVER fire by accident:
+#   Gate 1  protected GitHub Environment `tlmn-full-e2e` (add required reviewers).
+#   Gate 2  schedule runs ONLY if vars.TLMN_FULL_NIGHTLY_ENABLED == 'true' (for an
+#           ISOLATED staging DB). Never auto-runs on commits/PRs.
+#   Gate 3  manual dispatch must tick `i_understand_writes_to_database`.
+#   Gate 4  the spec itself requires TLMN_E2E_WRITE=1 AND TLMN_E2E_ALLOW_PROD=1.
+#   + concurrency lock (one at a time), required-secret validation, and an always() run
+#     teardown that restores the two test users and deletes ONLY this run's data.
+
+on:
+  workflow_dispatch:
+    inputs:
+      i_understand_writes_to_database:
+        description: 'Confirm this run WRITES game data to the configured database'
+        type: boolean
+        default: false
+      base_url:
+        description: 'Target base URL (blank = use TLMN_E2E_BASE_URL secret)'
+        required: false
+        default: ''
+  schedule:
+    # 03:00 Asia/Tokyo == 18:00 UTC. GUARDED: only runs when TLMN_FULL_NIGHTLY_ENABLED
+    # repo variable is 'true' (intended for an isolated staging database, not production).
+    - cron: '0 18 * * *'
+
+concurrency:
+  group: tlmn-full-e2e
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  full-e2e:
+    name: Two-player write flow
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: tlmn-full-e2e
+    if: >-
+      ${{ github.event_name == 'workflow_dispatch' ||
+          (github.event_name == 'schedule' && vars.TLMN_FULL_NIGHTLY_ENABLED == 'true') }}
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      TLMN_E2E_EMAIL_A: ${{ secrets.TLMN_E2E_EMAIL_A }}
+      TLMN_E2E_PASSWORD_A: ${{ secrets.TLMN_E2E_PASSWORD_A }}
+      TLMN_E2E_EMAIL_B: ${{ secrets.TLMN_E2E_EMAIL_B }}
+      TLMN_E2E_PASSWORD_B: ${{ secrets.TLMN_E2E_PASSWORD_B }}
+      TLMN_E2E_BASE_URL: ${{ github.event.inputs.base_url != '' && github.event.inputs.base_url || secrets.TLMN_E2E_BASE_URL }}
+      # Gate 4 — explicit write acknowledgement (the spec re-checks these too).
+      TLMN_E2E_WRITE: '1'
+      TLMN_E2E_ALLOW_PROD: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Gate 3 — confirm write acknowledgement (manual dispatch)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          if [ "${{ github.event.inputs.i_understand_writes_to_database }}" != "true" ]; then
+            echo "::error::Refusing to run — tick 'i_understand_writes_to_database' to confirm DB writes."
+            exit 1
+          fi
+          echo "Write acknowledgement confirmed."
+
+      - name: Validate required secrets (names only)
+        run: |
+          missing=()
+          for name in NEXT_PUBLIC_SUPABASE_URL NEXT_PUBLIC_SUPABASE_ANON_KEY SUPABASE_SERVICE_ROLE_KEY TLMN_E2E_BASE_URL; do
+            if [ -z "${!name}" ]; then missing+=("$name"); else echo "present: $name"; fi
+          done
+          if [ ${#missing[@]} -ne 0 ]; then
+            echo "::error::Missing required secrets/vars: ${missing[*]}"
+            exit 1
+          fi
+          echo "All required secrets present."
+
+      - name: Install (locked)
+        run: npm ci
+      - name: Install Playwright Chromium + Linux deps
+        run: |
+          npm i -D @playwright/test
+          npx playwright install --with-deps chromium
+
+      - name: Run two-player write flow (setup + multiplayer)
+        run: npx playwright test --config e2e/tlmn/tlmn.config.ts --project setup --project multiplayer
+
+      - name: Teardown — restore test users + delete ONLY this run's data
+        if: always()
+        run: node e2e/tlmn/teardown.mjs
+
+      - name: Run summary
+        if: always()
+        run: node e2e/tlmn/ci-summary.mjs "Full two-player E2E" "${TLMN_E2E_BASE_URL:-deployed target}"
+
+      - name: Remove generated auth states (no session leaks)
+        if: always()
+        run: rm -rf e2e/tlmn/.auth
+
+      - name: Upload diagnostics (report, traces, videos, cleanup report)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tlmn-full-e2e-artifacts
+          path: e2e/tlmn/.artifacts
+          retention-days: 14
+          if-no-files-found: ignore

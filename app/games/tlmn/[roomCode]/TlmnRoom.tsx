@@ -547,6 +547,7 @@ export default function TlmnRoom({ initialState, userId, joinError = null }: Pro
         {mySeat && !isHost && (
           <button
             onClick={handleReady}
+            data-testid="tlmn-ready"
             disabled={isPending}
             className={`flex-1 inline-flex items-center justify-center gap-1.5 font-bold text-[14px] px-6 py-3.5 rounded-2xl transition-all disabled:opacity-60 ${
               mySeat.is_ready
@@ -561,6 +562,7 @@ export default function TlmnRoom({ initialState, userId, joinError = null }: Pro
         {isHost && (
           <button
             onClick={handleStart}
+            data-testid="tlmn-start"
             disabled={!canStart || isPending}
             className="tl-btn-primary flex-1 text-[15px] px-6 py-3.5 disabled:opacity-50"
           >

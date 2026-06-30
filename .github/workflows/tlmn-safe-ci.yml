@@ -1,0 +1,121 @@
+name: TLMN Safe CI
+
+# Safe, automatic tests for Tiến Lên Miền Nam. NEVER writes match/coin/reward/ranking/
+# settlement data to production:
+#   • logic job   — pure offline engine/rules/settlement/bot tests (no network, no DB).
+#   • browser job — realtime TRANSPORT (ephemeral broadcast only, no rows) + responsive
+#     layout. The app under test runs with PLACEHOLDER Supabase env, so loading pages
+#     cannot read or write the production database; the realtime test uses the real
+#     PUBLIC anon key only for its own ephemeral broadcast client.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'app/games/tlmn/**'
+      - 'lib/games/tlmn/**'
+      - 'e2e/tlmn/**'
+      - 'supabase/**'
+      - 'middleware.ts'
+      - '.github/workflows/tlmn-safe-ci.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'app/games/tlmn/**'
+      - 'lib/games/tlmn/**'
+      - 'e2e/tlmn/**'
+      - 'supabase/**'
+      - 'middleware.ts'
+      - '.github/workflows/tlmn-safe-ci.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: tlmn-safe-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  logic:
+    name: Offline logic (qa:tlmn)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install (locked)
+        run: npm ci
+      - name: Run offline logic tests
+        run: |
+          set -o pipefail
+          npm run qa:tlmn 2>&1 | tee /tmp/qa.log
+      - name: Job summary
+        if: always()
+        run: |
+          {
+            echo "## TLMN — Offline logic tests"
+            echo ""
+            echo "- Environment: GitHub Actions (${RUNNER_OS}), Node $(node -v)"
+            echo "- Commit: ${GITHUB_SHA}"
+            echo "- Result: ${{ job.status }}"
+            echo ""
+            echo '```'
+            grep -E '^# (tests|pass|fail|skipped|todo)' /tmp/qa.log || echo "(no TAP summary captured)"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  browser-safe:
+    name: Safe browser (realtime + responsive)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    needs: logic
+    env:
+      # Real PUBLIC creds (anon key is publishable). Used ONLY by the realtime test's own
+      # ephemeral broadcast client. If unset, the realtime test self-skips (responsive
+      # + logic still run), so this workflow is green even before any secret is added.
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      # The APP under test starts with PLACEHOLDER creds → loading pages can never touch
+      # the production database (no analytics writes, no real reads).
+      TLMN_E2E_WEB_CMD: "NEXT_PUBLIC_SUPABASE_URL=https://example.supabase.co NEXT_PUBLIC_SUPABASE_ANON_KEY=ci-placeholder-anon-key NEXT_PUBLIC_SITE_URL=http://localhost:3000 npm run dev"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install (locked)
+        run: npm ci
+      - name: Install Playwright Chromium + Linux deps
+        run: |
+          npm i -D @playwright/test
+          npx playwright install --with-deps chromium
+      - name: Validate optional secrets (names only)
+        run: |
+          miss=0
+          for name in NEXT_PUBLIC_SUPABASE_URL NEXT_PUBLIC_SUPABASE_ANON_KEY; do
+            if [ -z "${!name}" ]; then
+              echo "::warning::secret $name not set — realtime transport test will be skipped"
+              miss=1
+            else
+              echo "present: $name"
+            fi
+          done
+          if [ "$miss" = "0" ]; then echo "All safe-CI realtime secrets present."; fi
+      - name: Run safe browser specs
+        run: npx playwright test --config e2e/tlmn/tlmn.config.ts --project realtime --project responsive
+      - name: Run summary
+        if: always()
+        run: node e2e/tlmn/ci-summary.mjs "Safe CI — realtime + responsive" "http://localhost:3000 (placeholder app)"
+      - name: Upload diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tlmn-safe-artifacts
+          path: e2e/tlmn/.artifacts
+          retention-days: 14
+          if-no-files-found: ignore

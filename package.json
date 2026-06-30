@@ -14,7 +14,14 @@
     "tlmn:scenarios": "node lib/games/tlmn/sim/cli.ts scenarios",
     "tlmn:sim": "node lib/games/tlmn/sim/cli.ts sim",
     "tlmn:eval": "node lib/games/tlmn/sim/cli.ts eval",
-    "tlmn:train": "node lib/games/tlmn/sim/cli.ts train"
+    "tlmn:train": "node lib/games/tlmn/sim/cli.ts train",
+    "test:tlmn:unit": "node --test \"lib/games/tlmn/**/*.test.ts\"",
+    "test:tlmn:qa": "node --test \"lib/games/tlmn/qa-acceptance.test.ts\"",
+    "qa:tlmn": "npm run test:tlmn:unit && npm run test:tlmn:qa",
+    "test:e2e:tlmn": "playwright test --config e2e/tlmn/tlmn.config.ts --project realtime --project responsive",
+    "test:e2e:tlmn:full": "playwright test --config e2e/tlmn/tlmn.config.ts",
+    "test:e2e:tlmn:report": "playwright show-report e2e/tlmn/.artifacts/html",
+    "test:e2e:tlmn:teardown": "node e2e/tlmn/teardown.mjs"
   },
   "dependencies": {
     "@emoji-mart/data": "^1.2.1",

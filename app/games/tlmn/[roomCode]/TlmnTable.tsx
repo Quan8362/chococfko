@@ -742,6 +742,11 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
   // Card sizes grow with the viewport; the whole board (table, seats, pile, tray)
   // is derived from these so proportions stay correct at every width.
   const shortVp = vh < 520 // landscape phones
+  // Result-modal density: scale the WHOLE results panel (rows, avatars, fonts, footer)
+  // down by viewport height so a 4-player round fits — title + all 4 rows + "VÁN MỚI" —
+  // without scrolling on common landscape phones. Scroll is a fallback for very short
+  // screens only (handled structurally in globals.css, never by hiding a row).
+  const resultDensity: 'normal' | 'sm' | 'xs' = vh >= 520 ? 'normal' : vh >= 400 ? 'sm' : 'xs'
   // Run 8 — the bottom hand is a LOW, shallow fan tucked under the play area, so the
   // cards are deliberately smaller than the table props (pile/seats) and never dominate
   // the felt. Pile width is decoupled (≈ a touch larger) so the centre still reads big.
@@ -1692,7 +1697,7 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
           scroll (globals.css) so the page body never scrolls and the footer stays put. */}
       <div className="tlmn-result-modal w-full max-w-[600px] my-auto flex flex-col gap-3">
         {game.result?.instant && <ToiTrangBanner game={game} seatName={seatName} t={t} />}
-        <Podium game={game} seats={seats} seatName={seatName} reduced={reduced} mySeat={mySeat} myBalance={myBalance} myRoundDelta={myRoundDelta} compact={shortVp} t={t} />
+        <Podium game={game} seats={seats} seatName={seatName} reduced={reduced} mySeat={mySeat} myBalance={myBalance} myRoundDelta={myRoundDelta} density={resultDensity} t={t} />
         <div className="tlmn-result-footer text-center pb-1">
           {isHost ? (
             <button
@@ -1700,7 +1705,9 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
               onClick={doNextRound}
               disabled={busy}
               className={`tlmn-btn-gold inline-flex items-center gap-2 font-black uppercase tracking-wide rounded-xl transition-all disabled:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-white ${
-                shortVp ? 'text-[13.5px] px-6 py-2.5' : 'text-[15px] px-8 py-3.5'
+                resultDensity === 'xs' ? 'text-[12.5px] px-5 py-2'
+                  : resultDensity === 'sm' ? 'text-[13.5px] px-6 py-2.5'
+                  : 'text-[15px] px-8 py-3.5'
               }`}
             >
               <TlmnCards className={shortVp ? 'w-4 h-4' : 'w-5 h-5'} />
@@ -2256,7 +2263,7 @@ function ToiTrangBanner({
 // down. Each row shows avatar, name, "Còn N lá", the round delta, running total and the
 // animated virtual-CHIP delta. The đếm-lá MATH is unchanged — display only.
 function Podium({
-  game, seats, seatName, reduced, mySeat, myBalance, myRoundDelta, compact = false, t,
+  game, seats, seatName, reduced, mySeat, myBalance, myRoundDelta, density = 'normal', t,
 }: {
   game: TlmnPublicGame
   seats: TlmnSeat[]
@@ -2265,11 +2272,15 @@ function Podium({
   mySeat: number | null
   myBalance: number | null
   myRoundDelta: number | null
-  // Short / landscape viewports: tighter rows, smaller avatars + fonts so all results
-  // + the sticky "VÁN MỚI" footer fit the cramped height. Portrait passes false (default).
-  compact?: boolean
+  // Result-panel density, scaled by viewport height so a 4-player round always fits.
+  //   normal — portrait / tall viewports (full size)
+  //   sm     — landscape phones (vh < 520): tighter rows, smaller avatars + fonts
+  //   xs     — very short landscape (vh < 400): tightest, so 4 rows + footer still fit
+  density?: 'normal' | 'sm' | 'xs'
   t: ReturnType<typeof useTranslations>
 }) {
+  const compact = density !== 'normal'
+  const xs = density === 'xs'
   const breakdown = game.result?.breakdown
   const deltas = game.result?.deltas ?? {}
   const seatOf = (idx: number) => seats.find(s => s.seat_index === idx)
@@ -2290,11 +2301,11 @@ function Podium({
   const medals = ['🥇', '🥈', '🥉', '🏅']
 
   return (
-    <div className={`tlmn-results-card rounded-2xl overflow-hidden ${compact ? 'p-2.5' : 'p-3 sm:p-4'}`}>
-      <p className={`font-black text-[var(--tg-gold-bright)] uppercase tracking-[2px] text-center ${compact ? 'text-[10px] pb-2' : 'text-[11px] pb-3'}`}>
+    <div className={`tlmn-results-card rounded-2xl overflow-hidden ${xs ? 'p-2' : compact ? 'p-2.5' : 'p-3 sm:p-4'}`}>
+      <p className={`font-black text-[var(--tg-gold-bright)] uppercase tracking-[2px] text-center ${xs ? 'text-[9px] pb-1.5' : compact ? 'text-[10px] pb-2' : 'text-[11px] pb-3'}`}>
         {t('podium_title')}
       </p>
-      <div className={`flex flex-col ${compact ? 'gap-1.5' : 'gap-2'}`}>
+      <div className={`tlmn-results-list flex flex-col ${xs ? 'gap-1' : compact ? 'gap-1.5' : 'gap-2'}`}>
         {rows.map((r, rank) => {
           const cum = cumulativeOf(r.seat)
           // My seat shows the REAL persisted wallet balance + REAL applied delta;
@@ -2303,24 +2314,24 @@ function Podium({
           const chips = isMyRow && myBalance != null ? myBalance : chipsFromScore(cum)
           const chipDelta = isMyRow && myRoundDelta != null ? myRoundDelta : r.total * CHIP_RATE
           const first = rank === 0
-          const avSize = first ? (compact ? 42 : 46) : (compact ? 34 : 38)
+          const avSize = first ? (xs ? 34 : compact ? 42 : 46) : (xs ? 28 : compact ? 34 : 38)
           return (
             <div
               key={r.seat}
-              className={`flex items-center rounded-xl ${compact ? 'gap-2 px-2.5 py-1.5' : 'gap-3 px-3 py-2.5'} ${first ? 'tlmn-podium-1' : 'tlmn-podium-row'}`}
+              className={`flex items-center rounded-xl ${xs ? 'gap-1.5 px-2 py-1' : compact ? 'gap-2 px-2.5 py-1.5' : 'gap-3 px-3 py-2.5'} ${first ? 'tlmn-podium-1' : 'tlmn-podium-row'}`}
             >
               <span className="relative inline-flex flex-none">
-                {first && <span className={`absolute left-1/2 -translate-x-1/2 text-[18px] tlmn-crown-sweep z-10 ${compact ? '-top-3' : '-top-4'}`} aria-hidden>👑</span>}
+                {first && <span className={`absolute left-1/2 -translate-x-1/2 text-[18px] tlmn-crown-sweep z-10 ${xs ? '-top-2.5' : compact ? '-top-3' : '-top-4'}`} aria-hidden>👑</span>}
                 <span className={`inline-flex rounded-full p-[2.5px] ${first ? 'tlmn-frame-gold' : 'bg-white/15'}`}>
                   <PodAvatar name={seatName(r.seat)} url={seatOf(r.seat)?.avatar_url ?? null} size={avSize} isBot={!!seatOf(r.seat)?.is_bot} seed={r.seat} />
                 </span>
               </span>
               <div className="min-w-0 flex-1">
-                <p className={`font-bold truncate flex items-center gap-1.5 ${first ? `${compact ? 'text-[14px]' : 'text-[15px]'} text-[var(--tg-gold-bright)]` : `${compact ? 'text-[12px]' : 'text-[13px]'} text-white/90`}`}>
+                <p className={`font-bold truncate flex items-center gap-1.5 ${first ? `${xs ? 'text-[12.5px]' : compact ? 'text-[14px]' : 'text-[15px]'} text-[var(--tg-gold-bright)]` : `${xs ? 'text-[11px]' : compact ? 'text-[12px]' : 'text-[13px]'} text-white/90`}`}>
                   <span aria-hidden>{medals[rank] ?? '🏅'}</span>
                   <span className="truncate">{seatName(r.seat)}</span>
                 </p>
-                <div className={`flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-0.5 text-white/55 ${compact ? 'text-[9.5px]' : 'text-[10px]'}`}>
+                <div className={`flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-0.5 text-white/55 ${xs ? 'text-[9px]' : compact ? 'text-[9.5px]' : 'text-[10px]'}`}>
                   {r.isWinner ? <span className="text-[var(--tg-gold-bright)] font-bold">{t('score_winner')}</span> : <span>{t('score_cards', { n: r.cardsLeft })}</span>}
                   {r.cong && <span className="text-rose-200">{t('score_cong')}</span>}
                   {r.heldTwos > 0 && r.thoiHeoMult > 1 && <span className="text-rose-200">{t('score_thoiheo')} ×{r.thoiHeoMult}</span>}
@@ -2328,7 +2339,7 @@ function Podium({
                 </div>
               </div>
               <div className="text-right flex-none">
-                <p className={`font-black leading-none ${r.total > 0 ? 'text-emerald-300' : r.total < 0 ? 'text-rose-300' : 'text-white/60'} ${first ? (compact ? 'text-[16px]' : 'text-[18px]') : (compact ? 'text-[14px]' : 'text-[15px]')}`}>
+                <p className={`font-black leading-none ${r.total > 0 ? 'text-emerald-300' : r.total < 0 ? 'text-rose-300' : 'text-white/60'} ${first ? (xs ? 'text-[14px]' : compact ? 'text-[16px]' : 'text-[18px]') : (xs ? 'text-[12.5px]' : compact ? 'text-[14px]' : 'text-[15px]')}`}>
                   {r.total > 0 ? `+${r.total}` : r.total}
                 </p>
                 <p className={`text-white/45 mt-0.5 ${compact ? 'text-[9px]' : 'text-[9.5px]'}`}>{t('score_total')}: {cum}</p>

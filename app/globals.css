@@ -1054,10 +1054,14 @@ body.tlmn-scroll-lock {
    row/avatar/font compaction is driven in TSX by `shortVp` (vh < 520). */
 @media (orientation: landscape) and (max-height: 520px) {
   .tlmn-result-overlay {
-    /* the modal — not the overlay — owns the scroll, so it stays centred */
+    /* the modal owns the height budget, so it stays centred + fully on-screen */
     align-items: center;
     overflow: hidden;
   }
+  /* The modal is a height-capped flex COLUMN. It does NOT scroll itself; instead the
+     title (top) and footer (bottom) are pinned by flex and the row list between them
+     takes the remaining space. This guarantees the title + "VÁN MỚI" are ALWAYS
+     visible and the footer can never overlap / hide the last result row. */
   .tlmn-result-modal {
     width: min(78vw, 760px);
     max-width: 760px;
@@ -1066,20 +1070,37 @@ body.tlmn-scroll-lock {
     max-height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 70px);
     margin: 0;
     gap: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  /* Results card shrinks to share the modal's height; its inner list owns the scroll. */
+  .tlmn-result-modal .tlmn-results-card {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .tlmn-result-modal .tlmn-results-card > p:first-child { flex: 0 0 auto; }
+  /* The row list is the ONLY scroll surface, and only as a fallback when a round is
+     too tall for the screen (e.g. >4 players or a very short device). With the
+     density scaling, a normal 4-player round fits with no scroll. padding-top leaves
+     room for the 1st-place crown so it is never clipped at the top of the scroll. */
+  .tlmn-result-modal .tlmn-results-list {
+    flex: 1 1 auto;
+    min-height: 0;
     overflow-y: auto;
     overflow-x: hidden;
+    padding-top: 12px;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
   }
-  /* Sticky compact footer: keeps "VÁN MỚI" visible while the result list scrolls
-     beneath it; the opaque felt wash hides content passing under the button. */
+  /* Footer sits in normal flow at the modal's bottom — pinned by flex, never sticky,
+     so it occupies its own space and cannot cover the final result row. */
   .tlmn-result-footer {
-    position: sticky;
-    bottom: 0;
-    margin-top: 0.25rem;
-    padding-top: 0.5rem;
-    padding-bottom: 0.25rem;
-    background: linear-gradient(180deg, rgba(18,3,8,0) 0%, rgba(18,3,8,0.92) 38%, rgba(18,3,8,0.98) 100%);
+    flex: 0 0 auto;
+    margin-top: 0.4rem;
+    padding-bottom: 0.1rem;
   }
 }
 

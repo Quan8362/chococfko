@@ -1627,6 +1627,8 @@
       "join_host": "Bạn là chủ phòng, hãy chờ đối thủ tham gia.",
       "join_stale": "Phòng đã hết hạn.",
       "join_error": "Không thể tham gia phòng. Thử lại!",
+      "join_unavailable": "Phòng không còn nhận người chơi.",
+      "join_not_found": "Không tìm thấy phòng.",
       "history_result": "Kết quả",
       "history_time": "Thời gian",
       "player_o_label_fallback": "Người chơi O",

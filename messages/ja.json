@@ -1627,6 +1627,8 @@
       "join_host": "あなたはホストです。対戦相手の参加をお待ちください。",
       "join_stale": "このルームは期限切れです。",
       "join_error": "ルームに参加できませんでした。もう一度お試しください！",
+      "join_unavailable": "このルームはもう参加を受け付けていません。",
+      "join_not_found": "ルームが見つかりません。",
       "history_result": "結果",
       "history_time": "時刻",
       "player_o_label_fallback": "プレイヤーO",

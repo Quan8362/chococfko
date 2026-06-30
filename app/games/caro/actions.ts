@@ -118,43 +118,42 @@ export async function joinRoom(
 
 // ── joinCaroRoom ──────────────────────────────────────────────────────────────
 // The single explicit, atomic join mutation. Triggered by the in-room
-// "Tham gia phòng" button. Occupies the Player O seat only if it is still free,
-// transitions the room to 'playing' (which initializes turn_started_at /
-// turn_deadline via the caro_rooms_initial_deadline trigger), and rejects the
-// host trying to take O or a seat already taken by someone else.
-export async function joinCaroRoom(roomId: string): Promise<ActionResult> {
+// "Tham gia phòng" button. Funneled through the SECURITY DEFINER RPC
+// `caro_join_room` (migration_caro_join_rpc.sql), called with the user's own JWT
+// so auth.uid() identifies the joiner. The RPC locks the room row FOR UPDATE,
+// claims the open Player O seat, and transitions waiting -> playing (which stamps
+// turn_started_at / turn_deadline via the caro_rooms_initial_deadline trigger and
+// bumps state_version) in one atomic statement.
+//
+// Why an RPC and not the previous admin-client read-then-update: the old path
+// rejected the join whenever the host's *client* heartbeat had lapsed
+// (`stale`). A backgrounded host tab has its heartbeat setInterval throttled or
+// suspended by the browser, so a host who is genuinely present had their room
+// rejected as expired — player_o never got set and the room stayed 'waiting',
+// while the surviving heartbeats kept bumping state_version (making it look like
+// something had changed). The RPC removes that false-negative liveness guess and
+// makes concurrent joins serialize on the row lock. Rejected joins RETURN before
+// any UPDATE, so a failed join never bumps state_version.
+//
+// Returns the updated room on success so the caller can render 'playing'
+// immediately without waiting for the realtime echo, or a stable error code.
+export type JoinResult = { ok: true; room: CaroRoom } | { error: string }
+
+export async function joinCaroRoom(roomId: string): Promise<JoinResult> {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'not_logged_in' }
 
-  const admin = createAdminClient()
-  const { data: room } = await admin
-    .from('caro_rooms')
-    .select('id, player_x, player_o, status, updated_at')
-    .eq('id', roomId)
-    .maybeSingle()
+  const { data, error } = await supabase.rpc('caro_join_room', { p_room_id: roomId })
+  if (error) {
+    const incidentId = logResultError('joinCaroRoom', roomId, 'rpc', error)
+    return { error: `write_failed:${incidentId}` }
+  }
 
-  if (!room) return { error: 'not_found' }
-  if (room.player_x === user.id) return { error: 'host_cannot_join' }
-  if (room.player_o === user.id) return null // already joined
-  if (room.status !== 'waiting' || room.player_o) return { error: 'full' }
+  const result = (data ?? null) as { ok: boolean; error?: string; room?: CaroRoom } | null
+  if (!result || !result.ok || !result.room) return { error: result?.error ?? 'join_failed' }
 
-  const since = new Date(Date.now() - LOBBY_STALE_MS).toISOString()
-  if (room.updated_at < since) return { error: 'stale' }
-
-  // Atomicity: only the first caller whose `player_o` is still null wins the seat.
-  const { data: updated, error } = await admin
-    .from('caro_rooms')
-    .update({ player_o: user.id, status: 'playing' })
-    .eq('id', room.id)
-    .is('player_o', null)
-    .eq('status', 'waiting')
-    .select('id')
-
-  if (error) return { error: error.message }
-  if (!updated || updated.length === 0) return { error: 'full' }
-
-  return null
+  return { ok: true, room: result.room }
 }
 
 // ── refetchRoom ───────────────────────────────────────────────────────────────

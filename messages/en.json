@@ -1627,6 +1627,8 @@
       "join_host": "You are the host — wait for an opponent to join.",
       "join_stale": "This room has expired.",
       "join_error": "Could not join the room. Try again!",
+      "join_unavailable": "This room is no longer accepting players.",
+      "join_not_found": "Room not found.",
       "history_result": "Result",
       "history_time": "Time",
       "player_o_label_fallback": "Player O",

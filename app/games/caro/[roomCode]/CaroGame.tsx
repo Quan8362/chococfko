@@ -329,19 +329,36 @@ export default function CaroGame({ initialRoom, userId, myName, playerXName, pla
     setJoinError(null)
     startTransition(async () => {
       const result = await joinCaroRoom(room.id)
-      if (result?.error) {
+      if ('error' in result) {
         setJoinError(
-          result.error === 'full' ? t('join_full')
+          result.error === 'room_full' ? t('join_full')
           : result.error === 'host_cannot_join' ? t('join_host')
-          : result.error === 'stale' ? t('join_stale')
+          : result.error === 'room_not_joinable' ? t('join_unavailable')
+          : result.error === 'room_not_found' ? t('join_not_found')
           : t('join_error'),
         )
+        return
       }
-      // Re-render from the server either way: success makes us O with names; a lost
-      // race drops us into spectating the now-playing room.
+      // Authoritative joined room from the RPC — render 'playing' immediately
+      // (monotonic-guarded) instead of waiting for the realtime echo. The refresh
+      // then loads the Player O display name, which is a server-rendered prop.
+      setRoom((prev) => {
+        const { room: next } = applyRoomUpdate(prev, result.room)
+        setCaroRuntime({ matchStatus: next.status })
+        return next
+      })
       router.refresh()
     })
   }
+
+  // ── Load opponent name when the O seat fills ───────────────────────────────
+  // The Player O display name is a server-rendered prop. A realtime join (seen by
+  // the host) updates room.player_o but not the prop, so refresh once to resolve
+  // the name instead of showing the '…' placeholder. No-op once the name resolves
+  // (getPlayerName always returns a non-null name for a real user) → never loops.
+  useEffect(() => {
+    if (room.player_o && playerOName === null) router.refresh()
+  }, [room.player_o, playerOName, router])
 
   // ── Surrender ────────────────────────────────────────────────────────────
   const handleSurrender = () => {

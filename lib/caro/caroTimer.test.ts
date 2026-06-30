@@ -13,6 +13,7 @@ const here = dirname(fileURLToPath(import.meta.url))
 const read = (p: string) => readFileSync(join(here, p), 'utf8')
 
 const migration = read('../../supabase/migration_caro_timer.sql')
+const joinMigration = read('../../supabase/migration_caro_join_rpc.sql')
 const caroGame = read('../../app/games/caro/[roomCode]/CaroGame.tsx')
 const roomPage = read('../../app/games/caro/[roomCode]/page.tsx')
 const actions = read('../../app/games/caro/actions.ts')
@@ -73,10 +74,16 @@ test('explicit join: room URL does not auto-join, in-room button does', () => {
   assert.match(caroGame, /t\('join_room_btn'\)/)
 })
 
-test('server: explicit/atomic join + host guard + lifecycle actions exist', () => {
+test('server: explicit join delegates to the atomic join RPC', () => {
   assert.match(actions, /export async function joinCaroRoom/)
-  assert.match(actions, /host_cannot_join/)
-  assert.match(actions, /\.is\('player_o', null\)/)      // atomic seat claim
+  // join is funneled through the SECURITY DEFINER RPC (auth.uid()), called with
+  // the user's JWT — not a service-role read-then-update — and returns the
+  // joined room on success.
+  assert.match(actions, /supabase\.rpc\('caro_join_room'/)
+  assert.match(actions, /export type JoinResult/)
+  // the fragile client-heartbeat 'stale' rejection is gone from the join path
+  assert.doesNotMatch(actions, /error: 'stale'/)
+  // lifecycle actions still present
   assert.match(actions, /export async function resolveTimeout/)
   assert.match(actions, /export async function resolveExpiredCaroGames/)
   assert.match(actions, /export async function cleanupStaleWaitingRooms/)
@@ -84,10 +91,31 @@ test('server: explicit/atomic join + host guard + lifecycle actions exist', () =
   assert.match(actions, /\.eq\('status', 'waiting'\)\s*\n\s*\.is\('player_o', null\)/)
 })
 
+test('join RPC migration: atomic, secure, host-guarded, stable errors', () => {
+  assert.match(joinMigration, /CREATE OR REPLACE FUNCTION public\.caro_join_room/)
+  assert.match(joinMigration, /SECURITY DEFINER/)
+  assert.match(joinMigration, /SET search_path = public, pg_temp/)
+  // identity from the caller's JWT, not a trusted argument
+  assert.match(joinMigration, /v_uid := auth\.uid\(\)/)
+  // row lock → concurrent joiners serialize on the row
+  assert.match(joinMigration, /FOR UPDATE/)
+  // host cannot take O; seat/lifecycle guards with stable codes
+  assert.match(joinMigration, /'host_cannot_join'/)
+  assert.match(joinMigration, /'room_full'/)
+  assert.match(joinMigration, /'room_not_joinable'/)
+  assert.match(joinMigration, /'room_not_found'/)
+  assert.match(joinMigration, /'not_authenticated'/)
+  // claims the seat and starts the game in one atomic write
+  assert.match(joinMigration, /SET player_o = v_uid,\s*\n\s*status = 'playing'/)
+  // only logged-in users may call it
+  assert.match(joinMigration, /GRANT EXECUTE ON FUNCTION public\.caro_join_room\(uuid\) TO authenticated/)
+})
+
 test('i18n: all five locales carry the new caro keys', () => {
   const keys = [
     'conn_connecting', 'conn_reconnecting', 'conn_degraded', 'conn_offline',
     'join_room_btn', 'join_room_prompt', 'join_full', 'join_host', 'join_stale', 'join_error',
+    'join_unavailable', 'join_not_found',
   ]
   for (const locale of ['vi', 'en', 'ja', 'ko', 'zh']) {
     const msgs = JSON.parse(read(`../../messages/${locale}.json`))

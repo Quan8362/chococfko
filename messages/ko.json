@@ -1627,6 +1627,8 @@
       "join_host": "당신은 방장입니다. 상대가 참가할 때까지 기다려 주세요.",
       "join_stale": "만료된 방입니다.",
       "join_error": "방에 참가할 수 없습니다. 다시 시도해 주세요!",
+      "join_unavailable": "이 방은 더 이상 참가할 수 없습니다.",
+      "join_not_found": "방을 찾을 수 없습니다.",
       "history_result": "결과",
       "history_time": "시간",
       "player_o_label_fallback": "플레이어O",

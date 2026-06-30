@@ -183,23 +183,19 @@ const GEOMETRY: Record<LayoutMode, SeatGeometry> = {
   // is pushed DOWN to ≈ the true centre of the usable felt (below the top seat, above the
   // taller dock) so there's a generous empty gap under Bot 2 and the pile reads as the focus.
   bleed: {
-    // Run 12 — opponents lifted into the upper third so the centre pile + bottom hand own the
-    // lower two-thirds (the felt read as too crowded with the sides at the vertical middle).
-    // top nudged up to ≈8% (still clear of the chrome strip the play area starts below) and
-    // the LEFT/RIGHT seats raised from 44% → 30% (≈45px on a large-phone landscape, scaling
-    // by % on bigger surfaces). The avatar (x:9 / x:91) sits at the edge so even at this
-    // height it never reaches the centred pile's column.
-    seats: { top: { x: 50, y: 8 }, left: { x: 9, y: 30 }, right: { x: 91, y: 30 }, bottom: { x: 50, y: 90 } },
-    // Pile centred at ≈45% of the felt — the TRUE midpoint between the lifted top seat and the
-    // bottom hand dock, with a clean empty gap under Bot 2 above it and clear air below it
-    // before the hand. Run 12: mobile/tablet pile-centring fix.
+    // Run 12d — classic table balance: Bot 2 pushed HARD to the top edge (y:5; the toolbar's
+    // centre is empty — buttons hug the corners — so the avatar clears them), and the LEFT/
+    // RIGHT seats brought back DOWN to flank the centre pile (y:40), so the three opponents
+    // form a clean diamond around the play area. The pile sits at the felt's true centre and
+    // the centre medallion rings track it (see .tlmn-center-rings), so the played card always
+    // lands on the pattern regardless of chrome height.
+    seats: { top: { x: 50, y: 5 }, left: { x: 9, y: 40 }, right: { x: 91, y: 40 }, bottom: { x: 50, y: 90 } },
     band: { top: 34, bottom: 56 },
   },
-  // Short-landscape phones (vh < 520) — the compact hand dock (decision bar hidden) leaves
-  // more lower room, so the centre band sits at low-centre with a large empty gap under the
-  // top seat, while still clearing the dock. Top seat hugs the top edge; sides lifted (Run 12).
+  // Short-landscape phones (vh < 520) — same diamond: Bot 2 at the top edge, sides flanking the
+  // pile, dock cleared below.
   short: {
-    seats: { top: { x: 50, y: 8 }, left: { x: 8, y: 32 }, right: { x: 92, y: 32 }, bottom: { x: 50, y: 86 } },
+    seats: { top: { x: 50, y: 5 }, left: { x: 8, y: 42 }, right: { x: 92, y: 42 }, bottom: { x: 50, y: 86 } },
     band: { top: 34, bottom: 56 },
   },
 }
@@ -1183,6 +1179,10 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
           into the hand (the band's top/bottom are derived to sit clear of both). The round
           result is a separate overlay. */}
       <div className="tlmn-center-zone absolute left-0 right-0 z-20 flex items-center justify-center px-4 pointer-events-none" style={centerWrapStyle}>
+        {/* Centre medallion rings — anchored to the SAME band as the pile (full-bleed mobile/
+            tablet), so the played card always sits exactly on the felt's decorative pattern,
+            independent of the top-chrome height / safe-area. Behind the cards (DOM order). */}
+        {fullBleed && <span aria-hidden className="tlmn-center-rings absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" />}
         {ended ? (
           <CenterEnd game={game} seatName={seatName} t={t} />
         ) : game.trick ? (
@@ -1644,7 +1644,7 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
               to the far left of col-1 and Bỏ lượt hugs Đánh's right in col-3. Widths clamp down
               on phones so the panel/pass still fit either side of the centred Đánh. */}
           <div className="tlmn-action-row grid items-center gap-2 mt-2 mx-auto w-full max-w-[760px] grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
-            <div className="justify-self-start max-w-[300px] min-w-0 flex items-center">
+            <div className="justify-self-end max-w-[300px] min-w-0 flex items-center">
               {localInfoPanel}
             </div>
             <button

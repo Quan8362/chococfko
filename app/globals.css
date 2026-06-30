@@ -340,13 +340,14 @@ body::before {
   background-size: 7px 7px;
   opacity: 0.5;
 }
-.tlmn-bleed-felt-tex::after {
-  content: "";
-  position: absolute;
-  left: 50%; top: 44%;
-  width: min(38vh, 34vw); aspect-ratio: 1;
-  transform: translate(-50%, -50%);
-  opacity: 0.05;
+/* Centre medallion rings — rendered INSIDE the play area's centre band (full-bleed mobile/
+   tablet; see .tlmn-center-rings usage in TlmnTable) so the rings always sit exactly under
+   the played-card pile. The old felt-wide ::after lived at 44% of the WHOLE stage, so the top
+   chrome offset it above the card; anchoring to the band fixes that on every device. */
+.tlmn-center-rings {
+  width: min(36vh, 32vw); aspect-ratio: 1;
+  opacity: 0.06;
+  pointer-events: none;
   background:
     radial-gradient(circle at 50% 50%, transparent 38%, rgba(247,236,207,0.9) 39% 41%, transparent 42%),
     radial-gradient(circle at 50% 50%, transparent 26%, rgba(247,236,207,0.9) 27% 29%, transparent 30%);

@@ -1455,9 +1455,9 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
     // (1) name (ellipsis), (2) balance · turn-status inline. It grows in WIDTH (flex child of
     // the widened action-row cell), never in height, so it can never drive the action buttons
     // taller. Fixed compact height keeps it level with the buttons via the row's items-center.
-    <div className={`flex items-center min-w-0 w-full rounded-2xl bg-black/40 backdrop-blur-[1px] ${compactDock ? 'gap-2 h-[42px] pl-1 pr-2.5' : 'gap-2.5 h-[48px] pl-1.5 pr-3'}`}>
+    <div className={`flex items-center min-w-0 w-fit max-w-full rounded-2xl bg-black/40 backdrop-blur-[1px] ${compactDock ? 'gap-2 h-[42px] pl-1 pr-2.5' : 'gap-2.5 h-[48px] pl-1.5 pr-3'}`}>
       {humanAvatar}
-      <div className="min-w-0 leading-tight flex-1">
+      <div className="min-w-0 leading-tight">
         <p className="text-[13px] font-bold text-white truncate flex items-center gap-1">
           {game.nhat_seat === mySeat && <span className="shrink-0 text-gold">🏆</span>}
           <span className="truncate">{seatName(mySeat)}</span>
@@ -1644,7 +1644,7 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
               to the far left of col-1 and Bỏ lượt hugs Đánh's right in col-3. Widths clamp down
               on phones so the panel/pass still fit either side of the centred Đánh. */}
           <div className="tlmn-action-row grid items-center gap-2 mt-2 mx-auto w-full max-w-[760px] grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
-            <div className="justify-self-start w-full max-w-[300px] min-w-0 flex items-center">
+            <div className="justify-self-start max-w-[300px] min-w-0 flex items-center">
               {localInfoPanel}
             </div>
             <button
@@ -2162,10 +2162,12 @@ function SeatPod({
     return (
       <div className="relative inline-flex flex-none">
         {avatarUnit}
-        <span className={`absolute top-1/2 -translate-y-1/2 inline-flex items-center justify-center ${place === 'left' ? 'left-full ml-1.5' : 'right-full mr-1.5'}`}>
+        <span className={`absolute top-1/2 -translate-y-1/2 inline-flex items-center justify-center ${place === 'left' ? 'left-full ml-1' : 'right-full mr-1'}`}>
           <OpponentFan count={count} w={backW} orientation={fanOrientation} />
         </span>
-        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 flex flex-col items-center gap-1 w-max z-30">
+        {/* Name/coin plate welded directly beneath the avatar (tiny gap) so the avatar,
+            capped fan and plate read as ONE compact group — mirrored identically L/R. */}
+        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-0.5 flex flex-col items-center gap-0.5 w-max z-30">
           {plateUnit}
           {statusUnit}
           {dotsUnit}

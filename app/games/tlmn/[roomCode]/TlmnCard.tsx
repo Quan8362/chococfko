@@ -291,11 +291,17 @@ export function FannedBacks({ count, w = 26 }: { count: number; w?: number }) {
 // it. The count badge is NOT drawn here — it lives upright beside the avatar.
 const FAN_OVERLAP = 0.65 // matches --fan-overlap token
 const MAX_FANNED = 13     // a full TLMN hand
+// Decorative cap on the number of face-down backs actually drawn. The EXACT remaining-card
+// count is always shown by the upright badge beside the avatar, so the fan is purely a
+// "hand of cards" motif — capping it keeps every opponent pod compact (especially the
+// VERTICAL side fans, which otherwise tower ~90px for a 12–13 card hand and dwarf the
+// avatar, making the name plate below look detached). No gameplay information is lost.
+const FAN_SHOWN = 7
 
 export function OpponentFan({
   count, w, orientation,
 }: { count: number; w: number; orientation: 'top' | 'left' | 'right' }) {
-  const n = Math.min(Math.max(count, 0), MAX_FANNED)
+  const n = Math.min(Math.max(count, 0), FAN_SHOWN)
   if (n <= 0) return null
   const h = Math.round(w * 1.4)
   const step = Math.round(w * (1 - FAN_OVERLAP)) // exposed strip per card

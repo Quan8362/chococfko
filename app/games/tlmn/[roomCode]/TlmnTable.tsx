@@ -164,11 +164,10 @@ const GEOMETRY: Record<LayoutMode, SeatGeometry> = {
   // Desktop / landscape board image — roomy 16:9 felt.
   desktop: {
     seats: { top: { x: 50, y: 15 }, left: { x: 9, y: DESKTOP_SIDE_SEAT_CENTER_Y }, right: { x: 91, y: DESKTOP_SIDE_SEAT_CENTER_Y }, bottom: { x: 50, y: 86 } },
-    // Centre band lowered so the pile sits at the felt's TRUE vertical centre (~47%),
-    // level with the left/right seats (y:47) — not floating high above them. The lower
-    // top (39%) also opens a clean gap under Bot 2, and the bottom (55%) still clears the
-    // bottom hand dock. Run 10: desktop pile-centring fix.
-    band: { top: 39, bottom: 55 },
+    // Centre band centred at 50% — the EXACT vertical centre of the board image, where the
+    // painted central mandala (and the two side lotuses at y:50) live, so the played pile
+    // lands ON the felt pattern and level with the left/right seats. Run 12f.
+    band: { top: 42, bottom: 58 },
   },
   // Portrait oval fallback — sides pulled toward the upper corners + shrunk so their
   // vertical fans never spill off the narrow felt.
@@ -1186,7 +1185,10 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
         {ended ? (
           <CenterEnd game={game} seatName={seatName} t={t} />
         ) : game.trick ? (
-          <div key={comboKeys(game.trick.cards).join()} className="flex flex-col items-center gap-1">
+          // `relative` + the badge below positioned ABSOLUTELY → the card pile is the ONLY
+          // in-flow content, so it sits exactly at the band centre (on the felt medallion),
+          // never nudged up by the special-combo badge.
+          <div key={comboKeys(game.trick.cards).join()} className="relative flex flex-col items-center">
             {/* PROTECTED CENTRE ZONE — only the played cards live here. No actor label, no
                 "to beat" hint, no big combo pill. Attribution is handled at each seat (turn
                 ring + thinking dots), and the cards themselves communicate the combo. The
@@ -1222,7 +1224,7 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
               const b = comboBanner(tableCombo, t)
               if (!b.special) return null
               return (
-                <span className="tlmn-combo-banner tlmn-banner-shine tlmn-banner-in inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-black uppercase tracking-wide opacity-90">
+                <span className="tlmn-combo-banner tlmn-banner-shine tlmn-banner-in absolute top-full left-1/2 -translate-x-1/2 mt-1 inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-black uppercase tracking-wide opacity-90 whitespace-nowrap">
                   {b.label}
                 </span>
               )
@@ -1892,7 +1894,6 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
                 className="object-contain select-none pointer-events-none"
                 draggable={false}
               />
-              <div className="tlmn-center-scrim" aria-hidden />
               {boardContents}
               {/* Hand-dock overlay anchored to the board's bottom seat region. */}
               <div className="absolute inset-x-0 bottom-0 z-20">

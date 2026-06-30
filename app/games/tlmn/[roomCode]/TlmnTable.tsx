@@ -2155,18 +2155,33 @@ function SeatPod({
 
   // ── LEFT / RIGHT seats ─ avatar IS the anchored centroid ──────────────────────────
   // The root shrink-wraps the avatar unit, so the wrapper's translate(-50%,-50%) centres
-  // the AVATAR on the lotus. The fan hangs to the INNER side (table centre) and the plate /
-  // status / last-played hang BELOW — all absolutely positioned so they never shove the
-  // avatar off the marker, whatever the hand-size or transient state.
+  // the AVATAR on its point. On mobile/tablet (compact) the name plate + (capped) fan are
+  // stacked just to the INNER side (toward the table centre) and vertically CENTRED on the
+  // avatar, so the seat is ONE tight horizontal pod (the same shape as the compact TOP seat)
+  // — nothing dangles below into the play zone. Desktop keeps the avatar-on-lotus + plate-
+  // below layout (its side seats are locked to the painted board-art lotus markers). All
+  // mirrored identically L/R.
   if (isSide) {
+    if (compact) {
+      const innerSide = place === 'left' ? 'left-full ml-2 items-start' : 'right-full mr-2 items-end'
+      return (
+        <div className="relative inline-flex flex-none">
+          {avatarUnit}
+          <div className={`absolute top-1/2 -translate-y-1/2 ${innerSide} flex flex-col gap-0.5 w-max z-30`}>
+            {plateUnit}
+            <OpponentFan count={count} w={backW} orientation="top" />
+            {statusUnit}
+            {dotsUnit}
+          </div>
+        </div>
+      )
+    }
     return (
       <div className="relative inline-flex flex-none">
         {avatarUnit}
         <span className={`absolute top-1/2 -translate-y-1/2 inline-flex items-center justify-center ${place === 'left' ? 'left-full ml-1' : 'right-full mr-1'}`}>
           <OpponentFan count={count} w={backW} orientation={fanOrientation} />
         </span>
-        {/* Name/coin plate welded directly beneath the avatar (tiny gap) so the avatar,
-            capped fan and plate read as ONE compact group — mirrored identically L/R. */}
         <div className="absolute top-full left-1/2 -translate-x-1/2 mt-0.5 flex flex-col items-center gap-0.5 w-max z-30">
           {plateUnit}
           {statusUnit}

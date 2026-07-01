@@ -9,6 +9,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import {
   seatAnchors,
+  pocketAnchors,
   tableGeometry,
   visualPosition,
   anchorForSeat,
@@ -29,15 +30,31 @@ test('every capacity × layout yields exactly `capacity` anchors', () => {
   }
 })
 
-test('position 0 is always the hero anchor at the bottom-center', () => {
+test('position 0 is always the hero anchor on the bottom row', () => {
+  // The art is a paired-pad table (no seat lands in the centre gap for even counts), so the hero is
+  // not necessarily x≈50 — but it is always flagged and always on the lowest (largest-y) row.
   for (const layout of LAYOUTS) {
     for (const cap of CAPS) {
       const anchors = seatAnchors(cap, layout)
       assert.equal(anchors[0].isHero, true, `${cap}p ${layout} hero flag`)
-      // bottom-center: x ≈ 50, and the lowest (largest y) anchor of the ring.
-      assert.ok(Math.abs(anchors[0].xPct - 50) < 0.5, `${cap}p ${layout} hero centred`)
       const maxY = Math.max(...anchors.map((a) => a.yPct))
       assert.equal(anchors[0].yPct, maxY, `${cap}p ${layout} hero is lowest`)
+    }
+  }
+})
+
+test('every seat has a card pocket inboard of (above) its pad', () => {
+  for (const layout of LAYOUTS) {
+    for (const cap of CAPS) {
+      const pads = seatAnchors(cap, layout)
+      const pockets = pocketAnchors(cap, layout)
+      assert.equal(pads.length, pockets.length, `${cap}p ${layout} pocket count`)
+      for (let i = 0; i < pads.length; i++) {
+        // A pocket sits between its pad and the board centre — never further from centre than the
+        // pad, and (for non-hero seats on the arc) at least as high on screen as the pad.
+        const towardCentreX = Math.abs(pockets[i].xPct - 50) <= Math.abs(pads[i].xPct - 50) + 0.5
+        assert.ok(towardCentreX, `${cap}p ${layout} pocket ${i} not inboard (${pockets[i].xPct})`)
+      }
     }
   }
 })

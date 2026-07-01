@@ -5,6 +5,7 @@ export { DealerButton, SmallBlindBadge, BigBlindBadge, AllInBadge } from './mark
 export { TurnTimer } from './TurnTimer'
 export {
   PlayerSeat,
+  SeatPocketCards,
   PlayerAvatarFrame,
   PlayerInfoPanel,
   CurrentBetIndicator,

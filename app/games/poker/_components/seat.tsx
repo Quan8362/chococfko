@@ -224,6 +224,40 @@ export function PlayerInfoPanel({
   )
 }
 
+// ── SeatPocketCards — a seat's hole cards, drawn in the felt recess in front of the seat ───────
+// Face-up for the viewer's own cards or a legal showdown reveal; otherwise face-down backs while
+// the seat is in the hand. Renders nothing when the seat holds no cards (folded / not in hand).
+export function SeatPocketCards({
+  cards,
+  inHand = false,
+  folded = false,
+  isWinner = false,
+  w = 34,
+}: {
+  cards?: readonly [Card, Card] | null
+  inHand?: boolean
+  folded?: boolean
+  isWinner?: boolean
+  w?: number
+}) {
+  if (!cards && !(inHand && !folded)) return null
+  return (
+    <span className={`inline-flex items-end gap-0.5 ${folded ? 'opacity-60' : ''}`}>
+      {cards ? (
+        <>
+          <PokerCard card={cards[0]} w={w} highlight={isWinner} />
+          <PokerCard card={cards[1]} w={w} highlight={isWinner} />
+        </>
+      ) : (
+        <>
+          <PokerCardBack w={Math.round(w * 0.86)} />
+          <PokerCardBack w={Math.round(w * 0.86)} />
+        </>
+      )}
+    </span>
+  )
+}
+
 // ── PlayerSeat — the composed pod ─────────────────────────────────────────────────────────────
 // `cardOrientation` drives any fanning in a real table; here own/reveal cards render upright.
 export function PlayerSeat({
@@ -231,11 +265,15 @@ export function PlayerSeat({
   avatarSize = 52,
   compact = false,
   lowStackThreshold = 0,
+  hideCards = false,
 }: {
   seat: PokerSeatView
   avatarSize?: number
   compact?: boolean
   lowStackThreshold?: number
+  // When true the pod omits its own hole cards — the table renders them in the seat's card
+  // pocket instead (rail-pad pod + felt-recess cards). Committed-street chips still show here.
+  hideCards?: boolean
 }) {
   const t = useTranslations('games.poker')
   const {
@@ -298,8 +336,8 @@ export function PlayerSeat({
 
   return (
     <span className="relative inline-flex flex-col items-center gap-1" style={{ opacity: folded ? 0.72 : 1 }}>
-      {/* own / revealed cards above the avatar */}
-      {(cards || (inHand && !folded)) && (
+      {/* own / revealed cards above the avatar (unless the table draws them in the card pocket) */}
+      {!hideCards && (cards || (inHand && !folded)) && (
         <span className="flex items-end gap-1" style={{ marginBottom: -6 }}>
           {cards ? (
             <>

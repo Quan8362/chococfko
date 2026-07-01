@@ -6,79 +6,206 @@
 // position, occupied seats redistributed so an empty seat never breaks the ring, and ALL
 // geometry centralized here (no magic numbers scattered across components).
 //
-// Coordinates are PERCENTAGES of the inner play area (0..100 on each axis), never raw pixels —
-// the table re-fits at any size and the seat-positioning lesson from TLMN (never tie a seat to
-// browser chrome) is respected by construction. The component places each pod with a
-// translate(-50%,-50%) on top of these anchors.
+// Coordinates are PERCENTAGES of the BACKGROUND ART image (0..100 on each axis), never raw
+// pixels — the table re-fits at any size and the component maps these onto the actual rendered
+// image rectangle (see TableBackground's cover-box), so a seat anchored to a rail pad in the art
+// stays glued to that pad at every viewport size / aspect ratio. Each anchor carries TWO points:
+//   • the SEAT pad   — where the player pod (avatar / name / stack) or the "sit here" button sits,
+//                      on the leather rail pad of the art.
+//   • the CARD pocket — where that seat's hole cards render, in the felt recess in front of the
+//                      seat (just inboard of the rail, beside the cup-holder), toward the board.
+// This split is the fix for "sit button floats in the felt, cards buried in the pod": the pod goes
+// on the pad, the cards go in the pocket.
 //
-// Orientation model: visual position 0 is ALWAYS the bottom-center "hero" anchor. A seated
-// viewer owns that band (their cards + action bar live there), so their ring pod is rendered by
-// the dedicated local area and the remaining occupied seats fill positions 1..C-1 around the
-// upper arc and sides. A spectator has no hero, so every physical seat renders at its own anchor
-// (identity), bottom included.
+// Orientation model: visual position 0 is ALWAYS the bottom "hero" anchor. A seated viewer owns
+// that band (their cards + action bar live in the bottom overlay), so their ring pod is not drawn
+// in the ring and the remaining occupied seats fill positions 1..C-1 around the arc. A spectator
+// has no hero, so every physical seat renders at its own anchor (identity), bottom included.
 
 export type PokerTableLayout = 'desktop' | 'tablet' | 'mobile'
 
 export const POKER_MIN_CAPACITY = 2
 export const POKER_MAX_CAPACITY = 6
 
-// A single seat anchor, as a percentage of the inner play area.
+// A single seat anchor, as a percentage of the background-art image.
 export interface SeatAnchor {
   readonly xPct: number
   readonly yPct: number
-  // pos 0 (bottom-center) — the hero band. A seated viewer renders their local area here.
+  // pos 0 (bottom) — the hero band. A seated viewer renders their local area in the bottom overlay.
   readonly isHero: boolean
 }
 
-// The complete geometry for one (capacity, layout) pair: where each VISUAL position sits, where
-// the board/pot centre sits, and the presentation scales the components should use.
+// The complete geometry for one (capacity, layout) pair: where each VISUAL position's pod sits,
+// where its cards sit, where the board/pot centre sits, and the presentation scales.
 export interface TableGeometry {
   readonly capacity: number
   readonly layout: PokerTableLayout
-  // Indexed by VISUAL position (0 = hero/bottom, increasing clockwise around the ellipse).
+  // Indexed by VISUAL position (0 = hero/bottom). Pod anchors (rail pads).
   readonly seats: readonly SeatAnchor[]
+  // Indexed by VISUAL position. Card-pocket anchors (felt recess in front of each seat).
+  readonly pockets: readonly SeatAnchor[]
   // Board + pot centre (slightly above the geometric middle so the bottom hero band never
   // collides with the community cards).
   readonly center: { readonly xPct: number; readonly yPct: number }
-  // Community-card width in px and a multiplier for seat-pod sizing, tuned per layout so the
-  // tablet/mobile assets are used at a sensible density instead of a shrunk desktop table.
+  // Community-card width in px and per-layout pod / card scales, tuned so the tablet/mobile assets
+  // are used at a sensible density instead of a shrunk desktop table.
   readonly boardCardW: number
   readonly seatAvatarSize: number
+  readonly pocketCardW: number
   readonly compactSeats: boolean
 }
 
-// ── Ellipse parameters per layout ─────────────────────────────────────────────────────────
-// Seats sit on an ellipse inscribed in the play area. Each layout has its own ellipse + centre +
-// scales (separate geometry per layout, as the spec requires). The mobile ellipse is wider and
-// shorter (16:9 landline-locked asset) and leaves more headroom at the very bottom for the
-// action band; the tablet ellipse is rounder (4:3 asset).
-interface LayoutEllipse {
-  readonly cx: number
-  readonly cy: number
-  readonly rx: number
-  readonly ry: number
+// ── Station tables — measured from the three table-art assets ────────────────────────────────
+// Each station is { pad: [x,y], pocket: [x,y] } as a % of that layout's art image. Position 0 is
+// the hero (bottom). The art is an 8-position table (2 top pads, 2 bottom pads, 2 left + 2 right
+// cup-holder rails); we map 2..6 players onto real pads, symmetric about the vertical axis. Even
+// counts (4, 6) use the corner pads (no seat lands in the top/bottom centre gap between pads);
+// odd counts (3, 5) and heads-up (2) put the axis seat on the rail centre.
+type Station = readonly [padX: number, padY: number, pocketX: number, pocketY: number]
+
+interface LayoutStations {
   readonly center: { xPct: number; yPct: number }
   readonly boardCardW: number
   readonly seatAvatarSize: number
+  readonly pocketCardW: number
   readonly compactSeats: boolean
+  readonly byCapacity: Record<number, readonly Station[]>
 }
 
-const ELLIPSE: Record<PokerTableLayout, LayoutEllipse> = {
-  desktop: { cx: 50, cy: 45, rx: 40, ry: 35, center: { xPct: 50, yPct: 41 }, boardCardW: 54, seatAvatarSize: 54, compactSeats: false },
-  tablet: { cx: 50, cy: 45, rx: 38, ry: 37, center: { xPct: 50, yPct: 42 }, boardCardW: 46, seatAvatarSize: 50, compactSeats: false },
-  mobile: { cx: 50, cy: 43, rx: 44, ry: 31, center: { xPct: 50, yPct: 39 }, boardCardW: 34, seatAvatarSize: 42, compactSeats: true },
+// Desktop + mobile share the near-top-down 16:9 art (same framing), so they reuse one station map;
+// only the presentation density differs. Tablet is the 4:3 perspective art (table sits higher, so
+// the bottom pads are pulled up and the left/right rails are tighter).
+const DESKTOP_STATIONS: Record<number, readonly Station[]> = {
+  // heads-up: hero bottom-centre, villain top-centre
+  2: [
+    [50, 74, 50, 64],
+    [50, 20, 50, 31],
+  ],
+  // 3-max: hero bottom-centre + two top pads
+  3: [
+    [50, 74, 50, 64],
+    [34, 27, 40, 35],
+    [66, 27, 60, 35],
+  ],
+  // 4-max: the four corner pads (no centre-gap seats)
+  4: [
+    [33, 74, 39, 64],
+    [33, 27, 39, 35],
+    [67, 27, 61, 35],
+    [67, 74, 61, 64],
+  ],
+  // 5-max: hero bottom-centre + left + two top pads + right
+  5: [
+    [50, 75, 50, 65],
+    [12, 49, 24, 49],
+    [33, 26, 39, 34],
+    [67, 26, 61, 34],
+    [88, 49, 76, 49],
+  ],
+  // 6-max: bottom-left, left, top-left, top-right, right, bottom-right — all on real rail pads
+  6: [
+    [33, 74, 39, 64],
+    [12, 49, 24, 49],
+    [33, 26, 40, 34],
+    [67, 26, 60, 34],
+    [88, 49, 76, 49],
+    [67, 74, 61, 64],
+  ],
 }
 
-// ── Per-capacity seat angles (screen degrees: 0 = right, 90 = bottom, 180 = left, 270 = top) ──
-// Position 0 is fixed at 90° (bottom-center). The rest are arranged symmetrically about the
-// vertical axis so the ring reads as balanced for every player count — never visually broken.
-// Increasing position walks clockwise on screen.
-const SEAT_ANGLES: Record<number, readonly number[]> = {
-  2: [90, 270], //                       hero ↓ , opponent ↑
-  3: [90, 210, 330], //                  hero, upper-left, upper-right
-  4: [90, 180, 270, 0], //               hero, left, top, right
-  5: [90, 162, 234, 306, 18], //         hero, left, upper-left, upper-right, right
-  6: [90, 150, 210, 270, 330, 30], //    hero, lower-left, upper-left, top, upper-right, lower-right
+const TABLET_STATIONS: Record<number, readonly Station[]> = {
+  2: [
+    [50, 64, 50, 55],
+    [50, 22, 50, 32],
+  ],
+  3: [
+    [50, 64, 50, 55],
+    [34, 30, 40, 36],
+    [66, 30, 60, 36],
+  ],
+  4: [
+    [33, 63, 39, 54],
+    [33, 30, 39, 36],
+    [67, 30, 61, 36],
+    [67, 63, 61, 54],
+  ],
+  5: [
+    [50, 64, 50, 55],
+    [11, 45, 22, 45],
+    [33, 30, 39, 36],
+    [67, 30, 61, 36],
+    [89, 45, 78, 45],
+  ],
+  6: [
+    [33, 62, 39, 54],
+    [11, 45, 22, 45],
+    [33, 30, 39, 36],
+    [67, 30, 61, 36],
+    [89, 45, 78, 45],
+    [67, 62, 61, 54],
+  ],
+}
+
+// Mobile shares the 16:9 art dimensions but its render frames the table a touch higher/smaller
+// than the desktop asset, so the bottom pads sit higher and the ring is slightly tighter.
+const MOBILE_STATIONS: Record<number, readonly Station[]> = {
+  2: [
+    [50, 70, 50, 61],
+    [50, 20, 50, 31],
+  ],
+  3: [
+    [50, 70, 50, 61],
+    [34, 28, 40, 36],
+    [66, 28, 60, 36],
+  ],
+  4: [
+    [34, 70, 39, 61],
+    [34, 28, 39, 36],
+    [66, 28, 61, 36],
+    [66, 70, 61, 61],
+  ],
+  5: [
+    [50, 71, 50, 62],
+    [12, 48, 24, 48],
+    [34, 27, 39, 35],
+    [66, 27, 61, 35],
+    [88, 48, 76, 48],
+  ],
+  6: [
+    [34, 70, 39, 61],
+    [12, 48, 24, 48],
+    [34, 27, 40, 35],
+    [66, 27, 60, 35],
+    [88, 48, 76, 48],
+    [66, 70, 61, 61],
+  ],
+}
+
+const STATIONS: Record<PokerTableLayout, LayoutStations> = {
+  desktop: {
+    center: { xPct: 50, yPct: 45 },
+    boardCardW: 54,
+    seatAvatarSize: 50,
+    pocketCardW: 34,
+    compactSeats: false,
+    byCapacity: DESKTOP_STATIONS,
+  },
+  tablet: {
+    center: { xPct: 50, yPct: 42 },
+    boardCardW: 46,
+    seatAvatarSize: 46,
+    pocketCardW: 30,
+    compactSeats: false,
+    byCapacity: TABLET_STATIONS,
+  },
+  mobile: {
+    center: { xPct: 50, yPct: 44 },
+    boardCardW: 34,
+    seatAvatarSize: 40,
+    pocketCardW: 26,
+    compactSeats: true,
+    byCapacity: MOBILE_STATIONS,
+  },
 }
 
 function clampCapacity(capacity: number): number {
@@ -86,38 +213,35 @@ function clampCapacity(capacity: number): number {
   return Math.max(POKER_MIN_CAPACITY, Math.min(POKER_MAX_CAPACITY, Math.round(capacity)))
 }
 
-function round1(n: number): number {
-  return Math.round(n * 10) / 10
-}
-
-// Anchor coordinates for every VISUAL position of a (capacity, layout). Position 0 is the bottom
-// hero anchor. PURE: deterministic, no I/O.
+// Anchor coordinates (pod pads) for every VISUAL position of a (capacity, layout). Position 0 is
+// the bottom hero anchor. PURE: deterministic, no I/O.
 export function seatAnchors(capacity: number, layout: PokerTableLayout): SeatAnchor[] {
   const c = clampCapacity(capacity)
-  const e = ELLIPSE[layout]
-  const angles = SEAT_ANGLES[c]
-  return angles.map((deg, i) => {
-    const rad = (deg * Math.PI) / 180
-    return {
-      xPct: round1(e.cx + e.rx * Math.cos(rad)),
-      yPct: round1(e.cy + e.ry * Math.sin(rad)),
-      isHero: i === 0,
-    }
-  })
+  const stations = STATIONS[layout].byCapacity[c]
+  return stations.map((s, i) => ({ xPct: s[0], yPct: s[1], isHero: i === 0 }))
+}
+
+// Card-pocket anchors (indexed by VISUAL position) — where each seat's hole cards render.
+export function pocketAnchors(capacity: number, layout: PokerTableLayout): SeatAnchor[] {
+  const c = clampCapacity(capacity)
+  const stations = STATIONS[layout].byCapacity[c]
+  return stations.map((s, i) => ({ xPct: s[2], yPct: s[3], isHero: i === 0 }))
 }
 
 // The full geometry bundle for a (capacity, layout).
 export function tableGeometry(capacity: number, layout: PokerTableLayout): TableGeometry {
   const c = clampCapacity(capacity)
-  const e = ELLIPSE[layout]
+  const l = STATIONS[layout]
   return {
     capacity: c,
     layout,
     seats: seatAnchors(c, layout),
-    center: e.center,
-    boardCardW: e.boardCardW,
-    seatAvatarSize: e.seatAvatarSize,
-    compactSeats: e.compactSeats,
+    pockets: pocketAnchors(c, layout),
+    center: l.center,
+    boardCardW: l.boardCardW,
+    seatAvatarSize: l.seatAvatarSize,
+    pocketCardW: l.pocketCardW,
+    compactSeats: l.compactSeats,
   }
 }
 
@@ -138,7 +262,7 @@ export function visualPosition(
   return (s - v + c) % c
 }
 
-// Convenience: the anchor a given physical seat should render at, for this viewer + layout.
+// Convenience: the pad anchor a given physical seat should render at, for this viewer + layout.
 export function anchorForSeat(
   physicalSeat: number,
   viewerSeat: number | null,
@@ -146,6 +270,18 @@ export function anchorForSeat(
   layout: PokerTableLayout,
 ): SeatAnchor {
   const anchors = seatAnchors(capacity, layout)
+  const pos = visualPosition(physicalSeat, viewerSeat, capacity)
+  return anchors[pos]
+}
+
+// Convenience: the card-pocket anchor a given physical seat should render at.
+export function pocketForSeat(
+  physicalSeat: number,
+  viewerSeat: number | null,
+  capacity: number,
+  layout: PokerTableLayout,
+): SeatAnchor {
+  const anchors = pocketAnchors(capacity, layout)
   const pos = visualPosition(physicalSeat, viewerSeat, capacity)
   return anchors[pos]
 }

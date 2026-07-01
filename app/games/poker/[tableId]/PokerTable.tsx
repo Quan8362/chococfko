@@ -24,6 +24,7 @@ import type { PublicSeat, PokerActionType } from '@/lib/games/poker/types'
 import { formatCoinsShort, formatCoinsFull } from '@/lib/game/economy'
 import {
   PlayerSeat,
+  SeatPocketCards,
   CommunityCardSlot,
   PokerCard,
   PotDisplay,
@@ -308,16 +309,10 @@ export default function PokerTable({ tableId, userId, config }: PokerTableProps)
 
       {/* ── Felt + everything anchored to the inner play area ── */}
       <TableBackground layout={geomLayout(vp.layout)}>
-        {/* Inner play area: all seat/board/pot geometry is a % of THIS box (never browser chrome). */}
-        <div
-          className="absolute"
-          style={{
-            inset: 0,
-            paddingTop: 'var(--pk-safe-top)',
-            paddingLeft: 'var(--pk-safe-left)',
-            paddingRight: 'var(--pk-safe-right)',
-          }}
-        >
+        {/* Inner play area == the background-art image rect (TableBackground's cover box). All
+            seat pads / card pockets / board geometry are a % of THIS box, so they stay glued to
+            the art at any viewport size. */}
+        <div className="absolute" style={{ inset: 0 }}>
           {/* ── Centre: board + pots + street + winner ── */}
           <div
             className="absolute flex flex-col items-center gap-2"
@@ -357,38 +352,59 @@ export default function PokerTable({ tableId, userId, config }: PokerTableProps)
             )}
           </div>
 
-          {/* ── Ring seats ── */}
+          {/* ── Ring seats — pod on the rail pad, hole cards in the felt pocket in front of it ── */}
           {ringSeatIndexes.map((seatIndex) => {
             const s = seats.find((x) => x.seatIndex === seatIndex)
             const pos = visualPosition(seatIndex, viewerSeatIndex, config.capacity)
             const anchor = geom.seats[pos]
+            const pocket = geom.pockets[pos]
             const occupied = s && s.userId
+            const view = occupied ? toSeatView(s, false) : null
             return (
-              <div
-                key={seatIndex}
-                className="absolute"
-                style={{ left: `${anchor.xPct}%`, top: `${anchor.yPct}%`, transform: 'translate(-50%,-50%)' }}
-                data-testid="poker-seat"
-                data-seat-index={seatIndex}
-                data-occupied={occupied ? '1' : '0'}
-                data-status={s?.status ?? 'empty'}
-                data-stack={occupied ? s.stack : ''}
-                data-current-actor={publicState?.turnSeat === seatIndex && phase === 'BETTING' ? '1' : '0'}
-                data-winner={winnerSeats.has(seatIndex) ? '1' : '0'}
-                data-folded={s?.lastAction === 'fold' ? '1' : '0'}
-              >
-                {occupied ? (
-                  <PlayerSeat seat={toSeatView(s, false)} avatarSize={geom.seatAvatarSize} compact={compact} lowStackThreshold={config.bigBlind * 5} />
-                ) : (
-                  <EmptySeatPod
-                    seatIndex={seatIndex}
-                    label={t('seat.empty')}
-                    sitLabel={t('action_bar.sit_here')}
-                    canSit={viewerSeatIndex === null && !!userId}
-                    onSit={() => setSitSeat(seatIndex)}
-                    compact={compact}
-                  />
+              <div key={seatIndex}>
+                {/* card pocket (behind the pod in z so a pod overlap keeps the avatar on top) */}
+                {view && (
+                  <div
+                    className="absolute z-[1]"
+                    style={{ left: `${pocket.xPct}%`, top: `${pocket.yPct}%`, transform: 'translate(-50%,-50%)' }}
+                    data-testid="poker-seat-cards"
+                    data-seat-index={seatIndex}
+                  >
+                    <SeatPocketCards
+                      cards={view.cards}
+                      inHand={view.inHand}
+                      folded={view.folded}
+                      isWinner={view.isWinner}
+                      w={geom.pocketCardW}
+                    />
+                  </div>
                 )}
+                {/* seat pod on the rail pad */}
+                <div
+                  className="absolute z-[2]"
+                  style={{ left: `${anchor.xPct}%`, top: `${anchor.yPct}%`, transform: 'translate(-50%,-50%)' }}
+                  data-testid="poker-seat"
+                  data-seat-index={seatIndex}
+                  data-occupied={occupied ? '1' : '0'}
+                  data-status={s?.status ?? 'empty'}
+                  data-stack={occupied ? s.stack : ''}
+                  data-current-actor={publicState?.turnSeat === seatIndex && phase === 'BETTING' ? '1' : '0'}
+                  data-winner={winnerSeats.has(seatIndex) ? '1' : '0'}
+                  data-folded={s?.lastAction === 'fold' ? '1' : '0'}
+                >
+                  {view ? (
+                    <PlayerSeat seat={view} avatarSize={geom.seatAvatarSize} compact={compact} lowStackThreshold={config.bigBlind * 5} hideCards />
+                  ) : (
+                    <EmptySeatPod
+                      seatIndex={seatIndex}
+                      label={t('seat.empty')}
+                      sitLabel={t('action_bar.sit_here')}
+                      canSit={viewerSeatIndex === null && !!userId}
+                      onSit={() => setSitSeat(seatIndex)}
+                      compact={compact}
+                    />
+                  )}
+                </div>
               </div>
             )
           })}

@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "types": ["node"],
+    "tsBuildInfoFile": "./tsconfig.poker-e2e.tsbuildinfo"
+  },
+  "include": ["e2e/poker/**/*.ts"],
+  "exclude": ["node_modules"]
+}

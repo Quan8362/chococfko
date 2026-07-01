@@ -21,7 +21,10 @@
     "test:e2e:tlmn": "playwright test --config e2e/tlmn/tlmn.config.ts --project realtime --project responsive",
     "test:e2e:tlmn:full": "playwright test --config e2e/tlmn/tlmn.config.ts",
     "test:e2e:tlmn:report": "playwright show-report e2e/tlmn/.artifacts/html",
-    "test:e2e:tlmn:teardown": "node e2e/tlmn/teardown.mjs"
+    "test:e2e:tlmn:teardown": "node e2e/tlmn/teardown.mjs",
+    "test:e2e:poker": "playwright test --config e2e/poker/poker.config.ts --project smoke --project responsive",
+    "test:e2e:poker:full": "playwright test --config e2e/poker/poker.config.ts",
+    "test:e2e:poker:report": "playwright show-report e2e/poker/.artifacts/html"
   },
   "dependencies": {
     "@emoji-mart/data": "^1.2.1",

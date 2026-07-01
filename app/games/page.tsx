@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
 import type { ReactNode } from 'react'
+import { getPokerAccess } from './poker/access'
 
 export const metadata = { title: 'Mini Game' }
 
@@ -88,6 +89,15 @@ const ICONS: Record<string, ReactNode> = {
     </svg>
   ),
 
+  // Poker — overlapping playing cards with a spade pip
+  poker: (
+    <svg width="30" height="30" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+      <rect x="5" y="8" width="14" height="19" rx="2.2" fill="#fff" stroke="#3a2350" strokeWidth="1.3" transform="rotate(-12 12 17)" />
+      <rect x="13" y="6" width="14" height="19" rx="2.2" fill="#fff" stroke="#3a2350" strokeWidth="1.3" transform="rotate(10 20 15)" />
+      <path d="M20 9.8c-1.9 1.8-3.6 3.1-3.6 4.8a1.8 1.8 0 0 0 3.6.3 1.8 1.8 0 0 0 3.6-.3c0-1.7-1.7-3-3.6-4.8Z" fill="#c2185b" transform="rotate(10 20 15)" />
+    </svg>
+  ),
+
   // Dò mìn — mine with spikes + a flag
   minesweeper: (
     <svg width="30" height="30" viewBox="0 0 32 32" fill="none" aria-hidden="true">
@@ -163,6 +173,9 @@ function MetaIcon({ type }: { type: Meta }) {
 
 export default async function GamesPage() {
   const t = await getTranslations('games')
+  // Poker is behind feature flags — only list it in the hub when the viewer may
+  // reach it (POKER_ENABLED on, or an admin during admin-only rollout).
+  const { visible: pokerVisible } = await getPokerAccess()
 
   const GAMES: {
     id: string
@@ -182,6 +195,7 @@ export default async function GamesPage() {
     { id: 'caro', href: '/games/caro', ns: 'caro', tone: 'hot', meta: 'group', players: t('players_label', { n: 2 }), accent: '#3b4a6b', iconBg: 'linear-gradient(140deg,#eef1f6,#dbe1ec)', glow: 'rgba(59,74,107,0.4)' },
     { id: 'chinese_chess', href: '/games/chinese-chess', ns: 'chinese_chess', tone: 'hot', meta: 'group', players: t('players_label', { n: 2 }), accent: '#c0392b', iconBg: 'linear-gradient(140deg,#fdeceb,#f7d2cd)', glow: 'rgba(192,57,43,0.4)' },
     { id: 'tlmn', href: '/games/tlmn', ns: 'tlmn', tone: 'moi', meta: 'group', players: t('tlmn.players'), accent: '#d1304f', iconBg: 'linear-gradient(140deg,#fceef0,#f8dce1)', glow: 'rgba(209,48,79,0.42)' },
+    ...(pokerVisible ? [{ id: 'poker', href: '/games/poker', ns: 'poker', tone: 'moi' as Tone, meta: 'group' as Meta, players: t('poker.players'), accent: '#6d28d9', iconBg: 'linear-gradient(140deg,#efe9fb,#ddd0f6)', glow: 'rgba(109,40,217,0.4)' }] : []),
     { id: 'minesweeper', href: '/games/minesweeper', ns: 'minesweeper', tone: 'new', meta: 'solo', players: t('destination_wheel.solo'), accent: '#10a36a', iconBg: 'linear-gradient(140deg,#e6f6ef,#cfeede)', glow: 'rgba(16,163,106,0.38)' },
     { id: 'game2048', href: '/games/2048', ns: 'game2048', tone: 'new', meta: 'solo', players: t('game2048.solo'), accent: '#ef7d20', iconBg: 'linear-gradient(140deg,#fdf0e4,#fbddc1)', glow: 'rgba(239,125,32,0.4)' },
     { id: 'match3', href: '/games/match-3', ns: 'match3', tone: 'new', meta: 'solo', players: t('match3.solo'), accent: '#e0457b', iconBg: 'linear-gradient(140deg,#fceaf1,#f8d3e2)', glow: 'rgba(224,69,123,0.4)' },

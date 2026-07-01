@@ -1,0 +1,245 @@
+/* ── Chợ Cóc FKO Poker — scoped theme ───────────────────────────────────────────────────────
+ *
+ * EVERYTHING here is scoped under `.poker-root` so the immersive dark "Poker lounge" theme can
+ * never leak into the warm cream/rose site theme. Mirrors app/games/poker/_design/tokens.ts.
+ * Import this file from the poker layout/preview only.
+ *
+ * Animations are PRESENTATION-ONLY (visual-spec D3) and are fully neutralised under
+ * prefers-reduced-motion at the bottom of this file.
+ */
+
+.poker-root {
+  /* surfaces */
+  --pk-bg-void: #07060a;
+  --pk-bg-base: #0d0b11;
+  --pk-charcoal: #16131b;
+  --pk-charcoal-hi: #211c28;
+  --pk-leather: #241b18;
+  --pk-wood: #2a211b;
+  --pk-felt-deep: #0c2a22;
+  --pk-felt: #123f31;
+  --pk-felt-edge: #0a241c;
+
+  /* champagne-gold trim */
+  --pk-gold: #c9a14a;
+  --pk-gold-soft: #e6cf95;
+  --pk-gold-deep: #8a6d2c;
+  --pk-gold-line: rgba(201, 161, 74, 0.35);
+
+  /* text */
+  --pk-text-hi: #f4efe6;
+  --pk-text-mid: #c6bdb0;
+  --pk-text-low: #8d8579;
+  --pk-text-felt: #f0ece2;
+
+  /* controlled accents */
+  --pk-emerald: #2f9e6f;
+  --pk-emerald-deep: #1c6b4a;
+  --pk-burgundy: #9d2b3f;
+  --pk-burgundy-deep: #6e1c2c;
+  --pk-navy: #2d5b8e;
+  --pk-navy-deep: #1c3c61;
+  --pk-amber: #d99836;
+  --pk-amber-deep: #a06d1f;
+
+  /* Chợ Cóc pink — subtle secondary accent only */
+  --pk-pink: #c2185b;
+  --pk-pink-soft: #e0607e;
+
+  /* functional state */
+  --pk-actor: #e6cf95;
+  --pk-allin: #d99836;
+  --pk-fold: #6e6258;
+  --pk-disconnected: #9d2b3f;
+  --pk-focus: #7fb0e6;
+
+  /* radius / elevation */
+  --pk-r-card: 8px;
+  --pk-r-panel: 14px;
+  --pk-r-control: 12px;
+  --pk-shadow-seat: 0 2px 10px rgba(0, 0, 0, 0.45);
+  --pk-shadow-raised: 0 6px 22px rgba(0, 0, 0, 0.55);
+  --pk-shadow-panel: 0 -8px 28px rgba(0, 0, 0, 0.45);
+
+  /* motion */
+  --pk-dur-fast: 120ms;
+  --pk-dur-base: 200ms;
+  --pk-dur-slow: 320ms;
+  --pk-ease: cubic-bezier(0.22, 0.68, 0, 1.2);
+  --pk-ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
+
+  /* safe-area passthroughs (notch / home-indicator / PWA) */
+  --pk-safe-top: env(safe-area-inset-top, 0px);
+  --pk-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --pk-safe-left: env(safe-area-inset-left, 0px);
+  --pk-safe-right: env(safe-area-inset-right, 0px);
+
+  color: var(--pk-text-hi);
+  background: var(--pk-bg-void);
+  font-family: var(--font-bvp), system-ui, sans-serif;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+/* Champagne-gold focus ring — visible on the dark felt, never relies on colour alone (it is a
+ * thick, offset ring). Keyboard focus only. */
+.poker-root :focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--pk-bg-base), 0 0 0 4px var(--pk-focus);
+  border-radius: 6px;
+}
+
+/* A subtle legibility scrim helper for text over the busy felt (visual-spec §6 contrast). */
+.pk-felt-scrim {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.65);
+}
+
+/* ── Felt surface ────────────────────────────────────────────────────────────────────────── */
+.pk-felt-surface {
+  background:
+    radial-gradient(120% 90% at 50% 38%, var(--pk-felt) 0%, var(--pk-felt-deep) 60%, var(--pk-felt-edge) 100%);
+}
+
+/* ── Keyframes (presentation-only) ─────────────────────────────────────────────────────────── */
+@keyframes pk-deal-in {
+  from {
+    opacity: 0;
+    transform: translateY(-14px) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes pk-chip-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes pk-actor-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 2px var(--pk-actor), 0 0 14px -2px rgba(230, 207, 149, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 0 2px var(--pk-actor), 0 0 22px 1px rgba(230, 207, 149, 0.85);
+  }
+}
+@keyframes pk-winner-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 2px var(--pk-gold-soft), 0 0 18px -2px rgba(230, 207, 149, 0.55);
+  }
+  50% {
+    box-shadow: 0 0 0 2px var(--pk-gold-soft), 0 0 34px 4px rgba(230, 207, 149, 0.9);
+  }
+}
+@keyframes pk-timer-flash {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+@keyframes pk-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes pk-rotate-hint {
+  0%,
+  55% {
+    transform: rotate(0deg);
+  }
+  80%,
+  100% {
+    transform: rotate(90deg);
+  }
+}
+.pk-anim-rotate-hint {
+  animation: pk-rotate-hint 2.6s ease-in-out infinite;
+  transform-origin: 50% 50%;
+}
+
+.pk-anim-deal {
+  animation: pk-deal-in var(--pk-dur-base) var(--pk-ease) both;
+}
+.pk-anim-chip {
+  animation: pk-chip-in var(--pk-dur-base) var(--pk-ease) both;
+}
+.pk-anim-actor {
+  animation: pk-actor-pulse 1.6s ease-in-out infinite;
+}
+.pk-anim-winner {
+  animation: pk-winner-glow 1.3s ease-in-out infinite;
+}
+.pk-anim-fadeup {
+  animation: pk-fade-up var(--pk-dur-base) var(--pk-ease-out) both;
+}
+
+/* Isolate timer repaints: its own compositor layer so a per-second tick never invalidates the
+ * surrounding seat/table layout (performance: do not rerender the whole table on each tick). */
+.pk-timer-ring {
+  will-change: stroke-dashoffset;
+  contain: layout style paint;
+}
+
+/* ── Bet slider — themed, touch-friendly thumb (≥ 24px hit area) ──────────────────────────── */
+.pk-bet-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 8px;
+  border-radius: 999px;
+  outline: none;
+  cursor: pointer;
+}
+.pk-bet-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: radial-gradient(120% 120% at 50% 30%, #f4efe6 0%, #c9a14a 100%);
+  border: 2px solid #8a6d2c;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.55);
+  margin-top: -1px;
+}
+.pk-bet-slider::-moz-range-thumb {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: radial-gradient(120% 120% at 50% 30%, #f4efe6 0%, #c9a14a 100%);
+  border: 2px solid #8a6d2c;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.55);
+}
+.pk-bet-slider:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ── Reduced motion: neutralise ALL presentation animation; state still updates instantly ──── */
+@media (prefers-reduced-motion: reduce) {
+  .poker-root *,
+  .poker-root *::before,
+  .poker-root *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  .poker-root .pk-anim-actor,
+  .poker-root .pk-anim-winner,
+  .poker-root .pk-anim-timer-flash {
+    animation: none !important;
+  }
+}

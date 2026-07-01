@@ -30,5 +30,10 @@ __pycache__/
 /e2e/tlmn/.auth/
 /e2e/tlmn/.artifacts/
 
+# Poker E2E auth states (session tokens) + run artifacts (traces/screenshots/
+# results.json — can embed service-role keys) — never commit
+/e2e/poker/.auth/
+/e2e/poker/.artifacts/
+
 # FUSE mount artifacts (appear when an open file is deleted)
 .fuse_hidden*

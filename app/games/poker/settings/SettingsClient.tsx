@@ -1,0 +1,106 @@
+'use client'
+
+import { useEffect, useState, useTransition } from 'react'
+import { useTranslations } from 'next-intl'
+import { PREF_DEFAULTS, readPrefs, writePrefs, type PokerPrefKey } from '../_eco/prefs'
+import { listMyBlocks, unblockPlayer } from '../ecosystem'
+
+const TOGGLES: PokerPrefKey[] = ['sound', 'music', 'vibration', 'animation', 'reducedMotion']
+const LABEL: Record<PokerPrefKey, { t: string; hint: string }> = {
+  sound: { t: 'settings.sound', hint: 'settings.sound_hint' },
+  music: { t: 'settings.music', hint: 'settings.music_hint' },
+  vibration: { t: 'settings.vibration', hint: 'settings.vibration_hint' },
+  animation: { t: 'settings.animation', hint: 'settings.animation_hint' },
+  reducedMotion: { t: 'settings.reduced_motion', hint: 'settings.reduced_motion_hint' },
+}
+
+export default function SettingsClient() {
+  const t = useTranslations('games.poker')
+  const [prefs, setPrefs] = useState<Record<PokerPrefKey, boolean>>(PREF_DEFAULTS)
+  const [saved, setSaved] = useState(false)
+  const [blocked, setBlocked] = useState<{ userId: string; displayName: string | null }[]>([])
+  const [, start] = useTransition()
+
+  useEffect(() => {
+    setPrefs(readPrefs())
+    void listMyBlocks().then((res) => {
+      if (res.ok) setBlocked(res.blocked)
+    })
+  }, [])
+
+  function toggle(key: PokerPrefKey) {
+    const next = { ...prefs, [key]: !prefs[key] }
+    setPrefs(next)
+    writePrefs(next)
+    setSaved(true)
+    setTimeout(() => setSaved(false), 1500)
+  }
+
+  function reset() {
+    setPrefs(PREF_DEFAULTS)
+    writePrefs(PREF_DEFAULTS)
+    setSaved(true)
+    setTimeout(() => setSaved(false), 1500)
+  }
+
+  function unblock(userId: string) {
+    start(async () => {
+      const res = await unblockPlayer(userId)
+      if (res.ok) setBlocked((b) => b.filter((x) => x.userId !== userId))
+    })
+  }
+
+  return (
+    <div className="max-w-2xl">
+      <div className="mb-5 flex items-center justify-between">
+        <div>
+          <h1 className="font-serif text-2xl font-bold">{t('settings.title')}</h1>
+          <p className="text-sm text-muted">{t('settings.subtitle')}</p>
+        </div>
+        {saved && <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-700">{t('settings.saved')}</span>}
+      </div>
+
+      <div className="divide-y divide-line rounded-xl border border-line bg-paper">
+        {TOGGLES.map((key) => (
+          <label key={key} className="flex cursor-pointer items-center justify-between gap-4 p-4">
+            <span>
+              <span className="font-medium">{t(LABEL[key].t)}</span>
+              <span className="block text-xs text-muted">{t(LABEL[key].hint)}</span>
+            </span>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={prefs[key]}
+              onClick={() => toggle(key)}
+              className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${prefs[key] ? 'bg-rose' : 'bg-line'}`}
+            >
+              <span
+                className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${prefs[key] ? 'translate-x-5' : 'translate-x-0.5'}`}
+              />
+            </button>
+          </label>
+        ))}
+      </div>
+
+      <button onClick={reset} className="mt-4 rounded-lg border border-line px-4 py-2 text-sm hover:border-rose">
+        {t('settings.reset')}
+      </button>
+
+      <h2 className="mb-3 mt-8 font-serif text-lg font-semibold">{t('block.blocked_list')}</h2>
+      {blocked.length === 0 ? (
+        <p className="rounded-xl border border-dashed border-line bg-paper/60 px-6 py-8 text-center text-muted">{t('block.no_blocks')}</p>
+      ) : (
+        <ul className="space-y-2">
+          {blocked.map((b) => (
+            <li key={b.userId} className="flex items-center justify-between rounded-xl border border-line bg-paper p-3">
+              <span>{b.displayName ?? t('profile.anonymous')}</span>
+              <button onClick={() => unblock(b.userId)} className="rounded-lg border border-line px-3 py-1 text-sm hover:border-rose">
+                {t('block.unblock')}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  )
+}

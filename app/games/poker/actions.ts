@@ -242,6 +242,11 @@ export async function joinTable(
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return fail('not_authenticated')
 
+  // Feature-flag / wind-down freeze gate (server-authoritative): joining a table
+  // requires the join capability, which the blockNewJoins freeze closes.
+  const joinCapErr = await checkPokerCapability('join')
+  if (joinCapErr) return fail(joinCapErr)
+
   const admin = createAdminClient()
   const { data: table } = await admin
     .from('poker_tables')
@@ -292,6 +297,8 @@ async function isRestricted(userId: string, kind: 'no_join' | 'no_sit'): Promise
 }
 
 export async function reserveSeat(tableId: string, seatIndex: number) {
+  const joinCapErr = await checkPokerCapability('join')
+  if (joinCapErr) return fail(joinCapErr)
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (user && await isRestricted(user.id, 'no_sit')) return fail('restricted')
@@ -299,6 +306,10 @@ export async function reserveSeat(tableId: string, seatIndex: number) {
 }
 export async function sitDown(tableId: string, seatIndex: number, buyIn: number) {
   if (!Number.isInteger(buyIn) || buyIn <= 0) return fail('invalid_buy_in')
+  // A wind-down freeze (blockNewJoins) preserves running tables but refuses new
+  // seatings so an Alpha can be closed without stranding coins mid-hand.
+  const joinCapErr = await checkPokerCapability('join')
+  if (joinCapErr) return fail(joinCapErr)
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (user && await isRestricted(user.id, 'no_sit')) return fail('restricted')

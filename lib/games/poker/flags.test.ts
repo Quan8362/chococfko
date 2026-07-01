@@ -4,6 +4,8 @@ import {
   resolvePokerFlags,
   pokerVisibleTo,
   pokerCan,
+  parseAlphaTesters,
+  isAlphaTester,
   POKER_FLAG_ENV,
   type PokerFlags,
 } from './flags.ts'
@@ -11,9 +13,11 @@ import {
 const OFF: PokerFlags = {
   enabled: false, createTable: false, publicLobby: false,
   privateTable: false, spectator: false, bot: false, tournament: false,
+  alpha: false, blockNewJoins: false,
 }
 const admin = { isAdmin: true }
 const player = { isAdmin: false }
+const tester = { isAdmin: false, isAlphaTester: true }
 
 test('FLAG-DEFAULT-001 empty env resolves every flag OFF', () => {
   assert.deepEqual(resolvePokerFlags({}), OFF)
@@ -40,9 +44,10 @@ test('FLAG-HARDOFF-001 bot/tournament stay OFF even when env sets them on', () =
   assert.equal(f.tournament, false)
 })
 
-test('FLAG-ENVMAP-001 exposes exactly the seven canonical env names', () => {
+test('FLAG-ENVMAP-001 exposes exactly the canonical env names', () => {
   assert.deepEqual(Object.values(POKER_FLAG_ENV).sort(), [
-    'POKER_BOT_ENABLED', 'POKER_CREATE_TABLE_ENABLED', 'POKER_ENABLED',
+    'POKER_ALPHA_MODE', 'POKER_BLOCK_NEW_JOINS', 'POKER_BOT_ENABLED',
+    'POKER_CREATE_TABLE_ENABLED', 'POKER_ENABLED',
     'POKER_PRIVATE_TABLE_ENABLED', 'POKER_PUBLIC_LOBBY_ENABLED',
     'POKER_SPECTATOR_ENABLED', 'POKER_TOURNAMENT_ENABLED',
   ])
@@ -80,4 +85,62 @@ test('CAP-003 a specific capability flag opens exactly that capability', () => {
   const f = { ...OFF, enabled: true, publicLobby: true }
   assert.equal(pokerCan(f, player, 'public_lobby'), true)
   assert.equal(pokerCan(f, player, 'create'), false)
+})
+
+// ── Alpha mode ────────────────────────────────────────────────────────────────
+test('ALPHA-VIS-001 alpha mode locks the public out and admits only testers', () => {
+  const f = { ...OFF, alpha: true } // note: enabled stays false
+  assert.equal(pokerVisibleTo(f, player), false)
+  assert.equal(pokerVisibleTo(f, tester), true)
+  assert.equal(pokerVisibleTo(f, admin), true)
+})
+
+test('ALPHA-VIS-002 alpha mode overrides an ON master flag (public still locked out)', () => {
+  const f = { ...OFF, alpha: true, enabled: true }
+  assert.equal(pokerVisibleTo(f, player), false, 'public must not slip in via enabled')
+  assert.equal(pokerVisibleTo(f, tester), true)
+})
+
+test('ALPHA-VIS-003 with alpha OFF behaviour is unchanged (enabled || admin)', () => {
+  assert.equal(pokerVisibleTo({ ...OFF, enabled: true }, player), true)
+  assert.equal(pokerVisibleTo({ ...OFF }, tester), false, 'tester flag is inert when alpha off')
+})
+
+test('ALPHA-RESOLVE-001 env maps POKER_ALPHA_MODE / POKER_BLOCK_NEW_JOINS', () => {
+  const f = resolvePokerFlags({ POKER_ALPHA_MODE: 'on', POKER_BLOCK_NEW_JOINS: '1' })
+  assert.equal(f.alpha, true)
+  assert.equal(f.blockNewJoins, true)
+})
+
+test('FREEZE-001 blockNewJoins closes create + join for everyone (incl. admin)', () => {
+  const f = { ...OFF, enabled: true, createTable: true, blockNewJoins: true }
+  assert.equal(pokerCan(f, player, 'join'), false)
+  assert.equal(pokerCan(f, player, 'create'), false)
+  assert.equal(pokerCan(f, admin, 'join'), false)
+  assert.equal(pokerCan(f, admin, 'create'), false)
+})
+
+test('FREEZE-002 a freeze does NOT block entering / spectating a running table', () => {
+  const f = { ...OFF, enabled: true, spectator: true, blockNewJoins: true }
+  assert.equal(pokerCan(f, player, 'enter'), true)
+  assert.equal(pokerCan(f, player, 'spectate'), true)
+})
+
+test('FREEZE-003 without a freeze, join is allowed for any visible viewer', () => {
+  const f = { ...OFF, enabled: true }
+  assert.equal(pokerCan(f, player, 'join'), true)
+})
+
+test('TESTER-PARSE-001 allowlist is trimmed, lower-cased, de-duped', () => {
+  assert.deepEqual(parseAlphaTesters(' A@x.com, b@x.com ,A@X.COM,'), ['a@x.com', 'b@x.com'])
+  assert.deepEqual(parseAlphaTesters(''), [])
+  assert.deepEqual(parseAlphaTesters(null), [])
+})
+
+test('TESTER-MATCH-001 membership is case-insensitive; empty email never matches', () => {
+  const raw = 'tester@fko.com, quan@fko.com'
+  assert.equal(isAlphaTester('QUAN@fko.com', raw), true)
+  assert.equal(isAlphaTester('nobody@x.com', raw), false)
+  assert.equal(isAlphaTester(null, raw), false)
+  assert.equal(isAlphaTester('tester@fko.com', ''), false)
 })

@@ -1694,7 +1694,8 @@
         "no_wallet": "未找到钱包。",
         "generic": "出错了——请重试。",
         "wrong_password": "密码错误。",
-        "poker_feature_off": "该功能尚未开放，请稍后再试。"
+        "poker_feature_off": "该功能尚未开放，请稍后再试。",
+        "poker_joins_frozen": "新入座暂时暂停。进行中的牌桌继续。"
       },
       "hand_name": {
         "high_card": "高牌",
@@ -2052,7 +2053,47 @@
       },
       "tag": "新",
       "short_desc": "和好友玩无限注德州——虚拟金币，公平发牌。",
-      "players": "2–6 人"
+      "players": "2–6 人",
+      "alpha": {
+        "badge": "ALPHA · 测试版 · 娱乐筹码"
+      },
+      "bug_report": {
+        "trigger": "报告问题",
+        "title": "报告问题",
+        "subtitle": "描述问题——技术信息（牌桌、牌局、设备等）会自动附加。",
+        "close": "关闭",
+        "thanks": "谢谢！你的报告已记录。",
+        "report_another": "再报告一个",
+        "done": "完成",
+        "field_description": "发生了什么",
+        "ph_description": "简要描述你遇到的问题…",
+        "field_expected": "预期结果",
+        "ph_expected": "本应…",
+        "field_actual": "实际结果",
+        "ph_actual": "但实际上…",
+        "field_severity": "严重程度",
+        "field_screenshot": "截图（可选）",
+        "ph_screenshot": "粘贴图片链接…",
+        "contact_ok": "允许联系我以跟进",
+        "privacy_note": "我们绝不会附加你的底牌、其他玩家的牌、牌序或任何凭据。",
+        "cancel": "取消",
+        "send": "发送报告",
+        "sending": "发送中…",
+        "severity": {
+          "blocker": "严重（无法游戏）",
+          "major": "重大",
+          "minor": "轻微",
+          "cosmetic": "界面"
+        },
+        "error": {
+          "not_authenticated": "请登录后再报告问题。",
+          "feature_off": "扑克尚未开放。",
+          "rate_limited": "报告过于频繁，请几分钟后再试。",
+          "validation": "请输入有效描述。",
+          "unavailable": "报告功能尚不可用。",
+          "db_error": "发送失败，请重试。"
+        }
+      }
     },
     "destination_wheel": {
       "title": "目的地转盘",
@@ -5333,6 +5374,48 @@
     "hands_together": "手牌数",
     "tables_together": "牌桌数",
     "net_flow": "净流动",
-    "one_way": "单向"
+    "one_way": "单向",
+    "nav_alpha": "Alpha",
+    "alpha_sub": "受控真人 Alpha 测试的质量看板。",
+    "alpha_freeze_active": "⚠️ 新入座已冻结（POKER_BLOCK_NEW_JOINS）——进行中的牌桌继续，不接受新入座。",
+    "alpha_testers": "已批准测试者",
+    "alpha_no_testers": "白名单中没有测试者（设置 POKER_ALPHA_TESTERS）。",
+    "alpha_session_metrics": "会话指标",
+    "alpha_active_tables": "活跃牌桌",
+    "alpha_seated_players": "就座玩家",
+    "alpha_completed_hands": "完成牌局",
+    "alpha_all_in_hands": "全下牌局",
+    "alpha_side_pot_hands": "边池牌局",
+    "alpha_total_hands": "总牌局数",
+    "alpha_cancelled_hands": "取消牌局",
+    "alpha_timeout_actions": "超时操作",
+    "alpha_reconnect_failures": "重连失败",
+    "alpha_failed_actions": "被拒操作",
+    "alpha_integrity": "完整性（退出阻断项）",
+    "alpha_last_7d": "近 7 天",
+    "alpha_ops_unavailable": "无 ops_events 数据（应用 admin-ops 迁移）。",
+    "alpha_coin_conservation": "筹码守恒",
+    "alpha_settlement_failures": "结算失败",
+    "alpha_sequence_gaps": "序列缺口",
+    "alpha_duplicate_actions": "重复操作",
+    "alpha_frozen_hands": "卡住牌局",
+    "alpha_rls_denials": "RLS 拒绝",
+    "alpha_bug_reports": "游戏内错误报告",
+    "alpha_bugs_unavailable": "未应用 migration_poker_alpha_bug_reports.sql——暂无报告。",
+    "alpha_bugs_total": "报告总数",
+    "alpha_bugs_open": "未处理",
+    "alpha_bugs_blockers": "严重",
+    "alpha_bugs_major": "重大",
+    "alpha_by_severity": "按严重程度",
+    "alpha_by_device": "按设备",
+    "alpha_by_browser": "按浏览器",
+    "alpha_by_phase": "按牌局阶段",
+    "alpha_open_reports": "未处理报告",
+    "alpha_no_open_reports": "没有未处理的报告。",
+    "alpha_col_severity": "严重程度",
+    "alpha_col_status": "状态",
+    "alpha_col_where": "位置",
+    "alpha_col_device": "设备",
+    "alpha_col_desc": "描述"
   }
 }

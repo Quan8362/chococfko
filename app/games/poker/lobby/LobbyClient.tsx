@@ -7,6 +7,7 @@ import { useLocale, useTranslations } from 'next-intl'
 import type { LobbyTable } from '@/lib/games/poker/lifecycle'
 import { listLobby, joinTable } from '../actions'
 import QuickPlayButton from '../_eco/QuickPlayButton'
+import ReportProblemButton from '../_components/ReportProblemButton'
 import { coins } from '../_eco/format'
 
 export default function LobbyClient({ initialTables }: { initialTables: LobbyTable[] | null }) {
@@ -34,6 +35,7 @@ export default function LobbyClient({ initialTables }: { initialTables: LobbyTab
 
   return (
     <div>
+      <ReportProblemButton variant="floating" context={{ path: '/games/poker/lobby' }} />
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="font-serif text-2xl font-bold">{t('lobby.title')}</h1>
@@ -194,7 +196,11 @@ function JoinDialog({
               ? t('error.wrong_password')
               : error === 'table_not_open'
                 ? t('error.table_not_open')
-                : t('error.generic')}
+                : error === 'poker_joins_frozen'
+                  ? t('error.poker_joins_frozen')
+                  : error === 'poker_feature_off'
+                    ? t('error.poker_feature_off')
+                    : t('error.generic')}
           </p>
         )}
         <div className="mt-5 flex justify-end gap-2">

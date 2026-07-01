@@ -1694,7 +1694,8 @@
         "no_wallet": "지갑을 찾을 수 없습니다.",
         "generic": "문제가 발생했습니다 — 다시 시도하세요.",
         "wrong_password": "비밀번호가 틀렸습니다.",
-        "poker_feature_off": "이 기능은 아직 사용할 수 없습니다. 나중에 다시 시도해 주세요."
+        "poker_feature_off": "이 기능은 아직 사용할 수 없습니다. 나중에 다시 시도해 주세요.",
+        "poker_joins_frozen": "새 착석이 일시 중지되었습니다. 진행 중인 테이블은 계속됩니다."
       },
       "hand_name": {
         "high_card": "하이 카드",
@@ -2052,7 +2053,47 @@
       },
       "tag": "신규",
       "short_desc": "친구들과 노리밋 홀덤 — 가상 코인, 공정한 분배.",
-      "players": "2~6명"
+      "players": "2~6명",
+      "alpha": {
+        "badge": "ALPHA · 테스트 버전 · 연습용 칩"
+      },
+      "bug_report": {
+        "trigger": "문제 신고",
+        "title": "문제 신고",
+        "subtitle": "문제를 설명해 주세요. 기술 정보(테이블·핸드·기기 등)는 자동으로 첨부됩니다.",
+        "close": "닫기",
+        "thanks": "감사합니다! 신고가 기록되었습니다.",
+        "report_another": "다른 신고",
+        "done": "완료",
+        "field_description": "무슨 일이 있었나요",
+        "ph_description": "겪은 문제를 간단히…",
+        "field_expected": "예상한 결과",
+        "ph_expected": "원래는…",
+        "field_actual": "실제 결과",
+        "ph_actual": "하지만 실제로는…",
+        "field_severity": "심각도",
+        "field_screenshot": "스크린샷 (선택)",
+        "ph_screenshot": "이미지 링크 붙여넣기…",
+        "contact_ok": "추가 확인을 위해 연락 가능",
+        "privacy_note": "내 홀 카드, 다른 플레이어의 카드, 덱 순서, 인증 정보는 절대 첨부되지 않습니다.",
+        "cancel": "취소",
+        "send": "신고 보내기",
+        "sending": "보내는 중…",
+        "severity": {
+          "blocker": "치명적 (플레이 불가)",
+          "major": "중대",
+          "minor": "경미",
+          "cosmetic": "표시"
+        },
+        "error": {
+          "not_authenticated": "신고하려면 로그인하세요.",
+          "feature_off": "포커가 아직 열리지 않았습니다.",
+          "rate_limited": "신고가 너무 많습니다. 잠시 후 다시 시도하세요.",
+          "validation": "유효한 설명을 입력하세요.",
+          "unavailable": "신고 기능이 아직 준비되지 않았습니다.",
+          "db_error": "보내지 못했습니다. 다시 시도하세요."
+        }
+      }
     },
     "destination_wheel": {
       "title": "목적지 룰렛",
@@ -5333,6 +5374,48 @@
     "hands_together": "핸드 수",
     "tables_together": "테이블 수",
     "net_flow": "순 흐름",
-    "one_way": "단방향"
+    "one_way": "단방향",
+    "nav_alpha": "Alpha",
+    "alpha_sub": "통제된 실제 플레이어 Alpha 품질 대시보드.",
+    "alpha_freeze_active": "⚠️ 신규 참가 동결 중(POKER_BLOCK_NEW_JOINS) — 진행 중 테이블은 계속, 신규 착석 불가.",
+    "alpha_testers": "승인된 테스터",
+    "alpha_no_testers": "허용 목록에 테스터 없음(POKER_ALPHA_TESTERS 설정).",
+    "alpha_session_metrics": "세션 지표",
+    "alpha_active_tables": "활성 테이블",
+    "alpha_seated_players": "착석 플레이어",
+    "alpha_completed_hands": "완료된 핸드",
+    "alpha_all_in_hands": "올인 핸드",
+    "alpha_side_pot_hands": "사이드 팟 핸드",
+    "alpha_total_hands": "전체 핸드",
+    "alpha_cancelled_hands": "취소된 핸드",
+    "alpha_timeout_actions": "타임아웃 액션",
+    "alpha_reconnect_failures": "재연결 실패",
+    "alpha_failed_actions": "거부된 액션",
+    "alpha_integrity": "무결성(종료 차단 항목)",
+    "alpha_last_7d": "최근 7일",
+    "alpha_ops_unavailable": "ops_events 데이터 없음(admin-ops 마이그레이션 적용).",
+    "alpha_coin_conservation": "코인 보존",
+    "alpha_settlement_failures": "정산 실패",
+    "alpha_sequence_gaps": "시퀀스 누락",
+    "alpha_duplicate_actions": "중복 액션",
+    "alpha_frozen_hands": "멈춘 핸드",
+    "alpha_rls_denials": "RLS 거부",
+    "alpha_bug_reports": "게임 내 버그 신고",
+    "alpha_bugs_unavailable": "migration_poker_alpha_bug_reports.sql 미적용 — 신고 없음.",
+    "alpha_bugs_total": "전체 신고",
+    "alpha_bugs_open": "미해결",
+    "alpha_bugs_blockers": "치명적",
+    "alpha_bugs_major": "중대",
+    "alpha_by_severity": "심각도별",
+    "alpha_by_device": "기기별",
+    "alpha_by_browser": "브라우저별",
+    "alpha_by_phase": "핸드 단계별",
+    "alpha_open_reports": "미해결 신고",
+    "alpha_no_open_reports": "미해결 신고가 없습니다.",
+    "alpha_col_severity": "심각도",
+    "alpha_col_status": "상태",
+    "alpha_col_where": "위치",
+    "alpha_col_device": "기기",
+    "alpha_col_desc": "설명"
   }
 }

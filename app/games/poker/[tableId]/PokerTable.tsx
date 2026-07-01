@@ -40,6 +40,8 @@ import {
   type StreetName,
 } from '../_components'
 import { ActionControls } from '../_components/ActionControls'
+import ReportProblemButton from '../_components/ReportProblemButton'
+import type { PokerBugContext } from '@/lib/games/poker/bugReport'
 import { sitDown, sitOut, returnFromSitOut, leaveTable, startHand } from '../actions'
 
 export interface PokerTableConfig {
@@ -293,6 +295,30 @@ export default function PokerTable({ tableId, userId, config }: PokerTableProps)
     (i) => viewerSeatIndex === null || i !== viewerSeatIndex,
   )
 
+  // ── Alpha bug-report context (non-sensitive; NEVER hole cards / deck) ──────────────────────
+  // Count client-observed reconnect transitions so a report reflects connection churn.
+  const reconnectCountRef = useRef(0)
+  const prevConnRef = useRef(connUx)
+  useEffect(() => {
+    if (connUx === 'reconnecting' && prevConnRef.current !== 'reconnecting') {
+      reconnectCountRef.current += 1
+    }
+    prevConnRef.current = connUx
+  }, [connUx])
+  const seatedCount = seats.filter((s) => s.userId != null).length
+  const bugContext = useMemo<Partial<PokerBugContext>>(() => ({
+    tableId,
+    handId: publicState?.handId ?? undefined,
+    seatIndex: viewerSeatIndex ?? undefined,
+    street: publicState?.street ?? undefined,
+    phase,
+    stateVersion: publicState?.stateVersion ?? undefined,
+    playerCount: seatedCount,
+    connectionState: connUx,
+    reconnectCount: reconnectCountRef.current,
+    errorCode: errorCode ?? undefined,
+  }), [tableId, publicState?.handId, publicState?.street, publicState?.stateVersion, phase, viewerSeatIndex, seatedCount, connUx, errorCode])
+
   return (
     <div
       className="poker-root fixed inset-0 z-[110] overflow-hidden"
@@ -306,6 +332,9 @@ export default function PokerTable({ tableId, userId, config }: PokerTableProps)
       data-turn-seat={publicState?.turnSeat ?? ''}
     >
       {vp.isPortrait && <RotateDeviceOverlay />}
+
+      {/* Alpha in-game bug report — always reachable (incl. reconnect/offline overlays) */}
+      <ReportProblemButton variant="floating" context={bugContext} />
 
       {/* ── Felt + everything anchored to the inner play area ── */}
       <TableBackground layout={geomLayout(vp.layout)}>

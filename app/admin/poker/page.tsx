@@ -26,6 +26,7 @@ export default async function AdminPokerOverview() {
       <div className="flex flex-wrap items-center gap-3 mb-1">
         <h1 className="font-serif font-bold text-[24px] text-ink">{t('overview_title')}</h1>
         <nav className="flex gap-3 text-[12px] font-semibold text-rose">
+          <Link href="/admin/poker/alpha" className="hover:underline">{t('nav_alpha')}</Link>
           <Link href="/admin/poker/incidents" className="hover:underline">{t('nav_incidents')}</Link>
           <Link href="/admin/poker/observability" className="hover:underline">{t('nav_observability')}</Link>
           <Link href="/admin/poker/anti-abuse" className="hover:underline">{t('nav_anti_abuse')}</Link>

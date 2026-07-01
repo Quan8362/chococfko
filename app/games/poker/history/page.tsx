@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { getTranslations, getLocale } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import PokerShell from '../_eco/PokerShell'
+import ReportProblemButton from '../_components/ReportProblemButton'
 import { fetchHandHistory } from '../ecosystem'
 import { coins, signedCoins, dateTime } from '../_eco/format'
 
@@ -99,9 +100,12 @@ export default async function PokerHistoryPage() {
 
 function Header({ t }: { t: (k: string) => string }) {
   return (
-    <div className="mb-5">
-      <h1 className="font-serif text-2xl font-bold">{t('history.title')}</h1>
-      <p className="text-sm text-muted">{t('history.subtitle')}</p>
+    <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
+      <div>
+        <h1 className="font-serif text-2xl font-bold">{t('history.title')}</h1>
+        <p className="text-sm text-muted">{t('history.subtitle')}</p>
+      </div>
+      <ReportProblemButton variant="inline" context={{ path: '/games/poker/history' }} />
     </div>
   )
 }

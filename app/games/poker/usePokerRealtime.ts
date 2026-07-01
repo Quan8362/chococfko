@@ -16,6 +16,8 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { trackEvent } from '@/lib/analytics'
+import { RECONNECT_EVENTS } from '@/lib/games/poker/perf'
 import {
   PokerSyncController,
   deriveConnUx,
@@ -86,6 +88,22 @@ export function usePokerRealtime(tableId: string): PokerRealtimeApi {
   const reconcileInFlightRef = useRef(false)
   const reconcileDirtyRef = useRef(false)
 
+  // Reconnect telemetry: persist attempt/success/failure signals to analytics_events (via the
+  // existing trackEvent path) so the metrics dashboard can compute a real reconnect success RATE.
+  // `reconnectingRef` is true while we are recovering from a dropped channel so we only attribute
+  // a success/failure to an actual reconnect (not the initial connect or a routine watchdog fetch).
+  const reconnectingRef = useRef(false)
+  const markReconnectAttempt = useCallback(() => {
+    if (reconnectingRef.current) return
+    reconnectingRef.current = true
+    void trackEvent(RECONNECT_EVENTS.attempt, { path: '/games/poker', metadata: { tableId: tableIdRef.current } })
+  }, [])
+  const markReconnectResult = useCallback((ok: boolean) => {
+    if (!reconnectingRef.current) return
+    reconnectingRef.current = false
+    void trackEvent(ok ? RECONNECT_EVENTS.success : RECONNECT_EVENTS.failure, { path: '/games/poker', metadata: { tableId: tableIdRef.current } })
+  }, [])
+
   // Transport + network + sync health → user-facing connection state.
   const [transport, setTransport] = useState<'connecting' | 'connected' | 'reconnecting' | 'error' | 'closed'>('connecting')
   const [online, setOnline] = useState(true)
@@ -114,7 +132,7 @@ export function usePokerRealtime(tableId: string): PokerRealtimeApi {
     fetchPokerSnapshot(tableIdRef.current)
       .then(async (res) => {
         if (!mountedRef.current) return
-        if (!res.ok) { setSyncFailing(true); return }
+        if (!res.ok) { setSyncFailing(true); markReconnectResult(false); return }
         const ctrl = controllerRef.current!
         const applied = ctrl.applySnapshot(res.snapshot)
         if (applied.applied && applied.cues) {
@@ -129,15 +147,16 @@ export function usePokerRealtime(tableId: string): PokerRealtimeApi {
         }
         setSyncFailing(false)
         setReconciledOnce(true)
+        markReconnectResult(true)
         bump()
       })
-      .catch(() => { if (mountedRef.current) setSyncFailing(true) })
+      .catch(() => { if (mountedRef.current) { setSyncFailing(true); markReconnectResult(false) } })
       .finally(() => {
         reconcileInFlightRef.current = false
         // An event landed mid-fetch → run exactly once more to capture the latest version.
         if (reconcileDirtyRef.current && mountedRef.current) reconcile()
       })
-  }, [bump])
+  }, [bump, markReconnectResult])
 
   // ── Realtime subscription (PUBLIC tables only) ─────────────────────────────────────────
   useEffect(() => {
@@ -172,6 +191,7 @@ export function usePokerRealtime(tableId: string): PokerRealtimeApi {
           reconcile() // catch anything missed between server render and channel establishment
         } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
           setTransport('reconnecting')
+          markReconnectAttempt()
           reconcile()
         }
       })
@@ -191,7 +211,7 @@ export function usePokerRealtime(tableId: string): PokerRealtimeApi {
       authSub.unsubscribe()
       supabase.removeChannel(channel)
     }
-  }, [tableId, reconcile])
+  }, [tableId, reconcile, markReconnectAttempt])
 
   // ── Recovery watchdog + tab-resume / network-restore ───────────────────────────────────
   useEffect(() => {

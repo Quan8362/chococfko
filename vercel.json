@@ -12,6 +12,10 @@
     {
       "path": "/api/cron/tlmn-maintenance",
       "schedule": "* * * * *"
+    },
+    {
+      "path": "/api/cron/poker-integrity",
+      "schedule": "*/15 * * * *"
     }
   ]
 }

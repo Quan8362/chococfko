@@ -29,6 +29,7 @@ export default async function AdminPokerOverview() {
           <Link href="/admin/poker/alpha" className="hover:underline">{t('nav_alpha')}</Link>
           <Link href="/admin/poker/incidents" className="hover:underline">{t('nav_incidents')}</Link>
           <Link href="/admin/poker/observability" className="hover:underline">{t('nav_observability')}</Link>
+          <Link href="/admin/poker/metrics" className="hover:underline">{t('nav_metrics')}</Link>
           <Link href="/admin/poker/anti-abuse" className="hover:underline">{t('nav_anti_abuse')}</Link>
         </nav>
       </div>

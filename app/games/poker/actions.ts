@@ -53,6 +53,9 @@ import { settleShowdown } from '@/lib/games/poker/showdown'
 import { totalContributed } from '@/lib/games/poker/pot'
 import { assertSnapshotPrivacy, type PokerSnapshot, type PokerLegalView } from '@/lib/games/poker/realtime'
 import { checkPokerCapability } from './access'
+import { defaultOpsSeverity, type OpsEventKind } from '@/lib/games/poker/admin'
+import { redactTelemetryDetail, TELEMETRY_SCHEMA_VERSION } from '@/lib/games/poker/telemetry'
+import { PERF_EVENT_NAME, type PerfOp } from '@/lib/games/poker/perf'
 
 // Stable result shape: never throw raw to the client; return a coded error UI can translate.
 export type ActionResult<T = unknown> =
@@ -152,6 +155,7 @@ function epochMs(ts: string | null | undefined): number {
 }
 
 export async function listLobby(): Promise<ActionResult<{ tables: LobbyTable[] }>> {
+  const tLobby0 = Date.now()
   const supabase = createClient() // RLS: poker_tables/poker_seats are SELECT(true), public-safe
   const { data: tables, error } = await supabase
     .from('poker_tables')
@@ -161,7 +165,7 @@ export async function listLobby(): Promise<ActionResult<{ tables: LobbyTable[] }
     .limit(100)
   if (error) return fail('lobby_failed')
   const ids = (tables ?? []).map((t) => t.id)
-  if (ids.length === 0) return { ok: true, tables: [] }
+  if (ids.length === 0) { await recordPerf(supabase, 'lobby', Date.now() - tLobby0, null); return { ok: true, tables: [] } }
 
   const { data: seatRows } = await supabase
     .from('poker_seats')
@@ -194,6 +198,7 @@ export async function listLobby(): Promise<ActionResult<{ tables: LobbyTable[] }
     }
     return projectLobbyTable(raw)
   })
+  await recordPerf(supabase, 'lobby', Date.now() - tLobby0, null)
   return { ok: true, tables: projected }
 }
 
@@ -742,6 +747,7 @@ export async function pokerAct(
   idempotencyKey?: string,
   expectedSeq?: number,
 ): Promise<ActionResult<{ phase: string; actionSeq: number }>> {
+  const t0 = Date.now()
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return fail('not_authenticated')
@@ -770,6 +776,7 @@ export async function pokerAct(
   if (!committed.ok) return committed
 
   const progressed = await progressHand(admin, tableId, live.hand.id, newState, live.actionTimeSeconds)
+  await recordPerf(admin, 'action', Date.now() - t0, tableId)
   return { ok: true, phase: progressed.phase, actionSeq: newState.actionSeq }
 }
 
@@ -983,12 +990,14 @@ async function settleHand(
   const payouts = showdown.payouts.map((p) => ({ seatIndex: p.seatIndex, amount: p.amount }))
   const refunds = showdown.refund ? [{ seatIndex: showdown.refund.seatIndex, amount: showdown.refund.amount }] : []
   const total = totalContributed(contribs)
+  const tSettle0 = Date.now()
   const { error } = await admin.rpc('poker_settle_hand', {
     p_hand_id: handId,
     p_payouts: payouts,
     p_refunds: refunds,
     p_total_contributed: total,
   })
+  await recordPerf(admin, 'settlement', Date.now() - tSettle0, tableId)
   if (error) {
     // Settlement failed AFTER publishing the result — leave it for the reaper to retry (settle
     // is idempotent). Do not pause: the outcome is fully determined and recoverable.
@@ -1010,7 +1019,9 @@ async function pauseHand(admin: AdminClient, handId: string, reason: string): Pr
 }
 
 // Best-effort structured-observability emitter. NEVER throws (a monitoring write must not break
-// gameplay) and NEVER logs cards/tokens — only a coded `detail`. Surfaced in /admin/poker/observability.
+// gameplay) and NEVER logs cards/tokens — only a coded `detail`. Persists a durable signal to
+// poker_ops_events (surfaced in /admin/poker/observability) AND emits a redacted, correlation-
+// tagged structured log line captured by Vercel runtime logs (grep `[poker-telemetry]`).
 async function recordOpsEvent(
   admin: AdminClient,
   kind: string,
@@ -1018,11 +1029,39 @@ async function recordOpsEvent(
   handId: string | null,
   detail: Record<string, unknown>,
 ): Promise<void> {
+  const severity = defaultOpsSeverity(kind as OpsEventKind)
+  const safeDetail = redactTelemetryDetail(detail)
+  try {
+    const line = `[poker-telemetry] ${JSON.stringify({
+      schema: TELEMETRY_SCHEMA_VERSION, ts: new Date().toISOString(), source: 'ops_event',
+      kind, severity,
+      correlation: { tableId: tableId ?? undefined, handId: handId ?? undefined, buildVersion: process.env.NEXT_PUBLIC_BUILD_ID ?? undefined, region: process.env.VERCEL_REGION ?? undefined },
+      detail: safeDetail,
+    })}`
+    // eslint-disable-next-line no-console
+    if (severity === 'critical' || severity === 'error') console.error(line); else console.log(line)
+  } catch { /* logging is best-effort */ }
   try {
     await admin.rpc('poker_record_ops_event', {
-      p_kind: kind, p_severity: null, p_table_id: tableId, p_hand_id: handId, p_user_id: null, p_detail: detail,
+      p_kind: kind, p_severity: severity, p_table_id: tableId, p_hand_id: handId, p_user_id: null, p_detail: safeDetail,
     })
   } catch { /* monitoring is best-effort */ }
+}
+
+// Best-effort server-operation latency sample. Persists ONE row to the existing generic
+// analytics_events table (event_name='poker_perf', metadata={op, ms}) so the metrics dashboard can
+// compute real p50/p95/p99 without a new table or vendor. NEVER throws and carries no cards/PII —
+// only an operation name + an integer millisecond value. Works with either the anon or admin
+// client (analytics_events INSERT is open; SELECT is service-role only).
+type PerfWriter = { from: AdminClient['from'] }
+async function recordPerf(client: PerfWriter, op: PerfOp, ms: number, tableId: string | null): Promise<void> {
+  try {
+    await client.from('analytics_events').insert({
+      event_name: PERF_EVENT_NAME,
+      path: '/games/poker',
+      metadata: { op, ms: Math.max(0, Math.round(ms)), tableId },
+    })
+  } catch { /* perf sampling is best-effort */ }
 }
 
 // ── tickActionTimer — server-authoritative turn timeout (the client only nudges) ────────
@@ -1115,6 +1154,7 @@ export async function advanceStreet(tableId: string): Promise<ActionResult<{ pha
 export async function fetchPokerSnapshot(
   tableId: string,
 ): Promise<ActionResult<{ snapshot: PokerSnapshot }>> {
+  const tSnap0 = Date.now()
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
   // A spectator may be unauthenticated; identity simply resolves to "no seat".
@@ -1146,5 +1186,6 @@ export async function fetchPokerSnapshot(
   } catch {
     return fail('snapshot_privacy_violation')
   }
+  await recordPerf(supabase, 'snapshot', Date.now() - tSnap0, tableId)
   return { ok: true, snapshot }
 }

@@ -47,6 +47,41 @@ const BOARD_W = 1672
 const BOARD_H = 941
 const BOARD_RATIO = BOARD_W / BOARD_H // ≈ 1.777 (16:9)
 
+// Mobile / tablet LANDSCAPE table art. These REPLACE the old CSS-generated felt (rail +
+// damask weave + medallion rings) on the full-bleed surface — one painted asset per
+// breakpoint, selected by viewport width (mobile < 768 ≤ tablet < 1024 ≤ desktop). Served
+// from web/public/. Rendered object-cover BEHIND the seats/pile/FX so the felt fills the
+// stage edge-to-edge with no distortion; the tuned seat geometry (GEOMETRY.bleed/short) is
+// unchanged, so all four seats + the centre pile stay aligned around the painted table.
+const BOARD_MOBILE_SRC = '/tlmn-table-mobile-landscape.webp' // 1672×941 (16:9)
+const BOARD_TABLET_SRC = '/tlmn-table-tablet-landscape.webp' // 1448×1086 (4:3)
+const BLEED_TABLET_MIN = 768 // ≥ this width (and < 1024 desktop) ⇒ tablet art, else mobile
+
+// ── Game stacking order — SINGLE source of truth for layering ────────────────────────
+// Within the board box:      table art (z-0) < seats (z-10) < centre pile (z-20) <
+//                            visual FX (confetti/stars/crown z-30, throwables z-35) <
+//                            in-pile combo badge (lives in the z-20 pile, painted above
+//                            its own cards).
+// Stage level (inside fs-root): result overlay z-[60] < top chrome z-[90] < menu z-[95].
+// CRITICAL: `.tlmn-fs-root` sets a `transform`, which makes it the containing block AND a
+// stacking context for EVERY absolute/fixed descendant. So an in-tree notification can never
+// rise above the stage's own result overlay / chrome no matter its local z-index — it is
+// capped by wherever its parent board box sits. Therefore ALL transient gameplay
+// ANNOUNCEMENTS render in ONE body-portal layer at TLMN_NOTIFY_Z that escapes fs-root
+// entirely and paints above every in-app layer, guaranteeing they are never hidden by cards,
+// panels, effects, overlays or the responsive table art. It sits just BELOW the two blocking
+// body-portal modals (portrait rotate ~2.147483e9, leave-confirm ~2.1474836e9) so those still
+// own the screen when they are up. The layer is pointer-events:none (informational); any
+// interactive notice opts pointer events back in on its own content only.
+const TLMN_NOTIFY_Z = 2_147_482_000
+
+// End-of-round presentation window: how long a live final move stays visible in the centre
+// pile before the result modal reveals. Anchored to the card fly-in (MS.FLY) plus a readable
+// hold so the last cards, their count and the combo badge can be identified — NOT an arbitrary
+// timeout: the reveal is gated first on the authoritative ended state AND the final trick being
+// present, then merely held this long so it can be seen.
+const FINAL_PLAY_PRESENT_MS = Math.round(MS.FLY) + 1400
+
 // ── Virtual chips (social-casino flavour) — DISPLAY ONLY, not real money. ───────────
 // Each seat starts at CHIP_SEED; the running balance is derived from the seat's
 // persisted cumulative đếm-lá score × a fixed chip rate, so it's idempotent and
@@ -278,6 +313,15 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
   const [crownKey, setCrownKey] = useState(0)  // crown sweep + edge glow (tới trắng / win)
   const [penaltyToast, setPenaltyToast] = useState<{ seat: number; label: string; key: number } | null>(null)
   const [dealFxKey, setDealFxKey] = useState(0) // premium round-deal overlay trigger
+  // End-of-round PRESENTATION gate. `game.status === 'ended'` is the authoritative signal,
+  // but the ended row also carries the winner's FINAL played cards (server keeps `trick`
+  // populated on the out-play). We must render that final move in the centre pile BEFORE the
+  // result modal / trophy covers it — otherwise the last cards flash invisibly behind the
+  // podium. `resultReady` decouples the authoritative ended state from showing the result:
+  // it flips only after the final trick has had time to fly in and be read.
+  const [resultReady, setResultReady] = useState(false)
+  const sawPlayingRef = useRef(false)  // did we watch THIS round live (vs. a cold load / reconnect into an ended round)
+  const revealTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const prevGameRef = useRef<TlmnPublicGame | null>(null)
   const reducedRef = useRef(false)
 
@@ -463,8 +507,43 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
     return () => clearInterval(id)
   }, [])
 
-  // A fresh round (new game id) ⇒ drop any stale selection from the previous deal.
-  useEffect(() => { setSelected(new Set()); setMyRoundDelta(null) }, [game?.id])
+  // A fresh round (new game id) ⇒ drop any stale selection from the previous deal, and
+  // reset the end-of-round presentation gate (this round has not been "watched live" yet
+  // and its result must not be revealed until — and unless — it ends).
+  useEffect(() => {
+    setSelected(new Set()); setMyRoundDelta(null)
+    setResultReady(false)
+    sawPlayingRef.current = false
+    if (revealTimerRef.current) { clearTimeout(revealTimerRef.current); revealTimerRef.current = null }
+  }, [game?.id])
+
+  // ── End-of-round presentation gate (the fix for "final move invisible behind result") ──
+  // The server writes the winner's FINAL trick + status='ended' + result in ONE atomic row
+  // update, so both clients receive the exact same final move alongside the ended flag. The
+  // ordering we must guarantee on-screen is: (1) authoritative ended state confirmed, (2) the
+  // final cards rendered in the centre pile + animated, then and only then (3) the result
+  // modal / trophy. We therefore hold `resultReady` false while the final trick plays in, and
+  // flip it after a short PRESENTATION window anchored to the card fly-in (not an arbitrary
+  // constant — the modal is gated on the ended state AND the final trick being present first).
+  // A cold load / reconnect into an already-ended round (we never saw it playing) and an
+  // instant tới-trắng (no play was ever made) reveal the result immediately — there is no
+  // final move to present.
+  useEffect(() => {
+    if (!game) return
+    if (game.status === 'playing') { sawPlayingRef.current = true; return }
+    if (game.status !== 'ended') return
+    // Present the final move first only when we actually watched this round play out AND the
+    // winning cards are in the authoritative snapshot; otherwise show the result at once.
+    const hasFinalPlay = sawPlayingRef.current && !game.result?.instant && !!game.trick
+    if (!hasFinalPlay) { setResultReady(true); return }
+    if (resultReady || revealTimerRef.current) return // already revealed / reveal already scheduled
+    revealTimerRef.current = setTimeout(() => {
+      revealTimerRef.current = null
+      if (mountedRef.current) setResultReady(true)
+    }, FINAL_PLAY_PRESENT_MS)
+  }, [game, resultReady])
+
+  useEffect(() => () => { if (revealTimerRef.current) clearTimeout(revealTimerRef.current) }, [])
 
   // A fresh deal staggers the hand-card entrance; the flag clears shortly after so
   // later interactions (select / sort reflow) animate instantly without the stagger.
@@ -771,6 +850,9 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
   // Desktop (≥1024) keeps the framed board image + green surround exactly as before. The
   // vw>0 guard keeps the SSR/first-paint default (1024) on the desktop path until measured.
   const fullBleed = vw > 0 && vw < 1024
+  // Which painted table art the full-bleed surface uses — tablet art from 768px up, mobile
+  // art below. Same width breakpoint the rest of the board uses (minStrip / seatBackW).
+  const bleedBoardSrc = vw >= BLEED_TABLET_MIN ? BOARD_TABLET_SRC : BOARD_MOBILE_SRC
   const useImage = !portrait
   // Fit the board to the live play area at the image's exact ratio (no distortion). The
   // area starts at 0 before the ResizeObserver fires; a viewport-based default keeps the
@@ -1178,11 +1260,13 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
           into the hand (the band's top/bottom are derived to sit clear of both). The round
           result is a separate overlay. */}
       <div className="tlmn-center-zone absolute left-0 right-0 z-20 flex items-center justify-center px-4 pointer-events-none" style={centerWrapStyle}>
-        {/* Centre medallion rings — anchored to the SAME band as the pile (full-bleed mobile/
-            tablet), so the played card always sits exactly on the felt's decorative pattern,
-            independent of the top-chrome height / safe-area. Behind the cards (DOM order). */}
-        {fullBleed && <span aria-hidden className="tlmn-center-rings absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" />}
-        {ended ? (
+        {/* The painted table art carries its own centre design on full-bleed mobile/tablet, so
+            the old CSS medallion rings were removed here (obsolete CSS-generated artwork). */}
+        {/* While an ended round is still PRESENTING its final move (resultReady=false and a
+            final trick exists), keep rendering that trick's cards in the pile so the last play
+            stays visible + animates in; only swap to the winner trophy once the result reveals
+            (or there was no final play, e.g. tới trắng). */}
+        {ended && (resultReady || !game.trick) ? (
           <CenterEnd game={game} seatName={seatName} t={t} />
         ) : game.trick ? (
           // `relative` + the badge below positioned ABSOLUTELY → the card pile is the ONLY
@@ -1241,24 +1325,11 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
         )}
       </div>
 
-      {/* Chặt! signature overlay */}
-      {chac && (
-        <>
-          <div className="absolute inset-0 bg-white tlmn-flash pointer-events-none" />
-          <div key={chac.key} className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-            <div className="tlmn-stamp tlmn-combo-banner tlmn-banner-shine px-5 py-2 rounded-2xl shadow-2xl">
-              <span className="font-serif font-black text-[clamp(26px,5vw,38px)] tracking-tight">
-                ✂️ {t(chac.kind === 'heo' ? 'banner_chat_heo' : 'banner_chat_bom')}
-              </span>
-            </div>
-            {chac.amount > 0 && (
-              <p className="mt-2 text-[13px] font-bold text-rose-deep bg-white/90 px-3 py-1 rounded-full tlmn-banner-pop">
-                {t('den_line', { victim: seatName(chac.victim), cutter: seatName(chac.cutter), amount: chac.amount })}
-              </p>
-            )}
-          </div>
-        </>
-      )}
+      {/* Chặt! felt FLASH only — a background white flash of the felt. The readable "Chặt
+          heo/bom" banner + đền line render in the topmost body-portal notify layer (see
+          notifyLayer), so the announcement can never be trapped behind the played pile, the
+          seat pods, the FX or the result overlay. This flash stays under the cards by design. */}
+      {chac && <div className="absolute inset-0 bg-white tlmn-flash pointer-events-none" />}
 
       {/* Premium round-deal cascade — cards fan from the centre deck out to every seat,
           staggered around the table. Reduced-motion never triggers it. Cosmetic only. */}
@@ -1285,15 +1356,9 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
         </>
       )}
 
-      {/* Penalty (thối heo / đền / cóng) — a brief, NON-celebratory muted toast by the
-          affected seat. No gold; just enough to explain what happened. */}
-      {penaltyToast && (
-        <div key={penaltyToast.key} className="absolute z-30 pointer-events-none" style={seatStyle(mySeat != null && penaltyToast.seat === mySeat ? 'bottom' : placeOfSeat(penaltyToast.seat))}>
-          <span className="tlmn-banner-pop inline-flex items-center gap-1 rounded-lg bg-black/70 border border-white/20 px-2.5 py-1 text-[10.5px] font-bold text-white/90 whitespace-nowrap">
-            ⚠️ {penaltyToast.label}
-          </span>
-        </div>
-      )}
+      {/* Penalty (thối heo / đền / cóng) toast now renders in the topmost notify layer (see
+          notifyLayer) — at round end the result overlay used to cover this seat-anchored toast;
+          in the portal it stays visible above the podium and carries the seat name for context. */}
 
       {/* Player-interaction phrase bubbles — anchored to each sender's avatar, transient,
           pointer-events:none (never blocks card/button taps or shifts the layout). */}
@@ -1340,12 +1405,8 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
         </>
       )}
 
-      {/* Throwable notice flash — cooldown (rate-limited) or insufficient-coins/failed. */}
-      {reactCooldown && (
-        <div className="absolute left-1/2 -translate-x-1/2 z-[59] rounded-full bg-black/75 text-white text-[12px] font-semibold px-3.5 py-1.5 tlmn-banner-pop whitespace-nowrap" style={{ bottom: '16%' }}>
-          {reactNotice ?? t('react_cooldown')}
-        </div>
-      )}
+      {/* Throwable notice flash (cooldown / insufficient-coins / failed) now renders in the
+          topmost notify layer (see notifyLayer) so it is never trapped behind the felt. */}
 
       {/* Phase 4: opponent context menu (mute / report) anchored at the seat. */}
       {menuSeat != null && (
@@ -1400,11 +1461,7 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
         </div>,
         document.body,
       )}
-      {reportSent && (
-        <div className="absolute left-1/2 -translate-x-1/2 z-[60] rounded-full bg-emerald-600 text-white text-[12px] font-semibold px-3.5 py-1.5 tlmn-banner-pop" style={{ bottom: '16%' }}>
-          {t('react_report_sent')}
-        </div>
-      )}
+      {/* Report-sent confirmation now renders in the topmost notify layer (see notifyLayer). */}
     </>
   )
 
@@ -1696,7 +1753,9 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
   // scrollable when it doesn't, so "VÁN MỚI" is always reachable. z-[60] sits above the
   // table (seats/centre/dock ≤ z-30) yet BELOW the top chrome (z-[90]) so the X stays
   // tappable. Safe-area padded top + bottom; never cut off by the table frame.
-  const resultOverlay = ended ? (
+  // Gated on `resultReady` (not raw `ended`) so the modal opens only AFTER the final move has
+  // been presented in the pile — it can never instantly erase the last played cards.
+  const resultOverlay = ended && resultReady ? (
     <div
       className="tlmn-result-overlay absolute inset-0 z-[60] flex items-start sm:items-center justify-center overflow-y-auto overscroll-contain px-3"
       style={{
@@ -1734,6 +1793,72 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
     </div>
   ) : null
 
+  // ── Topmost gameplay-notification layer (ONE layer for every transient announcement) ──
+  // Body-portalled so it escapes `.tlmn-fs-root`'s transform stacking context entirely — it
+  // therefore paints above the played cards, seats, panels, FX, the responsive table art AND
+  // the result overlay, on every breakpoint, without any per-notification z-index hacks (see
+  // TLMN_NOTIFY_Z). Fixed to the viewport, pointer-events:none (purely informational — never
+  // blocks a card tap or an action button); each notice keeps its own text/i18n, animation
+  // (tlmn-banner-*), and lifetime. Edge/safe-area insets keep every notice on-screen.
+  const notifyLayer = portalReady ? createPortal(
+    <div
+      aria-live="polite"
+      className="tlmn-notify-root pointer-events-none"
+      style={{ position: 'fixed', inset: 0, zIndex: TLMN_NOTIFY_Z }}
+    >
+      {/* Chặt! — the signature announcement (e.g. tứ quý cutting a 2). Centred on-screen. */}
+      {chac && (
+        <div key={chac.key} className="absolute inset-0 flex flex-col items-center justify-center px-4 pointer-events-none">
+          <div className="tlmn-stamp tlmn-combo-banner tlmn-banner-shine px-5 py-2 rounded-2xl shadow-2xl">
+            <span className="font-serif font-black text-[clamp(26px,5vw,38px)] tracking-tight">
+              ✂️ {t(chac.kind === 'heo' ? 'banner_chat_heo' : 'banner_chat_bom')}
+            </span>
+          </div>
+          {chac.amount > 0 && (
+            <p className="mt-2 text-[13px] font-bold text-rose-deep bg-white/90 px-3 py-1 rounded-full tlmn-banner-pop text-center">
+              {t('den_line', { victim: seatName(chac.victim), cutter: seatName(chac.cutter), amount: chac.amount })}
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* Penalty (thối heo / đền / cóng) — brief muted toast, carries the affected seat name
+          for context now that it no longer sits on that seat. Top-centre, clear of chrome. */}
+      {penaltyToast && (
+        <div
+          key={penaltyToast.key}
+          className="absolute left-1/2 -translate-x-1/2 pointer-events-none"
+          style={{ top: 'calc(env(safe-area-inset-top) + 60px)' }}
+        >
+          <span className="tlmn-banner-pop inline-flex items-center gap-1 rounded-lg bg-black/75 border border-white/20 px-3 py-1.5 text-[11px] font-bold text-white/90 whitespace-nowrap shadow-lg">
+            ⚠️ {seatName(penaltyToast.seat)} · {penaltyToast.label}
+          </span>
+        </div>
+      )}
+
+      {/* Throwable notice — cooldown (rate-limited) or insufficient-coins / send failed. */}
+      {reactCooldown && (
+        <div
+          className="absolute left-1/2 -translate-x-1/2 rounded-full bg-black/75 text-white text-[12px] font-semibold px-3.5 py-1.5 tlmn-banner-pop whitespace-nowrap pointer-events-none"
+          style={{ bottom: 'calc(env(safe-area-inset-bottom) + 16%)' }}
+        >
+          {reactNotice ?? t('react_cooldown')}
+        </div>
+      )}
+
+      {/* Report-sent confirmation. */}
+      {reportSent && (
+        <div
+          className="absolute left-1/2 -translate-x-1/2 rounded-full bg-emerald-600 text-white text-[12px] font-semibold px-3.5 py-1.5 tlmn-banner-pop pointer-events-none"
+          style={{ bottom: 'calc(env(safe-area-inset-bottom) + 16%)' }}
+        >
+          {t('react_report_sent')}
+        </div>
+      )}
+    </div>,
+    document.body,
+  ) : null
+
   // ── Render ───────────────────────────────────────────────────────────────────
   return (
     // Full-bleed breakout: the table escapes the page's narrow column to become an
@@ -1746,16 +1871,11 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
         key={shakeKey}
         className={`tlmn-stage relative flex flex-col min-h-[86vh] overflow-hidden ${fullBleed ? 'tlmn-stage--bleed' : ''} ${shakeKey ? 'tlmn-shake' : ''}`}
       >
-        {/* Full-bleed table surface (mobile/tablet, Approach A). The felt colour fills the
-            whole stage via .tlmn-stage--bleed (bleeding behind the safe-area); these layers
-            add the damask/medallion texture + a screen-hugging mahogany/gold rail + gold
-            corner flourishes, scaling to ANY aspect ratio. z-0 → below chrome + content. */}
-        {fullBleed && (
-          <>
-            <div className="tlmn-bleed-felt-tex" aria-hidden />
-            <div className="tlmn-bleed-rail" aria-hidden />
-          </>
-        )}
+        {/* Full-bleed table surface (mobile/tablet). The painted table art now provides the
+            felt + rail + centre design (see the fullBleed table region below), so the old
+            CSS-generated damask/rail/medallion layers are gone. The .tlmn-stage--bleed felt
+            colour still fills the stage behind the art (safe-area + top-chrome strip) and
+            covers the tiny window before the image paints, so there is no flash / layout shift. */}
 
         {/* Polite ARIA live region — localized play / pass / turn-change narration. */}
         <div role="status" aria-live="polite" aria-atomic="true" aria-label={t('a11y_region_label')} className="sr-only">
@@ -1851,12 +1971,26 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
             falls back to the scalable oval felt. Same seats/center/FX layer (boardContents)
             renders over either surface — the image is just the backdrop. */}
         {fullBleed ? (
-          // Mobile/tablet full-bleed: the felt + rail already fill the stage (above); this
-          // region just hosts the seats/centre/FX + the hand dock. The content box is
-          // inset by the safe-area (top/sides) so nothing hides under the notch, while the
-          // felt itself still bleeds to the physical edges. The padded box is the positioned
-          // ancestor, so every % anchor + the centre band resolve INSIDE the rail.
+          // Mobile/tablet full-bleed: the painted table art (below) fills this region edge-to-
+          // edge, and it hosts the seats/centre/FX + the hand dock over it. The content box is
+          // inset by the safe-area (top/sides) so nothing hides under the notch, while the art
+          // itself still bleeds to the physical edges. The padded box is the positioned
+          // ancestor, so every % anchor + the centre band resolve INSIDE the table.
           <div ref={areaRef} className="relative flex-1 min-h-0">
+            {/* Painted table art (mobile/tablet landscape). Fills the play area edge-to-edge
+                behind the seats/pile/FX, object-cover + centred so it is never stretched or
+                distorted (only the outer felt margin is trimmed, never the table itself).
+                fill + a sized relative parent + priority ⇒ zero layout shift as it loads;
+                pointer-events:none so it never blocks a card tap / button / drag. */}
+            <Image
+              src={bleedBoardSrc}
+              alt=""
+              fill
+              priority
+              sizes="100vw"
+              className="object-cover object-center select-none pointer-events-none z-0"
+              draggable={false}
+            />
             <div
               className="absolute inset-0"
               style={{
@@ -1922,6 +2056,9 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
 
         {/* End-of-round result — centered, scrollable, fully on-screen (all modes). */}
         {resultOverlay}
+
+        {/* Topmost transient-notification layer (body-portalled; above every in-app layer). */}
+        {notifyLayer}
 
         {/* ── Run 5/8: portrait rotate prompt (active game only) ───────────────
             PORTALLED TO <body>: rendered as a position:fixed top layer OUTSIDE the

@@ -1695,7 +1695,10 @@
         "generic": "問題が発生しました — 再試行してください。",
         "wrong_password": "パスワードが違います。",
         "poker_feature_off": "この機能はまだ利用できません。しばらくしてからお試しください。",
-        "poker_joins_frozen": "新規着席は一時停止中です。進行中のテーブルは続行します。"
+        "poker_joins_frozen": "新規着席は一時停止中です。進行中のテーブルは続行します。",
+        "unsupported_blind_tier": "このステークはサポートされていません。",
+        "rathole_min_return": "退席時のスタックで戻る必要があります。",
+        "rapid_rejoin": "このテーブルへの再参加が早すぎます。少しお待ちください。"
       },
       "hand_name": {
         "high_card": "ハイカード",
@@ -1816,7 +1819,8 @@
         "err_name": "テーブル名を入力してください。",
         "err_blinds": "ビッグはスモールのちょうど2倍にしてください。",
         "err_password": "非公開テーブルにはパスワードが必要です。",
-        "err_buyin": "最大バイインは最小以上にしてください。"
+        "err_buyin": "最大バイインは最小以上にしてください。",
+        "buyin_derived_hint": "バイインの上限は選択したステークで決まります。"
       },
       "join": {
         "title": "プライベートテーブル",
@@ -5671,6 +5675,31 @@
     "lat_cashout": "キャッシュアウト",
     "lat_lobby": "ロビー照会",
     "lat_history": "ハンド履歴",
-    "metrics_generated_at": "生成日時"
+    "metrics_generated_at": "生成日時",
+    "nav_economy": "経済",
+    "economy_sub": "バージョン管理・監査・ロールバック可能な仮想コイン経済設定 — 残高は変更しません。",
+    "economy_db_unavailable": "設定テーブルは未適用です（マイグレーション保留中）。コンパイル済みの既定設定を使用します。",
+    "economy_versions": "設定バージョン",
+    "economy_active": "有効",
+    "economy_no_active": "なし",
+    "economy_version": "バージョン",
+    "economy_effective": "有効開始日",
+    "economy_valid": "有効性",
+    "economy_note": "備考",
+    "economy_actions": "操作",
+    "economy_active_badge": "有効",
+    "economy_valid_yes": "有効",
+    "economy_valid_no": "無効",
+    "economy_publish": "公開",
+    "economy_activate": "有効化",
+    "economy_rollback": "ロールバック",
+    "economy_reason_ph": "理由（必須・監査記録）",
+    "economy_no_reward_note": "報酬・faucet・レーキ・アンティ・コイン移動は作成しません。有効な設定のみ変更します。",
+    "economy_leaderboard": "リーダーボード",
+    "economy_leaderboard_sub": "確定したハンドから算出（読み取り専用）。指標: {metric}。",
+    "economy_player": "プレイヤー",
+    "economy_value": "値",
+    "economy_hands": "ハンド数",
+    "economy_coverage_note": "{hands} 件の確定ハンドから。純利益はコイン台帳から正確、ビッグブラインド換算は概算です。"
   }
 }

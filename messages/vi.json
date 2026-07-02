@@ -1695,7 +1695,10 @@
         "generic": "Có lỗi xảy ra — thử lại.",
         "wrong_password": "Sai mật khẩu.",
         "poker_feature_off": "Tính năng này hiện chưa được mở. Vui lòng thử lại sau.",
-        "poker_joins_frozen": "Bàn hiện tạm khóa vào chỗ. Các bàn đang chơi vẫn tiếp tục."
+        "poker_joins_frozen": "Bàn hiện tạm khóa vào chỗ. Các bàn đang chơi vẫn tiếp tục.",
+        "unsupported_blind_tier": "Mức cược này không được hỗ trợ.",
+        "rathole_min_return": "Bạn phải quay lại với đúng số chip đã rời bàn.",
+        "rapid_rejoin": "Bạn vào lại bàn quá nhanh. Vui lòng chờ một lát."
       },
       "hand_name": {
         "high_card": "Mậu thầu",
@@ -1816,7 +1819,8 @@
         "err_name": "Vui lòng nhập tên bàn.",
         "err_blinds": "Cược lớn phải gấp đúng đôi cược nhỏ.",
         "err_password": "Bàn riêng tư cần mật khẩu.",
-        "err_buyin": "Vào tối đa phải lớn hơn hoặc bằng vào tối thiểu."
+        "err_buyin": "Vào tối đa phải lớn hơn hoặc bằng vào tối thiểu.",
+        "buyin_derived_hint": "Giới hạn mua vào theo mức cược đã chọn."
       },
       "join": {
         "title": "Bàn riêng tư",
@@ -5671,6 +5675,31 @@
     "lat_cashout": "Rút chip",
     "lat_lobby": "Truy vấn sảnh",
     "lat_history": "Lịch sử ván",
-    "metrics_generated_at": "Tạo lúc"
+    "metrics_generated_at": "Tạo lúc",
+    "nav_economy": "Kinh tế",
+    "economy_sub": "Cấu hình kinh tế xu ảo có phiên bản, kiểm duyệt và có thể khôi phục — không bao giờ thay đổi số dư.",
+    "economy_db_unavailable": "Bảng cấu hình chưa được áp dụng (migration đang chờ). Đang dùng cấu hình mặc định biên dịch sẵn.",
+    "economy_versions": "Các phiên bản cấu hình",
+    "economy_active": "Đang áp dụng",
+    "economy_no_active": "chưa có",
+    "economy_version": "Phiên bản",
+    "economy_effective": "Hiệu lực từ",
+    "economy_valid": "Hợp lệ",
+    "economy_note": "Ghi chú",
+    "economy_actions": "Thao tác",
+    "economy_active_badge": "đang dùng",
+    "economy_valid_yes": "Hợp lệ",
+    "economy_valid_no": "Không hợp lệ",
+    "economy_publish": "Xuất bản",
+    "economy_activate": "Kích hoạt",
+    "economy_rollback": "Khôi phục",
+    "economy_reason_ph": "Lý do (bắt buộc, được ghi nhật ký)",
+    "economy_no_reward_note": "Không tạo thưởng, faucet, rake, ante hay chuyển xu nào. Chỉ đổi cấu hình đang áp dụng.",
+    "economy_leaderboard": "Bảng xếp hạng",
+    "economy_leaderboard_sub": "Chỉ đọc, tính từ các ván đã kết toán. Chỉ số: {metric}.",
+    "economy_player": "Người chơi",
+    "economy_value": "Giá trị",
+    "economy_hands": "Số ván",
+    "economy_coverage_note": "Dựa trên {hands} ván đã kết toán. Lãi/lỗ chính xác từ sổ xu; quy đổi big blind là ước lượng."
   }
 }

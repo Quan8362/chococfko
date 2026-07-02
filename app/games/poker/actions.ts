@@ -53,6 +53,12 @@ import { settleShowdown } from '@/lib/games/poker/showdown'
 import { totalContributed } from '@/lib/games/poker/pot'
 import { assertSnapshotPrivacy, type PokerSnapshot, type PokerLegalView } from '@/lib/games/poker/realtime'
 import { checkPokerCapability } from './access'
+import {
+  getActiveEconomyConfig,
+  checkBlindTier,
+  evaluateRejoinGuard,
+  recordSeatEvent,
+} from './economy-server'
 import { defaultOpsSeverity, type OpsEventKind } from '@/lib/games/poker/admin'
 import { redactTelemetryDetail, TELEMETRY_SCHEMA_VERSION } from '@/lib/games/poker/telemetry'
 import { PERF_EVENT_NAME, type PerfOp } from '@/lib/games/poker/perf'
@@ -113,6 +119,15 @@ export async function createTable(input: CreateTableInput): Promise<ActionResult
   if (!validated.ok) return fail(validated.error)
   const c = validated.config
 
+  // Economy authority: the (SB,BB) must be a SANCTIONED blind tier of the active config, and the
+  // buy-in bb window is DERIVED from that tier (never the client's numbers). This keeps the
+  // lobby on the ladder and makes buy-in limits authoritatively tier-driven. Server-only.
+  const econ = await getActiveEconomyConfig()
+  const tierCheck = checkBlindTier(econ, c.smallBlind, c.bigBlind)
+  if (!tierCheck.ok) return fail(tierCheck.error)
+  const minBuyInBb = tierCheck.minBuyInBb
+  const maxBuyInBb = tierCheck.maxBuyInBb
+
   const admin = createAdminClient()
   const { data: table, error } = await admin
     .from('poker_tables')
@@ -121,8 +136,8 @@ export async function createTable(input: CreateTableInput): Promise<ActionResult
       created_by: user.id,
       small_blind: c.smallBlind,
       big_blind: c.bigBlind,
-      min_buy_in_bb: c.minBuyInBb,
-      max_buy_in_bb: c.maxBuyInBb,
+      min_buy_in_bb: minBuyInBb,
+      max_buy_in_bb: maxBuyInBb,
       capacity: c.capacity,
       is_private: c.isPrivate,
       allow_spectators: c.allowSpectators,
@@ -317,8 +332,29 @@ export async function sitDown(tableId: string, seatIndex: number, buyIn: number)
   if (joinCapErr) return fail(joinCapErr)
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (user && await isRestricted(user.id, 'no_sit')) return fail('restricted')
-  return callPlayerRpc('poker_sit_down', { p_table_id: tableId, p_seat_index: seatIndex, p_buy_in: buyIn })
+  if (!user) return fail('not_authenticated')
+  if (await isRestricted(user.id, 'no_sit')) return fail('restricted')
+
+  // Rathole / rejoin guard (server-authoritative, config-driven, degrade-safe). The client
+  // cannot bypass it. The authoritative buy-in bounds are still enforced by the RPC below.
+  const admin = createAdminClient()
+  const { data: t } = await admin
+    .from('poker_tables')
+    .select('big_blind, min_buy_in_bb, max_buy_in_bb')
+    .eq('id', tableId)
+    .single()
+  if (t) {
+    const econ = await getActiveEconomyConfig()
+    const guard = await evaluateRejoinGuard(
+      admin, tableId, user.id, t.big_blind, t.min_buy_in_bb, t.max_buy_in_bb,
+      buyIn, Number.MAX_SAFE_INTEGER, econ,
+    )
+    if (!guard.ok) return fail(guard.reason)
+  }
+
+  const res = await callPlayerRpc('poker_sit_down', { p_table_id: tableId, p_seat_index: seatIndex, p_buy_in: buyIn })
+  if (res.ok) await recordSeatEvent(admin, tableId, user.id, seatIndex, 'join')
+  return res
 }
 export async function topUp(tableId: string, seatIndex: number, amount: number, idempotencyKey?: string) {
   if (!Number.isInteger(amount) || amount <= 0) return fail('invalid_amount')
@@ -330,10 +366,40 @@ export async function topUp(tableId: string, seatIndex: number, amount: number, 
 }
 export async function rebuy(tableId: string, seatIndex: number, amount: number) {
   if (!Number.isInteger(amount) || amount <= 0) return fail('invalid_amount')
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return fail('not_authenticated')
+
+  // Rathole / rejoin guard also covers rebuy (a busted departure is exempt by design, so this
+  // is a no-op unless a prior deep stand-up was logged). Server-authoritative, degrade-safe.
+  const admin = createAdminClient()
+  const { data: t } = await admin
+    .from('poker_tables')
+    .select('big_blind, min_buy_in_bb, max_buy_in_bb')
+    .eq('id', tableId)
+    .single()
+  if (t) {
+    const econ = await getActiveEconomyConfig()
+    const guard = await evaluateRejoinGuard(
+      admin, tableId, user.id, t.big_blind, t.min_buy_in_bb, t.max_buy_in_bb,
+      amount, Number.MAX_SAFE_INTEGER, econ,
+    )
+    if (!guard.ok) return fail(guard.reason)
+  }
   return callPlayerRpc('poker_rebuy', { p_table_id: tableId, p_seat_index: seatIndex, p_amount: amount })
 }
 export async function standUp(tableId: string, seatIndex: number) {
-  return callPlayerRpc('poker_stand_up', { p_table_id: tableId, p_seat_index: seatIndex })
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  const res = await callPlayerRpc('poker_stand_up', { p_table_id: tableId, p_seat_index: seatIndex })
+  // Log the departure with the retained stack (poker_stand_up returns `moved` = stack cashed
+  // out now; a mid-hand queued leave returns 0 and is captured at settlement). Best-effort.
+  if (res.ok && user) {
+    const moved = Number((res.data as { moved?: number })?.moved ?? 0)
+    const admin = createAdminClient()
+    await recordSeatEvent(admin, tableId, user.id, seatIndex, 'stand_up', moved)
+  }
+  return res
 }
 // Leave / cash-out — outside a hand returns the stack now; during a hand sets LEAVING and the
 // stand-up runs at settlement (LEAVE-001). Idempotent: a duplicate call credits the wallet once.
@@ -363,9 +429,26 @@ export async function waitForBigBlind(tableId: string, seatIndex: number) {
 }
 // Presence heartbeat / disconnect-reconnect. Never releases the seat or returns the stack.
 export async function setSeatConnection(tableId: string, seatIndex: number, connected: boolean) {
-  return callPlayerRpc('poker_set_seat_connection', {
+  const res = await callPlayerRpc('poker_set_seat_connection', {
     p_table_id: tableId, p_seat_index: seatIndex, p_connected: connected,
   })
+  // Log a disconnect so a reconnect within the documented grace is exempt from the rathole
+  // rule (reconnect ≠ voluntary stand-up). Best-effort; never affects the seat/stack.
+  if (res.ok && !connected) {
+    try {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const admin = createAdminClient()
+        const { data: s } = await admin
+          .from('poker_seats').select('stack, pending_topup')
+          .eq('table_id', tableId).eq('seat_index', seatIndex).maybeSingle()
+        const stack = Number(s?.stack ?? 0) + Number(s?.pending_topup ?? 0)
+        await recordSeatEvent(admin, tableId, user.id, seatIndex, 'disconnect', stack)
+      }
+    } catch { /* best-effort */ }
+  }
+  return res
 }
 export async function cleanExpiredReservations(tableId: string) {
   return callPlayerRpc('poker_clean_expired_reservations', { p_table_id: tableId })

@@ -5,14 +5,14 @@ import { useMemo, useState, useTransition } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
 import { createTable } from '../actions'
 import { coins } from '../_eco/format'
+import { POKER_ECONOMY_V1 } from '@/lib/games/poker/economyConfig'
 
-const STAKES = [
-  { sb: 50, bb: 100 },
-  { sb: 100, bb: 200 },
-  { sb: 250, bb: 500 },
-  { sb: 500, bb: 1000 },
-  { sb: 1000, bb: 2000 },
-]
+// Sanctioned blind tiers (buy-in bounds are DERIVED from the tier — the server enforces the
+// same ladder, so the lobby can never fragment onto off-ladder stakes).
+const STAKES = POKER_ECONOMY_V1.blindTiers.map((tr) => ({
+  sb: tr.smallBlind, bb: tr.bigBlind, minBb: tr.minBuyInBb, maxBb: tr.maxBuyInBb,
+}))
+const FIRST_TIER = STAKES[0]
 
 const UNSUPPORTED = ['feat_rake', 'feat_ante', 'feat_straddle', 'feat_bots', 'feat_tournaments', 'feat_realmoney'] as const
 
@@ -23,11 +23,11 @@ export default function CreateClient() {
   const [pending, start] = useTransition()
 
   const [name, setName] = useState('')
-  const [sb, setSb] = useState(100)
-  const [bb, setBb] = useState(200)
+  const [sb, setSb] = useState(FIRST_TIER.sb)
+  const [bb, setBb] = useState(FIRST_TIER.bb)
   const [capacity, setCapacity] = useState(6)
-  const [minBuyInBb, setMinBuyInBb] = useState(40)
-  const [maxBuyInBb, setMaxBuyInBb] = useState(100)
+  const [minBuyInBb, setMinBuyInBb] = useState(FIRST_TIER.minBb)
+  const [maxBuyInBb, setMaxBuyInBb] = useState(FIRST_TIER.maxBb)
   const [isPrivate, setIsPrivate] = useState(false)
   const [password, setPassword] = useState('')
   const [allowSpectators, setAllowSpectators] = useState(true)
@@ -89,6 +89,8 @@ export default function CreateClient() {
                 onClick={() => {
                   setSb(s.sb)
                   setBb(s.bb)
+                  setMinBuyInBb(s.minBb)
+                  setMaxBuyInBb(s.maxBb)
                 }}
                 className={`rounded-full border px-3 py-1 text-sm ${
                   sb === s.sb && bb === s.bb ? 'border-rose bg-rose/10 text-rose' : 'border-line hover:border-rose'
@@ -97,10 +99,6 @@ export default function CreateClient() {
                 {coins(s.sb, locale)}/{coins(s.bb, locale)}
               </button>
             ))}
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <NumberInput label={t('create.sb')} value={sb} min={1} onChange={setSb} />
-            <NumberInput label={t('create.bb')} value={bb} min={2} onChange={setBb} />
           </div>
         </Field>
 
@@ -121,13 +119,10 @@ export default function CreateClient() {
           </div>
         </Field>
 
-        <Field label={t('create.buyin')}>
-          <div className="grid grid-cols-2 gap-3">
-            <NumberInput label={`${t('create.min_buyin')} (${t('create.bb_unit')})`} value={minBuyInBb} min={1} onChange={setMinBuyInBb} />
-            <NumberInput label={`${t('create.max_buyin')} (${t('create.bb_unit')})`} value={maxBuyInBb} min={1} onChange={setMaxBuyInBb} />
-          </div>
-          <p className="mt-1 text-xs text-muted">
-            {coins(minBuyInBb * bb, locale)} – {coins(maxBuyInBb * bb, locale)}
+        <Field label={t('create.buyin')} hint={t('create.buyin_derived_hint')}>
+          <p className="text-sm text-ink">
+            {minBuyInBb}–{maxBuyInBb} {t('create.bb_unit')}
+            <span className="ml-2 text-xs text-muted">({coins(minBuyInBb * bb, locale)} – {coins(maxBuyInBb * bb, locale)})</span>
           </p>
         </Field>
 
@@ -159,7 +154,9 @@ export default function CreateClient() {
           <p className="text-sm text-rose">
             {(['err_name', 'err_blinds', 'err_buyin', 'err_password'] as string[]).includes(error)
               ? t(`create.${error}`)
-              : t('error.generic')}
+              : error === 'unsupported_blind_tier'
+                ? t('error.unsupported_blind_tier')
+                : t('error.generic')}
           </p>
         )}
 
@@ -197,22 +194,6 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
       </div>
       {children}
     </div>
-  )
-}
-
-function NumberInput({ label, value, min, onChange }: { label: string; value: number; min: number; onChange: (n: number) => void }) {
-  return (
-    <label className="block">
-      <span className="mb-1 block text-xs text-muted">{label}</span>
-      <input
-        type="number"
-        inputMode="numeric"
-        min={min}
-        value={value}
-        onChange={(e) => onChange(Math.max(min, Math.floor(Number(e.target.value) || 0)))}
-        className="w-full rounded-lg border border-line bg-cream px-3 py-2 outline-none focus:border-rose"
-      />
-    </label>
   )
 }
 

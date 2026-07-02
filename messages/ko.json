@@ -1695,7 +1695,10 @@
         "generic": "문제가 발생했습니다 — 다시 시도하세요.",
         "wrong_password": "비밀번호가 틀렸습니다.",
         "poker_feature_off": "이 기능은 아직 사용할 수 없습니다. 나중에 다시 시도해 주세요.",
-        "poker_joins_frozen": "새 착석이 일시 중지되었습니다. 진행 중인 테이블은 계속됩니다."
+        "poker_joins_frozen": "새 착석이 일시 중지되었습니다. 진행 중인 테이블은 계속됩니다.",
+        "unsupported_blind_tier": "지원되지 않는 스테이크입니다.",
+        "rathole_min_return": "떠날 때의 스택 그대로 돌아와야 합니다.",
+        "rapid_rejoin": "이 테이블에 너무 빠르게 재입장하고 있습니다. 잠시 기다려 주세요."
       },
       "hand_name": {
         "high_card": "하이 카드",
@@ -1816,7 +1819,8 @@
         "err_name": "테이블 이름을 입력하세요.",
         "err_blinds": "빅은 스몰의 정확히 2배여야 합니다.",
         "err_password": "비공개 테이블에는 비밀번호가 필요합니다.",
-        "err_buyin": "최대 바이인은 최소 이상이어야 합니다."
+        "err_buyin": "최대 바이인은 최소 이상이어야 합니다.",
+        "buyin_derived_hint": "바이인 한도는 선택한 스테이크로 정해집니다."
       },
       "join": {
         "title": "비공개 테이블",
@@ -5671,6 +5675,31 @@
     "lat_cashout": "캐시아웃",
     "lat_lobby": "로비 조회",
     "lat_history": "핸드 기록",
-    "metrics_generated_at": "생성 시각"
+    "metrics_generated_at": "생성 시각",
+    "nav_economy": "경제",
+    "economy_sub": "버전 관리·감사·롤백 가능한 가상 코인 경제 설정 — 잔액은 절대 변경하지 않습니다.",
+    "economy_db_unavailable": "설정 테이블이 아직 적용되지 않았습니다(마이그레이션 대기 중). 컴파일된 기본 설정을 사용합니다.",
+    "economy_versions": "설정 버전",
+    "economy_active": "활성",
+    "economy_no_active": "없음",
+    "economy_version": "버전",
+    "economy_effective": "적용 시작일",
+    "economy_valid": "유효",
+    "economy_note": "메모",
+    "economy_actions": "작업",
+    "economy_active_badge": "활성",
+    "economy_valid_yes": "유효",
+    "economy_valid_no": "무효",
+    "economy_publish": "게시",
+    "economy_activate": "활성화",
+    "economy_rollback": "롤백",
+    "economy_reason_ph": "사유 (필수, 감사 기록)",
+    "economy_no_reward_note": "보상·faucet·레이크·앤티·코인 이동을 만들지 않습니다. 활성 설정만 변경됩니다.",
+    "economy_leaderboard": "리더보드",
+    "economy_leaderboard_sub": "정산된 핸드 기준, 읽기 전용. 지표: {metric}.",
+    "economy_player": "플레이어",
+    "economy_value": "값",
+    "economy_hands": "핸드",
+    "economy_coverage_note": "{hands}개의 정산된 핸드 기준. 순이익은 코인 원장에서 정확하며 빅블라인드 환산은 근사치입니다."
   }
 }

@@ -1695,7 +1695,10 @@
         "generic": "Something went wrong — try again.",
         "wrong_password": "Wrong password.",
         "poker_feature_off": "This feature isn’t available yet. Please try again later.",
-        "poker_joins_frozen": "New seating is temporarily paused. Tables already in play continue."
+        "poker_joins_frozen": "New seating is temporarily paused. Tables already in play continue.",
+        "unsupported_blind_tier": "That stake level isn’t supported.",
+        "rathole_min_return": "You must return with the full stack you left with.",
+        "rapid_rejoin": "You’re rejoining this table too quickly. Please wait a moment."
       },
       "hand_name": {
         "high_card": "High card",
@@ -1816,7 +1819,8 @@
         "err_name": "Please enter a table name.",
         "err_blinds": "Big blind must be exactly twice the small blind.",
         "err_password": "A private table needs a password.",
-        "err_buyin": "Max buy-in must be at least the min buy-in."
+        "err_buyin": "Max buy-in must be at least the min buy-in.",
+        "buyin_derived_hint": "Buy-in limits are set by the selected stake."
       },
       "join": {
         "title": "Private table",
@@ -5671,6 +5675,31 @@
     "lat_cashout": "Cash-out",
     "lat_lobby": "Lobby query",
     "lat_history": "Hand history",
-    "metrics_generated_at": "Generated at"
+    "metrics_generated_at": "Generated at",
+    "nav_economy": "Economy",
+    "economy_sub": "Versioned, audited, roll-backable virtual-coin economy config — never changes balances.",
+    "economy_db_unavailable": "Config table not applied yet (migration pending). Using the compiled default config.",
+    "economy_versions": "Config versions",
+    "economy_active": "Active",
+    "economy_no_active": "none",
+    "economy_version": "Version",
+    "economy_effective": "Effective from",
+    "economy_valid": "Valid",
+    "economy_note": "Note",
+    "economy_actions": "Actions",
+    "economy_active_badge": "active",
+    "economy_valid_yes": "Valid",
+    "economy_valid_no": "Invalid",
+    "economy_publish": "Publish",
+    "economy_activate": "Activate",
+    "economy_rollback": "Roll back",
+    "economy_reason_ph": "Reason (required, audited)",
+    "economy_no_reward_note": "No reward, faucet, rake, ante, or coin transfer is created. Only the active config changes.",
+    "economy_leaderboard": "Leaderboard",
+    "economy_leaderboard_sub": "Read-only, from settled hands. Metric: {metric}.",
+    "economy_player": "Player",
+    "economy_value": "Value",
+    "economy_hands": "Hands",
+    "economy_coverage_note": "From {hands} settled hands. Net profit is exact (coin ledger); big-blind normalization is approximate."
   }
 }

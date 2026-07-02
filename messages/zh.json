@@ -1695,7 +1695,10 @@
         "generic": "出错了——请重试。",
         "wrong_password": "密码错误。",
         "poker_feature_off": "该功能尚未开放，请稍后再试。",
-        "poker_joins_frozen": "新入座暂时暂停。进行中的牌桌继续。"
+        "poker_joins_frozen": "新入座暂时暂停。进行中的牌桌继续。",
+        "unsupported_blind_tier": "不支持该盲注级别。",
+        "rathole_min_return": "你必须带着离桌时的筹码量返回。",
+        "rapid_rejoin": "你重新加入该桌过于频繁，请稍候。"
       },
       "hand_name": {
         "high_card": "高牌",
@@ -1816,7 +1819,8 @@
         "err_name": "请输入牌桌名称。",
         "err_blinds": "大盲必须恰好是小盲的两倍。",
         "err_password": "私人牌桌需要密码。",
-        "err_buyin": "最高买入不得低于最低买入。"
+        "err_buyin": "最高买入不得低于最低买入。",
+        "buyin_derived_hint": "买入上限由所选盲注级别决定。"
       },
       "join": {
         "title": "私人牌桌",
@@ -5671,6 +5675,31 @@
     "lat_cashout": "兑现",
     "lat_lobby": "大厅查询",
     "lat_history": "牌局历史",
-    "metrics_generated_at": "生成时间"
+    "metrics_generated_at": "生成时间",
+    "nav_economy": "经济",
+    "economy_sub": "版本化、可审计、可回滚的虚拟金币经济配置——绝不修改余额。",
+    "economy_db_unavailable": "配置表尚未应用（迁移待处理）。正在使用编译内置的默认配置。",
+    "economy_versions": "配置版本",
+    "economy_active": "生效中",
+    "economy_no_active": "无",
+    "economy_version": "版本",
+    "economy_effective": "生效日期",
+    "economy_valid": "有效",
+    "economy_note": "备注",
+    "economy_actions": "操作",
+    "economy_active_badge": "生效",
+    "economy_valid_yes": "有效",
+    "economy_valid_no": "无效",
+    "economy_publish": "发布",
+    "economy_activate": "启用",
+    "economy_rollback": "回滚",
+    "economy_reason_ph": "原因（必填，记入审计）",
+    "economy_no_reward_note": "不创建任何奖励、faucet、抽水、底注或金币转移，仅更改生效配置。",
+    "economy_leaderboard": "排行榜",
+    "economy_leaderboard_sub": "只读，来自已结算的牌局。指标：{metric}。",
+    "economy_player": "玩家",
+    "economy_value": "数值",
+    "economy_hands": "手数",
+    "economy_coverage_note": "基于 {hands} 手已结算牌局。净盈亏取自金币账本（精确），大盲归一化为近似值。"
   }
 }

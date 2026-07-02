@@ -187,10 +187,13 @@ export async function fetchHandHistory(limit = 25): Promise<EcoResult<{ hands: H
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return fail('not_authenticated')
 
-  // RLS read-own: which hands was I dealt into, and at which seat.
+  // RLS read-own: which hands was I dealt into, and at which seat. Order by recency so the 500-row
+  // cap keeps the MOST RECENT hands (served by poker_hole_cards_user_recent_idx) instead of an
+  // arbitrary window — a heavy player's latest hands were previously at risk of being truncated.
   const { data: mine } = await supabase
     .from('poker_hole_cards')
     .select('hand_id, seat_index')
+    .order('created_at', { ascending: false })
     .limit(500)
   const seatByHand = new Map<string, number>()
   for (const r of mine ?? []) seatByHand.set(r.hand_id, r.seat_index)

@@ -55,6 +55,12 @@ Apply **in this exact order**. Each is additive, idempotent (`IF NOT EXISTS` / `
 > Prompt-15 operator brief listed social as step 6 and admin_ops as step 7; that is equally
 > correct. What is fixed is that both come **after** engine, and social comes **after** core.
 
+> **Optional performance layer (any time after core):** `migration_poker_perf_indexes.sql` adds
+> three read-path indexes (hand-history recency, lobby-at-scale partial index, recent-tables).
+> It references only core/private objects, is additive/idempotent, and is HOT-compatible so it
+> does not slow the per-action write path. Apply it before a real load test or launch; see
+> `docs/poker/performance/bottlenecks.md`.
+
 ---
 
 ## 3. Dependency evidence (why this order)

@@ -35,5 +35,8 @@ __pycache__/
 /e2e/poker/.auth/
 /e2e/poker/.artifacts/
 
+# Poker load-test stop switch (operator-created kill file)
+/scripts/poker-load/.STOP
+
 # FUSE mount artifacts (appear when an open file is deleted)
 .fuse_hidden*

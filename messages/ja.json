@@ -5700,6 +5700,22 @@
     "economy_player": "プレイヤー",
     "economy_value": "値",
     "economy_hands": "ハンド数",
-    "economy_coverage_note": "{hands} 件の確定ハンドから。純利益はコイン台帳から正確、ビッグブラインド換算は概算です。"
+    "economy_coverage_note": "{hands} 件の確定ハンドから。純利益はコイン台帳から正確、ビッグブラインド換算は概算です。",
+    "nav_integrity": "インテグリティ",
+    "integrity_sub": "共謀・不審なプレイのリスク審査キュー — 証拠のみ、自動処罰はしません。",
+    "integrity_disclaimer": "リスクスコアは人によるレビューのための証拠にすぎません。自動でコインを没収したりアカウントを禁止することはありません。",
+    "integrity_none": "しきい値を超えるリスク案件はありません。",
+    "integrity_derived_note": "このリストは直近のハンド履歴からライブで導出されます（マイグレーション適用までキューには保存されません）。",
+    "col_subject": "対象",
+    "col_score": "スコア",
+    "col_band": "レベル",
+    "col_confidence": "信頼度",
+    "col_categories": "シグナル分類",
+    "col_window": "ハンド数",
+    "col_signals": "寄与シグナル",
+    "band_none": "なし",
+    "band_low": "低",
+    "band_medium": "中",
+    "band_high": "高"
   }
 }

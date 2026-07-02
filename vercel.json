@@ -16,6 +16,10 @@
     {
       "path": "/api/cron/poker-integrity",
       "schedule": "*/15 * * * *"
+    },
+    {
+      "path": "/api/cron/poker-risk-scoring",
+      "schedule": "23 * * * *"
     }
   ]
 }

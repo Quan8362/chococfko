@@ -5700,6 +5700,22 @@
     "economy_player": "Player",
     "economy_value": "Value",
     "economy_hands": "Hands",
-    "economy_coverage_note": "From {hands} settled hands. Net profit is exact (coin ledger); big-blind normalization is approximate."
+    "economy_coverage_note": "From {hands} settled hands. Net profit is exact (coin ledger); big-blind normalization is approximate.",
+    "nav_integrity": "Integrity",
+    "integrity_sub": "Collusion / suspicious-play risk review queue — evidence only, never automatic punishment.",
+    "integrity_disclaimer": "Risk scores are evidence for a human reviewer only. No action automatically deducts coins or bans an account.",
+    "integrity_none": "No risk cases above the threshold.",
+    "integrity_derived_note": "This list is derived live from recent hand history (not persisted to the queue until the migration is applied).",
+    "col_subject": "Subject",
+    "col_score": "Score",
+    "col_band": "Band",
+    "col_confidence": "Confidence",
+    "col_categories": "Signal categories",
+    "col_window": "Hands",
+    "col_signals": "Contributing signals",
+    "band_none": "None",
+    "band_low": "Low",
+    "band_medium": "Medium",
+    "band_high": "High"
   }
 }

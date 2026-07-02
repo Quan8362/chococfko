@@ -5700,6 +5700,22 @@
     "economy_player": "玩家",
     "economy_value": "数值",
     "economy_hands": "手数",
-    "economy_coverage_note": "基于 {hands} 手已结算牌局。净盈亏取自金币账本（精确），大盲归一化为近似值。"
+    "economy_coverage_note": "基于 {hands} 手已结算牌局。净盈亏取自金币账本（精确），大盲归一化为近似值。",
+    "nav_integrity": "诚信",
+    "integrity_sub": "串通/可疑游戏风险审查队列 — 仅作证据，绝不自动处罚。",
+    "integrity_disclaimer": "风险评分仅供人工审查作为证据。任何操作都不会自动扣除筹码或封禁账户。",
+    "integrity_none": "没有超过阈值的风险案例。",
+    "integrity_derived_note": "此列表根据近期牌局历史实时推导（在应用迁移之前不会保存到队列）。",
+    "col_subject": "对象",
+    "col_score": "分数",
+    "col_band": "等级",
+    "col_confidence": "置信度",
+    "col_categories": "信号类别",
+    "col_window": "牌局数",
+    "col_signals": "贡献信号",
+    "band_none": "无",
+    "band_low": "低",
+    "band_medium": "中",
+    "band_high": "高"
   }
 }

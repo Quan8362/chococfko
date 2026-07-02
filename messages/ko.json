@@ -5700,6 +5700,22 @@
     "economy_player": "플레이어",
     "economy_value": "값",
     "economy_hands": "핸드",
-    "economy_coverage_note": "{hands}개의 정산된 핸드 기준. 순이익은 코인 원장에서 정확하며 빅블라인드 환산은 근사치입니다."
+    "economy_coverage_note": "{hands}개의 정산된 핸드 기준. 순이익은 코인 원장에서 정확하며 빅블라인드 환산은 근사치입니다.",
+    "nav_integrity": "무결성",
+    "integrity_sub": "담합/의심 플레이 위험 검토 대기열 — 증거만 제공하며 자동 처벌하지 않습니다.",
+    "integrity_disclaimer": "위험 점수는 사람이 검토하기 위한 증거일 뿐입니다. 어떤 조치도 자동으로 코인을 차감하거나 계정을 정지하지 않습니다.",
+    "integrity_none": "임계값을 초과한 위험 사례가 없습니다.",
+    "integrity_derived_note": "이 목록은 최근 핸드 기록에서 실시간으로 도출됩니다(마이그레이션 적용 전까지 대기열에 저장되지 않음).",
+    "col_subject": "대상",
+    "col_score": "점수",
+    "col_band": "등급",
+    "col_confidence": "신뢰도",
+    "col_categories": "신호 분류",
+    "col_window": "핸드 수",
+    "col_signals": "기여 신호",
+    "band_none": "없음",
+    "band_low": "낮음",
+    "band_medium": "중간",
+    "band_high": "높음"
   }
 }

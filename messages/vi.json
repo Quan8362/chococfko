@@ -5700,6 +5700,22 @@
     "economy_player": "Người chơi",
     "economy_value": "Giá trị",
     "economy_hands": "Số ván",
-    "economy_coverage_note": "Dựa trên {hands} ván đã kết toán. Lãi/lỗ chính xác từ sổ xu; quy đổi big blind là ước lượng."
+    "economy_coverage_note": "Dựa trên {hands} ván đã kết toán. Lãi/lỗ chính xác từ sổ xu; quy đổi big blind là ước lượng.",
+    "nav_integrity": "Liêm chính",
+    "integrity_sub": "Hàng đợi rà soát rủi ro cấu kết / chơi đáng ngờ — chỉ bằng chứng, không tự động xử phạt.",
+    "integrity_disclaimer": "Điểm rủi ro chỉ là bằng chứng để con người rà soát. Không có hành động nào tự động trừ xu hay cấm tài khoản.",
+    "integrity_none": "Không có ca rủi ro nào vượt ngưỡng.",
+    "integrity_derived_note": "Danh sách được suy ra trực tiếp từ lịch sử ván gần đây (chưa lưu vào hàng đợi cho tới khi áp dụng migration).",
+    "col_subject": "Đối tượng",
+    "col_score": "Điểm",
+    "col_band": "Mức",
+    "col_confidence": "Độ tin cậy",
+    "col_categories": "Nhóm tín hiệu",
+    "col_window": "Số ván",
+    "col_signals": "Tín hiệu góp phần",
+    "band_none": "Không",
+    "band_low": "Thấp",
+    "band_medium": "Trung bình",
+    "band_high": "Cao"
   }
 }

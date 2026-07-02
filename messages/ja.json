@@ -1693,6 +1693,7 @@
         "already_seated_at_table": "すでにこのテーブルにいます。",
         "no_wallet": "ウォレットが見つかりません。",
         "generic": "問題が発生しました — 再試行してください。",
+        "password_required": "このテーブルは非公開です。参加にはパスワードが必要です。",
         "wrong_password": "パスワードが違います。",
         "poker_feature_off": "この機能はまだ利用できません。しばらくしてからお試しください。",
         "poker_joins_frozen": "新規着席は一時停止中です。進行中のテーブルは続行します。",

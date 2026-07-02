@@ -2,7 +2,9 @@ import { notFound, redirect } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import PokerTable, { type PokerTableConfig } from './PokerTable'
+import PrivateTableGate from './PrivateTableGate'
 import { getBetaTermsAck } from '../access'
+import { fetchTableAccess } from '../actions'
 
 export const dynamic = 'force-dynamic'
 
@@ -33,6 +35,15 @@ export default async function PokerTablePage({ params }: { params: { tableId: st
   // pre-acceptance. Server actions (sit/join) enforce this too; this is the reachable UX.
   const ack = await getBetaTermsAck()
   if (ack.required && !ack.acknowledged) redirect('/games/poker')
+
+  // Private-table password gate (authoritative, server-side). A viewer who has not unlocked a
+  // private table — via the lobby join, an invite link, a refresh, or direct navigation — is shown
+  // the password prompt instead of the live table. The seat/join server actions enforce this too;
+  // this makes direct navigation follow the SAME validation rather than exposing the seat UI.
+  const access = await fetchTableAccess(table.id)
+  if (access.isPrivate && !access.authorized) {
+    return <PrivateTableGate tableId={table.id} tableName={table.name} />
+  }
 
   // Buy-in bounds are derived from the AUTHORITATIVE table config (the same formula the
   // poker_sit_down RPC re-validates server-side: bb × buy-in-in-bb). The client only displays

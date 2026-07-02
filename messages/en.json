@@ -1693,6 +1693,7 @@
         "already_seated_at_table": "You're already at this table.",
         "no_wallet": "No wallet found.",
         "generic": "Something went wrong — try again.",
+        "password_required": "This table is private. A password is required to join.",
         "wrong_password": "Wrong password.",
         "poker_feature_off": "This feature isn’t available yet. Please try again later.",
         "poker_joins_frozen": "New seating is temporarily paused. Tables already in play continue.",

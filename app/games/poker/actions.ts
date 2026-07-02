@@ -13,7 +13,7 @@
 // 🔴 PRIVACY: fetchTableState returns a PUBLIC projection only (no hole cards, no deck). Own
 // hole cards are read ONLY via fetchMyHoleCards through the RLS read-own anon/cookie client.
 
-import { randomBytes, scryptSync, timingSafeEqual, randomUUID, randomInt } from 'crypto'
+import { randomUUID, randomInt } from 'crypto'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import {
@@ -53,6 +53,7 @@ import { settleShowdown } from '@/lib/games/poker/showdown'
 import { totalContributed } from '@/lib/games/poker/pot'
 import { assertSnapshotPrivacy, type PokerSnapshot, type PokerLegalView } from '@/lib/games/poker/realtime'
 import { checkPokerCapability } from './access'
+import { hashTablePassword, verifyTablePassword, privateTableAccessAllowed } from '@/lib/games/poker/tableAccess'
 import {
   getActiveEconomyConfig,
   checkBlindTier,
@@ -72,19 +73,8 @@ function fail(error: string): { ok: false; error: string } {
   return { ok: false, error }
 }
 
-// ── Password hashing (private tables) — scrypt, salted, never plaintext ────────────────
-function hashPassword(plain: string): string {
-  const salt = randomBytes(16)
-  const hash = scryptSync(plain, salt, 32)
-  return `scrypt$${salt.toString('hex')}$${hash.toString('hex')}`
-}
-function verifyPassword(plain: string, stored: string): boolean {
-  const [scheme, saltHex, hashHex] = stored.split('$')
-  if (scheme !== 'scrypt' || !saltHex || !hashHex) return false
-  const expected = Buffer.from(hashHex, 'hex')
-  const actual = scryptSync(plain, Buffer.from(saltHex, 'hex'), expected.length)
-  return expected.length === actual.length && timingSafeEqual(expected, actual)
-}
+// Private-table password hashing + verification live in the pure lib/games/poker/tableAccess
+// module (scrypt, salted, constant-time) so the same authoritative logic is unit-tested.
 
 // ── createTable — host config → poker_tables (service role; never a client write) ──────
 export interface CreateTableInput {
@@ -158,9 +148,14 @@ export async function createTable(input: CreateTableInput): Promise<ActionResult
   if (c.isPrivate && c.password) {
     await admin.from('poker_table_secrets').insert({
       table_id: table.id,
-      password_hash: hashPassword(c.password),
+      password_hash: hashTablePassword(c.password),
     })
   }
+  // The host implicitly knows the password (they set it) — record membership so their own direct
+  // navigation to the table is authorized without re-entering it (also feeds the members list).
+  await admin
+    .from('poker_table_members')
+    .upsert({ table_id: table.id, user_id: user.id, role: 'player', last_seen_at: new Date().toISOString() })
   return { ok: true, tableId: table.id }
 }
 
@@ -285,7 +280,7 @@ export async function joinTable(
       .select('password_hash')
       .eq('table_id', tableId)
       .single()
-    if (!secret || !verifyPassword((password ?? '').trim(), secret.password_hash)) {
+    if (!secret || !verifyTablePassword((password ?? '').trim(), secret.password_hash)) {
       return fail('wrong_password')
     }
   }
@@ -293,6 +288,52 @@ export async function joinTable(
     .from('poker_table_members')
     .upsert({ table_id: tableId, user_id: user.id, role: 'player', last_seen_at: new Date().toISOString() })
   return { ok: true }
+}
+
+// ── Private-table access gate — the SINGLE authoritative check every seat path shares ──────────
+// A seat at a PRIVATE table is allowed only if the caller passed its password (recorded as a
+// membership row by joinTable), created it (host), or already holds a seat (reconnect). A public
+// table is always allowed. This closes the direct-URL bypass: sitDown / reserveSeat consult this
+// BEFORE any seat reservation or coin movement, so a browser that navigates straight to the table
+// URL cannot seat itself without the password. The stored secret is NEVER read here (only the
+// existence of proof), so no password-equivalent value is exposed.
+async function privateSeatAllowed(admin: AdminClient, tableId: string, userId: string): Promise<boolean> {
+  const { data: table } = await admin
+    .from('poker_tables')
+    .select('is_private, created_by')
+    .eq('id', tableId)
+    .maybeSingle()
+  if (!table) return false
+  const isCreator = table.created_by === userId
+  let isSeated = false
+  let isMember = false
+  if (table.is_private && !isCreator) {
+    const [{ data: seat }, { data: member }] = await Promise.all([
+      admin.from('poker_seats').select('seat_index').eq('table_id', tableId).eq('user_id', userId).limit(1).maybeSingle(),
+      admin.from('poker_table_members').select('user_id').eq('table_id', tableId).eq('user_id', userId).maybeSingle(),
+    ])
+    isSeated = !!seat
+    isMember = !!member
+  }
+  return privateTableAccessAllowed({ isPrivate: !!table.is_private, isCreator, isSeated, isMember })
+}
+
+// Server action for the table route: does this viewer need to enter the password before the table
+// is shown? Returns authorized=true for public tables and for private tables the viewer may enter.
+// NEVER returns the password or any secret — only the boolean decision.
+export async function fetchTableAccess(tableId: string): Promise<{ isPrivate: boolean; authorized: boolean }> {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  const admin = createAdminClient()
+  const { data: table } = await admin
+    .from('poker_tables')
+    .select('is_private')
+    .eq('id', tableId)
+    .maybeSingle()
+  const isPrivate = !!table?.is_private
+  if (!isPrivate) return { isPrivate: false, authorized: true }
+  if (!user) return { isPrivate: true, authorized: false }
+  return { isPrivate: true, authorized: await privateSeatAllowed(admin, tableId, user.id) }
 }
 
 // ── Escrow commands — call the auth.uid()-scoped SECURITY DEFINER RPCs via the COOKIE ──
@@ -321,7 +362,12 @@ export async function reserveSeat(tableId: string, seatIndex: number) {
   if (joinCapErr) return fail(joinCapErr)
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (user && await isRestricted(user.id, 'no_sit')) return fail('restricted')
+  if (!user) return fail('not_authenticated')
+  if (await isRestricted(user.id, 'no_sit')) return fail('restricted')
+  // Private-table password gate: a non-member cannot reserve a seat by navigating straight to the
+  // table URL. Denied BEFORE the RPC → no reservation is created.
+  const admin = createAdminClient()
+  if (!(await privateSeatAllowed(admin, tableId, user.id))) return fail('password_required')
   return callPlayerRpc('poker_reserve_seat', { p_table_id: tableId, p_seat_index: seatIndex })
 }
 export async function sitDown(tableId: string, seatIndex: number, buyIn: number) {
@@ -335,9 +381,14 @@ export async function sitDown(tableId: string, seatIndex: number, buyIn: number)
   if (!user) return fail('not_authenticated')
   if (await isRestricted(user.id, 'no_sit')) return fail('restricted')
 
+  // Private-table password gate: a direct-URL visitor who never passed the password (no
+  // membership), is not the host, and is not already seated cannot take a seat. Denied BEFORE the
+  // wallet is touched → no seat reservation and no coin debit for a denied attempt.
+  const admin = createAdminClient()
+  if (!(await privateSeatAllowed(admin, tableId, user.id))) return fail('password_required')
+
   // Rathole / rejoin guard (server-authoritative, config-driven, degrade-safe). The client
   // cannot bypass it. The authoritative buy-in bounds are still enforced by the RPC below.
-  const admin = createAdminClient()
   const { data: t } = await admin
     .from('poker_tables')
     .select('big_blind, min_buy_in_bb, max_buy_in_bb')

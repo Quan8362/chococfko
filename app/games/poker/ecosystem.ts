@@ -17,6 +17,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { deserializeHand, handContributions, type SerializedHand } from '@/lib/games/poker/hand'
+import { detectUncalledRefund, type SeatContribution } from '@/lib/games/poker/pot'
+import { seatHandOutcome, aggregatePokerStats, seatPayoutAmount, type HandForStats } from '@/lib/games/poker/stats'
 import { projectLobbyTable, type LobbyTableRaw, type LobbyTable } from '@/lib/games/poker/lifecycle'
 import { POKER_ENTRY_MIN_BALANCE } from '@/lib/games/poker/economy'
 import type { Card, HoleCards, Pots, PokerActionType } from '@/lib/games/poker/types'
@@ -167,18 +169,11 @@ export interface HandHistoryRow {
   result: 'won' | 'lost' | 'even'
 }
 
-// Map a deserialized engine state → per-seat total contribution (authoritative).
-function contributionBySeat(engine: SerializedHand): Map<number, number> {
-  const state = deserializeHand(engine)
-  const m = new Map<number, number>()
-  for (const c of handContributions(state)) m.set(c.seatIndex, c.committed)
-  return m
-}
-
-function seatPayout(payouts: { seatIndex: number; amount: number }[] | null | undefined, seat: number): number {
-  let sum = 0
-  for (const p of payouts ?? []) if (p.seatIndex === seat) sum += p.amount
-  return sum
+// Deserialize an engine state → the authoritative per-seat contributions (total committed +
+// folded flag) the settlement was computed from. This carries everything net/showdown derivation
+// needs: the committed amount, the fold state, and (via detectUncalledRefund) the uncalled refund.
+function contribsFromEngine(engine: SerializedHand): SeatContribution[] {
+  return handContributions(deserializeHand(engine))
 }
 
 // ── fetchHandHistory — the caller's OWN completed hands (read-own gated) ─────────────────
@@ -226,9 +221,11 @@ export async function fetchHandHistory(limit = 25): Promise<EcoResult<{ hands: H
     const tbl = tableById.get(h.table_id)
     const settle = settleByHand.get(h.id)
     const engine = stateByHand.get(h.id)
-    const contributed = engine ? (contributionBySeat(engine).get(seat) ?? 0) : 0
-    const payout = seatPayout(settle?.payouts as { seatIndex: number; amount: number }[] | undefined, seat)
-    const net = payout - contributed
+    const payouts = (settle?.payouts as { seatIndex: number; amount: number }[] | undefined) ?? null
+    // net = payout + uncalled refund − committed (the refund is credited at settlement but NOT
+    // stored in the payouts audit, so it is reconstructed from the engine contributions).
+    const outcome = engine ? seatHandOutcome(contribsFromEngine(engine), payouts, seat) : null
+    const net = outcome ? outcome.net : seatPayoutAmount(payouts, seat)
     return {
       handId: h.id,
       handNo: h.hand_no,
@@ -311,14 +308,16 @@ export async function fetchHandDetail(handId: string): Promise<EcoResult<{ detai
     admin.from('poker_hand_state').select('engine_state').eq('hand_id', handId).maybeSingle(),
   ])
 
-  const contribBySeat = stateRow?.engine_state
-    ? contributionBySeat(stateRow.engine_state as SerializedHand)
-    : new Map<number, number>()
+  const contribs = stateRow?.engine_state ? contribsFromEngine(stateRow.engine_state as SerializedHand) : []
+  const contribBySeat = new Map<number, number>()
   const foldedSeats = new Set<number>()
-  if (stateRow?.engine_state) {
-    const state = deserializeHand(stateRow.engine_state as SerializedHand)
-    for (const c of handContributions(state)) if (c.folded) foldedSeats.add(c.seatIndex)
+  for (const c of contribs) {
+    contribBySeat.set(c.seatIndex, c.committed)
+    if (c.folded) foldedSeats.add(c.seatIndex)
   }
+  // Uncalled refund (POT-UNCALLED-001): credited at settlement but absent from the payouts audit,
+  // so reconstruct it here to report each seat's true net = payout + refund − committed.
+  const uncalledRefund = contribs.length > 0 ? detectUncalledRefund(contribs) : null
 
   // The viewer's seat (so we may show ONLY their own hole cards) + their own hole cards.
   let viewerSeatIndex: number | null = null
@@ -358,7 +357,8 @@ export async function fetchHandDetail(handId: string): Promise<EcoResult<{ detai
 
   const players: HandPlayerEntry[] = Array.from(seatSet).sort((a, b) => a - b).map((seat) => {
     const contributed = contribBySeat.get(seat) ?? 0
-    const payout = seatPayout(settle?.payouts as { seatIndex: number; amount: number }[] | undefined, seat)
+    const payout = seatPayoutAmount(settle?.payouts as { seatIndex: number; amount: number }[] | undefined, seat)
+    const refund = uncalledRefund && uncalledRefund.seatIndex === seat ? uncalledRefund.amount : 0
     const isViewer = seat === viewerSeatIndex
     const revealed = revealBySeat.get(seat) ?? (isViewer ? ownHole : null)
     const uid = userBySeat.get(seat)
@@ -368,7 +368,7 @@ export async function fetchHandDetail(handId: string): Promise<EcoResult<{ detai
       displayName: uid ? (nameByUser.get(uid) ?? null) : null,
       contributed,
       payout,
-      net: payout - contributed,
+      net: payout + refund - contributed,
       folded: foldedSeats.has(seat),
       isViewer,
       revealedCards: revealed ?? null,
@@ -434,29 +434,24 @@ export async function fetchPokerStats(): Promise<EcoResult<{ stats: PokerStats }
   const settleByHand = new Map((settlements ?? []).map((s) => [s.hand_id, s.payouts as { seatIndex: number; amount: number }[]]))
   const stateByHand = new Map((states ?? []).map((s) => [s.hand_id, s.engine_state as SerializedHand]))
 
-  let handsPlayed = 0, handsWon = 0, showdownsReached = 0, showdownsWon = 0, biggestPotWon = 0, netChange = 0
+  // Each COMPLETED hand the caller was dealt into, mapped to the authoritative inputs the pure
+  // aggregator needs. The engine contributions (committed + folded) drive net (incl. the
+  // reconstructed uncalled refund) and showdown participation (independent of muck/reveal); the
+  // public reveal seats are a degrade-safe fallback only when the engine state is missing.
+  const forStats: HandForStats[] = []
   for (const h of hands ?? []) {
     const seat = seatByHand.get(h.id)
     if (seat == null) continue
-    handsPlayed++
     const engine = stateByHand.get(h.id)
-    const contributed = engine ? (contributionBySeat(engine).get(seat) ?? 0) : 0
-    const payout = seatPayout(settleByHand.get(h.id), seat)
-    netChange += payout - contributed
-    if (payout > 0) {
-      handsWon++
-      if (payout > biggestPotWon) biggestPotWon = payout
-    }
     const reveal = (h.reveal as { seatIndex: number; cards: HoleCards }[] | null) ?? []
-    if (reveal.length > 0) {
-      const inShowdown = reveal.some((r) => r.seatIndex === seat)
-      if (inShowdown) {
-        showdownsReached++
-        if (payout > 0) showdownsWon++
-      }
-    }
+    forStats.push({
+      contribs: engine ? contribsFromEngine(engine) : null,
+      payouts: settleByHand.get(h.id) ?? null,
+      seat,
+      revealSeats: reveal.map((r) => r.seatIndex),
+    })
   }
-  return { ok: true, stats: { handsPlayed, handsWon, showdownsReached, showdownsWon, biggestPotWon, netChange } }
+  return { ok: true, stats: aggregatePokerStats(forStats) }
 }
 
 // ── Report / block — self-scoped, degrade-safe before the social migration is applied ────

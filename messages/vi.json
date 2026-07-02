@@ -1693,6 +1693,7 @@
         "already_seated_at_table": "Bạn đã ở bàn này.",
         "no_wallet": "Không tìm thấy ví.",
         "generic": "Có lỗi xảy ra — thử lại.",
+        "password_required": "Bàn này riêng tư. Cần mật khẩu để vào.",
         "wrong_password": "Sai mật khẩu.",
         "poker_feature_off": "Tính năng này hiện chưa được mở. Vui lòng thử lại sau.",
         "poker_joins_frozen": "Bàn hiện tạm khóa vào chỗ. Các bàn đang chơi vẫn tiếp tục.",

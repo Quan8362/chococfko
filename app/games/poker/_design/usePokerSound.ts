@@ -9,11 +9,15 @@
 //
 // AUTHORITY: sound is pure presentation. It is triggered by the same animation-safe transition
 // cues the table derives from authoritative snapshots, and is therefore NEVER replayed on a
-// snapshot recovery / reconnect (the cue diff already suppresses non-contiguous jumps). Mute and
-// the prefers-reduced-motion-style "quiet" preference persist in localStorage and are shared
-// across all consumers via useSyncExternalStore so a single toggle is global and consistent.
+// snapshot recovery / reconnect (the cue diff already suppresses non-contiguous jumps).
+//
+// PREFERENCES: this engine has NO private state of its own — it reads the shared, reactive
+// `_eco/prefs` store so the Settings screen and the live table stay in lockstep. The independent
+// categories it honours: `sound` (master gate), `effects` (gameplay SFX), `timerWarning` (the
+// time-pressure cue) and `vibration` (haptics). `music` is reserved (no music assets ship yet).
 
-import { useCallback, useSyncExternalStore } from 'react'
+import { useCallback } from 'react'
+import { getPrefs, setPref, usePokerPrefs } from '../_eco/prefs'
 
 export type PokerSoundName =
   | 'deal'
@@ -27,36 +31,13 @@ export type PokerSoundName =
   | 'potAward'
   | 'newHand'
 
-const MUTE_KEY = 'poker:muted'
-
-// ── Shared mute state (useSyncExternalStore) ────────────────────────────────────────────────
-let muted = ((): boolean => {
-  if (typeof window === 'undefined') return false
-  try {
-    return window.localStorage.getItem(MUTE_KEY) === '1'
-  } catch {
-    return false
-  }
-})()
-const listeners = new Set<() => void>()
-function emit() {
-  listeners.forEach((l) => l())
-}
-function subscribe(cb: () => void): () => void {
-  listeners.add(cb)
-  return () => listeners.delete(cb)
-}
-function getMuted(): boolean {
-  return muted
-}
-function setMutedState(next: boolean) {
-  muted = next
-  try {
-    window.localStorage.setItem(MUTE_KEY, next ? '1' : '0')
-  } catch {
-    /* private mode — in-memory only */
-  }
-  emit()
+// A sound plays only when the master `sound` gate is on AND its own category is enabled.
+// `timerWarn` is separately silenceable so a player can keep gameplay SFX but drop the
+// time-pressure beep (or vice-versa).
+function isAudible(name: PokerSoundName): boolean {
+  const p = getPrefs()
+  if (!p.sound) return false
+  return name === 'timerWarn' ? p.timerWarning : p.effects
 }
 
 // ── The single AudioContext, lazily created + gesture-unlocked ───────────────────────────────
@@ -179,7 +160,7 @@ function render(name: PokerSoundName, c: AudioContext) {
 }
 
 export function playPokerSound(name: PokerSoundName) {
-  if (muted) return
+  if (!isAudible(name)) return
   const c = audioContext()
   if (!c) return
   if (c.state === 'suspended') {
@@ -194,22 +175,37 @@ export function playPokerSound(name: PokerSoundName) {
   }
 }
 
+// Haptic feedback — gated ONLY on the `vibration` pref (independent of the audio master, so a
+// player on silent can still feel their turn/all-in). Best-effort; unsupported on iOS Safari.
+export function pokerVibrate(pattern: number | number[]) {
+  if (typeof navigator === 'undefined' || typeof navigator.vibrate !== 'function') return
+  if (!getPrefs().vibration) return
+  try {
+    navigator.vibrate(pattern)
+  } catch {
+    /* haptics are best-effort */
+  }
+}
+
 export interface PokerSoundApi {
+  /** true when the audio MASTER (`sound`) is off — drives the HUD mute glyph. */
   readonly muted: boolean
   readonly toggleMuted: () => void
   readonly setMuted: (v: boolean) => void
   readonly play: (name: PokerSoundName) => void
+  readonly vibrate: (pattern: number | number[]) => void
 }
 
 export function usePokerSound(): PokerSoundApi {
-  const isMuted = useSyncExternalStore(subscribe, getMuted, () => false)
+  const prefs = usePokerPrefs()
 
   const play = useCallback((name: PokerSoundName) => {
     bindUnlock()
     playPokerSound(name)
   }, [])
-  const toggleMuted = useCallback(() => setMutedState(!getMuted()), [])
-  const setMuted = useCallback((v: boolean) => setMutedState(v), [])
+  const vibrate = useCallback((pattern: number | number[]) => pokerVibrate(pattern), [])
+  const toggleMuted = useCallback(() => setPref('sound', !getPrefs().sound), [])
+  const setMuted = useCallback((v: boolean) => setPref('sound', !v), [])
 
-  return { muted: isMuted, toggleMuted, setMuted, play }
+  return { muted: !prefs.sound, toggleMuted, setMuted, play, vibrate }
 }

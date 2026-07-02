@@ -15,6 +15,7 @@ import { useTranslations } from 'next-intl'
 import '../_design/poker-theme.css'
 import { useViewportClass, type PokerLayout } from '../_design/useViewportClass'
 import { usePokerSound } from '../_design/usePokerSound'
+import { usePokerPrefs } from '../_eco/prefs'
 import { usePokerRealtime } from '../usePokerRealtime'
 import { tableGeometry, visualPosition, type PokerTableLayout } from '@/lib/games/poker/seatLayout'
 import { assignBlinds, type RingSeat } from '@/lib/games/poker/order'
@@ -95,7 +96,11 @@ function deriveBlinds(seats: readonly PublicSeat[], buttonSeat: number | null, l
 export default function PokerTable({ tableId, userId, config }: PokerTableProps) {
   const t = useTranslations('games.poker')
   const vp = useViewportClass()
-  const { play, muted, toggleMuted } = usePokerSound()
+  const { play, muted, toggleMuted, vibrate } = usePokerSound()
+  const prefs = usePokerPrefs()
+  // App-level reduced motion: honour the in-game toggles in addition to the OS setting (the CSS
+  // layer neutralises animation for `[data-pk-reduce-motion="1"]`, mirroring the media query).
+  const reduceMotion = prefs.reducedMotion || !prefs.animation
   const rt = usePokerRealtime(tableId)
   const {
     publicState,
@@ -152,10 +157,39 @@ export default function PokerTable({ tableId, userId, config }: PokerTableProps)
     if (myTurnSeq != null) {
       turnStartRef.current = Date.now()
       recordUxSignal('turn_started')
+      // Haptic nudge that it's the viewer's turn (mobile players may not be looking at the screen).
+      vibrate(20)
     } else {
       turnStartRef.current = null
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [myTurnSeq])
+
+  // ── Time-pressure cue — sound + haptic, once per own turn, near the server deadline ──────────
+  // Fires only on the VIEWER's own turn (never reveals opponents' timing) and only once per turn.
+  // It is derived from the server-authoritative deadline; it never enforces the timeout.
+  const turnDeadline = isMyTurn ? publicState?.turnDeadline ?? null : null
+  const warnFiredRef = useRef<string | null>(null)
+  useEffect(() => {
+    if (myTurnSeq == null || turnDeadline == null) return
+    const turnKey = `${publicState?.handId ?? ''}:${myTurnSeq}`
+    const WARN_LEAD_MS = 5000
+    const fire = () => {
+      if (warnFiredRef.current === turnKey) return
+      warnFiredRef.current = turnKey
+      play('timerWarn')
+      vibrate([40, 60, 40])
+    }
+    const delay = turnDeadline - WARN_LEAD_MS - Date.now()
+    if (delay <= 0) {
+      // Already inside the warning window (e.g. reconnected mid-turn) — fire immediately, once.
+      fire()
+      return
+    }
+    const id = window.setTimeout(fire, delay)
+    return () => window.clearTimeout(id)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [myTurnSeq, turnDeadline, publicState?.handId])
   // A fresh decision point (new action-seq) clears any stale rejection message.
   const legalSeq = legal?.stateVersion
   useEffect(() => {
@@ -368,6 +402,7 @@ export default function PokerTable({ tableId, userId, config }: PokerTableProps)
       data-hand-no={publicState?.handNo ?? 0}
       data-viewer-seat={viewerSeatIndex ?? ''}
       data-turn-seat={publicState?.turnSeat ?? ''}
+      data-pk-reduce-motion={reduceMotion ? '1' : '0'}
     >
       {vp.isPortrait && <RotateDeviceOverlay />}
 

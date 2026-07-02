@@ -2,12 +2,15 @@
 
 import { useEffect, useState, useTransition } from 'react'
 import { useTranslations } from 'next-intl'
-import { PREF_DEFAULTS, readPrefs, writePrefs, type PokerPrefKey } from '../_eco/prefs'
+import { resetPrefs, setPref, usePokerPrefs, type PokerPrefKey } from '../_eco/prefs'
 import { listMyBlocks, unblockPlayer } from '../ecosystem'
 
-const TOGGLES: PokerPrefKey[] = ['sound', 'music', 'vibration', 'animation', 'reducedMotion']
+// Grouped so the audio master reads clearly above the sub-categories it gates.
+const TOGGLES: PokerPrefKey[] = ['sound', 'effects', 'timerWarning', 'music', 'vibration', 'animation', 'reducedMotion']
 const LABEL: Record<PokerPrefKey, { t: string; hint: string }> = {
   sound: { t: 'settings.sound', hint: 'settings.sound_hint' },
+  effects: { t: 'settings.effects', hint: 'settings.effects_hint' },
+  timerWarning: { t: 'settings.timer_warning', hint: 'settings.timer_warning_hint' },
   music: { t: 'settings.music', hint: 'settings.music_hint' },
   vibration: { t: 'settings.vibration', hint: 'settings.vibration_hint' },
   animation: { t: 'settings.animation', hint: 'settings.animation_hint' },
@@ -16,29 +19,25 @@ const LABEL: Record<PokerPrefKey, { t: string; hint: string }> = {
 
 export default function SettingsClient() {
   const t = useTranslations('games.poker')
-  const [prefs, setPrefs] = useState<Record<PokerPrefKey, boolean>>(PREF_DEFAULTS)
+  const prefs = usePokerPrefs()
   const [saved, setSaved] = useState(false)
   const [blocked, setBlocked] = useState<{ userId: string; displayName: string | null }[]>([])
   const [, start] = useTransition()
 
   useEffect(() => {
-    setPrefs(readPrefs())
     void listMyBlocks().then((res) => {
       if (res.ok) setBlocked(res.blocked)
     })
   }, [])
 
   function toggle(key: PokerPrefKey) {
-    const next = { ...prefs, [key]: !prefs[key] }
-    setPrefs(next)
-    writePrefs(next)
+    setPref(key, !prefs[key])
     setSaved(true)
     setTimeout(() => setSaved(false), 1500)
   }
 
   function reset() {
-    setPrefs(PREF_DEFAULTS)
-    writePrefs(PREF_DEFAULTS)
+    resetPrefs()
     setSaved(true)
     setTimeout(() => setSaved(false), 1500)
   }
@@ -61,25 +60,34 @@ export default function SettingsClient() {
       </div>
 
       <div className="divide-y divide-line rounded-xl border border-line bg-paper">
-        {TOGGLES.map((key) => (
-          <label key={key} className="flex cursor-pointer items-center justify-between gap-4 p-4">
-            <span>
-              <span className="font-medium">{t(LABEL[key].t)}</span>
-              <span className="block text-xs text-muted">{t(LABEL[key].hint)}</span>
-            </span>
-            <button
-              type="button"
-              role="switch"
-              aria-checked={prefs[key]}
-              onClick={() => toggle(key)}
-              className={`relative h-6 w-11 shrink-0 appearance-none rounded-full transition-colors ${prefs[key] ? 'bg-rose' : 'bg-line'}`}
+        {TOGGLES.map((key) => {
+          // Sub-categories of audio are inert while the master `sound` is off — dim + disable them
+          // so the dependency is visible (they still remember their own on/off state).
+          const gatedByMaster = (key === 'effects' || key === 'timerWarning' || key === 'music') && !prefs.sound
+          return (
+            <label
+              key={key}
+              className={`flex items-center justify-between gap-4 p-4 ${gatedByMaster ? 'opacity-50' : 'cursor-pointer'} ${key !== 'sound' && (key === 'effects' || key === 'timerWarning' || key === 'music') ? 'pl-8' : ''}`}
             >
-              <span
-                className={`pointer-events-none absolute top-1/2 h-5 w-5 -translate-y-1/2 rounded-full bg-white shadow transition-[left] ${prefs[key] ? 'left-[22px]' : 'left-0.5'}`}
-              />
-            </button>
-          </label>
-        ))}
+              <span>
+                <span className="font-medium">{t(LABEL[key].t)}</span>
+                <span className="block text-xs text-muted">{t(LABEL[key].hint)}</span>
+              </span>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={prefs[key]}
+                disabled={gatedByMaster}
+                onClick={() => toggle(key)}
+                className={`relative h-6 w-11 shrink-0 appearance-none rounded-full transition-colors disabled:cursor-not-allowed ${prefs[key] ? 'bg-rose' : 'bg-line'}`}
+              >
+                <span
+                  className={`pointer-events-none absolute top-1/2 h-5 w-5 -translate-y-1/2 rounded-full bg-white shadow transition-[left] ${prefs[key] ? 'left-[22px]' : 'left-0.5'}`}
+                />
+              </button>
+            </label>
+          )
+        })}
       </div>
 
       <button onClick={reset} className="mt-4 rounded-lg border border-line px-4 py-2 text-sm hover:border-rose">

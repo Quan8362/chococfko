@@ -243,3 +243,18 @@
     animation: none !important;
   }
 }
+
+/* App-level reduced motion (Settings → "Reduced motion" / "Animation off"). Mirrors the OS media
+ * query so the in-game toggles work even when the device itself isn't set to reduce motion. */
+.poker-root[data-pk-reduce-motion='1'] *,
+.poker-root[data-pk-reduce-motion='1'] *::before,
+.poker-root[data-pk-reduce-motion='1'] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+}
+.poker-root[data-pk-reduce-motion='1'] .pk-anim-actor,
+.poker-root[data-pk-reduce-motion='1'] .pk-anim-winner,
+.poker-root[data-pk-reduce-motion='1'] .pk-anim-timer-flash {
+  animation: none !important;
+}

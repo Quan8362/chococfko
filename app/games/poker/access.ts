@@ -123,8 +123,11 @@ export interface BetaTermsAckState {
 export async function getBetaTermsAck(a?: PokerAccess): Promise<BetaTermsAckState> {
   const acc = a ?? (await getPokerAccess())
   const version = BETA_TERMS_VERSION
-  // Not gated by beta terms unless the beta stage is on and the viewer is a non-admin member.
-  if (!acc.isBeta || acc.access.isAdmin || !acc.isBetaMember) {
+  // The terms gate keys off BETA COHORT MEMBERSHIP, not admin status: anyone enrolled as a
+  // tester (in a cohort) must accept the tester terms before committing coins — even if they
+  // are also an app admin (the internal beta's sole tester is both). A pure ops admin who is
+  // NOT in any cohort is not a tester and is never gated here.
+  if (!acc.isBeta || !acc.isBetaMember) {
     return { required: false, acknowledged: true, version, available: true }
   }
   try {

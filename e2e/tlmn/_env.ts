@@ -5,12 +5,12 @@
 // only — never logged, never written to the report.
 import fs from 'node:fs'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 
-// ESM-safe directory of THIS file. Works both under Node (esm) when run directly
-// (teardown.mjs) and under Playwright/esbuild — unlike __dirname, which is undefined
-// in an ES module scope.
-const HERE = path.dirname(fileURLToPath(import.meta.url))
+// Directory of THIS file. Playwright always runs from web/ (every npm script + the CI
+// job set that cwd), so resolve from the project root — this is CJS/ESM-agnostic, unlike
+// import.meta.url (which breaks Playwright's TypeScript config loader) or __dirname
+// (undefined in an ES module scope).
+const HERE = path.resolve(process.cwd(), 'e2e/tlmn')
 
 function loadEnvLocal(): void {
   const candidates = [
@@ -69,4 +69,11 @@ export const PLAYER_B = {
   password: process.env.TLMN_E2E_PASSWORD_B || process.env.TLMN_E2E_B_PASSWORD || '',
 }
 
-export const AUTH_DIR = p
+// ── Output locations ──────────────────────────────────────────────────────────────
+// Playwright artifacts (traces / screenshots / reports) live under e2e/tlmn/.artifacts
+// so the CI job can upload the whole folder. The per-player storageState files (written
+// by auth.setup.ts, consumed by multiplayer.spec.ts) live alongside under .auth.
+export const ARTIFACT_DIR = path.resolve(HERE, '.artifacts')
+export const AUTH_DIR = path.resolve(HERE, '.auth')
+export const STATE_A = path.join(AUTH_DIR, 'player-a.json')
+export const STATE_B = path.join(AUTH_DIR, 'player-b.json')

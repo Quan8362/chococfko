@@ -1,6 +1,8 @@
 import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { getPokerAccess } from './access'
+import { BETA_STATUS_MESSAGE_ENV } from '@/lib/games/poker/beta'
+import PokerBetaBanner from './_components/PokerBetaBanner'
 
 // Master feature-flag chokepoint for every player-facing poker route. When the
 // feature is not visible to the viewer (POKER_ENABLED off and not an admin) the
@@ -11,9 +13,12 @@ import { getPokerAccess } from './access'
 // In Alpha mode a fixed, unmissable ALPHA ribbon labels every poker screen so a
 // tester always knows this is a pre-release build (test coins, expect bugs).
 export default async function PokerLayout({ children }: { children: React.ReactNode }) {
-  const { visible, isAlpha } = await getPokerAccess()
+  const { visible, isAlpha, isBeta, betaMaintenance } = await getPokerAccess()
   if (!visible) notFound()
   const t = await getTranslations('games.poker')
+  // Ops-controlled service-status message (server-only env). Empty by default. The
+  // maintenance switch is resolved server-side in access (it also blocks new joins).
+  const statusMessage = process.env[BETA_STATUS_MESSAGE_ENV] || null
   return (
     <>
       {isAlpha && (
@@ -24,6 +29,7 @@ export default async function PokerLayout({ children }: { children: React.ReactN
           {t('alpha.badge')}
         </div>
       )}
+      {isBeta && !isAlpha && <PokerBetaBanner statusMessage={statusMessage} maintenance={betaMaintenance} />}
       {children}
     </>
   )

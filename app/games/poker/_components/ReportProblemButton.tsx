@@ -16,11 +16,13 @@ import {
   BUG_SEVERITIES,
   REPORT_KINDS,
   UX_CATEGORIES,
+  BETA_FEEDBACK_CATEGORIES,
   USABILITY_RATING_MIN,
   USABILITY_RATING_MAX,
   type BugSeverity,
   type ReportKind,
   type UxCategory,
+  type BetaFeedbackCategory,
   type PokerBugContext,
 } from '@/lib/games/poker/bugReport'
 import { getUxTrailSummary } from '@/lib/games/poker/uxSignals'
@@ -67,6 +69,7 @@ export default function ReportProblemButton({ context, variant = 'floating', cla
   const [open, setOpen] = useState(false)
   const [reportKind, setReportKind] = useState<ReportKind>('bug')
   const [uxCategory, setUxCategory] = useState<UxCategory>('confusing_action')
+  const [feedbackCategory, setFeedbackCategory] = useState<BetaFeedbackCategory>('other')
   const [usabilityRating, setUsabilityRating] = useState<number>(0)
   const [description, setDescription] = useState('')
   const [expected, setExpected] = useState('')
@@ -111,7 +114,7 @@ export default function ReportProblemButton({ context, variant = 'floating', cla
   }, [open])
 
   const reset = () => {
-    setReportKind('bug'); setUxCategory('confusing_action'); setUsabilityRating(0)
+    setReportKind('bug'); setUxCategory('confusing_action'); setFeedbackCategory('other'); setUsabilityRating(0)
     setDescription(''); setExpected(''); setActual(''); setSeverity('major')
     setContactOk(false); setScreenshotUrl(''); setResult(null)
   }
@@ -130,7 +133,7 @@ export default function ReportProblemButton({ context, variant = 'floating', cla
       reportKind,
       ...(reportKind === 'ux_feedback'
         ? { uxCategory, ...(usabilityRating > 0 ? { usabilityRating } : {}) }
-        : {}),
+        : { feedbackCategory }),
       ...(uxTrail ? { uxTrail } : {}),
     }
     try {
@@ -257,6 +260,18 @@ export default function ReportProblemButton({ context, variant = 'floating', cla
                       placeholder={t('ph_actual')} maxLength={2000} />
                   </label>
                 </div>
+
+                {reportKind === 'bug' && (
+                  <label className="block">
+                    <span className="text-[12px] font-medium text-ink">{t('field_category')}</span>
+                    <select value={feedbackCategory} onChange={(e) => setFeedbackCategory(e.target.value as BetaFeedbackCategory)}
+                      className="mt-1 w-full rounded-lg border border-line bg-cream/40 p-2 text-[13px] outline-none focus:border-rose">
+                      {BETA_FEEDBACK_CATEGORIES.map((c) => (
+                        <option key={c} value={c}>{t(`feedback_category.${c}`)}</option>
+                      ))}
+                    </select>
+                  </label>
+                )}
 
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   {reportKind === 'ux_feedback' ? (

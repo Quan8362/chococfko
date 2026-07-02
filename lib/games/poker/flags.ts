@@ -27,6 +27,14 @@ export interface PokerFlags {
   //   down gracefully without stranding coins mid-hand.
   alpha: boolean
   blockNewJoins: boolean
+  // ── Closed Beta ───────────────────────────────────────────────────────────
+  // closedBeta: the STAGE AFTER Alpha. When ON the feature is reachable ONLY by
+  //   members of the beta cohorts (+ admins), even if `enabled` is also ON — a
+  //   larger-but-still-private rollout with cohort assignment, terms acknowledg
+  //   -ement and per-tester suspend. Cohort membership + suspension are resolved
+  //   in lib/games/poker/beta.ts (env allowlists), NOT here, to keep this module
+  //   a pure flag resolver. Typically run with alpha=0 and enabled=0.
+  closedBeta: boolean
 }
 
 // The ops-facing flag names (env keys + documentation), in canonical order.
@@ -40,6 +48,7 @@ export const POKER_FLAG_ENV: Record<keyof PokerFlags, string> = {
   tournament: 'POKER_TOURNAMENT_ENABLED',
   alpha: 'POKER_ALPHA_MODE',
   blockNewJoins: 'POKER_BLOCK_NEW_JOINS',
+  closedBeta: 'POKER_CLOSED_BETA_ENABLED',
 }
 
 // Env key holding the comma-separated tester allowlist (emails), mirroring the
@@ -67,6 +76,7 @@ export function resolvePokerFlags(env: Record<string, string | undefined>): Poke
     tournament: false,
     alpha: truthy(env[POKER_FLAG_ENV.alpha]),
     blockNewJoins: truthy(env[POKER_FLAG_ENV.blockNewJoins]),
+    closedBeta: truthy(env[POKER_FLAG_ENV.closedBeta]),
   }
 }
 
@@ -99,16 +109,31 @@ export interface PokerViewer {
   // On the Alpha allowlist (server-resolved from POKER_ALPHA_TESTERS). Optional
   // so existing callers that never set it default to "not a tester".
   isAlphaTester?: boolean
+  // In a Closed Beta cohort (server-resolved from the cohort allowlists in
+  // lib/games/poker/beta.ts). Optional; defaults to "not a beta member".
+  isBetaMember?: boolean
+  // Suspended from the private test (Alpha/Beta) at the ACCESS layer — locked out
+  // of the feature entirely even if otherwise a member. Distinct from a gameplay
+  // player_restriction (which lets them view but not sit). Admins are never
+  // suspended by this flag. Optional; defaults to "not suspended".
+  suspended?: boolean
 }
 
 // May the viewer reach the poker feature at all?
 //   • Admins always get in (admin-only production-visibility rollout stage).
-//   • In Alpha mode the feature is reachable ONLY by approved testers — even if
-//     the public master flag is also on, the public stays locked out.
+//   • A suspended tester is locked out regardless of membership.
+//   • In Closed Beta mode the feature is reachable ONLY by cohort members — even
+//     if the public master flag is also on, the public stays locked out.
+//   • In Alpha mode the feature is reachable ONLY by approved testers — likewise.
 //   • Otherwise the public master flag decides.
+// Closed Beta and Alpha are mutually-exclusive stages in practice (run one at a
+// time). If both are left on, the MORE RESTRICTIVE combination applies: a viewer
+// must satisfy whichever gate is checked first, so a mis-set flag fails closed.
 export function pokerVisibleTo(flags: PokerFlags, viewer: PokerViewer): boolean {
   if (viewer.isAdmin) return true
+  if (viewer.suspended) return false
   if (flags.alpha) return !!viewer.isAlphaTester
+  if (flags.closedBeta) return !!viewer.isBetaMember
   return flags.enabled
 }
 

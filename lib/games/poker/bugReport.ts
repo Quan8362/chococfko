@@ -47,6 +47,29 @@ export function isUxCategory(v: unknown): v is UxCategory {
   return typeof v === 'string' && (UX_CATEGORIES as readonly string[]).includes(v)
 }
 
+// The Closed-Beta feedback taxonomy. A tester tags each report with ONE area so the beta
+// dashboard can route it (rules bug vs coin bug vs a translation typo). Non-sensitive; carried
+// in the same allowlisted context jsonb so no schema change is needed and the flow stays
+// degrade-safe before any dashboard migration.
+export const BETA_FEEDBACK_CATEGORIES = [
+  'rules',
+  'coin',
+  'realtime',
+  'reconnect',
+  'ui',
+  'mobile',
+  'performance',
+  'translation',
+  'sound',
+  'abuse',
+  'other',
+] as const
+export type BetaFeedbackCategory = (typeof BETA_FEEDBACK_CATEGORIES)[number]
+
+export function isBetaFeedbackCategory(v: unknown): v is BetaFeedbackCategory {
+  return typeof v === 'string' && (BETA_FEEDBACK_CATEGORIES as readonly string[]).includes(v)
+}
+
 // Optional 1–5 "how usable was this table" rating attached to UX feedback.
 export const USABILITY_RATING_MIN = 1
 export const USABILITY_RATING_MAX = 5
@@ -81,6 +104,8 @@ export const ALLOWED_CONTEXT_KEYS = [
   'uxCategory',
   'usabilityRating',
   'uxTrail',
+  // Closed-Beta feedback taxonomy (rules/coin/realtime/…); non-sensitive routing tag.
+  'feedbackCategory',
 ] as const
 export type AllowedContextKey = (typeof ALLOWED_CONTEXT_KEYS)[number]
 
@@ -135,6 +160,7 @@ export interface PokerBugContext {
   uxCategory?: string
   usabilityRating?: number
   uxTrail?: string
+  feedbackCategory?: string
 }
 
 export interface BugReportInput {
@@ -222,6 +248,7 @@ export function sanitizeBugContext(raw: unknown): PokerBugContext {
   // the UI's own <select>).
   if (out.reportKind !== undefined && !isReportKind(out.reportKind)) delete out.reportKind
   if (out.uxCategory !== undefined && !isUxCategory(out.uxCategory)) delete out.uxCategory
+  if (out.feedbackCategory !== undefined && !isBetaFeedbackCategory(out.feedbackCategory)) delete out.feedbackCategory
   if (out.usabilityRating !== undefined) {
     const r = out.usabilityRating
     if (r < USABILITY_RATING_MIN || r > USABILITY_RATING_MAX) delete out.usabilityRating

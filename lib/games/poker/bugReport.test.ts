@@ -175,3 +175,15 @@ test('BUG-UX-004 a card-shaped uxTrail value cannot smuggle sensitive data (allo
   assert.equal((ctx as Record<string, unknown>).deck, undefined)
   assert.equal(ctx.uxTrail, 'device_rotated:1')
 })
+
+test('BUG-BETA-001 sanitizeBugContext keeps a valid beta feedback category', () => {
+  for (const cat of ['rules', 'coin', 'realtime', 'reconnect', 'ui', 'mobile', 'performance', 'translation', 'sound', 'abuse', 'other']) {
+    const ctx = sanitizeBugContext({ tableId: 't', feedbackCategory: cat })
+    assert.equal(ctx.feedbackCategory, cat, `category=${cat}`)
+  }
+})
+
+test('BUG-BETA-002 sanitizeBugContext drops an invalid feedback category', () => {
+  const ctx = sanitizeBugContext({ tableId: 't', feedbackCategory: 'not_a_category' })
+  assert.equal(ctx.feedbackCategory, undefined)
+})

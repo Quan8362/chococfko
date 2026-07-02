@@ -13,7 +13,7 @@ import {
 const OFF: PokerFlags = {
   enabled: false, createTable: false, publicLobby: false,
   privateTable: false, spectator: false, bot: false, tournament: false,
-  alpha: false, blockNewJoins: false,
+  alpha: false, blockNewJoins: false, closedBeta: false,
 }
 const admin = { isAdmin: true }
 const player = { isAdmin: false }
@@ -47,7 +47,7 @@ test('FLAG-HARDOFF-001 bot/tournament stay OFF even when env sets them on', () =
 test('FLAG-ENVMAP-001 exposes exactly the canonical env names', () => {
   assert.deepEqual(Object.values(POKER_FLAG_ENV).sort(), [
     'POKER_ALPHA_MODE', 'POKER_BLOCK_NEW_JOINS', 'POKER_BOT_ENABLED',
-    'POKER_CREATE_TABLE_ENABLED', 'POKER_ENABLED',
+    'POKER_CLOSED_BETA_ENABLED', 'POKER_CREATE_TABLE_ENABLED', 'POKER_ENABLED',
     'POKER_PRIVATE_TABLE_ENABLED', 'POKER_PUBLIC_LOBBY_ENABLED',
     'POKER_SPECTATOR_ENABLED', 'POKER_TOURNAMENT_ENABLED',
   ])
@@ -143,4 +143,44 @@ test('TESTER-MATCH-001 membership is case-insensitive; empty email never matches
   assert.equal(isAlphaTester('nobody@x.com', raw), false)
   assert.equal(isAlphaTester(null, raw), false)
   assert.equal(isAlphaTester('tester@fko.com', ''), false)
+})
+
+// ── Closed Beta stage ─────────────────────────────────────────────────────────
+const betaMember = { isAdmin: false, isBetaMember: true }
+
+test('BETA-VIS-001 closed beta locks the public out and admits only cohort members', () => {
+  const f = { ...OFF, closedBeta: true }
+  assert.equal(pokerVisibleTo(f, player), false)
+  assert.equal(pokerVisibleTo(f, betaMember), true)
+  assert.equal(pokerVisibleTo(f, admin), true)
+})
+
+test('BETA-VIS-002 closed beta overrides an ON master flag (public still locked out)', () => {
+  const f = { ...OFF, closedBeta: true, enabled: true }
+  assert.equal(pokerVisibleTo(f, player), false, 'public must not slip in via enabled')
+  assert.equal(pokerVisibleTo(f, betaMember), true)
+})
+
+test('BETA-VIS-003 with closed beta OFF the member flag is inert', () => {
+  assert.equal(pokerVisibleTo({ ...OFF }, betaMember), false)
+  assert.equal(pokerVisibleTo({ ...OFF, enabled: true }, betaMember), true, 'public flag admits everyone')
+})
+
+test('BETA-SUSPEND-001 a suspended non-admin is locked out even if a member', () => {
+  const f = { ...OFF, closedBeta: true }
+  assert.equal(pokerVisibleTo(f, { isAdmin: false, isBetaMember: true, suspended: true }), false)
+  assert.equal(pokerVisibleTo(f, { isAdmin: true, suspended: true }), true, 'admin is never suspended by this flag')
+})
+
+test('BETA-RESOLVE-001 env maps POKER_CLOSED_BETA_ENABLED', () => {
+  assert.equal(resolvePokerFlags({ POKER_CLOSED_BETA_ENABLED: '1' }).closedBeta, true)
+  assert.equal(resolvePokerFlags({}).closedBeta, false)
+  assert.equal(POKER_FLAG_ENV.closedBeta, 'POKER_CLOSED_BETA_ENABLED')
+})
+
+test('BETA-ALPHA-PRECEDENCE-001 alpha gate is checked before beta (fails closed if both on)', () => {
+  const f = { ...OFF, alpha: true, closedBeta: true }
+  // a beta member who is NOT an alpha tester is kept out while alpha is left on
+  assert.equal(pokerVisibleTo(f, betaMember), false)
+  assert.equal(pokerVisibleTo(f, tester), true)
 })

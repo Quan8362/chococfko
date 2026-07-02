@@ -55,7 +55,11 @@ const BOARD_RATIO = BOARD_W / BOARD_H // ≈ 1.777 (16:9)
 // unchanged, so all four seats + the centre pile stay aligned around the painted table.
 const BOARD_MOBILE_SRC = '/tlmn-table-mobile-landscape.webp' // 1672×941 (16:9)
 const BOARD_TABLET_SRC = '/tlmn-table-tablet-landscape.webp' // 1448×1086 (4:3)
-const BLEED_TABLET_MIN = 768 // ≥ this width (and < 1024 desktop) ⇒ tablet art, else mobile
+const BLEED_TABLET_MIN = 768 // ≥ this width ⇒ tablet art, else mobile art
+// Upper width bound for treating a COARSE-pointer (touch) device as a full-bleed tablet.
+// Covers every common tablet landscape width — 1024, 1180, 1194, 1366 — so an iPad-class
+// device never falls onto the desktop 16:9 board. A mouse desktop ignores this (fine pointer).
+const TABLET_BLEED_MAX = 1366
 
 // ── Game stacking order — SINGLE source of truth for layering ────────────────────────
 // Within the board box:      table art (z-0) < seats (z-10) < centre pile (z-20) <
@@ -129,6 +133,23 @@ function useViewport() {
     return () => { window.removeEventListener('resize', on); window.removeEventListener('orientationchange', on) }
   }, [])
   return vp
+}
+
+// Is the PRIMARY pointer coarse (finger)? True on phones + tablets, false on a mouse-driven
+// desktop. Used ALONGSIDE width so a landscape tablet (iPad Pro is 1194/1366 CSS-wide — well
+// past the 1024 desktop breakpoint) still gets the full-bleed touch table art instead of the
+// framed desktop board. Reactive so a 2-in-1 that switches input modes re-evaluates.
+function useCoarsePointer() {
+  const [coarse, setCoarse] = useState(false)
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return
+    const mq = window.matchMedia('(pointer: coarse)')
+    const on = () => setCoarse(mq.matches)
+    on()
+    mq.addEventListener?.('change', on)
+    return () => mq.removeEventListener?.('change', on)
+  }, [])
+  return coarse
 }
 
 // Measure an element's content width (for the hand fan, so cards overlap exactly
@@ -217,20 +238,28 @@ const GEOMETRY: Record<LayoutMode, SeatGeometry> = {
   // is pushed DOWN to ≈ the true centre of the usable felt (below the top seat, above the
   // taller dock) so there's a generous empty gap under Bot 2 and the pile reads as the focus.
   bleed: {
-    // Run 12d — classic table balance: Bot 2 pushed HARD to the top edge (y:5; the toolbar's
-    // centre is empty — buttons hug the corners — so the avatar clears them), and the LEFT/
-    // RIGHT seats brought back DOWN to flank the centre pile (y:40), so the three opponents
-    // form a clean diamond around the play area. The pile sits at the felt's true centre and
-    // the centre medallion rings track it (see .tlmn-center-rings), so the played card always
-    // lands on the pattern regardless of chrome height.
-    seats: { top: { x: 50, y: 5 }, left: { x: 9, y: 40 }, right: { x: 91, y: 40 }, bottom: { x: 50, y: 90 } },
-    band: { top: 34, bottom: 56 },
+    // Coordinate-space unification (Run 13): the full-bleed art is a STAGE-LEVEL background
+    // (object-cover, centred) and the seat play area now spans that SAME box — the top chrome
+    // OVERLAYS it rather than reserving a band above it — so image-% == area-%. The painted
+    // side lotuses sit at the art's exact vertical centre, so the LEFT/RIGHT avatars anchor to
+    // y:50 and land ON their lotus, perfectly mirrored and device-independent (50% is the one
+    // cover-invariant line — it maps to image-centre at every viewport ratio). TOP hugs the
+    // top edge (y:12), just clear of the compact overlay chrome whose CENTRE is empty (buttons
+    // hug the corners) so the avatar never collides with a control. x:9/91 sits each side pod
+    // in its lotus pocket, inset from the wooden rail so the name plate isn't pressed to it.
+    seats: { top: { x: 50, y: 12 }, left: { x: 10, y: 50 }, right: { x: 90, y: 50 }, bottom: { x: 50, y: 90 } },
+    // Centre band straddles the felt's OPTICAL centre — nudged a touch above the geometric
+    // middle so the played pile clears the bottom hand while still reading on the central
+    // mandala, with a clean gap under the top seat (y:12) and above the hand dock.
+    band: { top: 39, bottom: 55 },
   },
-  // Short-landscape phones (vh < 520) — same diamond: Bot 2 at the top edge, sides flanking the
-  // pile, dock cleared below.
+  // Short-landscape phones (vh < 520) — same discipline as `bleed`. The overlay chrome is a
+  // larger fraction of a short viewport, so TOP drops to y:15 to clear it; the sides stay on
+  // the lotus (y:50); the band rides a touch higher since the compact dock owns more of the
+  // short screen.
   short: {
-    seats: { top: { x: 50, y: 5 }, left: { x: 8, y: 42 }, right: { x: 92, y: 42 }, bottom: { x: 50, y: 86 } },
-    band: { top: 34, bottom: 56 },
+    seats: { top: { x: 50, y: 15 }, left: { x: 9, y: 50 }, right: { x: 91, y: 50 }, bottom: { x: 50, y: 86 } },
+    band: { top: 37, bottom: 54 },
   },
 }
 const seatTransform = (a: SeatAnchor) => `translate(-50%, -50%)${a.s ? ` scale(${a.s})` : ''}`
@@ -240,6 +269,7 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
   const ct = useTranslations('coin_tier') as unknown as CoinTierTranslate
   const sound = useTlmnSound()
   const { w: vw, h: vh } = useViewport()
+  const coarsePointer = useCoarsePointer()
   // Run 5 — fullscreen + landscape immersive mode (single source of truth).
   const fs = useFullscreenLandscape()
   const [nudgeDismissed, setNudgeDismissed] = useState(false)
@@ -845,11 +875,16 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
   // the board's green palette. The fixed-ratio image can't fit portrait, so this is the
   // one real limitation (Feature 7) — the rotate hint + fullscreen nudge it to landscape.
   const portrait = vh > vw * 1.05
-  // Mobile + tablet (< desktop breakpoint) ⇒ full-bleed responsive felt (Approach A): the
-  // table fills the whole stage edge-to-edge — no 16:9 letterbox, no vignette surround.
-  // Desktop (≥1024) keeps the framed board image + green surround exactly as before. The
-  // vw>0 guard keeps the SSR/first-paint default (1024) on the desktop path until measured.
-  const fullBleed = vw > 0 && vw < 1024
+  // Mobile + tablet ⇒ full-bleed responsive felt (Approach A): the table fills the whole
+  // stage edge-to-edge — no 16:9 letterbox, no vignette surround. Desktop keeps the framed
+  // board image + green surround exactly as before. The vw>0 guard keeps the SSR/first-paint
+  // default (1024) on the desktop path until measured.
+  //   • width < 1024                      → always full-bleed (phones + small tablets)
+  //   • coarse pointer AND width ≤ 1366   → full-bleed too, so a landscape TABLET (iPad
+  //     1024/1180/1194/1366 all sit above the old 1024 cutoff yet report a coarse primary
+  //     pointer) uses the touch table art instead of falling onto the desktop board. A
+  //     mouse-driven laptop keeps the desktop board even when narrowed below 1366.
+  const fullBleed = vw > 0 && (vw < 1024 || (coarsePointer && vw <= TABLET_BLEED_MAX))
   // Which painted table art the full-bleed surface uses — tablet art from 768px up, mobile
   // art below. Same width breakpoint the rest of the board uses (minStrip / seatBackW).
   const bleedBoardSrc = vw >= BLEED_TABLET_MIN ? BOARD_TABLET_SRC : BOARD_MOBILE_SRC
@@ -1134,9 +1169,11 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
   // EVERY seat is anchored purely as a % of the inner play area (areaRef / the board box) —
   // the single positioning context. No seat is ever tied to the page, window, browser
   // toolbar/chrome height, or the PWA install banner: those are out-of-flow overlays that
-  // must never move a seat. The play area already starts below the chrome strip, so a top
-  // seat at its band-% naturally clears the controls on every device + orientation, scaling
-  // fluidly from a 320px phone to a 1366px tablet with no per-device coordinates.
+  // must never move a seat. On full-bleed the play area spans the WHOLE stage (the compact
+  // chrome overlays its top edge), so it shares the painted art's coordinate box 1:1 — the
+  // side seats' y:50 lands on the lotus and the top seat's low y clears the corner controls
+  // (whose centre is empty). Scales fluidly from a 320px phone to a 1366px tablet, no per-
+  // device coordinates.
   const seatStyle = (place: string): CSSProperties => {
     const a = geom.seats[(place as 'top' | 'left' | 'right' | 'bottom')] ?? geom.seats.top
     return { left: `${a.x}%`, top: `${a.y}%`, transform: seatTransform(a) }
@@ -1495,10 +1532,15 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
     </span>
   )
   const sortButton = (
+    // A secondary utility, not a primary action — so on full-bleed (mobile/tablet) it is
+    // deliberately smaller than the gold gradient would otherwise read, keeping it from
+    // dominating the felt or competing with Đánh/Bỏ lượt. Desktop keeps the roomier pill.
     <button
       type="button"
       onClick={() => setSortMode(m => (m === 'rank' ? 'suit' : 'rank'))}
-      className="tlmn-btn-gold flex-none text-[12px] font-black uppercase tracking-wide rounded-full px-3.5 py-1.5 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+      className={`tlmn-btn-gold flex-none font-black uppercase tracking-wide rounded-full transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white ${
+        fullBleed ? 'text-[10.5px] px-2.5 py-1' : 'text-[12px] px-3.5 py-1.5'
+      }`}
     >
       ↕ {t('sort_btn')}
     </button>
@@ -1872,10 +1914,24 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
         className={`tlmn-stage relative flex flex-col min-h-[86vh] overflow-hidden ${fullBleed ? 'tlmn-stage--bleed' : ''} ${shakeKey ? 'tlmn-shake' : ''}`}
       >
         {/* Full-bleed table surface (mobile/tablet). The painted table art now provides the
-            felt + rail + centre design (see the fullBleed table region below), so the old
-            CSS-generated damask/rail/medallion layers are gone. The .tlmn-stage--bleed felt
-            colour still fills the stage behind the art (safe-area + top-chrome strip) and
-            covers the tiny window before the image paints, so there is no flash / layout shift. */}
+            felt + rail + centre design, so the old CSS-generated damask/rail/medallion layers
+            are gone. CRITICAL: the art is a STAGE-LEVEL background (below) — it bleeds to every
+            edge INCLUDING behind the compact top chrome. It used to live only inside the seat
+            region BELOW the toolbar, so the toolbar's flex band exposed the .tlmn-stage--bleed
+            felt as a green strip across the top of the table; rendering it at stage level fixes
+            that at the source. The bleed felt colour only shows for the one frame before the
+            image paints (fill + priority ⇒ zero layout shift). */}
+        {fullBleed && (
+          <Image
+            src={bleedBoardSrc}
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-center select-none pointer-events-none z-0"
+            draggable={false}
+          />
+        )}
 
         {/* Polite ARIA live region — localized play / pass / turn-change narration. */}
         <div role="status" aria-live="polite" aria-atomic="true" aria-label={t('a11y_region_label')} className="sr-only">
@@ -1887,8 +1943,8 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
             stay tappable in every orientation (a safety exit even if anything below
             misbehaves). The rotate-overlay is portalled to <body> and intentionally
             leaves this top strip uncovered so the X stays reachable in portrait too. */}
-        <div className="relative z-[90] flex items-center justify-between px-3 sm:px-5 pt-3"
-          style={{ paddingLeft: 'max(0.75rem, env(safe-area-inset-left))', paddingRight: 'max(0.75rem, env(safe-area-inset-right))', paddingTop: 'max(0.75rem, env(safe-area-inset-top))' }}>
+        <div className={`tlmn-chrome-bar ${fullBleed ? 'is-compact absolute inset-x-0 top-0' : 'relative'} z-[90] flex items-center justify-between px-3 sm:px-5`}
+          style={{ paddingLeft: 'max(0.75rem, env(safe-area-inset-left))', paddingRight: 'max(0.75rem, env(safe-area-inset-right))', paddingTop: `max(${fullBleed ? '0.375rem' : '0.75rem'}, env(safe-area-inset-top))` }}>
           <div className="flex items-center gap-2">
             <Link href="/games/tlmn" aria-label={t('close_label')} title={t('close_label')} className="tlmn-chrome">
               <svg className="w-4.5 h-4.5" width={18} height={18} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M6 18L18 6M6 6l12 12" /></svg>
@@ -1971,30 +2027,18 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
             falls back to the scalable oval felt. Same seats/center/FX layer (boardContents)
             renders over either surface — the image is just the backdrop. */}
         {fullBleed ? (
-          // Mobile/tablet full-bleed: the painted table art (below) fills this region edge-to-
-          // edge, and it hosts the seats/centre/FX + the hand dock over it. The content box is
-          // inset by the safe-area (top/sides) so nothing hides under the notch, while the art
-          // itself still bleeds to the physical edges. The padded box is the positioned
-          // ancestor, so every % anchor + the centre band resolve INSIDE the table.
-          <div ref={areaRef} className="relative flex-1 min-h-0">
-            {/* Painted table art (mobile/tablet landscape). Fills the play area edge-to-edge
-                behind the seats/pile/FX, object-cover + centred so it is never stretched or
-                distorted (only the outer felt margin is trimmed, never the table itself).
-                fill + a sized relative parent + priority ⇒ zero layout shift as it loads;
-                pointer-events:none so it never blocks a card tap / button / drag. */}
-            <Image
-              src={bleedBoardSrc}
-              alt=""
-              fill
-              priority
-              sizes="100vw"
-              className="object-cover object-center select-none pointer-events-none z-0"
-              draggable={false}
-            />
+          // Mobile/tablet full-bleed. The painted table art is a STAGE-LEVEL background
+          // (rendered above, behind the chrome bar); this region only hosts the seats/centre/
+          // FX + hand dock ON TOP of it, hence z-10. It is sized by the flex layout (it fills
+          // the stage below the top chrome), so every % seat anchor + the centre band resolve
+          // INSIDE the visible play area — unchanged from before, seats do not move.
+          <div ref={areaRef} className="relative z-10 flex-1 min-h-0">
+            {/* Content box. Left/right safe-area keeps seats off a landscape notch; the TOP
+                notch is already cleared by the chrome bar above, so no top pad here (avoids
+                double-insetting the top safe-area). */}
             <div
               className="absolute inset-0"
               style={{
-                paddingTop: 'env(safe-area-inset-top)',
                 paddingLeft: 'env(safe-area-inset-left)',
                 paddingRight: 'env(safe-area-inset-right)',
               }}

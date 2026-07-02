@@ -48,6 +48,9 @@ export default defineConfig({
     // Accessibility + orientation (portrait fallback, keyboard/focus-order, reduced-motion) against
     // the real /games/poker/preview showcase. No auth, no DB writes.
     { name: 'a11y', testMatch: /a11y-orientation\.spec\.ts/, use: { ...devices['Desktop Chrome'] } },
+    // Beginner learning experience (onboarding tour, training table, hand-ranking guide) + the
+    // three table background assets. No auth, no DB writes, no mock gameplay.
+    { name: 'learn', testMatch: /learn\.spec\.ts/, use: { ...devices['Desktop Chrome'] } },
     { name: 'coin-conservation', testMatch: /coin-conservation\.spec\.ts/ },
     {
       name: 'multiplayer',

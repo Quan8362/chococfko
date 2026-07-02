@@ -44,6 +44,14 @@ export const UX_SIGNAL_NAMES = [
   'reconnect_recovered',           // an authoritative snapshot was recovered (detail.elapsedMs)
   'help_opened_in_hand',           // rules/glossary/help opened during a live hand
   'why_cant_i_raise_opened',       // the disabled-action explanation was requested
+  // ── Learning experience (onboarding + training table) ──────────────────────────────────────
+  'onboarding_started',            // the first-time onboarding tour was opened
+  'onboarding_step_viewed',        // a tour step was shown (detail.index = 0-based step)
+  'onboarding_completed',          // the tour reached the final step
+  'onboarding_skipped',            // the tour was skipped (detail.index = step left at)
+  'training_scenario_started',     // a training scenario was opened (detail.index)
+  'training_scenario_completed',   // a training scenario reached settlement (detail.index)
+  'help_topic_opened',             // a contextual-help topic was opened (detail.topic = topic id)
 ] as const
 
 export type UxSignalName = (typeof UX_SIGNAL_NAMES)[number]

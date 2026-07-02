@@ -9,6 +9,7 @@ import type { ReactNode } from 'react'
 // Deliberately uses the site's standard cream/rose theme — the deep-dark lounge theme is scoped
 // to the live table (.poker-root) only, matching the existing visual-system boundary.
 const TABS = [
+  { key: 'learn', href: '/games/poker/learn' },
   { key: 'lobby', href: '/games/poker/lobby' },
   { key: 'create', href: '/games/poker/create' },
   { key: 'history', href: '/games/poker/history' },

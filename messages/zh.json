@@ -1696,6 +1696,7 @@
         "wrong_password": "密码错误。",
         "poker_feature_off": "该功能尚未开放，请稍后再试。",
         "poker_joins_frozen": "新入座暂时暂停。进行中的牌桌继续。",
+        "poker_beta_terms_required": "创建或加入牌桌前，你必须接受封闭测试条款。",
         "unsupported_blind_tier": "不支持该盲注级别。",
         "rathole_min_return": "你必须带着离桌时的筹码量返回。",
         "rapid_rejoin": "你重新加入该桌过于频繁，请稍候。"
@@ -2080,7 +2081,22 @@
         "ki_intro": "封闭测试中我们已知的问题列表。如遇其他问题，请使用牌桌内的“报告问题”按钮。",
         "ki_none": "尚未记录任何问题。感谢你的测试！",
         "ki_report": "报告问题",
-        "ki_back": "返回扑克"
+        "ki_back": "返回扑克",
+        "terms": {
+          "badge": "BETA",
+          "gate_title": "封闭测试条款",
+          "gate_intro": "开始游戏前，请阅读并接受以下测试条款。",
+          "b_playmoney": "仅限娱乐筹码 — 非真实货币，无兑现价值。",
+          "b_reset": "这是测试版本；测试牌桌与筹码可能被重置。",
+          "b_bugs": "可能仍有缺陷 — 遇到问题请使用游戏内的报告按钮。",
+          "b_private": "请保密 — 不要对外分享访问权限或截图。",
+          "b_fair": "公平游戏 — 串通或滥用行为将被记录并处理。",
+          "version": "条款版本 v{v}",
+          "accept": "我同意 — 接受",
+          "decline": "拒绝",
+          "accepting": "保存中…",
+          "accept_error": "保存失败 — 请重试。"
+        }
       },
       "bug_report": {
         "trigger": "报告问题",

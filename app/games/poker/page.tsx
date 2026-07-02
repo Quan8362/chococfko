@@ -5,7 +5,8 @@ import PokerShell from './_eco/PokerShell'
 import QuickPlayButton from './_eco/QuickPlayButton'
 import { listRecentTables } from './ecosystem'
 import { coins, dateShort } from './_eco/format'
-import { getPokerAccess, pokerAccessCan } from './access'
+import { getPokerAccess, pokerAccessCan, getBetaTermsAck } from './access'
+import PokerTermsGate from './_components/PokerTermsGate'
 
 export const dynamic = 'force-dynamic'
 
@@ -26,6 +27,22 @@ export default async function PokerLandingPage() {
 
   // Capability-aware CTAs so no button links to a flag-gated 404 during rollout.
   const pokerAccess = await getPokerAccess()
+
+  // Closed-Beta terms gate: an enrolled cohort member (admin or not) who has not accepted the
+  // current terms sees the acknowledgement UI here — the reachable path to unlock create/join.
+  // Server actions stay blocked until acceptance (checkPokerCapability), so this is the ONLY
+  // way in, never a bypass. Non-members / non-beta resolve required=false and never see it.
+  if (user) {
+    const ack = await getBetaTermsAck(pokerAccess)
+    if (ack.required && !ack.acknowledged) {
+      return (
+        <PokerShell>
+          <PokerTermsGate version={ack.version} />
+        </PokerShell>
+      )
+    }
+  }
+
   const canPublicLobby = pokerAccessCan(pokerAccess, 'public_lobby')
   const canCreate = pokerAccessCan(pokerAccess, 'create')
 

@@ -1,7 +1,8 @@
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import PokerTable, { type PokerTableConfig } from './PokerTable'
+import { getBetaTermsAck } from '../access'
 
 export const dynamic = 'force-dynamic'
 
@@ -26,6 +27,12 @@ export default async function PokerTablePage({ params }: { params: { tableId: st
   ])
 
   if (!table || table.status === 'closed') notFound()
+
+  // A cohort member who has not accepted the current Beta terms is sent to the terms gate
+  // before any table (incl. a shared direct link), so the join/sit path is never reached
+  // pre-acceptance. Server actions (sit/join) enforce this too; this is the reachable UX.
+  const ack = await getBetaTermsAck()
+  if (ack.required && !ack.acknowledged) redirect('/games/poker')
 
   // Buy-in bounds are derived from the AUTHORITATIVE table config (the same formula the
   // poker_sit_down RPC re-validates server-side: bb × buy-in-in-bb). The client only displays

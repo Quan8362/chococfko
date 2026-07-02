@@ -1696,6 +1696,7 @@
         "wrong_password": "Wrong password.",
         "poker_feature_off": "This feature isn’t available yet. Please try again later.",
         "poker_joins_frozen": "New seating is temporarily paused. Tables already in play continue.",
+        "poker_beta_terms_required": "You must accept the Closed Beta terms before creating or joining a table.",
         "unsupported_blind_tier": "That stake level isn’t supported.",
         "rathole_min_return": "You must return with the full stack you left with.",
         "rapid_rejoin": "You’re rejoining this table too quickly. Please wait a moment."
@@ -2080,7 +2081,22 @@
         "ki_intro": "Issues we already know about in the Closed Beta. If you hit something else, use the “Report a problem” button inside the table.",
         "ki_none": "No issues logged yet. Thanks for testing!",
         "ki_report": "Report a problem",
-        "ki_back": "Back to Poker"
+        "ki_back": "Back to Poker",
+        "terms": {
+          "badge": "BETA",
+          "gate_title": "Closed Beta terms",
+          "gate_intro": "Before you play, please review and accept the test terms below.",
+          "b_playmoney": "Play-money only — not real money and no cash value.",
+          "b_reset": "This is a test build; test tables and chips may be reset.",
+          "b_bugs": "Expect bugs — use the in-game report button when you hit one.",
+          "b_private": "Please keep it private — don't share access or screenshots.",
+          "b_fair": "Play fair — collusion or abuse is logged and acted on.",
+          "version": "Terms version v{v}",
+          "accept": "I agree — Accept",
+          "decline": "Decline",
+          "accepting": "Saving…",
+          "accept_error": "Couldn't save — please try again."
+        }
       },
       "bug_report": {
         "trigger": "Report a problem",

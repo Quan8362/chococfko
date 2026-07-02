@@ -3,7 +3,7 @@ import { redirect, notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import PokerShell from '../_eco/PokerShell'
 import CreateClient from './CreateClient'
-import { getPokerAccess, pokerAccessCan } from '../access'
+import { getPokerAccess, pokerAccessCan, getBetaTermsAck } from '../access'
 
 export const dynamic = 'force-dynamic'
 
@@ -19,6 +19,10 @@ export default async function PokerCreatePage() {
   // Hosting a table is behind the create capability (admins bypass during rollout).
   const pokerAccess = await getPokerAccess()
   if (!pokerAccessCan(pokerAccess, 'create')) notFound()
+  // A cohort member who has not accepted the current Beta terms is sent to the terms gate
+  // (on the poker landing) rather than a create form that the server would reject.
+  const ack = await getBetaTermsAck(pokerAccess)
+  if (ack.required && !ack.acknowledged) redirect('/games/poker')
   return (
     <PokerShell>
       <CreateClient />

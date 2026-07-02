@@ -154,8 +154,11 @@ export default function CreateClient() {
           <p className="text-sm text-rose">
             {(['err_name', 'err_blinds', 'err_buyin', 'err_password'] as string[]).includes(error)
               ? t(`create.${error}`)
-              : error === 'unsupported_blind_tier'
-                ? t('error.unsupported_blind_tier')
+              : ([
+                  'unsupported_blind_tier', 'poker_beta_terms_required',
+                  'poker_joins_frozen', 'poker_feature_off',
+                ] as string[]).includes(error)
+                ? t(`error.${error}`)
                 : t('error.generic')}
           </p>
         )}

@@ -1696,6 +1696,7 @@
         "wrong_password": "Sai mật khẩu.",
         "poker_feature_off": "Tính năng này hiện chưa được mở. Vui lòng thử lại sau.",
         "poker_joins_frozen": "Bàn hiện tạm khóa vào chỗ. Các bàn đang chơi vẫn tiếp tục.",
+        "poker_beta_terms_required": "Bạn cần chấp nhận điều khoản Closed Beta trước khi tạo hoặc tham gia bàn.",
         "unsupported_blind_tier": "Mức cược này không được hỗ trợ.",
         "rathole_min_return": "Bạn phải quay lại với đúng số chip đã rời bàn.",
         "rapid_rejoin": "Bạn vào lại bàn quá nhanh. Vui lòng chờ một lát."
@@ -2080,7 +2081,22 @@
         "ki_intro": "Danh sách các vấn đề đã biết trong bản Closed Beta. Nếu bạn gặp lỗi khác, hãy dùng nút “Báo lỗi” ngay trong bàn.",
         "ki_none": "Chưa ghi nhận lỗi nào. Cảm ơn bạn đã thử nghiệm!",
         "ki_report": "Báo một lỗi",
-        "ki_back": "Về Poker"
+        "ki_back": "Về Poker",
+        "terms": {
+          "badge": "BETA",
+          "gate_title": "Điều khoản Closed Beta",
+          "gate_intro": "Trước khi chơi, vui lòng đọc và chấp nhận điều khoản thử nghiệm bên dưới.",
+          "b_playmoney": "Chỉ dùng xu ảo — không phải tiền thật, không có giá trị quy đổi.",
+          "b_reset": "Đây là bản thử nghiệm; dữ liệu bàn/xu thử có thể được đặt lại.",
+          "b_bugs": "Có thể còn lỗi — hãy dùng nút báo lỗi trong game khi gặp sự cố.",
+          "b_private": "Vui lòng giữ kín, không chia sẻ quyền truy cập hay ảnh chụp ra ngoài.",
+          "b_fair": "Chơi công bằng — thông đồng hoặc lạm dụng sẽ bị ghi nhận và xử lý.",
+          "version": "Phiên bản điều khoản v{v}",
+          "accept": "Tôi đồng ý — Chấp nhận",
+          "decline": "Từ chối",
+          "accepting": "Đang lưu…",
+          "accept_error": "Không lưu được — vui lòng thử lại."
+        }
       },
       "bug_report": {
         "trigger": "Báo lỗi",

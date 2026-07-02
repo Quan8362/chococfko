@@ -134,3 +134,44 @@ test('BUG-DEV-001 device class from viewport width', () => {
   assert.equal(deviceClassFromViewport('garbage'), 'unknown')
   assert.equal(deviceClassFromViewport(null), 'unknown')
 })
+
+// ── UX-feedback fields (report kind / category / usability rating) ──────────────
+test('BUG-UX-001 sanitizeBugContext keeps valid reportKind/uxCategory and coerces rating to int', () => {
+  const ctx = sanitizeBugContext({
+    ...baseCtx,
+    reportKind: 'ux_feedback',
+    uxCategory: 'confusing_action',
+    usabilityRating: '4',
+    uxTrail: 'raise_composer_opened:2 raise_composer_cancelled:1',
+  })
+  assert.equal(ctx.reportKind, 'ux_feedback')
+  assert.equal(ctx.uxCategory, 'confusing_action')
+  assert.equal(ctx.usabilityRating, 4)
+  assert.equal(ctx.uxTrail, 'raise_composer_opened:2 raise_composer_cancelled:1')
+})
+
+test('BUG-UX-002 sanitizeBugContext drops invalid enum kind/category and out-of-range rating', () => {
+  const ctx = sanitizeBugContext({
+    reportKind: 'hacker',
+    uxCategory: 'not_a_category',
+    usabilityRating: 99,
+  })
+  assert.equal(ctx.reportKind, undefined)
+  assert.equal(ctx.uxCategory, undefined)
+  assert.equal(ctx.usabilityRating, undefined)
+})
+
+test('BUG-UX-003 rating boundary values 1 and 5 survive; 0 and 6 are dropped', () => {
+  assert.equal(sanitizeBugContext({ usabilityRating: 1 }).usabilityRating, 1)
+  assert.equal(sanitizeBugContext({ usabilityRating: 5 }).usabilityRating, 5)
+  assert.equal(sanitizeBugContext({ usabilityRating: 0 }).usabilityRating, undefined)
+  assert.equal(sanitizeBugContext({ usabilityRating: 6 }).usabilityRating, undefined)
+})
+
+test('BUG-UX-004 a card-shaped uxTrail value cannot smuggle sensitive data (allowlist only)', () => {
+  // Even if a caller tried to hide something under a non-allowlisted key, it is dropped.
+  const ctx = sanitizeBugContext({ holeCards: ['As', 'Kd'], deck: 'AsKdQc', uxTrail: 'device_rotated:1' })
+  assert.equal((ctx as Record<string, unknown>).holeCards, undefined)
+  assert.equal((ctx as Record<string, unknown>).deck, undefined)
+  assert.equal(ctx.uxTrail, 'device_rotated:1')
+})

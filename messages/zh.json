@@ -2092,6 +2092,25 @@
           "validation": "请输入有效描述。",
           "unavailable": "报告功能尚不可用。",
           "db_error": "发送失败，请重试。"
+        },
+        "report_kind_label": "类型",
+        "report_kind": {
+          "bug": "问题",
+          "ux_feedback": "体验反馈"
+        },
+        "field_rating": "牌桌好用吗？",
+        "rating_value": "5 分中的 {n} 分",
+        "rating_hint": "1＝令人困惑，5＝非常清晰（可选）",
+        "field_description_ux": "哪里让你困惑？",
+        "ph_description_ux": "描述你觉得不清楚或难用的地方…",
+        "field_ux_category": "类别",
+        "ux_category": {
+          "confusing_action": "操作令人困惑",
+          "layout": "布局问题",
+          "visual": "视觉问题",
+          "terminology": "术语",
+          "sound_animation": "声音 / 动画",
+          "other": "其他"
         }
       }
     },

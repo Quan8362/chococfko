@@ -2092,6 +2092,25 @@
           "validation": "Please enter a valid description.",
           "unavailable": "Reporting is not available yet.",
           "db_error": "Could not send — please try again."
+        },
+        "report_kind_label": "Type",
+        "report_kind": {
+          "bug": "Bug",
+          "ux_feedback": "UX feedback"
+        },
+        "field_rating": "How usable was this table?",
+        "rating_value": "{n} out of 5",
+        "rating_hint": "1 = confusing, 5 = very clear (optional)",
+        "field_description_ux": "What was confusing?",
+        "ph_description_ux": "Describe what felt unclear or hard to use…",
+        "field_ux_category": "Category",
+        "ux_category": {
+          "confusing_action": "Confusing action",
+          "layout": "Layout problem",
+          "visual": "Visual problem",
+          "terminology": "Terminology",
+          "sound_animation": "Sound / animation",
+          "other": "Something else"
         }
       }
     },

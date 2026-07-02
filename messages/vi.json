@@ -2092,6 +2092,25 @@
           "validation": "Vui lòng nhập mô tả hợp lệ.",
           "unavailable": "Chức năng báo lỗi chưa sẵn sàng.",
           "db_error": "Không gửi được, thử lại sau."
+        },
+        "report_kind_label": "Loại",
+        "report_kind": {
+          "bug": "Lỗi",
+          "ux_feedback": "Góp ý trải nghiệm"
+        },
+        "field_rating": "Bàn chơi dễ dùng đến mức nào?",
+        "rating_value": "{n} trên 5",
+        "rating_hint": "1 = khó hiểu, 5 = rất rõ ràng (không bắt buộc)",
+        "field_description_ux": "Điều gì gây khó hiểu?",
+        "ph_description_ux": "Mô tả điều bạn thấy chưa rõ hoặc khó dùng…",
+        "field_ux_category": "Hạng mục",
+        "ux_category": {
+          "confusing_action": "Hành động khó hiểu",
+          "layout": "Vấn đề bố cục",
+          "visual": "Vấn đề hình ảnh",
+          "terminology": "Thuật ngữ",
+          "sound_animation": "Âm thanh / hiệu ứng",
+          "other": "Khác"
         }
       }
     },

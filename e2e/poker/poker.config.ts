@@ -45,6 +45,9 @@ export default defineConfig({
     { name: 'setup', testMatch: /auth\.setup\.ts/ },
     { name: 'smoke', testMatch: /smoke\.spec\.ts/, use: { ...devices['Desktop Chrome'] } },
     { name: 'responsive', testMatch: /responsive\.spec\.ts/, use: { ...devices['Desktop Chrome'] } },
+    // Accessibility + orientation (portrait fallback, keyboard/focus-order, reduced-motion) against
+    // the real /games/poker/preview showcase. No auth, no DB writes.
+    { name: 'a11y', testMatch: /a11y-orientation\.spec\.ts/, use: { ...devices['Desktop Chrome'] } },
     { name: 'coin-conservation', testMatch: /coin-conservation\.spec\.ts/ },
     {
       name: 'multiplayer',

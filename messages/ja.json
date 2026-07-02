@@ -2092,6 +2092,25 @@
           "validation": "有効な説明を入力してください。",
           "unavailable": "報告機能はまだ利用できません。",
           "db_error": "送信できませんでした。再試行してください。"
+        },
+        "report_kind_label": "種類",
+        "report_kind": {
+          "bug": "不具合",
+          "ux_feedback": "UXフィードバック"
+        },
+        "field_rating": "このテーブルの使いやすさは？",
+        "rating_value": "5点中{n}点",
+        "rating_hint": "1＝分かりにくい、5＝とても分かりやすい（任意）",
+        "field_description_ux": "何が分かりにくかったですか？",
+        "ph_description_ux": "分かりにくかった・使いにくかった点を教えてください…",
+        "field_ux_category": "カテゴリ",
+        "ux_category": {
+          "confusing_action": "分かりにくい操作",
+          "layout": "レイアウトの問題",
+          "visual": "見た目の問題",
+          "terminology": "用語",
+          "sound_animation": "サウンド／アニメーション",
+          "other": "その他"
         }
       }
     },

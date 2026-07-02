@@ -18,6 +18,7 @@ import { useTranslations } from 'next-intl'
 import { formatCoinsShort, formatCoinsFull } from '@/lib/game/economy'
 import type { LegalActionModel } from '@/lib/games/poker/hand'
 import type { PokerActionType } from '@/lib/games/poker/types'
+import { recordUxSignal } from '@/lib/games/poker/uxSignals'
 import { ActionButton, PresetBetButton, BettingSlider } from './actions'
 
 export interface ActionControlsProps {
@@ -108,7 +109,7 @@ export function ActionControls({ model, bigBlind, pending, disabled = false, err
           {t('bet.all_in_confirm_hint')}
         </p>
         <div className="flex w-full items-center justify-center gap-2">
-          <ActionButton variant="neutral" label={t('bet.cancel')} onClick={() => setMode('idle')} disabled={pending} className="flex-1" />
+          <ActionButton variant="neutral" label={t('bet.cancel')} onClick={() => { recordUxSignal('allin_confirm_cancelled'); setMode('idle') }} disabled={pending} className="flex-1" />
           <ActionButton
             variant="allin"
             label={t('action.all_in')}
@@ -154,7 +155,7 @@ export function ActionControls({ model, bigBlind, pending, disabled = false, err
             variant="allin"
             label={t('action.all_in')}
             sublabel={formatCoinsShort(model.callAmount)}
-            onClick={() => setMode('confirm_allin')}
+            onClick={() => { recordUxSignal('allin_confirm_opened'); setMode('confirm_allin') }}
             disabled={blocked}
             className="flex-1"
             testId="poker-action-allin"
@@ -165,7 +166,7 @@ export function ActionControls({ model, bigBlind, pending, disabled = false, err
             variant="allin"
             label={t('action.all_in')}
             sublabel={formatCoinsShort(maxTo)}
-            onClick={() => setMode('confirm_allin')}
+            onClick={() => { recordUxSignal('allin_confirm_opened'); setMode('confirm_allin') }}
             disabled={blocked}
             className="flex-1"
             testId="poker-action-allin"
@@ -176,6 +177,7 @@ export function ActionControls({ model, bigBlind, pending, disabled = false, err
             variant={canBet ? 'bet' : 'raise'}
             label={canBet ? t('action.bet') : t('action.raise')}
             onClick={() => {
+              recordUxSignal('raise_composer_opened')
               setRaiseTo(clamp(minTo))
               setMode('compose')
             }}
@@ -227,6 +229,14 @@ function RaiseComposer({
   const t = useTranslations('games.poker')
   const step = Math.max(1, bigBlind)
   const clamp = (v: number) => Math.max(minTo, Math.min(maxTo, Math.round(v)))
+  // Record a typed amount that fell outside the legal [minTo, maxTo] bounds (a UX-research signal
+  // that the numeric bounds may be unclear). Never blocks input — the value is still clamped.
+  const onTypedAmount = (raw: number) => {
+    if (Number.isFinite(raw) && (raw < minTo || raw > maxTo)) {
+      recordUxSignal('invalid_amount_attempt')
+    }
+    onChange(clamp(raw))
+  }
 
   const presets = useMemo(() => {
     const potAfterCall = pot + callAmount
@@ -283,7 +293,7 @@ function RaiseComposer({
             step={step}
             value={value}
             disabled={blocked}
-            onChange={(e) => onChange(clamp(Number(e.target.value)))}
+            onChange={(e) => onTypedAmount(Number(e.target.value))}
             className="w-full bg-transparent text-center font-extrabold tabular-nums outline-none"
             style={{ color: 'var(--pk-gold-soft)', fontSize: 22 }}
             aria-label={isOpen ? t('action.bet') : t('bet.raise_to')}
@@ -314,7 +324,7 @@ function RaiseComposer({
       </div>
 
       <div className="flex items-center gap-2">
-        <ActionButton variant="neutral" label={t('bet.cancel')} onClick={onCancel} disabled={pending} className="flex-1" />
+        <ActionButton variant="neutral" label={t('bet.cancel')} onClick={() => { recordUxSignal('raise_composer_cancelled'); onCancel() }} disabled={pending} className="flex-1" />
         <ActionButton
           variant={isAllIn ? 'allin' : isOpen ? 'bet' : 'raise'}
           label={isAllIn ? t('action.all_in') : isOpen ? t('action.bet') : t('action.raise')}

@@ -42,6 +42,7 @@ import {
 import { ActionControls } from '../_components/ActionControls'
 import ReportProblemButton from '../_components/ReportProblemButton'
 import type { PokerBugContext } from '@/lib/games/poker/bugReport'
+import { recordUxSignal } from '@/lib/games/poker/uxSignals'
 import { sitDown, sitOut, returnFromSitOut, leaveTable, startHand } from '../actions'
 
 export interface PokerTableConfig {
@@ -120,9 +121,18 @@ export default function PokerTable({ tableId, userId, config }: PokerTableProps)
   // ── Command plumbing: a single in-flight action (no double submit) + recoverable errors ──
   const [pending, setPending] = useState(false)
   const [errorCode, setErrorCode] = useState<string | null>(null)
+  // t0 for the current decision — set when it becomes the viewer's turn (see the effect below),
+  // read to compute the decision time (`elapsedMs`) when the viewer submits.
+  const turnStartRef = useRef<number | null>(null)
   const onAct = useCallback(
     async (action: PokerActionType, amount?: number) => {
       if (pending) return
+      // UX signal: the viewer submitted an intent this turn. `elapsedMs` = decision time. This
+      // records the SUBMIT (not the server's accept), so it captures the interaction regardless of
+      // outcome. Fire-and-forget; never affects play.
+      const started = turnStartRef.current
+      recordUxSignal('action_submitted', started != null ? { elapsedMs: Date.now() - started } : undefined)
+      turnStartRef.current = null
       setPending(true)
       setErrorCode(null)
       try {
@@ -134,6 +144,18 @@ export default function PokerTable({ tableId, userId, config }: PokerTableProps)
     },
     [pending, rt],
   )
+  // UX signal: mark the start of each fresh decision point where the viewer is the actor. Keyed on
+  // the authoritative action-seq so it fires once per turn (not on every re-render), and only when
+  // the server has actually handed this viewer a legal-action model.
+  const myTurnSeq = isMyTurn && legal?.model ? legal.model.actionSeq : null
+  useEffect(() => {
+    if (myTurnSeq != null) {
+      turnStartRef.current = Date.now()
+      recordUxSignal('turn_started')
+    } else {
+      turnStartRef.current = null
+    }
+  }, [myTurnSeq])
   // A fresh decision point (new action-seq) clears any stale rejection message.
   const legalSeq = legal?.stateVersion
   useEffect(() => {
@@ -299,12 +321,28 @@ export default function PokerTable({ tableId, userId, config }: PokerTableProps)
   // Count client-observed reconnect transitions so a report reflects connection churn.
   const reconnectCountRef = useRef(0)
   const prevConnRef = useRef(connUx)
+  const reconnectStartRef = useRef<number | null>(null)
   useEffect(() => {
     if (connUx === 'reconnecting' && prevConnRef.current !== 'reconnecting') {
       reconnectCountRef.current += 1
+      reconnectStartRef.current = Date.now()
+    }
+    // Recovery: leaving the reconnecting state — record how long recovery took (UX signal).
+    if (prevConnRef.current === 'reconnecting' && connUx !== 'reconnecting') {
+      const started = reconnectStartRef.current
+      recordUxSignal('reconnect_recovered', started != null ? { elapsedMs: Date.now() - started } : undefined)
+      reconnectStartRef.current = null
     }
     prevConnRef.current = connUx
   }, [connUx])
+  // Record when the rotate-to-landscape prompt is shown (portrait on the table) — a UX-research
+  // signal about how often small-phone players hit the orientation wall.
+  const wasPortraitRef = useRef(false)
+  useEffect(() => {
+    if (vp.isPortrait && !wasPortraitRef.current) recordUxSignal('device_rotated')
+    wasPortraitRef.current = vp.isPortrait
+  }, [vp.isPortrait])
+
   const seatedCount = seats.filter((s) => s.userId != null).length
   const bugContext = useMemo<Partial<PokerBugContext>>(() => ({
     tableId,

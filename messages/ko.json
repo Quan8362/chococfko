@@ -2092,6 +2092,25 @@
           "validation": "유효한 설명을 입력하세요.",
           "unavailable": "신고 기능이 아직 준비되지 않았습니다.",
           "db_error": "보내지 못했습니다. 다시 시도하세요."
+        },
+        "report_kind_label": "유형",
+        "report_kind": {
+          "bug": "버그",
+          "ux_feedback": "UX 피드백"
+        },
+        "field_rating": "이 테이블의 사용성은?",
+        "rating_value": "5점 만점에 {n}점",
+        "rating_hint": "1 = 혼란스러움, 5 = 매우 명확 (선택)",
+        "field_description_ux": "무엇이 헷갈렸나요?",
+        "ph_description_ux": "불명확하거나 사용하기 어려웠던 점을 알려주세요…",
+        "field_ux_category": "카테고리",
+        "ux_category": {
+          "confusing_action": "헷갈리는 액션",
+          "layout": "레이아웃 문제",
+          "visual": "시각적 문제",
+          "terminology": "용어",
+          "sound_animation": "소리 / 애니메이션",
+          "other": "기타"
         }
       }
     },

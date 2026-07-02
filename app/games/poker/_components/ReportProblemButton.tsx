@@ -12,7 +12,18 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { useLocale, useTranslations } from 'next-intl'
 import { submitPokerBugReport } from '../alpha-actions'
-import { BUG_SEVERITIES, type BugSeverity, type PokerBugContext } from '@/lib/games/poker/bugReport'
+import {
+  BUG_SEVERITIES,
+  REPORT_KINDS,
+  UX_CATEGORIES,
+  USABILITY_RATING_MIN,
+  USABILITY_RATING_MAX,
+  type BugSeverity,
+  type ReportKind,
+  type UxCategory,
+  type PokerBugContext,
+} from '@/lib/games/poker/bugReport'
+import { getUxTrailSummary } from '@/lib/games/poker/uxSignals'
 
 type Variant = 'floating' | 'inline' | 'link'
 
@@ -54,6 +65,9 @@ export default function ReportProblemButton({ context, variant = 'floating', cla
   const pathname = usePathname()
 
   const [open, setOpen] = useState(false)
+  const [reportKind, setReportKind] = useState<ReportKind>('bug')
+  const [uxCategory, setUxCategory] = useState<UxCategory>('confusing_action')
+  const [usabilityRating, setUsabilityRating] = useState<number>(0)
   const [description, setDescription] = useState('')
   const [expected, setExpected] = useState('')
   const [actual, setActual] = useState('')
@@ -97,6 +111,7 @@ export default function ReportProblemButton({ context, variant = 'floating', cla
   }, [open])
 
   const reset = () => {
+    setReportKind('bug'); setUxCategory('confusing_action'); setUsabilityRating(0)
     setDescription(''); setExpected(''); setActual(''); setSeverity('major')
     setContactOk(false); setScreenshotUrl(''); setResult(null)
   }
@@ -105,8 +120,19 @@ export default function ReportProblemButton({ context, variant = 'floating', cla
     if (busy) return
     if (!description.trim()) { setResult('validation'); return }
     setBusy(true); setResult(null)
-    // Game-known context wins over client-observed on overlapping keys.
-    const merged: PokerBugContext = { ...collectClientContext(), ...(context ?? {}) }
+    // Game-known context wins over client-observed on overlapping keys. The UX-feedback fields and
+    // the recent usability-signal breadcrumb (a bounded "name:count" string — never card data) are
+    // attached last so a confused-tester report arrives with its interaction context already on it.
+    const uxTrail = getUxTrailSummary()
+    const merged: PokerBugContext = {
+      ...collectClientContext(),
+      ...(context ?? {}),
+      reportKind,
+      ...(reportKind === 'ux_feedback'
+        ? { uxCategory, ...(usabilityRating > 0 ? { usabilityRating } : {}) }
+        : {}),
+      ...(uxTrail ? { uxTrail } : {}),
+    }
     try {
       const res = await submitPokerBugReport({
         description, expected, actual, severity, contactOk,
@@ -160,11 +186,61 @@ export default function ReportProblemButton({ context, variant = 'floating', cla
               </div>
             ) : (
               <div className="space-y-3">
+                {/* Report kind — a functional bug vs a UX-usability observation. */}
+                <div role="radiogroup" aria-label={t('report_kind_label')} className="flex gap-2">
+                  {REPORT_KINDS.map((k) => {
+                    const activeKind = reportKind === k
+                    return (
+                      <button
+                        key={k}
+                        type="button"
+                        role="radio"
+                        aria-checked={activeKind}
+                        onClick={() => setReportKind(k)}
+                        className={`flex-1 rounded-lg border px-3 py-2 text-[13px] font-medium transition ${
+                          activeKind ? 'border-rose bg-rose/10 text-rose' : 'border-line bg-paper text-muted hover:bg-cream'
+                        }`}
+                      >
+                        {t(`report_kind.${k}`)}
+                      </button>
+                    )
+                  })}
+                </div>
+
+                {reportKind === 'ux_feedback' && (
+                  <label className="block">
+                    <span className="text-[12px] font-medium text-ink">{t('field_rating')}</span>
+                    <div role="radiogroup" aria-label={t('field_rating')} className="mt-1 flex gap-1.5">
+                      {Array.from({ length: USABILITY_RATING_MAX - USABILITY_RATING_MIN + 1 }, (_, i) => USABILITY_RATING_MIN + i).map((n) => {
+                        const activeRating = usabilityRating === n
+                        return (
+                          <button
+                            key={n}
+                            type="button"
+                            role="radio"
+                            aria-checked={activeRating}
+                            aria-label={t('rating_value', { n })}
+                            onClick={() => setUsabilityRating(activeRating ? 0 : n)}
+                            className={`h-10 flex-1 rounded-lg border text-[14px] font-semibold tabular-nums transition ${
+                              activeRating ? 'border-rose bg-rose text-white' : 'border-line bg-cream/40 text-ink hover:bg-cream'
+                            }`}
+                          >
+                            {n}
+                          </button>
+                        )
+                      })}
+                    </div>
+                    <span className="mt-1 block text-[11px] text-muted">{t('rating_hint')}</span>
+                  </label>
+                )}
+
                 <label className="block">
-                  <span className="text-[12px] font-medium text-ink">{t('field_description')} *</span>
+                  <span className="text-[12px] font-medium text-ink">
+                    {reportKind === 'ux_feedback' ? t('field_description_ux') : t('field_description')} *
+                  </span>
                   <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3}
                     className="mt-1 w-full rounded-lg border border-line bg-cream/40 p-2 text-[14px] outline-none focus:border-rose"
-                    placeholder={t('ph_description')} maxLength={4000} />
+                    placeholder={reportKind === 'ux_feedback' ? t('ph_description_ux') : t('ph_description')} maxLength={4000} />
                 </label>
 
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -183,15 +259,27 @@ export default function ReportProblemButton({ context, variant = 'floating', cla
                 </div>
 
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <label className="block">
-                    <span className="text-[12px] font-medium text-ink">{t('field_severity')}</span>
-                    <select value={severity} onChange={(e) => setSeverity(e.target.value as BugSeverity)}
-                      className="mt-1 w-full rounded-lg border border-line bg-cream/40 p-2 text-[13px] outline-none focus:border-rose">
-                      {BUG_SEVERITIES.map((s) => (
-                        <option key={s} value={s}>{t(`severity.${s}`)}</option>
-                      ))}
-                    </select>
-                  </label>
+                  {reportKind === 'ux_feedback' ? (
+                    <label className="block">
+                      <span className="text-[12px] font-medium text-ink">{t('field_ux_category')}</span>
+                      <select value={uxCategory} onChange={(e) => setUxCategory(e.target.value as UxCategory)}
+                        className="mt-1 w-full rounded-lg border border-line bg-cream/40 p-2 text-[13px] outline-none focus:border-rose">
+                        {UX_CATEGORIES.map((c) => (
+                          <option key={c} value={c}>{t(`ux_category.${c}`)}</option>
+                        ))}
+                      </select>
+                    </label>
+                  ) : (
+                    <label className="block">
+                      <span className="text-[12px] font-medium text-ink">{t('field_severity')}</span>
+                      <select value={severity} onChange={(e) => setSeverity(e.target.value as BugSeverity)}
+                        className="mt-1 w-full rounded-lg border border-line bg-cream/40 p-2 text-[13px] outline-none focus:border-rose">
+                        {BUG_SEVERITIES.map((s) => (
+                          <option key={s} value={s}>{t(`severity.${s}`)}</option>
+                        ))}
+                      </select>
+                    </label>
+                  )}
                   <label className="block">
                     <span className="text-[12px] font-medium text-ink">{t('field_screenshot')}</span>
                     <input type="url" value={screenshotUrl} onChange={(e) => setScreenshotUrl(e.target.value)}

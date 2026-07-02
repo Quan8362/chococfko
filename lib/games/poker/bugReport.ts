@@ -21,6 +21,36 @@ export function isBugSeverity(v: unknown): v is BugSeverity {
   return typeof v === 'string' && (BUG_SEVERITIES as readonly string[]).includes(v)
 }
 
+// A report is either a functional BUG or a UX-usability observation. The two share the same
+// intake + privacy allowlist; the kind + UX category simply let the Alpha dashboard triage
+// "the raise slider is imprecise" separately from "the game crashed".
+export const REPORT_KINDS = ['bug', 'ux_feedback'] as const
+export type ReportKind = (typeof REPORT_KINDS)[number]
+
+export function isReportKind(v: unknown): v is ReportKind {
+  return typeof v === 'string' && (REPORT_KINDS as readonly string[]).includes(v)
+}
+
+// The UX problem categories a tester can flag (visual-spec §UX-research). Mirrors the research
+// task list: confusing action, layout, visual, terminology, sound/animation, plus a catch-all.
+export const UX_CATEGORIES = [
+  'confusing_action',
+  'layout',
+  'visual',
+  'terminology',
+  'sound_animation',
+  'other',
+] as const
+export type UxCategory = (typeof UX_CATEGORIES)[number]
+
+export function isUxCategory(v: unknown): v is UxCategory {
+  return typeof v === 'string' && (UX_CATEGORIES as readonly string[]).includes(v)
+}
+
+// Optional 1–5 "how usable was this table" rating attached to UX feedback.
+export const USABILITY_RATING_MIN = 1
+export const USABILITY_RATING_MAX = 5
+
 // The ONLY context keys allowed to leave the client with a report. Everything is
 // non-sensitive, low-cardinality debugging metadata. Keep this list minimal.
 export const ALLOWED_CONTEXT_KEYS = [
@@ -45,6 +75,12 @@ export const ALLOWED_CONTEXT_KEYS = [
   'errorCode',
   'path',
   'timestamp',
+  // UX-feedback fields (non-sensitive; carried in the same allowlisted context jsonb so no schema
+  // change is required and the flow stays degrade-safe before any dashboard migration).
+  'reportKind',
+  'uxCategory',
+  'usabilityRating',
+  'uxTrail',
 ] as const
 export type AllowedContextKey = (typeof ALLOWED_CONTEXT_KEYS)[number]
 
@@ -95,6 +131,10 @@ export interface PokerBugContext {
   errorCode?: string
   path?: string
   timestamp?: string
+  reportKind?: string
+  uxCategory?: string
+  usabilityRating?: number
+  uxTrail?: string
 }
 
 export interface BugReportInput {
@@ -156,7 +196,7 @@ function clampInt(v: unknown): number | undefined {
   return undefined
 }
 
-const INT_KEYS = new Set<AllowedContextKey>(['seatIndex', 'stateVersion', 'actionSeq', 'reconnectCount', 'playerCount'])
+const INT_KEYS = new Set<AllowedContextKey>(['seatIndex', 'stateVersion', 'actionSeq', 'reconnectCount', 'playerCount', 'usabilityRating'])
 
 // Build a clean context object from an UNTRUSTED record. Only allow-listed keys
 // survive; string values are trimmed & length-capped; numeric fields are coerced
@@ -176,6 +216,15 @@ export function sanitizeBugContext(raw: unknown): PokerBugContext {
       const s = clampStr(val)
       if (s !== undefined) (out as Record<string, unknown>)[key] = s
     }
+  }
+  // Enum/range guards for the UX-feedback fields: drop anything that is not a recognised value so
+  // the stored context can only ever hold a valid kind/category/rating (defence in depth on top of
+  // the UI's own <select>).
+  if (out.reportKind !== undefined && !isReportKind(out.reportKind)) delete out.reportKind
+  if (out.uxCategory !== undefined && !isUxCategory(out.uxCategory)) delete out.uxCategory
+  if (out.usabilityRating !== undefined) {
+    const r = out.usabilityRating
+    if (r < USABILITY_RATING_MIN || r > USABILITY_RATING_MAX) delete out.usabilityRating
   }
   return out
 }

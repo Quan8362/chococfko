@@ -48,21 +48,28 @@ const BOARD_H = 941
 const BOARD_RATIO = BOARD_W / BOARD_H // ≈ 1.777 (16:9)
 
 // Mobile / tablet LANDSCAPE table art. These REPLACE the old CSS-generated felt (rail +
-// damask weave + medallion rings) on the full-bleed surface — one painted asset per
-// breakpoint, selected by viewport width (mobile < 768 ≤ tablet < 1024 ≤ desktop). Served
-// from web/public/. Rendered object-cover BEHIND the seats/pile/FX so the felt fills the
-// stage edge-to-edge with no distortion; the tuned seat geometry (GEOMETRY.bleed/short) is
-// unchanged, so all four seats + the centre pile stay aligned around the painted table.
+// damask weave + medallion rings) on the full-bleed surface — two painted assets of different
+// SHAPE, selected by the viewport's aspect ratio (see BLEED_WIDE_ART_RATIO): the wide one for
+// phone-landscape screens, the 4:3 one for tablets. Served from web/public/. Rendered
+// object-cover BEHIND the seats/pile/FX so the felt fills the stage edge-to-edge with no
+// distortion; the side seats anchor to the ACTIVE art's measured lotus so they stay aligned.
 const BOARD_MOBILE_SRC = '/tlmn-table-mobile-landscape.webp' // 1846×852 (≈2.17, phone-landscape)
 const BOARD_TABLET_SRC = '/tlmn-table-tablet-landscape.webp' // 1448×1086 (4:3)
 // Painted side-lotus (left/right pocket) CENTRES for each art, measured from the mahogany-
-// frame arcs and mapped through object-cover. They differ per art AND the art is picked by
-// WIDTH while short/bleed mode is picked by HEIGHT, so a landscape phone can show either art;
-// the side seats resolve their anchor from the ACTIVE art (see `geom` below) so both avatars
-// land ON the lotus in every width×height combo. x is the left value; right mirrors to 100−x.
+// frame arcs and mapped through object-cover. They differ per art AND the art is chosen by the
+// viewport SHAPE (see BLEED_WIDE_ART_RATIO) while short/bleed mode is chosen by HEIGHT, so a
+// landscape phone can show either art; the side seats resolve their anchor from the ACTIVE art
+// (see `geom` below) so both avatars land ON the lotus in every combo. x = left; right = 100−x.
 const MOBILE_SIDE_ANCHOR = { x: 11.5, y: 51 } // wide oval art: pockets ≈ x11.5 / y50.6
 const TABLET_SIDE_ANCHOR = { x: 10, y: 48 }   // 4:3 art: pockets ≈ x10 / y47.8
-const BLEED_TABLET_MIN = 768 // ≥ this width ⇒ tablet art, else mobile art
+// Which full-bleed art fits: pick by the viewport's ASPECT RATIO, not width. The two arts have
+// very different shapes (mobile 1846×852 ≈ 2.17 vs tablet 1448×1086 ≈ 1.33), so object-cover
+// looks best when the art's ratio ≈ the screen's. The crossover is their geometric mean
+// (√(2.17·1.33) ≈ 1.70): a WIDE viewport (phones in landscape, ratio ~2.0–2.22) gets the wide
+// mobile art; a squarer one (iPad 1.33, 16:10 tablet 1.6) gets the 4:3 tablet art. This is the
+// fix for "phones showed the tablet art": modern phones are 844–932px wide in landscape, so the
+// old `width ≥ 768 ⇒ tablet` rule wrongly sent every large phone to the 4:3 art.
+const BLEED_WIDE_ART_RATIO = 1.7
 // Upper width bound for treating a COARSE-pointer (touch) device as a full-bleed tablet.
 // Covers every common tablet landscape width — 1024, 1180, 1194, 1366 — so an iPad-class
 // device never falls onto the desktop 16:9 board. A mouse desktop ignores this (fine pointer).
@@ -891,9 +898,11 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
   //     pointer) uses the touch table art instead of falling onto the desktop board. A
   //     mouse-driven laptop keeps the desktop board even when narrowed below 1366.
   const fullBleed = vw > 0 && (vw < 1024 || (coarsePointer && vw <= TABLET_BLEED_MAX))
-  // Which painted table art the full-bleed surface uses — tablet art from 768px up, mobile
-  // art below. Same width breakpoint the rest of the board uses (minStrip / seatBackW).
-  const bleedBoardSrc = vw >= BLEED_TABLET_MIN ? BOARD_TABLET_SRC : BOARD_MOBILE_SRC
+  // Which painted table art the full-bleed surface uses — chosen by viewport SHAPE so the art's
+  // aspect matches the screen's: a WIDE viewport (any phone in landscape) gets the wide mobile
+  // art, a squarer one (tablet) gets the 4:3 art. Width-based selection wrongly sent 844–932px
+  // landscape phones to the tablet art (see BLEED_WIDE_ART_RATIO). vh>0 guard avoids /0 on SSR.
+  const bleedBoardSrc = (vh > 0 && vw / vh >= BLEED_WIDE_ART_RATIO) ? BOARD_MOBILE_SRC : BOARD_TABLET_SRC
   const useImage = !portrait
   // Fit the board to the live play area at the image's exact ratio (no distortion). The
   // area starts at 0 before the ResizeObserver fires; a viewport-based default keeps the

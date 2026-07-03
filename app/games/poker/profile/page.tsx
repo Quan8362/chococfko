@@ -3,6 +3,7 @@ import { getTranslations, getLocale } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import PokerShell from '../_eco/PokerShell'
 import { fetchPokerStats, fetchHandHistory } from '../ecosystem'
+import { getPokerAccess, pokerAccessSocial } from '../access'
 import { coins, signedCoins, dateShort } from '../_eco/format'
 
 export const dynamic = 'force-dynamic'
@@ -38,11 +39,13 @@ export default async function PokerProfilePage() {
     )
   }
 
-  const [{ data: profile }, statsRes, histRes] = await Promise.all([
+  const [{ data: profile }, statsRes, histRes, access] = await Promise.all([
     supabase.from('profiles').select('display_name, avatar_url, created_at').eq('id', user.id).maybeSingle(),
     fetchPokerStats(),
     fetchHandHistory(8),
+    getPokerAccess(),
   ])
+  const showSocialLink = pokerAccessSocial(access, 'achievements') || pokerAccessSocial(access, 'missions')
   const s = statsRes.ok ? statsRes.stats : { handsPlayed: 0, handsWon: 0, showdownsReached: 0, showdownsWon: 0, biggestPotWon: 0, netChange: 0 }
   const recent = histRes.ok ? histRes.hands : []
 
@@ -75,6 +78,16 @@ export default async function PokerProfilePage() {
           )}
         </div>
       </div>
+
+      {showSocialLink && (
+        <Link
+          href="/games/poker/achievements"
+          className="mb-6 flex items-center justify-between rounded-xl border border-rose/30 bg-rose/5 px-4 py-3 hover:border-rose"
+        >
+          <span className="font-medium text-rose">{t('achievements.open')}</span>
+          <span aria-hidden className="text-rose">→</span>
+        </Link>
+      )}
 
       <h2 className="mb-3 font-serif text-lg font-semibold">{t('profile.stats_title')}</h2>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">

@@ -1526,6 +1526,118 @@
   },
   "games": {
     "poker": {
+      "achievements": {
+        "title": "Thành tựu",
+        "open": "Thành tựu & nhiệm vụ",
+        "subtitle": "Huy hiệu trang trí bạn nhận được khi chơi. Chúng tự động mở khóa, không tốn và không tặng xu.",
+        "progress": "Đã mở {unlocked}/{total}",
+        "locked": "Chưa mở",
+        "unlocked_on": "Mở khóa {date}",
+        "empty": "Chưa có thành tựu nào — chơi một ván để bắt đầu.",
+        "sign_in": "Đăng nhập để theo dõi thành tựu của bạn.",
+        "group": {
+          "milestone": "Cột mốc",
+          "showdown": "Lật bài",
+          "handmade": "Bài lớn",
+          "resilience": "Bền bỉ"
+        },
+        "item": {
+          "first_hand": {
+            "name": "Ván đầu tiên",
+            "desc": "Chơi hết ván bài đầu tiên."
+          },
+          "first_pot": {
+            "name": "Pot đầu tiên",
+            "desc": "Thắng pot đầu tiên."
+          },
+          "first_showdown_win": {
+            "name": "Thắng khi lật bài",
+            "desc": "Thắng một pot khi lật bài."
+          },
+          "win_straight": {
+            "name": "Sảnh",
+            "desc": "Thắng khi lật bài với một Sảnh."
+          },
+          "win_flush": {
+            "name": "Thùng",
+            "desc": "Thắng khi lật bài với một Thùng."
+          },
+          "win_full_house": {
+            "name": "Cù lũ",
+            "desc": "Thắng khi lật bài với một Cù lũ."
+          },
+          "win_four_of_a_kind": {
+            "name": "Tứ quý",
+            "desc": "Thắng khi lật bài với một Tứ quý."
+          },
+          "win_straight_flush": {
+            "name": "Thùng phá sảnh",
+            "desc": "Thắng khi lật bài với một Thùng phá sảnh."
+          },
+          "win_split_pot": {
+            "name": "Chia pot",
+            "desc": "Chia một pot với người chơi khác."
+          },
+          "win_side_pot": {
+            "name": "Pot phụ",
+            "desc": "Thắng một pot phụ."
+          },
+          "reconnect_finish": {
+            "name": "Trở lại cuộc chơi",
+            "desc": "Kết nối lại và chơi hết ván."
+          },
+          "full_table": {
+            "name": "Bàn đầy",
+            "desc": "Chơi một ván khi đủ sáu ghế."
+          },
+          "hands_10": {
+            "name": "Khởi đầu",
+            "desc": "Chơi 10 ván."
+          },
+          "hands_100": {
+            "name": "Quen tay",
+            "desc": "Chơi 100 ván."
+          },
+          "hands_1000": {
+            "name": "Kỳ cựu",
+            "desc": "Chơi 1.000 ván."
+          }
+        }
+      },
+      "missions": {
+        "title": "Nhiệm vụ",
+        "subtitle": "Danh sách khởi đầu một lần. Không cày ngày, không thưởng xu — chỉ là những điều cơ bản.",
+        "progress": "Hoàn thành {completed}/{total}",
+        "done": "Xong",
+        "step": "{progress}/{target}",
+        "empty": "Không có nhiệm vụ nào.",
+        "item": {
+          "complete_3_hands": {
+            "name": "Chơi ba ván",
+            "desc": "Chơi xong ba ván bài."
+          },
+          "use_check": {
+            "name": "Check",
+            "desc": "Dùng Check khi đó là nước đi hợp lệ."
+          },
+          "reach_showdown": {
+            "name": "Vào lật bài",
+            "desc": "Vào tới màn lật bài một lần."
+          },
+          "play_beginner_blind": {
+            "name": "Mức người mới",
+            "desc": "Chơi một ván ở mức mù dành cho người mới."
+          },
+          "review_rules": {
+            "name": "Đọc luật",
+            "desc": "Mở trang luật poker."
+          },
+          "complete_training": {
+            "name": "Thử luyện tập",
+            "desc": "Hoàn thành một tình huống luyện tập."
+          }
+        }
+      },
       "preview": {
         "title": "Hệ thống thiết kế Poker",
         "subtitle": "Bản xem trước biệt lập của toàn bộ thành phần giao diện Poker — sòng bài cao cấp, tối sâu, chơi ngang màn hình. Đây không phải trang chơi thật.",

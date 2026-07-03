@@ -20,11 +20,13 @@ import {
   resolvePokerFlags,
   pokerVisibleTo,
   pokerCan,
+  pokerSocialFeatureOn,
   isAlphaTester,
   POKER_ALPHA_TESTERS_ENV,
   type PokerFlags,
   type PokerCapability,
   type PokerViewer,
+  type PokerSocialFeature,
 } from '@/lib/games/poker/flags'
 import {
   resolveBetaMembership,
@@ -116,6 +118,18 @@ function viewerOf(a: PokerAccess): PokerViewer {
 // Convenience for pages/components that already hold a PokerAccess.
 export function pokerAccessCan(a: PokerAccess, cap: PokerCapability): boolean {
   return pokerCan(a.flags, viewerOf(a), cap)
+}
+
+// Is an additive social feature (achievements/missions/…) available to THIS viewer? Requires the
+// feature flag ON and the viewer able to see poker at all (no admin override — social features
+// ship dark until their flag is flipped). Used by pages/components holding a PokerAccess.
+export function pokerAccessSocial(a: PokerAccess, feature: PokerSocialFeature): boolean {
+  return pokerSocialFeatureOn(a.flags, viewerOf(a), feature)
+}
+
+// Async convenience for server actions that don't already hold a PokerAccess.
+export async function pokerSocialAvailable(feature: PokerSocialFeature): Promise<boolean> {
+  return pokerAccessSocial(await getPokerAccess(), feature)
 }
 
 // Has this viewer acknowledged the CURRENT beta terms version? Degrade-safe:

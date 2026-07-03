@@ -1526,6 +1526,118 @@
   },
   "games": {
     "poker": {
+      "achievements": {
+        "title": "実績",
+        "open": "実績とミッション",
+        "subtitle": "プレイで獲得する装飾バッジです。自動で解除され、コインの消費も付与もありません。",
+        "progress": "{total}件中{unlocked}件解除",
+        "locked": "未解除",
+        "unlocked_on": "{date} に解除",
+        "empty": "まだ実績はありません。1ハンドプレイして始めましょう。",
+        "sign_in": "サインインして実績を記録しましょう。",
+        "group": {
+          "milestone": "マイルストーン",
+          "showdown": "ショーダウン",
+          "handmade": "強い役",
+          "resilience": "粘り強さ"
+        },
+        "item": {
+          "first_hand": {
+            "name": "最初のハンド",
+            "desc": "最初のハンドを最後までプレイする。"
+          },
+          "first_pot": {
+            "name": "最初のポット",
+            "desc": "初めてポットを獲得する。"
+          },
+          "first_showdown_win": {
+            "name": "ショーダウン勝利",
+            "desc": "ショーダウンでポットを獲得する。"
+          },
+          "win_straight": {
+            "name": "ストレート",
+            "desc": "ストレートでショーダウンに勝つ。"
+          },
+          "win_flush": {
+            "name": "フラッシュ",
+            "desc": "フラッシュでショーダウンに勝つ。"
+          },
+          "win_full_house": {
+            "name": "フルハウス",
+            "desc": "フルハウスでショーダウンに勝つ。"
+          },
+          "win_four_of_a_kind": {
+            "name": "フォーカード",
+            "desc": "フォーカードでショーダウンに勝つ。"
+          },
+          "win_straight_flush": {
+            "name": "ストレートフラッシュ",
+            "desc": "ストレートフラッシュでショーダウンに勝つ。"
+          },
+          "win_split_pot": {
+            "name": "スプリットポット",
+            "desc": "他のプレイヤーとポットを分け合う。"
+          },
+          "win_side_pot": {
+            "name": "サイドポット",
+            "desc": "サイドポットを獲得する。"
+          },
+          "reconnect_finish": {
+            "name": "カムバック",
+            "desc": "再接続してハンドを最後までプレイする。"
+          },
+          "full_table": {
+            "name": "フルテーブル",
+            "desc": "6席すべて埋まった状態で1ハンドプレイする。"
+          },
+          "hands_10": {
+            "name": "スタート",
+            "desc": "10ハンドプレイする。"
+          },
+          "hands_100": {
+            "name": "常連",
+            "desc": "100ハンドプレイする。"
+          },
+          "hands_1000": {
+            "name": "ベテラン",
+            "desc": "1,000ハンドプレイする。"
+          }
+        }
+      },
+      "missions": {
+        "title": "ミッション",
+        "subtitle": "一度きりのスタートリスト。デイリーもコイン報酬もなく、基本だけです。",
+        "progress": "{total}件中{completed}件完了",
+        "done": "完了",
+        "step": "{progress}/{target}",
+        "empty": "利用できるミッションはありません。",
+        "item": {
+          "complete_3_hands": {
+            "name": "3ハンドプレイ",
+            "desc": "3ハンドを終える。"
+          },
+          "use_check": {
+            "name": "チェック",
+            "desc": "合法な場面でチェックを使う。"
+          },
+          "reach_showdown": {
+            "name": "ショーダウンへ",
+            "desc": "一度ショーダウンまで進む。"
+          },
+          "play_beginner_blind": {
+            "name": "初心者レート",
+            "desc": "初心者向けのブラインドで1ハンドプレイする。"
+          },
+          "review_rules": {
+            "name": "ルールを読む",
+            "desc": "ポーカーのルールページを開く。"
+          },
+          "complete_training": {
+            "name": "トレーナーを試す",
+            "desc": "トレーニングを1つ完了する。"
+          }
+        }
+      },
       "preview": {
         "title": "ポーカー デザインシステム",
         "subtitle": "すべてのポーカーUIコンポーネントの分離プレビュー — 高級感のある深い暗色、横向き専用のラウンジ。実際のプレイ画面ではありません。",

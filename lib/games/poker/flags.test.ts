@@ -4,16 +4,20 @@ import {
   resolvePokerFlags,
   pokerVisibleTo,
   pokerCan,
+  pokerSocialFeatureOn,
   parseAlphaTesters,
   isAlphaTester,
   POKER_FLAG_ENV,
   type PokerFlags,
+  type PokerSocialFeature,
 } from './flags.ts'
 
 const OFF: PokerFlags = {
   enabled: false, createTable: false, publicLobby: false,
   privateTable: false, spectator: false, bot: false, tournament: false,
   alpha: false, blockNewJoins: false, closedBeta: false,
+  achievements: false, missions: false, friendInvites: false,
+  quickMessages: false, handSharing: false,
 }
 const admin = { isAdmin: true }
 const player = { isAdmin: false }
@@ -46,11 +50,54 @@ test('FLAG-HARDOFF-001 bot/tournament stay OFF even when env sets them on', () =
 
 test('FLAG-ENVMAP-001 exposes exactly the canonical env names', () => {
   assert.deepEqual(Object.values(POKER_FLAG_ENV).sort(), [
-    'POKER_ALPHA_MODE', 'POKER_BLOCK_NEW_JOINS', 'POKER_BOT_ENABLED',
-    'POKER_CLOSED_BETA_ENABLED', 'POKER_CREATE_TABLE_ENABLED', 'POKER_ENABLED',
-    'POKER_PRIVATE_TABLE_ENABLED', 'POKER_PUBLIC_LOBBY_ENABLED',
-    'POKER_SPECTATOR_ENABLED', 'POKER_TOURNAMENT_ENABLED',
+    'POKER_ACHIEVEMENTS_ENABLED', 'POKER_ALPHA_MODE', 'POKER_BLOCK_NEW_JOINS',
+    'POKER_BOT_ENABLED', 'POKER_CLOSED_BETA_ENABLED', 'POKER_CREATE_TABLE_ENABLED',
+    'POKER_ENABLED', 'POKER_FRIEND_INVITES_ENABLED', 'POKER_HAND_SHARING_ENABLED',
+    'POKER_MISSIONS_ENABLED', 'POKER_PRIVATE_TABLE_ENABLED', 'POKER_PUBLIC_LOBBY_ENABLED',
+    'POKER_QUICK_MESSAGES_ENABLED', 'POKER_SPECTATOR_ENABLED', 'POKER_TOURNAMENT_ENABLED',
   ])
+})
+
+// ── Social layer flags ──────────────────────────────────────────────────────────
+const SOCIAL: [PokerSocialFeature, string][] = [
+  ['achievements', 'POKER_ACHIEVEMENTS_ENABLED'],
+  ['missions', 'POKER_MISSIONS_ENABLED'],
+  ['friendInvites', 'POKER_FRIEND_INVITES_ENABLED'],
+  ['quickMessages', 'POKER_QUICK_MESSAGES_ENABLED'],
+  ['handSharing', 'POKER_HAND_SHARING_ENABLED'],
+]
+
+test('SOCIAL-DEFAULT-001 every social flag defaults OFF', () => {
+  const f = resolvePokerFlags({})
+  for (const [feature] of SOCIAL) assert.equal(f[feature], false, feature)
+})
+
+test('SOCIAL-RESOLVE-001 each social flag maps to its env key', () => {
+  for (const [feature, env] of SOCIAL) {
+    assert.equal(POKER_FLAG_ENV[feature], env)
+    assert.equal(resolvePokerFlags({ [env]: '1' })[feature], true, feature)
+  }
+})
+
+test('SOCIAL-GATE-001 a social feature is off unless its flag is on AND poker is visible', () => {
+  // visible (enabled) but the feature flag off → gated off
+  assert.equal(pokerSocialFeatureOn({ ...OFF, enabled: true }, player, 'achievements'), false)
+  // flag on but poker not visible to this player → gated off
+  assert.equal(pokerSocialFeatureOn({ ...OFF, achievements: true }, player, 'achievements'), false)
+  // both → on
+  assert.equal(pokerSocialFeatureOn({ ...OFF, enabled: true, achievements: true }, player, 'achievements'), true)
+})
+
+test('SOCIAL-GATE-002 no admin override — a dark social flag stays dark even for admins', () => {
+  // admin is always visible, but the feature flag is off → feature does not render
+  assert.equal(pokerSocialFeatureOn({ ...OFF }, admin, 'missions'), false)
+  assert.equal(pokerSocialFeatureOn({ ...OFF, missions: true }, admin, 'missions'), true)
+})
+
+test('SOCIAL-GATE-003 a suspended tester never sees a social feature even with the flag on', () => {
+  const f = { ...OFF, closedBeta: true, achievements: true }
+  const suspended = { isAdmin: false, isBetaMember: true, suspended: true }
+  assert.equal(pokerSocialFeatureOn(f, suspended, 'achievements'), false)
 })
 
 test('VIS-001 nobody but admin sees poker when master flag is off', () => {

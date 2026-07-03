@@ -1526,6 +1526,118 @@
   },
   "games": {
     "poker": {
+      "achievements": {
+        "title": "成就",
+        "open": "成就与任务",
+        "subtitle": "通过游戏获得的装饰徽章。会自动解锁，不消耗也不赠送金币。",
+        "progress": "已解锁 {unlocked}/{total}",
+        "locked": "未解锁",
+        "unlocked_on": "{date} 解锁",
+        "empty": "还没有成就——先玩一手开始吧。",
+        "sign_in": "登录以记录你的成就。",
+        "group": {
+          "milestone": "里程碑",
+          "showdown": "摊牌",
+          "handmade": "大牌",
+          "resilience": "坚持"
+        },
+        "item": {
+          "first_hand": {
+            "name": "第一手",
+            "desc": "把第一手牌打到结束。"
+          },
+          "first_pot": {
+            "name": "第一个底池",
+            "desc": "赢下第一个底池。"
+          },
+          "first_showdown_win": {
+            "name": "摊牌获胜",
+            "desc": "在摊牌时赢下底池。"
+          },
+          "win_straight": {
+            "name": "顺子",
+            "desc": "用顺子在摊牌中获胜。"
+          },
+          "win_flush": {
+            "name": "同花",
+            "desc": "用同花在摊牌中获胜。"
+          },
+          "win_full_house": {
+            "name": "葫芦",
+            "desc": "用葫芦在摊牌中获胜。"
+          },
+          "win_four_of_a_kind": {
+            "name": "四条",
+            "desc": "用四条在摊牌中获胜。"
+          },
+          "win_straight_flush": {
+            "name": "同花顺",
+            "desc": "用同花顺在摊牌中获胜。"
+          },
+          "win_split_pot": {
+            "name": "平分底池",
+            "desc": "与其他玩家平分一个底池。"
+          },
+          "win_side_pot": {
+            "name": "边池",
+            "desc": "赢下一个边池。"
+          },
+          "reconnect_finish": {
+            "name": "重回牌桌",
+            "desc": "重新连接并打完这一手。"
+          },
+          "full_table": {
+            "name": "满桌",
+            "desc": "在六个座位都坐满时打一手。"
+          },
+          "hands_10": {
+            "name": "起步",
+            "desc": "玩满 10 手。"
+          },
+          "hands_100": {
+            "name": "常客",
+            "desc": "玩满 100 手。"
+          },
+          "hands_1000": {
+            "name": "老手",
+            "desc": "玩满 1,000 手。"
+          }
+        }
+      },
+      "missions": {
+        "title": "任务",
+        "subtitle": "一次性的入门清单。没有每日刷取，也没有金币奖励——只讲基础。",
+        "progress": "完成 {completed}/{total}",
+        "done": "完成",
+        "step": "{progress}/{target}",
+        "empty": "暂无可用任务。",
+        "item": {
+          "complete_3_hands": {
+            "name": "玩三手",
+            "desc": "打完三手牌。"
+          },
+          "use_check": {
+            "name": "过牌",
+            "desc": "在合法时使用过牌。"
+          },
+          "reach_showdown": {
+            "name": "进入摊牌",
+            "desc": "进入一次摊牌。"
+          },
+          "play_beginner_blind": {
+            "name": "新手级别",
+            "desc": "在新手盲注级别打一手。"
+          },
+          "review_rules": {
+            "name": "阅读规则",
+            "desc": "打开扑克规则页面。"
+          },
+          "complete_training": {
+            "name": "试试训练",
+            "desc": "完成一个训练场景。"
+          }
+        }
+      },
       "preview": {
         "title": "扑克设计系统",
         "subtitle": "所有扑克 UI 组件的独立预览 — 高级、深邃暗色、仅横屏的会所风格。这不是实际游戏页面。",

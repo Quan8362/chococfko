@@ -1526,6 +1526,118 @@
   },
   "games": {
     "poker": {
+      "achievements": {
+        "title": "업적",
+        "open": "업적 및 미션",
+        "subtitle": "플레이로 얻는 장식용 배지입니다. 자동으로 해제되며 코인을 소모하거나 지급하지 않습니다.",
+        "progress": "{total}개 중 {unlocked}개 해제",
+        "locked": "잠김",
+        "unlocked_on": "{date} 해제",
+        "empty": "아직 업적이 없습니다 — 한 판 플레이해 시작하세요.",
+        "sign_in": "로그인하여 업적을 기록하세요.",
+        "group": {
+          "milestone": "이정표",
+          "showdown": "쇼다운",
+          "handmade": "큰 족보",
+          "resilience": "끈기"
+        },
+        "item": {
+          "first_hand": {
+            "name": "첫 핸드",
+            "desc": "첫 핸드를 끝까지 플레이하세요."
+          },
+          "first_pot": {
+            "name": "첫 팟",
+            "desc": "첫 팟을 이기세요."
+          },
+          "first_showdown_win": {
+            "name": "쇼다운 승리",
+            "desc": "쇼다운에서 팟을 이기세요."
+          },
+          "win_straight": {
+            "name": "스트레이트",
+            "desc": "스트레이트로 쇼다운에서 이기세요."
+          },
+          "win_flush": {
+            "name": "플러시",
+            "desc": "플러시로 쇼다운에서 이기세요."
+          },
+          "win_full_house": {
+            "name": "풀하우스",
+            "desc": "풀하우스로 쇼다운에서 이기세요."
+          },
+          "win_four_of_a_kind": {
+            "name": "포카드",
+            "desc": "포카드로 쇼다운에서 이기세요."
+          },
+          "win_straight_flush": {
+            "name": "스트레이트 플러시",
+            "desc": "스트레이트 플러시로 쇼다운에서 이기세요."
+          },
+          "win_split_pot": {
+            "name": "분할 팟",
+            "desc": "다른 플레이어와 팟을 나누세요."
+          },
+          "win_side_pot": {
+            "name": "사이드 팟",
+            "desc": "사이드 팟을 이기세요."
+          },
+          "reconnect_finish": {
+            "name": "복귀",
+            "desc": "재접속해 핸드를 끝까지 플레이하세요."
+          },
+          "full_table": {
+            "name": "풀 테이블",
+            "desc": "여섯 자리가 모두 찬 상태로 한 핸드를 플레이하세요."
+          },
+          "hands_10": {
+            "name": "시작",
+            "desc": "10핸드를 플레이하세요."
+          },
+          "hands_100": {
+            "name": "단골",
+            "desc": "100핸드를 플레이하세요."
+          },
+          "hands_1000": {
+            "name": "베테랑",
+            "desc": "1,000핸드를 플레이하세요."
+          }
+        }
+      },
+      "missions": {
+        "title": "미션",
+        "subtitle": "한 번만 하는 시작 체크리스트. 일일 반복도 코인 보상도 없이 기본기만.",
+        "progress": "{total}개 중 {completed}개 완료",
+        "done": "완료",
+        "step": "{progress}/{target}",
+        "empty": "사용 가능한 미션이 없습니다.",
+        "item": {
+          "complete_3_hands": {
+            "name": "세 핸드 플레이",
+            "desc": "세 핸드를 마치세요."
+          },
+          "use_check": {
+            "name": "체크",
+            "desc": "합법적인 상황에서 체크를 사용하세요."
+          },
+          "reach_showdown": {
+            "name": "쇼다운 도달",
+            "desc": "한 번 쇼다운까지 진행하세요."
+          },
+          "play_beginner_blind": {
+            "name": "초보 스테이크",
+            "desc": "초보용 블라인드에서 한 핸드를 플레이하세요."
+          },
+          "review_rules": {
+            "name": "규칙 읽기",
+            "desc": "포커 규칙 페이지를 여세요."
+          },
+          "complete_training": {
+            "name": "트레이너 시도",
+            "desc": "트레이닝 시나리오 하나를 완료하세요."
+          }
+        }
+      },
       "preview": {
         "title": "포커 디자인 시스템",
         "subtitle": "모든 포커 UI 컴포넌트의 독립 미리보기 — 고급스럽고 깊은 다크 톤, 가로 전용 라운지. 실제 플레이 화면이 아닙니다.",

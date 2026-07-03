@@ -63,6 +63,7 @@ import {
 import { defaultOpsSeverity, type OpsEventKind } from '@/lib/games/poker/admin'
 import { redactTelemetryDetail, TELEMETRY_SCHEMA_VERSION } from '@/lib/games/poker/telemetry'
 import { PERF_EVENT_NAME, type PerfOp } from '@/lib/games/poker/perf'
+import { recordHandProgress } from './progress-record'
 
 // Stable result shape: never throw raw to the client; return a coded error UI can translate.
 export type ActionResult<T = unknown> =
@@ -1140,6 +1141,10 @@ async function settleHand(
       tableId, handId, { code: error.message?.slice(0, 120) ?? 'settle_failed' })
     return { phase: 'SETTLEMENT' }
   }
+
+  // Record cosmetic achievement + mission progress for this hand (best-effort, moves NO coins,
+  // never throws into settlement). Runs AFTER coins are settled and correct.
+  await recordHandProgress(admin, tableId, handId, finalState, showdown, holeBySeat)
 
   // If the table is closing, resolve the closure now that no hand is live.
   await admin.rpc('poker_resolve_closing', { p_table_id: tableId }).then(() => undefined, () => undefined)

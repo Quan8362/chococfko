@@ -35,6 +35,20 @@ export interface PokerFlags {
   //   in lib/games/poker/beta.ts (env allowlists), NOT here, to keep this module
   //   a pure flag resolver. Typically run with alpha=0 and enabled=0.
   closedBeta: boolean
+  // ── Social layer (each optional + independently toggleable) ────────────────────────────────
+  // Additive, cosmetic/comms features layered on top of the gameplay gates. They NEVER open a
+  // seating capability and NEVER move coins; they only decide whether a social surface renders.
+  // A viewer must already be able to SEE poker (pokerVisibleTo) for any of these to apply.
+  //   • achievements — cosmetic badge unlocks (server-authoritative, zero coin movement).
+  //   • missions     — the one-time beginner "getting started" checklist.
+  //   • friendInvites — invite a friend to a table (reuses the shared notification spine).
+  //   • quickMessages — localized preset quick-messages / emotes at the table.
+  //   • handSharing  — share a completed hand via a read-only, privacy-redacted link.
+  achievements: boolean
+  missions: boolean
+  friendInvites: boolean
+  quickMessages: boolean
+  handSharing: boolean
 }
 
 // The ops-facing flag names (env keys + documentation), in canonical order.
@@ -49,6 +63,11 @@ export const POKER_FLAG_ENV: Record<keyof PokerFlags, string> = {
   alpha: 'POKER_ALPHA_MODE',
   blockNewJoins: 'POKER_BLOCK_NEW_JOINS',
   closedBeta: 'POKER_CLOSED_BETA_ENABLED',
+  achievements: 'POKER_ACHIEVEMENTS_ENABLED',
+  missions: 'POKER_MISSIONS_ENABLED',
+  friendInvites: 'POKER_FRIEND_INVITES_ENABLED',
+  quickMessages: 'POKER_QUICK_MESSAGES_ENABLED',
+  handSharing: 'POKER_HAND_SHARING_ENABLED',
 }
 
 // Env key holding the comma-separated tester allowlist (emails), mirroring the
@@ -77,6 +96,11 @@ export function resolvePokerFlags(env: Record<string, string | undefined>): Poke
     alpha: truthy(env[POKER_FLAG_ENV.alpha]),
     blockNewJoins: truthy(env[POKER_FLAG_ENV.blockNewJoins]),
     closedBeta: truthy(env[POKER_FLAG_ENV.closedBeta]),
+    achievements: truthy(env[POKER_FLAG_ENV.achievements]),
+    missions: truthy(env[POKER_FLAG_ENV.missions]),
+    friendInvites: truthy(env[POKER_FLAG_ENV.friendInvites]),
+    quickMessages: truthy(env[POKER_FLAG_ENV.quickMessages]),
+    handSharing: truthy(env[POKER_FLAG_ENV.handSharing]),
   }
 }
 
@@ -160,4 +184,20 @@ export function pokerCan(flags: PokerFlags, viewer: PokerViewer, cap: PokerCapab
     default:
       return false
   }
+}
+
+// ── Social feature gate ───────────────────────────────────────────────────────────────────────
+// The additive social/comms features. Unlike a seating capability, a social feature is NOT
+// admin-overridden: it renders only when its own flag is ON (so the feature truly ships dark until
+// ops flips the flag, and an admin previewing prod flips the env like anyone else). The viewer
+// must still be able to SEE poker at all — a suspended tester or a locked-out public user gets
+// nothing. There is no coin or seating side effect, so no freeze/maintenance interaction.
+export type PokerSocialFeature = 'achievements' | 'missions' | 'friendInvites' | 'quickMessages' | 'handSharing'
+
+export function pokerSocialFeatureOn(
+  flags: PokerFlags,
+  viewer: PokerViewer,
+  feature: PokerSocialFeature,
+): boolean {
+  return pokerVisibleTo(flags, viewer) && flags[feature]
 }

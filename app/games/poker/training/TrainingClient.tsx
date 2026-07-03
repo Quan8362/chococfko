@@ -32,6 +32,7 @@ import {
   trackHelpTopicOpened,
 } from '@/lib/games/poker/learn/analytics'
 import type { AppliedAction } from '@/lib/games/poker/betting'
+import { markTrainingScenarioComplete } from '../social'
 
 const RANK_TEXT: Record<string, string> = { T: '10' }
 function rankText(r: string): string {
@@ -66,6 +67,8 @@ export default function TrainingClient() {
       if (res.ok && res.session.settled) {
         const index = TRAINING_SCENARIOS.findIndex((s) => s.id === res.session.scenario.id)
         trackTrainingScenarioCompleted(index)
+        // Cosmetic 'complete_training' mission (best-effort; no-op if the flag/migration is off).
+        void markTrainingScenarioComplete()
       }
       force()
     },

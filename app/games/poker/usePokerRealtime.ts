@@ -36,6 +36,7 @@ import {
   tickActionTimer,
   setSeatConnection,
 } from './actions'
+import { notePokerReconnect } from './social'
 
 // Recovery watchdog cadence — a slow safety net, NOT polling. Realtime stays primary; this only
 // repairs a silently-missed event (mobile tab freeze, brief network loss that never surfaces as
@@ -129,6 +130,8 @@ export function usePokerRealtime(tableId: string): PokerRealtimeApi {
     reconcileInFlightRef.current = true
     reconcileDirtyRef.current = false
 
+    // Capture BEFORE markReconnectResult clears it: was this reconcile resolving a real reconnect?
+    const wasReconnecting = reconnectingRef.current
     fetchPokerSnapshot(tableIdRef.current)
       .then(async (res) => {
         if (!mountedRef.current) return
@@ -148,6 +151,12 @@ export function usePokerRealtime(tableId: string): PokerRealtimeApi {
         setSyncFailing(false)
         setReconciledOnce(true)
         markReconnectResult(true)
+        // Cosmetic: if we just recovered a dropped channel while seated in a live hand, mark a
+        // reconnect for THIS hand so the settlement recorder can award `reconnect_finish`. Purely
+        // best-effort, self-scoped, never blocks reconciliation (degrade-safe if the flag/table is off).
+        if (wasReconnecting && ctrl.viewerSeatIndex !== null && ctrl.handId) {
+          void notePokerReconnect(ctrl.handId)
+        }
         bump()
       })
       .catch(() => { if (mountedRef.current) { setSyncFailing(true); markReconnectResult(false) } })

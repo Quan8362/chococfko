@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
 import PokerShell from '../_eco/PokerShell'
+import PokerMissionPing from '../_components/PokerMissionPing'
+import { markRulesReviewed } from '../social'
 
 // Must render per-request: the poker layout gates on getPokerAccess() (POKER_ENABLED / admin
 // cookie). A force-static prerender bakes the build-time gate result (feature OFF ⇒ notFound),
@@ -22,6 +24,8 @@ export default async function PokerRulesPage() {
   const t = await getTranslations('games.poker')
   return (
     <PokerShell>
+      {/* Reading the rules satisfies the 'review_rules' mission (best-effort, degrade-safe). */}
+      <PokerMissionPing action={markRulesReviewed} />
       <h1 className="font-serif text-2xl font-bold">{t('rules.title')}</h1>
       <p className="mt-2 max-w-2xl text-muted">{t('rules.intro')}</p>
 

@@ -1526,6 +1526,118 @@
   },
   "games": {
     "poker": {
+      "achievements": {
+        "title": "Achievements",
+        "open": "Achievements & missions",
+        "subtitle": "Cosmetic badges you earn by playing. They unlock automatically and never cost or grant coins.",
+        "progress": "{unlocked} of {total} unlocked",
+        "locked": "Locked",
+        "unlocked_on": "Unlocked {date}",
+        "empty": "No achievements yet — play a hand to start.",
+        "sign_in": "Sign in to track your achievements.",
+        "group": {
+          "milestone": "Milestones",
+          "showdown": "Showdowns",
+          "handmade": "Big hands",
+          "resilience": "Resilience"
+        },
+        "item": {
+          "first_hand": {
+            "name": "First hand",
+            "desc": "Play your first hand to the end."
+          },
+          "first_pot": {
+            "name": "First pot",
+            "desc": "Win your first pot."
+          },
+          "first_showdown_win": {
+            "name": "Showdown winner",
+            "desc": "Win a pot at showdown."
+          },
+          "win_straight": {
+            "name": "Straight",
+            "desc": "Win a showdown with a straight."
+          },
+          "win_flush": {
+            "name": "Flush",
+            "desc": "Win a showdown with a flush."
+          },
+          "win_full_house": {
+            "name": "Full house",
+            "desc": "Win a showdown with a full house."
+          },
+          "win_four_of_a_kind": {
+            "name": "Four of a kind",
+            "desc": "Win a showdown with four of a kind."
+          },
+          "win_straight_flush": {
+            "name": "Straight flush",
+            "desc": "Win a showdown with a straight flush."
+          },
+          "win_split_pot": {
+            "name": "Split pot",
+            "desc": "Share a pot with another player."
+          },
+          "win_side_pot": {
+            "name": "Side pot",
+            "desc": "Win a side pot."
+          },
+          "reconnect_finish": {
+            "name": "Back in the game",
+            "desc": "Reconnect and finish the hand."
+          },
+          "full_table": {
+            "name": "Full table",
+            "desc": "Play a hand with all six seats filled."
+          },
+          "hands_10": {
+            "name": "Getting started",
+            "desc": "Play 10 hands."
+          },
+          "hands_100": {
+            "name": "Regular",
+            "desc": "Play 100 hands."
+          },
+          "hands_1000": {
+            "name": "Veteran",
+            "desc": "Play 1,000 hands."
+          }
+        }
+      },
+      "missions": {
+        "title": "Missions",
+        "subtitle": "A one-time starter checklist. No daily grind, no coin rewards — just the basics.",
+        "progress": "{completed} of {total} done",
+        "done": "Done",
+        "step": "{progress}/{target}",
+        "empty": "No missions available.",
+        "item": {
+          "complete_3_hands": {
+            "name": "Play three hands",
+            "desc": "Finish three hands."
+          },
+          "use_check": {
+            "name": "Check",
+            "desc": "Use Check when it's a legal move."
+          },
+          "reach_showdown": {
+            "name": "Reach a showdown",
+            "desc": "Get to a showdown once."
+          },
+          "play_beginner_blind": {
+            "name": "Beginner stakes",
+            "desc": "Play a hand at a beginner blind level."
+          },
+          "review_rules": {
+            "name": "Read the rules",
+            "desc": "Open the poker rules page."
+          },
+          "complete_training": {
+            "name": "Try the trainer",
+            "desc": "Finish one training scenario."
+          }
+        }
+      },
       "preview": {
         "title": "Poker Design System",
         "subtitle": "Isolated preview of every Poker UI component — a premium, deep-dark, landscape-only lounge. This is not the live gameplay page.",

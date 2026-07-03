@@ -33,6 +33,13 @@ import {
   BETA_TERMS_VERSION,
   type BetaCohort,
 } from '@/lib/games/poker/beta'
+import {
+  resolveMaintenance,
+  maintenanceGate,
+  worseDecision,
+  type MaintenanceStatus,
+  type MaintenanceDecision,
+} from '@/lib/games/poker/maintenance'
 
 export interface PokerAccess {
   flags: PokerFlags
@@ -52,6 +59,11 @@ export interface PokerAccess {
   // Ops maintenance wind-down: blocks new create/join for everyone (running hands
   // preserved) and drives the maintenance strip in the UI.
   betaMaintenance: boolean
+  // Graduated ops maintenance mode (POKER_MAINTENANCE_MODE): a tiered service-status
+  // wind-down from "read-only lobby" to "emergency shutdown". Composed most-restrictive
+  // -wins with the feature flags and betaMaintenance in checkPokerCapability. The status
+  // (mode + admin message + ETA) also drives the maintenance banner/screen in the UI.
+  maintenance: MaintenanceStatus
 }
 
 // Resolve the viewer's email once (server-only) to decide tester allowlist
@@ -88,6 +100,7 @@ export async function getPokerAccess(): Promise<PokerAccess> {
     betaCohort: beta.cohort,
     betaSuspended: beta.suspended,
     betaMaintenance: isBetaMaintenance(process.env),
+    maintenance: resolveMaintenance(process.env),
   }
 }
 
@@ -170,10 +183,18 @@ export async function checkPokerCapability(cap: PokerCapability): Promise<string
     }
     return 'poker_feature_off'
   }
-  // Maintenance wind-down blocks NEW create/join for everyone (running hands keep going),
-  // mirroring the freeze. Read-only capabilities (enter/spectate/lobby) are unaffected.
-  if ((cap === 'create' || cap === 'join') && a.betaMaintenance) {
-    return 'poker_joins_frozen'
+  // Graduated maintenance mode + legacy beta wind-down, composed most-restrictive-wins. Applies to
+  // EVERYONE (like blockNewJoins) so a wind-down is total and predictable; admins run ops from
+  // /admin/poker, which is gated by ADMIN_EMAILS and not by these gameplay capabilities. The mode
+  // only ever blocks NEW commitments (and, at the two severe tiers, read access) — it never settles,
+  // cancels, or freezes a live hand, so no player loses an active stack.
+  const legacy: MaintenanceDecision =
+    a.betaMaintenance && (cap === 'create' || cap === 'join')
+      ? { allowed: false, reason: 'joins_frozen' }
+      : { allowed: true, reason: null }
+  const decision = worseDecision(maintenanceGate(a.maintenance.mode, cap), legacy)
+  if (!decision.allowed) {
+    return decision.reason === 'feature_off' ? 'poker_feature_off' : 'poker_joins_frozen'
   }
   // Beta terms gate: a beta cohort member (non-admin) must accept terms before
   // committing coins (create a table or take a seat). Read-only capabilities

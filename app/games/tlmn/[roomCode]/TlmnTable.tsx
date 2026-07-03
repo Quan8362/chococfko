@@ -53,8 +53,15 @@ const BOARD_RATIO = BOARD_W / BOARD_H // ≈ 1.777 (16:9)
 // from web/public/. Rendered object-cover BEHIND the seats/pile/FX so the felt fills the
 // stage edge-to-edge with no distortion; the tuned seat geometry (GEOMETRY.bleed/short) is
 // unchanged, so all four seats + the centre pile stay aligned around the painted table.
-const BOARD_MOBILE_SRC = '/tlmn-table-mobile-landscape.webp' // 1672×941 (16:9)
+const BOARD_MOBILE_SRC = '/tlmn-table-mobile-landscape.webp' // 1846×852 (≈2.17, phone-landscape)
 const BOARD_TABLET_SRC = '/tlmn-table-tablet-landscape.webp' // 1448×1086 (4:3)
+// Painted side-lotus (left/right pocket) CENTRES for each art, measured from the mahogany-
+// frame arcs and mapped through object-cover. They differ per art AND the art is picked by
+// WIDTH while short/bleed mode is picked by HEIGHT, so a landscape phone can show either art;
+// the side seats resolve their anchor from the ACTIVE art (see `geom` below) so both avatars
+// land ON the lotus in every width×height combo. x is the left value; right mirrors to 100−x.
+const MOBILE_SIDE_ANCHOR = { x: 11.5, y: 51 } // wide oval art: pockets ≈ x11.5 / y50.6
+const TABLET_SIDE_ANCHOR = { x: 10, y: 48 }   // 4:3 art: pockets ≈ x10 / y47.8
 const BLEED_TABLET_MIN = 768 // ≥ this width ⇒ tablet art, else mobile art
 // Upper width bound for treating a COARSE-pointer (touch) device as a full-bleed tablet.
 // Covers every common tablet landscape width — 1024, 1180, 1194, 1366 — so an iPad-class
@@ -240,15 +247,12 @@ const GEOMETRY: Record<LayoutMode, SeatGeometry> = {
   bleed: {
     // Coordinate-space unification (Run 13): the full-bleed art is a STAGE-LEVEL background
     // (object-cover, centred) and the seat play area now spans that SAME box — the top chrome
-    // OVERLAYS it rather than reserving a band above it — so image-% == area-%. LEFT/RIGHT
-    // anchor to the MEASURED lotus-pocket centre of the tablet art: the painted side pockets
-    // are centred at y≈47.8% (measured from the mahogany-frame arcs, NOT 50% as first assumed);
-    // object-cover barely shifts a near-centre feature, so y:48 lands the avatar + its facedown
-    // fan (both centred on the anchor) ON the lotus, perfectly mirrored and device-independent.
-    // TOP hugs the top edge (y:12), just clear of the compact overlay chrome whose CENTRE is
-    // empty (buttons hug the corners); its facedown fan now hangs BELOW it (toward centre) so
-    // the cards read as "in front of" the top player. x:10/90 centres each side pod in its
-    // lotus pocket, inset from the wooden rail so the name plate isn't pressed to it.
+    // OVERLAYS it rather than reserving a band above it — so image-% == area-%. TOP hugs the
+    // top edge (y:12), just clear of the compact overlay chrome whose CENTRE is empty (buttons
+    // hug the corners); its facedown fan hangs BELOW it (toward centre) so the cards read as
+    // "in front of" the top player. NOTE: the LEFT/RIGHT x/y below are placeholders — they are
+    // overridden at render time by the art-specific MOBILE/TABLET_SIDE_ANCHOR (see `geom`), so
+    // the side avatars land on whichever art's lotus is actually showing.
     seats: { top: { x: 50, y: 12 }, left: { x: 10, y: 48 }, right: { x: 90, y: 48 }, bottom: { x: 50, y: 90 } },
     // Centre band straddles the felt's OPTICAL centre — nudged a touch above the geometric
     // middle so the played pile clears the bottom hand while still reading on the central
@@ -256,9 +260,9 @@ const GEOMETRY: Record<LayoutMode, SeatGeometry> = {
     band: { top: 39, bottom: 55 },
   },
   // Short-landscape phones (vh < 520) — same discipline as `bleed`. The overlay chrome is a
-  // larger fraction of a short viewport, so TOP drops to y:15 to clear it; the sides sit on the
-  // MEASURED mobile-art lotus centre (pockets centred at y≈48.6% → y:48 after object-cover);
-  // the band rides a touch higher since the compact dock owns more of the short screen.
+  // larger fraction of a short viewport, so TOP drops to y:15 to clear it; the LEFT/RIGHT
+  // values are again placeholders overridden by the art-specific side anchor (see `geom`); the
+  // band rides a touch higher since the compact dock owns more of the short screen.
   short: {
     seats: { top: { x: 50, y: 15 }, left: { x: 9, y: 48 }, right: { x: 91, y: 48 }, bottom: { x: 50, y: 86 } },
     band: { top: 37, bottom: 54 },
@@ -1167,13 +1171,30 @@ export default function TlmnTable({ roomId, seats, mySeat, isHost, inviteCode, o
   // info panel replacing Gợi ý in the action row + Sắp xếp anchored to the hand's
   // top-right). Mobile/tablet (bleed) and portrait (oval) keep their existing docks.
   const isDesktop = mode === 'desktop'
-  const geom = GEOMETRY[mode]
+  // Resolve the LEFT/RIGHT (lotus) anchors from the ACTIVE full-bleed art rather than the mode:
+  // the mobile art's side pockets sit lower + more inset than the tablet art's, and either art
+  // can appear in short OR bleed mode (art is picked by width, mode by height). Baking the
+  // art-specific anchor into `geom` here keeps seatStyle + throwCoord + bubbleAnchor all in
+  // sync. Desktop/oval keep their own art-matched geometry untouched.
+  const geom: SeatGeometry = (() => {
+    const base = GEOMETRY[mode]
+    if (!fullBleed) return base
+    const s = bleedBoardSrc === BOARD_TABLET_SRC ? TABLET_SIDE_ANCHOR : MOBILE_SIDE_ANCHOR
+    return {
+      ...base,
+      seats: {
+        ...base.seats,
+        left: { ...base.seats.left, x: s.x, y: s.y },
+        right: { ...base.seats.right, x: 100 - s.x, y: s.y },
+      },
+    }
+  })()
   // EVERY seat is anchored purely as a % of the inner play area (areaRef / the board box) —
   // the single positioning context. No seat is ever tied to the page, window, browser
   // toolbar/chrome height, or the PWA install banner: those are out-of-flow overlays that
   // must never move a seat. On full-bleed the play area spans the WHOLE stage (the compact
   // chrome overlays its top edge), so it shares the painted art's coordinate box 1:1 — the
-  // side seats' y:50 lands on the lotus and the top seat's low y clears the corner controls
+  // side seats' y lands on the lotus and the top seat's low y clears the corner controls
   // (whose centre is empty). Scales fluidly from a 320px phone to a 1366px tablet, no per-
   // device coordinates.
   const seatStyle = (place: string): CSSProperties => {

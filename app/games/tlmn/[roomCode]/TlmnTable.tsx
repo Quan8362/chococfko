@@ -266,13 +266,14 @@ const GEOMETRY: Record<LayoutMode, SeatGeometry> = {
     // mandala, with a clean gap under the top seat (y:12) and above the hand dock.
     band: { top: 39, bottom: 55 },
   },
-  // Short-landscape phones (vh < 520) — same discipline as `bleed`. The overlay chrome is a
-  // larger fraction of a short viewport, so TOP drops to y:15 to clear it; the LEFT/RIGHT
-  // values are again placeholders overridden by the art-specific side anchor (see `geom`); the
-  // band rides a touch higher since the compact dock owns more of the short screen.
+  // Short-landscape phones (vh < 520). TOP is pulled UP to y:11 so Bot 2 hugs the top edge
+  // (its centre sits over the empty middle of the chrome bar), freeing the middle of the felt.
+  // The centre band is centred on the painted MANDALA (measured at ≈49.8% of the mobile art,
+  // rings spanning ~43–55%), so the played pile lands ON the pattern at the true table centre
+  // rather than above it. LEFT/RIGHT stay placeholders overridden by the art-specific anchor.
   short: {
-    seats: { top: { x: 50, y: 15 }, left: { x: 9, y: 48 }, right: { x: 91, y: 48 }, bottom: { x: 50, y: 86 } },
-    band: { top: 37, bottom: 54 },
+    seats: { top: { x: 50, y: 11 }, left: { x: 9, y: 48 }, right: { x: 91, y: 48 }, bottom: { x: 50, y: 86 } },
+    band: { top: 42, bottom: 58 },
   },
 }
 const seatTransform = (a: SeatAnchor) => `translate(-50%, -50%)${a.s ? ` scale(${a.s})` : ''}`

@@ -2450,6 +2450,24 @@
             "uncalled_refund": "콜되지 않은 {amount}을 반환했습니다."
           }
         }
+      },
+      "bot": {
+        "label": "봇",
+        "name": "봇"
+      },
+      "practice": {
+        "title": "봇과 연습",
+        "subtitle": "연습 테이블 — 봇과 대결, 실제 코인 없음",
+        "badge_practice": "연습",
+        "badge_no_reward": "실제 코인 보상 없음",
+        "against_bots": "봇과 플레이 중입니다",
+        "difficulty": "봇 난이도",
+        "difficulty_easy": "쉬움",
+        "difficulty_normal": "보통",
+        "difficulty_hard": "어려움",
+        "start": "연습 시작",
+        "you": "나",
+        "unavailable": "연습 모드는 아직 사용할 수 없습니다."
       }
     },
     "destination_wheel": {

@@ -5,6 +5,7 @@ import {
   pokerVisibleTo,
   pokerCan,
   pokerSocialFeatureOn,
+  pokerPracticeBotsOn,
   parseAlphaTesters,
   isAlphaTester,
   POKER_FLAG_ENV,
@@ -15,6 +16,7 @@ import {
 const OFF: PokerFlags = {
   enabled: false, createTable: false, publicLobby: false,
   privateTable: false, spectator: false, bot: false, tournament: false,
+  practiceBots: false,
   alpha: false, blockNewJoins: false, closedBeta: false,
   achievements: false, missions: false, friendInvites: false,
   quickMessages: false, handSharing: false,
@@ -53,8 +55,9 @@ test('FLAG-ENVMAP-001 exposes exactly the canonical env names', () => {
     'POKER_ACHIEVEMENTS_ENABLED', 'POKER_ALPHA_MODE', 'POKER_BLOCK_NEW_JOINS',
     'POKER_BOT_ENABLED', 'POKER_CLOSED_BETA_ENABLED', 'POKER_CREATE_TABLE_ENABLED',
     'POKER_ENABLED', 'POKER_FRIEND_INVITES_ENABLED', 'POKER_HAND_SHARING_ENABLED',
-    'POKER_MISSIONS_ENABLED', 'POKER_PRIVATE_TABLE_ENABLED', 'POKER_PUBLIC_LOBBY_ENABLED',
-    'POKER_QUICK_MESSAGES_ENABLED', 'POKER_SPECTATOR_ENABLED', 'POKER_TOURNAMENT_ENABLED',
+    'POKER_MISSIONS_ENABLED', 'POKER_PRACTICE_BOTS_ENABLED', 'POKER_PRIVATE_TABLE_ENABLED',
+    'POKER_PUBLIC_LOBBY_ENABLED', 'POKER_QUICK_MESSAGES_ENABLED', 'POKER_SPECTATOR_ENABLED',
+    'POKER_TOURNAMENT_ENABLED',
   ])
 })
 
@@ -98,6 +101,28 @@ test('SOCIAL-GATE-003 a suspended tester never sees a social feature even with t
   const f = { ...OFF, closedBeta: true, achievements: true }
   const suspended = { isAdmin: false, isBetaMember: true, suspended: true }
   assert.equal(pokerSocialFeatureOn(f, suspended, 'achievements'), false)
+})
+
+// ── Practice-bots flag (Prompt 27B) ────────────────────────────────────────────
+test('PRACTICE-DEFAULT-001 practiceBots defaults OFF and maps to its env key', () => {
+  assert.equal(resolvePokerFlags({}).practiceBots, false)
+  assert.equal(POKER_FLAG_ENV.practiceBots, 'POKER_PRACTICE_BOTS_ENABLED')
+  assert.equal(resolvePokerFlags({ POKER_PRACTICE_BOTS_ENABLED: '1' }).practiceBots, true)
+})
+
+test('PRACTICE-GATE-001 practice bots need the flag ON and poker visible; no admin override', () => {
+  // visible but flag off → off
+  assert.equal(pokerPracticeBotsOn({ ...OFF, enabled: true }, player), false)
+  // flag on but not visible → off
+  assert.equal(pokerPracticeBotsOn({ ...OFF, practiceBots: true }, player), false)
+  // both → on
+  assert.equal(pokerPracticeBotsOn({ ...OFF, enabled: true, practiceBots: true }, player), true)
+  // admin visible but dark flag → still off (ships dark)
+  assert.equal(pokerPracticeBotsOn({ ...OFF }, admin), false)
+})
+
+test('PRACTICE-GATE-002 the live cash `bot` flag is NEVER turned on by env (unchanged hard-off)', () => {
+  assert.equal(resolvePokerFlags({ POKER_BOT_ENABLED: 'true', POKER_PRACTICE_BOTS_ENABLED: 'true' }).bot, false)
 })
 
 test('VIS-001 nobody but admin sees poker when master flag is off', () => {

@@ -2450,6 +2450,24 @@
             "uncalled_refund": "コールされなかった {amount} を返却しました。"
           }
         }
+      },
+      "bot": {
+        "label": "ボット",
+        "name": "ボット"
+      },
+      "practice": {
+        "title": "ボットと練習",
+        "subtitle": "練習テーブル — ボット相手にプレイ、実際のコインは使いません",
+        "badge_practice": "練習",
+        "badge_no_reward": "実コイン報酬なし",
+        "against_bots": "ボットと対戦しています",
+        "difficulty": "ボットの難易度",
+        "difficulty_easy": "やさしい",
+        "difficulty_normal": "ふつう",
+        "difficulty_hard": "むずかしい",
+        "start": "練習を始める",
+        "you": "あなた",
+        "unavailable": "練習モードはまだ利用できません。"
       }
     },
     "page_badge": "🎮 ミニゲーム",

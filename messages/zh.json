@@ -2450,6 +2450,24 @@
             "uncalled_refund": "退回了无人跟注的 {amount}。"
           }
         }
+      },
+      "bot": {
+        "label": "机器人",
+        "name": "机器人"
+      },
+      "practice": {
+        "title": "与机器人练习",
+        "subtitle": "练习桌 — 与机器人对战，不使用真实金币",
+        "badge_practice": "练习",
+        "badge_no_reward": "无真实金币奖励",
+        "against_bots": "你正在与机器人对战",
+        "difficulty": "机器人难度",
+        "difficulty_easy": "简单",
+        "difficulty_normal": "普通",
+        "difficulty_hard": "困难",
+        "start": "开始练习",
+        "you": "你",
+        "unavailable": "练习模式尚未开放。"
       }
     },
     "destination_wheel": {

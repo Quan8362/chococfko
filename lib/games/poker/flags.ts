@@ -16,8 +16,15 @@ export interface PokerFlags {
   publicLobby: boolean    // browse/join the public table list
   privateTable: boolean   // create/join password-protected tables
   spectator: boolean      // watch a table without sitting
-  bot: boolean            // out of scope — HARD OFF this release
+  bot: boolean            // live cash-game bots — HARD OFF this release (never on, even in env)
   tournament: boolean     // out of scope — HARD OFF this release
+  // practiceBots: the ISOLATED, practice-only bot mode (Prompt 27B). Env-gated and default OFF.
+  //   It gates a strictly separate practice runtime whose chips NEVER touch the real wallet
+  //   (game_wallets/coin_ledger), whose results feed NO ranking/achievement/mission/stats, and
+  //   whose bots are structurally barred from every human cash table. Unlike `bot` (which is a
+  //   hard-off live-cash capability), this is a real env flag — but it stays OFF in production
+  //   until explicitly approved. It never opens a cash-seating capability.
+  practiceBots: boolean
   // ── Alpha operations ──────────────────────────────────────────────────────
   // alpha: controlled-Alpha mode. When ON the feature is reachable ONLY by the
   //   approved tester allowlist (+ admins), even if `enabled` is also ON — this
@@ -60,6 +67,7 @@ export const POKER_FLAG_ENV: Record<keyof PokerFlags, string> = {
   spectator: 'POKER_SPECTATOR_ENABLED',
   bot: 'POKER_BOT_ENABLED',
   tournament: 'POKER_TOURNAMENT_ENABLED',
+  practiceBots: 'POKER_PRACTICE_BOTS_ENABLED',
   alpha: 'POKER_ALPHA_MODE',
   blockNewJoins: 'POKER_BLOCK_NEW_JOINS',
   closedBeta: 'POKER_CLOSED_BETA_ENABLED',
@@ -90,9 +98,11 @@ export function resolvePokerFlags(env: Record<string, string | undefined>): Poke
     publicLobby: truthy(env[POKER_FLAG_ENV.publicLobby]),
     privateTable: truthy(env[POKER_FLAG_ENV.privateTable]),
     spectator: truthy(env[POKER_FLAG_ENV.spectator]),
-    // Out of scope for this release — never on, even if the env says otherwise.
+    // Live cash-game bots are out of scope for this release — never on, even if env says so.
     bot: false,
     tournament: false,
+    // Practice-only bots: a REAL env flag, default OFF. Stays off in production this phase.
+    practiceBots: truthy(env[POKER_FLAG_ENV.practiceBots]),
     alpha: truthy(env[POKER_FLAG_ENV.alpha]),
     blockNewJoins: truthy(env[POKER_FLAG_ENV.blockNewJoins]),
     closedBeta: truthy(env[POKER_FLAG_ENV.closedBeta]),
@@ -200,4 +210,13 @@ export function pokerSocialFeatureOn(
   feature: PokerSocialFeature,
 ): boolean {
   return pokerVisibleTo(flags, viewer) && flags[feature]
+}
+
+// ── Practice-bots gate ─────────────────────────────────────────────────────────────────────
+// The isolated practice-bot mode is available only when its own env flag is ON and the viewer can
+// see poker at all. Like a social feature it is NOT admin-overridden — it ships fully dark until
+// `POKER_PRACTICE_BOTS_ENABLED` is flipped, so an admin previewing prod flips the env like anyone
+// else. It NEVER interacts with cash seating, coins, or the join/maintenance freeze.
+export function pokerPracticeBotsOn(flags: PokerFlags, viewer: PokerViewer): boolean {
+  return pokerVisibleTo(flags, viewer) && flags.practiceBots
 }

@@ -2450,6 +2450,24 @@
             "uncalled_refund": "Đã trả lại {amount} không ai theo."
           }
         }
+      },
+      "bot": {
+        "label": "Bot",
+        "name": "Bot"
+      },
+      "practice": {
+        "title": "Luyện tập với Bot",
+        "subtitle": "Bàn luyện tập — chơi thử với bot, không dùng xu thật",
+        "badge_practice": "Luyện tập",
+        "badge_no_reward": "Không có phần thưởng xu thật",
+        "against_bots": "Bạn đang chơi với bot",
+        "difficulty": "Độ khó bot",
+        "difficulty_easy": "Dễ",
+        "difficulty_normal": "Thường",
+        "difficulty_hard": "Khó",
+        "start": "Bắt đầu luyện tập",
+        "you": "Bạn",
+        "unavailable": "Chế độ luyện tập chưa khả dụng."
       }
     },
     "page_badge": "🎮 Mini Game",

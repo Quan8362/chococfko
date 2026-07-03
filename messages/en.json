@@ -2450,6 +2450,24 @@
             "uncalled_refund": "An uncalled {amount} was returned."
           }
         }
+      },
+      "bot": {
+        "label": "Bot",
+        "name": "Bot"
+      },
+      "practice": {
+        "title": "Practice with Bots",
+        "subtitle": "A practice table — play against bots, no real coins",
+        "badge_practice": "Practice",
+        "badge_no_reward": "No real coin reward",
+        "against_bots": "You are playing against bots",
+        "difficulty": "Bot difficulty",
+        "difficulty_easy": "Easy",
+        "difficulty_normal": "Normal",
+        "difficulty_hard": "Hard",
+        "start": "Start practice",
+        "you": "You",
+        "unavailable": "Practice mode is not available yet."
       }
     },
     "page_badge": "🎮 Mini Game",

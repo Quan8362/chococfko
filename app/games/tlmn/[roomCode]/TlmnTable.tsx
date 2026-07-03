@@ -231,34 +231,36 @@ const GEOMETRY: Record<LayoutMode, SeatGeometry> = {
     seats: { top: { x: 50, y: 13 }, left: { x: 12, y: 33, s: 0.82 }, right: { x: 88, y: 33, s: 0.82 }, bottom: { x: 50, y: 88 } },
     band: { top: 30, bottom: 64 },
   },
-  // Full-bleed mobile/tablet (edge-to-edge felt) — normal height. On these breakpoints the
-  // top + side seats render in COMPACT mode (avatar + a horizontal info row that hangs to the
-  // side, NOT a tall downward column), so the top seat hugs the top edge with ~one avatar's
-  // height and the band below it is a clean, exclusive centre strip with a real gap. The band
+  // Full-bleed mobile/tablet (edge-to-edge felt) — normal height. Seats render in COMPACT mode
+  // (slim name+coin plate). The TOP seat hugs the top edge and hangs its facedown fan BELOW the
+  // avatar (toward centre) so the cards read as "in front of" the top player, not beside them;
+  // the fan is a short horizontal stack so this column stays clear of the centre band. The band
   // is pushed DOWN to ≈ the true centre of the usable felt (below the top seat, above the
   // taller dock) so there's a generous empty gap under Bot 2 and the pile reads as the focus.
   bleed: {
     // Coordinate-space unification (Run 13): the full-bleed art is a STAGE-LEVEL background
     // (object-cover, centred) and the seat play area now spans that SAME box — the top chrome
-    // OVERLAYS it rather than reserving a band above it — so image-% == area-%. The painted
-    // side lotuses sit at the art's exact vertical centre, so the LEFT/RIGHT avatars anchor to
-    // y:50 and land ON their lotus, perfectly mirrored and device-independent (50% is the one
-    // cover-invariant line — it maps to image-centre at every viewport ratio). TOP hugs the
-    // top edge (y:12), just clear of the compact overlay chrome whose CENTRE is empty (buttons
-    // hug the corners) so the avatar never collides with a control. x:9/91 sits each side pod
-    // in its lotus pocket, inset from the wooden rail so the name plate isn't pressed to it.
-    seats: { top: { x: 50, y: 12 }, left: { x: 10, y: 50 }, right: { x: 90, y: 50 }, bottom: { x: 50, y: 90 } },
+    // OVERLAYS it rather than reserving a band above it — so image-% == area-%. LEFT/RIGHT
+    // anchor to the MEASURED lotus-pocket centre of the tablet art: the painted side pockets
+    // are centred at y≈47.8% (measured from the mahogany-frame arcs, NOT 50% as first assumed);
+    // object-cover barely shifts a near-centre feature, so y:48 lands the avatar + its facedown
+    // fan (both centred on the anchor) ON the lotus, perfectly mirrored and device-independent.
+    // TOP hugs the top edge (y:12), just clear of the compact overlay chrome whose CENTRE is
+    // empty (buttons hug the corners); its facedown fan now hangs BELOW it (toward centre) so
+    // the cards read as "in front of" the top player. x:10/90 centres each side pod in its
+    // lotus pocket, inset from the wooden rail so the name plate isn't pressed to it.
+    seats: { top: { x: 50, y: 12 }, left: { x: 10, y: 48 }, right: { x: 90, y: 48 }, bottom: { x: 50, y: 90 } },
     // Centre band straddles the felt's OPTICAL centre — nudged a touch above the geometric
     // middle so the played pile clears the bottom hand while still reading on the central
     // mandala, with a clean gap under the top seat (y:12) and above the hand dock.
     band: { top: 39, bottom: 55 },
   },
   // Short-landscape phones (vh < 520) — same discipline as `bleed`. The overlay chrome is a
-  // larger fraction of a short viewport, so TOP drops to y:15 to clear it; the sides stay on
-  // the lotus (y:50); the band rides a touch higher since the compact dock owns more of the
-  // short screen.
+  // larger fraction of a short viewport, so TOP drops to y:15 to clear it; the sides sit on the
+  // MEASURED mobile-art lotus centre (pockets centred at y≈48.6% → y:48 after object-cover);
+  // the band rides a touch higher since the compact dock owns more of the short screen.
   short: {
-    seats: { top: { x: 50, y: 15 }, left: { x: 9, y: 50 }, right: { x: 91, y: 50 }, bottom: { x: 50, y: 86 } },
+    seats: { top: { x: 50, y: 15 }, left: { x: 9, y: 48 }, right: { x: 91, y: 48 }, bottom: { x: 50, y: 86 } },
     band: { top: 37, bottom: 54 },
   },
 }
@@ -2343,39 +2345,15 @@ function SeatPod({
     )
   }
 
-  // ── TOP seat, COMPACT (mobile/tablet) ─ horizontal pod hugging the top edge ──────────
-  // Instead of hanging a tall column (plate → fan) straight DOWN into the protected centre,
-  // the compact top seat lays out HORIZONTALLY — avatar beside a slim info column (name+coin
-  // row, then a short face-down fan). Its total height is ≈ one avatar, so it stays anchored
-  // near the top edge (matching the side seats' edge distance) and can never droop into the
-  // centre play zone. Played cards NEVER render here — only in the centre pile.
-  if (compact && place === 'top') {
-    return (
-      <div className="relative inline-flex items-center gap-2 flex-none">
-        {avatarUnit}
-        <div className="inline-flex flex-col items-start gap-0.5 w-max z-30">
-          {plateUnit}
-          {/* Bot 2 sits ACROSS the table → its face-down fan faces the other way (180°). */}
-          <span className="inline-flex rotate-180"><OpponentFan count={count} w={backW} orientation="top" /></span>
-        </div>
-        {/* Transient status / thinking dots as an absolute overlay so they never resize the
-            pod (which would re-centre it via the wrapper translate and shift the avatar). */}
-        {(statusUnit || dotsUnit) && (
-          <div className="absolute top-full left-0 mt-0.5 flex items-center gap-1.5 z-30">
-            {statusUnit}
-            {dotsUnit}
-          </div>
-        )}
-      </div>
-    )
-  }
-
   // ── TOP / BOTTOM seats ─ avatar IS the anchored centroid (same discipline as sides) ──
   // The root shrink-wraps the avatar, so the wrapper's translate(-50%,-50%) lands the
   // AVATAR on its point near the top edge — it never drifts toward the centre because the
   // plate/fan/last-played hang OFF it absolutely (downward for a top seat, upward for the
   // bottom spectator seat) instead of growing the anchored box. The name plate is z-30 so a
-  // card can never sit on top of the label.
+  // card can never sit on top of the label. The TOP seat (incl. compact mobile/tablet) hangs
+  // its facedown fan BELOW the avatar toward the centre, so Bot 2's cards read as "in front
+  // of" the player rather than beside them; the fan is a short horizontal stack, so the whole
+  // column stays comfortably above the centre band (see GEOMETRY top-y vs band-top).
   const hangBelow = place !== 'bottom'
   return (
     <div className="relative inline-flex flex-none">

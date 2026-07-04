@@ -21,6 +21,8 @@
     "poker:bots:list": "node lib/games/poker/bot/cli.ts list",
     "poker:bots:run": "node lib/games/poker/bot/cli.ts run",
     "poker:bots:soak": "node lib/games/poker/bot/cli.ts soak",
+    "poker:bots:baseline": "node lib/games/poker/bot/cli.ts baseline",
+    "poker:bots:bench": "node lib/games/poker/bot/cli.ts bench",
     "test:poker:bots": "node --test \"lib/games/poker/bot/**/*.test.ts\"",
     "poker:load:bench": "node scripts/poker-load/engine-bench.ts",
     "poker:load:preflight": "node scripts/poker-load/preflight.ts",

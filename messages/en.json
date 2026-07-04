@@ -1709,6 +1709,11 @@
         "degraded": "Weak connection",
         "offline": "Offline"
       },
+      "update": {
+        "available": "New version available",
+        "required": "Update required",
+        "reload": "Reload"
+      },
       "seat": {
         "empty": "Empty seat",
         "reserved": "Reserved",
@@ -1762,7 +1767,8 @@
       "rotate": {
         "title": "Rotate your device",
         "message": "Poker is played in landscape. Please rotate your device to join the table.",
-        "hint": "The table appears automatically when you rotate."
+        "hint": "The table appears automatically when you rotate.",
+        "time_left": "{s}s left to act"
       },
       "title": "Poker",
       "hud": {
@@ -1772,7 +1778,9 @@
         "sit_out": "Sit out",
         "return": "I'm back",
         "leave": "Leave table",
-        "back_to_lobby": "Back to lobby"
+        "back_to_lobby": "Back to lobby",
+        "fullscreen_enter": "Fullscreen",
+        "fullscreen_exit": "Exit fullscreen"
       },
       "action_bar": {
         "to_call": "To call",
@@ -2117,6 +2125,8 @@
         "music_hint": "Ambient lounge music.",
         "vibration": "Vibration",
         "vibration_hint": "Haptic feedback on your turn (supported devices).",
+        "wake_lock": "Keep screen awake",
+        "wake_lock_hint": "Stop the screen sleeping while you're seated in a hand.",
         "animation": "Animations",
         "animation_hint": "Card, chip and pot motion.",
         "reduced_motion": "Reduced motion",
@@ -2468,6 +2478,28 @@
         "start": "Start practice",
         "you": "You",
         "unavailable": "Practice mode is not available yet."
+      },
+      "notif": {
+        "friend_invite": {
+          "title": "Poker table invite",
+          "body": "{name} invited you to their table"
+        },
+        "private_invite": {
+          "title": "Private table invite",
+          "body": "You've been invited to a private Poker table"
+        },
+        "beta_invite": {
+          "title": "Poker Beta invite",
+          "body": "You've been invited to the Poker beta"
+        },
+        "maintenance": {
+          "title": "Poker is back online",
+          "body": "Maintenance is complete — tables are open again"
+        },
+        "tournament": {
+          "title": "Tournament starting soon",
+          "body": "Your Poker tournament is about to begin"
+        }
       }
     },
     "page_badge": "🎮 Mini Game",

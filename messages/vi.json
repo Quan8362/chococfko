@@ -1709,6 +1709,11 @@
         "degraded": "Kết nối yếu",
         "offline": "Mất kết nối"
       },
+      "update": {
+        "available": "Đã có phiên bản mới",
+        "required": "Cần cập nhật",
+        "reload": "Tải lại"
+      },
       "seat": {
         "empty": "Ghế trống",
         "reserved": "Đã giữ chỗ",
@@ -1762,7 +1767,8 @@
       "rotate": {
         "title": "Xoay ngang thiết bị",
         "message": "Poker chơi ở chế độ ngang. Hãy xoay ngang thiết bị để vào bàn.",
-        "hint": "Bàn sẽ tự hiện khi bạn xoay ngang."
+        "hint": "Bàn sẽ tự hiện khi bạn xoay ngang.",
+        "time_left": "Còn {s}s để hành động"
       },
       "title": "Poker",
       "hud": {
@@ -1772,7 +1778,9 @@
         "sit_out": "Tạm nghỉ",
         "return": "Quay lại",
         "leave": "Rời bàn",
-        "back_to_lobby": "Về sảnh"
+        "back_to_lobby": "Về sảnh",
+        "fullscreen_enter": "Toàn màn hình",
+        "fullscreen_exit": "Thoát toàn màn hình"
       },
       "action_bar": {
         "to_call": "Cần theo",
@@ -2117,6 +2125,8 @@
         "music_hint": "Nhạc lounge nhẹ nhàng.",
         "vibration": "Rung",
         "vibration_hint": "Phản hồi rung đến lượt (thiết bị hỗ trợ).",
+        "wake_lock": "Giữ màn hình sáng",
+        "wake_lock_hint": "Ngăn màn hình tắt khi đang ngồi chơi.",
         "animation": "Hiệu ứng động",
         "animation_hint": "Chuyển động bài, chịp và pot.",
         "reduced_motion": "Giảm chuyển động",
@@ -2468,6 +2478,28 @@
         "start": "Bắt đầu luyện tập",
         "you": "Bạn",
         "unavailable": "Chế độ luyện tập chưa khả dụng."
+      },
+      "notif": {
+        "friend_invite": {
+          "title": "Lời mời vào bàn Poker",
+          "body": "{name} mời bạn vào bàn chơi"
+        },
+        "private_invite": {
+          "title": "Lời mời bàn riêng",
+          "body": "Bạn được mời vào một bàn Poker riêng"
+        },
+        "beta_invite": {
+          "title": "Mời tham gia Poker Beta",
+          "body": "Bạn đã được mời tham gia thử nghiệm Poker"
+        },
+        "maintenance": {
+          "title": "Poker đã hoạt động trở lại",
+          "body": "Bảo trì hoàn tất, các bàn đã mở lại"
+        },
+        "tournament": {
+          "title": "Giải đấu sắp bắt đầu",
+          "body": "Giải Poker của bạn sắp diễn ra"
+        }
       }
     },
     "page_badge": "🎮 Mini Game",

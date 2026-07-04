@@ -15,6 +15,11 @@ import { useTranslations } from 'next-intl'
 import '../_design/poker-theme.css'
 import { useViewportClass, type PokerLayout } from '../_design/useViewportClass'
 import { usePokerSound } from '../_design/usePokerSound'
+import { useFullscreen } from '../_design/useFullscreen'
+import { useWakeLock } from '../_design/useWakeLock'
+import { usePokerAppUpdate } from '../_design/usePokerAppUpdate'
+import { shouldPromptUpdate } from '@/lib/games/poker/pwa/version'
+import { HAPTIC_PATTERN } from '@/lib/games/poker/mobileSession'
 import { usePokerPrefs } from '../_eco/prefs'
 import { usePokerRealtime } from '../usePokerRealtime'
 import { tableGeometry, visualPosition, type PokerTableLayout } from '@/lib/games/poker/seatLayout'
@@ -35,6 +40,7 @@ import {
   WinnerHighlight,
   InlineGameMessage,
   RotateDeviceOverlay,
+  UpdateAvailableBanner,
   TableBackground,
   ActionButton,
   type PokerSeatView,
@@ -98,6 +104,9 @@ export default function PokerTable({ tableId, userId, config }: PokerTableProps)
   const vp = useViewportClass()
   const { play, muted, toggleMuted, vibrate } = usePokerSound()
   const prefs = usePokerPrefs()
+  // Fullscreen targets the poker root so safe-area padding + all HUD survive the transition.
+  const rootRef = useRef<HTMLDivElement>(null)
+  const fs = useFullscreen(rootRef)
   // App-level reduced motion: honour the in-game toggles in addition to the OS setting (the CSS
   // layer neutralises animation for `[data-pk-reduce-motion="1"]`, mirroring the media query).
   const reduceMotion = prefs.reducedMotion || !prefs.animation
@@ -114,6 +123,10 @@ export default function PokerTable({ tableId, userId, config }: PokerTableProps)
     cues,
   } = rt
 
+  // Keep the screen awake ONLY while opted-in and actually seated in the hand (released on leave,
+  // tab hide, or unmount). Never gates gameplay — silently inert where unsupported.
+  useWakeLock(prefs.wakeLock, viewerSeatIndex !== null)
+
   const geom = tableGeometry(config.capacity, geomLayout(vp.layout))
   const seats = useMemo<readonly PublicSeat[]>(() => publicState?.seats ?? [], [publicState?.seats])
   const phase = publicState?.phase ?? 'COMPLETED'
@@ -122,6 +135,13 @@ export default function PokerTable({ tableId, userId, config }: PokerTableProps)
   const board = publicState?.board ?? []
   const buttonSeat = publicState?.buttonSeat ?? null
   const blinds = useMemo(() => deriveBlinds(seats, buttonSeat, live), [seats, buttonSeat, live])
+
+  // App-update watcher: detect a newer deploy and surface a non-blocking reload ONLY between hands
+  // (a seated player in a live hand is never interrupted). A protocol mismatch is urgent — it shows
+  // even mid-hand and blocks new action submits (the client must reload before it can act again).
+  const { updateAvailable, mustBlock: protocolMismatch, applyUpdate } = usePokerAppUpdate()
+  const inHand = viewerSeatIndex !== null && live
+  const showUpdateBanner = shouldPromptUpdate({ updateAvailable, protocolMismatch, inHand }) || protocolMismatch
 
   // ── Command plumbing: a single in-flight action (no double submit) + recoverable errors ──
   const [pending, setPending] = useState(false)
@@ -143,11 +163,14 @@ export default function PokerTable({ tableId, userId, config }: PokerTableProps)
       try {
         const res = await rt.act(action, amount)
         if (!res.ok) setErrorCode(res.error ?? 'generic')
+        // Haptic confirmation the intent was accepted. A single fixed buzz for every action
+        // (a stronger one only for the always-public all-in) — never encodes hand strength.
+        else vibrate(action === 'all_in' ? HAPTIC_PATTERN.allIn : HAPTIC_PATTERN.actionAccepted)
       } finally {
         setPending(false)
       }
     },
-    [pending, rt],
+    [pending, rt, vibrate],
   )
   // UX signal: mark the start of each fresh decision point where the viewer is the actor. Keyed on
   // the authoritative action-seq so it fires once per turn (not on every re-render), and only when
@@ -158,7 +181,7 @@ export default function PokerTable({ tableId, userId, config }: PokerTableProps)
       turnStartRef.current = Date.now()
       recordUxSignal('turn_started')
       // Haptic nudge that it's the viewer's turn (mobile players may not be looking at the screen).
-      vibrate(20)
+      vibrate(HAPTIC_PATTERN.yourTurn)
     } else {
       turnStartRef.current = null
     }
@@ -178,7 +201,7 @@ export default function PokerTable({ tableId, userId, config }: PokerTableProps)
       if (warnFiredRef.current === turnKey) return
       warnFiredRef.current = turnKey
       play('timerWarn')
-      vibrate([40, 60, 40])
+      vibrate(HAPTIC_PATTERN.timerWarning)
     }
     const delay = turnDeadline - WARN_LEAD_MS - Date.now()
     if (delay <= 0) {
@@ -268,6 +291,10 @@ export default function PokerTable({ tableId, userId, config }: PokerTableProps)
           }
         }
         setSettlement({ winners, handKey })
+        // Celebratory haptic only when the VIEWER is among the winners.
+        if (viewerSeatIndex != null && winners.some((w) => w.seat === viewerSeatIndex)) {
+          vibrate(HAPTIC_PATTERN.potWon)
+        }
       }
     }
     lastStacksRef.current = cur
@@ -393,6 +420,7 @@ export default function PokerTable({ tableId, userId, config }: PokerTableProps)
 
   return (
     <div
+      ref={rootRef}
       className="poker-root fixed inset-0 z-[110] overflow-hidden"
       style={{ background: 'var(--pk-bg-void)' }}
       data-testid="poker-table"
@@ -404,7 +432,19 @@ export default function PokerTable({ tableId, userId, config }: PokerTableProps)
       data-turn-seat={publicState?.turnSeat ?? ''}
       data-pk-reduce-motion={reduceMotion ? '1' : '0'}
     >
-      {vp.isPortrait && <RotateDeviceOverlay />}
+      {vp.isPortrait && (
+        <RotateDeviceOverlay
+          deadlineMs={isMyTurn ? publicState?.turnDeadline ?? null : null}
+          leaveLabel={t('hud.leave')}
+          onLeave={
+            viewerSeatIndex !== null
+              ? () => {
+                  void leaveTable(tableId, viewerSeatIndex)
+                }
+              : undefined
+          }
+        />
+      )}
 
       {/* Alpha in-game bug report — always reachable (incl. reconnect/offline overlays) */}
       <ReportProblemButton variant="floating" context={bugContext} />
@@ -532,10 +572,21 @@ export default function PokerTable({ tableId, userId, config }: PokerTableProps)
           )}
         </div>
         <ConnectionIndicator status={connUx} variant="banner" />
+        {showUpdateBanner && <UpdateAvailableBanner onUpdate={applyUpdate} urgent={protocolMismatch} />}
       </div>
 
       {/* ── Top-right: sound + menu ── */}
       <div className="absolute flex items-center gap-2" style={{ top: 'calc(var(--pk-safe-top) + 8px)', right: 'calc(var(--pk-safe-right) + 10px)' }}>
+        {fs.supported && (
+          <IconPill
+            onClick={() => void fs.toggle()}
+            title={fs.isFullscreen ? t('hud.fullscreen_exit') : t('hud.fullscreen_enter')}
+            aria-label={fs.isFullscreen ? t('hud.fullscreen_exit') : t('hud.fullscreen_enter')}
+            active={fs.isFullscreen}
+          >
+            {fs.isFullscreen ? '🡼' : '⛶'}
+          </IconPill>
+        )}
         <IconPill onClick={toggleMuted} title={muted ? t('hud.unmute') : t('hud.mute')} aria-label={muted ? t('hud.unmute') : t('hud.mute')}>
           {muted ? '🔇' : '🔊'}
         </IconPill>
@@ -659,7 +710,7 @@ export default function PokerTable({ tableId, userId, config }: PokerTableProps)
                 model={legal.model}
                 bigBlind={config.bigBlind}
                 pending={pending}
-                disabled={!canAct}
+                disabled={!canAct || protocolMismatch}
                 errorCode={errorCode}
                 onAct={onAct}
               />
@@ -712,14 +763,22 @@ export default function PokerTable({ tableId, userId, config }: PokerTableProps)
 
 // ── Small presentational helpers ─────────────────────────────────────────────────────────────
 
-function IconPill({ children, onClick, title, ...rest }: { children: React.ReactNode; onClick?: () => void; title?: string } & React.AriaAttributes) {
+function IconPill({ children, onClick, title, active = false, ...rest }: { children: React.ReactNode; onClick?: () => void; title?: string; active?: boolean } & React.AriaAttributes) {
   return (
     <button
       type="button"
       onClick={onClick}
       title={title}
       className="inline-flex items-center justify-center"
-      style={{ width: 40, height: 40, borderRadius: 999, background: 'rgba(0,0,0,0.55)', border: '1px solid var(--pk-gold-line)', color: 'var(--pk-text-hi)', fontSize: 17 }}
+      style={{
+        width: 40,
+        height: 40,
+        borderRadius: 999,
+        background: active ? 'rgba(201,161,74,0.22)' : 'rgba(0,0,0,0.55)',
+        border: `1px solid ${active ? 'var(--pk-gold)' : 'var(--pk-gold-line)'}`,
+        color: active ? 'var(--pk-gold-soft)' : 'var(--pk-text-hi)',
+        fontSize: 17,
+      }}
       {...rest}
     >
       {children}

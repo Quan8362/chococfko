@@ -1709,6 +1709,11 @@
         "degraded": "연결 불안정",
         "offline": "오프라인"
       },
+      "update": {
+        "available": "새 버전이 있습니다",
+        "required": "업데이트 필요",
+        "reload": "새로고침"
+      },
       "seat": {
         "empty": "빈자리",
         "reserved": "예약됨",
@@ -1762,7 +1767,8 @@
       "rotate": {
         "title": "기기를 가로로 돌리세요",
         "message": "포커는 가로 모드로 플레이합니다. 기기를 가로로 돌려 테이블에 참여하세요.",
-        "hint": "가로로 돌리면 테이블이 자동으로 나타납니다."
+        "hint": "가로로 돌리면 테이블이 자동으로 나타납니다.",
+        "time_left": "행동까지 {s}초 남음"
       },
       "title": "포커",
       "hud": {
@@ -1772,7 +1778,9 @@
         "sit_out": "자리 비움",
         "return": "복귀",
         "leave": "테이블 나가기",
-        "back_to_lobby": "로비로"
+        "back_to_lobby": "로비로",
+        "fullscreen_enter": "전체 화면",
+        "fullscreen_exit": "전체 화면 종료"
       },
       "action_bar": {
         "to_call": "콜 금액",
@@ -2117,6 +2125,8 @@
         "music_hint": "잔잔한 라운지 음악.",
         "vibration": "진동",
         "vibration_hint": "내 차례 햅틱 피드백(지원 기기).",
+        "wake_lock": "화면 켜짐 유지",
+        "wake_lock_hint": "테이블에 앉아 플레이하는 동안 화면이 꺼지지 않게 합니다.",
         "animation": "애니메이션",
         "animation_hint": "카드·칩·팟 움직임.",
         "reduced_motion": "동작 줄이기",
@@ -2468,6 +2478,28 @@
         "start": "연습 시작",
         "you": "나",
         "unavailable": "연습 모드는 아직 사용할 수 없습니다."
+      },
+      "notif": {
+        "friend_invite": {
+          "title": "포커 테이블 초대",
+          "body": "{name}님이 테이블에 초대했습니다"
+        },
+        "private_invite": {
+          "title": "비공개 테이블 초대",
+          "body": "비공개 포커 테이블에 초대되었습니다"
+        },
+        "beta_invite": {
+          "title": "포커 베타 초대",
+          "body": "포커 베타 테스트에 초대되었습니다"
+        },
+        "maintenance": {
+          "title": "포커가 다시 열렸습니다",
+          "body": "점검이 완료되어 테이블이 다시 열렸습니다"
+        },
+        "tournament": {
+          "title": "토너먼트가 곧 시작됩니다",
+          "body": "포커 토너먼트가 곧 시작됩니다"
+        }
       }
     },
     "destination_wheel": {

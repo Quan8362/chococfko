@@ -128,7 +128,8 @@ export default function PokerPreview() {
 
   return (
     <div className="poker-root min-h-screen w-full" style={{ background: 'var(--pk-bg-void)' }}>
-      {showRotate && <RotateDeviceOverlay />}
+      {/* Demo props exercise the portrait fallback's read-only countdown + safe Leave control. */}
+      {showRotate && <RotateDeviceOverlay deadlineMs={deadline} leaveLabel={t('hud.leave')} onLeave={() => setShowRotate(false)} />}
 
       <div className="mx-auto flex max-w-[1100px] flex-col gap-10 px-5 py-10 pb-24 sm:px-6">
         {/* header + live layout readout */}

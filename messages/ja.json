@@ -1709,6 +1709,11 @@
         "degraded": "接続が不安定",
         "offline": "オフライン"
       },
+      "update": {
+        "available": "新しいバージョンがあります",
+        "required": "更新が必要です",
+        "reload": "再読み込み"
+      },
       "seat": {
         "empty": "空席",
         "reserved": "予約済み",
@@ -1762,7 +1767,8 @@
       "rotate": {
         "title": "デバイスを横向きに",
         "message": "ポーカーは横向きでプレイします。デバイスを横向きにしてテーブルに参加してください。",
-        "hint": "横向きにすると自動的にテーブルが表示されます。"
+        "hint": "横向きにすると自動的にテーブルが表示されます。",
+        "time_left": "行動まで残り{s}秒"
       },
       "title": "ポーカー",
       "hud": {
@@ -1772,7 +1778,9 @@
         "sit_out": "離席",
         "return": "復帰",
         "leave": "テーブルを出る",
-        "back_to_lobby": "ロビーへ"
+        "back_to_lobby": "ロビーへ",
+        "fullscreen_enter": "全画面",
+        "fullscreen_exit": "全画面を終了"
       },
       "action_bar": {
         "to_call": "コール額",
@@ -2117,6 +2125,8 @@
         "music_hint": "落ち着いたラウンジ音楽。",
         "vibration": "バイブ",
         "vibration_hint": "自分の番の触覚フィードバック（対応端末）。",
+        "wake_lock": "画面をスリープさせない",
+        "wake_lock_hint": "着席してプレイ中に画面が消えないようにします。",
         "animation": "アニメーション",
         "animation_hint": "カード・チップ・ポットの動き。",
         "reduced_motion": "モーション軽減",
@@ -2468,6 +2478,28 @@
         "start": "練習を始める",
         "you": "あなた",
         "unavailable": "練習モードはまだ利用できません。"
+      },
+      "notif": {
+        "friend_invite": {
+          "title": "ポーカーへの招待",
+          "body": "{name}さんがテーブルに招待しました"
+        },
+        "private_invite": {
+          "title": "プライベートテーブルへの招待",
+          "body": "プライベートのポーカーテーブルに招待されました"
+        },
+        "beta_invite": {
+          "title": "ポーカーベータへの招待",
+          "body": "ポーカーのベータテストに招待されました"
+        },
+        "maintenance": {
+          "title": "ポーカーが再開しました",
+          "body": "メンテナンスが完了し、テーブルが再開しました"
+        },
+        "tournament": {
+          "title": "トーナメントがまもなく開始",
+          "body": "あなたのポーカートーナメントがまもなく始まります"
+        }
       }
     },
     "page_badge": "🎮 ミニゲーム",

@@ -36,6 +36,7 @@ import { settleShowdown, type ShowdownResult } from '../showdown.ts'
 import { isSettlementConserved, type SeatContribution } from '../pot.ts'
 import { playHand, type HandConfig, type ScriptedAction } from '../engine.ts'
 import { buildObservation, type ObservedSeat, type PublicActionEntry } from './observation.ts'
+export type { PublicActionEntry } from './observation.ts'
 import { decideSafely, type BotPolicy } from './policy.ts'
 
 export interface BotSeatConfig {
@@ -67,6 +68,9 @@ export interface HandOutcome {
   readonly board: readonly Card[]
   readonly streetReached: Street
   readonly actionLog: readonly ScriptedAction[]
+  // Public, street-attributed action history (same facts everyone at the table saw). Additive:
+  // exposed so a baseline harness can attribute VPIP/PFR/sizing per street. Carries NO cards.
+  readonly history: readonly PublicActionEntry[]
   readonly showdown: ShowdownResult
   readonly stackDeltas: ReadonlyMap<number, number> // seatIndex → net chip change this hand (Σ = 0)
   readonly potTotal: number
@@ -330,6 +334,7 @@ export function playBotHand(config: BotHandConfig, rng: () => number): HandOutco
     board: fullBoard,
     streetReached,
     actionLog: log,
+    history,
     showdown,
     stackDeltas,
     potTotal: contribs.reduce((s, c) => s + c.committed, 0),

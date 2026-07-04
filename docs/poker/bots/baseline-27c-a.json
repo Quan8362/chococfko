@@ -1,0 +1,44 @@
+{
+  "phase": "27C-A",
+  "generated": "reproducible from the calibration seed group; regenerate with the commands below",
+  "commands": {
+    "behaviour": "npm run poker:bots:baseline -- --group calibration --seeds 4 --hands 200 --json",
+    "timing": "npm run poker:bots:bench -- --decisions 3000 --json"
+  },
+  "methodology": "light[simulation/easy/normal]: broad matrix (hu-standard, hu-short, 4max-standard, 6max-standard, 6max-short) x 2 seeds x 80 hands; hard: {hu,4max,6max}-standard x 2 seeds x 40 hands (Monte-Carlo cost). Numbers are a behavioural fingerprint, NOT a strength ordering.",
+  "seedGroup": "calibration",
+  "seedsUsed": [3618026224, 1055847308],
+  "totalHands": 2640,
+  "runs": 36,
+  "integrity": {
+    "conserved": true,
+    "totalDefects": 0,
+    "totalFallbacks": 0,
+    "negativeStacks": 0,
+    "fractionalStacks": 0,
+    "stuckHands": 0
+  },
+  "behaviourByPolicy": [
+    { "difficulty": "simulation", "handsDealtIn": 3200, "vpipPct": 64.81, "pfrPct": 34.28, "threeBetPct": 13.5, "allInHandPct": 21.59, "showdownPct": 52.75, "showdownWinPct": 39.87, "topActionShare": 0.3417, "actionMix": { "fold": 0.3188, "check": 0.0232, "call": 0.3417, "bet": 0.012, "raise": 0.1321, "all_in": 0.1722 }, "sizingMix": { "<=0.33p": 0.0346, "0.33-0.66p": 0.0156, "0.66-1p": 0.0415, "1-2p": 0.0761, ">2p": 0.8322 } },
+    { "difficulty": "easy", "handsDealtIn": 3200, "vpipPct": 18.28, "pfrPct": 0.78, "threeBetPct": 0, "allInHandPct": 0.84, "showdownPct": 16.31, "showdownWinPct": 41.76, "topActionShare": 0.3909, "actionMix": { "fold": 0.3909, "check": 0.2989, "call": 0.1855, "bet": 0.0868, "raise": 0.0328, "all_in": 0.005 }, "sizingMix": { "<=0.33p": 0.0109, "0.33-0.66p": 0.7301, "0.66-1p": 0.0374, "1-2p": 0.2215, ">2p": 0 } },
+    { "difficulty": "normal", "handsDealtIn": 3200, "vpipPct": 15.06, "pfrPct": 0.41, "threeBetPct": 0, "allInHandPct": 0.5, "showdownPct": 19.16, "showdownWinPct": 45.02, "topActionShare": 0.3791, "actionMix": { "fold": 0.3791, "check": 0.3104, "call": 0.1775, "bet": 0.1071, "raise": 0.0229, "all_in": 0.0029 }, "sizingMix": { "<=0.33p": 0.0042, "0.33-0.66p": 0.8225, "0.66-1p": 0.0211, "1-2p": 0.1521, ">2p": 0 } },
+    { "difficulty": "hard", "handsDealtIn": 960, "vpipPct": 16.77, "pfrPct": 2.29, "threeBetPct": 0, "allInHandPct": 1.88, "showdownPct": 17.19, "showdownWinPct": 46.06, "topActionShare": 0.3956, "actionMix": { "fold": 0.3956, "check": 0.2625, "call": 0.1831, "bet": 0.1063, "raise": 0.0413, "all_in": 0.0113 }, "sizingMix": { "<=0.33p": 0, "0.33-0.66p": 0.5508, "0.66-1p": 0.2288, "1-2p": 0.2203, ">2p": 0 } }
+  ],
+  "scenarioCoverageSimulationEnv": [
+    { "label": "hu-standard", "seatCount": 2, "stack": "standard", "hands": 160, "showdowns": 62, "sidePotHands": 0, "allInHands": 84, "conserved": true, "defects": 0 },
+    { "label": "hu-short", "seatCount": 2, "stack": "short", "hands": 160, "showdowns": 62, "sidePotHands": 0, "allInHands": 82, "conserved": true, "defects": 0 },
+    { "label": "4max-standard", "seatCount": 4, "stack": "standard", "hands": 160, "showdowns": 135, "sidePotHands": 72, "allInHands": 121, "conserved": true, "defects": 0 },
+    { "label": "6max-standard", "seatCount": 6, "stack": "standard", "hands": 160, "showdowns": 154, "sidePotHands": 117, "allInHands": 128, "conserved": true, "defects": 0 },
+    { "label": "6max-short", "seatCount": 6, "stack": "short", "hands": 160, "showdowns": 154, "sidePotHands": 113, "allInHands": 129, "conserved": true, "defects": 0 }
+  ],
+  "decisionTimeUs": {
+    "note": "microseconds per decision via the decideSafely path; machine-relative; ratios are the signal",
+    "decisions": 3000,
+    "simulation": { "mean": 2, "p50": 1, "p95": 2, "max": 222 },
+    "easy": { "mean": 7007, "p50": 6642, "p95": 16719, "max": 25220 },
+    "normal": { "mean": 22564, "p50": 23127, "p95": 50507, "max": 111168 },
+    "hard": { "mean": 69370, "p50": 70000, "p95": 159238, "max": 305209 }
+  },
+  "bottleneck": "Monte-Carlo hand-equity: cost ~= samples x (opponents+1) x evaluateHand; evaluateHand (7-card evaluator) is the dominant term (~60us/call). Primary 27C-B optimization target.",
+  "decision": "READY FOR PROMPT 27C-B STRATEGY CALIBRATION"
+}

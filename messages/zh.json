@@ -1709,6 +1709,11 @@
         "degraded": "连接不稳定",
         "offline": "离线"
       },
+      "update": {
+        "available": "有新版本可用",
+        "required": "需要更新",
+        "reload": "重新加载"
+      },
       "seat": {
         "empty": "空位",
         "reserved": "已预留",
@@ -1762,7 +1767,8 @@
       "rotate": {
         "title": "请横向旋转设备",
         "message": "扑克以横屏进行。请将设备横向旋转以加入牌桌。",
-        "hint": "旋转后牌桌会自动出现。"
+        "hint": "旋转后牌桌会自动出现。",
+        "time_left": "还剩 {s} 秒行动"
       },
       "title": "扑克",
       "hud": {
@@ -1772,7 +1778,9 @@
         "sit_out": "暂离",
         "return": "回来",
         "leave": "离开牌桌",
-        "back_to_lobby": "返回大厅"
+        "back_to_lobby": "返回大厅",
+        "fullscreen_enter": "全屏",
+        "fullscreen_exit": "退出全屏"
       },
       "action_bar": {
         "to_call": "需跟注",
@@ -2117,6 +2125,8 @@
         "music_hint": "舒缓的休闲室音乐。",
         "vibration": "震动",
         "vibration_hint": "轮到你时的触觉反馈（支持的设备）。",
+        "wake_lock": "保持屏幕常亮",
+        "wake_lock_hint": "入座游戏时防止屏幕休眠。",
         "animation": "动画",
         "animation_hint": "牌、筹码与底池的动效。",
         "reduced_motion": "减少动态",
@@ -2468,6 +2478,28 @@
         "start": "开始练习",
         "you": "你",
         "unavailable": "练习模式尚未开放。"
+      },
+      "notif": {
+        "friend_invite": {
+          "title": "扑克牌桌邀请",
+          "body": "{name} 邀请你加入牌桌"
+        },
+        "private_invite": {
+          "title": "私人牌桌邀请",
+          "body": "你被邀请加入一个私人扑克牌桌"
+        },
+        "beta_invite": {
+          "title": "扑克 Beta 邀请",
+          "body": "你已被邀请参加扑克测试"
+        },
+        "maintenance": {
+          "title": "扑克已恢复",
+          "body": "维护已完成，牌桌重新开放"
+        },
+        "tournament": {
+          "title": "锦标赛即将开始",
+          "body": "你的扑克锦标赛即将开始"
+        }
       }
     },
     "destination_wheel": {

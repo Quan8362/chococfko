@@ -11,6 +11,7 @@
 //                  toggle is inert today but persists for forward-compat)
 //   timerWarning — the "time is running out" cue (sound + haptic), independently silenceable
 //   vibration    — haptic feedback (navigator.vibrate); independent of the audio master
+//   wakeLock     — keep the screen awake while seated in a live hand (Screen Wake Lock API)
 //   animation    — nonessential travel/celebration animation
 //   reducedMotion— force reduced motion regardless of the OS setting
 //
@@ -25,6 +26,7 @@ export type PokerPrefKey =
   | 'music'
   | 'timerWarning'
   | 'vibration'
+  | 'wakeLock'
   | 'animation'
   | 'reducedMotion'
 
@@ -36,6 +38,7 @@ export const PREF_DEFAULTS: PokerPrefs = {
   music: false,
   timerWarning: true,
   vibration: true,
+  wakeLock: true,
   animation: true,
   reducedMotion: false,
 }

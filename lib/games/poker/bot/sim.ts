@@ -20,6 +20,13 @@ import { nextButton, type RingSeat } from '../order.ts'
 import { playBotHand, type BotHandConfig, type HandDefect } from './runner.ts'
 import { policyFor } from './policies.ts'
 import type { BotDifficulty, BotPolicy } from './policy.ts'
+import {
+  createPolicyMetrics,
+  recordHand,
+  finalizePolicyMetrics,
+  type PolicyMetrics,
+  type PolicyMetricsAccumulator,
+} from './metrics.ts'
 
 export interface BotSimConfig {
   readonly seatCount: number // 2..6
@@ -62,6 +69,9 @@ export interface BotSimReport {
   readonly fallbacks: number // total safe-fallback substitutions
   readonly defects: readonly SimDefect[]
   readonly byDifficulty: readonly DifficultyStat[]
+  // Per-policy behavioural baseline (VPIP/PFR/3bet/action-mix/sizing/showdown). Additive: purely
+  // derived from public action history, so a seeded replay is still bit-for-bit identical.
+  readonly metrics: readonly PolicyMetrics[]
   readonly finalStacks: ReadonlyArray<{ readonly seatIndex: number; readonly stack: number }>
 }
 
@@ -74,7 +84,14 @@ function difficultyForSeat(config: BotSimConfig, seatIndex: number): BotDifficul
 
 // Run a full session. Deterministic: the SAME config + seed yields a bit-for-bit identical report
 // (seeded replay — asserted by sim.test.ts).
-export function runBotSimulation(config: BotSimConfig, seed: string | number): BotSimReport {
+// `sharedMetrics`, when provided, is an accumulator the caller owns across MANY runs (the baseline
+// runner uses this to aggregate a whole matrix). When omitted a fresh one is used, so a single-run
+// report's `metrics` reflects exactly that run — and a seeded replay stays bit-for-bit identical.
+export function runBotSimulation(
+  config: BotSimConfig,
+  seed: string | number,
+  sharedMetrics?: PolicyMetricsAccumulator,
+): BotSimReport {
   if (config.seatCount < 2 || config.seatCount > 6) {
     throw new Error('bot sim: seatCount must be 2..6')
   }
@@ -95,6 +112,7 @@ export function runBotSimulation(config: BotSimConfig, seed: string | number): B
   }))
   const initialSupply = seats.reduce((s, x) => s + x.stack, 0)
 
+  const metrics = sharedMetrics ?? createPolicyMetrics()
   const defects: SimDefect[] = []
   let handsPlayed = 0
   let terminatedEarly = false
@@ -141,6 +159,20 @@ export function runBotSimulation(config: BotSimConfig, seed: string | number): B
     const outcome = playBotHand(handConfig, rng)
     handsPlayed += 1
     fallbacks += outcome.fallbacks
+
+    // Behavioural metrics: attribute each dealt-in seat to its difficulty (public info only).
+    const seatDifficulty = new Map<number, BotDifficulty>(
+      funded.map((s) => [s.seatIndex, s.difficulty]),
+    )
+    recordHand(metrics, {
+      history: outcome.history,
+      seatDifficulty,
+      stackDeltas: outcome.stackDeltas,
+      wentToShowdown: outcome.wentToShowdown,
+      smallBlind: config.smallBlind ?? Math.floor(config.bigBlind / 2),
+      bigBlind: config.bigBlind,
+    })
+
     if (outcome.wentToShowdown) showdowns += 1
     if (outcome.sidePotCount > 0) sidePotHands += 1
     if (outcome.actionLog.some((a) => a.action.type === 'all_in')) allInHands += 1
@@ -207,6 +239,7 @@ export function runBotSimulation(config: BotSimConfig, seed: string | number): B
     fallbacks,
     defects,
     byDifficulty,
+    metrics: finalizePolicyMetrics(metrics),
     finalStacks: seats.map((s) => ({ seatIndex: s.seatIndex, stack: s.stack })),
   }
 }

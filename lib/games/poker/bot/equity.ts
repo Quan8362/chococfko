@@ -18,10 +18,15 @@ import type { Card } from '../types.ts'
 import { makeDeck } from '../deck.ts'
 import { evaluateHand } from '../evaluator.ts'
 
+// Hoist the 52-card base deck out of the per-call path (27C-A performance plan): the full deck is a
+// constant, so build it ONCE and filter a cached copy per call instead of rebuilding makeDeck() on
+// every estimateEquity. Numerically identical (same order, same filter) — purely a CPU win.
+const BASE_DECK: readonly Card[] = makeDeck()
+
 // Cards the bot can actually see, used to derive the unknown universe.
 function unknownCards(hole: readonly [Card, Card], board: readonly Card[]): Card[] {
   const known = new Set<string>([hole[0], hole[1], ...board])
-  return makeDeck().filter((c) => !known.has(c))
+  return BASE_DECK.filter((c) => !known.has(c))
 }
 
 // Partial Fisher–Yates: draw the first `count` cards of a seeded shuffle of `pool`, mutating a
@@ -46,6 +51,18 @@ export interface EquityEstimate {
   readonly ties: number
 }
 
+// Bounded early-stopping (27C-A performance plan). OFF by default, so a call with no options is
+// bit-for-bit identical to the un-optimized estimator (equity.test.ts relies on this). When ON, the
+// sampler stops once the 95% confidence half-width of the running equity mean is below `ciTarget`,
+// but never before `minSamples` and never after `samples`. This changes VARIANCE, not the decision
+// rule, and stays fully deterministic given the rng (the same seed ⇒ the same stop point) — so a
+// seeded simulation replay remains exactly reproducible.
+export interface EquityOptions {
+  readonly earlyStop?: boolean
+  readonly minSamples?: number // never stop before this many samples (default 24)
+  readonly ciTarget?: number // stop when the 95% CI half-width < this (default 0.02)
+}
+
 // Estimate the bot's equity vs `opponents` unknown hands on the given board. Pure + seeded.
 //
 // `opponents` = number of OTHER seats still contesting the pot (>= 0). With no opponents the
@@ -57,6 +74,7 @@ export function estimateEquity(
   opponents: number,
   samples: number,
   rng: () => number,
+  opts?: EquityOptions,
 ): EquityEstimate {
   if (opponents <= 0) return { equity: 1, samples: 0, wins: 0, ties: 0 }
   const n = Math.max(1, Math.floor(samples))
@@ -67,9 +85,17 @@ export function estimateEquity(
     throw new Error('bot equity: not enough unknown cards to sample this scenario')
   }
 
+  const earlyStop = opts?.earlyStop === true
+  const minSamples = Math.max(1, Math.floor(opts?.minSamples ?? 24))
+  const ciTarget = opts?.ciTarget ?? 0.02
+
   let wins = 0
   let ties = 0
+  let sum = 0 // Σ per-sample equity value (1 win / fractional tie / 0 loss) for the running CI
+  let sumSq = 0 // Σ value² — for the running variance
+  let taken = 0
   const work = pool.slice()
+  const tieShare = 1 / (opponents + 1)
   for (let s = 0; s < n; s++) {
     const drawn = drawWithoutReplacement(work, draw, rng)
     let d = 0
@@ -85,13 +111,31 @@ export function estimateEquity(
       const sc = evaluateHand(oh, fullBoard).score
       if (sc > bestOpp) bestOpp = sc
     }
-    if (myScore > bestOpp) wins += 1
-    else if (myScore === bestOpp) ties += 1
-    // else: a loss contributes 0
+    let value: number
+    if (myScore > bestOpp) {
+      wins += 1
+      value = 1
+    } else if (myScore === bestOpp) {
+      ties += 1
+      value = tieShare
+    } else {
+      value = 0
+    }
+    sum += value
+    sumSq += value * value
+    taken += 1
+
+    // Safe early stop: only after a floor of samples, and only when the estimate is already tight.
+    if (earlyStop && taken >= minSamples && taken < n) {
+      const mean = sum / taken
+      const variance = Math.max(0, sumSq / taken - mean * mean)
+      const halfWidth = 1.96 * Math.sqrt(variance / taken)
+      if (halfWidth < ciTarget) break
+    }
   }
 
-  const equity = (wins + ties / (opponents + 1)) / n
-  return { equity, samples: n, wins, ties }
+  const equity = (wins + ties * tieShare) / taken
+  return { equity, samples: taken, wins, ties }
 }
 
 // ── Cheap preflop strength (Chen-style, deterministic, no sampling) ──────────────────────

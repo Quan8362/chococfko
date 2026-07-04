@@ -6,13 +6,14 @@ import { resetPrefs, setPref, usePokerPrefs, type PokerPrefKey } from '../_eco/p
 import { listMyBlocks, unblockPlayer } from '../ecosystem'
 
 // Grouped so the audio master reads clearly above the sub-categories it gates.
-const TOGGLES: PokerPrefKey[] = ['sound', 'effects', 'timerWarning', 'music', 'vibration', 'animation', 'reducedMotion']
+const TOGGLES: PokerPrefKey[] = ['sound', 'effects', 'timerWarning', 'music', 'vibration', 'wakeLock', 'animation', 'reducedMotion']
 const LABEL: Record<PokerPrefKey, { t: string; hint: string }> = {
   sound: { t: 'settings.sound', hint: 'settings.sound_hint' },
   effects: { t: 'settings.effects', hint: 'settings.effects_hint' },
   timerWarning: { t: 'settings.timer_warning', hint: 'settings.timer_warning_hint' },
   music: { t: 'settings.music', hint: 'settings.music_hint' },
   vibration: { t: 'settings.vibration', hint: 'settings.vibration_hint' },
+  wakeLock: { t: 'settings.wake_lock', hint: 'settings.wake_lock_hint' },
   animation: { t: 'settings.animation', hint: 'settings.animation_hint' },
   reducedMotion: { t: 'settings.reduced_motion', hint: 'settings.reduced_motion_hint' },
 }

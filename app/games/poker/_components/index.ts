@@ -21,5 +21,5 @@ export {
   BettingAmountControl,
   type BettingModel,
 } from './actions'
-export { WinnerHighlight, InlineGameMessage, RotateDeviceOverlay, type InlineTone } from './overlays'
+export { WinnerHighlight, InlineGameMessage, RotateDeviceOverlay, UpdateAvailableBanner, type InlineTone } from './overlays'
 export { TableBackground, tableAssetFor } from './TableBackground'

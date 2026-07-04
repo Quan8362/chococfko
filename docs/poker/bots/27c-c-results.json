@@ -1,0 +1,2435 @@
+{
+  "phase": "27C-C",
+  "strategyVersion": "bot-strategy-2026-07-v1",
+  "group": "holdout",
+  "seeds": 16,
+  "totalHoldoutHands": 664800,
+  "integrity": {
+    "conserved": true,
+    "defects": 0,
+    "fallbacks": 0,
+    "stuckHands": 0,
+    "canonicalMismatches": 0,
+    "negativeStacks": 0,
+    "fractionalStacks": 0,
+    "note": "pooled across all holdout vs-benchmark matchups"
+  },
+  "selfPlay": {
+    "totalHands": 93600,
+    "runs": 624,
+    "integrity": {
+      "conserved": true,
+      "totalDefects": 0,
+      "totalFallbacks": 0,
+      "negativeStacks": 0,
+      "fractionalStacks": 0
+    },
+    "coverage": {
+      "showdowns": 28052,
+      "sidePotHands": 7849,
+      "allInHands": 17296
+    },
+    "perDifficulty": [
+      {
+        "d": "easy",
+        "hands": 100800,
+        "VPIP": 15.93,
+        "PFR": 4.92,
+        "threeBet": 0.02,
+        "allIn": 0.03,
+        "SD": 12.33,
+        "topAct": 0.4929,
+        "actionMix": {
+          "fold": 0.4929,
+          "check": 0.2267,
+          "call": 0.1498,
+          "bet": 0.08,
+          "raise": 0.0504,
+          "all_in": 0.0002
+        },
+        "sizingMix": {
+          "<=0.33p": 0.0091,
+          "0.33-0.66p": 0.6062,
+          "0.66-1p": 0.1147,
+          "1-2p": 0.2635,
+          ">2p": 0.0065
+        }
+      },
+      {
+        "d": "hard",
+        "hands": 93600,
+        "VPIP": 19.04,
+        "PFR": 13.04,
+        "threeBet": 0.49,
+        "allIn": 0.04,
+        "SD": 7.94,
+        "topAct": 0.5704,
+        "actionMix": {
+          "fold": 0.5704,
+          "check": 0.0911,
+          "call": 0.1236,
+          "bet": 0.0912,
+          "raise": 0.1234,
+          "all_in": 0.0003
+        },
+        "sizingMix": {
+          "<=0.33p": 0.0182,
+          "0.33-0.66p": 0.1088,
+          "0.66-1p": 0.3036,
+          "1-2p": 0.5489,
+          ">2p": 0.0205
+        }
+      },
+      {
+        "d": "normal",
+        "hands": 100800,
+        "VPIP": 13.7,
+        "PFR": 10.12,
+        "threeBet": 0.37,
+        "allIn": 0.02,
+        "SD": 5.08,
+        "topAct": 0.6727,
+        "actionMix": {
+          "fold": 0.6727,
+          "check": 0.0694,
+          "call": 0.0892,
+          "bet": 0.0664,
+          "raise": 0.1022,
+          "all_in": 0.0001
+        },
+        "sizingMix": {
+          "<=0.33p": 0.01,
+          "0.33-0.66p": 0.2077,
+          "0.66-1p": 0.1815,
+          "1-2p": 0.588,
+          ">2p": 0.0129
+        }
+      },
+      {
+        "d": "simulation",
+        "hands": 93600,
+        "VPIP": 65.34,
+        "PFR": 36.32,
+        "threeBet": 13.69,
+        "allIn": 22.88,
+        "SD": 48.71,
+        "topAct": 0.3186,
+        "actionMix": {
+          "fold": 0.3162,
+          "check": 0.0292,
+          "call": 0.3186,
+          "bet": 0.019,
+          "raise": 0.1387,
+          "all_in": 0.1784
+        },
+        "sizingMix": {
+          "<=0.33p": 0.0398,
+          "0.33-0.66p": 0.0144,
+          "0.66-1p": 0.0201,
+          "1-2p": 0.0718,
+          ">2p": 0.8539
+        }
+      }
+    ]
+  },
+  "latencyUs": [
+    {
+      "d": "simulation",
+      "mean": 2,
+      "p50": 1,
+      "p95": 3,
+      "max": 224
+    },
+    {
+      "d": "easy",
+      "mean": 8765,
+      "p50": 7790,
+      "p95": 22258,
+      "max": 34039
+    },
+    {
+      "d": "normal",
+      "mean": 16912,
+      "p50": 14283,
+      "p95": 40506,
+      "max": 69512
+    },
+    {
+      "d": "hard",
+      "mean": 30347,
+      "p50": 28782,
+      "p95": 79774,
+      "max": 122746
+    }
+  ],
+  "matchups": [
+    {
+      "table": "2p-standard",
+      "bot": "easy",
+      "bench": "random",
+      "bb100": 414.83,
+      "ci": [
+        306.12,
+        523.54
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 16.04,
+        "PFR": 8.04,
+        "threeBet": 0,
+        "allIn": 0.06,
+        "topAct": 0.5109
+      }
+    },
+    {
+      "table": "2p-standard",
+      "bot": "easy",
+      "bench": "always_call",
+      "bb100": 88.64,
+      "ci": [
+        76.34,
+        100.94
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 10.46,
+        "PFR": 8.31,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.6081
+      }
+    },
+    {
+      "table": "2p-standard",
+      "bot": "easy",
+      "bench": "passive",
+      "bb100": 86.81,
+      "ci": [
+        75.46,
+        98.17
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 10.4,
+        "PFR": 8.29,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.6083
+      }
+    },
+    {
+      "table": "2p-standard",
+      "bot": "easy",
+      "bench": "aggressive",
+      "bb100": 584.08,
+      "ci": [
+        485.45,
+        682.71
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 28.5,
+        "PFR": 8.21,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.4823
+      }
+    },
+    {
+      "table": "2p-standard",
+      "bot": "easy",
+      "bench": "min_raise",
+      "bb100": 297.4,
+      "ci": [
+        240.46,
+        354.33
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 33.38,
+        "PFR": 8.06,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.3264
+      }
+    },
+    {
+      "table": "2p-standard",
+      "bot": "easy",
+      "bench": "tight",
+      "bb100": 13.18,
+      "ci": [
+        10.79,
+        15.57
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 10.75,
+        "PFR": 8.48,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.6421
+      }
+    },
+    {
+      "table": "2p-standard",
+      "bot": "easy",
+      "bench": "loose",
+      "bb100": 86.03,
+      "ci": [
+        73.93,
+        98.13
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 10.35,
+        "PFR": 8.29,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.61
+      }
+    },
+    {
+      "table": "2p-standard",
+      "bot": "normal",
+      "bench": "random",
+      "bb100": 554.76,
+      "ci": [
+        379.29,
+        730.23
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 42.27,
+        "PFR": 35.13,
+        "threeBet": 0.1,
+        "allIn": 0,
+        "topAct": 0.3716
+      }
+    },
+    {
+      "table": "2p-standard",
+      "bot": "normal",
+      "bench": "always_call",
+      "bb100": 311.08,
+      "ci": [
+        283.78,
+        338.37
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 35.6,
+        "PFR": 35.6,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.5298
+      }
+    },
+    {
+      "table": "2p-standard",
+      "bot": "normal",
+      "bench": "passive",
+      "bb100": 306.73,
+      "ci": [
+        281.44,
+        332.03
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 35.15,
+        "PFR": 35.15,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.5311
+      }
+    },
+    {
+      "table": "2p-standard",
+      "bot": "normal",
+      "bench": "aggressive",
+      "bb100": 669.34,
+      "ci": [
+        543.2,
+        795.48
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 60.17,
+        "PFR": 37.4,
+        "threeBet": 0.56,
+        "allIn": 0,
+        "topAct": 0.3766
+      }
+    },
+    {
+      "table": "2p-standard",
+      "bot": "normal",
+      "bench": "min_raise",
+      "bb100": 460.59,
+      "ci": [
+        377.62,
+        543.56
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 67.21,
+        "PFR": 36.94,
+        "threeBet": 0.73,
+        "allIn": 0,
+        "topAct": 0.3099
+      }
+    },
+    {
+      "table": "2p-standard",
+      "bot": "normal",
+      "bench": "tight",
+      "bb100": 33.37,
+      "ci": [
+        28.51,
+        38.23
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 24.21,
+        "PFR": 24.21,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.4596
+      }
+    },
+    {
+      "table": "2p-standard",
+      "bot": "normal",
+      "bench": "loose",
+      "bb100": 298.48,
+      "ci": [
+        277.58,
+        319.37
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 34.71,
+        "PFR": 34.71,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.5268
+      }
+    },
+    {
+      "table": "2p-standard",
+      "bot": "hard",
+      "bench": "random",
+      "bb100": 675.88,
+      "ci": [
+        618.06,
+        733.7
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 48.48,
+        "PFR": 39.88,
+        "threeBet": 0.1,
+        "allIn": 0,
+        "topAct": 0.3354
+      }
+    },
+    {
+      "table": "2p-standard",
+      "bot": "hard",
+      "bench": "always_call",
+      "bb100": 390.22,
+      "ci": [
+        353.02,
+        427.41
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 40.31,
+        "PFR": 40.31,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.5196
+      }
+    },
+    {
+      "table": "2p-standard",
+      "bot": "hard",
+      "bench": "passive",
+      "bb100": 374.39,
+      "ci": [
+        340.86,
+        407.93
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 39.46,
+        "PFR": 39.46,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.5231
+      }
+    },
+    {
+      "table": "2p-standard",
+      "bot": "hard",
+      "bench": "aggressive",
+      "bb100": 783.11,
+      "ci": [
+        617.15,
+        949.07
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 68.71,
+        "PFR": 42.98,
+        "threeBet": 0.6,
+        "allIn": 0,
+        "topAct": 0.3437
+      }
+    },
+    {
+      "table": "2p-standard",
+      "bot": "hard",
+      "bench": "min_raise",
+      "bb100": 594.62,
+      "ci": [
+        497.82,
+        691.43
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 76.65,
+        "PFR": 41.92,
+        "threeBet": 0.71,
+        "allIn": 0,
+        "topAct": 0.3218
+      }
+    },
+    {
+      "table": "2p-standard",
+      "bot": "hard",
+      "bench": "tight",
+      "bb100": 36.07,
+      "ci": [
+        30.04,
+        42.1
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 26.81,
+        "PFR": 26.81,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.4768
+      }
+    },
+    {
+      "table": "2p-standard",
+      "bot": "hard",
+      "bench": "loose",
+      "bb100": 369.15,
+      "ci": [
+        333.66,
+        404.63
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 39.5,
+        "PFR": 39.5,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.5241
+      }
+    },
+    {
+      "table": "2p-short",
+      "bot": "easy",
+      "bench": "random",
+      "bb100": 52.62,
+      "ci": [
+        24.4,
+        80.83
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 14.98,
+        "PFR": 7.98,
+        "threeBet": 0.03,
+        "allIn": 0,
+        "topAct": 0.5203
+      }
+    },
+    {
+      "table": "2p-short",
+      "bot": "easy",
+      "bench": "always_call",
+      "bb100": 69.38,
+      "ci": [
+        58.59,
+        80.16
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 9.18,
+        "PFR": 7.38,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.6097
+      }
+    },
+    {
+      "table": "2p-short",
+      "bot": "easy",
+      "bench": "passive",
+      "bb100": 65.1,
+      "ci": [
+        54.9,
+        75.3
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 8.35,
+        "PFR": 6.7,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.6109
+      }
+    },
+    {
+      "table": "2p-short",
+      "bot": "easy",
+      "bench": "aggressive",
+      "bb100": 58.33,
+      "ci": [
+        9.84,
+        106.82
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 23.45,
+        "PFR": 7.07,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.5442
+      }
+    },
+    {
+      "table": "2p-short",
+      "bot": "easy",
+      "bench": "min_raise",
+      "bb100": 77.3,
+      "ci": [
+        45.55,
+        109.05
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 29.65,
+        "PFR": 7.6,
+        "threeBet": 0,
+        "allIn": 0.03,
+        "topAct": 0.3663
+      }
+    },
+    {
+      "table": "2p-short",
+      "bot": "easy",
+      "bench": "tight",
+      "bb100": 4.21,
+      "ci": [
+        2.48,
+        5.95
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 4.93,
+        "PFR": 4.05,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.7826
+      }
+    },
+    {
+      "table": "2p-short",
+      "bot": "easy",
+      "bench": "loose",
+      "bb100": 69.06,
+      "ci": [
+        57.76,
+        80.36
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 8.9,
+        "PFR": 7.07,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.6138
+      }
+    },
+    {
+      "table": "2p-short",
+      "bot": "normal",
+      "bench": "random",
+      "bb100": 75.21,
+      "ci": [
+        33.6,
+        116.82
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 37.08,
+        "PFR": 30.1,
+        "threeBet": 0.15,
+        "allIn": 0.03,
+        "topAct": 0.4035
+      }
+    },
+    {
+      "table": "2p-short",
+      "bot": "normal",
+      "bench": "always_call",
+      "bb100": 167.89,
+      "ci": [
+        142.01,
+        193.77
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 27.23,
+        "PFR": 27.23,
+        "threeBet": 0,
+        "allIn": 0.33,
+        "topAct": 0.5446
+      }
+    },
+    {
+      "table": "2p-short",
+      "bot": "normal",
+      "bench": "passive",
+      "bb100": 163.6,
+      "ci": [
+        143.87,
+        183.33
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 25.85,
+        "PFR": 25.85,
+        "threeBet": 0,
+        "allIn": 0.28,
+        "topAct": 0.5427
+      }
+    },
+    {
+      "table": "2p-short",
+      "bot": "normal",
+      "bench": "aggressive",
+      "bb100": 25.9,
+      "ci": [
+        -45.22,
+        97.03
+      ],
+      "beats0": false,
+      "metrics": {
+        "VPIP": 45.2,
+        "PFR": 27.8,
+        "threeBet": 0.28,
+        "allIn": 0.15,
+        "topAct": 0.459
+      }
+    },
+    {
+      "table": "2p-short",
+      "bot": "normal",
+      "bench": "min_raise",
+      "bb100": 104.97,
+      "ci": [
+        57.6,
+        152.34
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 53.8,
+        "PFR": 29.5,
+        "threeBet": 0.53,
+        "allIn": 0.08,
+        "topAct": 0.3011
+      }
+    },
+    {
+      "table": "2p-short",
+      "bot": "normal",
+      "bench": "tight",
+      "bb100": 4.87,
+      "ci": [
+        2.87,
+        6.87
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 5.3,
+        "PFR": 5.3,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.8069
+      }
+    },
+    {
+      "table": "2p-short",
+      "bot": "normal",
+      "bench": "loose",
+      "bb100": 169.11,
+      "ci": [
+        143.36,
+        194.86
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 25.93,
+        "PFR": 25.93,
+        "threeBet": 0,
+        "allIn": 0.18,
+        "topAct": 0.5464
+      }
+    },
+    {
+      "table": "2p-short",
+      "bot": "hard",
+      "bench": "random",
+      "bb100": 91.73,
+      "ci": [
+        63.18,
+        120.28
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 40.25,
+        "PFR": 33.8,
+        "threeBet": 0.05,
+        "allIn": 0.08,
+        "topAct": 0.3835
+      }
+    },
+    {
+      "table": "2p-short",
+      "bot": "hard",
+      "bench": "always_call",
+      "bb100": 218.52,
+      "ci": [
+        191.18,
+        245.85
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 31.85,
+        "PFR": 31.85,
+        "threeBet": 0,
+        "allIn": 0.08,
+        "topAct": 0.5359
+      }
+    },
+    {
+      "table": "2p-short",
+      "bot": "hard",
+      "bench": "passive",
+      "bb100": 199.77,
+      "ci": [
+        175.15,
+        224.4
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 29.45,
+        "PFR": 29.45,
+        "threeBet": 0,
+        "allIn": 0.15,
+        "topAct": 0.5377
+      }
+    },
+    {
+      "table": "2p-short",
+      "bot": "hard",
+      "bench": "aggressive",
+      "bb100": 47.42,
+      "ci": [
+        -29.5,
+        124.35
+      ],
+      "beats0": false,
+      "metrics": {
+        "VPIP": 50.4,
+        "PFR": 31.25,
+        "threeBet": 0.28,
+        "allIn": 0.13,
+        "topAct": 0.4337
+      }
+    },
+    {
+      "table": "2p-short",
+      "bot": "hard",
+      "bench": "min_raise",
+      "bb100": 155.79,
+      "ci": [
+        120.63,
+        190.96
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 64.53,
+        "PFR": 35.53,
+        "threeBet": 0.5,
+        "allIn": 0.1,
+        "topAct": 0.306
+      }
+    },
+    {
+      "table": "2p-short",
+      "bot": "hard",
+      "bench": "tight",
+      "bb100": 5.18,
+      "ci": [
+        2.7,
+        7.67
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 5.73,
+        "PFR": 5.73,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.8013
+      }
+    },
+    {
+      "table": "2p-short",
+      "bot": "hard",
+      "bench": "loose",
+      "bb100": 210.17,
+      "ci": [
+        180.98,
+        239.35
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 30.35,
+        "PFR": 30.35,
+        "threeBet": 0,
+        "allIn": 0.28,
+        "topAct": 0.5321
+      }
+    },
+    {
+      "table": "2p-deep",
+      "bot": "easy",
+      "bench": "random",
+      "bb100": 863.77,
+      "ci": [
+        579.96,
+        1147.58
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 15.98,
+        "PFR": 8.13,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.5139
+      }
+    },
+    {
+      "table": "2p-deep",
+      "bot": "easy",
+      "bench": "always_call",
+      "bb100": 88.81,
+      "ci": [
+        75.34,
+        102.29
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 10.65,
+        "PFR": 8.5,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.6062
+      }
+    },
+    {
+      "table": "2p-deep",
+      "bot": "easy",
+      "bench": "passive",
+      "bb100": 88.7,
+      "ci": [
+        75.25,
+        102.15
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 10.65,
+        "PFR": 8.5,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.6062
+      }
+    },
+    {
+      "table": "2p-deep",
+      "bot": "easy",
+      "bench": "aggressive",
+      "bb100": 1418.91,
+      "ci": [
+        1112.73,
+        1725.1
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 28.88,
+        "PFR": 8.4,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.4765
+      }
+    },
+    {
+      "table": "2p-deep",
+      "bot": "easy",
+      "bench": "min_raise",
+      "bb100": 374.22,
+      "ci": [
+        293.85,
+        454.6
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 34.65,
+        "PFR": 8.53,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.3221
+      }
+    },
+    {
+      "table": "2p-deep",
+      "bot": "easy",
+      "bench": "tight",
+      "bb100": 12.9,
+      "ci": [
+        10.01,
+        15.79
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 10.7,
+        "PFR": 8.55,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.6427
+      }
+    },
+    {
+      "table": "2p-deep",
+      "bot": "easy",
+      "bench": "loose",
+      "bb100": 88.99,
+      "ci": [
+        74.81,
+        103.16
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 10.75,
+        "PFR": 8.6,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.6076
+      }
+    },
+    {
+      "table": "2p-deep",
+      "bot": "normal",
+      "bench": "random",
+      "bb100": 1187.36,
+      "ci": [
+        807.21,
+        1567.5
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 43.88,
+        "PFR": 35.88,
+        "threeBet": 0.2,
+        "allIn": 0,
+        "topAct": 0.3694
+      }
+    },
+    {
+      "table": "2p-deep",
+      "bot": "normal",
+      "bench": "always_call",
+      "bb100": 308.58,
+      "ci": [
+        283.23,
+        333.92
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 36.8,
+        "PFR": 36.8,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.5274
+      }
+    },
+    {
+      "table": "2p-deep",
+      "bot": "normal",
+      "bench": "passive",
+      "bb100": 306.35,
+      "ci": [
+        280.04,
+        332.65
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 36.45,
+        "PFR": 36.45,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.5279
+      }
+    },
+    {
+      "table": "2p-deep",
+      "bot": "normal",
+      "bench": "aggressive",
+      "bb100": 1560.01,
+      "ci": [
+        1151.76,
+        1968.25
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 61.23,
+        "PFR": 37.57,
+        "threeBet": 0.43,
+        "allIn": 0,
+        "topAct": 0.3665
+      }
+    },
+    {
+      "table": "2p-deep",
+      "bot": "normal",
+      "bench": "min_raise",
+      "bb100": 636.86,
+      "ci": [
+        499.9,
+        773.82
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 67.25,
+        "PFR": 37.03,
+        "threeBet": 0.65,
+        "allIn": 0,
+        "topAct": 0.3089
+      }
+    },
+    {
+      "table": "2p-deep",
+      "bot": "normal",
+      "bench": "tight",
+      "bb100": 49.7,
+      "ci": [
+        44.45,
+        54.94
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 37.62,
+        "PFR": 37.62,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.6558
+      }
+    },
+    {
+      "table": "2p-deep",
+      "bot": "normal",
+      "bench": "loose",
+      "bb100": 305.64,
+      "ci": [
+        270.89,
+        340.38
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 36.7,
+        "PFR": 36.7,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.5312
+      }
+    },
+    {
+      "table": "2p-deep",
+      "bot": "hard",
+      "bench": "random",
+      "bb100": 1659.7,
+      "ci": [
+        1443.39,
+        1876.01
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 50.38,
+        "PFR": 41.83,
+        "threeBet": 0.1,
+        "allIn": 0,
+        "topAct": 0.3305
+      }
+    },
+    {
+      "table": "2p-deep",
+      "bot": "hard",
+      "bench": "always_call",
+      "bb100": 419.58,
+      "ci": [
+        381.6,
+        457.55
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 42.73,
+        "PFR": 42.73,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.5162
+      }
+    },
+    {
+      "table": "2p-deep",
+      "bot": "hard",
+      "bench": "passive",
+      "bb100": 417.61,
+      "ci": [
+        378.39,
+        456.83
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 42.2,
+        "PFR": 42.2,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.5174
+      }
+    },
+    {
+      "table": "2p-deep",
+      "bot": "hard",
+      "bench": "aggressive",
+      "bb100": 2083.19,
+      "ci": [
+        1742.19,
+        2424.19
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 71.5,
+        "PFR": 43.73,
+        "threeBet": 0.45,
+        "allIn": 0,
+        "topAct": 0.327
+      }
+    },
+    {
+      "table": "2p-deep",
+      "bot": "hard",
+      "bench": "min_raise",
+      "bb100": 821.19,
+      "ci": [
+        643.52,
+        998.86
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 79.5,
+        "PFR": 43.4,
+        "threeBet": 0.65,
+        "allIn": 0,
+        "topAct": 0.3243
+      }
+    },
+    {
+      "table": "2p-deep",
+      "bot": "hard",
+      "bench": "tight",
+      "bb100": 58.81,
+      "ci": [
+        52.96,
+        64.66
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 44,
+        "PFR": 44,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.7632
+      }
+    },
+    {
+      "table": "2p-deep",
+      "bot": "hard",
+      "bench": "loose",
+      "bb100": 397.26,
+      "ci": [
+        360.89,
+        433.63
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 42.8,
+        "PFR": 42.8,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.5175
+      }
+    },
+    {
+      "table": "6p-standard",
+      "bot": "easy",
+      "bench": "random",
+      "bb100": 1511.92,
+      "ci": [
+        270.59,
+        2753.25
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 10.35,
+        "PFR": 2.15,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.8712
+      }
+    },
+    {
+      "table": "6p-standard",
+      "bot": "easy",
+      "bench": "always_call",
+      "bb100": 265.46,
+      "ci": [
+        173.07,
+        357.84
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 19.42,
+        "PFR": 5.46,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.5701
+      }
+    },
+    {
+      "table": "6p-standard",
+      "bot": "easy",
+      "bench": "passive",
+      "bb100": 265.46,
+      "ci": [
+        173.07,
+        357.84
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 19.42,
+        "PFR": 5.46,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.5701
+      }
+    },
+    {
+      "table": "6p-standard",
+      "bot": "easy",
+      "bench": "aggressive",
+      "bb100": 624.13,
+      "ci": [
+        -90.74,
+        1338.99
+      ],
+      "beats0": false,
+      "metrics": {
+        "VPIP": 6.9,
+        "PFR": 1.13,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.9168
+      }
+    },
+    {
+      "table": "6p-standard",
+      "bot": "easy",
+      "bench": "min_raise",
+      "bb100": 53.53,
+      "ci": [
+        0.32,
+        106.73
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 7.19,
+        "PFR": 1.17,
+        "threeBet": 0,
+        "allIn": 0.02,
+        "topAct": 0.818
+      }
+    },
+    {
+      "table": "6p-standard",
+      "bot": "easy",
+      "bench": "tight",
+      "bb100": 19.79,
+      "ci": [
+        16.47,
+        23.11
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 19.35,
+        "PFR": 5.83,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.5094
+      }
+    },
+    {
+      "table": "6p-standard",
+      "bot": "easy",
+      "bench": "loose",
+      "bb100": 225.28,
+      "ci": [
+        148.99,
+        301.57
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 19.42,
+        "PFR": 5.46,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.5628
+      }
+    },
+    {
+      "table": "6p-standard",
+      "bot": "normal",
+      "bench": "random",
+      "bb100": 517.13,
+      "ci": [
+        -82.06,
+        1116.31
+      ],
+      "beats0": false,
+      "metrics": {
+        "VPIP": 5.04,
+        "PFR": 2.81,
+        "threeBet": 0.02,
+        "allIn": 0,
+        "topAct": 0.9182
+      }
+    },
+    {
+      "table": "6p-standard",
+      "bot": "normal",
+      "bench": "always_call",
+      "bb100": 553.36,
+      "ci": [
+        436.1,
+        670.63
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 8.56,
+        "PFR": 8.56,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.4536
+      }
+    },
+    {
+      "table": "6p-standard",
+      "bot": "normal",
+      "bench": "passive",
+      "bb100": 553.36,
+      "ci": [
+        436.1,
+        670.63
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 8.56,
+        "PFR": 8.56,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.4536
+      }
+    },
+    {
+      "table": "6p-standard",
+      "bot": "normal",
+      "bench": "aggressive",
+      "bb100": 993.24,
+      "ci": [
+        -62.22,
+        2048.71
+      ],
+      "beats0": false,
+      "metrics": {
+        "VPIP": 3.02,
+        "PFR": 1.44,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.9547
+      }
+    },
+    {
+      "table": "6p-standard",
+      "bot": "normal",
+      "bench": "min_raise",
+      "bb100": 47.26,
+      "ci": [
+        -24.12,
+        118.63
+      ],
+      "beats0": false,
+      "metrics": {
+        "VPIP": 2.85,
+        "PFR": 1.94,
+        "threeBet": 0.67,
+        "allIn": 0.02,
+        "topAct": 0.9012
+      }
+    },
+    {
+      "table": "6p-standard",
+      "bot": "normal",
+      "bench": "tight",
+      "bb100": 12.17,
+      "ci": [
+        5.74,
+        18.6
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 10.27,
+        "PFR": 10.27,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.7908
+      }
+    },
+    {
+      "table": "6p-standard",
+      "bot": "normal",
+      "bench": "loose",
+      "bb100": 511.98,
+      "ci": [
+        360.67,
+        663.29
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 8.62,
+        "PFR": 8.62,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.4509
+      }
+    },
+    {
+      "table": "6p-standard",
+      "bot": "hard",
+      "bench": "random",
+      "bb100": 697.53,
+      "ci": [
+        68.64,
+        1326.41
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 6,
+        "PFR": 3.44,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.9132
+      }
+    },
+    {
+      "table": "6p-standard",
+      "bot": "hard",
+      "bench": "always_call",
+      "bb100": 629.04,
+      "ci": [
+        479.92,
+        778.17
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 12.31,
+        "PFR": 12.31,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.4757
+      }
+    },
+    {
+      "table": "6p-standard",
+      "bot": "hard",
+      "bench": "passive",
+      "bb100": 587.77,
+      "ci": [
+        457.83,
+        717.7
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 12.33,
+        "PFR": 12.33,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.4756
+      }
+    },
+    {
+      "table": "6p-standard",
+      "bot": "hard",
+      "bench": "aggressive",
+      "bb100": 1157.46,
+      "ci": [
+        -395.8,
+        2710.72
+      ],
+      "beats0": false,
+      "metrics": {
+        "VPIP": 3.35,
+        "PFR": 1.42,
+        "threeBet": 0,
+        "allIn": 0.02,
+        "topAct": 0.9449
+      }
+    },
+    {
+      "table": "6p-standard",
+      "bot": "hard",
+      "bench": "min_raise",
+      "bb100": 68.85,
+      "ci": [
+        -12.4,
+        150.11
+      ],
+      "beats0": false,
+      "metrics": {
+        "VPIP": 3.27,
+        "PFR": 1.83,
+        "threeBet": 0.65,
+        "allIn": 0,
+        "topAct": 0.8552
+      }
+    },
+    {
+      "table": "6p-standard",
+      "bot": "hard",
+      "bench": "tight",
+      "bb100": 19.17,
+      "ci": [
+        8.94,
+        29.4
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 15.48,
+        "PFR": 15.48,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.7275
+      }
+    },
+    {
+      "table": "6p-standard",
+      "bot": "hard",
+      "bench": "loose",
+      "bb100": 479.73,
+      "ci": [
+        341.72,
+        617.73
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 12.48,
+        "PFR": 12.48,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.4665
+      }
+    },
+    {
+      "table": "6p-short",
+      "bot": "easy",
+      "bench": "random",
+      "bb100": 170.09,
+      "ci": [
+        -65.26,
+        405.43
+      ],
+      "beats0": false,
+      "metrics": {
+        "VPIP": 8.62,
+        "PFR": 2.1,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.8828
+      }
+    },
+    {
+      "table": "6p-short",
+      "bot": "easy",
+      "bench": "always_call",
+      "bb100": 159.36,
+      "ci": [
+        115.74,
+        202.97
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 18.96,
+        "PFR": 5.4,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.567
+      }
+    },
+    {
+      "table": "6p-short",
+      "bot": "easy",
+      "bench": "passive",
+      "bb100": 160.27,
+      "ci": [
+        116.03,
+        204.5
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 18.81,
+        "PFR": 5.4,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.5654
+      }
+    },
+    {
+      "table": "6p-short",
+      "bot": "easy",
+      "bench": "aggressive",
+      "bb100": 87.25,
+      "ci": [
+        -136.9,
+        311.4
+      ],
+      "beats0": false,
+      "metrics": {
+        "VPIP": 5.54,
+        "PFR": 1.04,
+        "threeBet": 0,
+        "allIn": 0.04,
+        "topAct": 0.9332
+      }
+    },
+    {
+      "table": "6p-short",
+      "bot": "easy",
+      "bench": "min_raise",
+      "bb100": 20.69,
+      "ci": [
+        -34.82,
+        76.19
+      ],
+      "beats0": false,
+      "metrics": {
+        "VPIP": 6.33,
+        "PFR": 1.21,
+        "threeBet": 0,
+        "allIn": 0.02,
+        "topAct": 0.8494
+      }
+    },
+    {
+      "table": "6p-short",
+      "bot": "easy",
+      "bench": "tight",
+      "bb100": 17.11,
+      "ci": [
+        14.36,
+        19.86
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 18.75,
+        "PFR": 5.65,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.5205
+      }
+    },
+    {
+      "table": "6p-short",
+      "bot": "easy",
+      "bench": "loose",
+      "bb100": 130.15,
+      "ci": [
+        95.19,
+        165.11
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 18.25,
+        "PFR": 5.19,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.5564
+      }
+    },
+    {
+      "table": "6p-short",
+      "bot": "normal",
+      "bench": "random",
+      "bb100": 27.49,
+      "ci": [
+        -19.26,
+        74.24
+      ],
+      "beats0": false,
+      "metrics": {
+        "VPIP": 4.4,
+        "PFR": 2.52,
+        "threeBet": 0.04,
+        "allIn": 0,
+        "topAct": 0.9268
+      }
+    },
+    {
+      "table": "6p-short",
+      "bot": "normal",
+      "bench": "always_call",
+      "bb100": 276.93,
+      "ci": [
+        224.13,
+        329.73
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 8.31,
+        "PFR": 8.27,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.4535
+      }
+    },
+    {
+      "table": "6p-short",
+      "bot": "normal",
+      "bench": "passive",
+      "bb100": 275.13,
+      "ci": [
+        219.09,
+        331.16
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 8.31,
+        "PFR": 8.27,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.4535
+      }
+    },
+    {
+      "table": "6p-short",
+      "bot": "normal",
+      "bench": "aggressive",
+      "bb100": 204.39,
+      "ci": [
+        -130.17,
+        538.95
+      ],
+      "beats0": false,
+      "metrics": {
+        "VPIP": 3.02,
+        "PFR": 1.38,
+        "threeBet": 0,
+        "allIn": 0.02,
+        "topAct": 0.9601
+      }
+    },
+    {
+      "table": "6p-short",
+      "bot": "normal",
+      "bench": "min_raise",
+      "bb100": 22.8,
+      "ci": [
+        -17.95,
+        63.56
+      ],
+      "beats0": false,
+      "metrics": {
+        "VPIP": 2.96,
+        "PFR": 1.83,
+        "threeBet": 0.27,
+        "allIn": 0.1,
+        "topAct": 0.9271
+      }
+    },
+    {
+      "table": "6p-short",
+      "bot": "normal",
+      "bench": "tight",
+      "bb100": 7.33,
+      "ci": [
+        3.38,
+        11.28
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 8.02,
+        "PFR": 8,
+        "threeBet": 0,
+        "allIn": 0.04,
+        "topAct": 0.8235
+      }
+    },
+    {
+      "table": "6p-short",
+      "bot": "normal",
+      "bench": "loose",
+      "bb100": 221.25,
+      "ci": [
+        175.91,
+        266.58
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 8.33,
+        "PFR": 8.29,
+        "threeBet": 0,
+        "allIn": 0.04,
+        "topAct": 0.4453
+      }
+    },
+    {
+      "table": "6p-short",
+      "bot": "hard",
+      "bench": "random",
+      "bb100": 67.83,
+      "ci": [
+        -76.59,
+        212.24
+      ],
+      "beats0": false,
+      "metrics": {
+        "VPIP": 5.56,
+        "PFR": 3.21,
+        "threeBet": 0.04,
+        "allIn": 0.06,
+        "topAct": 0.9152
+      }
+    },
+    {
+      "table": "6p-short",
+      "bot": "hard",
+      "bench": "always_call",
+      "bb100": 320.18,
+      "ci": [
+        263.75,
+        376.6
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 12.13,
+        "PFR": 12.02,
+        "threeBet": 0,
+        "allIn": 0.02,
+        "topAct": 0.4695
+      }
+    },
+    {
+      "table": "6p-short",
+      "bot": "hard",
+      "bench": "passive",
+      "bb100": 299.36,
+      "ci": [
+        232.63,
+        366.08
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 12,
+        "PFR": 11.85,
+        "threeBet": 0,
+        "allIn": 0.04,
+        "topAct": 0.4677
+      }
+    },
+    {
+      "table": "6p-short",
+      "bot": "hard",
+      "bench": "aggressive",
+      "bb100": 264.9,
+      "ci": [
+        -13.6,
+        543.39
+      ],
+      "beats0": false,
+      "metrics": {
+        "VPIP": 3.31,
+        "PFR": 1.52,
+        "threeBet": 0,
+        "allIn": 0.02,
+        "topAct": 0.9479
+      }
+    },
+    {
+      "table": "6p-short",
+      "bot": "hard",
+      "bench": "min_raise",
+      "bb100": 58.43,
+      "ci": [
+        6.79,
+        110.06
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 3.69,
+        "PFR": 2.29,
+        "threeBet": 0.4,
+        "allIn": 0.06,
+        "topAct": 0.8676
+      }
+    },
+    {
+      "table": "6p-short",
+      "bot": "hard",
+      "bench": "tight",
+      "bb100": 10.65,
+      "ci": [
+        7.5,
+        13.81
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 11.17,
+        "PFR": 11.17,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.7845
+      }
+    },
+    {
+      "table": "6p-short",
+      "bot": "hard",
+      "bench": "loose",
+      "bb100": 270.77,
+      "ci": [
+        213.39,
+        328.15
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 12,
+        "PFR": 11.92,
+        "threeBet": 0,
+        "allIn": 0.13,
+        "topAct": 0.4588
+      }
+    },
+    {
+      "table": "3p-standard",
+      "bot": "easy",
+      "bench": "random",
+      "bb100": 1312.53,
+      "ci": [
+        779.03,
+        1846.02
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 14.75,
+        "PFR": 3.33,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.7078
+      }
+    },
+    {
+      "table": "3p-standard",
+      "bot": "easy",
+      "bench": "always_call",
+      "bb100": 138.21,
+      "ci": [
+        112.68,
+        163.73
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 15.29,
+        "PFR": 4.23,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.6435
+      }
+    },
+    {
+      "table": "3p-standard",
+      "bot": "easy",
+      "bench": "passive",
+      "bb100": 138.21,
+      "ci": [
+        112.68,
+        163.73
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 15.29,
+        "PFR": 4.23,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.6435
+      }
+    },
+    {
+      "table": "3p-standard",
+      "bot": "easy",
+      "bench": "aggressive",
+      "bb100": 717.54,
+      "ci": [
+        -129.79,
+        1564.87
+      ],
+      "beats0": false,
+      "metrics": {
+        "VPIP": 10.6,
+        "PFR": 1.9,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.8784
+      }
+    },
+    {
+      "table": "3p-standard",
+      "bot": "easy",
+      "bench": "min_raise",
+      "bb100": 137.63,
+      "ci": [
+        32.32,
+        242.94
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 11.19,
+        "PFR": 1.9,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.6653
+      }
+    },
+    {
+      "table": "3p-standard",
+      "bot": "easy",
+      "bench": "tight",
+      "bb100": 13.08,
+      "ci": [
+        9.65,
+        16.5
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 15.13,
+        "PFR": 5.06,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.5246
+      }
+    },
+    {
+      "table": "3p-standard",
+      "bot": "easy",
+      "bench": "loose",
+      "bb100": 128.7,
+      "ci": [
+        102.39,
+        155.02
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 15.1,
+        "PFR": 4.71,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.6009
+      }
+    },
+    {
+      "table": "3p-standard",
+      "bot": "normal",
+      "bench": "random",
+      "bb100": 1119.61,
+      "ci": [
+        610.34,
+        1628.87
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 11.04,
+        "PFR": 8.44,
+        "threeBet": 0.04,
+        "allIn": 0,
+        "topAct": 0.759
+      }
+    },
+    {
+      "table": "3p-standard",
+      "bot": "normal",
+      "bench": "always_call",
+      "bb100": 302.08,
+      "ci": [
+        233.72,
+        370.44
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 8.88,
+        "PFR": 8.88,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.5812
+      }
+    },
+    {
+      "table": "3p-standard",
+      "bot": "normal",
+      "bench": "passive",
+      "bb100": 302.08,
+      "ci": [
+        233.72,
+        370.44
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 8.88,
+        "PFR": 8.88,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.5812
+      }
+    },
+    {
+      "table": "3p-standard",
+      "bot": "normal",
+      "bench": "aggressive",
+      "bb100": 341.01,
+      "ci": [
+        -278.59,
+        960.61
+      ],
+      "beats0": false,
+      "metrics": {
+        "VPIP": 7.79,
+        "PFR": 5.98,
+        "threeBet": 0.27,
+        "allIn": 0,
+        "topAct": 0.9129
+      }
+    },
+    {
+      "table": "3p-standard",
+      "bot": "normal",
+      "bench": "min_raise",
+      "bb100": 73.81,
+      "ci": [
+        -19.05,
+        166.67
+      ],
+      "beats0": false,
+      "metrics": {
+        "VPIP": 8.13,
+        "PFR": 6.21,
+        "threeBet": 0.85,
+        "allIn": 0,
+        "topAct": 0.7792
+      }
+    },
+    {
+      "table": "3p-standard",
+      "bot": "normal",
+      "bench": "tight",
+      "bb100": 14.9,
+      "ci": [
+        8.57,
+        21.23
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 12.96,
+        "PFR": 12.96,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.7248
+      }
+    },
+    {
+      "table": "3p-standard",
+      "bot": "normal",
+      "bench": "loose",
+      "bb100": 304.04,
+      "ci": [
+        249.75,
+        358.32
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 10.63,
+        "PFR": 10.63,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.5403
+      }
+    },
+    {
+      "table": "3p-standard",
+      "bot": "hard",
+      "bench": "random",
+      "bb100": 1109.11,
+      "ci": [
+        569.87,
+        1648.34
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 15.92,
+        "PFR": 12.06,
+        "threeBet": 0.06,
+        "allIn": 0,
+        "topAct": 0.7009
+      }
+    },
+    {
+      "table": "3p-standard",
+      "bot": "hard",
+      "bench": "always_call",
+      "bb100": 449.74,
+      "ci": [
+        378.66,
+        520.81
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 13.35,
+        "PFR": 13.35,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.5772
+      }
+    },
+    {
+      "table": "3p-standard",
+      "bot": "hard",
+      "bench": "passive",
+      "bb100": 449.74,
+      "ci": [
+        378.66,
+        520.81
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 13.35,
+        "PFR": 13.35,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.5772
+      }
+    },
+    {
+      "table": "3p-standard",
+      "bot": "hard",
+      "bench": "aggressive",
+      "bb100": 444.93,
+      "ci": [
+        -192.56,
+        1082.43
+      ],
+      "beats0": false,
+      "metrics": {
+        "VPIP": 10.1,
+        "PFR": 8.15,
+        "threeBet": 0.27,
+        "allIn": 0,
+        "topAct": 0.8849
+      }
+    },
+    {
+      "table": "3p-standard",
+      "bot": "hard",
+      "bench": "min_raise",
+      "bb100": 129.1,
+      "ci": [
+        23.42,
+        234.78
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 10.33,
+        "PFR": 8.33,
+        "threeBet": 0.81,
+        "allIn": 0.02,
+        "topAct": 0.7261
+      }
+    },
+    {
+      "table": "3p-standard",
+      "bot": "hard",
+      "bench": "tight",
+      "bb100": 23.23,
+      "ci": [
+        15.71,
+        30.76
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 20.29,
+        "PFR": 20.29,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.6201
+      }
+    },
+    {
+      "table": "3p-standard",
+      "bot": "hard",
+      "bench": "loose",
+      "bb100": 400.21,
+      "ci": [
+        336.24,
+        464.18
+      ],
+      "beats0": true,
+      "metrics": {
+        "VPIP": 15.85,
+        "PFR": 15.85,
+        "threeBet": 0,
+        "allIn": 0,
+        "topAct": 0.5372
+      }
+    }
+  ]
+}

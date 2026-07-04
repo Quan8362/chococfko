@@ -36,6 +36,33 @@ for (const [name, [width, height]] of Object.entries(PORTRAIT)) {
   })
 }
 
+// ── Enhanced portrait fallback (Prompt 29 mobile phase) ─────────────────────────────────────
+// The overlay surfaces a read-only action countdown + a safe Leave control. The preview passes
+// demo props (a live deadline + a Leave handler) so both render against the shipped component.
+test('portrait fallback shows a live action countdown (role=timer)', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto(PREVIEW, { waitUntil: 'networkidle' })
+  const hint = page.locator('.pk-anim-rotate-hint')
+  if ((await hint.count()) === 0) await page.locator('.poker-root header button').first().click()
+  await expect(page.locator('.pk-anim-rotate-hint').first()).toBeVisible()
+
+  const timer = page.locator('[role="timer"]').first()
+  await expect(timer).toBeVisible()
+  await expect(timer).toHaveText(/\d/)
+})
+
+test('portrait fallback exposes a safe, practical Leave control', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto(PREVIEW, { waitUntil: 'networkidle' })
+  const hint = page.locator('.pk-anim-rotate-hint')
+  if ((await hint.count()) === 0) await page.locator('.poker-root header button').first().click()
+
+  const leave = page.getByTestId('poker-rotate-leave')
+  await expect(leave).toBeVisible()
+  const box = await leave.boundingBox()
+  expect(box?.height ?? 0).toBeGreaterThanOrEqual(28)
+})
+
 // ── Keyboard & focus-order ──────────────────────────────────────────────────────────────────
 test('header control is reachable in tab order and operable by keyboard', async ({ page }) => {
   await page.setViewportSize({ width: 1366, height: 768 })

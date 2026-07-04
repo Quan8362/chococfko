@@ -56,7 +56,19 @@ export default function MentionNotificationProvider() {
     const onMsg = (e: MessageEvent) => {
       const data = e.data as { type?: string; url?: string } | null
       if (data?.type === 'notification-navigate' && data.url) {
-        window.location.assign(data.url)
+        // Open-redirect defence: a notification click must only ever navigate
+        // WITHIN this origin. Resolve the target and refuse anything that lands
+        // off-site (absolute cross-origin, protocol-relative "//host", or a
+        // "javascript:" scheme), falling back to the home route. The destination
+        // route still performs its own auth/access check server-side.
+        let target = '/'
+        try {
+          const resolved = new URL(data.url, window.location.origin)
+          if (resolved.origin === window.location.origin) {
+            target = resolved.pathname + resolved.search + resolved.hash
+          }
+        } catch { /* malformed → home */ }
+        window.location.assign(target)
       }
     }
     navigator.serviceWorker.addEventListener('message', onMsg)

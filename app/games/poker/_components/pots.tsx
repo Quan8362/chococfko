@@ -64,7 +64,7 @@ export function PotDisplay({
   const total = pots.main.amount + pots.sides.reduce((s, p) => s + p.amount, 0)
   return (
     <span className="flex flex-col items-center gap-1.5">
-      {withChips && total > 0 && <PokerChipStack amount={total} chipSize={compact ? 22 : 28} showValue={false} compact={compact} />}
+      {withChips && total > 0 && <PokerChipStack amount={total} chipSize={compact ? 28 : 38} showValue={false} compact={compact} />}
       <span className="flex flex-wrap items-center justify-center gap-1.5">
         <PotPill label={t('pot.main')} amount={pots.main.amount} kind="main" compact={compact} />
         {!compact && pots.sides.map((p, i) => (

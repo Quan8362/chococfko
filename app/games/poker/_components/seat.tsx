@@ -147,7 +147,7 @@ export function PlayerAvatarFrame({
 }
 
 // ── CurrentBetIndicator — committed-this-street chips beside the seat ──────────────────────────
-export function CurrentBetIndicator({ amount, chipSize = 20 }: { amount: number; chipSize?: number }) {
+export function CurrentBetIndicator({ amount, chipSize = 28 }: { amount: number; chipSize?: number }) {
   if (!amount || amount <= 0) return null
   return (
     <span

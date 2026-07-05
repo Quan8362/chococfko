@@ -26,6 +26,31 @@ input[type="password"]::-webkit-strong-password-auto-fill-button {
   pointer-events: none;
 }
 
+/* Hide the native number-input spinner arrows (▲▼) site-wide — they read as
+   clutter beside our own ± steppers and sliders (poker raise, admin forms, …).
+   Typing and the custom controls still work; only the browser stepper is gone. */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+/* Native <select> paints a hard black focus box that lingers after a click
+   (a mouse click leaves the control focused). Drop that default outline and show
+   a soft rose ring ONLY for keyboard focus, so accessibility is preserved while
+   mouse users never see the black box. */
+select:focus {
+  outline: none;
+}
+select:focus-visible {
+  outline: 2px solid var(--rose);
+  outline-offset: 1px;
+}
+
 :root {
   --ink: #241a17;
   --cream: #faf4ea;

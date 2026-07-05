@@ -39,16 +39,14 @@ input[type="number"] {
   appearance: textfield;
 }
 
-/* Native <select> paints a hard black focus box that lingers after a click
-   (a mouse click leaves the control focused). Drop that default outline and show
-   a soft rose ring ONLY for keyboard focus, so accessibility is preserved while
-   mouse users never see the black box. */
-select:focus {
-  outline: none;
-}
+/* Native <select> paints a hard focus box (black in some browsers, and our own
+   rose ring looked heavy when the dropdown opens). Remove the focus outline on
+   <select> entirely, in every focus state, so clicking a dropdown never leaves a
+   ring around it. The open dropdown itself is still obvious, so usability holds. */
+select:focus,
 select:focus-visible {
-  outline: 2px solid var(--rose);
-  outline-offset: 1px;
+  outline: none;
+  box-shadow: none;
 }
 
 :root {

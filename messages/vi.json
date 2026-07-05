@@ -1805,6 +1805,7 @@
         "invalid_action": "Hành động không hợp lệ.",
         "commit_rejected": "Hành động bị từ chối — đang làm mới.",
         "no_live_hand": "Không có ván nào đang diễn ra.",
+        "not_enough_players": "Cần ít nhất 2 người chơi đã ngồi và còn xu để chia bài.",
         "table_not_found": "Không tìm thấy bàn.",
         "table_not_open": "Bàn chưa mở.",
         "insufficient_balance": "Không đủ xu.",

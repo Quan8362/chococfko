@@ -317,12 +317,19 @@ export default function PokerTable({ tableId, userId, config }: PokerTableProps)
 
   const doDeal = useCallback(async () => {
     setBusy('deal')
+    setErrorCode(null)
     try {
-      await startHand(tableId)
+      const res = await startHand(tableId)
+      if (!res.ok) setErrorCode(res.error ?? 'generic')
+      // Whether a fresh hand started OR the idempotent guard returned an already-live hand,
+      // our local snapshot may be stale (a missed realtime hand-start leaves the dead "Chia ván
+      // mới" button showing while a hand is actually in progress). Force an authoritative
+      // reconcile so the live hand appears instead of the click silently doing nothing.
+      rt.reconcileNow()
     } finally {
       setBusy(null)
     }
-  }, [tableId])
+  }, [tableId, rt])
 
   const viewerSeat = viewerSeatIndex !== null ? seats.find((s) => s.seatIndex === viewerSeatIndex) ?? null : null
   const viewerSittingOut = viewerSeat?.status === 'sitting_out'
@@ -724,6 +731,7 @@ export default function PokerTable({ tableId, userId, config }: PokerTableProps)
                 live={live}
                 canDeal={canDeal}
                 dealBusy={busy === 'deal'}
+                dealError={errorCode}
                 onDeal={doDeal}
                 turnSeatName={
                   publicState?.turnSeat != null
@@ -834,6 +842,7 @@ function BottomMessage({
   live,
   canDeal,
   dealBusy,
+  dealError,
   onDeal,
   turnSeatName,
   phase,
@@ -846,6 +855,7 @@ function BottomMessage({
   live: boolean
   canDeal: boolean
   dealBusy: boolean
+  dealError: string | null
   onDeal: () => void
   turnSeatName: string | null
   phase: string
@@ -854,7 +864,16 @@ function BottomMessage({
   if (connUx === 'offline') return <InlineGameMessage tone="danger">{t('conn.offline')}</InlineGameMessage>
   if (connUx === 'reconnecting') return <InlineGameMessage tone="warning">{t('conn.reconnecting')}</InlineGameMessage>
   if (canDeal) {
-    return <ActionButton variant="call" label={dealBusy ? t('message.dealing') : t('message.deal_next')} onClick={onDeal} disabled={dealBusy} testId="poker-deal" />
+    return (
+      <div className="flex flex-col items-center gap-1.5">
+        <ActionButton variant="call" label={dealBusy ? t('message.dealing') : t('message.deal_next')} onClick={onDeal} disabled={dealBusy} testId="poker-deal" />
+        {dealError && (
+          <InlineGameMessage tone="danger">
+            {t.has(`error.${dealError}`) ? t(`error.${dealError}`) : t('error.generic')}
+          </InlineGameMessage>
+        )}
+      </div>
+    )
   }
   if (live && turnSeatName) {
     return <InlineGameMessage tone="info">{t('message.waiting_for', { name: turnSeatName })}</InlineGameMessage>

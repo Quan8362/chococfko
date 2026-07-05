@@ -1805,6 +1805,7 @@
         "invalid_action": "Invalid action.",
         "commit_rejected": "Action rejected — refreshing.",
         "no_live_hand": "No hand in progress.",
+        "not_enough_players": "Need at least 2 seated players with chips to deal.",
         "table_not_found": "Table not found.",
         "table_not_open": "Table isn't open.",
         "insufficient_balance": "Not enough coins.",

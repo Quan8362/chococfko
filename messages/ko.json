@@ -1805,6 +1805,7 @@
         "invalid_action": "잘못된 행동입니다.",
         "commit_rejected": "행동이 거부되었습니다 — 새로고침 중.",
         "no_live_hand": "진행 중인 핸드가 없습니다.",
+        "not_enough_players": "딜하려면 착석하고 칩이 있는 플레이어가 2명 이상 필요합니다.",
         "table_not_found": "테이블을 찾을 수 없습니다.",
         "table_not_open": "테이블이 열려 있지 않습니다.",
         "insufficient_balance": "코인이 부족합니다.",

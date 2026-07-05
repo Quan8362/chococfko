@@ -1805,6 +1805,7 @@
         "invalid_action": "無効なアクションです。",
         "commit_rejected": "アクションが拒否されました — 更新中。",
         "no_live_hand": "進行中のハンドはありません。",
+        "not_enough_players": "配るには、着席してチップを持つプレイヤーが2人以上必要です。",
         "table_not_found": "テーブルが見つかりません。",
         "table_not_open": "テーブルは開いていません。",
         "insufficient_balance": "コインが不足しています。",

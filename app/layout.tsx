@@ -13,6 +13,7 @@ import NotificationPermissionBanner from '@/components/NotificationPermissionBan
 import CommunityNotificationProvider from '@/components/CommunityNotificationProvider'
 import ImageProtection from '@/components/ImageProtection'
 import AuthSync from '@/components/AuthSync'
+import PlaytestEnvBanner from '@/components/PlaytestEnvBanner'
 import SavedPlacesProvider from '@/components/SavedPlacesProvider'
 
 // Run server functions in Tokyo (hnd1) — same region as the Supabase DB and
@@ -123,6 +124,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         />
       </head>
       <body className="font-sans leading-relaxed">
+        <PlaytestEnvBanner />
         <NextIntlClientProvider messages={messages}>
           <SavedPlacesProvider>
           <div className="flex flex-col min-h-screen">

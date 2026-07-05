@@ -6,6 +6,7 @@ import QuickPlayButton from './_eco/QuickPlayButton'
 import { listRecentTables } from './ecosystem'
 import { coins, dateShort } from './_eco/format'
 import { getPokerAccess, pokerAccessCan, getBetaTermsAck } from './access'
+import { pokerPracticeBotsOn } from '@/lib/games/poker/flags'
 import PokerTermsGate from './_components/PokerTermsGate'
 
 export const dynamic = 'force-dynamic'
@@ -45,6 +46,16 @@ export default async function PokerLandingPage() {
 
   const canPublicLobby = pokerAccessCan(pokerAccess, 'public_lobby')
   const canCreate = pokerAccessCan(pokerAccess, 'create')
+  // Isolated practice-bot mode. Server-gated (its own env flag + poker visibility): renders only
+  // for an authenticated, allowlisted viewer while POKER_PRACTICE_BOTS_ENABLED is on — dark in
+  // production. Practice chips never touch the wallet, so this entry is independent of Quick Play
+  // and needs no funded balance.
+  const canPractice = !!user && pokerPracticeBotsOn(pokerAccess.flags, {
+    isAdmin: pokerAccess.access.isAdmin,
+    isAlphaTester: pokerAccess.isAlphaTester,
+    isBetaMember: pokerAccess.isBetaMember,
+    suspended: pokerAccess.betaSuspended,
+  })
 
   const features = [
     { icon: '♣', t: t('landing.feature_lobby'), d: t('landing.feature_lobby_desc') },
@@ -88,6 +99,17 @@ export default async function PokerLandingPage() {
               className="inline-flex items-center justify-center rounded-lg border border-white/30 px-6 py-3 font-medium text-white hover:bg-white/10"
             >
               {t('landing.create_table')}
+            </Link>
+          )}
+          {canPractice && (
+            <Link
+              href="/games/poker/practice"
+              className="inline-flex flex-col items-start rounded-lg bg-white/10 px-6 py-3 font-medium text-white hover:bg-white/20"
+            >
+              <span className="inline-flex items-center gap-2">
+                🤖 {t('landing.practice_cta')}
+              </span>
+              <span className="text-xs font-normal text-white/60">{t('landing.practice_hint')}</span>
             </Link>
           )}
         </div>

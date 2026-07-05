@@ -27,9 +27,17 @@ import {
   type HandState,
 } from '../hand.ts'
 import { settleShowdown } from '../showdown.ts'
+import { evaluateHand, describeHand } from '../evaluator.ts'
 import { decideSafely, type BotPolicy, type BotFallbackReason } from '../bot/policy.ts'
 import { policyFor } from '../bot/policies.ts'
-import type { PracticeGame, PracticeTableConfig, PracticeSeat, PracticePhase } from './types.ts'
+import type {
+  PracticeGame,
+  PracticeTableConfig,
+  PracticeSeat,
+  PracticePhase,
+  PracticeHandResult,
+  PracticeRevealedHand,
+} from './types.ts'
 import { validatePracticeConfig, assertPracticeKind, assertBotSeatAllowed } from './classification.ts'
 import { applyPracticePayouts, isPracticeSettlementConserved } from './economy.ts'
 import { buildServerObservation } from './observation.ts'
@@ -49,6 +57,7 @@ export function createPracticeGame(config: PracticeTableConfig, seed: number): P
     hand: null,
     chips,
     version: 0,
+    lastResult: null,
     holeBySeat: {},
     deckStub: [],
     seed: seed >>> 0,
@@ -119,6 +128,7 @@ export function startPracticeHand(game: PracticeGame): PracticeGame {
     hand: serializeHand(state),
     chips,
     version: game.version + 1,
+    lastResult: null, // a new hand clears the previous hand's settled result
     holeBySeat,
     deckStub: stub,
     seed,
@@ -223,13 +233,47 @@ function settle(game: PracticeGame, state: HandState): PracticeGame {
   const chips = applyPracticePayouts(game.chips, contributedBySeat, showdown.payouts, showdown.refund)
 
   const finalState = markComplete(state)
+  const lastResult = buildHandResult(state, contribs, showdown)
   return {
     ...game,
     hand: serializeHand(finalState),
     chips,
     phase: 'COMPLETED',
     version: game.version + 1,
+    lastResult,
     holeBySeat: {}, // clear the per-hand secret once the hand is settled
+  }
+}
+
+// Build the PUBLIC-safe settled-hand result from the canonical showdown output. The winner, pot,
+// awards, and hand labels come straight from the engine (NEVER recomputed elsewhere), and only the
+// legally-revealed contenders' cards are included — `showdown.reveal` already excludes folded/mucked
+// hands (SHOWDOWN-REVEAL-001), so no private card can leak through here.
+function buildHandResult(
+  state: HandState,
+  contribs: ReturnType<typeof handContributions>,
+  showdown: ReturnType<typeof settleShowdown>,
+): PracticeHandResult {
+  const fullBoard = showdown.wentToShowdown ? [...state.board] : []
+  const reveal: PracticeRevealedHand[] = showdown.reveal.map((r) => ({
+    seatIndex: r.seatIndex,
+    cards: r.cards,
+    handLabel: describeHand(evaluateHand(r.cards, fullBoard)).label,
+  }))
+  const winners = Array.from(new Set(showdown.winnersByPot.flat()))
+  const awards = showdown.payouts
+    .filter((p) => p.amount > 0)
+    .map((p) => ({ seatIndex: p.seatIndex, amount: p.amount }))
+  const potTotal = contribs.reduce((sum, c) => sum + c.committed, 0)
+  return {
+    handNo: state.handNo,
+    wentToShowdown: showdown.wentToShowdown,
+    board: fullBoard,
+    reveal,
+    winners,
+    awards,
+    potTotal,
+    refund: showdown.refund ? { seatIndex: showdown.refund.seatIndex, amount: showdown.refund.amount } : null,
   }
 }
 

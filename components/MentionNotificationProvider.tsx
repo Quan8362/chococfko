@@ -24,10 +24,12 @@ export default function MentionNotificationProvider() {
   const [notifs, setNotifs] = useState<MentionNotif[]>([])
   const timers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map())
 
-  // Register service worker
+  // Register service worker. `updateViaCache: 'none'` makes the browser fetch /sw.js from the
+  // network (not its HTTP cache) on every update check, so a new deploy's worker is detected
+  // promptly — the returning-user staleness fix (Prompt 27F-A D1) depends on this.
   useEffect(() => {
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js').catch(() => {})
+      navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' }).catch(() => {})
     }
   }, [])
 

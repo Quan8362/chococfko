@@ -4,7 +4,8 @@ import {
   classifyRequest,
   staleCaches,
   isOwnedCache,
-  STATIC_CACHE,
+  staticCacheName,
+  STATIC_CACHE_PREFIX,
   type RequestFacts,
 } from './swCachePolicy.ts'
 
@@ -66,14 +67,40 @@ test('security: hole-card / snapshot / settlement transports are all passthrough
   assert.equal(classifyRequest(facts({ sameOrigin: false, path: '/rest/v1/poker_hole_cards' })), 'passthrough')
 })
 
-// ── Cache lifecycle ──────────────────────────────────────────────────────────────────────────
-test('staleCaches: deletes owned older generations, keeps current + foreign caches', () => {
-  const names = ['choco-static-v0', STATIC_CACHE, 'workbox-precache', 'other-app']
-  assert.deepEqual(staleCaches(names), ['choco-static-v0'])
+// ── Cache identity is BUILD-VERSIONED ──────────────────────────────────────────────────────────
+test('staticCacheName: names the cache by deploy build id', () => {
+  assert.equal(staticCacheName('a1b2c3d4e5f6'), 'choco-static-a1b2c3d4e5f6')
+  assert.equal(staticCacheName('dev-1783168482434'), 'choco-static-dev-1783168482434')
+})
+
+test('staticCacheName: sanitises unsafe build ids and never yields an empty suffix', () => {
+  // strips characters outside [A-Za-z0-9._-]
+  assert.equal(staticCacheName('feat/poker@v2 rc1'), 'choco-static-featpokerv2rc1')
+  // empty / whitespace-only → deterministic 'dev' fallback (never a bare prefix)
+  assert.equal(staticCacheName(''), 'choco-static-dev')
+  assert.equal(staticCacheName('   '), 'choco-static-dev')
+  assert.ok(staticCacheName('x').length > STATIC_CACHE_PREFIX.length)
+})
+
+test('two different builds produce two different cache names', () => {
+  assert.notEqual(staticCacheName('build-A'), staticCacheName('build-B'))
+})
+
+// ── Cache lifecycle: a new deploy purges the legacy fixed cache AND every prior build ───────────
+test('staleCaches: deletes the legacy v1 cache and older builds, keeps current + foreign caches', () => {
+  const current = staticCacheName('buildNew')
+  const names = ['choco-static-v1', 'choco-static-buildOld', current, 'workbox-precache', 'other-app']
+  assert.deepEqual(staleCaches(names, current), ['choco-static-v1', 'choco-static-buildOld'])
+})
+
+test('staleCaches: nothing to delete when only the current cache is present', () => {
+  const current = staticCacheName('only')
+  assert.deepEqual(staleCaches([current, 'third-party'], current), [])
 })
 
 test('isOwnedCache: only our prefix is owned', () => {
-  assert.equal(isOwnedCache(STATIC_CACHE), true)
+  assert.equal(isOwnedCache(staticCacheName('anything')), true)
+  assert.equal(isOwnedCache('choco-static-v1'), true) // legacy fixed name is still ours (so it gets purged)
   assert.equal(isOwnedCache('choco-static-v9'), true)
   assert.equal(isOwnedCache('workbox-precache-v2'), false)
 })

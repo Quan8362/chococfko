@@ -110,6 +110,13 @@ const nextConfig = {
   async redirects() {
     return LEGACY_REDIRECTS
   },
+  async rewrites() {
+    // The service worker is served by the dynamic route handler app/sw/route.ts (which stamps the
+    // deploy build id into the cache name + no-cache headers). It must be REACHABLE at the stable
+    // /sw.js URL the page registers, so its scope stays '/'. A route folder literally named "sw.js"
+    // collides with Next's page-file detection (the .js suffix), so we serve at /sw and rewrite.
+    return [{ source: '/sw.js', destination: '/sw' }]
+  },
   async headers() {
     return [{ source: '/:path*', headers: SECURITY_HEADERS }]
   },

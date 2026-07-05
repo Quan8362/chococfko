@@ -50,6 +50,33 @@ export interface PracticeTableConfig {
 // The lifecycle phase of a practice game (mirrors the cash HandPhase vocabulary, subset).
 export type PracticePhase = 'IDLE' | 'BETTING' | 'SETTLEMENT' | 'COMPLETED'
 
+// ── Settled-hand result (PUBLIC-safe; the ONLY showdown payload a client ever receives) ──────
+//
+// Built by the runtime at settlement from the canonical `settleShowdown` output. It carries ONLY
+// legally-revealed cards (SHOWDOWN-REVEAL-001 / SHOWDOWN-MUCK-001): folded and mucked hole cards
+// are NEVER present here, so it is safe to serialize to the client and store on the public game.
+export interface PracticeRevealedHand {
+  readonly seatIndex: number
+  readonly cards: readonly [Card, Card]
+  readonly handLabel: string // machine label from the evaluator, e.g. 'two_pair' (UI localizes it)
+}
+
+export interface PracticeAward {
+  readonly seatIndex: number
+  readonly amount: number // isolated practice chips awarded to this seat (> 0)
+}
+
+export interface PracticeHandResult {
+  readonly handNo: number
+  readonly wentToShowdown: boolean // false = uncontested (everyone else folded), no reveal
+  readonly board: readonly Card[] // full board shown at showdown; [] for an uncontested win
+  readonly reveal: readonly PracticeRevealedHand[] // ONLY legally-revealed contenders
+  readonly winners: readonly number[] // union of pot winners (deduped)
+  readonly awards: readonly PracticeAward[] // per-seat chips awarded (integer, > 0)
+  readonly potTotal: number // total chips contested this hand (integer)
+  readonly refund: { readonly seatIndex: number; readonly amount: number } | null // uncalled-bet refund
+}
+
 // The full authoritative practice game. `version` is the monotonic optimistic-concurrency token
 // (a bot/human action carries the expected version; a stale action is rejected — idempotency).
 export interface PracticeGame {
@@ -60,6 +87,10 @@ export interface PracticeGame {
   readonly hand: SerializedHand | null // the current hand's engine state (public-safe projection)
   readonly chips: Readonly<Record<number, number>> // seatIndex → isolated stack between hands
   readonly version: number
+  // The most-recently-settled hand's PUBLIC-safe result (winner/pot/legal reveal). Set at
+  // settlement, cleared to null when the next hand starts. Carries no server secret — see the
+  // privacy contract on PracticeHandResult.
+  readonly lastResult: PracticeHandResult | null
 
   // ── SERVER-ONLY secrets (never serialized to any client) ──────────────────────────────────
   readonly holeBySeat: Readonly<Record<number, readonly [Card, Card]>> // dealt hole cards

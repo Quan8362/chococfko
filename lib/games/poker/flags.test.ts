@@ -125,6 +125,19 @@ test('PRACTICE-GATE-002 the live cash `bot` flag is NEVER turned on by env (unch
   assert.equal(resolvePokerFlags({ POKER_BOT_ENABLED: 'true', POKER_PRACTICE_BOTS_ENABLED: 'true' }).bot, false)
 })
 
+test('PRACTICE-GATE-003 alpha playtest config: allowlisted tester ON, anon + non-allowlisted OFF', () => {
+  // Mirrors .env.playtest.local: alpha mode + practiceBots on, everything else off.
+  const f: PokerFlags = { ...OFF, alpha: true, practiceBots: true }
+  // Allowlisted alpha tester → the practice entry is visible.
+  assert.equal(pokerPracticeBotsOn(f, tester), true)
+  // Authenticated but NOT on the allowlist → denied (alpha gate closes).
+  assert.equal(pokerPracticeBotsOn(f, player), false)
+  // A suspended allowlisted tester → denied.
+  assert.equal(pokerPracticeBotsOn(f, { ...tester, suspended: true }), false)
+  // With the practice flag itself off, even an allowlisted tester sees nothing (fully dark).
+  assert.equal(pokerPracticeBotsOn({ ...f, practiceBots: false }, tester), false)
+})
+
 test('VIS-001 nobody but admin sees poker when master flag is off', () => {
   assert.equal(pokerVisibleTo(OFF, player), false)
   assert.equal(pokerVisibleTo(OFF, admin), true)

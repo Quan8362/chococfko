@@ -62,17 +62,36 @@ export function classifyRequest(f: RequestFacts): CacheStrategy {
 }
 
 // ── Cache identity + lifecycle ───────────────────────────────────────────────────────────────
-// A single versioned static cache. Bump the suffix when the cache *contract* changes (new allowed
-// asset kinds, etc.); on `activate` the worker purges every owned cache whose name differs, so a
-// stale generation can never serve an asset the new build no longer references.
-export const STATIC_CACHE = 'choco-static-v1'
+// The static cache is versioned by the DEPLOY BUILD ID, not a hand-bumped literal. The worker is
+// served by app/sw.js/route.ts, which stamps the running deploy's NEXT_PUBLIC_BUILD_ID into both
+// the cache name AND the script body — so every deploy ships a byte-different worker. The browser
+// therefore always detects the new worker, installs it, and on `activate` purges every owned cache
+// whose name differs (staleCaches), so a previous deploy's cached `/_next/static/*` can never be
+// served to a returning user. Bumping the app is enough; there is no manual version to remember.
+export const STATIC_CACHE_PREFIX = 'choco-static-'
+
+// Cache-name-safe token: cache names are arbitrary strings, but we keep it to a tidy, predictable
+// charset so it reads cleanly in devtools and can never collide with another tool's namespace.
+function sanitizeBuildId(buildId: string): string {
+  const safe = (buildId || '').replace(/[^A-Za-z0-9._-]/g, '').slice(0, 64)
+  return safe.length > 0 ? safe : 'dev'
+}
+
+/** The static cache name for a given deploy build id, e.g. 'choco-static-a1b2c3d4e5f6'. */
+export function staticCacheName(buildId: string): string {
+  return STATIC_CACHE_PREFIX + sanitizeBuildId(buildId)
+}
 
 /** True for caches this worker owns (so we never delete another tool's cache during cleanup). */
 export function isOwnedCache(name: string): boolean {
-  return name.startsWith('choco-static-')
+  return name.startsWith(STATIC_CACHE_PREFIX)
 }
 
-/** Given the full list of cache names present, the obsolete ones to delete on activate. */
-export function staleCaches(names: readonly string[], current: string = STATIC_CACHE): string[] {
+/**
+ * Given every cache name present, the obsolete owned ones to delete on activate: every cache we own
+ * whose name is not the CURRENT deploy's cache. This purges the legacy fixed 'choco-static-v1' AND
+ * any prior build's 'choco-static-<oldBuildId>' the moment the new worker activates.
+ */
+export function staleCaches(names: readonly string[], current: string): string[] {
   return names.filter((n) => isOwnedCache(n) && n !== current)
 }

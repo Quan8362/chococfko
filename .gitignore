@@ -34,6 +34,7 @@ __pycache__/
 # results.json — can embed service-role keys) — never commit
 /e2e/poker/.auth/
 /e2e/poker/.artifacts/
+/e2e/poker/two-account/.artifacts/
 
 # Poker load-test stop switch (operator-created kill file)
 /scripts/poker-load/.STOP

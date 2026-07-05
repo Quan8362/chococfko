@@ -1,22 +1,43 @@
-// ── Chợ Cóc FKO service worker ───────────────────────────────────────────────────────────────
-// Two responsibilities, both deliberately narrow:
-//   1. Web Push (unchanged): always show the OS notification; the page de-dupes when focused.
-//   2. An ALLOWLIST-ONLY static-asset cache (29B): immutable /_next/static + public fonts/images.
-//
-// 🔴 The cache policy is the runtime mirror of lib/games/poker/pwa/swCachePolicy.ts (the tested
-// spec). Keep the two in lockstep. It stores ONLY immutable, public, non-user assets. Navigations
-// (HTML documents), non-GET requests, cross-origin (Supabase Realtime/REST), and /api /auth /admin
-// are NEVER stored — so no private route, hole card, table snapshot, settlement, or auth token can
-// ever land in the cache. The handler fails safe: any doubt ⇒ fall through to the network.
+import { staticCacheName } from '@/lib/games/poker/pwa/swCachePolicy'
 
-// ── Static cache: identity + policy (mirror of swCachePolicy.ts) ──────────────────────────────
-var STATIC_CACHE = 'choco-static-v1'
+// ── /sw.js — the service worker, served build-versioned & never HTTP-cached ───────────────────
+//
+// The SW used to be a fixed static file (public/sw.js). Because its BYTES never changed between
+// deploys, the browser never saw a "new" worker, so its `activate` cache-purge never ran and a
+// returning user could keep being served a PRIOR build's cached `/_next/static/*` chunks until a
+// manual hard reload (Prompt 27F-A, Defect D1).
+//
+// Serving it from this route handler fixes that at the source:
+//   • the running deploy's build id (NEXT_PUBLIC_BUILD_ID — see next.config.mjs) is stamped into the
+//     script AND the cache name, so every deploy ships a byte-different worker the browser installs;
+//   • on `activate` the new worker purges every owned cache whose name isn't the current build's
+//     (staleCaches), removing the legacy `choco-static-v1` and any older build's cache;
+//   • the response is `no-cache, no-store, must-revalidate` so no browser/CDN can pin a stale worker.
+//
+// The cache POLICY itself is unchanged and still mirrors lib/games/poker/pwa/swCachePolicy.ts:
+// ONLY immutable, public, same-origin static assets are cache-first; navigations / HTML / RSC / API
+// / auth / admin / cross-origin / non-GET are ALWAYS network (never stored). No private poker state
+// can land in the cache. The controlled, between-hands update prompt (usePokerAppUpdate →
+// UpdateBanner) is unchanged; this route only guarantees a genuinely new worker is delivered.
+
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
+
+const BUILD_ID = process.env.NEXT_PUBLIC_BUILD_ID ?? 'dev'
+
+function serviceWorkerSource(staticCache: string): string {
+  return `// Chợ Cóc FKO service worker — generated per deploy by app/sw.js/route.ts.
+// STATIC_CACHE is stamped with this deploy's build id; a new deploy ⇒ new worker ⇒ old caches purged.
+// Cache policy mirrors lib/games/poker/pwa/swCachePolicy.ts (allowlist-only immutable static assets).
+
+var STATIC_CACHE = ${JSON.stringify(staticCache)}
+var STATIC_CACHE_PREFIX = 'choco-static-'
 var IMMUTABLE_PREFIX = '/_next/static/'
-var STATIC_ASSET_EXT = /\.(?:woff2?|ttf|otf|png|jpe?g|webp|avif|gif|svg|ico)$/i
+var STATIC_ASSET_EXT = /\\.(?:woff2?|ttf|otf|png|jpe?g|webp|avif|gif|svg|ico)$/i
 var DENY_PREFIXES = ['/api', '/auth', '/admin', '/sw.js', '/manifest']
 
 function isOwnedCache(name) {
-  return name.indexOf('choco-static-') === 0
+  return name.indexOf(STATIC_CACHE_PREFIX) === 0
 }
 
 // Returns 'cache-first' only for allowlisted immutable public assets; 'passthrough' otherwise.
@@ -39,6 +60,8 @@ function classifyRequest(request) {
 }
 
 self.addEventListener('install', function () {
+  // Take over as soon as installed; the page is only RELOADED via the user's between-hands prompt
+  // (usePokerAppUpdate), never here — claiming control does not reload an open, mid-hand page.
   self.skipWaiting()
 })
 
@@ -49,7 +72,7 @@ self.addEventListener('activate', function (event) {
       .then(function (names) {
         return Promise.all(
           names.map(function (name) {
-            // Purge only OUR older generations; never touch a cache another tool owns.
+            // Purge only OUR caches from a different build; never touch a cache another tool owns.
             if (isOwnedCache(name) && name !== STATIC_CACHE) return caches.delete(name)
             return undefined
           })
@@ -61,9 +84,9 @@ self.addEventListener('activate', function (event) {
   )
 })
 
-// Cache-first for allowlisted static assets; everything else is left to the network untouched.
-// We only call respondWith for cache-first requests, so navigations / API / auth / cross-origin
-// keep the browser's default behaviour exactly (zero risk of serving a stale or foreign response).
+// Cache-first ONLY for allowlisted immutable static assets; everything else is left to the network
+// untouched. We only call respondWith for cache-first requests, so navigations / HTML / RSC / API /
+// auth / cross-origin keep the browser's default network behaviour exactly — never served stale.
 self.addEventListener('fetch', function (event) {
   if (classifyRequest(event.request) !== 'cache-first') return
 
@@ -73,8 +96,6 @@ self.addEventListener('fetch', function (event) {
         if (cached) return cached
         return fetch(event.request)
           .then(function (response) {
-            // Only cache a clean, complete same-origin 200. Opaque/partial/error responses are
-            // returned to the page but never stored.
             if (response && response.status === 200 && response.type === 'basic') {
               var copy = response.clone()
               cache.put(event.request, copy).catch(function () {})
@@ -82,8 +103,6 @@ self.addEventListener('fetch', function (event) {
             return response
           })
           .catch(function () {
-            // Offline and not cached: fall back to any cached match (already null here) or let the
-            // request reject as it would without a service worker. Never fabricate a response.
             return cached || Response.error()
           })
       })
@@ -97,11 +116,6 @@ self.addEventListener('message', function (event) {
 })
 
 // ── Web Push (unchanged) ──────────────────────────────────────────────────────────────────────
-// ALWAYS show the OS notification. Deciding whether to suppress based on tab focus inside the
-// service worker proved unreliable (WindowClient.focused is flaky across browsers) and skipping
-// while a hidden tab is open triggers Chrome's "silent push" penalty (which disabled the
-// subscription). Instead, when a page is focused it closes this notification itself (by tag) and
-// shows an in-app toast.
 self.addEventListener('push', function (event) {
   var data = {}
   try { data = event.data ? event.data.json() : {} } catch (e) {}
@@ -129,15 +143,29 @@ self.addEventListener('notificationclick', function (event) {
         var client = windowClients[i]
         try {
           if (new URL(client.url).origin === self.location.origin) {
-            // Ask the page to navigate itself (client.navigate() fails for windows
-            // not controlled by this SW). The page listens for this message.
             client.postMessage({ type: 'notification-navigate', url: url })
             return client.focus()
           }
         } catch (e) {}
       }
-      // No open tab → open a fresh one at the target URL
       if (clients.openWindow) return clients.openWindow(url)
     })
   )
 })
+`
+}
+
+export function GET(): Response {
+  const body = serviceWorkerSource(staticCacheName(BUILD_ID))
+  return new Response(body, {
+    status: 200,
+    headers: {
+      'Content-Type': 'text/javascript; charset=utf-8',
+      // The SW script itself must NEVER be pinned by a browser or CDN, or a new deploy could be
+      // masked. Browsers already bypass the HTTP cache for the worker on update checks, but this is
+      // explicit belt-and-braces (and covers any intermediary CDN).
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Service-Worker-Allowed': '/',
+    },
+  })
+}

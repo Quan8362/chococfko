@@ -24,7 +24,9 @@ export async function subscribeToPush(forceFresh = false): Promise<boolean> {
 
     // Make sure a service worker is registered, then wait for it to be active.
     let reg = await navigator.serviceWorker.getRegistration('/')
-    if (!reg) reg = await navigator.serviceWorker.register('/sw.js')
+    // `updateViaCache: 'none'` keeps the worker script out of the HTTP cache so update checks always
+    // hit the network and a new deploy's worker is picked up (matches MentionNotificationProvider).
+    if (!reg) reg = await navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' })
     reg = await navigator.serviceWorker.ready
 
     let sub = await reg.pushManager.getSubscription()

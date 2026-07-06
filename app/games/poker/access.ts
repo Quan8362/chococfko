@@ -21,6 +21,8 @@ import {
   pokerVisibleTo,
   pokerCan,
   pokerSocialFeatureOn,
+  pokerTournamentInternalAlphaVisible,
+  pokerTournamentCanOperate,
   isAlphaTester,
   POKER_ALPHA_TESTERS_ENV,
   type PokerFlags,
@@ -130,6 +132,24 @@ export function pokerAccessSocial(a: PokerAccess, feature: PokerSocialFeature): 
 // Async convenience for server actions that don't already hold a PokerAccess.
 export async function pokerSocialAvailable(feature: PokerSocialFeature): Promise<boolean> {
   return pokerAccessSocial(await getPokerAccess(), feature)
+}
+
+// ── Internal-alpha tournament gates ──────────────────────────────────────────────────────────
+// May THIS viewer see the internal-alpha tournament surface? Requires the internal-alpha flag ON and
+// the viewer able to see poker at all (admins, or Closed-Beta members when closedBeta runs). Suspended
+// testers and the public are locked out. Ships fully dark until POKER_TOURNAMENT_INTERNAL_ALPHA flips.
+export function pokerAccessTournamentVisible(a: PokerAccess): boolean {
+  return pokerTournamentInternalAlphaVisible(a.flags, viewerOf(a))
+}
+// May THIS viewer OPERATE tournaments (create/start/transition/settle)? Visible AND admin.
+export function pokerAccessTournamentOperator(a: PokerAccess): boolean {
+  return pokerTournamentCanOperate(a.flags, viewerOf(a))
+}
+export async function tournamentVisibleAvailable(): Promise<boolean> {
+  return pokerAccessTournamentVisible(await getPokerAccess())
+}
+export async function tournamentOperatorAvailable(): Promise<boolean> {
+  return pokerAccessTournamentOperator(await getPokerAccess())
 }
 
 // Has this viewer acknowledged the CURRENT beta terms version? Degrade-safe:

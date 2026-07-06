@@ -240,7 +240,13 @@ BEGIN
           state = CASE WHEN stack + v_delta = 0 THEN 'busted' ELSE state END,
           updated_at = now()
       WHERE id = v_seat.id;
-    UPDATE public.poker_tournament_entries SET chips = v_seat.stack + v_delta WHERE id = v_seat.entry_id;
+    -- Mirror chips into the entry and promote a seated participant to ACTIVE on the first hand it
+    -- plays (REGISTERED→SEATED by seat_draw, →ACTIVE here). A live survivor is therefore ACTIVE at
+    -- settlement, which is exactly the state poker_tournament_settle pays (champion ACTIVE→PAID).
+    UPDATE public.poker_tournament_entries
+      SET chips = v_seat.stack + v_delta,
+          state = CASE WHEN state = 'SEATED' THEN 'ACTIVE' ELSE state END
+      WHERE id = v_seat.entry_id;
   END LOOP;
 
   UPDATE public.poker_tournament_hands SET settled = true, settled_at = now() WHERE id = p_hand_id;

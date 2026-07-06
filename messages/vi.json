@@ -1632,6 +1632,10 @@
           "not_found": "Không tìm thấy giải đấu.",
           "invalid_config": "Một số giá trị không hợp lệ.",
           "generic": "Đã xảy ra lỗi. Vui lòng thử lại."
+        },
+        "table": {
+          "hand_complete": "Ván đã kết thúc.",
+          "waiting_next": "Đang chờ ván tiếp theo…"
         }
       },
       "achievements": {

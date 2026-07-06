@@ -1632,6 +1632,10 @@
           "not_found": "未找到锦标赛。",
           "invalid_config": "部分数值无效。",
           "generic": "出错了，请重试。"
+        },
+        "table": {
+          "hand_complete": "本手结束。",
+          "waiting_next": "等待下一手…"
         }
       },
       "achievements": {

@@ -27,6 +27,7 @@ import {
   settleFinal,
   type TournamentConfig,
   type EliminationRecord,
+  type TournamentState,
 } from '@/lib/games/poker/tournament'
 import {
   liveView,
@@ -35,7 +36,18 @@ import {
   type TournamentHandConfig,
   type LoggedAction,
 } from '@/lib/games/poker/tournament/handRunner'
+import {
+  buildTournamentTableView,
+  type TournamentTableView,
+  type RawSeatRow,
+  type TableHandInput,
+} from '@/lib/games/poker/tournament/tableView'
+import { participantDisplayState, type EntryLike } from '@/lib/games/poker/tournament/uiModel'
 import type { AppliedAction } from '@/lib/games/poker/betting'
+
+// Tournament states in which a table may run hands. Fail-closed everywhere else.
+const RUNNING_STATES = new Set<TournamentState>(['RUNNING', 'BREAK', 'FINAL_TABLE'])
+type AdminClient = ReturnType<typeof createAdminClient>
 
 export type ActionResult<T = unknown> = ({ ok: true } & T) | { ok: false; error: string }
 function fail(error: string): { ok: false; error: string } { return { ok: false, error } }
@@ -117,7 +129,10 @@ export async function getTournamentDetail(tournamentId: string): Promise<ActionR
 }>> {
   const g = await requireParticipant()
   if (!g.ok) return fail(g.error)
-  const { data: t } = await g.supabase.from('poker_tournaments').select('*').eq('id', tournamentId).maybeSingle()
+  // Explicit non-secret columns only — `seed` is sealed from clients (migration_poker_tournament_realtime).
+  const { data: t } = await g.supabase.from('poker_tournaments')
+    .select('id,title,state,entry_fee,starting_stack,min_entries,max_entries,seats_per_table,guaranteed_prize_pool,config,current_level_index,level_started_at,scheduled_at,started_at,completed_at,cancelled_at,created_at')
+    .eq('id', tournamentId).maybeSingle()
   if (!t) return fail('not_found')
   const { data: entries } = await g.supabase
     .from('poker_tournament_entries').select('id,user_id,seq,state,chips,table_no,seat_index,finishing_place')
@@ -215,6 +230,8 @@ export async function transitionTournament(tournamentId: string, to: string): Pr
     p_tournament_id: tournamentId, p_to: to, p_actor: g.user.id,
   })
   if (error) return fail('transition_failed')
+  const { data: lvl } = await g.admin.from('poker_tournaments').select('current_level_index').eq('id', tournamentId).maybeSingle()
+  await touchAllTables(g.admin, tournamentId, to, (lvl as { current_level_index: number } | null)?.current_level_index ?? 0)
   return { ok: true }
 }
 
@@ -223,7 +240,18 @@ export async function drawSeats(tournamentId: string): Promise<ActionResult<{ se
   if (!g.ok) return fail(g.error)
   const { data, error } = await g.admin.rpc('poker_tournament_seat_draw', { p_tournament_id: tournamentId })
   if (error) return fail('seat_draw_failed')
+  const { data: t } = await g.admin.from('poker_tournaments').select('state,current_level_index').eq('id', tournamentId).maybeSingle()
+  await touchAllTables(g.admin, tournamentId, (t as { state: string } | null)?.state ?? 'STARTING', (t as { current_level_index: number } | null)?.current_level_index ?? 0)
   return { ok: true, seated: (data as number) ?? 0 }
+}
+
+// Bump the realtime pointer for EVERY live table (tournament-wide changes: level, status). Cheap at
+// internal-alpha scale (few tables). Best-effort; never blocks the mutation.
+async function touchAllTables(admin: AdminClient, tournamentId: string, state: string, levelIndex: number): Promise<void> {
+  const { data: seats } = await admin.from('poker_tournament_seats')
+    .select('table_no').eq('tournament_id', tournamentId)
+  const tables = Array.from(new Set((seats ?? []).map((s: { table_no: number }) => s.table_no)))
+  for (const tableNo of tables) await touchTable(admin, tournamentId, tableNo, 0, state, levelIndex)
 }
 
 export async function advanceLevel(tournamentId: string, toLevel: number): Promise<ActionResult> {
@@ -233,47 +261,184 @@ export async function advanceLevel(tournamentId: string, toLevel: number): Promi
     p_tournament_id: tournamentId, p_to_level: toLevel,
   })
   if (error) return fail('advance_level_failed')
+  const { data: t } = await g.admin.from('poker_tournaments').select('state').eq('id', tournamentId).maybeSingle()
+  await touchAllTables(g.admin, tournamentId, (t as { state: string } | null)?.state ?? 'RUNNING', toLevel)
   return { ok: true }
 }
 
 // ── Live hand orchestration ──────────────────────────────────────────────────────────────────
-// Operator/server: open a hand at a table using the CURRENT tournament chip stacks + level blinds.
-export async function startTournamentHand(tournamentId: string, tableNo: number): Promise<ActionResult<{ handId: string }>> {
-  const g = await requireOperator()
-  if (!g.ok) return fail(g.error)
-  const { data: t } = await g.admin.from('poker_tournaments')
-    .select('seed,current_level_index,config').eq('id', tournamentId).maybeSingle()
-  if (!t) return fail('not_found')
-  const { data: seats } = await g.admin.from('poker_tournament_seats')
+// Bump the non-secret realtime pointer so subscribers re-fetch the viewer-safe snapshot. Never
+// carries a seed/hole card (only version + hand_no + state/level mirror). Best-effort: a failed
+// bump only delays a re-fetch (the watchdog still reconciles), so it never blocks a mutation.
+async function touchTable(admin: AdminClient, tournamentId: string, tableNo: number, handNo: number, state: string, levelIndex: number): Promise<void> {
+  try {
+    await admin.rpc('poker_tournament_touch_table', {
+      p_tournament_id: tournamentId, p_table_no: tableNo, p_hand_no: handNo, p_state: state, p_level: levelIndex,
+    })
+  } catch { /* notification-only; ignore */ }
+}
+
+// Open a hand at a table using the CURRENT tournament chip stacks + level blinds. Shared by the
+// operator control and the participant-safe next-hand path. HARDENED against the retry-reset bug:
+// start_hand is idempotent (returns the same hand row for a reused key), so we NEVER blindly
+// overwrite `state` — an already-initialized hand is returned untouched (a mid-hand action log is
+// never clobbered). The state jsonb is written ONLY when it is still empty (atomic guard on
+// state->config IS NULL).
+async function openHandAtTable(
+  admin: AdminClient, tournamentId: string, tableNo: number,
+): Promise<{ ok: true; handId: string; opened: boolean } | { ok: false; error: string }> {
+  const { data: t } = await admin.from('poker_tournaments')
+    .select('seed,current_level_index,config,state').eq('id', tournamentId).maybeSingle()
+  if (!t) return { ok: false, error: 'not_found' }
+  const tState = (t as { state: TournamentState }).state
+  if (!RUNNING_STATES.has(tState)) return { ok: false, error: 'not_running' }
+
+  const levelIdx = (t as { current_level_index: number }).current_level_index
+
+  // An unsettled, already-initialized hand at this table → reuse it (idempotent, no reset).
+  const { data: latest } = await admin.from('poker_tournament_hands')
+    .select('id,hand_no,settled,state').eq('tournament_id', tournamentId).eq('table_no', tableNo)
+    .order('hand_no', { ascending: false }).limit(1).maybeSingle()
+  const latestRow = latest as { id: string; hand_no: number; settled: boolean; state: StoredHand } | null
+  if (latestRow && !latestRow.settled && latestRow.state?.config) {
+    return { ok: true, handId: latestRow.id, opened: false }
+  }
+
+  const { data: seats } = await admin.from('poker_tournament_seats')
     .select('seat_index,stack,state').eq('tournament_id', tournamentId).eq('table_no', tableNo).eq('state', 'active')
     .order('seat_index')
   const live = (seats ?? []).filter((s: { stack: number }) => s.stack > 0)
-  if (live.length < 2) return fail('not_enough_players')
+  if (live.length < 2) return { ok: false, error: 'not_enough_players' }
 
   const cfg = (t as { config: { blindStructure?: { levels?: { smallBlind: number; bigBlind: number; ante?: number }[] } } }).config
-  const levelIdx = (t as { current_level_index: number }).current_level_index
   const level = cfg.blindStructure?.levels?.[levelIdx] ?? { smallBlind: 25, bigBlind: 50, ante: 0 }
-  const { data: existing } = await g.admin.from('poker_tournament_hands')
-    .select('hand_no').eq('tournament_id', tournamentId).eq('table_no', tableNo).order('hand_no', { ascending: false }).limit(1)
-  const nextHandNo = ((existing?.[0] as { hand_no: number } | undefined)?.hand_no ?? 0) + 1
+  const nextHandNo = (latestRow?.hand_no ?? 0) + 1
   const buttonSeat = live[nextHandNo % live.length].seat_index as number
 
-  const { data: handId, error } = await g.admin.rpc('poker_tournament_start_hand', {
+  const { data: handId, error } = await admin.rpc('poker_tournament_start_hand', {
     p_tournament_id: tournamentId, p_table_no: tableNo, p_level_index: levelIdx,
     p_sb: level.smallBlind, p_bb: level.bigBlind, p_ante: level.ante ?? 0,
     p_idempotency_key: `sh:${tournamentId}:${tableNo}:${nextHandNo}`,
   })
-  if (error || !handId) return fail('start_hand_failed')
+  if (error || !handId) return { ok: false, error: 'start_hand_failed' }
 
   const config: TournamentHandConfig = {
     seed: handSeed((t as { seed: string }).seed, tableNo, nextHandNo),
     handNo: nextHandNo, bigBlind: level.bigBlind, smallBlind: level.smallBlind, buttonSeat,
     seats: live.map((s: { seat_index: number; stack: number }) => ({ seatIndex: s.seat_index, stack: s.stack })),
   }
+  // Re-read the specific hand row (start_hand is idempotent: a reused key returns an existing row
+  // that may ALREADY be initialized by a concurrent/earlier opener). Initialize `state` ONLY when it
+  // is still empty — never clobber an in-progress action log (the retry-reset guard).
+  const { data: fresh } = await admin.from('poker_tournament_hands').select('state').eq('id', handId as string).maybeSingle()
+  if ((fresh as { state: StoredHand } | null)?.state?.config) {
+    return { ok: true, handId: handId as string, opened: false }
+  }
   const stored: StoredHand = { config, log: [] }
-  await g.admin.from('poker_tournament_hands').update({ state: stored as unknown as Record<string, unknown> })
+  await admin.from('poker_tournament_hands')
+    .update({ state: stored as unknown as Record<string, unknown> })
     .eq('id', handId as string)
-  return { ok: true, handId: handId as string }
+  await touchTable(admin, tournamentId, tableNo, nextHandNo, tState, levelIdx)
+  return { ok: true, handId: handId as string, opened: true }
+}
+
+// Operator: open the first / a specific hand at a table (deal button in the operator panel).
+export async function startTournamentHand(tournamentId: string, tableNo: number): Promise<ActionResult<{ handId: string }>> {
+  const g = await requireOperator()
+  if (!g.ok) return fail(g.error)
+  const res = await openHandAtTable(g.admin, tournamentId, tableNo)
+  if (!res.ok) return fail(res.error)
+  return { ok: true, handId: res.handId }
+}
+
+// Participant-safe: ensure a hand is running at the CALLER's own table. Server-authoritative — the
+// caller must actually be seated at the table (verified below), the tournament must be running, and
+// the table must have ≥2 chipped seats. This is what keeps play flowing hand-to-hand without an
+// operator babysitting each deal; it only OPENS a hand (chips still move solely via the audited
+// apply-hand RPC on completion). Idempotent: if a hand is already live it returns it unchanged.
+export async function ensureTournamentTableHand(tournamentId: string): Promise<ActionResult<{ handId: string; opened: boolean }>> {
+  const g = await requireParticipant()
+  if (!g.ok) return fail(g.error)
+  const admin = createAdminClient()
+  const { data: mySeat } = await admin.from('poker_tournament_seats')
+    .select('table_no').eq('tournament_id', tournamentId).eq('user_id', g.user.id).maybeSingle()
+  if (!mySeat) return fail('not_seated_here')
+  const tableNo = (mySeat as { table_no: number }).table_no
+  const res = await openHandAtTable(admin, tournamentId, tableNo)
+  if (!res.ok) return fail(res.error)
+  return { ok: true, handId: res.handId, opened: res.opened }
+}
+
+// The ONE viewer-safe snapshot the live table renders from. Assembles: tournament meta + level
+// blinds (public), the seats at the viewer's OWN table (public identities/stacks), and — if a hand
+// is live — the redacted public hand view PLUS the viewer's OWN two cards (never anyone else's).
+// The seed-bearing hand row is read with the service role (sealed from clients) and only the
+// redacted projection crosses back. A non-participant / cross-table caller never reaches a table.
+export async function getTournamentTableView(tournamentId: string): Promise<ActionResult<{ view: TournamentTableView }>> {
+  const g = await requireParticipant()
+  if (!g.ok) return fail(g.error)
+  const admin = createAdminClient()
+
+  const { data: t } = await g.supabase.from('poker_tournaments')
+    .select('id,title,state,current_level_index,config').eq('id', tournamentId).maybeSingle()
+  if (!t) return fail('not_found')
+  const tr = t as { id: string; title: string; state: TournamentState; current_level_index: number; config: { blindStructure?: { levels?: { smallBlind: number; bigBlind: number; ante?: number }[] } } }
+  const levelIdx = tr.current_level_index
+  const level = tr.config.blindStructure?.levels?.[levelIdx] ?? { smallBlind: 0, bigBlind: 0, ante: 0 }
+  const meta = {
+    tournamentId: tr.id, title: tr.title, state: tr.state, levelIndex: levelIdx,
+    smallBlind: level.smallBlind, bigBlind: level.bigBlind, ante: level.ante ?? 0,
+  }
+
+  // Viewer's own entry → participant display state (own-scoped read).
+  const { data: myEntry } = await g.supabase.from('poker_tournament_entries')
+    .select('state,finishing_place,table_no,seat_index').eq('tournament_id', tournamentId).eq('user_id', g.user.id).maybeSingle()
+  const participantState = participantDisplayState(tr.state, (myEntry as EntryLike | null) ?? null)
+
+  // Viewer's live seat (the ONLY table they may view). No seat → a table-less view carrying just
+  // their participant state (waiting / eliminated / champion).
+  const { data: mySeat } = await g.supabase.from('poker_tournament_seats')
+    .select('table_no,seat_index').eq('tournament_id', tournamentId).eq('user_id', g.user.id).maybeSingle()
+  if (!mySeat) {
+    const view = buildTournamentTableView({ meta, seats: [], tableNo: 0, viewerSeatIndex: null, participantState, hand: null })
+    return { ok: true, view }
+  }
+  const tableNo = (mySeat as { table_no: number }).table_no
+  const viewerSeatIndex = (mySeat as { seat_index: number }).seat_index
+
+  // Public seats at the viewer's table + their public profiles (name/avatar via service role —
+  // profiles RLS may hide cross-user rows; only non-secret display fields are surfaced).
+  const { data: seatRows } = await g.supabase.from('poker_tournament_seats')
+    .select('user_id,seat_index,stack,state').eq('tournament_id', tournamentId).eq('table_no', tableNo).order('seat_index')
+  const rows = (seatRows ?? []) as { user_id: string | null; seat_index: number; stack: number; state: string }[]
+  const userIds = rows.map((r) => r.user_id).filter((x): x is string => !!x)
+  const profById = new Map<string, { display_name: string | null; avatar_url: string | null }>()
+  if (userIds.length > 0) {
+    const { data: profs } = await admin.from('profiles').select('id,display_name,avatar_url').in('id', userIds)
+    for (const p of (profs ?? []) as { id: string; display_name: string | null; avatar_url: string | null }[]) {
+      profById.set(p.id, { display_name: p.display_name, avatar_url: p.avatar_url })
+    }
+  }
+  const seats: RawSeatRow[] = rows.map((r) => ({
+    seatIndex: r.seat_index,
+    userId: r.user_id,
+    displayName: r.user_id ? profById.get(r.user_id)?.display_name ?? null : null,
+    avatarUrl: r.user_id ? profById.get(r.user_id)?.avatar_url ?? null : null,
+    stack: r.stack,
+    state: r.state,
+  }))
+
+  // Latest hand at the table (service role — the seed-bearing row is sealed from clients).
+  const { data: handRow } = await admin.from('poker_tournament_hands')
+    .select('id,hand_no,settled,state').eq('tournament_id', tournamentId).eq('table_no', tableNo)
+    .order('hand_no', { ascending: false }).limit(1).maybeSingle()
+  const hr = handRow as { id: string; state: StoredHand } | null
+  const hand: TableHandInput | null = hr && hr.state?.config
+    ? { handId: hr.id, config: hr.state.config, log: hr.state.log ?? [] }
+    : null
+
+  const view = buildTournamentTableView({ meta, seats, tableNo, viewerSeatIndex, participantState, hand })
+  return { ok: true, view }
 }
 
 // Participant submits ONE authoritative action. The server validates seat ownership + turn +
@@ -326,6 +491,14 @@ export async function submitTournamentAction(
     if (applyErr) return fail('apply_hand_failed')
     await admin.rpc('poker_tournament_eliminate', { p_tournament_id: tournamentId })
   }
+  // Bump the non-secret realtime pointer so BOTH players re-fetch the authoritative view (turn,
+  // pot, board, and — on completion — the settled stacks). The mirror carries no secret.
+  const { data: meta } = await admin.from('poker_tournaments')
+    .select('state,current_level_index').eq('id', tournamentId).maybeSingle()
+  await touchTable(admin, tournamentId, tableNo,
+    stored.config.handNo,
+    (meta as { state: string } | null)?.state ?? 'RUNNING',
+    (meta as { current_level_index: number } | null)?.current_level_index ?? 0)
   const newView = liveView(nextStored.config, nextStored.log)
   return { ok: true, complete: applied.complete, actionSeq: newView.actionSeq }
 }
@@ -363,5 +536,7 @@ export async function settleTournament(tournamentId: string): Promise<ActionResu
   })
   if (error) return fail(error.message.includes('already settled') ? 'already_settled'
     : error.message.includes('conserve') ? 'conservation_failed' : 'settle_failed')
+  const { data: st } = await g.admin.from('poker_tournaments').select('state,current_level_index').eq('id', tournamentId).maybeSingle()
+  await touchAllTables(g.admin, tournamentId, (st as { state: string } | null)?.state ?? 'COMPLETED', (st as { current_level_index: number } | null)?.current_level_index ?? 0)
   return { ok: true, paid: payoutRows.filter((p) => p.amount > 0).length }
 }

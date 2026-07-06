@@ -1632,6 +1632,10 @@
           "not_found": "토너먼트를 찾을 수 없습니다.",
           "invalid_config": "일부 값이 올바르지 않습니다.",
           "generic": "문제가 발생했습니다. 다시 시도해 주세요."
+        },
+        "table": {
+          "hand_complete": "핸드 종료.",
+          "waiting_next": "다음 핸드를 기다리는 중…"
         }
       },
       "achievements": {

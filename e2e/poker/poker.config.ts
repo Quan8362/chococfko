@@ -58,6 +58,14 @@ export default defineConfig({
       dependencies: ['setup'],
       use: { ...devices['Desktop Chrome'], trace: 'on', video: 'on' },
     },
+    // Internal-alpha TOURNAMENT live table: two independent authed contexts play a heads-up hand
+    // with realtime sync + hole-card privacy (branch only; depends on setup). Landscape viewport.
+    {
+      name: 'tournament',
+      testMatch: /tournament-realtime\.spec\.ts/,
+      dependencies: ['setup'],
+      use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 720 }, trace: 'on', video: 'on' },
+    },
   ],
   webServer: /localhost|127\.0\.0\.1/.test(BASE_URL)
     ? {
@@ -75,6 +83,11 @@ export default defineConfig({
           POKER_PUBLIC_LOBBY_ENABLED: 'true',
           POKER_PRIVATE_TABLE_ENABLED: 'true',
           POKER_SPECTATOR_ENABLED: 'true',
+          // Internal-alpha tournament surface ON for the `tournament` project. The two throwaway
+          // players are made admins (ADMIN_EMAILS) so they can SEE the tournament surface.
+          POKER_TOURNAMENT_INTERNAL_ALPHA: 'true',
+          ADMIN_EMAILS: process.env.ADMIN_EMAILS
+            || 'qa.poker.player.a@chococfko.test,qa.poker.player.b@chococfko.test',
         },
       }
     : undefined,

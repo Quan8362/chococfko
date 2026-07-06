@@ -1632,6 +1632,10 @@
           "not_found": "Tournament not found.",
           "invalid_config": "Some values aren't valid.",
           "generic": "Something went wrong. Please try again."
+        },
+        "table": {
+          "hand_complete": "Hand complete.",
+          "waiting_next": "Waiting for the next hand…"
         }
       },
       "achievements": {

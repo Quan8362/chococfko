@@ -1632,6 +1632,10 @@
           "not_found": "トーナメントが見つかりません。",
           "invalid_config": "一部の値が正しくありません。",
           "generic": "エラーが発生しました。もう一度お試しください。"
+        },
+        "table": {
+          "hand_complete": "ハンド終了。",
+          "waiting_next": "次のハンドを待っています…"
         }
       },
       "achievements": {

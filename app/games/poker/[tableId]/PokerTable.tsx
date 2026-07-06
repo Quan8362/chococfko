@@ -676,10 +676,10 @@ export default function PokerTable({ tableId, userId, config }: PokerTableProps)
         </div>
 
         <div
-          className="flex w-full max-w-[860px] items-end gap-3 rounded-2xl px-3 py-2.5"
-          style={{ background: 'linear-gradient(180deg, rgba(22,19,27,0.92), rgba(7,6,10,0.96))', border: '1px solid var(--pk-gold-line)', boxShadow: 'var(--pk-shadow-panel)' }}
+          className="grid w-full max-w-[860px] items-end gap-3 rounded-2xl px-3 py-2.5"
+          style={{ gridTemplateColumns: '1fr auto 1fr', background: 'linear-gradient(180deg, rgba(22,19,27,0.92), rgba(7,6,10,0.96))', border: '1px solid var(--pk-gold-line)', boxShadow: 'var(--pk-shadow-panel)' }}
         >
-          {/* hero identity + own cards */}
+          {/* hero identity + own cards (grid col 1) */}
           {viewerSeat ? (
             <div
               className="flex shrink-0 items-end gap-2"
@@ -708,10 +708,13 @@ export default function PokerTable({ tableId, userId, config }: PokerTableProps)
                 )}
               </div>
             </div>
-          ) : null}
+          ) : (
+            <div aria-hidden />
+          )}
 
-          {/* the action area */}
-          <div className="flex min-w-0 flex-1 items-center justify-center">
+          {/* the action area (grid col 2 — auto width, kept optically centred on the table by the
+              equal 1fr side columns so a lone button doesn't drift toward the hero) */}
+          <div className="flex min-w-0 items-center justify-center">
             {isMyTurn && legal?.model ? (
               <ActionControls
                 model={legal.model}
@@ -742,6 +745,9 @@ export default function PokerTable({ tableId, userId, config }: PokerTableProps)
               />
             )}
           </div>
+
+          {/* grid col 3 — mirror spacer balancing the hero so col 2 stays centred */}
+          <div aria-hidden />
         </div>
       </div>
 

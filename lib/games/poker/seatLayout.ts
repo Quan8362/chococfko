@@ -186,7 +186,7 @@ const STATIONS: Record<PokerTableLayout, LayoutStations> = {
   desktop: {
     center: { xPct: 50, yPct: 45 },
     boardCardW: 54,
-    seatAvatarSize: 50,
+    seatAvatarSize: 64,
     pocketCardW: 34,
     compactSeats: false,
     byCapacity: DESKTOP_STATIONS,
@@ -194,7 +194,7 @@ const STATIONS: Record<PokerTableLayout, LayoutStations> = {
   tablet: {
     center: { xPct: 50, yPct: 42 },
     boardCardW: 46,
-    seatAvatarSize: 46,
+    seatAvatarSize: 58,
     pocketCardW: 30,
     compactSeats: false,
     byCapacity: TABLET_STATIONS,
@@ -202,7 +202,7 @@ const STATIONS: Record<PokerTableLayout, LayoutStations> = {
   mobile: {
     center: { xPct: 50, yPct: 44 },
     boardCardW: 34,
-    seatAvatarSize: 40,
+    seatAvatarSize: 50,
     pocketCardW: 26,
     compactSeats: true,
     byCapacity: MOBILE_STATIONS,

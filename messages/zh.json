@@ -1615,6 +1615,9 @@
           "settle": "结算派彩",
           "cancel": "取消锦标赛",
           "confirm_cancel": "取消该锦标赛？已报名玩家将获退款。",
+          "deal_next": "发下一手牌",
+          "recover_refund": "退款并取消",
+          "confirm_recover": "退还所有玩家的报名费并取消该锦标赛？此操作无法撤销。",
           "working": "处理中…",
           "only_operator": "仅限运营人员。",
           "seated_count": "{count} 人已入座"
@@ -1631,6 +1634,10 @@
           "illegal_transition": "当前不允许该操作。",
           "not_found": "未找到锦标赛。",
           "invalid_config": "部分数值无效。",
+          "not_running": "锦标赛尚未进行。",
+          "use_recover_refund": "请使用“退款并取消”来释放报名费。",
+          "recover_failed": "退款并取消失败，请重试。",
+          "deal_failed": "无法发下一手牌。",
           "generic": "出错了，请重试。"
         },
         "table": {

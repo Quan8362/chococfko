@@ -11,17 +11,23 @@
 // _entries). The seed-bearing tournament + hand rows are never read by the browser and never
 // traverse realtime — the viewer's own hole cards arrive solely inside the server snapshot.
 //
-// It also keeps play flowing: when the current hand is complete (or none is open) and the table can
-// still play, it asks the server to open the next hand (ensureTournamentTableHand — server-
-// authoritative + idempotent), so a heads-up match advances hand-to-hand without operator input.
+// It also keeps play flowing. Advancement is SERVER-authoritative: reading the table
+// (getTournamentTableView) opens the next hand once the showdown grace passes, idempotently. So the
+// client never fires a one-shot "start next hand" request that could be lost — it simply RECONCILES
+// on a short cadence while the table is idle-but-playable, and each read advances the hand. A missed,
+// aborted, or duplicated read is harmless; the next tick (or a refresh/reopen) retries. This is what
+// makes next-hand advancement wedge-proof (27G-F1) — no single request can strand the table.
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { PokerActionType } from '@/lib/games/poker/types'
 import { toAppliedAction, type TournamentTableView } from '@/lib/games/poker/tournament/tableView'
-import { getTournamentTableView, submitTournamentAction, ensureTournamentTableHand } from '../../../tournament-actions'
+import { getTournamentTableView, submitTournamentAction } from '../../../tournament-actions'
 
 const WATCHDOG_MS = 12000
+// While a table is idle-but-playable (hand complete / none open), reconcile on this faster cadence so
+// the server read-path opens the next hand promptly after the showdown grace. Retry-safe by design.
+const ADVANCE_PUMP_MS = 1500
 
 export type TnmtConnUx = 'connecting' | 'connected' | 'reconnecting' | 'offline'
 
@@ -45,9 +51,6 @@ export function useTournamentTable(tournamentId: string): TournamentTableApi {
   const mountedRef = useRef(true)
   const inFlightRef = useRef(false)
   const dirtyRef = useRef(false)
-  // Ensure-next-hand single-flight, keyed so we ask at most once per (hand, completeness) signal.
-  const ensuringRef = useRef(false)
-  const lastEnsureKeyRef = useRef<string | null>(null)
 
   const applySnapshot = useCallback((next: TournamentTableView) => {
     const cur = viewRef.current
@@ -124,30 +127,21 @@ export function useTournamentTable(tournamentId: string): TournamentTableApi {
     }
   }, [reconcile])
 
-  // ── Keep play flowing: open the next hand when the table is idle-but-playable ────────────
-  // Fires at most once per (handId, complete) signal. Server is authoritative + idempotent, so a
-  // duplicate request (both players' clients) is a harmless no-op; it never opens two hands.
+  // ── Keep play flowing: reconcile on a short cadence while idle-but-playable ───────────────
+  // No one-shot "start next hand" request that could be lost — the server read-path advances the
+  // hand. A missed/aborted tick is harmless; the next one retries. When a new hand opens (or the
+  // table can no longer play) the deps change and the interval clears. Multi-client-safe: both
+  // players' reconciles hit the same idempotent server path and converge on exactly one hand.
   useEffect(() => {
     if (!view) return
     const seatedHere = view.viewerSeatIndex !== null
     const idlePlayable = view.canContinue && (view.handId === null || view.complete)
     if (!seatedHere || !idlePlayable) return
-    // Key includes the tournament state so a STARTING→RUNNING transition (operator "begin play")
-    // re-triggers the first-hand open even though handId is still null in both snapshots.
-    const key = `${view.meta.state}:${view.handId ?? 'none'}:${view.complete ? 'c' : 'o'}`
-    if (lastEnsureKeyRef.current === key || ensuringRef.current) return
-    lastEnsureKeyRef.current = key
-    ensuringRef.current = true
-    // Small settle delay so both clients observe the completed hand before the next deals.
-    const id = window.setTimeout(() => {
-      ensureTournamentTableHand(tournamentId)
-        .then(() => { if (mountedRef.current) reconcile() })
-        .catch(() => { /* fail-closed; watchdog retries */ })
-        .finally(() => { ensuringRef.current = false })
-    }, view.complete ? 1500 : 300)
-    return () => { window.clearTimeout(id); ensuringRef.current = false }
+    const id = window.setInterval(() => { if (mountedRef.current) reconcile() }, ADVANCE_PUMP_MS)
+    return () => window.clearInterval(id)
+    // Only the idle-playable signal (not every snapshot) should (re)arm the pump.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [view?.handId, view?.complete, view?.canContinue, view?.viewerSeatIndex, view?.meta.state, tournamentId])
+  }, [view?.handId, view?.complete, view?.canContinue, view?.viewerSeatIndex, view?.meta.state, reconcile])
 
   const act = useCallback(async (action: PokerActionType, amount?: number) => {
     const cur = viewRef.current

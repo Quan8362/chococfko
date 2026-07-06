@@ -1615,6 +1615,9 @@
           "settle": "Chi trả giải",
           "cancel": "Hủy giải đấu",
           "confirm_cancel": "Hủy giải đấu này? Người đã đăng ký sẽ được hoàn phí.",
+          "deal_next": "Chia ván tiếp theo",
+          "recover_refund": "Hoàn phí & hủy",
+          "confirm_recover": "Hoàn phí tham gia cho tất cả người chơi và hủy giải đấu này? Không thể hoàn tác.",
           "working": "Đang xử lý…",
           "only_operator": "Chỉ dành cho điều hành viên.",
           "seated_count": "{count} đã vào bàn"
@@ -1631,6 +1634,10 @@
           "illegal_transition": "Hành động này hiện không được phép.",
           "not_found": "Không tìm thấy giải đấu.",
           "invalid_config": "Một số giá trị không hợp lệ.",
+          "not_running": "Giải đấu chưa diễn ra.",
+          "use_recover_refund": "Dùng “Hoàn phí & hủy” để giải phóng phí tham gia.",
+          "recover_failed": "Không thể hoàn phí và hủy. Vui lòng thử lại.",
+          "deal_failed": "Không thể chia ván tiếp theo.",
           "generic": "Đã xảy ra lỗi. Vui lòng thử lại."
         },
         "table": {

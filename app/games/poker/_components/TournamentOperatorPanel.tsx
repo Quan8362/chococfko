@@ -7,25 +7,27 @@ import { operatorControlsFor } from '@/lib/games/poker/tournament/uiModel'
 import type { TournamentState } from '@/lib/games/poker/tournament'
 import {
   transitionTournament, drawSeats, advanceLevel, settleTournament,
+  advanceTournamentTables, recoverAndRefundTournament,
 } from '../tournament-actions'
 
 const ERROR_KEYS = new Set([
   'not_authenticated', 'tournament_unavailable', 'not_operator', 'illegal_transition',
   'not_found', 'not_enough_players', 'seat_draw_failed', 'advance_level_failed',
   'transition_failed', 'settle_failed', 'already_settled', 'conservation_failed', 'not_heads_up_complete',
+  'not_running', 'use_recover_refund', 'recover_failed', 'deal_failed',
 ])
 
 // Operator-only lifecycle controls. Renders ONLY the controls legal for the current state (the pure
 // FSM model), confirms destructive actions, and re-checks everything server-side. Never shown to a
 // non-operator (the parent gates on pokerAccessTournamentOperator).
 export default function TournamentOperatorPanel({
-  tournamentId, state, currentLevelIndex,
-}: { tournamentId: string; state: TournamentState; currentLevelIndex: number }) {
+  tournamentId, state, currentLevelIndex, escrowHeld = true,
+}: { tournamentId: string; state: TournamentState; currentLevelIndex: number; escrowHeld?: boolean }) {
   const t = useTranslations('games.poker.tournaments')
   const router = useRouter()
   const [busy, setBusy] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const controls = operatorControlsFor(state)
+  const controls = operatorControlsFor(state, escrowHeld)
 
   const msg = (code: string) => (ERROR_KEYS.has(code) ? t(`error.${code}`) : t('error.generic'))
 
@@ -48,6 +50,8 @@ export default function TournamentOperatorPanel({
             if (c.op === 'draw_seats') return run(c.key, () => drawSeats(tournamentId))
             if (c.op === 'advance_level') return run(c.key, () => advanceLevel(tournamentId, currentLevelIndex + 1))
             if (c.op === 'settle') return run(c.key, () => settleTournament(tournamentId))
+            if (c.op === 'deal_next') return run(c.key, () => advanceTournamentTables(tournamentId))
+            if (c.op === 'recover_refund') return run(c.key, () => recoverAndRefundTournament(tournamentId), t('operator.confirm_recover'))
             return run(c.key, () => transitionTournament(tournamentId, c.to!), c.destructive ? t('operator.confirm_cancel') : undefined)
           }
           return (

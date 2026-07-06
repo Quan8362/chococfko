@@ -1615,6 +1615,9 @@
           "settle": "Settle payouts",
           "cancel": "Cancel tournament",
           "confirm_cancel": "Cancel this tournament? Registered players are refunded.",
+          "deal_next": "Deal next hand",
+          "recover_refund": "Refund & cancel",
+          "confirm_recover": "Refund every player's entry fee and cancel this tournament? This cannot be undone.",
           "working": "Working…",
           "only_operator": "Operators only.",
           "seated_count": "{count} seated"
@@ -1631,6 +1634,10 @@
           "illegal_transition": "That action isn't allowed right now.",
           "not_found": "Tournament not found.",
           "invalid_config": "Some values aren't valid.",
+          "not_running": "The tournament isn't running.",
+          "use_recover_refund": "Use “Refund & cancel” to release entry fees.",
+          "recover_failed": "Couldn't refund and cancel. Please try again.",
+          "deal_failed": "Couldn't deal the next hand.",
           "generic": "Something went wrong. Please try again."
         },
         "table": {

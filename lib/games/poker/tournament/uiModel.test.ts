@@ -9,13 +9,14 @@ const entry = (over: Partial<EntryLike>): EntryLike =>
   ({ state: 'REGISTERED', finishing_place: null, table_no: null, seat_index: null, ...over })
 
 test('UIM-001 operator controls follow the FSM per state', () => {
-  const draft = operatorControlsFor('DRAFT').map((c) => c.key)
+  // No escrow held → a plain cancel is offered.
+  const draft = operatorControlsFor('DRAFT', false).map((c) => c.key)
   assert.deepEqual(draft.sort(), ['cancel', 'schedule'])
-  const regOpen = operatorControlsFor('REGISTRATION_OPEN').map((c) => c.key)
+  const regOpen = operatorControlsFor('REGISTRATION_OPEN', false).map((c) => c.key)
   assert.ok(regOpen.includes('start') && regOpen.includes('cancel'))
-  const starting = operatorControlsFor('STARTING').map((c) => c.key)
+  const starting = operatorControlsFor('STARTING', false).map((c) => c.key)
   assert.ok(starting.includes('begin_play') && starting.includes('draw_seats'))
-  const running = operatorControlsFor('RUNNING').map((c) => c.key)
+  const running = operatorControlsFor('RUNNING', false).map((c) => c.key)
   assert.ok(running.includes('advance_level') && running.includes('settle') && running.includes('final_table'))
   // terminal states expose no controls
   assert.equal(operatorControlsFor('COMPLETED').length, 0)
@@ -23,8 +24,30 @@ test('UIM-001 operator controls follow the FSM per state', () => {
 })
 
 test('UIM-002 cancel is marked destructive (needs confirmation)', () => {
-  const cancel = operatorControlsFor('REGISTRATION_OPEN').find((c) => c.key === 'cancel')
+  const cancel = operatorControlsFor('REGISTRATION_OPEN', false).find((c) => c.key === 'cancel')
   assert.ok(cancel?.destructive)
+})
+
+test('UIM-002b escrow held → recover_refund replaces plain cancel (never strand fees)', () => {
+  // With escrow held, a plain cancel is NOT offered — only the refunding recovery control.
+  const running = operatorControlsFor('RUNNING', true)
+  assert.ok(!running.some((c) => c.key === 'cancel'), 'plain cancel must be hidden while escrow is held')
+  const recover = running.find((c) => c.key === 'recover_refund')
+  assert.ok(recover?.op === 'recover_refund' && recover?.destructive, 'recover_refund must be present + destructive')
+  // Registration-open with escrow also routes to recovery (registered players already paid).
+  const regOpen = operatorControlsFor('REGISTRATION_OPEN', true).map((c) => c.key)
+  assert.ok(regOpen.includes('recover_refund') && !regOpen.includes('cancel'))
+  // The default (unknown escrow) is fail-safe: prefer the refunding path.
+  assert.ok(operatorControlsFor('RUNNING').some((c) => c.key === 'recover_refund'))
+})
+
+test('UIM-002c deal_next (manual next-hand recovery) is offered during live play only', () => {
+  for (const s of ['RUNNING', 'BREAK', 'FINAL_TABLE'] as const) {
+    assert.ok(operatorControlsFor(s, false).some((c) => c.op === 'deal_next'), `deal_next expected in ${s}`)
+  }
+  for (const s of ['DRAFT', 'REGISTRATION_OPEN', 'STARTING', 'COMPLETED', 'CANCELLED'] as const) {
+    assert.ok(!operatorControlsFor(s, false).some((c) => c.op === 'deal_next'), `deal_next must NOT appear in ${s}`)
+  }
 })
 
 test('UIM-003 registrationOpen requires REGISTRATION_OPEN and room', () => {

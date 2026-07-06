@@ -34,6 +34,9 @@ export default async function TournamentDetailPage({ params }: { params: { tourn
   const myEntry = (res.myEntry as Entry | null) ?? null
   const state = tr.state as TournamentState
   const registered = entries.filter((e) => e.state !== 'WITHDRAWN').length
+  // Escrow is held whenever any entry has neither been refunded (WITHDRAWN) nor paid (PAID); a plain
+  // Cancel of such a tournament would strand fees, so the operator panel offers refund-recovery.
+  const escrowHeld = entries.some((e) => e.state !== 'WITHDRAWN' && e.state !== 'PAID')
   const prize = Math.max(Number(tr.guaranteed_prize_pool ?? 0), Number(tr.entry_fee) * registered)
   const levels: Level[] = tr.config?.blindStructure?.levels ?? []
   const startLevel = levels[0]
@@ -95,7 +98,7 @@ export default async function TournamentDetailPage({ params }: { params: { tourn
 
       {res.isOperator && (
         <div className="mb-5">
-          <TournamentOperatorPanel tournamentId={params.tournamentId} state={state} currentLevelIndex={Number(tr.current_level_index ?? 0)} />
+          <TournamentOperatorPanel tournamentId={params.tournamentId} state={state} currentLevelIndex={Number(tr.current_level_index ?? 0)} escrowHeld={escrowHeld} />
         </div>
       )}
 

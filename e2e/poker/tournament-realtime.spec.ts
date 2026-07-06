@@ -63,6 +63,14 @@ async function dropTournament(id: string): Promise<void> {
   await admin().from('poker_tournaments').delete().eq('id', id).then(() => {}, () => {})
 }
 
+// Count the DISTINCT initialized hands at a table (state->config present). The wedge-recovery test
+// asserts this stays EXACTLY 1 per hand number — a duplicate would mean two hands were opened.
+async function handCount(id: string, handNo: number): Promise<number> {
+  const { data } = await admin().from('poker_tournament_hands')
+    .select('id,state').eq('tournament_id', id).eq('table_no', 1).eq('hand_no', handNo)
+  return (data ?? []).filter((h: { state: { config?: unknown } | null }) => !!h.state?.config).length
+}
+
 function attr(page: Page, testId: string, name: string): Promise<string | null> {
   return page.locator(`[data-testid="${testId}"]`).first().getAttribute(name)
 }
@@ -154,6 +162,74 @@ test.describe('live tournament table (independent authed contexts)', () => {
       void bbKey
     } finally {
       for (const c of contexts) await c.close()
+      await dropTournament(id)
+    }
+  })
+
+  // ── 27G-F1 WEDGE RECOVERY: a completed hand with survivors advances to EXACTLY ONE next hand,
+  // WITHOUT depending on any one client firing a one-shot request. We complete hand 1, then reopen
+  // BOTH players (fresh mounts) and let them reconcile concurrently — the server read-path opens the
+  // next hand. Assert exactly one hand-2 row exists (no duplicate) and chips stay conserved. This is
+  // the production blocker reproduced + fixed: an aborted/lost client "start next hand" can no longer
+  // strand the table, and racing reconciles never create two hands. ──
+  test('a completed hand recovers to exactly one next hand across reopen + concurrent reconcile', async ({ browser }) => {
+    const manifest = loadManifest()
+    expect(manifest.a?.id && manifest.b?.id, 'manifest has players a & b').toBeTruthy()
+
+    const id = await provisionSeatedTournament(manifest.a.id, manifest.b.id)
+    let contexts: BrowserContext[] = []
+    const open = async (): Promise<Record<'a' | 'b', Page>> => {
+      const pages: Record<'a' | 'b', Page> = {} as Record<'a' | 'b', Page>
+      for (const key of ['a', 'b'] as const) {
+        const ctx = await browser.newContext({ storageState: stateFileFor(key), viewport: { width: 1280, height: 720 } })
+        contexts.push(ctx)
+        const page = await ctx.newPage()
+        await page.goto(`/games/poker/tournaments/${id}/table`, { waitUntil: 'domcontentloaded' })
+        await expect(page.locator('[data-testid="tnmt-table"]')).toBeVisible()
+        pages[key] = page
+      }
+      return pages
+    }
+    const closeAll = async () => { for (const c of contexts) await c.close(); contexts = [] }
+
+    try {
+      let pages = await open()
+      // Hand 1 opens; both observe it.
+      for (const key of ['a', 'b'] as const) {
+        await expect(pages[key].locator('[data-testid="tnmt-table"]')).toHaveAttribute('data-hand-no', '1', { timeout: 20_000 })
+      }
+      expect(await handCount(id, 1), 'exactly one hand 1').toBe(1)
+
+      // Complete hand 1: the on-turn seat (heads-up button/SB acts first preflop) folds.
+      const turn = await num(pages.a, 'tnmt-table', 'data-turn-seat')
+      const viewerA = await num(pages.a, 'tnmt-table', 'data-viewer-seat')
+      const sbPage = viewerA === turn ? pages.a : pages.b
+      const fold = sbPage.locator('[data-testid="poker-action-fold"]')
+      await expect(fold).toBeVisible()
+      await fold.click()
+
+      // ── SIMULATE THE WEDGE: tear BOTH clients down immediately after the completing action, before
+      // any client can drive the next hand. In the old code the one-shot ensure was lost here and the
+      // table wedged. Now, reopening both players is enough — the read-path advances the hand. ──
+      await closeAll()
+      pages = await open()
+
+      // Both fresh sessions converge on hand 2 (server-authoritative advancement on read).
+      for (const key of ['a', 'b'] as const) {
+        await expect(pages[key].locator('[data-testid="tnmt-table"]')).toHaveAttribute('data-hand-no', '2', { timeout: 25_000 })
+      }
+      // EXACTLY ONE hand 2 — racing reconciles from both fresh clients never opened a duplicate.
+      expect(await handCount(id, 2), 'exactly one hand 2 (no duplicate under concurrent reconcile)').toBe(1)
+      // And no spurious hand 3 was opened while hand 2 is still live.
+      expect(await handCount(id, 3), 'no premature hand 3').toBe(0)
+
+      // Chips conserved across the recovery: live behind-stacks + pot == 2×START.
+      const stackA = await num(pages.a, 'tnmt-hero', 'data-stack')
+      const stackB = await num(pages.b, 'tnmt-hero', 'data-stack')
+      const pot = await num(pages.a, 'tnmt-pot', 'data-amount')
+      expect(stackA + stackB + pot, 'chips conserved across wedge recovery').toBe(2 * START)
+    } finally {
+      await closeAll()
       await dropTournament(id)
     }
   })

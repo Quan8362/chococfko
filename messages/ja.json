@@ -1615,6 +1615,9 @@
           "settle": "配当を確定",
           "cancel": "トーナメント中止",
           "confirm_cancel": "このトーナメントを中止しますか？登録者には払い戻されます。",
+          "deal_next": "次のハンドを配る",
+          "recover_refund": "返金して中止",
+          "confirm_recover": "全プレイヤーの参加費を返金し、このトーナメントを中止しますか？この操作は取り消せません。",
           "working": "処理中…",
           "only_operator": "運営者のみ。",
           "seated_count": "{count}人着席"
@@ -1631,6 +1634,10 @@
           "illegal_transition": "その操作は現在許可されていません。",
           "not_found": "トーナメントが見つかりません。",
           "invalid_config": "一部の値が正しくありません。",
+          "not_running": "トーナメントは進行中ではありません。",
+          "use_recover_refund": "参加費を解放するには「返金して中止」を使用してください。",
+          "recover_failed": "返金と中止に失敗しました。もう一度お試しください。",
+          "deal_failed": "次のハンドを配れませんでした。",
           "generic": "エラーが発生しました。もう一度お試しください。"
         },
         "table": {

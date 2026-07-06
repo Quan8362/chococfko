@@ -49,6 +49,17 @@ import type { AppliedAction } from '@/lib/games/poker/betting'
 const RUNNING_STATES = new Set<TournamentState>(['RUNNING', 'BREAK', 'FINAL_TABLE'])
 type AdminClient = ReturnType<typeof createAdminClient>
 
+// Showdown grace before the SERVER auto-opens the next hand on a read (so both players see the
+// completed hand's cards/pot first). The read-path advance in getTournamentTableView is what makes
+// next-hand advancement resilient: it never depends on one client firing a one-shot request.
+const SETTLE_GRACE_MS = 1600
+function graceElapsed(settledAt: string | null | undefined): boolean {
+  if (!settledAt) return true
+  const t = new Date(settledAt).getTime()
+  if (Number.isNaN(t)) return true
+  return Date.now() - t >= SETTLE_GRACE_MS
+}
+
 export type ActionResult<T = unknown> = ({ ok: true } & T) | { ok: false; error: string }
 function fail(error: string): { ok: false; error: string } { return { ok: false, error } }
 
@@ -219,6 +230,15 @@ export async function createTournament(input: CreateTournamentInput): Promise<Ac
   return { ok: true, id: (data as { id: string }).id }
 }
 
+// True iff the tournament still holds escrowed entry fees (any entry that has neither been refunded
+// (WITHDRAWN) nor paid (PAID)). A plain Cancel of such a tournament would strand those fees, so the
+// operator must use the refund-recovery path instead.
+async function tournamentHoldsEscrow(admin: AdminClient, tournamentId: string): Promise<boolean> {
+  const { data } = await admin.from('poker_tournament_entries')
+    .select('id').eq('tournament_id', tournamentId).not('state', 'in', '("WITHDRAWN","PAID")').limit(1)
+  return (data?.length ?? 0) > 0
+}
+
 // Operator state transition through the audited FSM (mirrors + re-checked by the DB).
 export async function transitionTournament(tournamentId: string, to: string): Promise<ActionResult> {
   const g = await requireOperator()
@@ -226,6 +246,9 @@ export async function transitionTournament(tournamentId: string, to: string): Pr
   const { data: t } = await g.admin.from('poker_tournaments').select('state').eq('id', tournamentId).maybeSingle()
   if (!t) return fail('not_found')
   if (!canTransition((t as { state: string }).state as never, to as never)) return fail('illegal_transition')
+  // Never let a plain Cancel silently strand escrow — route the operator to the refund-recovery path
+  // (recoverAndRefundTournament) whenever entry fees are still held.
+  if (to === 'CANCELLED' && await tournamentHoldsEscrow(g.admin, tournamentId)) return fail('use_recover_refund')
   const { error } = await g.admin.rpc('poker_tournament_admin_transition', {
     p_tournament_id: tournamentId, p_to: to, p_actor: g.user.id,
   })
@@ -327,19 +350,22 @@ async function openHandAtTable(
     handNo: nextHandNo, bigBlind: level.bigBlind, smallBlind: level.smallBlind, buttonSeat,
     seats: live.map((s: { seat_index: number; stack: number }) => ({ seatIndex: s.seat_index, stack: s.stack })),
   }
-  // Re-read the specific hand row (start_hand is idempotent: a reused key returns an existing row
-  // that may ALREADY be initialized by a concurrent/earlier opener). Initialize `state` ONLY when it
-  // is still empty — never clobber an in-progress action log (the retry-reset guard).
-  const { data: fresh } = await admin.from('poker_tournament_hands').select('state').eq('id', handId as string).maybeSingle()
-  if ((fresh as { state: StoredHand } | null)?.state?.config) {
-    return { ok: true, handId: handId as string, opened: false }
-  }
+  // Initialize `state` ATOMICALLY via the DEFINER RPC: it writes ONLY while the row is still
+  // uninitialized + unsettled (WHERE state->'config' IS NULL). start_hand is idempotent (a reused key
+  // returns an existing row that a concurrent/earlier opener may already have initialized), so a
+  // duplicate / stale / racing caller can NEVER clobber an in-progress action log or a settled hand —
+  // the atomic guard, not a TOCTOU re-read, is the arbiter. `wrote===false` ⇒ someone already opened
+  // this hand; return it unchanged.
   const stored: StoredHand = { config, log: [] }
-  await admin.from('poker_tournament_hands')
-    .update({ state: stored as unknown as Record<string, unknown> })
-    .eq('id', handId as string)
-  await touchTable(admin, tournamentId, tableNo, nextHandNo, tState, levelIdx)
-  return { ok: true, handId: handId as string, opened: true }
+  const { data: wrote, error: initErr } = await admin.rpc('poker_tournament_init_hand_state', {
+    p_hand_id: handId as string,
+    p_tournament_id: tournamentId,
+    p_state: stored as unknown as Record<string, unknown>,
+  })
+  if (initErr) return { ok: false, error: 'start_hand_failed' }
+  const opened = wrote === true
+  if (opened) await touchTable(admin, tournamentId, tableNo, nextHandNo, tState, levelIdx)
+  return { ok: true, handId: handId as string, opened }
 }
 
 // Operator: open the first / a specific hand at a table (deal button in the operator panel).
@@ -349,6 +375,29 @@ export async function startTournamentHand(tournamentId: string, tableNo: number)
   const res = await openHandAtTable(g.admin, tournamentId, tableNo)
   if (!res.ok) return fail(res.error)
   return { ok: true, handId: res.handId }
+}
+
+// Operator RECOVERY: force the next hand at every live table via the SAME authoritative idempotent
+// path (openHandAtTable). This is the manual escape hatch for a wedged table (a completed hand with
+// no next hand) — it never duplicates logic and never opens two hands. Safe to click repeatedly:
+// a table that already has a live hand is returned unchanged, and a table that can't play (heads-up
+// down to one) is skipped. The read-path auto-advance normally makes this unnecessary; it exists so
+// an operator can recover instantly without waiting for a client to reconcile.
+export async function advanceTournamentTables(tournamentId: string): Promise<ActionResult<{ opened: number }>> {
+  const g = await requireOperator()
+  if (!g.ok) return fail(g.error)
+  const { data: t } = await g.admin.from('poker_tournaments').select('state').eq('id', tournamentId).maybeSingle()
+  if (!t) return fail('not_found')
+  if (!RUNNING_STATES.has((t as { state: TournamentState }).state)) return fail('not_running')
+  const { data: seats } = await g.admin.from('poker_tournament_seats')
+    .select('table_no').eq('tournament_id', tournamentId)
+  const tables = Array.from(new Set((seats ?? []).map((s: { table_no: number }) => s.table_no)))
+  let opened = 0
+  for (const tableNo of tables) {
+    const res = await openHandAtTable(g.admin, tournamentId, tableNo)
+    if (res.ok && res.opened) opened += 1
+  }
+  return { ok: true, opened }
 }
 
 // Participant-safe: ensure a hand is running at the CALLER's own table. Server-authoritative — the
@@ -427,6 +476,25 @@ export async function getTournamentTableView(tournamentId: string): Promise<Acti
     stack: r.stack,
     state: r.state,
   }))
+
+  // ── Keep play flowing — SERVER-authoritative, retry/refresh/multi-client safe ─────────────────
+  // Advancement is a property of READING the table, not of any one client firing a one-shot request:
+  // if the latest hand is settled (past the showdown grace) or no hand is open, and the table can
+  // still play, open the next hand HERE. openHandAtTable is idempotent + atomically guarded, so
+  // concurrent reads (both players, the watchdog, a refresh/reopen) converge on exactly ONE next
+  // hand and can never clobber a live hand. A best-effort failure (e.g. heads-up down to one chipped
+  // seat → not_enough_players) just leaves the completed/terminal view for the operator to settle.
+  if (RUNNING_STATES.has(tr.state)) {
+    const { data: latestForAdvance } = await admin.from('poker_tournament_hands')
+      .select('settled,settled_at,state').eq('tournament_id', tournamentId).eq('table_no', tableNo)
+      .order('hand_no', { ascending: false }).limit(1).maybeSingle()
+    const lr = latestForAdvance as { settled: boolean; settled_at: string | null; state: StoredHand } | null
+    const noOpenHand = !lr || !lr.state?.config
+    const settledPastGrace = !!lr && lr.settled && graceElapsed(lr.settled_at)
+    if (noOpenHand || settledPastGrace) {
+      await openHandAtTable(admin, tournamentId, tableNo)
+    }
+  }
 
   // Latest hand at the table (service role — the seed-bearing row is sealed from clients).
   const { data: handRow } = await admin.from('poker_tournament_hands')
@@ -511,6 +579,11 @@ export async function settleTournament(tournamentId: string): Promise<ActionResu
   if (!g.ok) return fail(g.error)
   const { data: t } = await g.admin.from('poker_tournaments').select('config,state').eq('id', tournamentId).maybeSingle()
   if (!t) return fail('not_found')
+  const tState = (t as { state: string }).state
+  // Terminal tournaments never settle: COMPLETED already paid; CANCELLED was recovery-refunded (holds
+  // no escrow, has no champion). The DB re-enforces both — this is a fast fail-closed guard.
+  if (tState === 'COMPLETED') return fail('already_settled')
+  if (tState === 'CANCELLED') return fail('illegal_transition')
   const config = (t as { config: TournamentConfig }).config
   const { data: entries } = await g.admin.from('poker_tournament_entries')
     .select('id,user_id,state,finishing_place,chips').eq('tournament_id', tournamentId).neq('state', 'WITHDRAWN')
@@ -539,4 +612,29 @@ export async function settleTournament(tournamentId: string): Promise<ActionResu
   const { data: st } = await g.admin.from('poker_tournaments').select('state,current_level_index').eq('id', tournamentId).maybeSingle()
   await touchAllTables(g.admin, tournamentId, (st as { state: string } | null)?.state ?? 'COMPLETED', (st as { current_level_index: number } | null)?.current_level_index ?? 0)
   return { ok: true, paid: payoutRows.filter((p) => p.amount > 0).length }
+}
+
+// ── Recovery refund ──────────────────────────────────────────────────────────────────────────
+// Operator RECOVERY for a tournament that has STARTED but cannot continue or be settled (e.g. a
+// wedged table with no safe champion). Refunds every still-escrowed entry EXACTLY ONCE through the
+// audited, row-locked, idempotent DEFINER RPC (poker_tournament_recover_refund) and drives the
+// tournament to terminal CANCELLED. The RPC — not this wrapper — enforces once-only refunds, the
+// "no prize row" and "not after settlement" guards, and the append-only refund ledger. This is the
+// ONLY safe way to release escrow after play begins; normal Cancel is blocked while escrow is held.
+export async function recoverAndRefundTournament(tournamentId: string): Promise<ActionResult<{ refunded: number }>> {
+  const g = await requireOperator()
+  if (!g.ok) return fail(g.error)
+  const { data: t } = await g.admin.from('poker_tournaments').select('state').eq('id', tournamentId).maybeSingle()
+  if (!t) return fail('not_found')
+  if ((t as { state: string }).state === 'COMPLETED') return fail('already_settled')
+  const { data, error } = await g.admin.rpc('poker_tournament_recover_refund', {
+    p_tournament_id: tournamentId,
+    p_actor: g.user.id,
+    p_idempotency_key: `recover:${tournamentId}`,
+  })
+  if (error) return fail(error.message.includes('already settled') ? 'already_settled'
+    : error.message.includes('prize payouts') ? 'already_settled' : 'recover_failed')
+  // Tournament is now CANCELLED — bump every table so live clients re-fetch the terminal view.
+  await touchAllTables(g.admin, tournamentId, 'CANCELLED', 0)
+  return { ok: true, refunded: (data as number) ?? 0 }
 }

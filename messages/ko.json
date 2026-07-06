@@ -1615,6 +1615,9 @@
           "settle": "상금 정산",
           "cancel": "토너먼트 취소",
           "confirm_cancel": "이 토너먼트를 취소할까요? 등록자에게 환불됩니다.",
+          "deal_next": "다음 핸드 딜",
+          "recover_refund": "환불 후 취소",
+          "confirm_recover": "모든 플레이어의 참가비를 환불하고 이 토너먼트를 취소할까요? 되돌릴 수 없습니다.",
           "working": "처리 중…",
           "only_operator": "운영자 전용.",
           "seated_count": "{count}명 착석"
@@ -1631,6 +1634,10 @@
           "illegal_transition": "지금은 허용되지 않는 동작입니다.",
           "not_found": "토너먼트를 찾을 수 없습니다.",
           "invalid_config": "일부 값이 올바르지 않습니다.",
+          "not_running": "토너먼트가 진행 중이 아닙니다.",
+          "use_recover_refund": "참가비를 반환하려면 ‘환불 후 취소’를 사용하세요.",
+          "recover_failed": "환불 및 취소에 실패했습니다. 다시 시도해 주세요.",
+          "deal_failed": "다음 핸드를 딜하지 못했습니다.",
           "generic": "문제가 발생했습니다. 다시 시도해 주세요."
         },
         "table": {

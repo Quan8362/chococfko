@@ -8,31 +8,45 @@ import type { TournamentState, EntryState } from './types.ts'
 
 // Operator controls that map to a legal FSM transition, in display order. `to` is the target state
 // passed to transitionTournament; `key` is the i18n label key under games.poker.tournaments.operator.
+// Non-cancel FSM transitions (Cancel is handled specially: it becomes a refund-recovery control
+// whenever escrow is still held, so a plain cancel can never silently strand entry fees — 27G-F1).
 const OPERATOR_TRANSITION_CONTROLS: readonly { key: string; to: TournamentState; destructive?: boolean }[] = [
   { key: 'schedule', to: 'SCHEDULED' },
   { key: 'open_registration', to: 'REGISTRATION_OPEN' },
   { key: 'start', to: 'STARTING' },
   { key: 'begin_play', to: 'RUNNING' },
   { key: 'final_table', to: 'FINAL_TABLE' },
-  { key: 'cancel', to: 'CANCELLED', destructive: true },
 ]
 
 export interface OperatorControl {
   key: string
   to?: TournamentState        // present for FSM-transition controls
-  op?: 'draw_seats' | 'advance_level' | 'settle' // present for non-transition orchestration controls
+  // present for non-transition orchestration controls
+  op?: 'draw_seats' | 'advance_level' | 'settle' | 'deal_next' | 'recover_refund'
   destructive?: boolean
 }
 
 // The legal operator controls for the CURRENT state (transition controls filtered by canTransition,
 // plus the state-appropriate orchestration controls). The server re-checks every one of these.
-export function operatorControlsFor(state: TournamentState): OperatorControl[] {
+// `escrowHeld` = the tournament still holds entry fees (any entry not WITHDRAWN/PAID); when true, a
+// plain Cancel is replaced by the refund-recovery control (recover_refund) so escrow is never
+// stranded. Defaults to true (fail-safe: prefer the refunding path when the caller doesn't know).
+export function operatorControlsFor(state: TournamentState, escrowHeld = true): OperatorControl[] {
   const controls: OperatorControl[] = OPERATOR_TRANSITION_CONTROLS
     .filter((c) => canTransition(state, c.to))
     .map((c) => ({ key: c.key, to: c.to, destructive: c.destructive }))
   if (state === 'STARTING') controls.push({ key: 'draw_seats', op: 'draw_seats' })
   if (state === 'RUNNING' || state === 'BREAK') controls.push({ key: 'advance_level', op: 'advance_level' })
+  // Manual next-hand recovery for a wedged table (same idempotent server path as auto-advance).
+  if (state === 'RUNNING' || state === 'BREAK' || state === 'FINAL_TABLE') controls.push({ key: 'deal_next', op: 'deal_next' })
   if (state === 'RUNNING' || state === 'BREAK' || state === 'FINAL_TABLE') controls.push({ key: 'settle', op: 'settle' })
+  // Cancel / recovery: only where the FSM permits cancelling. With escrow held → the refund-recovery
+  // path (refunds every entry, then CANCELLED). Without escrow → a plain cancel.
+  if (canTransition(state, 'CANCELLED')) {
+    controls.push(escrowHeld
+      ? { key: 'recover_refund', op: 'recover_refund', destructive: true }
+      : { key: 'cancel', to: 'CANCELLED', destructive: true })
+  }
   return controls
 }
 

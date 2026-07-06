@@ -6,6 +6,8 @@ import {
   pokerCan,
   pokerSocialFeatureOn,
   pokerPracticeBotsOn,
+  pokerTournamentInternalAlphaVisible,
+  pokerTournamentCanOperate,
   parseAlphaTesters,
   isAlphaTester,
   POKER_FLAG_ENV,
@@ -16,6 +18,7 @@ import {
 const OFF: PokerFlags = {
   enabled: false, createTable: false, publicLobby: false,
   privateTable: false, spectator: false, bot: false, tournament: false,
+  tournamentInternalAlpha: false,
   practiceBots: false,
   alpha: false, blockNewJoins: false, closedBeta: false,
   achievements: false, missions: false, friendInvites: false,
@@ -57,8 +60,51 @@ test('FLAG-ENVMAP-001 exposes exactly the canonical env names', () => {
     'POKER_ENABLED', 'POKER_FRIEND_INVITES_ENABLED', 'POKER_HAND_SHARING_ENABLED',
     'POKER_MISSIONS_ENABLED', 'POKER_PRACTICE_BOTS_ENABLED', 'POKER_PRIVATE_TABLE_ENABLED',
     'POKER_PUBLIC_LOBBY_ENABLED', 'POKER_QUICK_MESSAGES_ENABLED', 'POKER_SPECTATOR_ENABLED',
-    'POKER_TOURNAMENT_ENABLED',
+    'POKER_TOURNAMENT_ENABLED', 'POKER_TOURNAMENT_INTERNAL_ALPHA',
   ])
+})
+
+// ── Internal-alpha tournament gate ─────────────────────────────────────────────────
+const tnmtBeta = { isAdmin: false, isBetaMember: true }
+const tnmtSuspended = { isAdmin: false, isBetaMember: true, suspended: true }
+
+test('TNMT-GATE-001 internal-alpha flag is a real env flag, default OFF, not hard-off', () => {
+  assert.equal(resolvePokerFlags({}).tournamentInternalAlpha, false)
+  assert.equal(resolvePokerFlags({ POKER_TOURNAMENT_INTERNAL_ALPHA: '1' }).tournamentInternalAlpha, true)
+  // public `tournament` stays hard-off independently
+  assert.equal(resolvePokerFlags({ POKER_TOURNAMENT_INTERNAL_ALPHA: '1' }).tournament, false)
+})
+
+test('TNMT-GATE-002 surface is fully dark when the flag is OFF (nobody, not even admin)', () => {
+  const off = { ...OFF, enabled: true, closedBeta: true } // poker visible, but tournament flag OFF
+  assert.equal(pokerTournamentInternalAlphaVisible(off, admin), false)
+  assert.equal(pokerTournamentInternalAlphaVisible(off, tnmtBeta), false)
+  assert.equal(pokerTournamentCanOperate(off, admin), false)
+})
+
+test('TNMT-GATE-003 with flag ON: admins + Closed-Beta members see it; public does not', () => {
+  const on = { ...OFF, closedBeta: true, tournamentInternalAlpha: true }
+  assert.equal(pokerTournamentInternalAlphaVisible(on, admin), true)      // admin always visible
+  assert.equal(pokerTournamentInternalAlphaVisible(on, tnmtBeta), true)   // beta member in closedBeta
+  assert.equal(pokerTournamentInternalAlphaVisible(on, player), false)    // public locked out
+})
+
+test('TNMT-GATE-004 suspended beta member is denied even with the flag ON', () => {
+  const on = { ...OFF, closedBeta: true, tournamentInternalAlpha: true }
+  assert.equal(pokerTournamentInternalAlphaVisible(on, tnmtSuspended), false)
+  assert.equal(pokerTournamentCanOperate(on, tnmtSuspended), false)
+})
+
+test('TNMT-GATE-005 operator gate requires admin; a visible beta participant cannot operate', () => {
+  const on = { ...OFF, closedBeta: true, tournamentInternalAlpha: true }
+  assert.equal(pokerTournamentCanOperate(on, admin), true)
+  assert.equal(pokerTournamentCanOperate(on, tnmtBeta), false)  // visible, but not an operator
+})
+
+test('TNMT-GATE-006 without closedBeta a beta member is NOT visible (needs poker visible first)', () => {
+  const on = { ...OFF, tournamentInternalAlpha: true } // closedBeta OFF, enabled OFF
+  assert.equal(pokerTournamentInternalAlphaVisible(on, tnmtBeta), false)
+  assert.equal(pokerTournamentInternalAlphaVisible(on, admin), true) // admin bypasses visibility
 })
 
 // ── Social layer flags ──────────────────────────────────────────────────────────

@@ -17,7 +17,16 @@ export interface PokerFlags {
   privateTable: boolean   // create/join password-protected tables
   spectator: boolean      // watch a table without sitting
   bot: boolean            // live cash-game bots — HARD OFF this release (never on, even in env)
-  tournament: boolean     // out of scope — HARD OFF this release
+  tournament: boolean     // PUBLIC tournament — HARD OFF this release (never on, even in env)
+  // tournamentInternalAlpha: the INTERNAL-ALPHA tournament surface (register/lobby/lifecycle +
+  //   authoritative live play). A real env flag (POKER_TOURNAMENT_INTERNAL_ALPHA), default OFF.
+  //   Distinct from the public `tournament` flag (which stays hard-off): this one, when ON, opens the
+  //   tournament surface ONLY to viewers who can already SEE poker (admins, or Closed-Beta members
+  //   when closedBeta is running) — never the public. It ships fully dark until ops flips the env.
+  //   Tournament chips are isolated from game_wallets/coin_ledger (TNMT-CHIP-002); this flag never
+  //   opens a cash-seating capability. Operator (create/start/transition/settle) additionally
+  //   requires isAdmin — see pokerTournamentCanOperate.
+  tournamentInternalAlpha: boolean
   // practiceBots: the ISOLATED, practice-only bot mode (Prompt 27B). Env-gated and default OFF.
   //   It gates a strictly separate practice runtime whose chips NEVER touch the real wallet
   //   (game_wallets/coin_ledger), whose results feed NO ranking/achievement/mission/stats, and
@@ -67,6 +76,7 @@ export const POKER_FLAG_ENV: Record<keyof PokerFlags, string> = {
   spectator: 'POKER_SPECTATOR_ENABLED',
   bot: 'POKER_BOT_ENABLED',
   tournament: 'POKER_TOURNAMENT_ENABLED',
+  tournamentInternalAlpha: 'POKER_TOURNAMENT_INTERNAL_ALPHA',
   practiceBots: 'POKER_PRACTICE_BOTS_ENABLED',
   alpha: 'POKER_ALPHA_MODE',
   blockNewJoins: 'POKER_BLOCK_NEW_JOINS',
@@ -101,6 +111,10 @@ export function resolvePokerFlags(env: Record<string, string | undefined>): Poke
     // Live cash-game bots are out of scope for this release — never on, even if env says so.
     bot: false,
     tournament: false,
+    // Internal-alpha tournament surface: a REAL env flag, default OFF. Fail-closed — unset/empty/typo
+    // resolves OFF, so the tournament surface ships fully dark until POKER_TOURNAMENT_INTERNAL_ALPHA
+    // is explicitly flipped. The public `tournament` flag above stays hard-off independently.
+    tournamentInternalAlpha: truthy(env[POKER_FLAG_ENV.tournamentInternalAlpha]),
     // Practice-only bots: a REAL env flag, default OFF. Stays off in production this phase.
     practiceBots: truthy(env[POKER_FLAG_ENV.practiceBots]),
     alpha: truthy(env[POKER_FLAG_ENV.alpha]),
@@ -219,4 +233,22 @@ export function pokerSocialFeatureOn(
 // else. It NEVER interacts with cash seating, coins, or the join/maintenance freeze.
 export function pokerPracticeBotsOn(flags: PokerFlags, viewer: PokerViewer): boolean {
   return pokerVisibleTo(flags, viewer) && flags.practiceBots
+}
+
+// ── Internal-alpha tournament gate ───────────────────────────────────────────────────────────
+// The internal-alpha tournament surface is reachable ONLY when its own env flag
+// (POKER_TOURNAMENT_INTERNAL_ALPHA) is ON *and* the viewer can already see poker at all
+// (pokerVisibleTo → admins always; Closed-Beta members when closedBeta is running; a suspended
+// tester or locked-out public user gets nothing). Fail-closed: flag OFF ⇒ nobody, not even an admin,
+// so the whole surface ships dark. This never opens a cash-seating capability and never moves coins
+// per hand (tournament chips are isolated, TNMT-CHIP-002). Mirrors the practice-bots gate shape.
+export function pokerTournamentInternalAlphaVisible(flags: PokerFlags, viewer: PokerViewer): boolean {
+  return pokerVisibleTo(flags, viewer) && flags.tournamentInternalAlpha
+}
+
+// Operator (create / start / transition / settle a tournament) additionally requires admin rights.
+// Participants (register / unregister) only need visibility above. Management is server-authorized
+// here and again at the DB (admin_transition / settle are GRANTed to service_role only).
+export function pokerTournamentCanOperate(flags: PokerFlags, viewer: PokerViewer): boolean {
+  return pokerTournamentInternalAlphaVisible(flags, viewer) && viewer.isAdmin
 }

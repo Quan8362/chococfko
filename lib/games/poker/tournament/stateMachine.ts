@@ -55,11 +55,16 @@ export function stateAllowsRegistration(state: TournamentState, lateRegOpen: boo
 }
 
 // ── Entry transitions (TNMT-PSTATE) ────────────────────────────────────────────────────
+// Settlement drives an entry to terminal PAID. The CHAMPION reaches settlement while still ACTIVE
+// (nothing ever eliminates the last player standing); an in-the-money loser is ELIMINATED; a
+// finalist may be momentarily DISCONNECTED. All three are legal PAID sources — mirrored exactly by
+// poker_tournament_settle's `state IN ('ACTIVE','DISCONNECTED','ELIMINATED')` predicate. WITHDRAWN
+// and PAID stay terminal (never pay a refunded/already-paid entry).
 const ENTRY_TRANSITIONS: Readonly<Record<EntryState, readonly EntryState[]>> = {
   REGISTERED: ['SEATED', 'WITHDRAWN'],
   SEATED: ['ACTIVE', 'WITHDRAWN'],
-  ACTIVE: ['DISCONNECTED', 'ELIMINATED', 'REBUY_ELIGIBLE'],
-  DISCONNECTED: ['ACTIVE', 'ELIMINATED'],
+  ACTIVE: ['DISCONNECTED', 'ELIMINATED', 'REBUY_ELIGIBLE', 'PAID'],
+  DISCONNECTED: ['ACTIVE', 'ELIMINATED', 'PAID'],
   ELIMINATED: ['PAID', 'REBUY_ELIGIBLE'],
   REBUY_ELIGIBLE: ['SEATED', 'ELIMINATED'],
   WITHDRAWN: [],

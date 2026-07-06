@@ -84,6 +84,21 @@ test('TNMT-PSTATE entry transitions + terminals', () => {
   for (const s of ENTRY_STATES) assert.equal(typeof s, 'string')
 })
 
+test('TNMT-PSTATE-006 champion (ACTIVE) and finalists settle to PAID; WITHDRAWN/PAID never do', () => {
+  // The tournament winner reaches settlement while still ACTIVE — nothing eliminates the last
+  // player standing — so ACTIVE -> PAID MUST be legal (this was the settlement-state defect).
+  assert.ok(canEntryTransition('ACTIVE', 'PAID'), 'champion settles from ACTIVE')
+  assert.ok(canEntryTransition('DISCONNECTED', 'PAID'), 'disconnected finalist can settle')
+  assert.ok(canEntryTransition('ELIMINATED', 'PAID'), 'in-the-money loser settles')
+  // A refunded or already-paid entry is terminal and can never be paid (again).
+  assert.equal(canEntryTransition('WITHDRAWN', 'PAID'), false)
+  assert.equal(canEntryTransition('PAID', 'PAID'), false)
+  assert.equal(canEntryTransition('PAID', 'ACTIVE'), false)
+  // Pre-start states are not settlement sources — they withdraw, seat, or bust first.
+  assert.equal(canEntryTransition('REGISTERED', 'PAID'), false)
+  assert.equal(canEntryTransition('SEATED', 'PAID'), false)
+})
+
 test('TNMT-PSTATE-004 withdraw only pre-start', () => {
   assert.ok(canWithdraw('REGISTERED', 'REGISTRATION_OPEN'))
   assert.ok(canWithdraw('SEATED', 'STARTING'))

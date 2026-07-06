@@ -10,6 +10,7 @@ import {
   meetsMinimum,
   type UserEntrySummary,
 } from './registration.ts'
+import { settlementKey, refundKey } from './payout.ts'
 import { TEMPLATE_STT_6MAX, TEMPLATE_MTT } from './config.ts'
 
 const NONE: UserEntrySummary[] = []
@@ -20,6 +21,30 @@ test('TNMT-ENG-004 dedup keys are stable + unique per logical registration', () 
   assert.equal(reentryKey('t1', 'u1', 2), 'reentry:t1:u1:2')
   assert.notEqual(reentryKey('t1', 'u1', 1), reentryKey('t1', 'u1', 2))
   assert.equal(unregisterKey('t1', 'u1'), 'unreg:t1:u1')
+})
+
+// TNMT-ENG-004 (idempotency-key GLOBAL-UNIQUENESS contract). poker_tournament_txn.idempotency_key
+// is a global PRIMARY KEY, so every key an RPC ever claims MUST be unique across all tournaments and
+// operations. This is guaranteed by construction: every generator embeds BOTH an operation prefix
+// (reg/reentry/unreg/settle/refund) AND the tournament id. The DB additionally fails loud if a key
+// is reused across tournaments (the reused-key guard in each RPC). This test pins the contract so a
+// future edit to a key format that dropped the tournament id would break here.
+test('TNMT-ENG-004 idempotency keys are globally unique across tournaments + operations', () => {
+  const t1 = 'tourn-1111', t2 = 'tourn-2222', u = 'user-abc', e = 'entry-xyz'
+  const keys = [
+    initialRegKey(t1, u), initialRegKey(t2, u),           // same user, different tournaments
+    reentryKey(t1, u, 1), reentryKey(t2, u, 1),
+    unregisterKey(t1, u), unregisterKey(t2, u),
+    settlementKey(t1, e), settlementKey(t2, e),
+    refundKey(t1, e), refundKey(t2, e),
+    // Same tournament, different operations must also never collide.
+    initialRegKey(t1, u), unregisterKey(t1, u), settlementKey(t1, e), refundKey(t1, e),
+  ]
+  assert.equal(new Set(keys).size, 10, 'every (tournament, operation) pair yields a distinct key')
+  // Every key contains its tournament id — the property the DB reused-key guard relies on.
+  for (const [tid, k] of [[t1, initialRegKey(t1, u)], [t1, settlementKey(t1, e)], [t2, refundKey(t2, e)]] as const) {
+    assert.ok(k.includes(tid), `key ${k} must embed tournament ${tid}`)
+  }
 })
 
 test('TNMT-REG-002 initial registration succeeds when open + under cap', () => {

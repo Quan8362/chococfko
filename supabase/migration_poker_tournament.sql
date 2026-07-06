@@ -12,6 +12,13 @@
 -- retried register / settle / refund never double-moves coins. Tournament CHIPS live only in
 -- poker_tournament_entries.chips and NEVER touch game_wallets (TNMT-CHIP-002).
 --
+-- GUARANTEE OVERLAY (intentional coin creation): when a tournament's guaranteed_prize_pool exceeds
+-- the fees actually collected, settlement pays out the guarantee and thereby MINTS the difference as
+-- new play-money coins (TNMT-PAY-021). This is by design (a "house overlay"). Settlement still
+-- conserves EXACTLY against the effective (guaranteed) pool; the credit reason is the explicit
+-- 'poker_tournament_prize'; and each settle audit row records {collected_fees, overlay} so ledger
+-- monitoring can separate guarantee-funded value from player-funded value.
+--
 -- Feature gate: reachable only when POKER_TOURNAMENT_ENABLED is on — currently HARD OFF in
 -- lib/games/poker/flags.ts. This migration is safe to apply while the flag is off (nothing calls
 -- these RPCs yet).
@@ -226,6 +233,13 @@ BEGIN
     VALUES (p_idempotency_key, p_tournament_id, 'register')
     ON CONFLICT (idempotency_key) DO NOTHING;
   IF NOT FOUND THEN
+    -- The key was already used. Keys embed the tournament id by construction (registration.ts
+    -- initialRegKey/reentryKey), so a claim that does NOT match THIS (tournament, op) means the
+    -- caller reused a key across tournaments/operations — fail loud instead of silently returning a
+    -- wrong/again entry (TNMT-ENG-004, idempotency scoped by tournament).
+    PERFORM 1 FROM public.poker_tournament_txn
+      WHERE idempotency_key = p_idempotency_key AND tournament_id = p_tournament_id AND kind = 'register';
+    IF NOT FOUND THEN RAISE EXCEPTION 'idempotency key % reused across tournament/operation', p_idempotency_key; END IF;
     SELECT id INTO v_entry FROM public.poker_tournament_entries
       WHERE tournament_id = p_tournament_id AND user_id = v_uid
       ORDER BY seq DESC LIMIT 1;
@@ -291,7 +305,14 @@ BEGIN
   INSERT INTO public.poker_tournament_txn (idempotency_key, tournament_id, kind)
     VALUES (p_idempotency_key, p_tournament_id, 'unregister')
     ON CONFLICT (idempotency_key) DO NOTHING;
-  IF NOT FOUND THEN RETURN; END IF;   -- retried cancel: no extra refund
+  IF NOT FOUND THEN
+    -- Reused-key guard (see poker_tournament_register): a claim that isn't THIS tournament's
+    -- unregister means the caller reused a key — fail loud rather than no-op the wrong tournament.
+    PERFORM 1 FROM public.poker_tournament_txn
+      WHERE idempotency_key = p_idempotency_key AND tournament_id = p_tournament_id AND kind = 'unregister';
+    IF NOT FOUND THEN RAISE EXCEPTION 'idempotency key % reused across tournament/operation', p_idempotency_key; END IF;
+    RETURN;   -- retried cancel: no extra refund
+  END IF;
 
   SELECT * INTO t FROM public.poker_tournaments WHERE id = p_tournament_id FOR UPDATE;
   IF NOT FOUND THEN RAISE EXCEPTION 'tournament not found'; END IF;
@@ -371,6 +392,7 @@ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
 DECLARE
   t          public.poker_tournaments%ROWTYPE;
   v_pool     bigint;
+  v_collected bigint;
   v_sum      bigint;
   r          jsonb;
   v_bal      bigint;
@@ -379,16 +401,32 @@ DECLARE
   v_entry    uuid;
   v_kind     text;
   v_reason   text;
+  v_estate   text;
 BEGIN
   INSERT INTO public.poker_tournament_txn (idempotency_key, tournament_id, kind)
     VALUES (p_idempotency_key, p_tournament_id, 'settle')
     ON CONFLICT (idempotency_key) DO NOTHING;
-  IF NOT FOUND THEN RETURN; END IF;   -- retried settlement: no extra credits
+  IF NOT FOUND THEN
+    -- Reused-key guard (see poker_tournament_register): the key must be THIS tournament's settle.
+    PERFORM 1 FROM public.poker_tournament_txn
+      WHERE idempotency_key = p_idempotency_key AND tournament_id = p_tournament_id AND kind = 'settle';
+    IF NOT FOUND THEN RAISE EXCEPTION 'idempotency key % reused across tournament/operation', p_idempotency_key; END IF;
+    RETURN;   -- retried settlement (same key): no extra credits
+  END IF;
 
   SELECT * INTO t FROM public.poker_tournaments WHERE id = p_tournament_id FOR UPDATE;
   IF NOT FOUND THEN RAISE EXCEPTION 'tournament not found'; END IF;
+  -- A fully-settled tournament is terminal: refuse a fresh settle request. (A retry with the SAME
+  -- key already short-circuited above; a partial settle that crashed before COMPLETED is still
+  -- non-COMPLETED here, so a forward-fix with a new key is allowed to finish it.)
+  IF t.state = 'COMPLETED' THEN RAISE EXCEPTION 'tournament already settled'; END IF;
 
+  -- Effective pool vs collected fees. When guarantee > collected, the difference is a house OVERLAY
+  -- (extra play-money coins minted at settlement, TNMT-PAY-021) — intentional and recorded in the
+  -- audit so monitoring can split guarantee-funded from player-funded value.
   v_pool := public.poker_tournament_prize_pool(p_tournament_id);
+  SELECT COALESCE(SUM(entry_fee), 0) INTO v_collected FROM public.poker_tournament_entries
+    WHERE tournament_id = p_tournament_id AND state <> 'WITHDRAWN';
   SELECT COALESCE(SUM((x->>'amount')::bigint), 0) INTO v_sum
     FROM jsonb_array_elements(p_payouts) x;
   IF v_sum <> v_pool THEN
@@ -403,7 +441,16 @@ BEGIN
     IF v_amount < 0 THEN RAISE EXCEPTION 'negative payout'; END IF;
     v_reason := CASE WHEN v_kind = 'refund' THEN 'poker_tournament_refund' ELSE 'poker_tournament_prize' END;
 
-    -- Record the payout row idempotently; skip the credit if it already existed.
+    -- Lock + validate the target entry. A WITHDRAWN entry was already refunded pre-start and its fee
+    -- is OUT of the pool (poker_tournament_prize_pool) — paying it would steal from the legitimate
+    -- field, so it is NEVER payable from settlement. An unknown entry is a bad payload.
+    SELECT state INTO v_estate FROM public.poker_tournament_entries
+      WHERE id = v_entry AND tournament_id = p_tournament_id FOR UPDATE;
+    IF v_estate IS NULL THEN RAISE EXCEPTION 'settle: unknown entry % for tournament %', v_entry, p_tournament_id; END IF;
+    IF v_estate = 'WITHDRAWN' THEN RAISE EXCEPTION 'settle: WITHDRAWN entry % cannot be paid', v_entry; END IF;
+
+    -- Record the payout row idempotently; skip the credit if it already existed (partial-retry /
+    -- forward-fix protection — an already-PAID entry never double-credits).
     INSERT INTO public.poker_tournament_payouts (tournament_id, entry_id, user_id, place, amount, kind)
       VALUES (p_tournament_id, v_entry, v_user, NULLIF(r->>'place','')::int, v_amount, v_kind)
       ON CONFLICT (tournament_id, entry_id, kind) DO NOTHING;
@@ -422,15 +469,22 @@ BEGIN
         VALUES (v_user, 'poker', v_amount, v_reason, v_bal);
     END IF;
 
+    -- Settle the recipient to terminal PAID. The CHAMPION is ACTIVE (never ELIMINATED); in-the-money
+    -- losers are ELIMINATED; a finalist may be DISCONNECTED. All three become PAID. WITHDRAWN is
+    -- barred above; an already-PAID entry is excluded (never revives — PAID is terminal).
     UPDATE public.poker_tournament_entries SET state = 'PAID'
-      WHERE id = v_entry AND state = 'ELIMINATED';
+      WHERE id = v_entry AND state IN ('ACTIVE','DISCONNECTED','ELIMINATED');
   END LOOP;
 
   UPDATE public.poker_tournaments
     SET state = 'COMPLETED', completed_at = now()
     WHERE id = p_tournament_id AND state <> 'COMPLETED';
   INSERT INTO public.poker_tournament_audit (tournament_id, event, actor, detail)
-    VALUES (p_tournament_id, 'settle', NULL, jsonb_build_object('pool', v_pool, 'rows', jsonb_array_length(p_payouts)));
+    VALUES (p_tournament_id, 'settle', NULL, jsonb_build_object(
+      'pool', v_pool,
+      'collected_fees', v_collected,                     -- player-funded coins
+      'overlay', GREATEST(v_pool - v_collected, 0),      -- guarantee-funded coins minted this settle
+      'rows', jsonb_array_length(p_payouts)));
 END;
 $$;
 

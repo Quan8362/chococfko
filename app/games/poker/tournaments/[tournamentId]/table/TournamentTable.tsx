@@ -99,7 +99,9 @@ export default function TournamentTable({ tournamentId, capacity }: TournamentTa
       displayName: s.displayName,
       avatarUrl: s.avatarUrl,
       stack: s.stack,
-      committedThisStreet: s.committedTotal,
+      // Once the hand is complete the pot has been awarded — per-seat bet chips are already swept,
+      // so hide them (otherwise a stale chip overlaps the centre winner banner / pot display).
+      committedThisStreet: view?.complete ? 0 : s.committedTotal,
       lastAction: s.folded ? 'fold' : null,
       allIn: s.allIn,
       folded: s.folded,
@@ -115,7 +117,7 @@ export default function TournamentTable({ tournamentId, capacity }: TournamentTa
       inHand: s.inHand,
       isSelf: s.isSelf,
     }
-  }, [seats, winnerSeat])
+  }, [seats, winnerSeat, view?.complete])
 
   const ownCards = viewerSeatIndex !== null ? seats.find((s) => s.seatIndex === viewerSeatIndex)?.cards ?? null : null
   const viewerSeat = viewerSeatIndex !== null ? seats.find((s) => s.seatIndex === viewerSeatIndex) ?? null : null
@@ -182,8 +184,9 @@ export default function TournamentTable({ tournamentId, capacity }: TournamentTa
       {/* ── Felt ── */}
       <TableBackground layout={geomLayout(vp.layout)}>
         <div className="absolute" style={{ inset: 0 }}>
-          {/* Centre: board + pot + street (or winner banner / terminal message) */}
-          <div className="absolute flex flex-col items-center gap-2" style={{ left: `${geom.center.xPct}%`, top: `${geom.center.yPct}%`, transform: 'translate(-50%,-50%)' }}>
+          {/* Centre: board + pot + street (or winner banner / terminal message). z-[3] keeps the
+              winner banner / pot above the ring seats' bet chips (z-[2]) so nothing overlaps it. */}
+          <div className="absolute z-[3] flex flex-col items-center gap-2" style={{ left: `${geom.center.xPct}%`, top: `${geom.center.yPct}%`, transform: 'translate(-50%,-50%)' }}>
             {terminal ? (
               <div className="rounded-2xl px-6 py-4 text-center" style={{ background: 'rgba(0,0,0,0.6)', border: '1px solid var(--pk-gold)' }} role="status" aria-live="polite" data-testid="tnmt-terminal">
                 {pState === 'champion' ? (

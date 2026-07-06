@@ -5,7 +5,7 @@ import PokerShell from './_eco/PokerShell'
 import QuickPlayButton from './_eco/QuickPlayButton'
 import { listRecentTables } from './ecosystem'
 import { coins, dateShort } from './_eco/format'
-import { getPokerAccess, pokerAccessCan, getBetaTermsAck } from './access'
+import { getPokerAccess, pokerAccessCan, getBetaTermsAck, pokerAccessTournamentVisible } from './access'
 import { pokerPracticeBotsOn } from '@/lib/games/poker/flags'
 import PokerTermsGate from './_components/PokerTermsGate'
 
@@ -50,6 +50,9 @@ export default async function PokerLandingPage() {
   // for an authenticated, allowlisted viewer while POKER_PRACTICE_BOTS_ENABLED is on — dark in
   // production. Practice chips never touch the wallet, so this entry is independent of Quick Play
   // and needs no funded balance.
+  // Internal-alpha tournaments: only shown when the internal flag is ON and the viewer may see it
+  // (admins or Closed-Beta members). Fully dark otherwise — no entry, no 404-bait link.
+  const canTournament = pokerAccessTournamentVisible(pokerAccess)
   const canPractice = !!user && pokerPracticeBotsOn(pokerAccess.flags, {
     isAdmin: pokerAccess.access.isAdmin,
     isAlphaTester: pokerAccess.isAlphaTester,
@@ -110,6 +113,18 @@ export default async function PokerLandingPage() {
                 🤖 {t('landing.practice_cta')}
               </span>
               <span className="text-xs font-normal text-white/60">{t('landing.practice_hint')}</span>
+            </Link>
+          )}
+          {canTournament && (
+            <Link
+              href="/games/poker/tournaments"
+              className="inline-flex flex-col items-start rounded-lg bg-white/10 px-6 py-3 font-medium text-white hover:bg-white/20"
+            >
+              <span className="inline-flex items-center gap-2">
+                🏆 {t('tournaments.nav')}
+                <span className="rounded-full bg-amber-400/20 px-2 py-0.5 text-[10px] font-medium text-amber-200">{t('tournaments.alpha_badge')}</span>
+              </span>
+              <span className="text-xs font-normal text-white/60">{t('tournaments.subtitle')}</span>
             </Link>
           )}
         </div>

@@ -69,22 +69,49 @@ async function requireOperator() {
 }
 
 // ── Reads ────────────────────────────────────────────────────────────────────────────────────
-export async function listTournaments(): Promise<ActionResult<{ tournaments: unknown[] }>> {
+export interface TournamentListItem {
+  id: string; title: string; state: string; entry_fee: number; starting_stack: number
+  min_entries: number; max_entries: number; seats_per_table: number; guaranteed_prize_pool: number
+  current_level_index: number
+  registered: number            // live (non-withdrawn) entries
+  myEntryState: string | null   // this viewer's entry state, if any
+  myTableNo: number | null
+}
+
+export async function listTournaments(): Promise<ActionResult<{ tournaments: TournamentListItem[] }>> {
   const g = await requireParticipant()
   if (!g.ok) return fail(g.error)
   const { data, error } = await g.supabase
     .from('poker_tournaments')
-    .select('id,title,state,entry_fee,starting_stack,min_entries,max_entries,seats_per_table,guaranteed_prize_pool,current_level_index,scheduled_at,started_at')
+    .select('id,title,state,entry_fee,starting_stack,min_entries,max_entries,seats_per_table,guaranteed_prize_pool,current_level_index')
     .order('created_at', { ascending: false })
     .limit(100)
   if (error) return fail('list_failed')
-  return { ok: true, tournaments: data ?? [] }
+  // Non-withdrawn entry rows (small at internal-alpha scale) → per-tournament count + this viewer's entry.
+  const { data: entries } = await g.supabase
+    .from('poker_tournament_entries')
+    .select('tournament_id,user_id,state,table_no')
+    .neq('state', 'WITHDRAWN')
+  const counts = new Map<string, number>()
+  const mine = new Map<string, { state: string; table_no: number | null }>()
+  for (const e of (entries ?? []) as { tournament_id: string; user_id: string; state: string; table_no: number | null }[]) {
+    counts.set(e.tournament_id, (counts.get(e.tournament_id) ?? 0) + 1)
+    if (e.user_id === g.user.id) mine.set(e.tournament_id, { state: e.state, table_no: e.table_no })
+  }
+  const tournaments: TournamentListItem[] = ((data ?? []) as Omit<TournamentListItem, 'registered' | 'myEntryState' | 'myTableNo'>[]).map((tr) => ({
+    ...tr,
+    registered: counts.get(tr.id) ?? 0,
+    myEntryState: mine.get(tr.id)?.state ?? null,
+    myTableNo: mine.get(tr.id)?.table_no ?? null,
+  }))
+  return { ok: true, tournaments }
 }
 
 export async function getTournamentDetail(tournamentId: string): Promise<ActionResult<{
   tournament: Record<string, unknown> | null
   entries: unknown[]
   seats: unknown[]
+  payouts: unknown[]
   myEntry: Record<string, unknown> | null
   isOperator: boolean
 }>> {
@@ -98,9 +125,12 @@ export async function getTournamentDetail(tournamentId: string): Promise<ActionR
   const { data: seats } = await g.supabase
     .from('poker_tournament_seats').select('entry_id,user_id,table_no,seat_index,stack,state')
     .eq('tournament_id', tournamentId)
+  const { data: payouts } = await g.supabase
+    .from('poker_tournament_payouts').select('entry_id,user_id,place,amount,kind')
+    .eq('tournament_id', tournamentId)
   const myEntry = (entries ?? []).find((e: { user_id: string }) => e.user_id === g.user.id) ?? null
   return {
-    ok: true, tournament: t, entries: entries ?? [], seats: seats ?? [],
+    ok: true, tournament: t, entries: entries ?? [], seats: seats ?? [], payouts: payouts ?? [],
     myEntry: (myEntry as Record<string, unknown>) ?? null,
     isOperator: pokerAccessTournamentOperator(g.acc),
   }

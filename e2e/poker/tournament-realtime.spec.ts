@@ -134,11 +134,15 @@ test.describe('live tournament table (independent authed contexts)', () => {
       }
 
       // ── AUTHORITATIVE conservation: after the fold + a fresh hand's blinds, the chips on the
-      // table still sum to 2×START (a fold moves chips WITHIN the table; nothing is minted/burned). ──
+      // table are conserved — the live behind-stacks PLUS the chips committed to the pot sum to
+      // 2×START (a fold moves chips WITHIN the table; nothing is minted/burned). `tnmt-hero`
+      // data-stack is the LIVE behind-stack, so hand 2's just-posted blinds sit in `tnmt-pot`
+      // (data-amount = potTotal), not in the stacks — the pot must be counted for conservation. ──
       const stackA2 = await num(pages.a, 'tnmt-hero', 'data-stack')
       const stackB2 = await num(pages.b, 'tnmt-hero', 'data-stack')
-      expect(stackA2 + stackB2, 'tournament chips are conserved across the hand').toBe(2 * START)
-      // The folder never profited from folding.
+      const pot2 = await num(pages.a, 'tnmt-pot', 'data-amount')
+      expect(stackA2 + stackB2 + pot2, 'tournament chips are conserved across the hand').toBe(2 * START)
+      // The folder never profited from folding: its live behind-stack cannot exceed its start.
       const folderStart = START
       const folderStack = sbKey === 'a' ? stackA2 : stackB2
       expect(folderStack, 'the folder cannot gain chips').toBeLessThanOrEqual(folderStart)

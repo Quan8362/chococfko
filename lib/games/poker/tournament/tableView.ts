@@ -153,12 +153,14 @@ export function buildTournamentTableView(input: BuildTableViewInput): Tournament
       cards: null,
     }))
     const chipped = rawSeats.filter((s) => s.stack > 0 && s.state !== 'busted').length
-    return {
+    const idle: TournamentTableView = {
       meta, tableNo, seats, viewerSeatIndex, participantState,
       handId: null, handNo: 0, street: null, board: [], pot: 0, turnSeat: null,
       actionSeq: 0, complete: false, buttonSeat: null, legal: null, isMyTurn: false,
       canContinue: chipped >= 2, version: 0,
     }
+    assertTournamentViewPrivacy(idle)
+    return idle
   }
 
   const view = liveView(hand.config, hand.log)
@@ -205,7 +207,7 @@ export function buildTournamentTableView(input: BuildTableViewInput): Tournament
 
   const chipped = seats.filter((s) => s.stack > 0 && s.seatState !== 'busted').length
 
-  return {
+  const result: TournamentTableView = {
     meta,
     tableNo,
     seats,
@@ -225,6 +227,32 @@ export function buildTournamentTableView(input: BuildTableViewInput): Tournament
     isMyTurn,
     canContinue: chipped >= 2,
     version: view.handNo * 100000 + view.actionSeq,
+  }
+  // Defense in depth: prove the projection carries no foreign private state before it leaves.
+  assertTournamentViewPrivacy(result)
+  return result
+}
+
+// ── Privacy guard — the tournament analog of assertSnapshotPrivacy (realtime.ts) on the cash
+// path. buildTournamentTableView already keeps every opponent seat's `cards` null by construction;
+// this converts that structural guarantee into a loud, test-catchable runtime assertion applied to
+// EVERY view the builder emits (SECURITY-HOLE-CARDS-001). It never mutates the view.
+export function assertTournamentViewPrivacy(view: TournamentTableView): void {
+  const vs = view.viewerSeatIndex
+  // 1. A seat may carry hole cards ONLY if it is the viewer's own seat.
+  for (const s of view.seats) {
+    if (s.cards !== null && (vs === null || s.seatIndex !== vs || !s.isSelf)) {
+      throw new Error('tournament view: a non-viewer seat carries hole cards')
+    }
+  }
+  // 2. A spectator / non-seated viewer must never receive an actor model or hold the turn.
+  if (vs === null) {
+    if (view.legal !== null) throw new Error('tournament view: spectator received a legal-action model')
+    if (view.isMyTurn) throw new Error('tournament view: spectator marked as on-turn')
+  }
+  // 3. A legal-action model may be present ONLY on the viewer's own turn.
+  if (view.legal !== null && (vs === null || !view.isMyTurn)) {
+    throw new Error('tournament view: legal-action model present without the viewer’s turn')
   }
 }
 

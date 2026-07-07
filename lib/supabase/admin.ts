@@ -1,3 +1,4 @@
+import 'server-only' // marks this service-role module server-only (repo convention) — never bundle it client-side
 import { createClient } from '@supabase/supabase-js'
 
 // Service role client — bypasses RLS. Chỉ dùng server-side trong admin routes.

@@ -1,8 +1,8 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
-  buildTournamentTableView, toAppliedAction,
-  type BuildTableViewInput, type RawSeatRow,
+  buildTournamentTableView, toAppliedAction, assertTournamentViewPrivacy,
+  type BuildTableViewInput, type RawSeatRow, type TournamentTableView,
 } from './tableView.ts'
 import {
   liveView, applyAction, holeCardsForSeat,
@@ -144,4 +144,45 @@ test('TV-009 live stacks reflect the reconstructed hand, not the stale seat row'
   const view = buildTournamentTableView(baseInput({ seats: rawSeats(2), hand: { handId: 'h', config, log } }))
   const raiser = view.seats.find((s) => s.seatIndex === turn)!
   assert.ok(raiser.stack < 6000, 'raiser live stack must be below the pre-hand seat-row stack')
+})
+
+test('TV-010 assertTournamentViewPrivacy passes for every legitimately-built view', () => {
+  const config = handConfig(3)
+  // seated viewer with a live hand, spectator, and a between-hands (no-hand) projection.
+  const seated = buildTournamentTableView(baseInput({ hand: { handId: 'h1', config, log: [] } }))
+  const spectator = buildTournamentTableView(baseInput({ viewerSeatIndex: null, hand: { handId: 'h1', config, log: [] } }))
+  const idle = buildTournamentTableView(baseInput({ hand: null }))
+  // The builder already calls the assertion internally; calling it again must not throw.
+  assert.doesNotThrow(() => assertTournamentViewPrivacy(seated))
+  assert.doesNotThrow(() => assertTournamentViewPrivacy(spectator))
+  assert.doesNotThrow(() => assertTournamentViewPrivacy(idle))
+})
+
+test('TV-011 assertTournamentViewPrivacy THROWS if a foreign seat carries hole cards', () => {
+  const config = handConfig(3)
+  const view = buildTournamentTableView(baseInput({ hand: { handId: 'h1', config, log: [] } }))
+  // Tamper: graft the viewer's own cards onto an opponent seat (the leak the guard must catch).
+  const own = view.seats.find((s) => s.seatIndex === 1)!.cards!
+  const tampered: TournamentTableView = {
+    ...view,
+    seats: view.seats.map((s) => (s.seatIndex === 0 ? { ...s, cards: own } : s)),
+  }
+  assert.throws(() => assertTournamentViewPrivacy(tampered), /non-viewer seat carries hole cards/)
+})
+
+test('TV-012 assertTournamentViewPrivacy THROWS if a spectator view carries an actor model or cards', () => {
+  const config = handConfig(2)
+  const lv = liveView(config, [])
+  const spectator = buildTournamentTableView(baseInput({ seats: rawSeats(2), viewerSeatIndex: null, hand: { handId: 'h', config, log: [] } }))
+  // Tamper 1: spectator handed a legal-action model.
+  assert.throws(
+    () => assertTournamentViewPrivacy({ ...spectator, legal: lv.legal }),
+    /spectator received a legal-action model/,
+  )
+  // Tamper 2: a legal model present without the viewer being on turn.
+  const seated = buildTournamentTableView(baseInput({ seats: rawSeats(2), viewerSeatIndex: 0, hand: { handId: 'h', config, log: [] } }))
+  assert.throws(
+    () => assertTournamentViewPrivacy({ ...seated, legal: lv.legal, isMyTurn: false }),
+    /without the viewer/,
+  )
 })

@@ -1643,6 +1643,18 @@
         "table": {
           "hand_complete": "Hand complete.",
           "waiting_next": "Waiting for the next hand…"
+        },
+        "a11y": {
+          "region_label": "Game announcements",
+          "blind_level": "Blinds increased to level {level}",
+          "hand_start": "Hand {handNo} started",
+          "your_turn": "Your turn to act",
+          "street": "{street}. Pot {pot}",
+          "hand_complete": "Hand complete. Your chips: {stack}",
+          "hand_won": "You won the hand. Your chips: {stack}",
+          "reconnecting": "Reconnecting",
+          "reconnected": "Reconnected",
+          "offline": "Connection lost"
         }
       },
       "achievements": {
@@ -2684,6 +2696,21 @@
           "title": "Tournament starting soon",
           "body": "Your Poker tournament is about to begin"
         }
+      },
+      "a11y": {
+        "seat": "Seat {pos}",
+        "seat_stack": "{stack} chips",
+        "you": "you",
+        "player": "player",
+        "dealer": "dealer",
+        "small_blind": "small blind",
+        "big_blind": "big blind",
+        "winner": "winner",
+        "all_in": "all in",
+        "folded": "folded",
+        "sitting_out": "sitting out",
+        "turn": "to act",
+        "empty_seat": "Empty seat {pos}"
       }
     },
     "page_badge": "🎮 Mini Game",

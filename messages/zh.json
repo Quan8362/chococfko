@@ -1643,6 +1643,18 @@
         "table": {
           "hand_complete": "本手结束。",
           "waiting_next": "等待下一手…"
+        },
+        "a11y": {
+          "region_label": "游戏播报",
+          "blind_level": "盲注升至第 {level} 级",
+          "hand_start": "第 {handNo} 手开始",
+          "your_turn": "轮到你行动",
+          "street": "{street}。底池 {pot}",
+          "hand_complete": "本手结束。你的筹码：{stack}",
+          "hand_won": "你赢得本手。你的筹码：{stack}",
+          "reconnecting": "正在重新连接",
+          "reconnected": "已重新连接",
+          "offline": "连接已断开"
         }
       },
       "achievements": {
@@ -2684,6 +2696,21 @@
           "title": "锦标赛即将开始",
           "body": "你的扑克锦标赛即将开始"
         }
+      },
+      "a11y": {
+        "seat": "座位 {pos}",
+        "seat_stack": "{stack} 筹码",
+        "you": "你",
+        "player": "玩家",
+        "dealer": "庄家",
+        "small_blind": "小盲",
+        "big_blind": "大盲",
+        "winner": "赢家",
+        "all_in": "全下",
+        "folded": "弃牌",
+        "sitting_out": "暂离",
+        "turn": "行动",
+        "empty_seat": "空座位 {pos}"
       }
     },
     "destination_wheel": {

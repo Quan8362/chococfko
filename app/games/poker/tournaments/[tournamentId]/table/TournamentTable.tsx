@@ -36,6 +36,8 @@ import {
 } from '../../../_components'
 import { ActionControls } from '../../../_components/ActionControls'
 import { useTournamentTable } from './useTournamentTable'
+import { useTournamentAnnouncer } from './useTournamentAnnouncer'
+import { seatAccessibleName, emptySeatAccessibleName } from '@/lib/games/poker/tournament/seatA11y'
 
 export interface TournamentTableProps {
   readonly tournamentId: string
@@ -49,9 +51,11 @@ function geomLayout(layout: PokerLayout): PokerTableLayout {
 export default function TournamentTable({ tournamentId, capacity }: TournamentTableProps) {
   const t = useTranslations('games.poker')
   const tt = useTranslations('games.poker.tournaments')
+  const ta = useTranslations('games.poker.a11y')
   const vp = useViewportClass()
   const rootRef = useRef<HTMLDivElement>(null)
   const { view, connUx, act } = useTournamentTable(tournamentId)
+  const announce = useTournamentAnnouncer(view, connUx)
 
   const [pending, setPending] = useState(false)
   const [errorCode, setErrorCode] = useState<string | null>(null)
@@ -154,6 +158,15 @@ export default function TournamentTable({ tournamentId, capacity }: TournamentTa
     >
       {vp.isPortrait && <RotateDeviceOverlay deadlineMs={null} leaveLabel={t('hud.leave')} />}
 
+      {/* ── Screen-reader live regions — concise narration of meaningful state changes. Carries only
+            viewer-safe public/own facts; opponent cards / seed / hidden state never appear here. ── */}
+      <div className="sr-only" role="status" aria-live="polite" aria-atomic="true" aria-label={tt('a11y.region_label')} data-testid="tnmt-live-polite">
+        {announce.polite}
+      </div>
+      <div className="sr-only" role="alert" aria-live="assertive" aria-atomic="true" data-testid="tnmt-live-assertive">
+        {announce.assertive}
+      </div>
+
       {/* ── Top-left HUD: tournament identity + level + connection ── */}
       <div className="absolute z-30 flex flex-col gap-1.5" style={{ top: 'calc(var(--pk-safe-top) + 8px)', left: 'calc(var(--pk-safe-left) + 10px)' }}>
         <div className="flex items-center gap-2 rounded-full px-3 py-1.5" style={{ background: 'rgba(0,0,0,0.55)', border: '1px solid var(--pk-gold-line)' }}>
@@ -243,6 +256,28 @@ export default function TournamentTable({ tournamentId, capacity }: TournamentTa
                   data-stack={sv ? sv.stack : ''}
                   data-turn={sv?.isCurrentActor ? '1' : '0'}
                   data-folded={sv?.folded ? '1' : '0'}
+                  role="group"
+                  aria-label={
+                    sv
+                      ? seatAccessibleName(
+                          {
+                            seatIndex,
+                            displayName: sv.displayName ?? null,
+                            isSelf: !!sv.isSelf,
+                            stackLabel: formatCoinsShort(sv.stack),
+                            isButton: sv.isButton,
+                            isSmallBlind: sv.isSmallBlind,
+                            isBigBlind: sv.isBigBlind,
+                            isCurrentActor: sv.isCurrentActor,
+                            folded: sv.folded,
+                            allIn: sv.allIn,
+                            isWinner: sv.isWinner,
+                            sittingOut: sv.status === 'sitting_out',
+                          },
+                          ta,
+                        )
+                      : emptySeatAccessibleName(seatIndex, ta)
+                  }
                 >
                   {sv ? (
                     <PlayerSeat seat={sv} avatarSize={geom.seatAvatarSize} compact={compact} lowStackThreshold={(view?.meta.bigBlind ?? 1) * 5} hideCards />

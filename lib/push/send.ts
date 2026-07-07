@@ -1,6 +1,7 @@
 import 'server-only'
 import webpush from 'web-push'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { scanText, isSafeInternalPath } from '@/lib/games/poker/notifications/redaction'
 
 export type PushPayload = {
   title: string
@@ -44,6 +45,21 @@ export async function sendPushToUsersDiag(userIds: string[], payload: PushPayloa
   try {
     const ids = Array.from(new Set(userIds.filter(Boolean)))
     if (ids.length === 0) { result.errors.push('no_user_ids'); return result }
+
+    // Defense in depth (27G-H1A): any POKER-tagged push must survive the poker redaction scan before
+    // it can reach web-push, even if a caller bypassed the dedicated poker sender. This is the last
+    // boundary a private card / seed / token could leak through onto a lock screen. Non-poker
+    // payloads (caro/tlmn/admin/comments) are unaffected.
+    if (typeof payload.tag === 'string' && payload.tag.startsWith('poker-')) {
+      const reasons = [
+        ...scanText('title', payload.title ?? ''),
+        ...scanText('body', payload.body ?? ''),
+        ...scanText('tag', payload.tag ?? ''),
+        ...(payload.url != null && !isSafeInternalPath(payload.url) ? ['url: unsafe'] : []),
+      ]
+      if (reasons.length > 0) { result.errors.push('poker_redaction_blocked'); return result }
+    }
+
     if (!ensureConfigured()) { result.errors.push('vapid_not_configured'); return result }
     result.configured = true
 

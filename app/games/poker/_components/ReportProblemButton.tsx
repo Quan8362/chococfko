@@ -8,9 +8,10 @@
 // cards, the deck, tokens, or other players' state — only what the parent hands it plus
 // public browser facts — so nothing sensitive can be attached.
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { useLocale, useTranslations } from 'next-intl'
+import { useFocusTrap } from '@/hooks/useFocusTrap'
 import { submitPokerBugReport } from '../alpha-actions'
 import {
   BUG_SEVERITIES,
@@ -79,6 +80,10 @@ export default function ReportProblemButton({ context, variant = 'floating', cla
   const [screenshotUrl, setScreenshotUrl] = useState('')
   const [busy, setBusy] = useState(false)
   const [result, setResult] = useState<'ok' | string | null>(null)
+  const dialogRef = useRef<HTMLDivElement>(null)
+
+  // Modal focus management: initial focus, focus trap, Escape-to-close, focus return to the trigger.
+  useFocusTrap(open, dialogRef, () => setOpen(false))
 
   // Collect non-sensitive client context lazily (needs window/navigator).
   const collectClientContext = useCallback((): PokerBugContext => {
@@ -104,14 +109,6 @@ export default function ReportProblemButton({ context, variant = 'floating', cla
       timestamp: new Date().toISOString(),
     }
   }, [locale, pathname])
-
-  // Close on Escape
-  useEffect(() => {
-    if (!open) return
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false) }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [open])
 
   const reset = () => {
     setReportKind('bug'); setUxCategory('confusing_action'); setFeedbackCategory('other'); setUsabilityRating(0)
@@ -168,11 +165,11 @@ export default function ReportProblemButton({ context, variant = 'floating', cla
       </button>
 
       {open && (
-        <div className="fixed inset-0 z-[130] flex items-end justify-center bg-black/60 p-0 sm:items-center sm:p-4" role="dialog" aria-modal="true">
-          <div className="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-t-2xl bg-white p-5 text-ink shadow-xl sm:rounded-2xl">
+        <div className="fixed inset-0 z-[130] flex items-end justify-center bg-black/60 p-0 sm:items-center sm:p-4" role="dialog" aria-modal="true" aria-labelledby="pk-report-title">
+          <div ref={dialogRef} className="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-t-2xl bg-white p-5 text-ink shadow-xl sm:rounded-2xl">
             <div className="mb-3 flex items-start justify-between gap-3">
               <div>
-                <h2 className="font-serif text-lg font-bold text-ink">{t('title')}</h2>
+                <h2 id="pk-report-title" className="font-serif text-lg font-bold text-ink">{t('title')}</h2>
                 <p className="text-[12px] text-muted">{t('subtitle')}</p>
               </div>
               <button type="button" onClick={() => setOpen(false)} className="rounded-md px-2 py-1 text-muted hover:bg-cream" aria-label={t('close')}>✕</button>

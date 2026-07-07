@@ -1643,6 +1643,18 @@
         "table": {
           "hand_complete": "ハンド終了。",
           "waiting_next": "次のハンドを待っています…"
+        },
+        "a11y": {
+          "region_label": "ゲームのアナウンス",
+          "blind_level": "ブラインドがレベル {level} に上がりました",
+          "hand_start": "ハンド {handNo} 開始",
+          "your_turn": "あなたのアクションです",
+          "street": "{street}。ポット {pot}",
+          "hand_complete": "ハンド終了。あなたのチップ: {stack}",
+          "hand_won": "ハンドに勝ちました。あなたのチップ: {stack}",
+          "reconnecting": "再接続中",
+          "reconnected": "再接続しました",
+          "offline": "接続が切れました"
         }
       },
       "achievements": {
@@ -2684,6 +2696,21 @@
           "title": "トーナメントがまもなく開始",
           "body": "あなたのポーカートーナメントがまもなく始まります"
         }
+      },
+      "a11y": {
+        "seat": "座席 {pos}",
+        "seat_stack": "{stack} チップ",
+        "you": "あなた",
+        "player": "プレイヤー",
+        "dealer": "ディーラー",
+        "small_blind": "スモールブラインド",
+        "big_blind": "ビッグブラインド",
+        "winner": "勝者",
+        "all_in": "オールイン",
+        "folded": "フォールド",
+        "sitting_out": "休憩中",
+        "turn": "アクション",
+        "empty_seat": "空席 {pos}"
       }
     },
     "page_badge": "🎮 ミニゲーム",

@@ -1643,6 +1643,18 @@
         "table": {
           "hand_complete": "핸드 종료.",
           "waiting_next": "다음 핸드를 기다리는 중…"
+        },
+        "a11y": {
+          "region_label": "게임 안내",
+          "blind_level": "블라인드가 레벨 {level}(으)로 올랐습니다",
+          "hand_start": "핸드 {handNo} 시작",
+          "your_turn": "당신의 차례입니다",
+          "street": "{street}. 팟 {pot}",
+          "hand_complete": "핸드 종료. 내 칩: {stack}",
+          "hand_won": "핸드에서 이겼습니다. 내 칩: {stack}",
+          "reconnecting": "재연결 중",
+          "reconnected": "재연결됨",
+          "offline": "연결이 끊어졌습니다"
         }
       },
       "achievements": {
@@ -2684,6 +2696,21 @@
           "title": "토너먼트가 곧 시작됩니다",
           "body": "포커 토너먼트가 곧 시작됩니다"
         }
+      },
+      "a11y": {
+        "seat": "좌석 {pos}",
+        "seat_stack": "{stack} 칩",
+        "you": "나",
+        "player": "플레이어",
+        "dealer": "딜러",
+        "small_blind": "스몰 블라인드",
+        "big_blind": "빅 블라인드",
+        "winner": "승자",
+        "all_in": "올인",
+        "folded": "폴드",
+        "sitting_out": "휴식 중",
+        "turn": "액션 차례",
+        "empty_seat": "빈 좌석 {pos}"
       }
     },
     "destination_wheel": {

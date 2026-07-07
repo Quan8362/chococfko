@@ -1643,6 +1643,18 @@
         "table": {
           "hand_complete": "Ván đã kết thúc.",
           "waiting_next": "Đang chờ ván tiếp theo…"
+        },
+        "a11y": {
+          "region_label": "Thông báo ván đấu",
+          "blind_level": "Mù tăng lên mức {level}",
+          "hand_start": "Ván {handNo} bắt đầu",
+          "your_turn": "Đến lượt bạn",
+          "street": "{street}. Pot {pot}",
+          "hand_complete": "Kết thúc ván. Xu của bạn: {stack}",
+          "hand_won": "Bạn thắng ván này. Xu của bạn: {stack}",
+          "reconnecting": "Đang kết nối lại",
+          "reconnected": "Đã kết nối lại",
+          "offline": "Mất kết nối"
         }
       },
       "achievements": {
@@ -2684,6 +2696,21 @@
           "title": "Giải đấu sắp bắt đầu",
           "body": "Giải Poker của bạn sắp diễn ra"
         }
+      },
+      "a11y": {
+        "seat": "Ghế {pos}",
+        "seat_stack": "{stack} xu",
+        "you": "bạn",
+        "player": "người chơi",
+        "dealer": "nhà cái",
+        "small_blind": "mù nhỏ",
+        "big_blind": "mù lớn",
+        "winner": "người thắng",
+        "all_in": "tố hết",
+        "folded": "đã bỏ bài",
+        "sitting_out": "đang nghỉ",
+        "turn": "đến lượt",
+        "empty_seat": "Ghế trống {pos}"
       }
     },
     "page_badge": "🎮 Mini Game",

@@ -8,7 +8,8 @@ import { getTournamentDetail } from '../../tournament-actions'
 import TournamentActions from '../../_components/TournamentActions'
 import TournamentOperatorPanel from '../../_components/TournamentOperatorPanel'
 import {
-  registrationOpen, canUnregister, participantDisplayState, hasTableAssignment, type EntryLike,
+  registrationOpen, canUnregister, participantDisplayState, hasTableAssignment,
+  championEntryId, effectiveFinishingPlace, type EntryLike, type PayoutLike,
 } from '@/lib/games/poker/tournament/uiModel'
 import type { TournamentState } from '@/lib/games/poker/tournament'
 
@@ -42,7 +43,10 @@ export default async function TournamentDetailPage({ params }: { params: { tourn
   const startLevel = levels[0]
   const curLevel = levels[Number(tr.current_level_index ?? 0)] ?? startLevel
 
-  const pState = participantDisplayState(state, myEntry)
+  // Authoritative winner from the payout rows (the last survivor keeps a NULL finishing_place — the
+  // place-1 prize payout is the source of truth for who won). Reused by the banner + standings.
+  const championId = championEntryId(payouts as PayoutLike[])
+  const pState = participantDisplayState(state, myEntry, !!myEntry && myEntry.id === championId)
   const canReg = registrationOpen(state, registered, Number(tr.max_entries)) && (!myEntry || myEntry.state === 'WITHDRAWN')
   const canUnreg = canUnregister(state, myEntry?.state ?? null)
   const blinds = (lv?: Level) => (lv ? `${coins(lv.smallBlind, locale)} / ${coins(lv.bigBlind, locale)}` : '—')
@@ -60,7 +64,8 @@ export default async function TournamentDetailPage({ params }: { params: { tourn
 
   const standings = [...entries]
     .filter((e) => e.finishing_place != null || e.state === 'PAID' || e.state === 'ELIMINATED')
-    .sort((a, b) => (a.finishing_place ?? 999) - (b.finishing_place ?? 999))
+    .map((e) => ({ e, place: effectiveFinishingPlace(e.id, e.finishing_place, championId) }))
+    .sort((a, b) => (a.place ?? 999) - (b.place ?? 999))
   const payoutByEntry = new Map(payouts.map((p) => [p.entry_id, p]))
 
   return (
@@ -81,7 +86,7 @@ export default async function TournamentDetailPage({ params }: { params: { tourn
             : pState === 'registered' ? t('participant.registered')
             : pState === 'waiting' ? t('participant.waiting')
             : pState === 'seated' && myEntry?.table_no != null ? t('participant.seated', { table: myEntry.table_no, seat: myEntry.seat_index ?? 0 })
-            : pState === 'eliminated' ? t('participant.eliminated', { place: myEntry?.finishing_place ?? 0 })
+            : pState === 'eliminated' ? (myEntry?.finishing_place != null ? t('participant.eliminated', { place: myEntry.finishing_place }) : t('participant.eliminated_generic'))
             : pState === 'champion' ? t('participant.champion')
             : t('coin_note')}
         </p>
@@ -117,9 +122,12 @@ export default async function TournamentDetailPage({ params }: { params: { tourn
               <li key={e.id} className="flex items-center justify-between gap-2">
                 <span className="truncate text-ink/80">{e.user_id.slice(0, 8)}…</span>
                 <span className="shrink-0 text-ink/60">
-                  {e.finishing_place != null ? t('field.place', { place: e.finishing_place })
-                    : e.table_no != null ? t('field.table_seat', { table: e.table_no, seat: e.seat_index ?? 0 })
-                    : t('state.' + state)}
+                  {(() => {
+                    const ep = effectiveFinishingPlace(e.id, e.finishing_place, championId)
+                    return ep != null ? t('field.place', { place: ep })
+                      : e.table_no != null ? t('field.table_seat', { table: e.table_no, seat: e.seat_index ?? 0 })
+                      : t('state.' + state)
+                  })()}
                 </span>
               </li>
             ))}
@@ -133,11 +141,11 @@ export default async function TournamentDetailPage({ params }: { params: { tourn
           <h2 className="mb-3 text-sm font-semibold text-ink">{t('field.standings')}</h2>
           {standings.length === 0 ? <p className="text-sm text-ink/50">{t('field.no_standings')}</p> : (
             <ol className="flex flex-col gap-1.5 text-sm">
-              {standings.map((e) => {
+              {standings.map(({ e, place }) => {
                 const p = payoutByEntry.get(e.id)
                 return (
                   <li key={e.id} className="flex items-center justify-between gap-2">
-                    <span className="text-ink/80">{t('field.place', { place: e.finishing_place ?? 1 })} · {e.user_id.slice(0, 8)}…</span>
+                    <span className="text-ink/80">{t('field.place', { place: place ?? 1 })} · {e.user_id.slice(0, 8)}…</span>
                     {p && p.amount > 0 && <span className="font-medium text-emerald-700">+{coins(p.amount, locale)} xu</span>}
                   </li>
                 )

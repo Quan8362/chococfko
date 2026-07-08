@@ -1586,6 +1586,7 @@
           "go_to_table": "내 테이블로 가기",
           "seated": "테이블 {table} 좌석 {seat}에 앉아 있습니다.",
           "eliminated": "{place}위로 마쳤습니다.",
+          "eliminated_generic": "탈락했습니다.",
           "champion": "우승했습니다! 🏆",
           "table_shell": "토너먼트가 진행되면 여기에서 라이브 플레이가 열립니다.",
           "not_your_table": "이 테이블은 당신의 테이블이 아닙니다."

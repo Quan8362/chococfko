@@ -2,11 +2,17 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
   operatorControlsFor, registrationOpen, canUnregister,
-  participantDisplayState, hasTableAssignment, type EntryLike,
+  participantDisplayState, hasTableAssignment,
+  championEntryId, effectiveFinishingPlace,
+  type EntryLike, type PayoutLike,
 } from './uiModel.ts'
 
 const entry = (over: Partial<EntryLike>): EntryLike =>
   ({ state: 'REGISTERED', finishing_place: null, table_no: null, seat_index: null, ...over })
+
+// A place-1 PRIZE payout for `entryId` (the authoritative "won" record), plus optional others.
+const prize = (entryId: string, place: number | null, amount = 0): PayoutLike =>
+  ({ entry_id: entryId, place, amount, kind: 'prize' })
 
 test('UIM-001 operator controls follow the FSM per state', () => {
   // No escrow held → a plain cancel is offered.
@@ -79,4 +85,107 @@ test('UIM-006 hasTableAssignment only when live + seated', () => {
   assert.equal(hasTableAssignment(entry({ state: 'SEATED', table_no: 1, seat_index: 0 })), true)
   assert.equal(hasTableAssignment(entry({ state: 'ELIMINATED', table_no: 1, seat_index: 0 })), false)
   assert.equal(hasTableAssignment(entry({ state: 'REGISTERED' })), false)
+})
+
+// ── Winner-status remediation (27G-L) — the champion is derived from the authoritative place-1
+// PRIZE payout because settlement leaves the last survivor's finishing_place NULL. ──────────────
+
+test('UIM-007 championEntryId returns the unique place-1 prize entry', () => {
+  const payouts: PayoutLike[] = [prize('W', 1, 2), prize('L', 2, 0)]
+  assert.equal(championEntryId(payouts), 'W')
+})
+
+test('UIM-008 championEntryId returns null when unsettled / no place-1 prize', () => {
+  assert.equal(championEntryId([]), null)
+  assert.equal(championEntryId([prize('L', 2, 0)]), null)
+  // A place-1 row that is NOT a prize (e.g. a refund) does not crown anyone.
+  assert.equal(championEntryId([{ entry_id: 'X', place: 1, amount: 5, kind: 'refund' }]), null)
+})
+
+test('UIM-009 championEntryId fails safe on contradictory duplicate place-1 data', () => {
+  // Two distinct entries both claim a place-1 prize → no champion is promoted (safe invariant fail).
+  assert.equal(championEntryId([prize('A', 1, 2), prize('B', 1, 2)]), null)
+  // But the SAME entry appearing twice at place 1 is still a single, unambiguous winner.
+  assert.equal(championEntryId([prize('A', 1, 2), prize('A', 1, 2)]), 'A')
+})
+
+test('UIM-010 effectiveFinishingPlace resolves champion→1 and never invents rank 0', () => {
+  assert.equal(effectiveFinishingPlace('W', null, 'W'), 1)   // champion, NULL finish → 1
+  assert.equal(effectiveFinishingPlace('L', 2, 'W'), 2)      // explicit place preserved
+  assert.equal(effectiveFinishingPlace('X', null, 'W'), null) // non-champion, no place → null (not 0)
+  assert.equal(effectiveFinishingPlace('X', null, null), null) // unsettled → null
+})
+
+test('UIM-011 PAID champion with NULL finishing_place + place-1 payout → champion (the 27G-K bug)', () => {
+  // Exactly the production shape: PAID, finishing_place NULL, holds the place-1 prize.
+  const champ = entry({ state: 'PAID', finishing_place: null, table_no: null, seat_index: null })
+  assert.equal(participantDisplayState('COMPLETED', champ, true), 'champion')
+})
+
+test('UIM-012 PAID champion with explicit finishing_place 1 → champion (no payout signal needed)', () => {
+  assert.equal(participantDisplayState('COMPLETED', entry({ state: 'PAID', finishing_place: 1 }), false), 'champion')
+})
+
+test('UIM-013 loser with finishing_place 2 → eliminated, never promoted', () => {
+  assert.equal(participantDisplayState('COMPLETED', entry({ state: 'PAID', finishing_place: 2 }), false), 'eliminated')
+  assert.equal(participantDisplayState('COMPLETED', entry({ state: 'ELIMINATED', finishing_place: 4 }), false), 'eliminated')
+})
+
+test('UIM-014 completed zero-payout loser is never champion', () => {
+  const payouts: PayoutLike[] = [prize('W', 1, 2), prize('L', 2, 0)]
+  const championId = championEntryId(payouts) // 'W'
+  const loser = entry({ state: 'PAID', finishing_place: 2 })
+  assert.equal(participantDisplayState('COMPLETED', loser, 'L' === championId), 'eliminated')
+})
+
+test('UIM-015 incomplete tournament shows no terminal winner result', () => {
+  // No payouts yet → isChampion false; a seated/registered player never reads as champion/eliminated.
+  assert.equal(participantDisplayState('RUNNING', entry({ state: 'SEATED', table_no: 1, seat_index: 0 }), false), 'seated')
+  assert.equal(participantDisplayState('REGISTRATION_OPEN', entry({ state: 'REGISTERED' }), false), 'registered')
+  assert.equal(participantDisplayState('STARTING', entry({ state: 'REGISTERED' }), false), 'waiting')
+})
+
+test('UIM-016 spectator / operator (no entry) gets no participant-only result', () => {
+  assert.equal(participantDisplayState('COMPLETED', null, false), 'not_registered')
+  assert.equal(participantDisplayState('COMPLETED', null, true), 'not_registered')
+})
+
+test('UIM-017 no valid state renders rank 0 (contradictory data → safe non-champion, place null)', () => {
+  // Contradictory payouts → no champion id; the real winner (PAID, NULL finish) renders eliminated
+  // (safe: not a false champion) and effectiveFinishingPlace yields null — never 0 — so the banner
+  // falls back to the generic elimination copy.
+  const championId = championEntryId([prize('A', 1, 2), prize('B', 1, 2)]) // null
+  const winnerA = entry({ state: 'PAID', finishing_place: null })
+  assert.equal(participantDisplayState('COMPLETED', winnerA, 'A' === championId), 'eliminated')
+  assert.equal(effectiveFinishingPlace('A', null, championId), null)
+})
+
+test('UIM-018 historical-tournament-shaped fixture (0c713712) → champion sees rank 1, loser rank 2', () => {
+  // Real shape: champion PAID finishing_place NULL chips>0 place-1 prize; loser PAID place 2 chips 0.
+  const payouts: PayoutLike[] = [prize('champ', 1, 2), prize('loser', 2, 0)]
+  const championId = championEntryId(payouts)
+  assert.equal(championId, 'champ')
+  const champ = entry({ state: 'PAID', finishing_place: null })
+  const loser = entry({ state: 'PAID', finishing_place: 2 })
+  assert.equal(participantDisplayState('COMPLETED', champ, 'champ' === championId), 'champion')
+  assert.equal(participantDisplayState('COMPLETED', loser, 'loser' === championId), 'eliminated')
+  assert.equal(effectiveFinishingPlace('champ', null, championId), 1)
+  assert.equal(effectiveFinishingPlace('loser', 2, championId), 2)
+})
+
+test('UIM-019 27G-K-tournament-shaped fixture (9309f7f7) → identical HU heads-up result', () => {
+  // 27G-K beta: same heads-up shape, verifies the fix covers the blocked tournament.
+  const payouts: PayoutLike[] = [prize('beta_champ', 1, 2), prize('beta_loser', 2, 0)]
+  const championId = championEntryId(payouts)
+  const champ = entry({ state: 'PAID', finishing_place: null, table_no: null, seat_index: null })
+  assert.equal(participantDisplayState('COMPLETED', champ, 'beta_champ' === championId), 'champion')
+  // Standings ordering: champion sorts to rank 1 ahead of the loser (was previously last via NULL).
+  const rows = [
+    { id: 'beta_loser', fp: 2 as number | null },
+    { id: 'beta_champ', fp: null as number | null },
+  ]
+    .map((r) => ({ id: r.id, place: effectiveFinishingPlace(r.id, r.fp, championId) }))
+    .sort((a, b) => (a.place ?? 999) - (b.place ?? 999))
+  assert.deepEqual(rows.map((r) => r.id), ['beta_champ', 'beta_loser'])
+  assert.equal(rows[0].place, 1)
 })

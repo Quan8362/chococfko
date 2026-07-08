@@ -1586,6 +1586,7 @@
           "go_to_table": "Đến bàn của tôi",
           "seated": "Bạn ngồi ở bàn {table}, ghế {seat}.",
           "eliminated": "Bạn về hạng {place}.",
+          "eliminated_generic": "Bạn đã bị loại.",
           "champion": "Bạn đã thắng! 🏆",
           "table_shell": "Phần chơi trực tiếp sẽ mở tại đây khi giải đấu diễn ra.",
           "not_your_table": "Đây không phải bàn của bạn."

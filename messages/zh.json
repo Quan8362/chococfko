@@ -1586,6 +1586,7 @@
           "go_to_table": "前往我的牌桌",
           "seated": "你在第 {table} 桌 {seat} 号座。",
           "eliminated": "你获得第 {place} 名。",
+          "eliminated_generic": "你已被淘汰。",
           "champion": "你赢了！🏆",
           "table_shell": "锦标赛进行时将在此开启实时对局。",
           "not_your_table": "这不是你的牌桌。"

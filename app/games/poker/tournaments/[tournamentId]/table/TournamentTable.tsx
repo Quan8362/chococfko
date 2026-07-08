@@ -205,7 +205,7 @@ export default function TournamentTable({ tournamentId, capacity }: TournamentTa
                 {pState === 'champion' ? (
                   <p className="text-xl font-semibold" style={{ color: 'var(--pk-gold-soft)' }}>{tt('participant.champion')}</p>
                 ) : pState === 'eliminated' ? (
-                  <p className="text-lg font-medium" style={{ color: 'var(--pk-text-hi)' }}>{tt('participant.eliminated', { place: 0 })}</p>
+                  <p className="text-lg font-medium" style={{ color: 'var(--pk-text-hi)' }}>{tt('participant.eliminated_generic')}</p>
                 ) : (
                   <p className="text-lg font-medium" style={{ color: 'var(--pk-text-hi)' }}>{tt('state.COMPLETED')}</p>
                 )}

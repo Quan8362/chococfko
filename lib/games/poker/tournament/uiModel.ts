@@ -78,17 +78,61 @@ export interface EntryLike {
   seat_index: number | null
 }
 
-// The participant's display state, derived from their entry + the tournament lifecycle.
+// A settlement payout row, as read (viewer-safe) from poker_tournament_payouts. The place-1 PRIZE
+// row is the AUTHORITATIVE record of who won: settlement assigns the eliminated field its finishing
+// place but leaves the last survivor's entry.finishing_place NULL, crediting them instead through a
+// place-1 prize payout. So "who is the champion" must be read from the payout, not finishing_place.
+export interface PayoutLike {
+  entry_id: string
+  place: number | null
+  amount: number
+  kind: string
+}
+
+// The authoritative champion entry id for a tournament, from its payout rows: the entry holding the
+// UNIQUE place-1 prize payout. Returns null when no place-1 prize exists yet (not settled) OR when
+// the data is contradictory — two or more distinct entries each claim a place-1 prize — so a false
+// champion is never promoted (fail-safe; the winner then simply renders as a non-champion finisher
+// rather than crashing or crowning a loser). The single source of truth reused by every surface.
+export function championEntryId(payouts: readonly PayoutLike[]): string | null {
+  const winners = new Set<string>()
+  for (const p of payouts) {
+    if (p.place === 1 && p.kind === 'prize' && p.entry_id) winners.add(p.entry_id)
+  }
+  return winners.size === 1 ? winners.values().next().value ?? null : null
+}
+
+// An entry's authoritative finishing place for standings/summary display: its explicit
+// finishing_place when set, else 1 when it is the payout-derived champion (whose finishing_place is
+// left NULL by settlement), else null. Never invents a rank for a non-champion with no recorded
+// place — in particular it never yields 0.
+export function effectiveFinishingPlace(
+  entryId: string,
+  finishingPlace: number | null,
+  championId: string | null,
+): number | null {
+  if (finishingPlace != null) return finishingPlace
+  if (championId != null && entryId === championId) return 1
+  return null
+}
+
+// The participant's display state, derived from their entry + the tournament lifecycle. `isChampion`
+// is the authoritative winner signal the caller resolves from the payout rows (championEntryId ===
+// this entry) — the last survivor is credited a place-1 prize while their finishing_place stays
+// NULL, so it can never be inferred from the entry alone. An explicit finishing_place === 1 is also
+// honoured. A loser (no place-1 payout, no place-1 finish) is never promoted to champion.
 export function participantDisplayState(
   tournamentState: TournamentState,
   entry: EntryLike | null,
+  isChampion = false,
 ): ParticipantDisplayState {
   if (!entry) return 'not_registered'
   if (entry.state === 'WITHDRAWN') return 'withdrawn'
-  if (entry.state === 'PAID') return entry.finishing_place === 1 ? 'champion' : 'eliminated'
+  const champion = isChampion || entry.finishing_place === 1
+  if (entry.state === 'PAID') return champion ? 'champion' : 'eliminated'
   if (entry.state === 'ELIMINATED') return 'eliminated'
-  if (entry.finishing_place === 1) return 'champion'
-  if (tournamentState === 'COMPLETED') return entry.finishing_place === 1 ? 'champion' : 'eliminated'
+  if (champion) return 'champion'
+  if (tournamentState === 'COMPLETED') return 'eliminated'
   if (entry.state === 'ACTIVE' || (entry.state === 'SEATED' && entry.table_no != null)) {
     return entry.table_no != null ? 'seated' : 'waiting'
   }

@@ -1586,6 +1586,7 @@
           "go_to_table": "Go to my table",
           "seated": "You're seated at table {table}, seat {seat}.",
           "eliminated": "You finished in #{place}.",
+          "eliminated_generic": "You've been eliminated.",
           "champion": "You won! 🏆",
           "table_shell": "Live play opens here when the tournament is running.",
           "not_your_table": "This isn't your table."

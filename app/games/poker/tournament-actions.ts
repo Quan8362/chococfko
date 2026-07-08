@@ -43,7 +43,7 @@ import {
   type RawSeatRow,
   type TableHandInput,
 } from '@/lib/games/poker/tournament/tableView'
-import { participantDisplayState, type EntryLike } from '@/lib/games/poker/tournament/uiModel'
+import { participantDisplayState, championEntryId, type EntryLike, type PayoutLike } from '@/lib/games/poker/tournament/uiModel'
 import type { AppliedAction } from '@/lib/games/poker/betting'
 
 // Tournament states in which a table may run hands. Fail-closed everywhere else.
@@ -464,10 +464,17 @@ export async function getTournamentTableView(tournamentId: string): Promise<Acti
     smallBlind: level.smallBlind, bigBlind: level.bigBlind, ante: level.ante ?? 0,
   }
 
-  // Viewer's own entry → participant display state (own-scoped read).
+  // Viewer's own entry → participant display state (own-scoped read). The champion is derived from
+  // the authoritative place-1 PRIZE payout (the last survivor's finishing_place is left NULL), so we
+  // also read the tournament's payout rows and mark the viewer champion only when THEIR entry holds
+  // the unique place-1 prize — never inferred from chips/stack/finishing_place alone.
   const { data: myEntry } = await g.supabase.from('poker_tournament_entries')
-    .select('state,finishing_place,table_no,seat_index').eq('tournament_id', tournamentId).eq('user_id', g.user.id).maybeSingle()
-  const participantState = participantDisplayState(tr.state, (myEntry as EntryLike | null) ?? null)
+    .select('id,state,finishing_place,table_no,seat_index').eq('tournament_id', tournamentId).eq('user_id', g.user.id).maybeSingle()
+  const me = (myEntry as (EntryLike & { id: string }) | null) ?? null
+  const { data: payoutRows } = await g.supabase.from('poker_tournament_payouts')
+    .select('entry_id,place,amount,kind').eq('tournament_id', tournamentId)
+  const championId = championEntryId((payoutRows as PayoutLike[] | null) ?? [])
+  const participantState = participantDisplayState(tr.state, me, !!me && me.id === championId)
 
   // Viewer's live seat (the ONLY table they may view). No seat → a table-less view carrying just
   // their participant state (waiting / eliminated / champion).

@@ -1638,6 +1638,7 @@
           "use_recover_refund": "Dùng “Hoàn phí & hủy” để giải phóng phí tham gia.",
           "recover_failed": "Không thể hoàn phí và hủy. Vui lòng thử lại.",
           "deal_failed": "Không thể chia ván tiếp theo.",
+          "rate_limited": "Bạn thao tác quá nhanh — vui lòng đợi một lát.",
           "generic": "Đã xảy ra lỗi. Vui lòng thử lại."
         },
         "table": {
@@ -1934,6 +1935,7 @@
         "not_betting": "Chưa tới lượt cược.",
         "invalid_amount": "Số tiền không hợp lệ.",
         "invalid_action": "Hành động không hợp lệ.",
+        "rate_limited": "Bạn thao tác quá nhanh — vui lòng đợi một lát.",
         "commit_rejected": "Hành động bị từ chối — đang làm mới.",
         "no_live_hand": "Không có ván nào đang diễn ra.",
         "not_enough_players": "Cần ít nhất 2 người chơi đã ngồi và còn xu để chia bài.",

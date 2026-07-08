@@ -8,7 +8,7 @@ import { registerForTournament, unregisterFromTournament } from '../tournament-a
 const ERROR_KEYS = new Set([
   'not_authenticated', 'tournament_unavailable', 'not_operator', 'already_registered', 'field_full',
   'insufficient_balance', 'registration_closed', 'too_late_to_unregister', 'illegal_transition',
-  'not_found', 'invalid_config',
+  'not_found', 'invalid_config', 'rate_limited',
 ])
 
 // Participant register / unregister. Waits for authoritative server confirmation, blocks double

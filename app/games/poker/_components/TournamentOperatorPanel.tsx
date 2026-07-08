@@ -14,7 +14,7 @@ const ERROR_KEYS = new Set([
   'not_authenticated', 'tournament_unavailable', 'not_operator', 'illegal_transition',
   'not_found', 'not_enough_players', 'seat_draw_failed', 'advance_level_failed',
   'transition_failed', 'settle_failed', 'already_settled', 'conservation_failed', 'not_heads_up_complete',
-  'not_running', 'use_recover_refund', 'recover_failed', 'deal_failed',
+  'not_running', 'use_recover_refund', 'recover_failed', 'deal_failed', 'rate_limited',
 ])
 
 // Operator-only lifecycle controls. Renders ONLY the controls legal for the current state (the pure

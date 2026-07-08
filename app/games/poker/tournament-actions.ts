@@ -12,6 +12,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { checkTnmtRateLimit, type TnmtRateFamily } from '@/lib/games/poker/tournamentRateLimit'
 import {
   getPokerAccess,
   pokerAccessTournamentVisible,
@@ -60,8 +61,20 @@ function graceElapsed(settledAt: string | null | undefined): boolean {
   return Date.now() - t >= SETTLE_GRACE_MS
 }
 
-export type ActionResult<T = unknown> = ({ ok: true } & T) | { ok: false; error: string }
+export type ActionResult<T = unknown> = ({ ok: true } & T) | { ok: false; error: string; retryAfterMs?: number }
 function fail(error: string): { ok: false; error: string } { return { ok: false, error } }
+
+// ── Rate-limit guard ─────────────────────────────────────────────────────────────────────────
+// Enforce the distributed, atomic tournament limiter BEFORE any expensive DB work, keyed by the
+// SERVER-trusted authenticated user id (never a client value). Returns a typed rate_limited failure
+// (with retryAfterMs) when throttled, or null to proceed. Fail-closed for mutations / fail-open for
+// reads is decided by the family's policy inside checkTnmtRateLimit.
+async function rateGuard(
+  family: TnmtRateFamily, userId: string,
+): Promise<{ ok: false; error: 'rate_limited'; retryAfterMs: number } | null> {
+  const r = await checkTnmtRateLimit(family, userId)
+  return r.ok ? null : { ok: false, error: 'rate_limited', retryAfterMs: r.retryAfterMs }
+}
 
 // Deterministic 32-bit seed for a hand from the tournament seed + table + hand number (replayable).
 function handSeed(tournamentSeed: string, tableNo: number, handNo: number): number {
@@ -166,6 +179,7 @@ export async function getTournamentDetail(tournamentId: string): Promise<ActionR
 export async function registerForTournament(tournamentId: string): Promise<ActionResult<{ entryId: string }>> {
   const g = await requireParticipant()
   if (!g.ok) return fail(g.error)
+  const limited = await rateGuard('tnmt_register', g.user.id); if (limited) return limited
   const { data, error } = await g.supabase.rpc('poker_tournament_register', {
     p_tournament_id: tournamentId,
     p_idempotency_key: initialRegKey(tournamentId, g.user.id),
@@ -180,6 +194,7 @@ export async function registerForTournament(tournamentId: string): Promise<Actio
 export async function unregisterFromTournament(tournamentId: string): Promise<ActionResult> {
   const g = await requireParticipant()
   if (!g.ok) return fail(g.error)
+  const limited = await rateGuard('tnmt_register', g.user.id); if (limited) return limited
   const { error } = await g.supabase.rpc('poker_tournament_unregister', {
     p_tournament_id: tournamentId,
     p_idempotency_key: unregisterKey(tournamentId, g.user.id),
@@ -202,6 +217,7 @@ export interface CreateTournamentInput {
 export async function createTournament(input: CreateTournamentInput): Promise<ActionResult<{ id: string }>> {
   const g = await requireOperator()
   if (!g.ok) return fail(g.error)
+  const limited = await rateGuard('tnmt_create', g.user.id); if (limited) return limited
   const base = TOURNAMENT_TEMPLATES[input.template]
   if (!base) return fail('unknown_template')
   const config: TournamentConfig = {
@@ -243,6 +259,7 @@ async function tournamentHoldsEscrow(admin: AdminClient, tournamentId: string): 
 export async function transitionTournament(tournamentId: string, to: string): Promise<ActionResult> {
   const g = await requireOperator()
   if (!g.ok) return fail(g.error)
+  const limited = await rateGuard('tnmt_operator', g.user.id); if (limited) return limited
   const { data: t } = await g.admin.from('poker_tournaments').select('state').eq('id', tournamentId).maybeSingle()
   if (!t) return fail('not_found')
   if (!canTransition((t as { state: string }).state as never, to as never)) return fail('illegal_transition')
@@ -261,6 +278,7 @@ export async function transitionTournament(tournamentId: string, to: string): Pr
 export async function drawSeats(tournamentId: string): Promise<ActionResult<{ seated: number }>> {
   const g = await requireOperator()
   if (!g.ok) return fail(g.error)
+  const limited = await rateGuard('tnmt_operator', g.user.id); if (limited) return limited
   const { data, error } = await g.admin.rpc('poker_tournament_seat_draw', { p_tournament_id: tournamentId })
   if (error) return fail('seat_draw_failed')
   const { data: t } = await g.admin.from('poker_tournaments').select('state,current_level_index').eq('id', tournamentId).maybeSingle()
@@ -280,6 +298,7 @@ async function touchAllTables(admin: AdminClient, tournamentId: string, state: s
 export async function advanceLevel(tournamentId: string, toLevel: number): Promise<ActionResult> {
   const g = await requireOperator()
   if (!g.ok) return fail(g.error)
+  const limited = await rateGuard('tnmt_operator', g.user.id); if (limited) return limited
   const { error } = await g.admin.rpc('poker_tournament_advance_level', {
     p_tournament_id: tournamentId, p_to_level: toLevel,
   })
@@ -372,6 +391,7 @@ async function openHandAtTable(
 export async function startTournamentHand(tournamentId: string, tableNo: number): Promise<ActionResult<{ handId: string }>> {
   const g = await requireOperator()
   if (!g.ok) return fail(g.error)
+  const limited = await rateGuard('tnmt_operator', g.user.id); if (limited) return limited
   const res = await openHandAtTable(g.admin, tournamentId, tableNo)
   if (!res.ok) return fail(res.error)
   return { ok: true, handId: res.handId }
@@ -386,6 +406,7 @@ export async function startTournamentHand(tournamentId: string, tableNo: number)
 export async function advanceTournamentTables(tournamentId: string): Promise<ActionResult<{ opened: number }>> {
   const g = await requireOperator()
   if (!g.ok) return fail(g.error)
+  const limited = await rateGuard('tnmt_operator', g.user.id); if (limited) return limited
   const { data: t } = await g.admin.from('poker_tournaments').select('state').eq('id', tournamentId).maybeSingle()
   if (!t) return fail('not_found')
   if (!RUNNING_STATES.has((t as { state: TournamentState }).state)) return fail('not_running')
@@ -408,6 +429,7 @@ export async function advanceTournamentTables(tournamentId: string): Promise<Act
 export async function ensureTournamentTableHand(tournamentId: string): Promise<ActionResult<{ handId: string; opened: boolean }>> {
   const g = await requireParticipant()
   if (!g.ok) return fail(g.error)
+  const limited = await rateGuard('tnmt_ensure', g.user.id); if (limited) return limited
   const admin = createAdminClient()
   const { data: mySeat } = await admin.from('poker_tournament_seats')
     .select('table_no').eq('tournament_id', tournamentId).eq('user_id', g.user.id).maybeSingle()
@@ -426,6 +448,9 @@ export async function ensureTournamentTableHand(tournamentId: string): Promise<A
 export async function getTournamentTableView(tournamentId: string): Promise<ActionResult<{ view: TournamentTableView }>> {
   const g = await requireParticipant()
   if (!g.ok) return fail(g.error)
+  // READ family (fail-OPEN): a limiter outage never blocks reconnect/recovery reads. When a real
+  // spammer exhausts the bucket this rejects BEFORE the service-role reads + read-path hand-advance.
+  const limited = await rateGuard('tnmt_view', g.user.id); if (limited) return limited
   const admin = createAdminClient()
 
   const { data: t } = await g.supabase.from('poker_tournaments')
@@ -517,6 +542,9 @@ export async function submitTournamentAction(
 ): Promise<ActionResult<{ complete: boolean; actionSeq: number }>> {
   const g = await requireParticipant()
   if (!g.ok) return fail(g.error)
+  // MUTATION family (fail-CLOSED): rejects BEFORE the hand/seat reads + apply/eliminate RPCs. The
+  // downstream turn + action-seq (stale) + idempotency guards are UNCHANGED and still run on admit.
+  const limited = await rateGuard('tnmt_action', g.user.id); if (limited) return limited
   const admin = createAdminClient()
 
   const { data: hand } = await admin.from('poker_tournament_hands')
@@ -577,6 +605,7 @@ export async function submitTournamentAction(
 export async function settleTournament(tournamentId: string): Promise<ActionResult<{ paid: number }>> {
   const g = await requireOperator()
   if (!g.ok) return fail(g.error)
+  const limited = await rateGuard('tnmt_operator', g.user.id); if (limited) return limited
   const { data: t } = await g.admin.from('poker_tournaments').select('config,state').eq('id', tournamentId).maybeSingle()
   if (!t) return fail('not_found')
   const tState = (t as { state: string }).state
@@ -624,6 +653,7 @@ export async function settleTournament(tournamentId: string): Promise<ActionResu
 export async function recoverAndRefundTournament(tournamentId: string): Promise<ActionResult<{ refunded: number }>> {
   const g = await requireOperator()
   if (!g.ok) return fail(g.error)
+  const limited = await rateGuard('tnmt_operator', g.user.id); if (limited) return limited
   const { data: t } = await g.admin.from('poker_tournaments').select('state').eq('id', tournamentId).maybeSingle()
   if (!t) return fail('not_found')
   if ((t as { state: string }).state === 'COMPLETED') return fail('already_settled')

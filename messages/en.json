@@ -1638,6 +1638,7 @@
           "use_recover_refund": "Use “Refund & cancel” to release entry fees.",
           "recover_failed": "Couldn't refund and cancel. Please try again.",
           "deal_failed": "Couldn't deal the next hand.",
+          "rate_limited": "You're acting too fast — please wait a moment.",
           "generic": "Something went wrong. Please try again."
         },
         "table": {
@@ -1934,6 +1935,7 @@
         "not_betting": "Betting isn't open.",
         "invalid_amount": "Invalid amount.",
         "invalid_action": "Invalid action.",
+        "rate_limited": "You're acting too fast — please wait a moment.",
         "commit_rejected": "Action rejected — refreshing.",
         "no_live_hand": "No hand in progress.",
         "not_enough_players": "Need at least 2 seated players with chips to deal.",

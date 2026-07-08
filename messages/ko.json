@@ -1638,6 +1638,7 @@
           "use_recover_refund": "참가비를 반환하려면 ‘환불 후 취소’를 사용하세요.",
           "recover_failed": "환불 및 취소에 실패했습니다. 다시 시도해 주세요.",
           "deal_failed": "다음 핸드를 딜하지 못했습니다.",
+          "rate_limited": "너무 빠르게 조작하고 있습니다. 잠시 기다려 주세요.",
           "generic": "문제가 발생했습니다. 다시 시도해 주세요."
         },
         "table": {
@@ -1934,6 +1935,7 @@
         "not_betting": "베팅할 수 없습니다.",
         "invalid_amount": "잘못된 금액입니다.",
         "invalid_action": "잘못된 행동입니다.",
+        "rate_limited": "너무 빠르게 조작하고 있습니다. 잠시 기다려 주세요.",
         "commit_rejected": "행동이 거부되었습니다 — 새로고침 중.",
         "no_live_hand": "진행 중인 핸드가 없습니다.",
         "not_enough_players": "딜하려면 착석하고 칩이 있는 플레이어가 2명 이상 필요합니다.",

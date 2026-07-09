@@ -1528,9 +1528,9 @@
     "poker": {
       "tournaments": {
         "nav": "Giải đấu",
-        "alpha_badge": "Alpha nội bộ",
+        "alpha_badge": "Xu ảo",
         "title": "Giải đấu",
-        "subtitle": "Giải đấu tiền ảo dùng để thử nghiệm nội bộ.",
+        "subtitle": "Giải đấu Poker bằng xu ảo.",
         "coin_note": "Mọi số liệu đều là xu ảo — không phải tiền thật.",
         "back": "Về danh sách giải đấu",
         "list_empty": "Chưa có giải đấu nào.",
@@ -2399,8 +2399,8 @@
         "badge": "ALPHA · Bản thử nghiệm · Xu thử"
       },
       "beta": {
-        "badge": "BETA · Bản thử nghiệm · Xu thử",
-        "label": "Closed Beta",
+        "badge": "POKER · GIẢI ĐẤU · XU ẢO",
+        "label": "Poker",
         "rules": "Luật chơi",
         "known_issues": "Lỗi đã biết",
         "support": "Hỗ trợ",
@@ -2408,8 +2408,8 @@
         "copied": "Đã sao chép ✓",
         "dismiss": "Ẩn",
         "maintenance": "Đang bảo trì — bàn tạm dừng nhận người chơi mới. Ván đang chơi vẫn tiếp tục.",
-        "ki_title": "Lỗi đã biết — Poker Closed Beta",
-        "ki_intro": "Danh sách các vấn đề đã biết trong bản Closed Beta. Nếu bạn gặp lỗi khác, hãy dùng nút “Báo lỗi” ngay trong bàn.",
+        "ki_title": "Lỗi đã biết — Poker",
+        "ki_intro": "Danh sách các vấn đề đã biết của Poker. Nếu bạn gặp lỗi khác, hãy dùng nút “Báo lỗi” ngay trong bàn.",
         "ki_none": "Chưa ghi nhận lỗi nào. Cảm ơn bạn đã thử nghiệm!",
         "ki_report": "Báo một lỗi",
         "ki_back": "Về Poker",

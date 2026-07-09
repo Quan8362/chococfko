@@ -1528,9 +1528,9 @@
     "poker": {
       "tournaments": {
         "nav": "Tournaments",
-        "alpha_badge": "Internal alpha",
+        "alpha_badge": "Virtual coins",
         "title": "Tournaments",
-        "subtitle": "Play-money tournaments for internal testing.",
+        "subtitle": "Poker tournaments played with virtual coins.",
         "coin_note": "All amounts are virtual xu — never real money.",
         "back": "Back to tournaments",
         "list_empty": "No tournaments yet.",
@@ -2399,8 +2399,8 @@
         "badge": "ALPHA · Test build · Play-money"
       },
       "beta": {
-        "badge": "BETA · Test build · Play-money",
-        "label": "Closed Beta",
+        "badge": "POKER · TOURNAMENTS · VIRTUAL COINS",
+        "label": "Poker",
         "rules": "Rules",
         "known_issues": "Known issues",
         "support": "Support",
@@ -2408,8 +2408,8 @@
         "copied": "Copied ✓",
         "dismiss": "Dismiss",
         "maintenance": "Maintenance in progress — tables are not accepting new players. Running hands continue.",
-        "ki_title": "Known issues — Poker Closed Beta",
-        "ki_intro": "Issues we already know about in the Closed Beta. If you hit something else, use the “Report a problem” button inside the table.",
+        "ki_title": "Known issues — Poker",
+        "ki_intro": "Issues we already know about in Poker. If you hit something else, use the “Report a problem” button inside the table.",
         "ki_none": "No issues logged yet. Thanks for testing!",
         "ki_report": "Report a problem",
         "ki_back": "Back to Poker",

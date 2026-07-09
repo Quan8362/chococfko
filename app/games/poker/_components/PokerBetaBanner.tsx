@@ -1,10 +1,10 @@
 'use client'
 
-// Closed-Beta chrome shown on every poker screen while POKER_CLOSED_BETA_ENABLED is on
-// (server-gated in layout.tsx — this component is only mounted for beta members/admins).
-// It gives testers, at a glance: a clear BETA label, service-status / maintenance messages,
-// and quick links to Rules, Known issues and Support. On a table route it also exposes a
-// one-tap "copy table ID" control so a tester can quote it in a bug report or to support.
+// Public product chrome shown on every poker screen while POKER_CLOSED_BETA_ENABLED is on
+// (server-gated in layout.tsx). It gives every player, at a glance: a clear virtual-coin
+// product label, service-status / maintenance messages, and quick links to Rules, Known
+// issues and Support. On a table route it also exposes a one-tap "copy table ID" control so
+// a player can quote it in a bug report or to support.
 //
 // It shows NOTHING sensitive — only the table ID from the URL and static links. All copy is
 // i18n. The persistent corner badge is always visible; the link bar can be dismissed.
@@ -49,10 +49,10 @@ export default function PokerBetaBanner({ statusMessage, maintenance }: Props) {
 
   return (
     <>
-      {/* Persistent corner badge — always visible so a tester never forgets this is pre-release. */}
+      {/* Persistent corner badge — a permanent virtual-coin product tag on every poker screen. */}
       <div
         role="status"
-        className="pointer-events-none fixed bottom-3 left-1/2 z-[120] -translate-x-1/2 select-none rounded-full border border-sky-400/60 bg-sky-500/95 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-white shadow-lg"
+        className="pointer-events-none fixed bottom-3 left-1/2 z-[120] max-w-[calc(100vw-1rem)] -translate-x-1/2 select-none whitespace-nowrap rounded-full border border-sky-400/60 bg-sky-500/95 px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-white shadow-lg sm:text-[11px]"
       >
         {t('badge')}
       </div>

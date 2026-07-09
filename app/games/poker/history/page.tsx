@@ -5,6 +5,8 @@ import PokerShell from '../_eco/PokerShell'
 import ReportProblemButton from '../_components/ReportProblemButton'
 import { fetchHandHistory } from '../ecosystem'
 import { coins, signedCoins, dateTime } from '../_eco/format'
+import { Icon } from '../_eco/icons'
+import { PageHeader, Eyebrow, EmptyState, StatCard, CoinDelta } from '../_eco/ui'
 
 export const dynamic = 'force-dynamic'
 
@@ -21,16 +23,26 @@ export default async function PokerHistoryPage() {
   ])
   const { data: { user } } = await supabase.auth.getUser()
 
+  const header = (
+    <PageHeader
+      eyebrow={<Eyebrow icon="clock">{t('nav.history')}</Eyebrow>}
+      icon="clock"
+      tone="royal"
+      title={t('history.title')}
+      subtitle={t('history.subtitle')}
+      actions={<ReportProblemButton variant="inline" context={{ path: '/games/poker/history' }} />}
+    />
+  )
+
   if (!user) {
     return (
       <PokerShell>
-        <Header t={t} />
-        <div className="rounded-xl border border-dashed border-line bg-paper/60 px-6 py-16 text-center">
-          <p className="font-serif text-lg font-semibold">{t('history.empty_title')}</p>
-          <Link href="/login?next=/games/poker/history" className="mt-3 inline-block rounded-lg bg-rose px-4 py-2 text-sm font-medium text-white">
+        {header}
+        <EmptyState icon="user" title={t('history.empty_title')}>
+          <Link href="/login?next=/games/poker/history" className="pk-btn pk-btn-primary">
             {t('error.not_authenticated')}
           </Link>
-        </div>
+        </EmptyState>
       </PokerShell>
     )
   }
@@ -38,54 +50,76 @@ export default async function PokerHistoryPage() {
   const res = await fetchHandHistory(50)
   const hands = res.ok ? res.hands : []
 
+  if (!res.ok) {
+    return (
+      <PokerShell>
+        {header}
+        <EmptyState icon="alert" tone="coral" title={t('history.error_title')} />
+      </PokerShell>
+    )
+  }
+  if (hands.length === 0) {
+    return (
+      <PokerShell>
+        {header}
+        <EmptyState icon="cards" title={t('history.empty_title')} description={t('history.empty_hint')}>
+          <Link href="/games/poker/lobby" className="pk-btn pk-btn-primary">
+            <Icon name="play" size={16} /> {t('landing.quick_play')}
+          </Link>
+        </EmptyState>
+      </PokerShell>
+    )
+  }
+
+  // Summary derived from the loaded page (scoped to shown hands; labelled as such).
+  const won = hands.filter((h) => h.result === 'won').length
+  const lost = hands.filter((h) => h.result === 'lost').length
+  const net = hands.reduce((a, h) => a + h.net, 0)
+  const biggest = hands.reduce((m, h) => Math.max(m, h.potTotal), 0)
+
   return (
     <PokerShell>
-      <Header t={t} />
-      {!res.ok ? (
-        <div className="rounded-xl border border-dashed border-line bg-paper/60 px-6 py-16 text-center">
-          <p className="font-serif text-lg font-semibold">{t('history.error_title')}</p>
-        </div>
-      ) : hands.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-line bg-paper/60 px-6 py-16 text-center">
-          <p className="font-serif text-lg font-semibold">{t('history.empty_title')}</p>
-          <p className="mt-1 text-sm text-muted">{t('history.empty_hint')}</p>
-        </div>
-      ) : (
-        <div className="overflow-hidden rounded-xl border border-line bg-paper">
-          <table className="w-full text-sm">
-            <thead className="border-b border-line bg-cream/60 text-left text-xs uppercase tracking-wide text-muted">
+      {header}
+
+      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <StatCard icon="list" tone="royal" label={t('history.stat_shown')} value={coins(hands.length, locale)} />
+        <StatCard icon="trophy" tone="emerald" label={t('history.stat_won')} value={coins(won, locale)} note={t('history.stat_lost_note', { count: lost })} />
+        <StatCard icon="trending" tone={net >= 0 ? 'emerald' : 'coral'} label={t('stats.net_change')} value={signedCoins(net, locale)} valueClassName={net > 0 ? 'pk-win' : net < 0 ? 'pk-loss' : ''} />
+        <StatCard icon="coins" tone="gold" label={t('stats.biggest_pot')} value={coins(biggest, locale)} />
+      </div>
+      <p className="mb-4 text-xs text-[color:var(--pkp-ink-3)]">{t('history.summary_note')}</p>
+
+      {/* Desktop table */}
+      <div className="pk-panel hidden overflow-hidden md:block">
+        <div className="overflow-x-auto">
+          <table className="pk-table">
+            <thead>
               <tr>
-                <th className="px-4 py-3">{t('history.col_hand')}</th>
-                <th className="px-4 py-3">{t('history.col_table')}</th>
-                <th className="hidden px-4 py-3 sm:table-cell">{t('history.col_blinds')}</th>
-                <th className="px-4 py-3 text-right">{t('history.col_pot')}</th>
-                <th className="px-4 py-3 text-right">{t('history.col_result')}</th>
-                <th className="hidden px-4 py-3 sm:table-cell">{t('history.col_when')}</th>
-                <th className="px-4 py-3" />
+                <th>{t('history.col_hand')}</th>
+                <th>{t('history.col_table')}</th>
+                <th>{t('history.col_blinds')}</th>
+                <th className="!text-right">{t('history.col_pot')}</th>
+                <th className="!text-right">{t('history.col_result')}</th>
+                <th>{t('history.col_when')}</th>
+                <th />
               </tr>
             </thead>
             <tbody>
               {hands.map((h) => (
-                <tr key={h.handId} className="border-b border-line/60 last:border-0 hover:bg-cream/40">
-                  <td className="px-4 py-3 font-medium">#{h.handNo}</td>
-                  <td className="max-w-[10rem] truncate px-4 py-3">{h.tableName}</td>
-                  <td className="hidden px-4 py-3 sm:table-cell">
-                    {coins(h.smallBlind, locale)}/{coins(h.bigBlind, locale)}
+                <tr key={h.handId}>
+                  <td className="font-semibold tabular-nums text-[color:var(--pkp-ink)]">#{h.handNo}</td>
+                  <td className="max-w-[10rem] truncate">{h.tableName}</td>
+                  <td className="tabular-nums text-[color:var(--pkp-ink-2)]">{coins(h.smallBlind, locale)}/{coins(h.bigBlind, locale)}</td>
+                  <td className="text-right tabular-nums">{coins(h.potTotal, locale)}</td>
+                  <td className="text-right">
+                    {h.result === 'even'
+                      ? <span className="pk-even">{t('history.even')}</span>
+                      : <CoinDelta result={h.result}>{signedCoins(h.net, locale)}</CoinDelta>}
                   </td>
-                  <td className="px-4 py-3 text-right tabular-nums">{coins(h.potTotal, locale)}</td>
-                  <td
-                    className={`px-4 py-3 text-right font-medium tabular-nums ${
-                      h.result === 'won' ? 'text-emerald-600' : h.result === 'lost' ? 'text-rose' : 'text-muted'
-                    }`}
-                  >
-                    {h.result === 'even' ? t('history.even') : signedCoins(h.net, locale)}
-                  </td>
-                  <td className="hidden px-4 py-3 text-muted sm:table-cell">
-                    {h.completedAt ? dateTime(h.completedAt, locale) : '—'}
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <Link href={`/games/poker/history/${h.handId}`} className="text-rose hover:underline">
-                      {t('history.view')}
+                  <td className="text-[color:var(--pkp-ink-2)]">{h.completedAt ? dateTime(h.completedAt, locale) : '—'}</td>
+                  <td className="text-right">
+                    <Link href={`/games/poker/history/${h.handId}`} className="inline-flex items-center gap-1 text-sm font-medium text-[color:var(--pkp-ruby-ink)] hover:underline">
+                      {t('history.view')} <Icon name="chevronRight" size={14} />
                     </Link>
                   </td>
                 </tr>
@@ -93,19 +127,34 @@ export default async function PokerHistoryPage() {
             </tbody>
           </table>
         </div>
-      )}
-    </PokerShell>
-  )
-}
-
-function Header({ t }: { t: (k: string) => string }) {
-  return (
-    <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
-      <div>
-        <h1 className="font-serif text-2xl font-bold">{t('history.title')}</h1>
-        <p className="text-sm text-muted">{t('history.subtitle')}</p>
       </div>
-      <ReportProblemButton variant="inline" context={{ path: '/games/poker/history' }} />
-    </div>
+
+      {/* Mobile cards */}
+      <ul className="grid gap-3 md:hidden">
+        {hands.map((h) => (
+          <li key={h.handId}>
+            <Link href={`/games/poker/history/${h.handId}`} className="pk-card flex items-center justify-between gap-3 p-4">
+              <div className="min-w-0">
+                <p className="flex items-center gap-2 font-semibold text-[color:var(--pkp-ink)]">
+                  <span className="tabular-nums">#{h.handNo}</span>
+                  <span className="truncate font-normal text-[color:var(--pkp-ink-2)]">{h.tableName}</span>
+                </p>
+                <p className="mt-1 flex flex-wrap items-center gap-x-2 text-xs text-[color:var(--pkp-ink-3)]">
+                  <span className="tabular-nums">{coins(h.smallBlind, locale)}/{coins(h.bigBlind, locale)}</span>
+                  <span>·</span>
+                  <span className="tabular-nums">{t('history.col_pot')} {coins(h.potTotal, locale)}</span>
+                  {h.completedAt && <><span>·</span><span>{dateTime(h.completedAt, locale)}</span></>}
+                </p>
+              </div>
+              <div className="shrink-0 text-right">
+                {h.result === 'even'
+                  ? <span className="pk-even text-sm font-semibold">{t('history.even')}</span>
+                  : <CoinDelta result={h.result}>{signedCoins(h.net, locale)}</CoinDelta>}
+              </div>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </PokerShell>
   )
 }

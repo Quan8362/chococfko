@@ -1987,7 +1987,11 @@
         "feature_fair": "Minh bạch",
         "feature_fair_desc": "Bài được xáo và chia trên máy chủ. Bài tẩy của bạn không bao giờ bị lộ.",
         "responsible": "Chỉ là xu ảo",
-        "responsible_note": "Xu là ảo và không có giá trị tiền tệ."
+        "responsible_note": "Xu là ảo và không có giá trị tiền tệ.",
+        "play_heading": "Vào cuộc",
+        "recent_tables": "Bàn gần đây",
+        "why_heading": "Vì sao chơi ở đây",
+        "learn_heading": "Tìm hiểu thêm"
       },
       "nav": {
         "lobby": "Sảnh",
@@ -2031,7 +2035,12 @@
         "empty_title": "Chưa có bàn nào",
         "empty_hint": "Hãy là người đầu tiên — tạo bàn hoặc chơi nhanh.",
         "error_title": "Không tải được sảnh",
-        "retry": "Thử lại"
+        "retry": "Thử lại",
+        "search_ph": "Tìm theo tên bàn…",
+        "filter_all": "Tất cả",
+        "filter_open": "Còn ghế",
+        "no_match": "Không có bàn khớp",
+        "count": "{count} bàn"
       },
       "quick": {
         "searching": "Đang tìm bàn…",
@@ -2081,7 +2090,8 @@
         "err_blinds": "Cược lớn phải gấp đúng đôi cược nhỏ.",
         "err_password": "Bàn riêng tư cần mật khẩu.",
         "err_buyin": "Vào tối đa phải lớn hơn hoặc bằng vào tối thiểu.",
-        "buyin_derived_hint": "Giới hạn mua vào theo mức cược đã chọn."
+        "buyin_derived_hint": "Giới hạn mua vào theo mức cược đã chọn.",
+        "review_title": "Xem lại"
       },
       "join": {
         "title": "Bàn riêng tư",
@@ -2117,7 +2127,11 @@
         "view": "Xem",
         "loading": "Đang tải…",
         "error_title": "Không tải được lịch sử",
-        "retry": "Thử lại"
+        "retry": "Thử lại",
+        "stat_shown": "Ván hiển thị",
+        "stat_won": "Thắng",
+        "stat_lost_note": "Thua {count}",
+        "summary_note": "Tổng hợp từ các ván hiển thị bên dưới."
       },
       "hand": {
         "title": "Ván #{n}",
@@ -2164,7 +2178,11 @@
         "recent_title": "Ván gần đây",
         "no_recent": "Chưa có ván gần đây.",
         "view_history": "Xem toàn bộ lịch sử",
-        "sign_in": "Đăng nhập để xem hồ sơ."
+        "sign_in": "Đăng nhập để xem hồ sơ.",
+        "group_overall": "Tổng quan",
+        "group_showdown": "Showdown",
+        "group_pot": "Pot",
+        "group_stack": "Stack"
       },
       "stats": {
         "hands_played": "Số ván đã chơi",
@@ -2177,7 +2195,8 @@
         "biggest_pot": "Pot lớn nhất đã thắng",
         "net_change": "Thay đổi stack ròng",
         "net_note": "Tổng thay đổi stack qua các ván (xu ảo).",
-        "sessions": "Phiên gần đây"
+        "sessions": "Phiên gần đây",
+        "showdown_rate_note": "Showdown thắng ÷ showdown đã vào"
       },
       "rules": {
         "title": "Cách chơi",
@@ -2197,7 +2216,10 @@
         "s_etiquette_t": "Chơi đẹp",
         "s_etiquette_b": "Bài được xáo và chia trên máy chủ. Hãy ra quyết định trong thời gian, nếu không máy chủ sẽ bỏ/xét thay bạn.",
         "hand_ranking_title": "Xếp hạng bài (cao đến thấp)",
-        "more_in_glossary": "Xem thuật ngữ cho mọi từ."
+        "more_in_glossary": "Xem thuật ngữ cho mọi từ.",
+        "contents": "Nội dung",
+        "timeline_title": "Diễn tiến một ván",
+        "preflop": "Preflop"
       },
       "glossary": {
         "title": "Thuật ngữ Poker",
@@ -2249,6 +2271,12 @@
           "sb": "Cược nhỏ (SB)",
           "position": "Vị trí",
           "kicker": "Kicker"
+        },
+        "cat": {
+          "actions": "Hành động",
+          "betting": "Tiền cược",
+          "cards": "Bài & vòng",
+          "position": "Vị trí"
         }
       },
       "settings": {
@@ -2273,7 +2301,25 @@
         "on": "Bật",
         "off": "Tắt",
         "saved": "Đã lưu",
-        "reset": "Đặt lại mặc định"
+        "reset": "Đặt lại mặc định",
+        "sec_audio": "Âm thanh",
+        "sec_audio_desc": "Âm chính và các âm hiệu ở bàn.",
+        "sec_feedback": "Phản hồi khi chơi",
+        "sec_feedback_desc": "Cảnh báo hết giờ và phản hồi rung.",
+        "sec_display": "Hiển thị & chuyển động",
+        "sec_display_desc": "Hiệu ứng chuyển động khi chơi.",
+        "sec_device": "Thiết bị",
+        "sec_device_desc": "Cách ứng dụng dùng tính năng thiết bị.",
+        "sec_accessibility": "Trợ năng",
+        "sec_accessibility_desc": "Tùy chọn giúp dễ tiếp cận hơn.",
+        "sec_privacy": "Quyền riêng tư & chặn",
+        "sec_privacy_desc": "Người bạn đã chặn ở bàn.",
+        "master_required": "Bật Âm thanh để dùng",
+        "device_note": "Tùy thiết bị hỗ trợ",
+        "reset_confirm_title": "Đặt lại cài đặt?",
+        "reset_confirm_body": "Mọi tùy chọn poker trên thiết bị này sẽ trở về mặc định.",
+        "reset_confirm_yes": "Đặt lại",
+        "privacy_empty_hint": "Người bị chặn sẽ hiện ở đây."
       },
       "report": {
         "title": "Báo cáo người chơi",

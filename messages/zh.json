@@ -1987,7 +1987,11 @@
         "feature_fair": "公平发牌",
         "feature_fair_desc": "牌在服务器洗发，你的底牌绝不外泄。",
         "responsible": "仅虚拟金币",
-        "responsible_note": "金币为虚拟，无任何货币价值。"
+        "responsible_note": "金币为虚拟，无任何货币价值。",
+        "play_heading": "开始游戏",
+        "recent_tables": "最近的牌桌",
+        "why_heading": "为什么选择这里",
+        "learn_heading": "了解更多"
       },
       "nav": {
         "lobby": "大厅",
@@ -2031,7 +2035,12 @@
         "empty_title": "暂无公开牌桌",
         "empty_hint": "抢先一步——创建牌桌或快速开始。",
         "error_title": "无法加载大厅",
-        "retry": "重试"
+        "retry": "重试",
+        "search_ph": "按牌桌名称搜索…",
+        "filter_all": "全部",
+        "filter_open": "有空位",
+        "no_match": "没有匹配的牌桌",
+        "count": "{count} 张牌桌"
       },
       "quick": {
         "searching": "正在寻找牌桌…",
@@ -2081,7 +2090,8 @@
         "err_blinds": "大盲必须恰好是小盲的两倍。",
         "err_password": "私人牌桌需要密码。",
         "err_buyin": "最高买入不得低于最低买入。",
-        "buyin_derived_hint": "买入上限由所选盲注级别决定。"
+        "buyin_derived_hint": "买入上限由所选盲注级别决定。",
+        "review_title": "确认"
       },
       "join": {
         "title": "私人牌桌",
@@ -2117,7 +2127,11 @@
         "view": "查看",
         "loading": "加载中…",
         "error_title": "无法加载记录",
-        "retry": "重试"
+        "retry": "重试",
+        "stat_shown": "显示的手牌",
+        "stat_won": "获胜",
+        "stat_lost_note": "输 {count}",
+        "summary_note": "以下所示手牌的汇总。"
       },
       "hand": {
         "title": "牌局 #{n}",
@@ -2164,7 +2178,11 @@
         "recent_title": "最近牌局",
         "no_recent": "暂无最近牌局。",
         "view_history": "查看全部记录",
-        "sign_in": "登录后查看资料。"
+        "sign_in": "登录后查看资料。",
+        "group_overall": "总览",
+        "group_showdown": "摊牌",
+        "group_pot": "底池",
+        "group_stack": "筹码量"
       },
       "stats": {
         "hands_played": "已玩牌局",
@@ -2177,7 +2195,8 @@
         "biggest_pot": "最大赢得底池",
         "net_change": "筹码净变化",
         "net_note": "各牌局筹码变化之和（虚拟）。",
-        "sessions": "最近场次"
+        "sessions": "最近场次",
+        "showdown_rate_note": "摊牌获胜 ÷ 进入摊牌"
       },
       "rules": {
         "title": "玩法",
@@ -2197,7 +2216,10 @@
         "s_etiquette_t": "公平竞技",
         "s_etiquette_b": "牌在服务器洗发。请在计时内行动，否则服务器会替你弃牌/过牌。",
         "hand_ranking_title": "牌型大小（从高到低）",
-        "more_in_glossary": "任何术语见术语表。"
+        "more_in_glossary": "任何术语见术语表。",
+        "contents": "目录",
+        "timeline_title": "一手牌的流程",
+        "preflop": "翻牌前"
       },
       "glossary": {
         "title": "扑克术语",
@@ -2249,6 +2271,12 @@
           "sb": "小盲",
           "position": "位置",
           "kicker": "旁牌"
+        },
+        "cat": {
+          "actions": "动作",
+          "betting": "下注",
+          "cards": "牌与轮次",
+          "position": "位置"
         }
       },
       "settings": {
@@ -2273,7 +2301,25 @@
         "on": "开",
         "off": "关",
         "saved": "已保存",
-        "reset": "恢复默认"
+        "reset": "恢复默认",
+        "sec_audio": "音频",
+        "sec_audio_desc": "主音量与牌桌音效。",
+        "sec_feedback": "游戏反馈",
+        "sec_feedback_desc": "计时提示与震动反馈。",
+        "sec_display": "显示与动效",
+        "sec_display_desc": "动效与动画。",
+        "sec_device": "设备行为",
+        "sec_device_desc": "应用如何使用设备功能。",
+        "sec_accessibility": "无障碍",
+        "sec_accessibility_desc": "让游戏更易用的选项。",
+        "sec_privacy": "隐私与屏蔽",
+        "sec_privacy_desc": "你在牌桌屏蔽的玩家。",
+        "master_required": "开启音频后可用",
+        "device_note": "取决于设备支持",
+        "reset_confirm_title": "重置设置？",
+        "reset_confirm_body": "此设备上的所有扑克选项将恢复默认。",
+        "reset_confirm_yes": "重置",
+        "privacy_empty_hint": "你屏蔽的玩家会显示在这里。"
       },
       "report": {
         "title": "举报玩家",

@@ -1987,7 +1987,11 @@
         "feature_fair": "公正な配牌",
         "feature_fair_desc": "カードはサーバーでシャッフル・配牌。手札が漏れることはありません。",
         "responsible": "仮想コインのみ",
-        "responsible_note": "コインは仮想で金銭的価値はありません。"
+        "responsible_note": "コインは仮想で金銭的価値はありません。",
+        "play_heading": "遊び方",
+        "recent_tables": "最近のテーブル",
+        "why_heading": "ここで遊ぶ理由",
+        "learn_heading": "もっと知る"
       },
       "nav": {
         "lobby": "ロビー",
@@ -2031,7 +2035,12 @@
         "empty_title": "公開テーブルがありません",
         "empty_hint": "最初の一人に——テーブルを作るかクイックプレイを。",
         "error_title": "ロビーを読み込めませんでした",
-        "retry": "再試行"
+        "retry": "再試行",
+        "search_ph": "テーブル名で検索…",
+        "filter_all": "すべて",
+        "filter_open": "空席あり",
+        "no_match": "一致するテーブルがありません",
+        "count": "{count} 卓"
       },
       "quick": {
         "searching": "テーブルを検索中…",
@@ -2081,7 +2090,8 @@
         "err_blinds": "ビッグはスモールのちょうど2倍にしてください。",
         "err_password": "非公開テーブルにはパスワードが必要です。",
         "err_buyin": "最大バイインは最小以上にしてください。",
-        "buyin_derived_hint": "バイインの上限は選択したステークで決まります。"
+        "buyin_derived_hint": "バイインの上限は選択したステークで決まります。",
+        "review_title": "確認"
       },
       "join": {
         "title": "プライベートテーブル",
@@ -2117,7 +2127,11 @@
         "view": "表示",
         "loading": "読み込み中…",
         "error_title": "履歴を読み込めませんでした",
-        "retry": "再試行"
+        "retry": "再試行",
+        "stat_shown": "表示中のハンド",
+        "stat_won": "勝ち",
+        "stat_lost_note": "負け {count}",
+        "summary_note": "以下に表示されているハンドの集計です。"
       },
       "hand": {
         "title": "ハンド #{n}",
@@ -2164,7 +2178,11 @@
         "recent_title": "最近のハンド",
         "no_recent": "最近のハンドはありません。",
         "view_history": "全履歴を見る",
-        "sign_in": "プロフィールを見るにはサインイン。"
+        "sign_in": "プロフィールを見るにはサインイン。",
+        "group_overall": "総合",
+        "group_showdown": "ショーダウン",
+        "group_pot": "ポット",
+        "group_stack": "スタック"
       },
       "stats": {
         "hands_played": "プレイ数",
@@ -2177,7 +2195,8 @@
         "biggest_pot": "最大獲得ポット",
         "net_change": "スタック純増減",
         "net_note": "各ハンドのスタック増減の合計（仮想）。",
-        "sessions": "最近のセッション"
+        "sessions": "最近のセッション",
+        "showdown_rate_note": "ショーダウン勝利 ÷ ショーダウン到達"
       },
       "rules": {
         "title": "遊び方",
@@ -2197,7 +2216,10 @@
         "s_etiquette_t": "フェアプレー",
         "s_etiquette_b": "カードはサーバーでシャッフル・配牌。時間内に行動しないとサーバーが代わりにフォールド/チェックします。",
         "hand_ranking_title": "役の強さ（高→低）",
-        "more_in_glossary": "用語は用語集を参照。"
+        "more_in_glossary": "用語は用語集を参照。",
+        "contents": "目次",
+        "timeline_title": "ハンドの進行",
+        "preflop": "プリフロップ"
       },
       "glossary": {
         "title": "ポーカー用語集",
@@ -2249,6 +2271,12 @@
           "sb": "スモールブラインド",
           "position": "ポジション",
           "kicker": "キッカー"
+        },
+        "cat": {
+          "actions": "アクション",
+          "betting": "ベット",
+          "cards": "カードとストリート",
+          "position": "ポジション"
         }
       },
       "settings": {
@@ -2273,7 +2301,25 @@
         "on": "オン",
         "off": "オフ",
         "saved": "保存しました",
-        "reset": "初期設定に戻す"
+        "reset": "初期設定に戻す",
+        "sec_audio": "オーディオ",
+        "sec_audio_desc": "マスター音量とテーブルの音。",
+        "sec_feedback": "ゲームのフィードバック",
+        "sec_feedback_desc": "タイマー通知と触覚フィードバック。",
+        "sec_display": "表示とモーション",
+        "sec_display_desc": "モーションとアニメーション効果。",
+        "sec_device": "デバイスの動作",
+        "sec_device_desc": "アプリがデバイス機能をどう使うか。",
+        "sec_accessibility": "アクセシビリティ",
+        "sec_accessibility_desc": "遊びやすくするためのオプション。",
+        "sec_privacy": "プライバシーとブロック",
+        "sec_privacy_desc": "テーブルでブロックしたプレイヤー。",
+        "master_required": "使用するにはオーディオをオン",
+        "device_note": "デバイスの対応による",
+        "reset_confirm_title": "設定をリセットしますか？",
+        "reset_confirm_body": "この端末のすべてのポーカー設定が既定値に戻ります。",
+        "reset_confirm_yes": "リセット",
+        "privacy_empty_hint": "ブロックしたプレイヤーがここに表示されます。"
       },
       "report": {
         "title": "プレイヤーを通報",

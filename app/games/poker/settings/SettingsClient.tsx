@@ -1,13 +1,31 @@
 'use client'
 
-import { useEffect, useState, useTransition } from 'react'
+import { useEffect, useRef, useState, useTransition } from 'react'
 import { useTranslations } from 'next-intl'
 import { resetPrefs, setPref, usePokerPrefs, type PokerPrefKey } from '../_eco/prefs'
 import { listMyBlocks, unblockPlayer } from '../ecosystem'
+import { Icon, type IconName } from '../_eco/icons'
+import PokerAvatar from '../_eco/PokerAvatar'
+import { PageHeader, Eyebrow, EmptyState, type Tone } from '../_eco/ui'
 
-// Grouped so the audio master reads clearly above the sub-categories it gates.
-const TOGGLES: PokerPrefKey[] = ['sound', 'effects', 'timerWarning', 'music', 'vibration', 'wakeLock', 'animation', 'reducedMotion']
-const LABEL: Record<PokerPrefKey, { t: string; hint: string }> = {
+// ── Section model ─────────────────────────────────────────────────────────────────────────────
+type SectionKey = 'audio' | 'feedback' | 'display' | 'device' | 'accessibility' | 'privacy'
+interface SectionDef {
+  key: SectionKey
+  icon: IconName
+  tone: Tone
+  prefs?: PokerPrefKey[]
+}
+const SECTIONS: SectionDef[] = [
+  { key: 'audio', icon: 'volume', tone: 'ruby', prefs: ['sound', 'effects', 'music'] },
+  { key: 'feedback', icon: 'vibrate', tone: 'emerald', prefs: ['timerWarning', 'vibration'] },
+  { key: 'display', icon: 'sun', tone: 'amber', prefs: ['animation'] },
+  { key: 'device', icon: 'monitor', tone: 'royal', prefs: ['wakeLock'] },
+  { key: 'accessibility', icon: 'accessibility', tone: 'violet', prefs: ['reducedMotion'] },
+  { key: 'privacy', icon: 'ban', tone: 'neutral' },
+]
+
+const PREF_META: Record<PokerPrefKey, { t: string; hint: string }> = {
   sound: { t: 'settings.sound', hint: 'settings.sound_hint' },
   effects: { t: 'settings.effects', hint: 'settings.effects_hint' },
   timerWarning: { t: 'settings.timer_warning', hint: 'settings.timer_warning_hint' },
@@ -17,32 +35,42 @@ const LABEL: Record<PokerPrefKey, { t: string; hint: string }> = {
   animation: { t: 'settings.animation', hint: 'settings.animation_hint' },
   reducedMotion: { t: 'settings.reduced_motion', hint: 'settings.reduced_motion_hint' },
 }
+// Prefs whose behaviour depends on the device supporting an API.
+const DEVICE_DEPENDENT = new Set<PokerPrefKey>(['vibration', 'wakeLock'])
+// Prefs gated by the audio master.
+const MASTER_GATED = new Set<PokerPrefKey>(['effects', 'music', 'timerWarning'])
 
 export default function SettingsClient() {
   const t = useTranslations('games.poker')
   const prefs = usePokerPrefs()
+  const [active, setActive] = useState<SectionKey>('audio')
   const [saved, setSaved] = useState(false)
+  const [confirmReset, setConfirmReset] = useState(false)
   const [blocked, setBlocked] = useState<{ userId: string; displayName: string | null }[]>([])
   const [, start] = useTransition()
+  const savedTimer = useRef<ReturnType<typeof setTimeout>>()
 
   useEffect(() => {
     void listMyBlocks().then((res) => {
       if (res.ok) setBlocked(res.blocked)
     })
+    return () => clearTimeout(savedTimer.current)
   }, [])
 
+  function flashSaved() {
+    setSaved(true)
+    clearTimeout(savedTimer.current)
+    savedTimer.current = setTimeout(() => setSaved(false), 1600)
+  }
   function toggle(key: PokerPrefKey) {
     setPref(key, !prefs[key])
-    setSaved(true)
-    setTimeout(() => setSaved(false), 1500)
+    flashSaved()
   }
-
-  function reset() {
+  function doReset() {
     resetPrefs()
-    setSaved(true)
-    setTimeout(() => setSaved(false), 1500)
+    setConfirmReset(false)
+    flashSaved()
   }
-
   function unblock(userId: string) {
     start(async () => {
       const res = await unblockPlayer(userId)
@@ -50,66 +78,197 @@ export default function SettingsClient() {
     })
   }
 
-  return (
-    <div className="max-w-2xl">
-      <div className="mb-5 flex items-center justify-between">
-        <div>
-          <h1 className="font-serif text-2xl font-bold">{t('settings.title')}</h1>
-          <p className="text-sm text-muted">{t('settings.subtitle')}</p>
-        </div>
-        {saved && <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-700">{t('settings.saved')}</span>}
+  const renderSection = (s: SectionDef, compact = false) => (
+    <div className="flex flex-col gap-1">
+      <div className="mb-1">
+        {!compact && (
+          <h2 className="flex items-center gap-2 font-serif text-lg font-semibold text-[color:var(--pkp-ink)]">
+            <span className={`pk-ichip pk-ichip-${s.tone} h-8 w-8`}><Icon name={s.icon} size={17} /></span>
+            {t(`settings.sec_${s.key}`)}
+          </h2>
+        )}
+        <p className={`text-sm text-[color:var(--pkp-ink-2)] ${compact ? '' : 'mt-1'}`}>{t(`settings.sec_${s.key}_desc`)}</p>
       </div>
 
-      <div className="divide-y divide-line rounded-xl border border-line bg-paper">
-        {TOGGLES.map((key) => {
-          // Sub-categories of audio are inert while the master `sound` is off — dim + disable them
-          // so the dependency is visible (they still remember their own on/off state).
-          const gatedByMaster = (key === 'effects' || key === 'timerWarning' || key === 'music') && !prefs.sound
-          return (
-            <label
-              key={key}
-              className={`flex items-center justify-between gap-4 p-4 ${gatedByMaster ? 'opacity-50' : 'cursor-pointer'} ${key !== 'sound' && (key === 'effects' || key === 'timerWarning' || key === 'music') ? 'pl-8' : ''}`}
-            >
-              <span>
-                <span className="font-medium">{t(LABEL[key].t)}</span>
-                <span className="block text-xs text-muted">{t(LABEL[key].hint)}</span>
-              </span>
-              <button
-                type="button"
-                role="switch"
-                aria-checked={prefs[key]}
-                disabled={gatedByMaster}
-                onClick={() => toggle(key)}
-                className={`relative h-6 w-11 shrink-0 appearance-none rounded-full transition-colors disabled:cursor-not-allowed ${prefs[key] ? 'bg-rose' : 'bg-line'}`}
-              >
-                <span
-                  className={`pointer-events-none absolute top-1/2 h-5 w-5 -translate-y-1/2 rounded-full bg-white shadow transition-[left] ${prefs[key] ? 'left-[22px]' : 'left-0.5'}`}
-                />
-              </button>
-            </label>
-          )
-        })}
-      </div>
-
-      <button onClick={reset} className="mt-4 rounded-lg border border-line px-4 py-2 text-sm hover:border-rose">
-        {t('settings.reset')}
-      </button>
-
-      <h2 className="mb-3 mt-8 font-serif text-lg font-semibold">{t('block.blocked_list')}</h2>
-      {blocked.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-line bg-paper/60 px-6 py-8 text-center text-muted">{t('block.no_blocks')}</p>
+      {s.key === 'privacy' ? (
+        <PrivacySection blocked={blocked} onUnblock={unblock} />
       ) : (
-        <ul className="space-y-2">
-          {blocked.map((b) => (
-            <li key={b.userId} className="flex items-center justify-between rounded-xl border border-line bg-paper p-3">
-              <span>{b.displayName ?? t('profile.anonymous')}</span>
-              <button onClick={() => unblock(b.userId)} className="rounded-lg border border-line px-3 py-1 text-sm hover:border-rose">
-                {t('block.unblock')}
-              </button>
-            </li>
-          ))}
-        </ul>
+        <div className="pk-panel divide-y divide-[color:var(--pkp-line)] overflow-hidden">
+          {s.prefs!.map((key) => {
+            const gated = MASTER_GATED.has(key) && !prefs.sound
+            const isChild = MASTER_GATED.has(key)
+            return (
+              <div key={key} className={`flex items-center justify-between gap-4 p-4 ${gated ? 'opacity-55' : ''} ${isChild ? 'pl-6' : ''}`}>
+                <div className="min-w-0">
+                  <p className="font-medium text-[color:var(--pkp-ink)]">{t(PREF_META[key].t)}</p>
+                  <p className="mt-0.5 text-xs text-[color:var(--pkp-ink-2)]">{t(PREF_META[key].hint)}</p>
+                  {gated && (
+                    <p className="mt-1 inline-flex items-center gap-1 text-[11px] font-medium text-[color:var(--pkp-amber-ink)]">
+                      <Icon name="info" size={12} /> {t('settings.master_required')}
+                    </p>
+                  )}
+                  {DEVICE_DEPENDENT.has(key) && (
+                    <p className="mt-1 inline-flex items-center gap-1 text-[11px] text-[color:var(--pkp-ink-3)]">
+                      <Icon name="monitor" size={12} /> {t('settings.device_note')}
+                    </p>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={prefs[key]}
+                  aria-label={t(PREF_META[key].t)}
+                  disabled={gated}
+                  onClick={() => toggle(key)}
+                  className="pk-switch"
+                />
+              </div>
+            )
+          })}
+        </div>
       )}
+    </div>
+  )
+
+  return (
+    <div>
+      <PageHeader
+        eyebrow={<Eyebrow icon="settings">{t('nav.settings')}</Eyebrow>}
+        icon="settings"
+        tone="neutral"
+        title={t('settings.title')}
+        subtitle={t('settings.subtitle')}
+        actions={
+          <span
+            aria-live="polite"
+            className={`inline-flex items-center gap-1.5 rounded-full bg-[color:var(--pkp-emerald-tint)] px-3 py-1.5 text-sm font-medium text-[color:var(--pkp-emerald-ink)] transition-opacity duration-300 ${saved ? 'opacity-100' : 'pointer-events-none opacity-0'}`}
+          >
+            <Icon name="check" size={15} /> {t('settings.saved')}
+          </span>
+        }
+      />
+
+      <div className="grid gap-6 lg:grid-cols-[15rem_minmax(0,1fr)]">
+        {/* Desktop category nav */}
+        <nav aria-label={t('settings.title')} className="hidden lg:block lg:sticky lg:top-28 lg:self-start">
+          <ul className="flex flex-col gap-0.5">
+            {SECTIONS.map((s) => {
+              const on = active === s.key
+              return (
+                <li key={s.key}>
+                  <button
+                    type="button"
+                    onClick={() => setActive(s.key)}
+                    aria-current={on ? 'true' : undefined}
+                    className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-sm font-medium transition-colors ${
+                      on ? 'bg-[color:var(--pkp-ruby-tint)] text-[color:var(--pkp-ruby-ink)]' : 'text-[color:var(--pkp-ink-2)] hover:bg-[color:var(--pkp-surface-2)] hover:text-[color:var(--pkp-ink)]'
+                    }`}
+                  >
+                    <Icon name={s.icon} size={16} /> {t(`settings.sec_${s.key}`)}
+                  </button>
+                </li>
+              )
+            })}
+          </ul>
+          <button type="button" onClick={() => setConfirmReset(true)} className="pk-btn pk-btn-ghost mt-4 w-full justify-start">
+            <Icon name="refresh" size={15} /> {t('settings.reset')}
+          </button>
+        </nav>
+
+        {/* Desktop active panel */}
+        <div className="hidden min-w-0 lg:block">
+          {renderSection(SECTIONS.find((s) => s.key === active)!)}
+        </div>
+
+        {/* Mobile accordion */}
+        <div className="flex flex-col gap-3 lg:hidden">
+          {SECTIONS.map((s) => (
+            <details key={s.key} className="pk-panel overflow-hidden" open={s.key === 'audio'}>
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-4">
+                <span className="flex items-center gap-2.5 font-serif text-base font-semibold text-[color:var(--pkp-ink)]">
+                  <span className={`pk-ichip pk-ichip-${s.tone} h-8 w-8`}><Icon name={s.icon} size={16} /></span>
+                  {t(`settings.sec_${s.key}`)}
+                </span>
+                <Icon name="chevronDown" size={18} className="text-[color:var(--pkp-ink-3)]" />
+              </summary>
+              <div className="border-t border-[color:var(--pkp-line)] p-4">{renderSection(s, true)}</div>
+            </details>
+          ))}
+          <button type="button" onClick={() => setConfirmReset(true)} className="pk-btn pk-btn-secondary mt-1 w-full">
+            <Icon name="refresh" size={16} /> {t('settings.reset')}
+          </button>
+        </div>
+      </div>
+
+      {confirmReset && (
+        <ConfirmReset onCancel={() => setConfirmReset(false)} onConfirm={doReset} />
+      )}
+    </div>
+  )
+}
+
+function PrivacySection({
+  blocked,
+  onUnblock,
+}: {
+  blocked: { userId: string; displayName: string | null }[]
+  onUnblock: (id: string) => void
+}) {
+  const t = useTranslations('games.poker')
+  if (blocked.length === 0) {
+    return <EmptyState icon="users" title={t('block.no_blocks')} description={t('settings.privacy_empty_hint')} />
+  }
+  return (
+    <ul className="flex flex-col gap-2">
+      {blocked.map((b) => (
+        <li key={b.userId} className="pk-panel flex items-center justify-between gap-3 p-3">
+          <span className="flex min-w-0 items-center gap-2.5">
+            <PokerAvatar name={b.displayName} size={36} decorative />
+            <span className="truncate font-medium text-[color:var(--pkp-ink)]">{b.displayName ?? t('profile.anonymous')}</span>
+          </span>
+          <button onClick={() => onUnblock(b.userId)} className="pk-btn pk-btn-secondary pk-btn-sm">
+            {t('block.unblock')}
+          </button>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+function ConfirmReset({ onCancel, onConfirm }: { onCancel: () => void; onConfirm: () => void }) {
+  const t = useTranslations('games.poker')
+  const ref = useRef<HTMLButtonElement>(null)
+  useEffect(() => {
+    ref.current?.focus()
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') onCancel()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [onCancel])
+  return (
+    <div className="pk-dialog-backdrop place-items-center" role="presentation" onClick={onCancel}>
+      <div
+        className="pk-dialog pk-fade-up max-w-sm p-6"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="pk-reset-title"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center gap-3">
+          <span className="pk-ichip pk-ichip-amber h-10 w-10"><Icon name="alert" size={20} /></span>
+          <h3 id="pk-reset-title" className="font-serif text-lg font-semibold text-[color:var(--pkp-ink)]">
+            {t('settings.reset_confirm_title')}
+          </h3>
+        </div>
+        <p className="mt-3 text-sm text-[color:var(--pkp-ink-2)]">{t('settings.reset_confirm_body')}</p>
+        <div className="mt-5 flex justify-end gap-2">
+          <button onClick={onCancel} className="pk-btn pk-btn-ghost">{t('join.cancel')}</button>
+          <button ref={ref} onClick={onConfirm} className="pk-btn pk-btn-primary">
+            <Icon name="refresh" size={16} /> {t('settings.reset_confirm_yes')}
+          </button>
+        </div>
+      </div>
     </div>
   )
 }

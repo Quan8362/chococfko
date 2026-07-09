@@ -1,11 +1,7 @@
 import { getTranslations } from 'next-intl/server'
 import PokerShell from '../_eco/PokerShell'
-import GlossaryClient, { type GlossaryTerm } from './GlossaryClient'
+import GlossaryClient, { type GlossaryTerm, type GlossaryCategory } from './GlossaryClient'
 
-// Must render per-request: the poker layout gates on getPokerAccess() (POKER_ENABLED / admin
-// cookie). A force-static prerender bakes the build-time gate result (feature OFF ⇒ notFound),
-// which would 404 this page for admins and after a flag-flip until a rebuild. Dynamic like every
-// other gated poker route.
 export const dynamic = 'force-dynamic'
 
 export async function generateMetadata() {
@@ -13,17 +9,39 @@ export async function generateMetadata() {
   return { title: `${t('glossary.title')} · ${t('title')}` }
 }
 
-const KEYS = [
-  'blind', 'sb', 'bb', 'button', 'position', 'check', 'call', 'raise', 'fold', 'allin',
-  'pot', 'sidepot', 'board', 'flop', 'turn', 'river', 'showdown', 'muck', 'buyin', 'stack', 'kicker',
-] as const
+// Each term keyed to its category so the library can group and filter (no schema change — the
+// categorisation is a presentation concern over the same static term set).
+const TERMS: { key: string; category: GlossaryCategory }[] = [
+  { key: 'check', category: 'actions' },
+  { key: 'call', category: 'actions' },
+  { key: 'raise', category: 'actions' },
+  { key: 'fold', category: 'actions' },
+  { key: 'allin', category: 'actions' },
+  { key: 'muck', category: 'actions' },
+  { key: 'blind', category: 'betting' },
+  { key: 'sb', category: 'betting' },
+  { key: 'bb', category: 'betting' },
+  { key: 'pot', category: 'betting' },
+  { key: 'sidepot', category: 'betting' },
+  { key: 'buyin', category: 'betting' },
+  { key: 'stack', category: 'betting' },
+  { key: 'board', category: 'cards' },
+  { key: 'flop', category: 'cards' },
+  { key: 'turn', category: 'cards' },
+  { key: 'river', category: 'cards' },
+  { key: 'showdown', category: 'cards' },
+  { key: 'kicker', category: 'cards' },
+  { key: 'button', category: 'position' },
+  { key: 'position', category: 'position' },
+]
 
 export default async function PokerGlossaryPage() {
   const t = await getTranslations('games.poker')
-  const terms: GlossaryTerm[] = KEYS.map((k) => ({
-    key: k,
-    label: t(`glossary.label.${k}`),
-    def: t(`glossary.terms.${k}`),
+  const terms: GlossaryTerm[] = TERMS.map(({ key, category }) => ({
+    key,
+    category,
+    label: t(`glossary.label.${key}`),
+    def: t(`glossary.terms.${key}`),
   }))
   return (
     <PokerShell>

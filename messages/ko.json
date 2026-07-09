@@ -1987,7 +1987,11 @@
         "feature_fair": "공정한 분배",
         "feature_fair_desc": "카드는 서버에서 셔플·분배됩니다. 핸드가 노출되지 않습니다.",
         "responsible": "가상 코인 전용",
-        "responsible_note": "코인은 가상이며 금전적 가치가 없습니다."
+        "responsible_note": "코인은 가상이며 금전적 가치가 없습니다.",
+        "play_heading": "플레이 방법",
+        "recent_tables": "최근 테이블",
+        "why_heading": "여기서 플레이하는 이유",
+        "learn_heading": "더 알아보기"
       },
       "nav": {
         "lobby": "로비",
@@ -2031,7 +2035,12 @@
         "empty_title": "공개 테이블이 없습니다",
         "empty_hint": "첫 번째가 되어보세요——테이블을 만들거나 빠른 시작을.",
         "error_title": "로비를 불러오지 못했습니다",
-        "retry": "다시 시도"
+        "retry": "다시 시도",
+        "search_ph": "테이블 이름 검색…",
+        "filter_all": "전체",
+        "filter_open": "빈자리",
+        "no_match": "일치하는 테이블 없음",
+        "count": "테이블 {count}개"
       },
       "quick": {
         "searching": "테이블 검색 중…",
@@ -2081,7 +2090,8 @@
         "err_blinds": "빅은 스몰의 정확히 2배여야 합니다.",
         "err_password": "비공개 테이블에는 비밀번호가 필요합니다.",
         "err_buyin": "최대 바이인은 최소 이상이어야 합니다.",
-        "buyin_derived_hint": "바이인 한도는 선택한 스테이크로 정해집니다."
+        "buyin_derived_hint": "바이인 한도는 선택한 스테이크로 정해집니다.",
+        "review_title": "검토"
       },
       "join": {
         "title": "비공개 테이블",
@@ -2117,7 +2127,11 @@
         "view": "보기",
         "loading": "불러오는 중…",
         "error_title": "기록을 불러오지 못했습니다",
-        "retry": "다시 시도"
+        "retry": "다시 시도",
+        "stat_shown": "표시된 핸드",
+        "stat_won": "승리",
+        "stat_lost_note": "{count} 패",
+        "summary_note": "아래 표시된 핸드의 요약입니다."
       },
       "hand": {
         "title": "핸드 #{n}",
@@ -2164,7 +2178,11 @@
         "recent_title": "최근 핸드",
         "no_recent": "최근 핸드가 없습니다.",
         "view_history": "전체 기록 보기",
-        "sign_in": "프로필을 보려면 로그인하세요."
+        "sign_in": "프로필을 보려면 로그인하세요.",
+        "group_overall": "전체",
+        "group_showdown": "쇼다운",
+        "group_pot": "팟",
+        "group_stack": "스택"
       },
       "stats": {
         "hands_played": "플레이한 핸드",
@@ -2177,7 +2195,8 @@
         "biggest_pot": "최대 획득 팟",
         "net_change": "스택 순변동",
         "net_note": "각 핸드의 스택 변동 합계(가상).",
-        "sessions": "최근 세션"
+        "sessions": "최근 세션",
+        "showdown_rate_note": "쇼다운 승리 ÷ 쇼다운 도달"
       },
       "rules": {
         "title": "플레이 방법",
@@ -2197,7 +2216,10 @@
         "s_etiquette_t": "페어 플레이",
         "s_etiquette_b": "카드는 서버에서 셔플·분배. 시간 내 행동하지 않으면 서버가 대신 폴드/체크합니다.",
         "hand_ranking_title": "족보 순위 (높음→낮음)",
-        "more_in_glossary": "모든 용어는 용어집 참조."
+        "more_in_glossary": "모든 용어는 용어집 참조.",
+        "contents": "목차",
+        "timeline_title": "핸드 진행",
+        "preflop": "프리플랍"
       },
       "glossary": {
         "title": "포커 용어집",
@@ -2249,6 +2271,12 @@
           "sb": "스몰 블라인드",
           "position": "포지션",
           "kicker": "키커"
+        },
+        "cat": {
+          "actions": "액션",
+          "betting": "베팅",
+          "cards": "카드 & 스트리트",
+          "position": "포지션"
         }
       },
       "settings": {
@@ -2273,7 +2301,25 @@
         "on": "켜기",
         "off": "끄기",
         "saved": "저장됨",
-        "reset": "기본값으로 재설정"
+        "reset": "기본값으로 재설정",
+        "sec_audio": "오디오",
+        "sec_audio_desc": "마스터 볼륨과 테이블 사운드.",
+        "sec_feedback": "게임 피드백",
+        "sec_feedback_desc": "타이머 알림과 햅틱 피드백.",
+        "sec_display": "화면 & 모션",
+        "sec_display_desc": "모션 및 애니메이션 효과.",
+        "sec_device": "기기 동작",
+        "sec_device_desc": "앱이 기기 기능을 사용하는 방식.",
+        "sec_accessibility": "접근성",
+        "sec_accessibility_desc": "플레이 접근성을 높이는 옵션.",
+        "sec_privacy": "개인정보 & 차단",
+        "sec_privacy_desc": "테이블에서 차단한 플레이어.",
+        "master_required": "사용하려면 오디오를 켜세요",
+        "device_note": "기기 지원에 따라 다름",
+        "reset_confirm_title": "설정을 초기화할까요?",
+        "reset_confirm_body": "이 기기의 모든 포커 설정이 기본값으로 돌아갑니다.",
+        "reset_confirm_yes": "초기화",
+        "privacy_empty_hint": "차단한 플레이어가 여기에 표시됩니다."
       },
       "report": {
         "title": "플레이어 신고",

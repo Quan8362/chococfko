@@ -1,0 +1,454 @@
+/* ── Chợ Cóc FKO Poker — PORTAL theme ────────────────────────────────────────────────────────
+ *
+ * The non-gameplay "premium salon" identity for every poker ecosystem screen (home, lobby,
+ * create, history, profile, learn, rules, glossary, settings) and their shared shell.
+ *
+ * EVERYTHING here is scoped under `.pk-portal`. It is a DIFFERENT surface from the live table:
+ *   • the live TABLE  → `.poker-root` + _design/poker-theme.css (deep-dark felt, PROTECTED asset)
+ *   • the PORTAL      → `.pk-portal` + this file (warm champagne canvas, plum premium surfaces)
+ * The two never share selectors or tokens, so portal styling can never leak into gameplay.
+ *
+ * Colour is used by MEANING: ruby = primary action, emerald = open/positive, royal blue = info,
+ * violet = learning, gold/amber = achievement, coral = loss/warning. State is never signalled by
+ * colour alone (always paired with an icon or text). Contrast targets practical WCAG AA.
+ */
+
+.pk-portal {
+  /* ── Foundations: warm ivory / champagne ─────────────────────────────────── */
+  --pkp-canvas: #f7f0e4;        /* page canvas */
+  --pkp-canvas-2: #f1e7d6;      /* deeper champagne for gradient stops */
+  --pkp-surface: #fffdf8;       /* raised panel */
+  --pkp-surface-2: #fbf5ea;     /* tinted / inset panel */
+  --pkp-surface-3: #f4ead9;     /* pressed / track */
+
+  /* ── Premium dark surfaces: midnight plum / aubergine ────────────────────── */
+  --pkp-plum: #1b1230;
+  --pkp-plum-2: #2a1a3e;
+  --pkp-plum-3: #3a2450;
+  --pkp-plum-line: rgba(230, 207, 149, 0.22);
+
+  /* ── Ink ─────────────────────────────────────────────────────────────────── */
+  --pkp-ink: #2a1d16;           /* primary text */
+  --pkp-ink-2: #6f5f52;         /* secondary text */
+  --pkp-ink-3: #9b8b7b;         /* tertiary / disabled */
+  --pkp-on-plum: #f6efe2;       /* text on plum */
+  --pkp-on-plum-2: rgba(246, 239, 226, 0.72);
+
+  /* ── Champagne-gold trim ─────────────────────────────────────────────────── */
+  --pkp-gold: #c19a45;
+  --pkp-gold-soft: #e6cf95;
+  --pkp-gold-deep: #8a6d2c;
+  --pkp-gold-line: rgba(193, 154, 69, 0.34);
+
+  /* ── Hairlines & shadows ─────────────────────────────────────────────────── */
+  --pkp-line: #e7dbc8;
+  --pkp-line-strong: #d9c9b0;
+  --pkp-shadow-sm: 0 1px 2px rgba(52, 33, 14, 0.06), 0 2px 8px rgba(52, 33, 14, 0.05);
+  --pkp-shadow: 0 2px 6px rgba(52, 33, 14, 0.07), 0 10px 30px rgba(52, 33, 14, 0.08);
+  --pkp-shadow-lg: 0 8px 24px rgba(30, 18, 44, 0.16), 0 24px 60px rgba(30, 18, 44, 0.18);
+
+  /* ── Semantic accents (each has a tint for soft fills + a readable text tone) ─ */
+  --pkp-ruby: #b21e46;          /* PRIMARY action */
+  --pkp-ruby-deep: #8a1338;
+  --pkp-ruby-tint: #fbe9ee;
+  --pkp-ruby-ink: #9d1c3f;
+
+  --pkp-emerald: #1f8a5b;       /* open / positive / win */
+  --pkp-emerald-deep: #146644;
+  --pkp-emerald-tint: #e3f4ec;
+  --pkp-emerald-ink: #15774e;
+
+  --pkp-royal: #2c5fa8;         /* information */
+  --pkp-royal-tint: #e7eefa;
+  --pkp-royal-ink: #274f8c;
+
+  --pkp-violet: #6a3fb0;        /* learning */
+  --pkp-violet-deep: #52309a;
+  --pkp-violet-tint: #efe8fb;
+  --pkp-violet-ink: #5a34a0;
+
+  --pkp-amber: #c98a1e;         /* achievement / caution */
+  --pkp-amber-tint: #fbf0d9;
+  --pkp-amber-ink: #97671a;
+
+  --pkp-coral: #c6413a;         /* loss / warning */
+  --pkp-coral-tint: #fbe8e6;
+  --pkp-coral-ink: #a5322c;
+
+  --pkp-focus: #2c5fa8;
+
+  /* ── Radius scale ────────────────────────────────────────────────────────── */
+  --pkp-r-sm: 10px;
+  --pkp-r: 14px;
+  --pkp-r-lg: 20px;
+  --pkp-r-pill: 999px;
+
+  /* ── Safe-area passthroughs ──────────────────────────────────────────────── */
+  --pkp-safe-top: env(safe-area-inset-top, 0px);
+  --pkp-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --pkp-safe-left: env(safe-area-inset-left, 0px);
+  --pkp-safe-right: env(safe-area-inset-right, 0px);
+
+  min-height: 100dvh;
+  color: var(--pkp-ink);
+  font-variant-numeric: lining-nums tabular-nums;
+  /* Warm champagne canvas with restrained radial light + a faint illuminated-suit wash. */
+  background-color: var(--pkp-canvas);
+  background-image:
+    radial-gradient(120% 80% at 15% -5%, rgba(193, 154, 69, 0.10), transparent 55%),
+    radial-gradient(110% 70% at 100% 0%, rgba(106, 63, 176, 0.07), transparent 50%),
+    linear-gradient(180deg, var(--pkp-canvas) 0%, var(--pkp-canvas-2) 100%);
+  background-attachment: fixed;
+}
+
+/* Faint paper grain — pure CSS, no asset request. Sits behind content, non-interactive. */
+.pk-portal::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(120, 90, 50, 0.014) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgba(120, 90, 50, 0.014) 0 1px, transparent 1px 3px);
+}
+.pk-portal > * { position: relative; z-index: 1; }
+
+/* Keyboard focus — visible ring, never colour-alone (thick, offset). */
+.pk-portal :focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--pkp-surface), 0 0 0 4px var(--pkp-focus);
+  border-radius: 8px;
+}
+.pk-portal-on-plum :focus-visible {
+  box-shadow: 0 0 0 2px var(--pkp-plum), 0 0 0 4px var(--pkp-gold-soft);
+}
+
+/* ── Sticky top bar ────────────────────────────────────────────────────────── */
+.pk-topbar {
+  background: color-mix(in srgb, var(--pkp-canvas) 86%, transparent);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+/* ── Content width ─────────────────────────────────────────────────────────── */
+.pk-container { width: 100%; max-width: 64rem; margin-inline: auto; padding-inline: 1.25rem; }
+@media (min-width: 640px) { .pk-container { padding-inline: 1.5rem; } }
+
+/* ── Panels ────────────────────────────────────────────────────────────────── */
+.pk-panel {
+  background: var(--pkp-surface);
+  border: 1px solid var(--pkp-line);
+  border-radius: var(--pkp-r);
+  box-shadow: var(--pkp-shadow-sm);
+}
+.pk-panel-tint { background: var(--pkp-surface-2); }
+.pk-panel-flat { box-shadow: none; }
+.pk-hairline-gold { border-color: var(--pkp-gold-line); }
+
+/* Interactive card (link/button wrapping a panel). */
+.pk-card {
+  background: var(--pkp-surface);
+  border: 1px solid var(--pkp-line);
+  border-radius: var(--pkp-r);
+  box-shadow: var(--pkp-shadow-sm);
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+.pk-card:hover {
+  border-color: var(--pkp-gold-line);
+  box-shadow: var(--pkp-shadow);
+  transform: translateY(-2px);
+}
+.pk-card:active { transform: translateY(0); }
+
+/* ── Premium plum surface (hero / feature headers) ─────────────────────────── */
+.pk-plum {
+  color: var(--pkp-on-plum);
+  background-color: var(--pkp-plum);
+  background-image:
+    radial-gradient(120% 120% at 12% 0%, rgba(230, 207, 149, 0.12), transparent 45%),
+    radial-gradient(120% 130% at 100% 100%, rgba(178, 30, 70, 0.28), transparent 55%),
+    linear-gradient(135deg, var(--pkp-plum) 0%, var(--pkp-plum-2) 62%, var(--pkp-plum-3) 100%);
+  border: 1px solid var(--pkp-plum-line);
+}
+.pk-plum-violet {
+  background-image:
+    radial-gradient(120% 120% at 8% 0%, rgba(230, 207, 149, 0.12), transparent 45%),
+    radial-gradient(130% 130% at 100% 100%, rgba(106, 63, 176, 0.45), transparent 55%),
+    linear-gradient(135deg, #1a1233 0%, #2b1c4e 60%, #3a2568 100%);
+}
+/* Illuminated-suit watermark for plum heroes (decorative, aria-hidden layer). */
+.pk-suit-watermark {
+  position: absolute;
+  pointer-events: none;
+  color: var(--pkp-gold-soft);
+  opacity: 0.08;
+}
+
+/* ── Buttons ───────────────────────────────────────────────────────────────── */
+.pk-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  padding: 0 1.1rem;
+  border-radius: var(--pkp-r-sm);
+  font-weight: 600;
+  font-size: 0.95rem;
+  line-height: 1;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background 140ms ease, box-shadow 140ms ease, opacity 140ms ease, border-color 140ms ease, color 140ms ease;
+  white-space: nowrap;
+}
+.pk-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+.pk-btn-sm { min-height: 38px; padding: 0 0.85rem; font-size: 0.875rem; }
+.pk-btn-lg { min-height: 52px; padding: 0 1.5rem; font-size: 1.05rem; }
+.pk-btn-block { display: flex; width: 100%; }
+
+/* Primary — ruby, the single dominant action. */
+.pk-btn-primary {
+  color: #fff;
+  background: linear-gradient(180deg, var(--pkp-ruby) 0%, var(--pkp-ruby-deep) 100%);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.14) inset, 0 6px 16px rgba(138, 19, 56, 0.28);
+}
+.pk-btn-primary:not(:disabled):hover { filter: brightness(1.06); box-shadow: 0 1px 0 rgba(255,255,255,0.18) inset, 0 8px 22px rgba(138, 19, 56, 0.34); }
+/* Gold-trim variant for the hero's hero-action. */
+.pk-btn-primary.pk-btn-gold { box-shadow: 0 0 0 1px var(--pkp-gold-line), 0 1px 0 rgba(255,255,255,0.14) inset, 0 8px 22px rgba(138, 19, 56, 0.30); }
+
+.pk-btn-secondary {
+  color: var(--pkp-ink);
+  background: var(--pkp-surface);
+  border-color: var(--pkp-line-strong);
+  box-shadow: var(--pkp-shadow-sm);
+}
+.pk-btn-secondary:not(:disabled):hover { border-color: var(--pkp-gold); background: var(--pkp-surface-2); }
+
+/* Ghost on plum. */
+.pk-btn-onplum {
+  color: var(--pkp-on-plum);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+.pk-btn-onplum:not(:disabled):hover { background: rgba(255, 255, 255, 0.16); }
+.pk-btn-onplum-outline { background: transparent; border-color: rgba(255,255,255,0.28); }
+.pk-btn-onplum-outline:not(:disabled):hover { background: rgba(255,255,255,0.10); }
+
+.pk-btn-ghost { color: var(--pkp-ink-2); background: transparent; min-height: 40px; }
+.pk-btn-ghost:not(:disabled):hover { color: var(--pkp-ink); background: var(--pkp-surface-2); }
+
+/* Icon-only button. */
+.pk-iconbtn {
+  display: inline-grid;
+  place-items: center;
+  height: 44px;
+  width: 44px;
+  border-radius: var(--pkp-r-sm);
+  border: 1px solid var(--pkp-line-strong);
+  background: var(--pkp-surface);
+  color: var(--pkp-ink-2);
+  box-shadow: var(--pkp-shadow-sm);
+  cursor: pointer;
+  transition: border-color 140ms ease, color 140ms ease, background 140ms ease;
+}
+.pk-iconbtn:not(:disabled):hover { border-color: var(--pkp-gold); color: var(--pkp-ink); }
+.pk-iconbtn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+/* ── Badges / pills ────────────────────────────────────────────────────────── */
+.pk-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border-radius: var(--pkp-r-pill);
+  padding: 0.2rem 0.6rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+}
+.pk-badge-emerald { background: var(--pkp-emerald-tint); color: var(--pkp-emerald-ink); }
+.pk-badge-amber { background: var(--pkp-amber-tint); color: var(--pkp-amber-ink); }
+.pk-badge-coral { background: var(--pkp-coral-tint); color: var(--pkp-coral-ink); }
+.pk-badge-royal { background: var(--pkp-royal-tint); color: var(--pkp-royal-ink); }
+.pk-badge-violet { background: var(--pkp-violet-tint); color: var(--pkp-violet-ink); }
+.pk-badge-ruby { background: var(--pkp-ruby-tint); color: var(--pkp-ruby-ink); }
+.pk-badge-gold { background: var(--pkp-amber-tint); color: var(--pkp-gold-deep); border: 1px solid var(--pkp-gold-line); }
+.pk-badge-neutral { background: var(--pkp-surface-3); color: var(--pkp-ink-2); }
+.pk-badge-onplum { background: rgba(255,255,255,0.12); color: var(--pkp-on-plum); }
+
+/* ── Section eyebrow / heading rhythm ──────────────────────────────────────── */
+.pk-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--pkp-gold-deep);
+}
+
+/* ── Icon chip (semantic icon in a tinted rounded container) ──────────────── */
+.pk-ichip { display: inline-grid; place-items: center; border-radius: 12px; }
+.pk-ichip-ruby { background: var(--pkp-ruby-tint); color: var(--pkp-ruby-ink); }
+.pk-ichip-emerald { background: var(--pkp-emerald-tint); color: var(--pkp-emerald-ink); }
+.pk-ichip-royal { background: var(--pkp-royal-tint); color: var(--pkp-royal-ink); }
+.pk-ichip-violet { background: var(--pkp-violet-tint); color: var(--pkp-violet-ink); }
+.pk-ichip-amber { background: var(--pkp-amber-tint); color: var(--pkp-amber-ink); }
+.pk-ichip-coral { background: var(--pkp-coral-tint); color: var(--pkp-coral-ink); }
+.pk-ichip-gold { background: var(--pkp-amber-tint); color: var(--pkp-gold-deep); }
+.pk-ichip-neutral { background: var(--pkp-surface-3); color: var(--pkp-ink-2); }
+
+/* ── Inputs ────────────────────────────────────────────────────────────────── */
+.pk-input {
+  width: 100%;
+  min-height: 44px;
+  border-radius: var(--pkp-r-sm);
+  border: 1px solid var(--pkp-line-strong);
+  background: var(--pkp-surface);
+  color: var(--pkp-ink);
+  padding: 0 0.85rem;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 140ms ease, box-shadow 140ms ease;
+}
+.pk-input::placeholder { color: var(--pkp-ink-3); }
+.pk-input:focus { border-color: var(--pkp-gold); }
+
+/* ── Segmented control / option cards ─────────────────────────────────────── */
+.pk-seg {
+  min-height: 44px;
+  padding: 0 0.9rem;
+  border-radius: var(--pkp-r-sm);
+  border: 1.5px solid var(--pkp-line-strong);
+  background: var(--pkp-surface);
+  color: var(--pkp-ink-2);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 140ms ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+.pk-seg:hover { border-color: var(--pkp-gold); color: var(--pkp-ink); }
+.pk-seg[aria-pressed='true'], .pk-seg[data-active='true'] {
+  border-color: var(--pkp-ruby);
+  background: var(--pkp-ruby-tint);
+  color: var(--pkp-ruby-ink);
+  box-shadow: 0 0 0 1px var(--pkp-ruby) inset;
+}
+.pk-option {
+  text-align: left;
+  border-radius: var(--pkp-r-sm);
+  border: 1.5px solid var(--pkp-line-strong);
+  background: var(--pkp-surface);
+  padding: 0.85rem;
+  cursor: pointer;
+  transition: all 140ms ease;
+}
+.pk-option:hover { border-color: var(--pkp-gold); }
+.pk-option[data-active='true'] {
+  border-color: var(--pkp-ruby);
+  background: var(--pkp-ruby-tint);
+  box-shadow: 0 0 0 1px var(--pkp-ruby) inset;
+}
+
+/* ── Toggle switch ─────────────────────────────────────────────────────────── */
+.pk-switch {
+  position: relative;
+  height: 28px;
+  width: 48px;
+  flex-shrink: 0;
+  border-radius: var(--pkp-r-pill);
+  background: var(--pkp-surface-3);
+  border: 1px solid var(--pkp-line-strong);
+  cursor: pointer;
+  transition: background 160ms ease, border-color 160ms ease;
+}
+.pk-switch[aria-checked='true'] {
+  background: linear-gradient(180deg, var(--pkp-emerald) 0%, var(--pkp-emerald-deep) 100%);
+  border-color: var(--pkp-emerald-deep);
+}
+.pk-switch::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 3px;
+  height: 20px;
+  width: 20px;
+  transform: translateY(-50%);
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.28);
+  transition: left 160ms ease;
+}
+.pk-switch[aria-checked='true']::after { left: 23px; }
+.pk-switch:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── Data table (desktop history) ─────────────────────────────────────────── */
+.pk-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+.pk-table thead th {
+  text-align: left;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+  color: var(--pkp-ink-2);
+  padding: 0.75rem 1rem;
+  background: var(--pkp-surface-2);
+  border-bottom: 1px solid var(--pkp-line);
+}
+.pk-table tbody td { padding: 0.85rem 1rem; border-bottom: 1px solid var(--pkp-line); }
+.pk-table tbody tr:last-child td { border-bottom: 0; }
+.pk-table tbody tr { transition: background 120ms ease; }
+.pk-table tbody tr:hover { background: var(--pkp-surface-2); }
+
+/* ── Result colour semantics (paired with icon/text, never colour-alone) ──── */
+.pk-win { color: var(--pkp-emerald-ink); }
+.pk-loss { color: var(--pkp-coral-ink); }
+.pk-even { color: var(--pkp-ink-2); }
+
+/* ── Skeleton shimmer ──────────────────────────────────────────────────────── */
+.pk-skeleton {
+  background: linear-gradient(90deg, var(--pkp-surface-2) 25%, var(--pkp-surface-3) 37%, var(--pkp-surface-2) 63%);
+  background-size: 400% 100%;
+  animation: pk-shimmer 1.4s ease infinite;
+  border-radius: 8px;
+}
+@keyframes pk-shimmer { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
+
+/* ── Entrance ──────────────────────────────────────────────────────────────── */
+@keyframes pkp-fade-up { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.pk-fade-up { animation: pkp-fade-up 260ms cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+
+/* ── Dialog ────────────────────────────────────────────────────────────────── */
+.pk-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 130;
+  display: grid;
+  background: rgba(20, 12, 28, 0.55);
+  backdrop-filter: blur(2px);
+  padding: 1rem;
+  padding-bottom: calc(1rem + var(--pkp-safe-bottom));
+}
+.pk-dialog {
+  width: 100%;
+  background: var(--pkp-surface);
+  border: 1px solid var(--pkp-gold-line);
+  border-radius: var(--pkp-r-lg);
+  box-shadow: var(--pkp-shadow-lg);
+}
+
+/* ── Reduced motion ────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .pk-portal *, .pk-portal *::before, .pk-portal *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

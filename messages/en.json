@@ -1987,7 +1987,11 @@
         "feature_fair": "Provably fair",
         "feature_fair_desc": "Cards are shuffled and dealt on the server. Your hole cards are never exposed.",
         "responsible": "Play money only",
-        "responsible_note": "Coins are virtual and have no monetary value."
+        "responsible_note": "Coins are virtual and have no monetary value.",
+        "play_heading": "Ways to play",
+        "recent_tables": "Recent tables",
+        "why_heading": "Why play here",
+        "learn_heading": "Learn more"
       },
       "nav": {
         "lobby": "Lobby",
@@ -2031,7 +2035,12 @@
         "empty_title": "No open tables",
         "empty_hint": "Be the first — create a table or try quick play.",
         "error_title": "Couldn’t load the lobby",
-        "retry": "Try again"
+        "retry": "Try again",
+        "search_ph": "Search by table name…",
+        "filter_all": "All",
+        "filter_open": "Open seats",
+        "no_match": "No matching tables",
+        "count": "{count} tables"
       },
       "quick": {
         "searching": "Finding a table…",
@@ -2081,7 +2090,8 @@
         "err_blinds": "Big blind must be exactly twice the small blind.",
         "err_password": "A private table needs a password.",
         "err_buyin": "Max buy-in must be at least the min buy-in.",
-        "buyin_derived_hint": "Buy-in limits are set by the selected stake."
+        "buyin_derived_hint": "Buy-in limits are set by the selected stake.",
+        "review_title": "Review"
       },
       "join": {
         "title": "Private table",
@@ -2117,7 +2127,11 @@
         "view": "View",
         "loading": "Loading history…",
         "error_title": "Couldn’t load your history",
-        "retry": "Try again"
+        "retry": "Try again",
+        "stat_shown": "Hands shown",
+        "stat_won": "Won",
+        "stat_lost_note": "{count} lost",
+        "summary_note": "Summary of the hands shown below."
       },
       "hand": {
         "title": "Hand #{n}",
@@ -2164,7 +2178,11 @@
         "recent_title": "Recent hands",
         "no_recent": "No recent hands.",
         "view_history": "View full history",
-        "sign_in": "Sign in to see your profile."
+        "sign_in": "Sign in to see your profile.",
+        "group_overall": "Overall",
+        "group_showdown": "Showdown",
+        "group_pot": "Pot",
+        "group_stack": "Stack"
       },
       "stats": {
         "hands_played": "Hands played",
@@ -2177,7 +2195,8 @@
         "biggest_pot": "Biggest pot won",
         "net_change": "Net table-stack change",
         "net_note": "Sum of your stack changes across hands (play money).",
-        "sessions": "Recent sessions"
+        "sessions": "Recent sessions",
+        "showdown_rate_note": "Showdowns won ÷ showdowns reached"
       },
       "rules": {
         "title": "How to play",
@@ -2197,7 +2216,10 @@
         "s_etiquette_t": "Fair play",
         "s_etiquette_b": "Cards are shuffled and dealt on the server. Act within the timer or the server folds/checks for you.",
         "hand_ranking_title": "Hand rankings (high to low)",
-        "more_in_glossary": "See the glossary for any term."
+        "more_in_glossary": "See the glossary for any term.",
+        "contents": "Contents",
+        "timeline_title": "How a hand unfolds",
+        "preflop": "Preflop"
       },
       "glossary": {
         "title": "Poker glossary",
@@ -2249,6 +2271,12 @@
           "sb": "Small blind",
           "position": "Position",
           "kicker": "Kicker"
+        },
+        "cat": {
+          "actions": "Actions",
+          "betting": "Betting",
+          "cards": "Cards & streets",
+          "position": "Position"
         }
       },
       "settings": {
@@ -2273,7 +2301,25 @@
         "on": "On",
         "off": "Off",
         "saved": "Saved",
-        "reset": "Reset to defaults"
+        "reset": "Reset to defaults",
+        "sec_audio": "Audio",
+        "sec_audio_desc": "Master volume and table sounds.",
+        "sec_feedback": "Gameplay feedback",
+        "sec_feedback_desc": "Turn-timer cue and haptic feedback.",
+        "sec_display": "Display & motion",
+        "sec_display_desc": "Motion and animation effects.",
+        "sec_device": "Device behavior",
+        "sec_device_desc": "How the app uses device features.",
+        "sec_accessibility": "Accessibility",
+        "sec_accessibility_desc": "Options to make play more accessible.",
+        "sec_privacy": "Privacy & blocked",
+        "sec_privacy_desc": "Players you've blocked at the table.",
+        "master_required": "Turn on Audio to use this",
+        "device_note": "Depends on device support",
+        "reset_confirm_title": "Reset settings?",
+        "reset_confirm_body": "All poker options on this device return to their defaults.",
+        "reset_confirm_yes": "Reset",
+        "privacy_empty_hint": "Players you block will appear here."
       },
       "report": {
         "title": "Report player",

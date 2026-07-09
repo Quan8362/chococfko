@@ -6,9 +6,11 @@ import { useLocale, useTranslations } from 'next-intl'
 import { createTable } from '../actions'
 import { coins } from '../_eco/format'
 import { POKER_ECONOMY_V1 } from '@/lib/games/poker/economyConfig'
+import { Icon, type IconName } from '../_eco/icons'
+import { PageHeader, Eyebrow } from '../_eco/ui'
 
-// Sanctioned blind tiers (buy-in bounds are DERIVED from the tier — the server enforces the
-// same ladder, so the lobby can never fragment onto off-ladder stakes).
+// Sanctioned blind tiers (buy-in bounds are DERIVED from the tier — the server enforces the same
+// ladder, so the lobby can never fragment onto off-ladder stakes).
 const STAKES = POKER_ECONOMY_V1.blindTiers.map((tr) => ({
   sb: tr.smallBlind, bb: tr.bigBlind, minBb: tr.minBuyInBb, maxBb: tr.maxBuyInBb,
 }))
@@ -64,151 +66,243 @@ export default function CreateClient() {
     })
   }
 
-  return (
-    <div className="max-w-2xl">
-      <h1 className="font-serif text-2xl font-bold">{t('create.title')}</h1>
-      <p className="mb-6 text-sm text-muted">{t('create.subtitle')}</p>
+  const errorMsg = error
+    ? (['err_name', 'err_blinds', 'err_buyin', 'err_password'] as string[]).includes(error)
+      ? t(`create.${error}`)
+      : (['unsupported_blind_tier', 'poker_beta_terms_required', 'poker_joins_frozen', 'poker_feature_off'] as string[]).includes(error)
+        ? t(`error.${error}`)
+        : t('error.generic')
+    : null
 
-      <div className="space-y-5 rounded-xl border border-line bg-paper p-5">
-        <Field label={t('create.name')}>
-          <input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder={t('create.name_ph')}
-            maxLength={40}
-            className="w-full rounded-lg border border-line bg-cream px-3 py-2 outline-none focus:border-rose"
-          />
-        </Field>
-
-        <Field label={t('create.stakes')} hint={t('create.stakes_hint')}>
-          <div className="mb-2 flex flex-wrap gap-2">
-            {STAKES.map((s) => (
-              <button
-                key={s.bb}
-                type="button"
-                onClick={() => {
-                  setSb(s.sb)
-                  setBb(s.bb)
-                  setMinBuyInBb(s.minBb)
-                  setMaxBuyInBb(s.maxBb)
-                }}
-                className={`rounded-full border px-3 py-1 text-sm ${
-                  sb === s.sb && bb === s.bb ? 'border-rose bg-rose/10 text-rose' : 'border-line hover:border-rose'
-                }`}
-              >
-                {coins(s.sb, locale)}/{coins(s.bb, locale)}
-              </button>
-            ))}
-          </div>
-        </Field>
-
-        <Field label={t('create.capacity')} hint={t('create.capacity_hint')}>
-          <div className="flex gap-2">
-            {[2, 3, 4, 5, 6].map((n) => (
-              <button
-                key={n}
-                type="button"
-                onClick={() => setCapacity(n)}
-                className={`h-10 w-10 rounded-lg border text-sm ${
-                  capacity === n ? 'border-rose bg-rose/10 text-rose' : 'border-line hover:border-rose'
-                }`}
-              >
-                {n}
-              </button>
-            ))}
-          </div>
-        </Field>
-
-        <Field label={t('create.buyin')} hint={t('create.buyin_derived_hint')}>
-          <p className="text-sm text-ink">
-            {minBuyInBb}–{maxBuyInBb} {t('create.bb_unit')}
-            <span className="ml-2 text-xs text-muted">({coins(minBuyInBb * bb, locale)} – {coins(maxBuyInBb * bb, locale)})</span>
-          </p>
-        </Field>
-
-        <Field label={t('create.visibility')}>
-          <div className="grid grid-cols-2 gap-3">
-            <Choice active={!isPrivate} onClick={() => setIsPrivate(false)} title={t('create.public')} desc={t('create.public_hint')} />
-            <Choice active={isPrivate} onClick={() => setIsPrivate(true)} title={t('create.private')} desc={t('create.private_hint')} />
-          </div>
-          {isPrivate && (
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder={t('create.password_ph')}
-              className="mt-3 w-full rounded-lg border border-line bg-cream px-3 py-2 outline-none focus:border-rose"
-            />
-          )}
-        </Field>
-
-        <label className="flex items-center justify-between gap-3">
-          <span>
-            <span className="font-medium">{t('create.spectators')}</span>
-            <span className="block text-xs text-muted">{t('create.spectators_hint')}</span>
-          </span>
-          <input type="checkbox" checked={allowSpectators} onChange={(e) => setAllowSpectators(e.target.checked)} className="h-5 w-5 accent-rose" />
-        </label>
-
-        {error && (
-          <p className="text-sm text-rose">
-            {(['err_name', 'err_blinds', 'err_buyin', 'err_password'] as string[]).includes(error)
-              ? t(`create.${error}`)
-              : ([
-                  'unsupported_blind_tier', 'poker_beta_terms_required',
-                  'poker_joins_frozen', 'poker_feature_off',
-                ] as string[]).includes(error)
-                ? t(`error.${error}`)
-                : t('error.generic')}
-          </p>
-        )}
-
-        <button
-          onClick={submit}
-          disabled={pending}
-          className="w-full rounded-lg bg-rose px-4 py-3 font-medium text-white hover:opacity-90 disabled:opacity-60"
-        >
-          {pending ? t('create.creating') : t('create.submit')}
-        </button>
-      </div>
-
-      <div className="mt-6 rounded-xl border border-line bg-paper/60 p-5">
-        <h2 className="font-serif text-base font-semibold">{t('create.unsupported_title')}</h2>
-        <p className="mb-3 text-sm text-muted">{t('create.unsupported_hint')}</p>
-        <ul className="flex flex-wrap gap-2">
-          {UNSUPPORTED.map((k) => (
-            <li key={k} className="flex items-center gap-2 rounded-full border border-line bg-cream px-3 py-1 text-sm text-muted">
-              {t(`create.${k}`)}
-              <span className="rounded-full bg-line px-2 py-0.5 text-[10px] uppercase tracking-wide">{t('create.soon')}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
-  )
-}
-
-function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
   return (
     <div>
-      <div className="mb-1.5">
-        <span className="font-medium">{label}</span>
-        {hint && <span className="block text-xs text-muted">{hint}</span>}
+      <PageHeader
+        eyebrow={<Eyebrow icon="plus">{t('nav.create')}</Eyebrow>}
+        icon="plus"
+        tone="emerald"
+        title={t('create.title')}
+        subtitle={t('create.subtitle')}
+      />
+
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
+        {/* ── Form ─────────────────────────────────────────────────────────── */}
+        <div className="flex flex-col gap-4">
+          <Section step={1} icon="cards" title={t('create.name')}>
+            <input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder={t('create.name_ph')}
+              maxLength={40}
+              aria-label={t('create.name')}
+              className="pk-input"
+            />
+          </Section>
+
+          <Section step={2} icon="coins" title={t('create.stakes')} hint={t('create.stakes_hint')}>
+            <div className="flex flex-wrap gap-2">
+              {STAKES.map((s) => {
+                const active = sb === s.sb && bb === s.bb
+                return (
+                  <button
+                    key={s.bb}
+                    type="button"
+                    data-active={active}
+                    onClick={() => {
+                      setSb(s.sb); setBb(s.bb); setMinBuyInBb(s.minBb); setMaxBuyInBb(s.maxBb)
+                    }}
+                    className="pk-seg pk-btn-sm tabular-nums"
+                  >
+                    {coins(s.sb, locale)}/{coins(s.bb, locale)}
+                  </button>
+                )
+              })}
+            </div>
+            <div className="mt-3 flex items-start gap-2 rounded-lg bg-[color:var(--pkp-surface-2)] px-3 py-2 text-sm text-[color:var(--pkp-ink-2)]">
+              <Icon name="info" size={15} className="mt-0.5 shrink-0 text-[color:var(--pkp-royal-ink)]" />
+              <span>
+                {t('create.buyin')}: <strong className="tabular-nums text-[color:var(--pkp-ink)]">{minBuyInBb}–{maxBuyInBb} {t('create.bb_unit')}</strong>
+                <span className="ml-1 tabular-nums text-[color:var(--pkp-ink-3)]">({coins(minBuyInBb * bb, locale)} – {coins(maxBuyInBb * bb, locale)})</span>
+                <span className="mt-0.5 block text-xs">{t('create.buyin_derived_hint')}</span>
+              </span>
+            </div>
+          </Section>
+
+          <Section step={3} icon="users" title={t('create.capacity')} hint={t('create.capacity_hint')}>
+            <div className="flex flex-wrap gap-2">
+              {[2, 3, 4, 5, 6].map((n) => (
+                <button
+                  key={n}
+                  type="button"
+                  data-active={capacity === n}
+                  onClick={() => setCapacity(n)}
+                  aria-label={`${n}`}
+                  className="pk-seg h-11 w-11 !px-0 tabular-nums"
+                >
+                  {n}
+                </button>
+              ))}
+            </div>
+          </Section>
+
+          <Section step={4} icon="lock" title={t('create.visibility')}>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <OptionCard
+                active={!isPrivate}
+                onClick={() => setIsPrivate(false)}
+                icon="globe"
+                title={t('create.public')}
+                desc={t('create.public_hint')}
+              />
+              <OptionCard
+                active={isPrivate}
+                onClick={() => setIsPrivate(true)}
+                icon="lock"
+                title={t('create.private')}
+                desc={t('create.private_hint')}
+              />
+            </div>
+            {isPrivate && (
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder={t('create.password_ph')}
+                aria-label={t('create.password')}
+                className="pk-input mt-3"
+              />
+            )}
+            <button
+              type="button"
+              onClick={() => setAllowSpectators((v) => !v)}
+              className="mt-3 flex w-full items-center justify-between gap-3 rounded-lg border border-[color:var(--pkp-line)] bg-[color:var(--pkp-surface-2)] p-3 text-left"
+            >
+              <span>
+                <span className="flex items-center gap-1.5 font-medium text-[color:var(--pkp-ink)]">
+                  <Icon name="eye" size={16} /> {t('create.spectators')}
+                </span>
+                <span className="mt-0.5 block text-xs text-[color:var(--pkp-ink-2)]">{t('create.spectators_hint')}</span>
+              </span>
+              <span role="switch" aria-checked={allowSpectators} aria-label={t('create.spectators')} className="pk-switch" />
+            </button>
+          </Section>
+        </div>
+
+        {/* ── Live summary + create ────────────────────────────────────────── */}
+        <aside className="lg:sticky lg:top-28 lg:self-start">
+          <div className="pk-panel pk-hairline-gold overflow-hidden">
+            <div className="pk-plum px-5 py-4">
+              <p className="pk-eyebrow" style={{ color: 'var(--pkp-gold-soft)' }}>
+                <Icon name="check" size={13} /> {t('create.review_title')}
+              </p>
+              <p className="mt-1 truncate font-serif text-lg font-semibold text-[color:var(--pkp-on-plum)]">
+                {name.trim() || t('create.name_ph')}
+              </p>
+            </div>
+            <dl className="divide-y divide-[color:var(--pkp-line)]">
+              <SummaryRow icon="coins" label={t('create.stakes')} value={`${coins(sb, locale)}/${coins(bb, locale)}`} />
+              <SummaryRow icon="layers" label={t('create.buyin')} value={`${coins(minBuyInBb * bb, locale)}–${coins(maxBuyInBb * bb, locale)}`} />
+              <SummaryRow icon="users" label={t('create.capacity')} value={String(capacity)} />
+              <SummaryRow icon={isPrivate ? 'lock' : 'globe'} label={t('create.visibility')} value={isPrivate ? t('create.private') : t('create.public')} />
+              <SummaryRow icon="eye" label={t('create.spectators')} value={allowSpectators ? t('settings.on') : t('settings.off')} />
+            </dl>
+            <div className="p-4">
+              {errorMsg && (
+                <p className="mb-3 flex items-center gap-1.5 rounded-lg bg-[color:var(--pkp-coral-tint)] px-3 py-2 text-sm text-[color:var(--pkp-coral-ink)]">
+                  <Icon name="alert" size={15} className="shrink-0" /> {errorMsg}
+                </p>
+              )}
+              <button onClick={submit} disabled={pending} className="pk-btn pk-btn-lg pk-btn-primary pk-btn-gold pk-btn-block">
+                {pending ? <Icon name="refresh" size={18} className="animate-spin" /> : <Icon name="plus" size={18} />}
+                {pending ? t('create.creating') : t('create.submit')}
+              </button>
+            </div>
+          </div>
+
+          {/* Coming later — subtle, out of the primary flow. */}
+          <details className="pk-panel pk-panel-tint pk-panel-flat mt-4 p-4">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-2 text-sm font-medium text-[color:var(--pkp-ink-2)]">
+              <span className="flex items-center gap-1.5">
+                <Icon name="clock" size={15} /> {t('create.unsupported_title')}
+              </span>
+              <Icon name="chevronDown" size={16} />
+            </summary>
+            <p className="mt-2 text-xs text-[color:var(--pkp-ink-2)]">{t('create.unsupported_hint')}</p>
+            <ul className="mt-3 flex flex-wrap gap-1.5">
+              {UNSUPPORTED.map((k) => (
+                <li key={k} className="pk-badge pk-badge-neutral">{t(`create.${k}`)}</li>
+              ))}
+            </ul>
+          </details>
+        </aside>
       </div>
-      {children}
     </div>
   )
 }
 
-function Choice({ active, onClick, title, desc }: { active: boolean; onClick: () => void; title: string; desc: string }) {
+function Section({
+  step,
+  icon,
+  title,
+  hint,
+  children,
+}: {
+  step: number
+  icon: IconName
+  title: string
+  hint?: string
+  children: React.ReactNode
+}) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`rounded-lg border p-3 text-left ${active ? 'border-rose bg-rose/5' : 'border-line hover:border-rose'}`}
-    >
-      <span className="font-medium">{title}</span>
-      <span className="mt-0.5 block text-xs text-muted">{desc}</span>
+    <section className="pk-panel p-5">
+      <div className="mb-3 flex items-start gap-3">
+        <span className="pk-ichip pk-ichip-emerald grid h-8 w-8 shrink-0 place-items-center font-serif text-sm font-bold" aria-hidden>
+          {step}
+        </span>
+        <div>
+          <h2 className="flex items-center gap-1.5 font-serif text-base font-semibold text-[color:var(--pkp-ink)]">
+            <Icon name={icon} size={16} className="text-[color:var(--pkp-ink-3)]" /> {title}
+          </h2>
+          {hint && <p className="mt-0.5 text-xs text-[color:var(--pkp-ink-2)]">{hint}</p>}
+        </div>
+      </div>
+      {children}
+    </section>
+  )
+}
+
+function OptionCard({
+  active,
+  onClick,
+  icon,
+  title,
+  desc,
+}: {
+  active: boolean
+  onClick: () => void
+  icon: IconName
+  title: string
+  desc: string
+}) {
+  return (
+    <button type="button" onClick={onClick} data-active={active} aria-pressed={active} className="pk-option flex items-start gap-2.5">
+      <span className={`pk-ichip ${active ? 'pk-ichip-ruby' : 'pk-ichip-neutral'} h-8 w-8 shrink-0`}>
+        <Icon name={icon} size={16} />
+      </span>
+      <span>
+        <span className="block font-medium text-[color:var(--pkp-ink)]">{title}</span>
+        <span className="mt-0.5 block text-xs text-[color:var(--pkp-ink-2)]">{desc}</span>
+      </span>
     </button>
+  )
+}
+
+function SummaryRow({ icon, label, value }: { icon: IconName; label: string; value: string }) {
+  return (
+    <div className="flex items-center justify-between gap-3 px-5 py-2.5">
+      <dt className="flex items-center gap-1.5 text-sm text-[color:var(--pkp-ink-2)]">
+        <Icon name={icon} size={15} className="text-[color:var(--pkp-ink-3)]" /> {label}
+      </dt>
+      <dd className="truncate text-sm font-semibold tabular-nums text-[color:var(--pkp-ink)]">{value}</dd>
+    </div>
   )
 }

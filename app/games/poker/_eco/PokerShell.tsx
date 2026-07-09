@@ -4,59 +4,110 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import type { ReactNode } from 'react'
+import { Icon, type IconName } from './icons'
+import './portal-theme.css'
 
-// Light-theme shell for the poker ECOSYSTEM screens (lobby / history / profile / rules …).
-// Deliberately uses the site's standard cream/rose theme — the deep-dark lounge theme is scoped
-// to the live table (.poker-root) only, matching the existing visual-system boundary.
-const TABS = [
-  { key: 'learn', href: '/games/poker/learn' },
-  { key: 'lobby', href: '/games/poker/lobby' },
-  { key: 'create', href: '/games/poker/create' },
-  { key: 'history', href: '/games/poker/history' },
-  { key: 'profile', href: '/games/poker/profile' },
-  { key: 'rules', href: '/games/poker/rules' },
-  { key: 'glossary', href: '/games/poker/glossary' },
-  { key: 'settings', href: '/games/poker/settings' },
-] as const
+// ── Premium PORTAL shell for the poker ecosystem screens ──────────────────────────────────────
+// A compact "poker salon" identity that is DISTINCT from (and never duplicates) the main website
+// header. Warm champagne bar with a gold keyline, a serif wordmark, and a grouped, horizontally
+// scrollable tab nav (Play · Learn · Records · Settings). The immersive dark felt theme stays
+// scoped to the live table (.poker-root); this portal lives under `.pk-portal`.
+
+interface Tab {
+  key: string
+  href: string
+  icon: IconName
+}
+// Grouped by intent; rendered with subtle dividers between groups.
+const GROUPS: Tab[][] = [
+  [
+    { key: 'lobby', href: '/games/poker/lobby', icon: 'globe' },
+    { key: 'create', href: '/games/poker/create', icon: 'plus' },
+  ],
+  [
+    { key: 'learn', href: '/games/poker/learn', icon: 'graduationCap' },
+    { key: 'rules', href: '/games/poker/rules', icon: 'book' },
+    { key: 'glossary', href: '/games/poker/glossary', icon: 'list' },
+  ],
+  [
+    { key: 'history', href: '/games/poker/history', icon: 'clock' },
+    { key: 'profile', href: '/games/poker/profile', icon: 'user' },
+  ],
+  [{ key: 'settings', href: '/games/poker/settings', icon: 'settings' }],
+]
 
 export default function PokerShell({ children }: { children: ReactNode }) {
   const t = useTranslations('games.poker')
-  const pathname = usePathname()
+  const pathname = usePathname() || ''
+
+  const isActive = (href: string) => pathname === href || pathname.startsWith(href + '/')
 
   return (
-    <div className="min-h-screen bg-cream text-ink">
-      <header className="border-b border-line bg-paper/80 backdrop-blur sticky top-0 z-20">
-        <div className="mx-auto max-w-5xl px-5 sm:px-6">
-          <div className="flex items-center justify-between gap-4 py-3">
-            <Link href="/games/poker" className="flex items-center gap-2 font-serif text-lg font-bold text-rose">
-              <span aria-hidden className="grid h-7 w-7 place-items-center rounded-md bg-rose/10 text-rose">♠</span>
-              {t('title')}
+    <div className="pk-portal">
+      <header className="pk-topbar sticky top-0 z-30 border-b border-[color:var(--pkp-gold-line)]">
+        <div className="pk-container">
+          <div className="flex items-center justify-between gap-3 py-2.5">
+            <Link href="/games/poker" className="group inline-flex items-center gap-2.5" aria-label={t('title')}>
+              <span
+                className="grid h-9 w-9 place-items-center rounded-xl text-[color:var(--pkp-gold-soft)]"
+                style={{
+                  background: 'linear-gradient(140deg, var(--pkp-plum) 0%, var(--pkp-plum-2) 100%)',
+                  boxShadow: '0 0 0 1px var(--pkp-gold-line), 0 4px 12px rgba(30,18,44,0.28)',
+                }}
+                aria-hidden
+              >
+                <Icon name="spade" size={18} />
+              </span>
+              <span className="flex flex-col leading-none">
+                <span className="font-serif text-[1.05rem] font-bold text-[color:var(--pkp-ink)]">{t('title')}</span>
+                <span className="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-[color:var(--pkp-gold-deep)]">
+                  Texas Hold’em
+                </span>
+              </span>
             </Link>
-            <Link href="/games" className="text-sm text-muted hover:text-ink">
-              {t('nav.back')}
+            <Link
+              href="/games"
+              className="inline-flex min-h-[40px] items-center gap-1.5 rounded-lg px-2.5 text-sm text-[color:var(--pkp-ink-2)] transition-colors hover:text-[color:var(--pkp-ink)]"
+            >
+              <Icon name="chevronLeft" size={16} />
+              <span className="hidden sm:inline">{t('nav.back')}</span>
             </Link>
           </div>
-          <nav className="-mb-px flex gap-1 overflow-x-auto pb-px">
-            {TABS.map((tab) => {
-              const active = pathname === tab.href || pathname.startsWith(tab.href + '/')
-              return (
-                <Link
-                  key={tab.key}
-                  href={tab.href}
-                  className={`whitespace-nowrap rounded-t-md border-b-2 px-3 py-2 text-sm transition-colors ${
-                    active
-                      ? 'border-rose font-medium text-rose'
-                      : 'border-transparent text-muted hover:text-ink'
-                  }`}
-                >
-                  {t(`nav.${tab.key}`)}
-                </Link>
-              )
-            })}
+
+          <nav
+            aria-label={t('title')}
+            className="-mx-1 flex items-stretch gap-1 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          >
+            {GROUPS.map((group, gi) => (
+              <div key={gi} className="flex items-stretch gap-1">
+                {gi > 0 && <span aria-hidden className="mx-1 my-2 w-px shrink-0 bg-[color:var(--pkp-line)]" />}
+                {group.map((tab) => {
+                  const active = isActive(tab.href)
+                  return (
+                    <Link
+                      key={tab.key}
+                      href={tab.href}
+                      aria-current={active ? 'page' : undefined}
+                      className={`inline-flex min-h-[40px] shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-3 text-sm font-medium transition-colors ${
+                        active
+                          ? 'bg-[color:var(--pkp-ruby-tint)] text-[color:var(--pkp-ruby-ink)]'
+                          : 'text-[color:var(--pkp-ink-2)] hover:bg-[color:var(--pkp-surface-2)] hover:text-[color:var(--pkp-ink)]'
+                      }`}
+                    >
+                      <Icon name={tab.icon} size={16} />
+                      {t(`nav.${tab.key}`)}
+                    </Link>
+                  )
+                })}
+              </div>
+            ))}
           </nav>
         </div>
       </header>
-      <main className="mx-auto max-w-5xl px-5 py-8 pb-20 sm:px-6">{children}</main>
+
+      <main className="pk-container py-7" style={{ paddingBottom: 'calc(5rem + var(--pkp-safe-bottom))' }}>
+        {children}
+      </main>
     </div>
   )
 }

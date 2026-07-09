@@ -3,8 +3,9 @@ import { getTranslations } from 'next-intl/server'
 import PokerShell from '../_eco/PokerShell'
 import OnboardingProvider from '../_eco/OnboardingProvider'
 import OnboardingButton from '../_eco/OnboardingButton'
+import { Icon, type IconName, Suit } from '../_eco/icons'
+import { PageHeader, Eyebrow, SectionTitle } from '../_eco/ui'
 
-// Dynamic like every gated poker route (the layout gates on getPokerAccess()).
 export const dynamic = 'force-dynamic'
 
 export async function generateMetadata() {
@@ -12,76 +13,108 @@ export async function generateMetadata() {
   return { title: `${t('learn.title')} · ${t('title')}` }
 }
 
+// Hand-ranking preview (strongest → weakest), each keyed to the shared hand_name namespace.
+const RANKING: { key: string; suit: 's' | 'h' | 'd' | 'c' }[] = [
+  { key: 'straight_flush', suit: 's' }, { key: 'four_of_a_kind', suit: 'h' }, { key: 'full_house', suit: 'd' },
+  { key: 'flush', suit: 'c' }, { key: 'straight', suit: 's' }, { key: 'three_of_a_kind', suit: 'h' },
+  { key: 'two_pair', suit: 'd' }, { key: 'pair', suit: 'c' }, { key: 'high_card', suit: 's' },
+]
+
 export default async function PokerLearnPage() {
   const t = await getTranslations('games.poker')
 
+  const surfaces: { href: string; icon: IconName; tone: string; title: string; desc: string; cta: string; badge?: string }[] = [
+    { href: '/games/poker/training', icon: 'target', tone: 'emerald', title: t('learn.hub.training_title'), desc: t('learn.hub.training_desc'), cta: t('learn.hub.training_cta'), badge: t('learn.training.badge') },
+    { href: '/games/poker/learn/rankings', icon: 'trophy', tone: 'amber', title: t('learn.hub.rankings_title'), desc: t('learn.hub.rankings_desc'), cta: t('learn.hub.rankings_cta') },
+    { href: '/games/poker/rules', icon: 'book', tone: 'royal', title: t('learn.hub.rules_title'), desc: t('learn.hub.rules_desc'), cta: t('nav.rules') },
+    { href: '/games/poker/glossary', icon: 'list', tone: 'violet', title: t('learn.hub.glossary_title'), desc: t('learn.hub.glossary_desc'), cta: t('nav.glossary') },
+  ]
+
   return (
     <PokerShell>
-      {/* First-time tour overlay (auto-shows only for eligible players). */}
       <OnboardingProvider />
 
-      <h1 className="font-serif text-2xl font-bold">{t('learn.title')}</h1>
-      <p className="mt-2 max-w-2xl text-muted">{t('learn.subtitle')}</p>
+      <PageHeader
+        eyebrow={<Eyebrow icon="graduationCap">{t('nav.learn')}</Eyebrow>}
+        icon="graduationCap"
+        tone="violet"
+        title={t('learn.title')}
+        subtitle={t('learn.subtitle')}
+      />
 
-      {/* Guided tour CTA */}
-      <section className="mt-6 overflow-hidden rounded-2xl border border-line bg-gradient-to-br from-[#1b1230] to-[#2a1a3e] p-6 text-white">
-        <p className="mb-2 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium">
-          {t('learn.onboarding.badge')}
-        </p>
-        <h2 className="font-serif text-xl font-bold">{t('learn.hub.onboarding_title')}</h2>
-        <p className="mt-1 max-w-lg text-white/80">{t('learn.hub.onboarding_desc')}</p>
-        <div className="mt-4 flex flex-wrap gap-3">
-          <OnboardingButton
-            mode="open"
-            testId="pk-open-tour"
-            className="inline-flex items-center justify-center rounded-lg bg-rose px-5 py-2.5 font-medium text-white hover:opacity-90"
-          >
-            {t('learn.hub.onboarding_cta')}
-          </OnboardingButton>
-          <OnboardingButton
-            mode="restart"
-            testId="pk-restart-tour"
-            className="inline-flex items-center justify-center rounded-lg border border-white/30 px-5 py-2.5 font-medium text-white hover:bg-white/10"
-          >
-            {t('learn.hub.reset_tour')}
-          </OnboardingButton>
+      {/* Guided tour hero (violet) */}
+      <section className="pk-plum pk-plum-violet pk-portal-on-plum relative overflow-hidden rounded-[20px] p-6 sm:p-8">
+        <Icon name="graduationCap" size={180} className="pk-suit-watermark -right-4 -top-8 rotate-6" />
+        <div className="relative max-w-xl">
+          <span className="pk-badge pk-badge-onplum">
+            <Icon name="sparkles" size={13} /> {t('learn.onboarding.badge')}
+          </span>
+          <h2 className="mt-3 font-serif text-2xl font-bold text-[color:var(--pkp-on-plum)]">{t('learn.hub.onboarding_title')}</h2>
+          <p className="mt-1.5 text-[15px] text-[color:var(--pkp-on-plum-2)]">{t('learn.hub.onboarding_desc')}</p>
+          <div className="mt-5 flex flex-wrap gap-3">
+            <OnboardingButton mode="open" testId="pk-open-tour" className="pk-btn pk-btn-primary pk-btn-gold">
+              <Icon name="play" size={17} /> {t('learn.hub.onboarding_cta')}
+            </OnboardingButton>
+            <OnboardingButton mode="restart" testId="pk-restart-tour" className="pk-btn pk-btn-onplum-outline pk-btn-onplum">
+              <Icon name="refresh" size={16} /> {t('learn.hub.reset_tour')}
+            </OnboardingButton>
+          </div>
         </div>
       </section>
 
-      {/* Learning surfaces */}
-      <section className="mt-6 grid gap-4 sm:grid-cols-2">
-        <Link href="/games/poker/training" className="group rounded-xl border border-line bg-paper p-5 hover:border-rose">
-          <div className="mb-3 flex items-center gap-2">
-            <span aria-hidden className="grid h-9 w-9 place-items-center rounded-lg bg-rose/10 text-lg text-rose">♣</span>
-            <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-emerald-600">
-              {t('learn.training.badge')}
-            </span>
-          </div>
-          <h3 className="font-serif text-base font-semibold">{t('learn.hub.training_title')}</h3>
-          <p className="mt-1 text-sm text-muted">{t('learn.hub.training_desc')}</p>
-          <p className="mt-3 text-sm font-medium text-rose group-hover:underline">{t('learn.hub.training_cta')} →</p>
-        </Link>
+      {/* Beginner path — surfaces presented as ordered steps. */}
+      <section className="mt-8">
+        <SectionTitle icon="layers" tone="violet">{t('nav.learn')}</SectionTitle>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {surfaces.map((sf, i) => (
+            <Link key={sf.href} href={sf.href} className="pk-card group flex items-start gap-4 p-5">
+              <span className="relative shrink-0">
+                <span className={`pk-ichip pk-ichip-${sf.tone} flex h-11 w-11`}>
+                  <Icon name={sf.icon} size={22} />
+                </span>
+                <span className="absolute -left-1.5 -top-1.5 grid h-5 w-5 place-items-center rounded-full bg-[color:var(--pkp-plum)] font-serif text-[11px] font-bold text-[color:var(--pkp-gold-soft)]" aria-hidden>
+                  {i + 1}
+                </span>
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="flex items-center gap-2">
+                  <span className="font-serif text-base font-semibold text-[color:var(--pkp-ink)]">{sf.title}</span>
+                  {sf.badge && <span className="pk-badge pk-badge-emerald">{sf.badge}</span>}
+                </span>
+                <span className="mt-1 block text-sm text-[color:var(--pkp-ink-2)]">{sf.desc}</span>
+                <span className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-[color:var(--pkp-ruby-ink)] group-hover:underline">
+                  {sf.cta} <Icon name="arrowRight" size={15} />
+                </span>
+              </span>
+            </Link>
+          ))}
+        </div>
+      </section>
 
-        <Link href="/games/poker/learn/rankings" className="group rounded-xl border border-line bg-paper p-5 hover:border-rose">
-          <div className="mb-3 grid h-9 w-9 place-items-center rounded-lg bg-rose/10 text-lg text-rose" aria-hidden>♠</div>
-          <h3 className="font-serif text-base font-semibold">{t('learn.hub.rankings_title')}</h3>
-          <p className="mt-1 text-sm text-muted">{t('learn.hub.rankings_desc')}</p>
-          <p className="mt-3 text-sm font-medium text-rose group-hover:underline">{t('learn.hub.rankings_cta')} →</p>
-        </Link>
-
-        <Link href="/games/poker/rules" className="group rounded-xl border border-line bg-paper p-5 hover:border-rose">
-          <div className="mb-3 grid h-9 w-9 place-items-center rounded-lg bg-rose/10 text-lg text-rose" aria-hidden>♥</div>
-          <h3 className="font-serif text-base font-semibold">{t('learn.hub.rules_title')}</h3>
-          <p className="mt-1 text-sm text-muted">{t('learn.hub.rules_desc')}</p>
-          <p className="mt-3 text-sm font-medium text-rose group-hover:underline">{t('nav.rules')} →</p>
-        </Link>
-
-        <Link href="/games/poker/glossary" className="group rounded-xl border border-line bg-paper p-5 hover:border-rose">
-          <div className="mb-3 grid h-9 w-9 place-items-center rounded-lg bg-rose/10 text-lg text-rose" aria-hidden>♦</div>
-          <h3 className="font-serif text-base font-semibold">{t('learn.hub.glossary_title')}</h3>
-          <p className="mt-1 text-sm text-muted">{t('learn.hub.glossary_desc')}</p>
-          <p className="mt-3 text-sm font-medium text-rose group-hover:underline">{t('nav.glossary')} →</p>
-        </Link>
+      {/* Hand-ranking preview */}
+      <section className="mt-8">
+        <SectionTitle
+          icon="trophy"
+          tone="amber"
+          action={
+            <Link href="/games/poker/learn/rankings" className="inline-flex items-center gap-1 text-sm font-medium text-[color:var(--pkp-ruby-ink)] hover:underline">
+              {t('learn.hub.rankings_cta')} <Icon name="chevronRight" size={14} />
+            </Link>
+          }
+        >
+          {t('learn.hub.rankings_title')}
+        </SectionTitle>
+        <ol className="pk-panel grid gap-1 p-3 sm:grid-cols-3">
+          {RANKING.map((r, i) => (
+            <li key={r.key} className="flex items-center gap-2.5 rounded-lg px-2.5 py-2">
+              <span className="grid h-6 w-6 shrink-0 place-items-center rounded-md bg-[color:var(--pkp-surface-3)] text-xs font-bold tabular-nums text-[color:var(--pkp-ink-2)]">
+                {i + 1}
+              </span>
+              <Suit suit={r.suit} size={14} className={r.suit === 'h' || r.suit === 'd' ? 'text-[color:var(--pkp-ruby)]' : 'text-[color:var(--pkp-ink)]'} />
+              <span className="truncate text-sm text-[color:var(--pkp-ink)]">{t(`hand_name.${r.key}`)}</span>
+            </li>
+          ))}
+        </ol>
       </section>
     </PokerShell>
   )

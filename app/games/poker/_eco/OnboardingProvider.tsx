@@ -8,6 +8,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { usePokerPrefs } from './prefs'
+import { Icon } from './icons'
 import {
   ONBOARDING_STEPS,
   ONBOARDING_STEP_COUNT,
@@ -128,12 +129,30 @@ export default function OnboardingProvider() {
     setOpen(false)
   }, [progress, update])
 
-  // Esc pauses the tour (never permanently dismisses).
+  // Esc pauses the tour (never permanently dismisses); Tab is trapped inside the dialog.
   useEffect(() => {
     if (!open) return
     dialogRef.current?.focus()
     function onKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') closePaused()
+      if (e.key === 'Escape') {
+        closePaused()
+        return
+      }
+      if (e.key === 'Tab' && dialogRef.current) {
+        const focusable = dialogRef.current.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+        )
+        if (focusable.length === 0) return
+        const first = focusable[0]
+        const last = focusable[focusable.length - 1]
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault()
+          last.focus()
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault()
+          first.focus()
+        }
+      }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
@@ -145,9 +164,12 @@ export default function OnboardingProvider() {
   const last = isLastStep(progress)
   const animate = prefs.animation && !prefs.reducedMotion
 
+  const pct = Math.round(((progress.stepIndex + 1) / ONBOARDING_STEP_COUNT) * 100)
+
   return (
     <div
-      className="fixed inset-0 z-[130] flex items-end justify-center bg-black/50 p-4 sm:items-center"
+      className="pk-dialog-backdrop"
+      style={{ placeItems: 'center' }}
       role="presentation"
       onClick={closePaused}
     >
@@ -160,50 +182,50 @@ export default function OnboardingProvider() {
         onClick={(e) => e.stopPropagation()}
         data-testid="pk-onboarding"
         data-step={progress.stepIndex}
-        className={`w-full max-w-md rounded-2xl border border-line bg-paper p-6 shadow-xl outline-none ${animate ? 'transition-transform' : ''}`}
+        className={`pk-dialog max-h-[90dvh] max-w-md overflow-y-auto p-0 outline-none ${animate ? 'pk-fade-up' : ''}`}
       >
-        <div className="mb-3 flex items-center justify-between">
-          <span className="inline-flex items-center gap-1 rounded-full bg-rose/10 px-2.5 py-1 text-xs font-medium text-rose">
-            {t('badge')}
-          </span>
-          <span className="text-xs text-muted tabular-nums">
-            {t('step_label', { current: progress.stepIndex + 1, total: ONBOARDING_STEP_COUNT })}
-          </span>
-        </div>
-
-        <h2 id="pk-onb-title" className="font-serif text-lg font-bold text-ink">
-          {t(`step.${stepKey}_t`)}
-        </h2>
-        <p className="mt-2 text-sm text-muted">{t(`step.${stepKey}_b`)}</p>
-
-        {/* progress dots */}
-        <div className="mt-4 flex items-center gap-1.5" aria-hidden>
-          {Array.from({ length: ONBOARDING_STEP_COUNT }).map((_, i) => (
-            <span
-              key={i}
-              className={`h-1.5 flex-1 rounded-full ${i <= progress.stepIndex ? 'bg-rose' : 'bg-line'}`}
-            />
-          ))}
-        </div>
-
-        <div className="mt-5 flex items-center justify-between gap-2">
-          <div className="flex gap-2">
-            <button data-testid="pk-onb-skip" onClick={closePaused} className="rounded-lg px-3 py-2 text-sm text-muted hover:text-ink">
-              {t('skip')}
-            </button>
-            <button data-testid="pk-onb-dontshow" onClick={onDontShow} className="rounded-lg px-3 py-2 text-sm text-muted hover:text-ink">
-              {t('dont_show')}
-            </button>
+        {/* Header — plum band with step number + progress. */}
+        <div className="pk-plum pk-plum-violet px-6 py-4">
+          <div className="flex items-center justify-between gap-2">
+            <span className="pk-badge pk-badge-onplum">
+              <Icon name="graduationCap" size={13} /> {t('badge')}
+            </span>
+            <span className="text-xs font-medium tabular-nums text-[color:var(--pkp-on-plum-2)]">
+              {t('step_label', { current: progress.stepIndex + 1, total: ONBOARDING_STEP_COUNT })}
+            </span>
           </div>
-          <div className="flex gap-2">
-            {progress.stepIndex > 0 && (
-              <button data-testid="pk-onb-back" onClick={onBack} className="rounded-lg border border-line px-4 py-2 text-sm font-medium hover:border-rose">
-                {t('back')}
+          <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-[color:rgba(255,255,255,0.14)]" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}>
+            <div className="h-full rounded-full bg-[color:var(--pkp-gold-soft)] transition-[width] duration-300" style={{ width: `${pct}%` }} />
+          </div>
+        </div>
+
+        {/* Body */}
+        <div className="p-6">
+          <h2 id="pk-onb-title" className="font-serif text-xl font-bold text-[color:var(--pkp-ink)]">
+            {t(`step.${stepKey}_t`)}
+          </h2>
+          <p className="mt-2 text-sm leading-relaxed text-[color:var(--pkp-ink-2)]">{t(`step.${stepKey}_b`)}</p>
+
+          <div className="mt-6 flex items-center justify-between gap-2">
+            <div className="flex flex-wrap gap-1">
+              <button data-testid="pk-onb-skip" onClick={closePaused} className="pk-btn pk-btn-ghost pk-btn-sm">
+                {t('skip')}
               </button>
-            )}
-            <button data-testid="pk-onb-next" onClick={onNext} className="rounded-lg bg-rose px-4 py-2 text-sm font-medium text-white hover:opacity-90">
-              {last ? t('done') : t('next')}
-            </button>
+              <button data-testid="pk-onb-dontshow" onClick={onDontShow} className="pk-btn pk-btn-ghost pk-btn-sm">
+                {t('dont_show')}
+              </button>
+            </div>
+            <div className="flex gap-2">
+              {progress.stepIndex > 0 && (
+                <button data-testid="pk-onb-back" onClick={onBack} className="pk-btn pk-btn-secondary pk-btn-sm">
+                  <Icon name="chevronLeft" size={15} /> {t('back')}
+                </button>
+              )}
+              <button data-testid="pk-onb-next" onClick={onNext} className="pk-btn pk-btn-primary pk-btn-sm">
+                {last ? t('done') : t('next')}
+                {!last && <Icon name="chevronRight" size={15} />}
+              </button>
+            </div>
           </div>
         </div>
       </div>

@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
-import { getPokerAccess } from './access'
+import { getPokerAccess, pokerAccessTournamentVisible } from './access'
 import { BETA_STATUS_MESSAGE_ENV } from '@/lib/games/poker/beta'
 import PokerBetaBanner from './_components/PokerBetaBanner'
 
@@ -10,11 +10,17 @@ import PokerBetaBanner from './_components/PokerBetaBanner'
 // per-capability gates (create / public lobby / private / spectator) are applied
 // at their own entry points; the security boundary remains RLS + the RPCs.
 //
+// A public-rollout viewer (27G-N) is not otherwise "visible" but IS allowed into
+// the section so they can reach the Tournament routes; every non-tournament page
+// still fails its own capability gate (pokerAccessCan → not visible), so the
+// rollout opens the tournament surface ONLY and never a cash capability.
+//
 // In Alpha mode a fixed, unmissable ALPHA ribbon labels every poker screen so a
 // tester always knows this is a pre-release build (test coins, expect bugs).
 export default async function PokerLayout({ children }: { children: React.ReactNode }) {
-  const { visible, isAlpha, isBeta, betaMaintenance } = await getPokerAccess()
-  if (!visible) notFound()
+  const acc = await getPokerAccess()
+  const { visible, isAlpha, isBeta, betaMaintenance } = acc
+  if (!visible && !pokerAccessTournamentVisible(acc)) notFound()
   const t = await getTranslations('games.poker')
   // Ops-controlled service-status message (server-only env). Empty by default. The
   // maintenance switch is resolved server-side in access (it also blocks new joins).

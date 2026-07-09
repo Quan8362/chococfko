@@ -23,6 +23,7 @@ import {
   pokerSocialFeatureOn,
   pokerTournamentInternalAlphaVisible,
   pokerTournamentCanOperate,
+  pokerTournamentPublicEnabled,
   isAlphaTester,
   POKER_ALPHA_TESTERS_ENV,
   type PokerFlags,
@@ -44,6 +45,12 @@ import {
   type MaintenanceStatus,
   type MaintenanceDecision,
 } from '@/lib/games/poker/maintenance'
+import {
+  resolvePublicRollout,
+  inPublicRollout,
+  publicRolloutEnabled,
+  type PublicRolloutConfig,
+} from '@/lib/games/poker/tournamentRollout'
 
 export interface PokerAccess {
   flags: PokerFlags
@@ -68,6 +75,15 @@ export interface PokerAccess {
   // -wins with the feature flags and betaMaintenance in checkPokerCapability. The status
   // (mode + admin message + ETA) also drives the maintenance banner/screen in the UI.
   maintenance: MaintenanceStatus
+  // ── Public tournament rollout (27G-N) ─────────────────────────────────────
+  // The resolved public-rollout config (master kill switch + effective %). Kept server-side only;
+  // it is NEVER serialised to a client component — the client only ever learns the derived
+  // allowed/denied booleans below.
+  publicRollout: PublicRolloutConfig
+  // Whether THIS viewer is inside the public tournament rollout (authenticated, not suspended, and
+  // their stable bucket falls under the effective %). This is the ONLY public path to the tournament
+  // surface; admins / alpha / beta reach it through their own gates. Anonymous viewers are false.
+  tournamentPublic: boolean
 }
 
 // Resolve the viewer's email once (server-only) to decide tester allowlist
@@ -93,6 +109,13 @@ export async function getPokerAccess(): Promise<PokerAccess> {
     isBetaMember: beta.inBeta,
     suspended: beta.suspended,
   }
+  const publicRollout = resolvePublicRollout(process.env)
+  // Public-rollout eligibility is derived from the SERVER-trusted auth user id ONLY (never a client
+  // value). Suspension still locks a tester out on the public path.
+  const tournamentPublic = inPublicRollout(publicRollout, {
+    userId: access.userId,
+    suspended: beta.suspended,
+  })
   return {
     flags,
     access,
@@ -105,6 +128,8 @@ export async function getPokerAccess(): Promise<PokerAccess> {
     betaSuspended: beta.suspended,
     betaMaintenance: isBetaMaintenance(process.env),
     maintenance: resolveMaintenance(process.env),
+    publicRollout,
+    tournamentPublic,
   }
 }
 
@@ -134,12 +159,23 @@ export async function pokerSocialAvailable(feature: PokerSocialFeature): Promise
   return pokerAccessSocial(await getPokerAccess(), feature)
 }
 
-// ── Internal-alpha tournament gates ──────────────────────────────────────────────────────────
-// May THIS viewer see the internal-alpha tournament surface? Requires the internal-alpha flag ON and
-// the viewer able to see poker at all (admins, or Closed-Beta members when closedBeta runs). Suspended
-// testers and the public are locked out. Ships fully dark until POKER_TOURNAMENT_INTERNAL_ALPHA flips.
+// ── Tournament visibility gates ──────────────────────────────────────────────────────────────
+// May THIS viewer see the Tournament surface? TWO independent paths, OR-ed:
+//   • the internal-alpha surface — POKER_TOURNAMENT_INTERNAL_ALPHA ON + able to see poker at all
+//     (admins, or Closed-Beta members when closedBeta runs); suspended testers & public locked out;
+//   • the PUBLIC rollout (27G-N) — an authenticated, non-suspended public user whose stable bucket
+//     falls under the effective rollout %, gated by the master kill switch (see tournamentRollout.ts).
+// Both fail closed by default; neither opens a cash-seating capability. Anonymous viewers get neither.
 export function pokerAccessTournamentVisible(a: PokerAccess): boolean {
-  return pokerTournamentInternalAlphaVisible(a.flags, viewerOf(a))
+  return pokerTournamentInternalAlphaVisible(a.flags, viewerOf(a)) || a.tournamentPublic
+}
+
+// Is the public heads-up launch-shape enforcement ARMED for this request? Armed whenever the public
+// tournament is enabled at all — either the legacy public capability flag (flags.tournament) OR the
+// public-rollout master kill switch — even while the effective rollout is still 0%. This guarantees
+// an operator can never create a public tournament in any shape but heads-up single-table.
+export function pokerAccessPublicLaunchShapeArmed(a: PokerAccess): boolean {
+  return pokerTournamentPublicEnabled(a.flags) || publicRolloutEnabled(a.publicRollout)
 }
 // May THIS viewer OPERATE tournaments (create/start/transition/settle)? Visible AND admin.
 export function pokerAccessTournamentOperator(a: PokerAccess): boolean {

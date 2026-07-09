@@ -17,6 +17,7 @@ import {
   getPokerAccess,
   pokerAccessTournamentVisible,
   pokerAccessTournamentOperator,
+  pokerAccessPublicLaunchShapeArmed,
 } from './access'
 import {
   initialRegKey,
@@ -31,7 +32,6 @@ import {
   type EliminationRecord,
   type TournamentState,
 } from '@/lib/games/poker/tournament'
-import { pokerTournamentPublicEnabled } from '@/lib/games/poker/flags'
 import { emitSev1 } from '@/lib/games/poker/incidentNotifier'
 import {
   liveView,
@@ -233,10 +233,12 @@ export async function createTournament(input: CreateTournamentInput): Promise<Ac
   }
   const valid = validateTournamentConfig(config)
   if (!valid.ok) return fail(`invalid_config:${valid.reason}`)
-  // Public launch-shape enforcement (27G-M1 / B2): when the PUBLIC tournament capability is active,
-  // only the validated heads-up single-table shape may be created — server-authoritative, never a
-  // client-only check. Internal-alpha / closed-beta creation (public flag OFF) is unaffected.
-  if (pokerTournamentPublicEnabled(g.acc.flags)) {
+  // Public launch-shape enforcement (27G-M1 / B2 / 27G-N): when the PUBLIC tournament is active —
+  // via the legacy public capability flag OR the public-rollout master kill switch — only the
+  // validated heads-up single-table shape may be created. Server-authoritative, never a client-only
+  // check, and armed even at effective 0%. Internal-alpha / closed-beta creation (public OFF) is
+  // unaffected and keeps the existing 6-max templates.
+  if (pokerAccessPublicLaunchShapeArmed(g.acc)) {
     const shape = validatePublicLaunchShape(config)
     if (!shape.ok) return fail(`public_launch_shape:${shape.reason}`)
   }

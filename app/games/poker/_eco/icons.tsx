@@ -13,7 +13,7 @@ export type IconName =
   | 'sparkles' | 'bot' | 'refresh' | 'close' | 'check' | 'chevronRight' | 'chevronLeft'
   | 'chevronDown' | 'arrowRight' | 'arrowLeft' | 'clock' | 'coins' | 'volume' | 'music'
   | 'vibrate' | 'sun' | 'monitor' | 'accessibility' | 'alert' | 'external' | 'graduationCap'
-  | 'flame' | 'ban' | 'trending' | 'target' | 'layers' | 'home' | 'menu' | 'chip'
+  | 'flame' | 'ban' | 'trending' | 'target' | 'layers' | 'home' | 'menu'
 
 interface IconProps extends Omit<SVGProps<SVGSVGElement>, 'name'> {
   name: IconName
@@ -98,7 +98,6 @@ const PATHS: Record<IconName, JSX.Element> = {
   layers: <path d="M12 3 3 8l9 5 9-5-9-5ZM3 13l9 5 9-5M3 17l9 5 9-5" />,
   home: <path d="M4 11 12 4l8 7M6 9.5V20h12V9.5" />,
   menu: <path d="M4 7h16M4 12h16M4 17h16" />,
-  chip: <g><circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="4.5" /><path d="M12 3v3.2M12 17.8V21M3 12h3.2M17.8 12H21M5.6 5.6l2.3 2.3M16.1 16.1l2.3 2.3M18.4 5.6l-2.3 2.3M7.9 16.1l-2.3 2.3" /></g>,
 }
 
 // Convenience suit component (filled), with red/black semantics handled by the caller's colour.

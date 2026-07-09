@@ -87,9 +87,8 @@ export default async function PokerLandingPage() {
     <PokerShell>
       {/* ── Hero ──────────────────────────────────────────────────────────────── */}
       <section className="pk-plum pk-fade-up pk-portal-on-plum relative overflow-hidden rounded-[20px] p-6 sm:p-9">
-        {/* Decorative motif — a card-suit quad plus a poker chip, gold-tinted (aria-hidden). */}
+        {/* Decorative card-suit motif — a balanced quad, gold-tinted (aria-hidden). */}
         <div aria-hidden className="pointer-events-none absolute -right-2 top-5 select-none text-[color:var(--pkp-gold-soft)] sm:right-1 sm:top-8">
-          <Icon name="chip" size={82} className="absolute -left-10 top-16 opacity-[0.07] sm:h-[100px] sm:w-[100px]" />
           <div className="grid grid-cols-2 gap-1.5 rotate-[15deg] opacity-[0.11] sm:gap-2">
             <Icon name="spade" size={64} className="sm:h-20 sm:w-20" />
             <Icon name="heart" size={64} className="sm:h-20 sm:w-20" />

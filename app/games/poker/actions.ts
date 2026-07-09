@@ -52,6 +52,7 @@ import {
 import { settleShowdown } from '@/lib/games/poker/showdown'
 import { totalContributed } from '@/lib/games/poker/pot'
 import { assertSnapshotPrivacy, type PokerSnapshot, type PokerLegalView } from '@/lib/games/poker/realtime'
+import { emitSev1 } from '@/lib/games/poker/incidentNotifier'
 import { checkPokerCapability } from './access'
 import { hashTablePassword, verifyTablePassword, privateTableAccessAllowed } from '@/lib/games/poker/tableAccess'
 import {
@@ -1139,6 +1140,10 @@ async function settleHand(
     const conserved = /not_conserved/.test(error.message || '')
     await recordOpsEvent(admin, conserved ? 'coin_conservation_failure' : 'settlement_failure',
       tableId, handId, { code: error.message?.slice(0, 120) ?? 'settle_failed' })
+    // A conservation breach is a zero-tolerance economy SEV-1 — page an operator (best-effort).
+    if (conserved) {
+      await emitSev1({ code: 'PKR_SEV1_ECONOMY_NOT_CONSERVED', correlation: { tableId, handId, source: 'cash_settle' } })
+    }
     return { phase: 'SETTLEMENT' }
   }
 
@@ -1323,6 +1328,9 @@ export async function fetchPokerSnapshot(
   try {
     assertSnapshotPrivacy(snapshot)
   } catch {
+    // A snapshot that would leak private state is a SEV-1 rollback signal. Page an operator (best-
+    // effort, never throws) and refuse to serve the snapshot.
+    await emitSev1({ code: 'PKR_SEV1_PRIVATE_STATE_LEAK', correlation: { tableId, source: 'cash_snapshot' } })
     return fail('snapshot_privacy_violation')
   }
   await recordPerf(supabase, 'snapshot', Date.now() - tSnap0, tableId)

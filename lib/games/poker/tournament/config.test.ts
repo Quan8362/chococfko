@@ -4,6 +4,7 @@ import {
   validateTournamentConfig,
   TEMPLATE_STT_6MAX,
   TEMPLATE_MTT,
+  TEMPLATE_PUBLIC_HEADS_UP,
   TOURNAMENT_TEMPLATES,
   BLINDS_STANDARD_6MAX,
   PAYOUTS_STANDARD,
@@ -14,8 +15,9 @@ import type { TournamentConfig } from './types.ts'
 test('shipped templates validate', () => {
   assert.deepEqual(validateTournamentConfig(TEMPLATE_STT_6MAX), { ok: true })
   assert.deepEqual(validateTournamentConfig(TEMPLATE_MTT), { ok: true })
+  assert.deepEqual(validateTournamentConfig(TEMPLATE_PUBLIC_HEADS_UP), { ok: true })
   assert.deepEqual(validateBlindStructure(BLINDS_STANDARD_6MAX), { ok: true })
-  assert.equal(Object.keys(TOURNAMENT_TEMPLATES).length, 2)
+  assert.equal(Object.keys(TOURNAMENT_TEMPLATES).length, 3)
 })
 
 test('COIN-INT-001 all template money values are integers', () => {

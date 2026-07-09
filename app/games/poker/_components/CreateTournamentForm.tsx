@@ -13,10 +13,15 @@ export default function CreateTournamentForm() {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [form, setForm] = useState({
-    title: '', template: 'stt_6max' as 'stt_6max' | 'mtt',
+    title: '', template: 'stt_6max' as 'stt_6max' | 'mtt' | 'public_hu',
     entryFee: 1000, startingStack: 5000, maxEntries: 6, seatsPerTable: 6, guaranteedPrizePool: 0,
   })
   const num = (v: string) => Math.max(0, Math.floor(Number(v) || 0))
+  // The public heads-up preset is one table, two players — the ONLY shape the public capability
+  // accepts (the server re-enforces it, validatePublicLaunchShape). Lock the field values to match.
+  const headsUp = form.template === 'public_hu'
+  const effectiveMaxEntries = headsUp ? 2 : form.maxEntries
+  const effectiveSeats = headsUp ? 2 : form.seatsPerTable
 
   async function submit(e: React.FormEvent) {
     e.preventDefault()
@@ -24,12 +29,13 @@ export default function CreateTournamentForm() {
     setBusy(true); setError(null)
     const res = await createTournament({
       title: form.title, template: form.template,
-      entryFee: form.entryFee, startingStack: form.startingStack, maxEntries: form.maxEntries,
-      seatsPerTable: form.seatsPerTable, guaranteedPrizePool: form.guaranteedPrizePool,
+      entryFee: form.entryFee, startingStack: form.startingStack, maxEntries: effectiveMaxEntries,
+      seatsPerTable: effectiveSeats, guaranteedPrizePool: form.guaranteedPrizePool,
     })
     if (res.ok) { router.push(`/games/poker/tournaments/${res.id}`); return }
     setBusy(false)
-    setError(res.error.startsWith('invalid_config') ? t('error.invalid_config')
+    setError(res.error.startsWith('public_launch_shape') ? t('error.public_launch_shape')
+      : res.error.startsWith('invalid_config') ? t('error.invalid_config')
       : res.error === 'not_operator' ? t('error.not_operator') : t('error.generic'))
   }
 
@@ -45,9 +51,10 @@ export default function CreateTournamentForm() {
       </div>
       <div>
         <label htmlFor="tt" className={labelCls}>{t('operator.template')}</label>
-        <select id="tt" value={form.template} onChange={(e) => setForm({ ...form, template: e.target.value as 'stt_6max' | 'mtt' })} className={field}>
+        <select id="tt" value={form.template} onChange={(e) => setForm({ ...form, template: e.target.value as 'stt_6max' | 'mtt' | 'public_hu' })} className={field}>
           <option value="stt_6max">{t('operator.template_stt')}</option>
           <option value="mtt">{t('operator.template_mtt')}</option>
+          <option value="public_hu">{t('operator.template_public_hu')}</option>
         </select>
       </div>
       <div className="grid grid-cols-2 gap-4">
@@ -61,11 +68,11 @@ export default function CreateTournamentForm() {
         </div>
         <div>
           <label htmlFor="me" className={labelCls}>{t('operator.max_entries')}</label>
-          <input id="me" type="number" min={2} value={form.maxEntries} onChange={(e) => setForm({ ...form, maxEntries: num(e.target.value) })} className={field} />
+          <input id="me" type="number" min={2} value={effectiveMaxEntries} disabled={headsUp} onChange={(e) => setForm({ ...form, maxEntries: num(e.target.value) })} className={field} />
         </div>
         <div>
           <label htmlFor="sp" className={labelCls}>{t('operator.seats_per_table')}</label>
-          <input id="sp" type="number" min={2} max={10} value={form.seatsPerTable} onChange={(e) => setForm({ ...form, seatsPerTable: num(e.target.value) })} className={field} />
+          <input id="sp" type="number" min={2} max={10} value={effectiveSeats} disabled={headsUp} onChange={(e) => setForm({ ...form, seatsPerTable: num(e.target.value) })} className={field} />
         </div>
         <div className="col-span-2">
           <label htmlFor="gp" className={labelCls}>{t('operator.guarantee')}</label>

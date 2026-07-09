@@ -252,3 +252,11 @@ export function pokerTournamentInternalAlphaVisible(flags: PokerFlags, viewer: P
 export function pokerTournamentCanOperate(flags: PokerFlags, viewer: PokerViewer): boolean {
   return pokerTournamentInternalAlphaVisible(flags, viewer) && viewer.isAdmin
 }
+
+// True when the PUBLIC tournament capability is active (the public `tournament` flag). Hard-off this
+// release. Its ONLY effect today is to arm the public launch-shape enforcement (27G-M1 / B2): when
+// this is true, tournament creation is technically restricted to the validated heads-up single-table
+// shape. Internal-alpha / closed-beta creation (public flag OFF) is unchanged.
+export function pokerTournamentPublicEnabled(flags: PokerFlags): boolean {
+  return flags.tournament === true
+}

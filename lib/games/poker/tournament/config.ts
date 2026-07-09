@@ -79,9 +79,28 @@ export const TEMPLATE_MTT: TournamentConfig = {
   reEntryUntilLevelIndex: 3,
 }
 
+// The ONLY format validated for PUBLIC play (27G-M1 / B2): one table, two players, heads-up. No late
+// reg, no re-entry. A 2-seat / 2-entry field can never split into more than one table. This is the
+// preset the public capability must produce; the server additionally enforces the shape
+// (validatePublicLaunchShape) so no other config can be created under the public flag.
+export const TEMPLATE_PUBLIC_HEADS_UP: TournamentConfig = {
+  entryFee: 1000,
+  startingStack: 5000,
+  minEntries: 2,
+  maxEntries: 2,
+  seatsPerTable: 2,
+  blindStructure: BLINDS_STANDARD_6MAX,
+  payoutStructure: PAYOUTS_STANDARD,
+  guaranteedPrizePool: 0,
+  lateRegUntilLevelIndex: null,
+  maxReEntriesPerUser: 0,
+  reEntryUntilLevelIndex: null,
+}
+
 export const TOURNAMENT_TEMPLATES = {
   stt_6max: TEMPLATE_STT_6MAX,
   mtt: TEMPLATE_MTT,
+  public_hu: TEMPLATE_PUBLIC_HEADS_UP,
 } as const
 
 export type ValidationResult = { ok: true } | { ok: false; reason: string }

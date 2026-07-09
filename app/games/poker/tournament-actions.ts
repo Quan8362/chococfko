@@ -22,6 +22,7 @@ import {
   initialRegKey,
   unregisterKey,
   validateTournamentConfig,
+  validatePublicLaunchShape,
   TOURNAMENT_TEMPLATES,
   canTransition,
   projectedPayouts,
@@ -30,6 +31,8 @@ import {
   type EliminationRecord,
   type TournamentState,
 } from '@/lib/games/poker/tournament'
+import { pokerTournamentPublicEnabled } from '@/lib/games/poker/flags'
+import { emitSev1 } from '@/lib/games/poker/incidentNotifier'
 import {
   liveView,
   applyAction as runnerApply,
@@ -230,6 +233,13 @@ export async function createTournament(input: CreateTournamentInput): Promise<Ac
   }
   const valid = validateTournamentConfig(config)
   if (!valid.ok) return fail(`invalid_config:${valid.reason}`)
+  // Public launch-shape enforcement (27G-M1 / B2): when the PUBLIC tournament capability is active,
+  // only the validated heads-up single-table shape may be created — server-authoritative, never a
+  // client-only check. Internal-alpha / closed-beta creation (public flag OFF) is unaffected.
+  if (pokerTournamentPublicEnabled(g.acc.flags)) {
+    const shape = validatePublicLaunchShape(config)
+    if (!shape.ok) return fail(`public_launch_shape:${shape.reason}`)
+  }
   const { data, error } = await g.admin.from('poker_tournaments').insert({
     title: input.title.trim().slice(0, 120) || 'Tournament',
     state: 'DRAFT',
@@ -537,7 +547,15 @@ export async function getTournamentTableView(tournamentId: string): Promise<Acti
     ? { handId: hr.id, config: hr.state.config, log: hr.state.log ?? [] }
     : null
 
-  const view = buildTournamentTableView({ meta, seats, tableNo, viewerSeatIndex, participantState, hand })
+  let view: TournamentTableView
+  try {
+    view = buildTournamentTableView({ meta, seats, tableNo, viewerSeatIndex, participantState, hand })
+  } catch {
+    // The builder's privacy assertion (assertTournamentViewPrivacy) tripped: a view would expose
+    // private state. SEV-1 rollback signal — page an operator (best-effort) and refuse the view.
+    await emitSev1({ code: 'PKR_SEV1_PRIVATE_STATE_LEAK', correlation: { tournamentId, source: 'tnmt_view' } })
+    return fail('view_privacy_violation')
+  }
   return { ok: true, view }
 }
 
@@ -643,8 +661,15 @@ export async function settleTournament(tournamentId: string): Promise<ActionResu
     p_payouts: payoutRows.map((p) => ({ entry_id: p.entryId, user_id: p.userId, place: p.place, amount: p.amount, kind: 'prize' })),
     p_idempotency_key: `settle:${tournamentId}`,
   })
-  if (error) return fail(error.message.includes('already settled') ? 'already_settled'
-    : error.message.includes('conserve') ? 'conservation_failed' : 'settle_failed')
+  if (error) {
+    const conserved = error.message.includes('conserve')
+    if (conserved) {
+      // Tournament escrow conservation breach → zero-tolerance economy SEV-1 (best-effort page).
+      await emitSev1({ code: 'PKR_SEV1_ECONOMY_NOT_CONSERVED', correlation: { tournamentId, source: 'tnmt_settle' } })
+    }
+    return fail(error.message.includes('already settled') ? 'already_settled'
+      : conserved ? 'conservation_failed' : 'settle_failed')
+  }
   const { data: st } = await g.admin.from('poker_tournaments').select('state,current_level_index').eq('id', tournamentId).maybeSingle()
   await touchAllTables(g.admin, tournamentId, (st as { state: string } | null)?.state ?? 'COMPLETED', (st as { current_level_index: number } | null)?.current_level_index ?? 0)
   return { ok: true, paid: payoutRows.filter((p) => p.amount > 0).length }

@@ -28,6 +28,19 @@
 export const PUBLIC_ROLLOUT_ENABLED_ENV = 'POKER_TOURNAMENT_PUBLIC_ENABLED'
 export const PUBLIC_ROLLOUT_PCT_ENV = 'POKER_TOURNAMENT_PUBLIC_ROLLOUT'
 
+// ── Temporary tester allowlist (27G-N Stage 3A) ──────────────────────────────────────────────────
+// A SMALLEST-possible, server-only, fail-closed lever to admit a tiny set of explicitly-approved
+// auth ids to the public tournament surface WITHOUT changing the rollout percentage — so a single
+// controlled real tournament can be verified before widening the deterministic bucket beyond 25%.
+// It admits VISIBILITY only: it never confers operator/admin rights, never relaxes the heads-up
+// launch shape, rate limits, privacy, or economy checks (all enforced independently), and the master
+// kill switch + authentication + suspension checks all still apply. Dormant ([]) by default.
+export const PUBLIC_TESTER_IDS_ENV = 'POKER_TOURNAMENT_PUBLIC_TESTER_IDS'
+
+// During this phase at most this many ids may be listed. More VALID ids than this is treated as a
+// misconfiguration and fails closed to an EMPTY allowlist rather than silently admitting a wider set.
+export const PUBLIC_TESTER_MAX = 2
+
 // The ONLY percentages that may ever be configured. Anything else fails closed to 0.
 export const ALLOWED_ROLLOUT_PCTS = [0, 5, 10, 25, 50, 100] as const
 export type RolloutPct = (typeof ALLOWED_ROLLOUT_PCTS)[number]
@@ -77,11 +90,39 @@ export function rolloutBucket(userId: string): number {
   return (h >>> 0) % 100
 }
 
+// Strict canonical-UUID shape. The allowlist honours ONLY this exact form (case-insensitive); any
+// other token fails the whole list closed. Kept local so no other value can accidentally match.
+const TESTER_UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
+
+// Parse the temporary tester allowlist (comma-separated auth UUIDs). Fail-closed at every step:
+//   • unset / empty / whitespace-only       → [] (dormant)
+//   • ANY malformed (non-UUID) token         → [] (the WHOLE list fails closed; never partially honour)
+//   • more than PUBLIC_TESTER_MAX valid ids  → [] (misconfiguration; never widen beyond the two testers)
+//   • duplicates                             → de-duped
+// Lower-cased so the compare against the (also lower-cased) server-resolved auth id is exact and
+// case-insensitive. Never read from any client-supplied value.
+export function parsePublicTesterIds(raw: string | undefined | null): string[] {
+  if (!raw) return []
+  const parts = String(raw)
+    .split(',')
+    .map((s) => s.trim().toLowerCase())
+    .filter((s) => s.length > 0)
+  if (parts.length === 0) return []
+  const seen = new Set<string>()
+  for (const p of parts) {
+    if (!TESTER_UUID_RE.test(p)) return [] // malformed → fail closed entirely
+    seen.add(p)
+  }
+  if (seen.size > PUBLIC_TESTER_MAX) return [] // too many → fail closed entirely
+  return Array.from(seen)
+}
+
 // Resolved public-rollout configuration (server reads env → this shape).
 export interface PublicRolloutConfig {
   masterEnabled: boolean // POKER_TOURNAMENT_PUBLIC_ENABLED — master kill switch (fail-closed OFF)
   configuredPct: RolloutPct // the validated configured percentage (100 possible, pre-ceiling)
   pct: RolloutPct // the EFFECTIVE percentage actually applied (post phase-ceiling; the number that gates)
+  testerIds: string[] // temporary server-only tester allowlist (27G-N Stage 3A); [] when dormant
 }
 
 export function resolvePublicRollout(env: Record<string, string | undefined>): PublicRolloutConfig {
@@ -89,6 +130,7 @@ export function resolvePublicRollout(env: Record<string, string | undefined>): P
     masterEnabled: truthy(env[PUBLIC_ROLLOUT_ENABLED_ENV]),
     configuredPct: parseRolloutPct(env[PUBLIC_ROLLOUT_PCT_ENV]),
     pct: effectiveRolloutPct(env[PUBLIC_ROLLOUT_PCT_ENV]),
+    testerIds: parsePublicTesterIds(env[PUBLIC_TESTER_IDS_ENV]),
   }
 }
 
@@ -101,20 +143,25 @@ export function publicRolloutEnabled(cfg: PublicRolloutConfig): boolean {
 
 // The one authoritative decision: is THIS viewer inside the public rollout for the Tournament
 // surface? Fail-closed at every step:
-//   • master kill switch OFF        → denied (overrides everything, including a non-zero percentage)
+//   • master kill switch OFF        → denied (overrides everything, including the tester allowlist)
+//   • anonymous (no user id)        → denied (never bucket/allow a non-authenticated viewer)
+//   • suspended tester              → denied (locked out on the public path, allowlist included)
+//   • on the temporary allowlist    → ADMITTED regardless of bucket (visibility only; % unchanged)
 //   • effective percentage ≤ 0      → denied (default 0%, or a 100 blocked by the phase ceiling)
-//   • anonymous (no user id)        → denied (never bucket a non-authenticated viewer)
-//   • suspended tester              → denied (locked out on the public path too)
 //   • otherwise                     → in iff the stable bucket falls under the effective percentage
 // Admins / alpha testers / beta members reach tournaments through their OWN gate (flags.ts); this
-// function is ONLY the additional public path and never widens those.
+// function is ONLY the additional public path and never widens those. The tester allowlist admits
+// participant VISIBILITY only — it confers no operator/admin capability and cannot relax the
+// heads-up launch shape, rate limits, privacy, or economy checks (all enforced independently).
 export function inPublicRollout(
   cfg: PublicRolloutConfig,
   ctx: { userId: string | null | undefined; suspended?: boolean },
 ): boolean {
   if (!cfg.masterEnabled) return false
-  if (cfg.pct <= 0) return false
   if (!ctx.userId) return false
   if (ctx.suspended) return false
+  const testers = cfg.testerIds ?? []
+  if (testers.length > 0 && testers.includes(ctx.userId.toLowerCase())) return true
+  if (cfg.pct <= 0) return false
   return rolloutBucket(ctx.userId) < cfg.pct
 }

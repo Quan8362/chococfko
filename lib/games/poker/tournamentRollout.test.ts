@@ -11,6 +11,9 @@ import {
   ROLLOUT_PHASE_CEILING,
   PUBLIC_ROLLOUT_ENABLED_ENV,
   PUBLIC_ROLLOUT_PCT_ENV,
+  PUBLIC_TESTER_IDS_ENV,
+  PUBLIC_TESTER_MAX,
+  parsePublicTesterIds,
   type PublicRolloutConfig,
 } from './tournamentRollout.ts'
 
@@ -29,7 +32,7 @@ function idPool(n: number): string[] {
 }
 
 function cfg(over: Partial<PublicRolloutConfig> = {}): PublicRolloutConfig {
-  return { masterEnabled: true, configuredPct: 0, pct: 0, ...over }
+  return { masterEnabled: true, configuredPct: 0, pct: 0, testerIds: [], ...over }
 }
 
 // ── Percentage parsing / validation (fail closed) ──────────────────────────────────────────────
@@ -115,13 +118,13 @@ test('RLO-GATE-004 suspended tester denied on the public path', () => {
 // ── Env resolution (server reads these) ────────────────────────────────────────────────────────
 test('RLO-ENV-001 resolvePublicRollout: fail-closed defaults from an empty env', () => {
   const r = resolvePublicRollout({})
-  assert.deepEqual(r, { masterEnabled: false, configuredPct: 0, pct: 0 })
+  assert.deepEqual(r, { masterEnabled: false, configuredPct: 0, pct: 0, testerIds: [] })
   assert.equal(publicRolloutEnabled(r), false)
 })
 
 test('RLO-ENV-002 resolvePublicRollout: master + valid % wire through; 100 caps to effective 0', () => {
   const at5 = resolvePublicRollout({ [PUBLIC_ROLLOUT_ENABLED_ENV]: 'true', [PUBLIC_ROLLOUT_PCT_ENV]: '5' })
-  assert.deepEqual(at5, { masterEnabled: true, configuredPct: 5, pct: 5 })
+  assert.deepEqual(at5, { masterEnabled: true, configuredPct: 5, pct: 5, testerIds: [] })
 
   const at100 = resolvePublicRollout({ [PUBLIC_ROLLOUT_ENABLED_ENV]: '1', [PUBLIC_ROLLOUT_PCT_ENV]: '100' })
   assert.equal(at100.masterEnabled, true)
@@ -152,4 +155,66 @@ test('RLO-SEC-001 the decision is a pure function of the SERVER config + auth id
   for (const id of ids) {
     assert.equal(inPublicRollout(cfg({ masterEnabled: false, pct: 50 }), { userId: id }), false)
   }
+})
+
+// ── Temporary tester allowlist (27G-N Stage 3A) — fail closed, visibility-only ──────────────────
+const UUID_A = '00000000-0000-4000-8000-000000000001'
+const UUID_B = 'ffffffff-ffff-4fff-bfff-ffffffffffff'
+const UUID_C = '12345678-1234-4234-8234-123456789abc'
+
+test('RLO-TESTER-001 parse: unset/empty/whitespace → [] (dormant)', () => {
+  for (const raw of [undefined, null, '', '   ', ',', ' , , ']) {
+    assert.deepEqual(parsePublicTesterIds(raw as string), [])
+  }
+})
+
+test('RLO-TESTER-002 parse: valid ids trimmed, lower-cased, de-duped', () => {
+  assert.deepEqual(parsePublicTesterIds(`  ${UUID_A} , ${UUID_B} `), [UUID_A, UUID_B])
+  assert.deepEqual(parsePublicTesterIds(UUID_A.toUpperCase()), [UUID_A]) // case-insensitive
+  assert.deepEqual(parsePublicTesterIds(`${UUID_A},${UUID_A}`), [UUID_A]) // de-duped
+})
+
+test('RLO-TESTER-003 parse: ANY malformed token fails the WHOLE list closed', () => {
+  for (const bad of ['not-a-uuid', `${UUID_A},garbage`, `${UUID_A},123`, `${UUID_A},${UUID_B.slice(0, -1)}`]) {
+    assert.deepEqual(parsePublicTesterIds(bad), [], `expected [] for ${JSON.stringify(bad)}`)
+  }
+})
+
+test('RLO-TESTER-004 parse: more than PUBLIC_TESTER_MAX valid ids fails closed', () => {
+  assert.equal(PUBLIC_TESTER_MAX, 2)
+  assert.deepEqual(parsePublicTesterIds(`${UUID_A},${UUID_B},${UUID_C}`), []) // 3 > max → []
+})
+
+test('RLO-TESTER-005 an allowlisted id is admitted at effective 0% (percentage unchanged)', () => {
+  const c = cfg({ pct: 0, testerIds: [UUID_A, UUID_B] })
+  assert.equal(inPublicRollout(c, { userId: UUID_A }), true)
+  assert.equal(inPublicRollout(c, { userId: UUID_B.toUpperCase() }), true) // case-insensitive match
+  // A non-listed user is still gated by the (still-zero) percentage.
+  assert.equal(inPublicRollout(c, { userId: UUID_C }), false)
+})
+
+test('RLO-TESTER-006 allowlist NEVER overrides kill switch / anon / suspension', () => {
+  const listed = { userId: UUID_A }
+  assert.equal(inPublicRollout(cfg({ masterEnabled: false, testerIds: [UUID_A] }), listed), false) // kill switch wins
+  assert.equal(inPublicRollout(cfg({ testerIds: [UUID_A] }), { userId: null }), false) // anon
+  assert.equal(inPublicRollout(cfg({ testerIds: [UUID_A] }), { userId: UUID_A, suspended: true }), false) // suspended
+})
+
+test('RLO-TESTER-007 allowlist does not perturb ordinary bucket decisions', () => {
+  // With an allowlist that does NOT contain them, ordinary users get exactly the bucket decision.
+  for (const id of idPool(300)) {
+    const withList = inPublicRollout(cfg({ pct: 25, testerIds: [UUID_A, UUID_B] }), { userId: id })
+    const without = inPublicRollout(cfg({ pct: 25 }), { userId: id })
+    assert.equal(withList, without)
+  }
+})
+
+test('RLO-TESTER-008 resolvePublicRollout wires the env; empty env → dormant []', () => {
+  assert.deepEqual(resolvePublicRollout({}).testerIds, [])
+  const r = resolvePublicRollout({
+    [PUBLIC_ROLLOUT_ENABLED_ENV]: 'true',
+    [PUBLIC_ROLLOUT_PCT_ENV]: '25',
+    [PUBLIC_TESTER_IDS_ENV]: `${UUID_A}, ${UUID_B}`,
+  })
+  assert.deepEqual(r, { masterEnabled: true, configuredPct: 25, pct: 25, testerIds: [UUID_A, UUID_B] })
 })

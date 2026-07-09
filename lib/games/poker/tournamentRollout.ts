@@ -6,7 +6,7 @@
 //
 // It is the SMALLEST safe deterministic gate that opens the public heads-up Tournament surface to a
 // controlled fraction of AUTHENTICATED users, in explicit manually-advanced stages (0 → 5 → 10 → 25
-// → 50). It NEVER touches the internal-alpha / Closed-Beta paths (those resolve entirely in flags.ts
+// → 50 → 100). It NEVER touches the internal-alpha / Closed-Beta paths (those resolve entirely in flags.ts
 // + beta.ts and are unchanged), NEVER opens a cash-seating capability, and NEVER moves coins.
 //
 // Two independent ops levers, both fail-closed:
@@ -16,9 +16,10 @@
 //     tournament can never be created in any shape but heads-up single-table.
 //   • POKER_TOURNAMENT_PUBLIC_ROLLOUT — the rollout PERCENTAGE (integer, default 0). Only the exact
 //     values {0,5,10,25,50,100} are allowed; anything missing / malformed / out-of-range resolves to
-//     0 (fail closed). During 27G-N a phase ceiling caps activation at 50: a configured 100 is a
-//     VALID value but is NOT activatable yet and resolves to an EFFECTIVE 0 (fail closed) until the
-//     ceiling is lifted in a later phase.
+//     0 (fail closed). The phase ceiling caps the maximum ACTIVATABLE percentage: a configured value
+//     ABOVE the ceiling is not activatable and resolves to an EFFECTIVE 0 (fail closed). Raising the
+//     ceiling is a deliberate reviewed code change (27G-O lifted it to 100 for full public rollout),
+//     never an env-only action — so the top stage cannot be reached by configuration alone.
 //
 // Bucketing is deterministic and stable: derived ONLY from the server-resolved, stable, opaque auth
 // user id (a UUID). It never reads email, display name, IP, cookie, or any client-supplied value, so
@@ -45,10 +46,12 @@ export const PUBLIC_TESTER_MAX = 2
 export const ALLOWED_ROLLOUT_PCTS = [0, 5, 10, 25, 50, 100] as const
 export type RolloutPct = (typeof ALLOWED_ROLLOUT_PCTS)[number]
 
-// 27G-N phase ceiling: a configured percentage ABOVE this is not activatable yet and resolves to an
-// effective 0 (fail closed). Raising this is a deliberate, reviewed change in a later phase — never
-// an env-only action — so 100% cannot be reached during 27G-N by configuration alone.
-export const ROLLOUT_PHASE_CEILING = 50 as const
+// Phase ceiling: the maximum ACTIVATABLE percentage. A configured percentage ABOVE this is not
+// activatable and resolves to an effective 0 (fail closed). Raising this is a deliberate, reviewed
+// change — never an env-only action. 27G-N held it at 50; 27G-O lifts it to 100 (the top allowed
+// value) for full public rollout, so a configured 100 is now activatable while still-invalid values
+// above 100 remain rejected at parse (parseRolloutPct) — the ceiling never widens the allowed set.
+export const ROLLOUT_PHASE_CEILING = 100 as const
 
 // Only an explicit affirmative turns the master switch on. Everything else — unset, empty, '0',
 // 'false', 'off', a typo — resolves OFF. Mirrors flags.ts `truthy` for one ops mental model.
@@ -59,8 +62,8 @@ function truthy(v: string | undefined): boolean {
 }
 
 // Parse & VALIDATE the configured percentage. Returns one of ALLOWED_ROLLOUT_PCTS, or 0 for anything
-// missing / non-integer / out-of-range (fail closed). 100 is a valid CONFIGURED value here — the
-// phase ceiling (applied by effectiveRolloutPct) is what prevents it activating during 27G-N.
+// missing / non-integer / out-of-range (fail closed). 100 is a valid CONFIGURED value here; whether
+// it is ACTIVATABLE is decided separately by the phase ceiling (applied by effectiveRolloutPct).
 export function parseRolloutPct(raw: string | undefined | null): RolloutPct {
   if (raw == null) return 0
   const s = String(raw).trim()
@@ -69,7 +72,7 @@ export function parseRolloutPct(raw: string | undefined | null): RolloutPct {
   return (ALLOWED_ROLLOUT_PCTS as readonly number[]).includes(n) ? (n as RolloutPct) : 0
 }
 
-// The EFFECTIVE percentage after the 27G-N phase ceiling: a configured value above the ceiling is not
+// The EFFECTIVE percentage after the phase ceiling: a configured value above the ceiling is not
 // activatable and resolves to 0 (fail closed) rather than silently running at the ceiling.
 export function effectiveRolloutPct(raw: string | undefined | null): RolloutPct {
   const pct = parseRolloutPct(raw)

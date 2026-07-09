@@ -46,12 +46,21 @@ test('RLO-PARSE-001 only {0,5,10,25,50,100} are valid; everything else → 0', (
   assert.equal(parseRolloutPct('  10 '), 10) // surrounding whitespace tolerated
 })
 
-test('RLO-PARSE-002 phase ceiling: 100 is a valid value but resolves to an EFFECTIVE 0 this phase', () => {
-  assert.equal(ROLLOUT_PHASE_CEILING, 50)
+test('RLO-PARSE-002 phase ceiling: 27G-O lifts it to 100; 100 is now activatable', () => {
+  assert.equal(ROLLOUT_PHASE_CEILING, 100)
   assert.equal(parseRolloutPct('100'), 100) // valid as a configured value
-  assert.equal(effectiveRolloutPct('100'), 0) // NOT activatable during 27G-N → fail closed to 0
+  assert.equal(effectiveRolloutPct('100'), 100) // now at/under the ceiling → activatable
   // Everything at/under the ceiling passes through unchanged.
-  for (const p of [0, 5, 10, 25, 50]) assert.equal(effectiveRolloutPct(String(p)), p)
+  for (const p of [0, 5, 10, 25, 50, 100]) assert.equal(effectiveRolloutPct(String(p)), p)
+})
+
+test('RLO-PARSE-003 values ABOVE the top allowed pct still fail closed at parse (ceiling never widens the set)', () => {
+  // The ceiling change only lifts activation to the TOP ALLOWED value (100); it does not enlarge the
+  // allowed set. Anything not in {0,5,10,25,50,100} — including 101/150/1000 — still parses to 0.
+  for (const bad of ['101', '150', '1000', '99', '51']) {
+    assert.equal(parseRolloutPct(bad), 0, `expected 0 for ${bad}`)
+    assert.equal(effectiveRolloutPct(bad), 0, `expected effective 0 for ${bad}`)
+  }
 })
 
 // ── Deterministic, stable bucketing ────────────────────────────────────────────────────────────
@@ -115,6 +124,50 @@ test('RLO-GATE-004 suspended tester denied on the public path', () => {
   assert.equal(inPublicRollout(cfg({ pct: 50 }), { userId: id, suspended: false }), true)
 })
 
+// ── 27G-O full public rollout: effective 100% admits every authenticated non-suspended user ─────
+test('RLO-GATE-100A effective 100% admits ALL authenticated, non-suspended users (no bucket is left out)', () => {
+  // Every bucket is in [0,99], so bucket < 100 holds for everyone. Prove it across a large pool.
+  for (const id of idPool(5000)) {
+    assert.equal(inPublicRollout(cfg({ pct: 100 }), { userId: id }), true, `id excluded at 100%: ${id}`)
+  }
+})
+
+test('RLO-GATE-100B anonymous users remain denied at effective 100%', () => {
+  for (const anon of [null, undefined, '']) {
+    assert.equal(inPublicRollout(cfg({ pct: 100 }), { userId: anon as string | null }), false)
+  }
+})
+
+test('RLO-GATE-100C suspended users remain denied at effective 100%', () => {
+  for (const id of idPool(300)) {
+    assert.equal(inPublicRollout(cfg({ pct: 100 }), { userId: id, suspended: true }), false)
+  }
+})
+
+test('RLO-GATE-100D master kill switch OFF denies everyone even at effective 100%', () => {
+  for (const id of idPool(300)) {
+    assert.equal(inPublicRollout(cfg({ masterEnabled: false, pct: 100 }), { userId: id }), false)
+  }
+})
+
+test('RLO-GATE-100E membership is monotonic through the final stage: in at 50 ⇒ in at 100', () => {
+  for (const id of idPool(1000)) {
+    const in50 = inPublicRollout(cfg({ pct: 50 }), { userId: id })
+    const in100 = inPublicRollout(cfg({ pct: 100 }), { userId: id })
+    if (in50) assert.ok(in100, `id left the rollout going 50→100: ${id}`)
+    assert.ok(in100, 'every id must be in at 100%')
+  }
+})
+
+test('RLO-GATE-100F configured 100 with master ON resolves to an admitting effective 100 end-to-end', () => {
+  const r = resolvePublicRollout({ [PUBLIC_ROLLOUT_ENABLED_ENV]: 'true', [PUBLIC_ROLLOUT_PCT_ENV]: '100' })
+  assert.equal(r.pct, 100)
+  for (const id of idPool(500)) {
+    assert.equal(inPublicRollout(r, { userId: id, suspended: false }), true)
+    assert.equal(inPublicRollout(r, { userId: id, suspended: true }), false) // suspension still wins
+  }
+})
+
 // ── Env resolution (server reads these) ────────────────────────────────────────────────────────
 test('RLO-ENV-001 resolvePublicRollout: fail-closed defaults from an empty env', () => {
   const r = resolvePublicRollout({})
@@ -122,14 +175,14 @@ test('RLO-ENV-001 resolvePublicRollout: fail-closed defaults from an empty env',
   assert.equal(publicRolloutEnabled(r), false)
 })
 
-test('RLO-ENV-002 resolvePublicRollout: master + valid % wire through; 100 caps to effective 0', () => {
+test('RLO-ENV-002 resolvePublicRollout: master + valid % wire through; 100 is activatable at effective 100', () => {
   const at5 = resolvePublicRollout({ [PUBLIC_ROLLOUT_ENABLED_ENV]: 'true', [PUBLIC_ROLLOUT_PCT_ENV]: '5' })
   assert.deepEqual(at5, { masterEnabled: true, configuredPct: 5, pct: 5, testerIds: [] })
 
   const at100 = resolvePublicRollout({ [PUBLIC_ROLLOUT_ENABLED_ENV]: '1', [PUBLIC_ROLLOUT_PCT_ENV]: '100' })
   assert.equal(at100.masterEnabled, true)
   assert.equal(at100.configuredPct, 100) // configured value is recorded…
-  assert.equal(at100.pct, 0) // …but not activatable this phase → effective 0
+  assert.equal(at100.pct, 100) // …and 27G-O lifted the ceiling → now activatable at effective 100
 
   // A malformed % with the master ON still fails closed to 0 effective.
   const bad = resolvePublicRollout({ [PUBLIC_ROLLOUT_ENABLED_ENV]: 'on', [PUBLIC_ROLLOUT_PCT_ENV]: 'lots' })

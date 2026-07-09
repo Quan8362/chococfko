@@ -13,9 +13,22 @@
 //     coerced;
 //   • the `evidence` on every violation carries ONLY numbers + correlation ids (table/hand), so an
 //     alert built from it can never expose private cards (SECURITY-HOLE-CARDS-001).
+//
+// UNCALLED-BET RETURNS (POT-UNCALLED-001). Gross contributions do NOT equal the contested pot
+// whenever one seat bet more than anyone matched: that excess is returned to the bettor BEFORE any
+// pot is built, so the pot is CONTESTED money only. The conservation law is therefore
+//   Σ(gross contributions) = Σ(contested pots) + Σ(uncalled returns)   and equivalently
+//   Σ(payouts) + Σ(uncalled returns) = Σ(gross contributions).
+// This checker models that return EXPLICITLY: it derives the authoritative return from the same
+// engine rule the pot builder uses (`detectUncalledRefund`) — never from a bare positive delta —
+// compares the declared pot against CONTESTED (gross - return) contributions, and independently
+// validates any supplied return so a wrong/duplicate/phantom refund is itself a SEV-1 breach.
+
+import { detectUncalledRefund } from './pot.ts'
 
 export type IntegrityCode =
-  | 'POT_CONSTRUCTION_MISMATCH'   // sum(contributions) != declared pot total
+  | 'POT_CONSTRUCTION_MISMATCH'   // contested contributions (gross - uncalled return) != declared pot total
+  | 'UNCALLED_RETURN_MISMATCH'    // supplied uncalled-bet return != the authoritative structural return
   | 'CONSERVATION_MISMATCH'       // money out (payouts+refunds) != money in (total contributed)
   | 'SETTLEMENT_RECONCILE_MISMATCH' // authoritative total != reconstructed contributions
   | 'NEGATIVE_VALUE'              // a stack / contribution / payout is negative
@@ -66,8 +79,13 @@ export interface HandIntegrityInput {
   /** Declared pot grand total (main + sides). */
   readonly declaredPotTotal: number
   readonly payouts: readonly SeatPayout[]
+  /**
+   * Uncalled-bet returns actually paid back to seats (POT-UNCALLED-001). Represents real money
+   * movement (returned before pots are built), NOT a pot layer. Normally 0 or 1 entry; validated
+   * against the authoritative structural return derived from `contributions`.
+   */
   readonly refunds: readonly SeatPayout[]
-  /** Authoritative total contributed as recorded by settlement. */
+  /** Authoritative total contributed (GROSS, including any uncalled excess) as recorded by settlement. */
   readonly authoritativeTotalContributed: number
   /** How many settlement rows exist for this hand (should be exactly 1 once settled). */
   readonly settlementRowCount?: number
@@ -111,10 +129,40 @@ export function checkHandCoinIntegrity(input: HandIntegrityInput): IntegrityRepo
   const sumPayouts = input.payouts.reduce((s, p) => s + (isInt(p.amount) ? p.amount : 0), 0)
   const sumRefunds = input.refunds.reduce((s, r) => s + (isInt(r.amount) ? r.amount : 0), 0)
 
-  // 1. Pot construction: contributions must equal the declared pot.
-  if (isInt(input.declaredPotTotal) && sumContrib !== input.declaredPotTotal) {
-    push('POT_CONSTRUCTION_MISMATCH', 'critical', 'sum of contributions does not equal declared pot total',
-      { sumContrib, declaredPotTotal: input.declaredPotTotal, delta: sumContrib - input.declaredPotTotal })
+  // ── Authoritative uncalled-bet return (POT-UNCALLED-001) ────────────────────────────────────
+  // Derived from the SAME engine rule the pot builder uses, over the GROSS contributions — never
+  // inferred from a bare positive delta. Only computable when every contribution is a valid coin
+  // (a non-integer / negative contribution is already reported critical above; skipping the
+  // structural checks then is safe because the hand is already flagged).
+  const contribsAllCoins = input.contributions.every((c) => isInt(c.contributed) && c.contributed >= 0)
+  let expectedReturn = 0
+  if (contribsAllCoins) {
+    const structural = detectUncalledRefund(
+      input.contributions.map((c) => ({ seatIndex: c.seatIndex, committed: c.contributed, folded: false })),
+    )
+    expectedReturn = structural ? structural.amount : 0
+
+    // 0b. Validate any SUPPLIED uncalled return against the authoritative structural return: it must
+    //     be exactly the engine's single return to the correct seat (or empty when the engine returns
+    //     nothing). A wrong amount, wrong seat, duplicate, or phantom refund is a SEV-1 economy breach.
+    const suppliedMatches =
+      (structural === null && input.refunds.length === 0) ||
+      (structural !== null && input.refunds.length === 1 &&
+        input.refunds[0].seatIndex === structural.seatIndex &&
+        input.refunds[0].amount === structural.amount)
+    if (!suppliedMatches) {
+      push('UNCALLED_RETURN_MISMATCH', 'critical', 'supplied uncalled return does not match the authoritative structural return',
+        { suppliedReturn: sumRefunds, expectedReturn, expectedSeat: structural ? structural.seatIndex : -1, refundRows: input.refunds.length })
+    }
+  }
+
+  // 1. Pot construction: the CONTESTED contributions (gross minus the uncalled return) must equal
+  //    the declared pot. Uncalled excess is returned before pots are built (POT-UNCALLED-001) and is
+  //    therefore NOT part of the pot, so comparing GROSS to the pot would falsely alert.
+  const contested = sumContrib - expectedReturn
+  if (isInt(input.declaredPotTotal) && contribsAllCoins && contested !== input.declaredPotTotal) {
+    push('POT_CONSTRUCTION_MISMATCH', 'critical', 'contested contributions (gross minus uncalled return) do not equal declared pot total',
+      { gross: sumContrib, uncalledReturn: expectedReturn, contested, declaredPotTotal: input.declaredPotTotal, delta: contested - input.declaredPotTotal })
   }
 
   // 2. Conservation: money awarded (payouts + refunds) must equal money contributed.

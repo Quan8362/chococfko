@@ -23,6 +23,7 @@ import {
   type SeatContribution,
 } from '@/lib/games/poker/coinIntegrity'
 import { reconstructReplay, type ReplayActionInput } from '@/lib/games/poker/admin'
+import { detectUncalledRefund } from '@/lib/games/poker/pot'
 import { PERF_EVENT_NAME, RECONNECT_EVENTS, groupPerfSamples, type RawPerfRow } from '@/lib/games/poker/perf'
 
 type Admin = ReturnType<typeof createAdminClient>
@@ -96,11 +97,25 @@ async function auditRecentSettlements(admin: Admin, limit = 200): Promise<Integr
       })),
     })
     const last = replay.steps[replay.steps.length - 1]
+    // GROSS per-seat contributions (all streets), pre-uncalled-return — the same basis as replay.finalPot.
     const contributions: SeatContribution[] = seatIndexes.map((si) => ({
       seatIndex: si, contributed: (last.committedTotal[si] ?? 0) + (last.committedThisStreet[si] ?? 0),
     }))
+    // Authoritative uncalled-bet return (POT-UNCALLED-001), derived from the reconstructed
+    // contributions via the SAME rule the engine's pot builder uses — NOT inferred from any delta.
+    // Guarded so a single malformed hand cannot throw the whole audit.
+    let refunds: { seatIndex: number; amount: number }[] = []
+    try {
+      const uncalled = detectUncalledRefund(contributions.map((c) => ({ seatIndex: c.seatIndex, committed: c.contributed, folded: false })))
+      if (uncalled) refunds = [{ seatIndex: uncalled.seatIndex, amount: uncalled.amount }]
+    } catch { refunds = [] }
+    const refundTotal = refunds.reduce((a, r) => a + r.amount, 0)
     const pots = (hand?.pots as { main?: { amount?: number }; sides?: { amount?: number }[] }) ?? null
-    const declaredPotTotal = pots ? (pots.main?.amount ?? 0) + (pots.sides ?? []).reduce((a, x) => a + (x.amount ?? 0), 0) : replay.finalPot
+    // Declared pot is CONTESTED money (uncalled excess already removed). When the pots column is
+    // present it is already contested; the finalPot fallback is GROSS, so subtract the return.
+    const declaredPotTotal = pots
+      ? (pots.main?.amount ?? 0) + (pots.sides ?? []).reduce((a, x) => a + (x.amount ?? 0), 0)
+      : replay.finalPot - refundTotal
     const payouts = ((s.payouts as { seatIndex: number; amount: number }[]) ?? []).map((p) => ({ seatIndex: p.seatIndex, amount: p.amount }))
     const total = (s.total_contributed as number) ?? replay.finalPot
 
@@ -110,7 +125,7 @@ async function auditRecentSettlements(admin: Admin, limit = 200): Promise<Integr
       contributions,
       declaredPotTotal,
       payouts,
-      refunds: [],
+      refunds,
       authoritativeTotalContributed: total,
       settlementRowCount: 1,
     })
@@ -174,7 +189,7 @@ export async function loadPokerMetrics(windowHours = 168): Promise<PokerMetricsV
     .filter((ms) => Number.isFinite(ms) && ms >= 0)
 
   // Integrity: ops-sourced conservation/settlement failures PLUS live-audit-sourced violations.
-  const auditConservation = audit.sample.filter((v) => v.code === 'CONSERVATION_MISMATCH' || v.code === 'SETTLEMENT_RECONCILE_MISMATCH').length
+  const auditConservation = audit.sample.filter((v) => v.code === 'CONSERVATION_MISMATCH' || v.code === 'SETTLEMENT_RECONCILE_MISMATCH' || v.code === 'UNCALLED_RETURN_MISMATCH').length
   const auditPot = audit.sample.filter((v) => v.code === 'POT_CONSTRUCTION_MISMATCH').length
   const auditDup = audit.sample.filter((v) => v.code === 'DUPLICATE_SETTLEMENT').length
 

@@ -12,6 +12,8 @@ import {
   detectCrossUserActions,
 } from './incidentDetectors.ts'
 import type { IntegrityViolation } from './coinIntegrity.ts'
+import { checkHandCoinIntegrity } from './coinIntegrity.ts'
+import { buildSev1Incident, assertSev1Safe } from './incident.ts'
 
 const SRC = 'test'
 
@@ -36,6 +38,38 @@ test('detectionFromIntegrity keeps only numeric evidence + correlation ids', () 
   assert.equal(d.correlation.tableId, 'tbl-1')
   assert.equal(d.facts.delta, 10)
   assert.equal(d.facts.integrity, 'CONSERVATION_MISMATCH')
+})
+
+test('UNCALLED_RETURN_MISMATCH routes to ECONOMY_NOT_CONSERVED and stays privacy-safe', () => {
+  // Build a real violation from the checker (wrong return amount), route it, and assert the SEV-1
+  // alert is safe (no cards/secrets/email/IP) and its facts distinguish the economic quantities.
+  const report = checkHandCoinIntegrity({
+    tableId: '18b92b66-6108-4484-8447-a0dc5d771def', handId: '499c60ec-2109-474f-b3b5-86fb441494fb',
+    contributions: [{ seatIndex: 0, contributed: 300 }, { seatIndex: 1, contributed: 200 }],
+    declaredPotTotal: 400,
+    payouts: [{ seatIndex: 0, amount: 350 }],
+    refunds: [{ seatIndex: 0, amount: 150 }],
+    authoritativeTotalContributed: 500,
+    settlementRowCount: 1,
+  })
+  assert.equal(report.ok, false)
+  for (const v of report.violations) {
+    const d = detectionFromIntegrity(v, 'cron/poker-integrity')
+    assert.equal(d.code, 'PKR_SEV1_ECONOMY_NOT_CONSERVED')
+    const incident = buildSev1Incident({ code: d.code, correlation: d.correlation, facts: d.facts, now: () => '2026-07-09T00:00:00.000Z' })
+    assert.doesNotThrow(() => assertSev1Safe(incident)) // no cards/secrets/email/IP survive
+    assert.ok(!/@/.test(incident.summary))
+  }
+  // The pot-construction / conservation facts name the distinct quantities operators need.
+  const potV = report.violations.find((v) => v.code === 'POT_CONSTRUCTION_MISMATCH')
+  const consV = report.violations.find((v) => v.code === 'CONSERVATION_MISMATCH')
+  const uncV = report.violations.find((v) => v.code === 'UNCALLED_RETURN_MISMATCH')
+  // At least one of the economy checks fires here, each carrying labelled numeric evidence.
+  assert.ok(uncV, 'wrong return amount is flagged')
+  assert.equal(uncV!.evidence.expectedReturn, 100)
+  assert.equal(uncV!.evidence.suppliedReturn, 150)
+  if (consV) assert.ok('delta' in consV.evidence)
+  if (potV) assert.ok('gross' in potV.evidence && 'contested' in potV.evidence && 'uncalledReturn' in potV.evidence)
 })
 
 // ── Duplicate active hand (the invariant NOT backed by a DB unique constraint) ────────────────────

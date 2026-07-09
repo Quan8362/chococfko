@@ -87,12 +87,15 @@ export default async function PokerLandingPage() {
     <PokerShell>
       {/* ── Hero ──────────────────────────────────────────────────────────────── */}
       <section className="pk-plum pk-fade-up pk-portal-on-plum relative overflow-hidden rounded-[20px] p-6 sm:p-9">
-        {/* Decorative card-suit motif — a balanced quad in the top-right corner (aria-hidden). */}
-        <div aria-hidden className="pointer-events-none absolute -right-5 -top-7 grid select-none grid-cols-2 gap-1.5 rotate-[15deg] text-[color:var(--pkp-gold-soft)] opacity-[0.09] sm:-right-3 sm:-top-5 sm:gap-2">
-          <Icon name="spade" size={68} className="sm:h-[84px] sm:w-[84px]" />
-          <Icon name="heart" size={68} className="sm:h-[84px] sm:w-[84px]" />
-          <Icon name="diamond" size={68} className="sm:h-[84px] sm:w-[84px]" />
-          <Icon name="club" size={68} className="sm:h-[84px] sm:w-[84px]" />
+        {/* Decorative motif — a card-suit quad plus a poker chip, gold-tinted (aria-hidden). */}
+        <div aria-hidden className="pointer-events-none absolute -right-2 top-5 select-none text-[color:var(--pkp-gold-soft)] sm:right-1 sm:top-8">
+          <Icon name="chip" size={82} className="absolute -left-10 top-16 opacity-[0.07] sm:h-[100px] sm:w-[100px]" />
+          <div className="grid grid-cols-2 gap-1.5 rotate-[15deg] opacity-[0.11] sm:gap-2">
+            <Icon name="spade" size={64} className="sm:h-20 sm:w-20" />
+            <Icon name="heart" size={64} className="sm:h-20 sm:w-20" />
+            <Icon name="diamond" size={64} className="sm:h-20 sm:w-20" />
+            <Icon name="club" size={64} className="sm:h-20 sm:w-20" />
+          </div>
         </div>
         <div className="relative max-w-2xl">
           <span className="pk-badge pk-badge-onplum">

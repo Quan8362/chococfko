@@ -87,8 +87,13 @@ export default async function PokerLandingPage() {
     <PokerShell>
       {/* ── Hero ──────────────────────────────────────────────────────────────── */}
       <section className="pk-plum pk-fade-up pk-portal-on-plum relative overflow-hidden rounded-[20px] p-6 sm:p-9">
-        <Icon name="spade" size={220} className="pk-suit-watermark -right-6 -top-10 rotate-12" />
-        <Icon name="diamond" size={120} className="pk-suit-watermark bottom-[-30px] right-24 -rotate-12" />
+        {/* Decorative card-suit motif — a balanced quad in the top-right corner (aria-hidden). */}
+        <div aria-hidden className="pointer-events-none absolute -right-5 -top-7 grid select-none grid-cols-2 gap-1.5 rotate-[15deg] text-[color:var(--pkp-gold-soft)] opacity-[0.09] sm:-right-3 sm:-top-5 sm:gap-2">
+          <Icon name="spade" size={68} className="sm:h-[84px] sm:w-[84px]" />
+          <Icon name="heart" size={68} className="sm:h-[84px] sm:w-[84px]" />
+          <Icon name="diamond" size={68} className="sm:h-[84px] sm:w-[84px]" />
+          <Icon name="club" size={68} className="sm:h-[84px] sm:w-[84px]" />
+        </div>
         <div className="relative max-w-2xl">
           <span className="pk-badge pk-badge-onplum">
             <Icon name="coins" size={13} /> {t('landing.responsible')}
@@ -134,7 +139,7 @@ export default async function PokerLandingPage() {
               <Link
                 key={tile.href}
                 href={tile.href}
-                className={`pk-card group flex items-center gap-4 p-4 ${tile.featured ? 'sm:col-span-2' : ''}`}
+                className={`pk-card group flex items-center gap-4 p-4 ${tile.featured ? 'ring-1 ring-inset ring-[rgba(230,207,149,0.45)]' : ''}`}
               >
                 <span className={`pk-ichip pk-ichip-${tile.tone} h-12 w-12 shrink-0`}>
                   <Icon name={tile.icon} size={24} />

@@ -1622,7 +1622,26 @@
           "confirm_recover": "모든 플레이어의 참가비를 환불하고 이 토너먼트를 취소할까요? 되돌릴 수 없습니다.",
           "working": "처리 중…",
           "only_operator": "운영자 전용.",
-          "seated_count": "{count}명 착석"
+          "seated_count": "{count}명 착석",
+          "sec_identity": "토너먼트 정보",
+          "sec_format": "형식 & 테이블",
+          "sec_stakes": "참가비 & 스택",
+          "sec_players": "플레이어 & 좌석",
+          "sec_prize": "상금",
+          "review": "검토",
+          "template_stt_desc": "한 테이블, 우승자가 나올 때까지.",
+          "template_mtt_desc": "여러 테이블, 탈락에 따라 통합.",
+          "template_public_hu_desc": "한 테이블, 딱 두 명 — 헤즈업.",
+          "hu_locked": "공개 헤즈업은 한 테이블, 두 명으로 고정됩니다.",
+          "guarantee_hint": "최소 보장 상금 (0 = 보장 없음).",
+          "unit_players": "명",
+          "unit_seats": "석",
+          "unit_chip": "칩",
+          "err_name": "토너먼트 이름을 입력하세요.",
+          "err_entry": "참가비는 최소 1이어야 합니다.",
+          "err_stack": "시작 스택은 최소 1이어야 합니다.",
+          "err_max": "최소 2명의 플레이어가 필요합니다.",
+          "err_seats": "테이블당 좌석은 2–10입니다."
         },
         "error": {
           "not_authenticated": "로그인해 주세요.",
@@ -1659,7 +1678,8 @@
           "reconnecting": "재연결 중",
           "reconnected": "재연결됨",
           "offline": "연결이 끊어졌습니다"
-        }
+        },
+        "coin_unit": "코인"
       },
       "achievements": {
         "title": "업적",
@@ -2277,7 +2297,10 @@
           "betting": "베팅",
           "cards": "카드 & 스트리트",
           "position": "포지션"
-        }
+        },
+        "clear_search": "검색 지우기",
+        "result_count": "결과 {count}개",
+        "no_results_hint": "다른 키워드를 시도하거나 필터를 해제하세요."
       },
       "settings": {
         "title": "포커 설정",

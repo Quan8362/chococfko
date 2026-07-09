@@ -5,6 +5,7 @@ import PokerShell from '../_eco/PokerShell'
 import PokerAvatar from '../_eco/PokerAvatar'
 import { fetchPokerStats, fetchHandHistory } from '../ecosystem'
 import { getPokerAccess, pokerAccessSocial } from '../access'
+import { getUserIdentity } from '@/lib/userIdentity'
 import { coins, signedCoins, dateShort } from '../_eco/format'
 import { Icon, type IconName } from '../_eco/icons'
 import { EmptyState, SectionTitle, StatCard, CoinDelta, type Tone } from '../_eco/ui'
@@ -41,8 +42,11 @@ export default async function PokerProfilePage() {
     )
   }
 
-  const [{ data: profile }, statsRes, histRes, access] = await Promise.all([
-    supabase.from('profiles').select('display_name, avatar_url, created_at').eq('id', user.id).maybeSingle(),
+  // Name + avatar via the canonical resolver (profiles → auth metadata → email local-part),
+  // identical to the global account UI. `created_at` for "member since" is read separately.
+  const [{ data: profile }, identity, statsRes, histRes, access] = await Promise.all([
+    supabase.from('profiles').select('created_at').eq('id', user.id).maybeSingle(),
+    getUserIdentity(user.id),
     fetchPokerStats(),
     fetchHandHistory(8),
     getPokerAccess(),
@@ -50,7 +54,7 @@ export default async function PokerProfilePage() {
   const showSocialLink = pokerAccessSocial(access, 'achievements') || pokerAccessSocial(access, 'missions')
   const s = statsRes.ok ? statsRes.stats : { handsPlayed: 0, handsWon: 0, showdownsReached: 0, showdownsWon: 0, biggestPotWon: 0, netChange: 0 }
   const recent = histRes.ok ? histRes.hands : []
-  const displayName = profile?.display_name ?? t('profile.anonymous')
+  const displayName = identity.name ?? t('profile.anonymous')
 
   interface Metric { label: string; value: string; note?: string; icon: IconName; tone: Tone; cls?: string }
   const groups: { key: string; title: string; icon: IconName; tone: Tone; metrics: Metric[] }[] = [
@@ -90,7 +94,7 @@ export default async function PokerProfilePage() {
       <div className="pk-plum pk-fade-up pk-portal-on-plum relative mb-6 overflow-hidden rounded-[20px] p-6 sm:p-7">
         <Icon name="spade" size={160} className="pk-suit-watermark -right-4 -top-8 rotate-12" />
         <div className="relative flex items-center gap-4">
-          <PokerAvatar src={profile?.avatar_url} name={displayName} size={72} ring decorative />
+          <PokerAvatar src={identity.avatarUrl} name={displayName} size={72} ring decorative />
           <div className="min-w-0">
             <h1 className="truncate font-serif text-2xl font-bold text-[color:var(--pkp-on-plum)]">{displayName}</h1>
             <div className="mt-1.5 flex flex-wrap items-center gap-2">

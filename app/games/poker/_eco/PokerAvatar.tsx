@@ -7,6 +7,7 @@
 // Accessible: decorative when a visible name sits beside it (empty alt), otherwise labelled.
 
 import { useEffect, useMemo, useState } from 'react'
+import { avatarSrc, bumpAvatarSize } from '@/lib/avatar'
 
 interface Props {
   src?: string | null
@@ -51,7 +52,13 @@ function usableSrc(src?: string | null): string | null {
 }
 
 export default function PokerAvatar({ src, name, size = 44, ring = false, decorative, className }: Props) {
-  const clean = usableSrc(src)
+  // Route provider/Supabase avatars through the same proxy + retina upscaling the rest of the
+  // site uses (bumpAvatarSize before avatarSrc), so blocked-host (Google/Facebook) OAuth avatars
+  // actually load instead of failing to the initials fallback.
+  const clean = useMemo(() => {
+    const raw = usableSrc(src)
+    return raw ? avatarSrc(bumpAvatarSize(raw, size)) || null : null
+  }, [src, size])
   const [status, setStatus] = useState<'idle' | 'loaded' | 'error'>('idle')
   const tint = useMemo(() => tintFor(name), [name])
 

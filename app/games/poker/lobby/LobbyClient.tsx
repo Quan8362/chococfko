@@ -10,7 +10,7 @@ import QuickPlayButton from '../_eco/QuickPlayButton'
 import ReportProblemButton from '../_components/ReportProblemButton'
 import { coins } from '../_eco/format'
 import { Icon } from '../_eco/icons'
-import { PageHeader, Eyebrow, EmptyState } from '../_eco/ui'
+import { PageHeader, Eyebrow, EmptyState, SearchField } from '../_eco/ui'
 
 type Filter = 'all' | 'open'
 
@@ -80,16 +80,13 @@ export default function LobbyClient({ initialTables }: { initialTables: LobbyTab
       {/* Search + filter — only meaningful once there are tables to sift. */}
       {tables && tables.length > 0 && (
         <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <div className="relative flex-1 sm:max-w-xs">
-            <Icon name="search" size={17} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[color:var(--pkp-ink-3)]" />
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder={t('lobby.search_ph')}
-              aria-label={t('lobby.search_ph')}
-              className="pk-input pl-10"
-            />
-          </div>
+          <SearchField
+            value={query}
+            onChange={setQuery}
+            placeholder={t('lobby.search_ph')}
+            clearLabel={t('glossary.clear_search')}
+            className="flex-1 sm:max-w-xs"
+          />
           <div role="group" aria-label={t('lobby.col_status')} className="flex gap-1.5">
             {(['all', 'open'] as Filter[]).map((f) => (
               <button

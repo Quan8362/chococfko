@@ -298,11 +298,12 @@ function OptionCard({
 
 function SummaryRow({ icon, label, value }: { icon: IconName; label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between gap-3 px-5 py-2.5">
-      <dt className="flex items-center gap-1.5 text-sm text-[color:var(--pkp-ink-2)]">
-        <Icon name={icon} size={15} className="text-[color:var(--pkp-ink-3)]" /> {label}
+    <div className="flex items-start justify-between gap-3 px-5 py-2.5">
+      <dt className="flex min-w-0 items-start gap-1.5 text-sm text-[color:var(--pkp-ink-2)]">
+        <Icon name={icon} size={15} className="mt-0.5 shrink-0 text-[color:var(--pkp-ink-3)]" />
+        <span className="min-w-0">{label}</span>
       </dt>
-      <dd className="truncate text-sm font-semibold tabular-nums text-[color:var(--pkp-ink)]">{value}</dd>
+      <dd className="shrink-0 whitespace-nowrap text-right text-sm font-semibold tabular-nums text-[color:var(--pkp-ink)]">{value}</dd>
     </div>
   )
 }

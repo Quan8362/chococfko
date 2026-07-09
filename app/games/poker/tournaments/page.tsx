@@ -5,6 +5,8 @@ import PokerShell from '../_eco/PokerShell'
 import { coins } from '../_eco/format'
 import { getPokerAccess, pokerAccessTournamentVisible, pokerAccessTournamentOperator } from '../access'
 import { listTournaments, type TournamentListItem } from '../tournament-actions'
+import { Icon } from '../_eco/icons'
+import { PageHeader, Eyebrow, EmptyState, type Tone } from '../_eco/ui'
 
 export const dynamic = 'force-dynamic'
 
@@ -17,71 +19,128 @@ function prizeOf(tr: TournamentListItem): number {
   return Math.max(tr.guaranteed_prize_pool, tr.entry_fee * tr.registered)
 }
 
+// Real lifecycle states → semantic tone (defaults to neutral for anything unmapped).
+const STATE_TONE: Record<string, Tone> = {
+  DRAFT: 'neutral',
+  SCHEDULED: 'royal',
+  REGISTRATION_OPEN: 'emerald',
+  STARTING: 'amber',
+  RUNNING: 'emerald',
+  BREAK: 'amber',
+  FINAL_TABLE: 'violet',
+  COMPLETED: 'neutral',
+  CANCELLED: 'coral',
+  PAUSED_FOR_REVIEW: 'amber',
+}
+
 export default async function TournamentsPage() {
   const acc = await getPokerAccess()
   if (!pokerAccessTournamentVisible(acc)) notFound()
   const isOperator = pokerAccessTournamentOperator(acc)
-  const [t, locale, res] = await Promise.all([
+  const [t, tp, locale, res] = await Promise.all([
     getTranslations('games.poker.tournaments'),
+    getTranslations('games.poker'),
     getLocale(),
     listTournaments(),
   ])
 
   return (
     <PokerShell>
-      <section className="mb-5 flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <div className="mb-1 flex items-center gap-2">
-            <h1 className="text-2xl font-semibold text-ink">{t('title')}</h1>
-            <span className="rounded-full bg-amber-500/15 px-2.5 py-0.5 text-xs font-medium text-amber-700">{t('alpha_badge')}</span>
-          </div>
-          <p className="text-sm text-ink/70">{t('subtitle')}</p>
-          <p className="mt-1 text-xs text-ink/50">{t('coin_note')}</p>
-        </div>
-        {isOperator && (
-          <Link href="/games/poker/tournaments/create"
-            className="inline-flex items-center justify-center rounded-lg bg-rose px-4 py-2 font-medium text-white transition-opacity hover:opacity-90">
-            {t('operator.create_cta')}
-          </Link>
-        )}
-      </section>
+      <PageHeader
+        eyebrow={<Eyebrow icon="trophy">{t('nav')}</Eyebrow>}
+        icon="trophy"
+        tone="amber"
+        title={
+          <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            {t('title')}
+            <span className="pk-badge pk-badge-amber">{t('alpha_badge')}</span>
+          </span>
+        }
+        subtitle={t('subtitle')}
+        actions={
+          isOperator ? (
+            <Link href="/games/poker/tournaments/create" className="pk-btn pk-btn-primary pk-btn-gold">
+              <Icon name="plus" size={17} /> {t('operator.create_cta')}
+            </Link>
+          ) : undefined
+        }
+      />
+      <p className="mb-6 inline-flex items-center gap-1.5 text-xs text-[color:var(--pkp-ink-3)]">
+        <Icon name="info" size={13} /> {t('coin_note')}
+      </p>
 
       {!res.ok ? (
-        <p role="alert" className="rounded-xl border border-line bg-paper p-6 text-center text-sm text-rose">{t('list_error')}</p>
+        <EmptyState icon="alert" tone="coral" title={t('list_error')} />
       ) : res.tournaments.length === 0 ? (
-        <p className="rounded-xl border border-line bg-paper p-8 text-center text-sm text-ink/60">{t('list_empty')}</p>
+        <EmptyState icon="trophy" tone="amber" title={t('list_empty')}>
+          {isOperator && (
+            <Link href="/games/poker/tournaments/create" className="pk-btn pk-btn-primary">
+              <Icon name="plus" size={16} /> {t('operator.create_cta')}
+            </Link>
+          )}
+        </EmptyState>
       ) : (
         <ul className="grid gap-3 sm:grid-cols-2">
-          {res.tournaments.map((tr) => (
-            <li key={tr.id}>
-              <Link href={`/games/poker/tournaments/${tr.id}`}
-                className="block rounded-xl border border-line bg-paper p-4 transition-shadow hover:shadow-md focus-visible:outline-2 focus-visible:outline-rose">
-                <div className="mb-2 flex items-center justify-between gap-2">
-                  <span className="truncate font-semibold text-ink">{tr.title}</span>
-                  <span className="shrink-0 rounded-full border border-line px-2 py-0.5 text-xs text-ink/70">{t(`state.${tr.state}`)}</span>
-                </div>
-                <dl className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
-                  <dt className="text-ink/60">{t('field.entry_fee')}</dt>
-                  <dd className="text-right text-ink">{coins(tr.entry_fee, locale)} xu</dd>
-                  <dt className="text-ink/60">{t('field.players')}</dt>
-                  <dd className="text-right text-ink">{t('field.registered', { count: tr.registered, max: tr.max_entries })}</dd>
-                  <dt className="text-ink/60">{t('field.prize_pool')}</dt>
-                  <dd className="text-right text-ink">{coins(prizeOf(tr), locale)} xu</dd>
-                </dl>
-                <div className="mt-2 flex flex-wrap gap-1.5">
-                  <span className="rounded bg-ink/5 px-2 py-0.5 text-xs text-ink/60">{t('private_badge')}</span>
-                  {tr.myEntryState && tr.myEntryState !== 'WITHDRAWN' && (
-                    <span className="rounded bg-emerald-500/15 px-2 py-0.5 text-xs font-medium text-emerald-700">{t('registered_badge')}</span>
-                  )}
-                  {tr.myTableNo != null && (
-                    <span className="rounded bg-sky-500/15 px-2 py-0.5 text-xs font-medium text-sky-700">{t('field.table_seat', { table: tr.myTableNo, seat: '•' })}</span>
-                  )}
-                </div>
-              </Link>
-            </li>
-          ))}
+          {res.tournaments.map((tr) => {
+            const registered = tr.myEntryState && tr.myEntryState !== 'WITHDRAWN'
+            const full = tr.registered >= tr.max_entries
+            return (
+              <li key={tr.id}>
+                <Link href={`/games/poker/tournaments/${tr.id}`} className="pk-card flex h-full flex-col p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex min-w-0 items-center gap-2.5">
+                      <span className="pk-ichip pk-ichip-amber h-9 w-9 shrink-0">
+                        <Icon name="trophy" size={18} />
+                      </span>
+                      <span className="truncate font-serif text-base font-semibold text-[color:var(--pkp-ink)]">{tr.title}</span>
+                    </div>
+                    <span className={`pk-badge pk-badge-${STATE_TONE[tr.state] ?? 'neutral'} shrink-0`}>{t(`state.${tr.state}`)}</span>
+                  </div>
+
+                  <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2.5 text-sm">
+                    <Field icon="coins" label={t('field.entry_fee')} value={`${coins(tr.entry_fee, locale)} ${t('coin_unit')}`} />
+                    <Field icon="layers" label={t('operator.starting_stack')} value={coins(tr.starting_stack, locale)} />
+                    <div className="min-w-0">
+                      <dt className="flex items-center gap-1 text-[11px] font-medium uppercase tracking-wide text-[color:var(--pkp-ink-3)]">
+                        <Icon name="users" size={12} /> {t('field.players')}
+                      </dt>
+                      <dd className="mt-0.5 flex items-center gap-2">
+                        <span className="tabular-nums text-[color:var(--pkp-ink)]">{t('field.registered', { count: tr.registered, max: tr.max_entries })}</span>
+                        <span className="inline-flex items-center gap-0.5" aria-hidden>
+                          {Array.from({ length: Math.min(tr.max_entries, 10) }).map((_, i) => (
+                            <span key={i} className="h-1.5 w-1.5 rounded-full" style={{ background: i < tr.registered ? 'var(--pkp-emerald)' : 'var(--pkp-surface-3)' }} />
+                          ))}
+                        </span>
+                      </dd>
+                    </div>
+                    <Field icon="trophy" label={t('field.prize_pool')} value={`${coins(prizeOf(tr), locale)} ${t('coin_unit')}`} />
+                  </dl>
+
+                  <div className="mt-3 flex flex-wrap gap-1.5 border-t border-[color:var(--pkp-line)] pt-3">
+                    <span className="pk-badge pk-badge-neutral"><Icon name="lock" size={11} /> {t('private_badge')}</span>
+                    {full && !registered && <span className="pk-badge pk-badge-amber">{tp('lobby.full')}</span>}
+                    {registered && <span className="pk-badge pk-badge-emerald"><Icon name="check" size={11} /> {t('registered_badge')}</span>}
+                    {tr.myTableNo != null && (
+                      <span className="pk-badge pk-badge-royal">{t('field.table_seat', { table: tr.myTableNo, seat: '•' })}</span>
+                    )}
+                  </div>
+                </Link>
+              </li>
+            )
+          })}
         </ul>
       )}
     </PokerShell>
+  )
+}
+
+function Field({ icon, label, value }: { icon: 'coins' | 'layers' | 'trophy'; label: string; value: string }) {
+  return (
+    <div className="min-w-0">
+      <dt className="flex items-center gap-1 text-[11px] font-medium uppercase tracking-wide text-[color:var(--pkp-ink-3)]">
+        <Icon name={icon} size={12} /> {label}
+      </dt>
+      <dd className="mt-0.5 truncate tabular-nums text-[color:var(--pkp-ink)]">{value}</dd>
+    </div>
   )
 }

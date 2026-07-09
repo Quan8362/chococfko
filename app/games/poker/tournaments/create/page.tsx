@@ -4,6 +4,8 @@ import { getTranslations } from 'next-intl/server'
 import PokerShell from '../../_eco/PokerShell'
 import { getPokerAccess, pokerAccessTournamentOperator } from '../../access'
 import CreateTournamentForm from '../../_components/CreateTournamentForm'
+import { Icon } from '../../_eco/icons'
+import { PageHeader, Eyebrow } from '../../_eco/ui'
 
 export const dynamic = 'force-dynamic'
 
@@ -21,11 +23,19 @@ export default async function CreateTournamentPage() {
 
   return (
     <PokerShell>
-      <div className="mb-4">
-        <Link href="/games/poker/tournaments" className="text-sm text-rose hover:underline">← {t('back')}</Link>
-      </div>
-      <h1 className="mb-1 text-2xl font-semibold text-ink">{t('operator.create_title')}</h1>
-      <p className="mb-5 text-xs text-ink/50">{t('coin_note')}</p>
+      <Link
+        href="/games/poker/tournaments"
+        className="mb-3 inline-flex min-h-[40px] items-center gap-1.5 rounded-lg px-2 -ml-2 text-sm text-[color:var(--pkp-ink-2)] transition-colors hover:text-[color:var(--pkp-ink)]"
+      >
+        <Icon name="chevronLeft" size={16} /> {t('back')}
+      </Link>
+      <PageHeader
+        eyebrow={<Eyebrow icon="trophy">{t('nav')}</Eyebrow>}
+        icon="plus"
+        tone="amber"
+        title={t('operator.create_title')}
+        subtitle={t('coin_note')}
+      />
       <CreateTournamentForm />
     </PokerShell>
   )

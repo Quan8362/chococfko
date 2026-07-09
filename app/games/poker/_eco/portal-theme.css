@@ -317,6 +317,37 @@
 .pk-input::placeholder { color: var(--pkp-ink-3); }
 .pk-input:focus { border-color: var(--pkp-gold); }
 
+/* ── Search field ──────────────────────────────────────────────────────────── */
+/* The input padding uses a descendant selector so it always wins over `.pk-input`'s
+ * `padding` shorthand regardless of stylesheet source order (this was the cause of the
+ * icon/placeholder overlap). */
+.pk-search { position: relative; }
+.pk-search .pk-input { padding-left: 2.75rem; padding-right: 2.75rem; }
+.pk-search__icon {
+  position: absolute;
+  left: 0.9rem;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--pkp-ink-3);
+  display: grid;
+  place-items: center;
+}
+.pk-search__clear {
+  position: absolute;
+  right: 0.45rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  height: 34px;
+  width: 34px;
+  border-radius: 999px;
+  color: var(--pkp-ink-3);
+  cursor: pointer;
+}
+.pk-search__clear:hover { background: var(--pkp-surface-2); color: var(--pkp-ink); }
+
 /* ── Segmented control / option cards ─────────────────────────────────────── */
 .pk-seg {
   min-height: 44px;

@@ -1622,7 +1622,26 @@
           "confirm_recover": "全プレイヤーの参加費を返金し、このトーナメントを中止しますか？この操作は取り消せません。",
           "working": "処理中…",
           "only_operator": "運営者のみ。",
-          "seated_count": "{count}人着席"
+          "seated_count": "{count}人着席",
+          "sec_identity": "トーナメント情報",
+          "sec_format": "形式とテーブル",
+          "sec_stakes": "参加費とスタック",
+          "sec_players": "プレイヤーと席",
+          "sec_prize": "賞金",
+          "review": "確認",
+          "template_stt_desc": "1テーブル、勝者が出るまで。",
+          "template_mtt_desc": "複数テーブル、脱落に応じて統合。",
+          "template_public_hu_desc": "1テーブル、2人だけのヘッズアップ。",
+          "hu_locked": "公開ヘッズアップは1テーブル・2人に固定されます。",
+          "guarantee_hint": "最低保証賞金（0 = 保証なし）。",
+          "unit_players": "人",
+          "unit_seats": "席",
+          "unit_chip": "チップ",
+          "err_name": "トーナメント名を入力してください。",
+          "err_entry": "参加費は1以上にしてください。",
+          "err_stack": "スタックは1以上にしてください。",
+          "err_max": "最低2人のプレイヤーが必要です。",
+          "err_seats": "テーブルあたりの席は2〜10です。"
         },
         "error": {
           "not_authenticated": "サインインしてください。",
@@ -1659,7 +1678,8 @@
           "reconnecting": "再接続中",
           "reconnected": "再接続しました",
           "offline": "接続が切れました"
-        }
+        },
+        "coin_unit": "コイン"
       },
       "achievements": {
         "title": "実績",
@@ -2277,7 +2297,10 @@
           "betting": "ベット",
           "cards": "カードとストリート",
           "position": "ポジション"
-        }
+        },
+        "clear_search": "検索をクリア",
+        "result_count": "{count} 件",
+        "no_results_hint": "別のキーワードを試すかフィルターを解除してください。"
       },
       "settings": {
         "title": "ポーカー設定",

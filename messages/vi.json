@@ -1622,7 +1622,26 @@
           "confirm_recover": "Hoàn phí tham gia cho tất cả người chơi và hủy giải đấu này? Không thể hoàn tác.",
           "working": "Đang xử lý…",
           "only_operator": "Chỉ dành cho điều hành viên.",
-          "seated_count": "{count} đã vào bàn"
+          "seated_count": "{count} đã vào bàn",
+          "sec_identity": "Thông tin giải đấu",
+          "sec_format": "Thể thức & bàn",
+          "sec_stakes": "Phí vào & chip",
+          "sec_players": "Người chơi & ghế",
+          "sec_prize": "Giải thưởng",
+          "review": "Xem lại",
+          "template_stt_desc": "Một bàn, chơi tới khi có người thắng.",
+          "template_mtt_desc": "Nhiều bàn, gộp bàn dần khi vơi người.",
+          "template_public_hu_desc": "1 bàn, đúng 2 người — đấu 1v1.",
+          "hu_locked": "Chế độ công khai 1v1 cố định 1 bàn, 2 người.",
+          "guarantee_hint": "Đảm bảo tổng giải tối thiểu (0 = không đảm bảo).",
+          "unit_players": "người",
+          "unit_seats": "ghế",
+          "unit_chip": "chip",
+          "err_name": "Vui lòng nhập tên giải đấu.",
+          "err_entry": "Phí tham gia phải ít nhất 1 xu.",
+          "err_stack": "Chip khởi điểm phải ít nhất 1.",
+          "err_max": "Cần ít nhất 2 người chơi.",
+          "err_seats": "Số ghế mỗi bàn từ 2 đến 10."
         },
         "error": {
           "not_authenticated": "Vui lòng đăng nhập.",
@@ -1659,7 +1678,8 @@
           "reconnecting": "Đang kết nối lại",
           "reconnected": "Đã kết nối lại",
           "offline": "Mất kết nối"
-        }
+        },
+        "coin_unit": "xu"
       },
       "achievements": {
         "title": "Thành tựu",
@@ -2277,7 +2297,10 @@
           "betting": "Tiền cược",
           "cards": "Bài & vòng",
           "position": "Vị trí"
-        }
+        },
+        "clear_search": "Xóa tìm kiếm",
+        "result_count": "{count} kết quả",
+        "no_results_hint": "Thử từ khóa khác hoặc bỏ bộ lọc."
       },
       "settings": {
         "title": "Cài đặt Poker",

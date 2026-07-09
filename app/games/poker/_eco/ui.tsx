@@ -157,6 +157,69 @@ export function EmptyState({
   )
 }
 
+// ── Accent-insensitive text normaliser (Vietnamese-aware) ───────────────────────────────────
+// Lower-cases, strips combining diacritics (NFD) and folds đ→d so "cuoc"/"cược", "vi tri"/"vị trí"
+// all match. Used for glossary/lobby search.
+export function foldText(s: string): string {
+  return s
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/đ/g, 'd')
+    .replace(/Đ/g, 'D')
+    .toLowerCase()
+    .trim()
+}
+
+// ── Search field (controlled, presentational) ───────────────────────────────────────────────
+// One professional search input: icon inside the field, correct padding (via `.pk-search`),
+// centred text, a clear button that appears only when there is text, and safe key handling
+// (Escape clears; Enter never submits/reloads). Usable inside any client component.
+export function SearchField({
+  value,
+  onChange,
+  placeholder,
+  clearLabel,
+  autoFocus,
+  size = 'md',
+  className = '',
+}: {
+  value: string
+  onChange: (v: string) => void
+  placeholder: string
+  clearLabel: string
+  autoFocus?: boolean
+  size?: 'md' | 'lg'
+  className?: string
+}) {
+  return (
+    <div className={`pk-search ${className}`}>
+      <span className="pk-search__icon">
+        <Icon name="search" size={size === 'lg' ? 18 : 17} />
+      </span>
+      <input
+        type="text"
+        inputMode="search"
+        value={value}
+        // eslint-disable-next-line jsx-a11y/no-autofocus
+        autoFocus={autoFocus}
+        onChange={(e) => onChange(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Escape') { e.preventDefault(); onChange('') }
+          if (e.key === 'Enter') e.preventDefault()
+        }}
+        placeholder={placeholder}
+        aria-label={placeholder}
+        className={`pk-input ${size === 'lg' ? 'h-12 text-base' : ''}`}
+      />
+      {value && (
+        <button type="button" onClick={() => onChange('')} aria-label={clearLabel} className="pk-search__clear">
+          <Icon name="close" size={16} />
+        </button>
+      )}
+    </div>
+  )
+}
+
 // ── Coin delta (signed result value, colour + text, never colour-alone) ─────────────────────
 export function CoinDelta({
   result,

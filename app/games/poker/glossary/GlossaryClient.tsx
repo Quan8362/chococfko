@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Icon } from '../_eco/icons'
-import { PageHeader, Eyebrow, EmptyState } from '../_eco/ui'
+import { PageHeader, Eyebrow, EmptyState, SearchField, foldText } from '../_eco/ui'
 
 export type GlossaryCategory = 'actions' | 'betting' | 'cards' | 'position'
 
@@ -34,10 +34,13 @@ export default function GlossaryClient({ terms }: { terms: GlossaryTerm[] }) {
   const [cat, setCat] = useState<GlossaryCategory | 'all'>('all')
 
   const filtered = useMemo(() => {
-    const needle = q.trim().toLowerCase()
+    // Accent-insensitive: fold both needle and haystack so "cuoc"→"cược", "vi tri"→"vị trí".
+    // The label carries the English equivalent in parentheses, e.g. "Cược mù (Blind)", so an
+    // English search ("blind") matches too.
+    const needle = foldText(q)
     return terms.filter((term) => {
       if (cat !== 'all' && term.category !== cat) return false
-      if (needle && !term.label.toLowerCase().includes(needle) && !term.def.toLowerCase().includes(needle)) return false
+      if (needle && !foldText(term.label).includes(needle) && !foldText(term.def).includes(needle)) return false
       return true
     })
   }, [q, cat, terms])
@@ -60,29 +63,17 @@ export default function GlossaryClient({ terms }: { terms: GlossaryTerm[] }) {
       />
 
       {/* Search */}
-      <div className="relative mb-3">
-        <Icon name="search" size={18} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[color:var(--pkp-ink-3)]" />
-        <input
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          placeholder={t('glossary.search_ph')}
-          aria-label={t('glossary.search_ph')}
-          className="pk-input h-12 pl-11 pr-10 text-base"
-        />
-        {q && (
-          <button
-            type="button"
-            onClick={() => setQ('')}
-            aria-label={t('join.cancel')}
-            className="absolute right-2.5 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-full text-[color:var(--pkp-ink-3)] hover:bg-[color:var(--pkp-surface-2)] hover:text-[color:var(--pkp-ink)]"
-          >
-            <Icon name="close" size={16} />
-          </button>
-        )}
-      </div>
+      <SearchField
+        value={q}
+        onChange={setQ}
+        placeholder={t('glossary.search_ph')}
+        clearLabel={t('glossary.clear_search')}
+        size="lg"
+        className="mb-3"
+      />
 
       {/* Quick filters */}
-      <div role="group" aria-label={t('glossary.title')} className="mb-5 flex gap-1.5 overflow-x-auto pb-1 [&::-webkit-scrollbar]:hidden">
+      <div role="group" aria-label={t('glossary.title')} className="mb-2 flex gap-1.5 overflow-x-auto pb-1 [&::-webkit-scrollbar]:hidden">
         <button type="button" onClick={() => setCat('all')} aria-pressed={cat === 'all'} className="pk-seg pk-btn-sm shrink-0">
           {t('lobby.filter_all')}
         </button>
@@ -93,8 +84,14 @@ export default function GlossaryClient({ terms }: { terms: GlossaryTerm[] }) {
         ))}
       </div>
 
+      {(q.trim() || cat !== 'all') && (
+        <p className="mb-4 text-sm text-[color:var(--pkp-ink-2)]" aria-live="polite">
+          {t('glossary.result_count', { count: filtered.length })}
+        </p>
+      )}
+
       {filtered.length === 0 ? (
-        <EmptyState icon="search" title={t('glossary.no_results')} />
+        <EmptyState icon="search" title={t('glossary.no_results')} description={t('glossary.no_results_hint')} />
       ) : (
         <div className="flex flex-col gap-6">
           {grouped.map((g) => (

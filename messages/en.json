@@ -1622,7 +1622,26 @@
           "confirm_recover": "Refund every player's entry fee and cancel this tournament? This cannot be undone.",
           "working": "Working…",
           "only_operator": "Operators only.",
-          "seated_count": "{count} seated"
+          "seated_count": "{count} seated",
+          "sec_identity": "Tournament identity",
+          "sec_format": "Format & tables",
+          "sec_stakes": "Entry & stack",
+          "sec_players": "Players & seats",
+          "sec_prize": "Prize",
+          "review": "Review",
+          "template_stt_desc": "One table, play until a winner.",
+          "template_mtt_desc": "Multiple tables, merged as players bust.",
+          "template_public_hu_desc": "One table, exactly two players — heads-up.",
+          "hu_locked": "Public heads-up is fixed to one table, two players.",
+          "guarantee_hint": "Minimum guaranteed prize pool (0 = no guarantee).",
+          "unit_players": "players",
+          "unit_seats": "seats",
+          "unit_chip": "chips",
+          "err_name": "Please enter a tournament name.",
+          "err_entry": "Entry fee must be at least 1.",
+          "err_stack": "Starting stack must be at least 1.",
+          "err_max": "At least 2 players are required.",
+          "err_seats": "Seats per table must be 2–10."
         },
         "error": {
           "not_authenticated": "Please sign in.",
@@ -1659,7 +1678,8 @@
           "reconnecting": "Reconnecting",
           "reconnected": "Reconnected",
           "offline": "Connection lost"
-        }
+        },
+        "coin_unit": "coins"
       },
       "achievements": {
         "title": "Achievements",
@@ -2277,7 +2297,10 @@
           "betting": "Betting",
           "cards": "Cards & streets",
           "position": "Position"
-        }
+        },
+        "clear_search": "Clear search",
+        "result_count": "{count} results",
+        "no_results_hint": "Try another keyword or clear the filter."
       },
       "settings": {
         "title": "Poker settings",

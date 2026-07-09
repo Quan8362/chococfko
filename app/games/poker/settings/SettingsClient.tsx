@@ -94,37 +94,17 @@ export default function SettingsClient() {
         <PrivacySection blocked={blocked} onUnblock={unblock} />
       ) : (
         <div className="pk-panel divide-y divide-[color:var(--pkp-line)] overflow-hidden">
-          {s.prefs!.map((key) => {
-            const gated = MASTER_GATED.has(key) && !prefs.sound
-            const isChild = MASTER_GATED.has(key)
-            return (
-              <div key={key} className={`flex items-center justify-between gap-4 p-4 ${gated ? 'opacity-55' : ''} ${isChild ? 'pl-6' : ''}`}>
-                <div className="min-w-0">
-                  <p className="font-medium text-[color:var(--pkp-ink)]">{t(PREF_META[key].t)}</p>
-                  <p className="mt-0.5 text-xs text-[color:var(--pkp-ink-2)]">{t(PREF_META[key].hint)}</p>
-                  {gated && (
-                    <p className="mt-1 inline-flex items-center gap-1 text-[11px] font-medium text-[color:var(--pkp-amber-ink)]">
-                      <Icon name="info" size={12} /> {t('settings.master_required')}
-                    </p>
-                  )}
-                  {DEVICE_DEPENDENT.has(key) && (
-                    <p className="mt-1 inline-flex items-center gap-1 text-[11px] text-[color:var(--pkp-ink-3)]">
-                      <Icon name="monitor" size={12} /> {t('settings.device_note')}
-                    </p>
-                  )}
-                </div>
-                <button
-                  type="button"
-                  role="switch"
-                  aria-checked={prefs[key]}
-                  aria-label={t(PREF_META[key].t)}
-                  disabled={gated}
-                  onClick={() => toggle(key)}
-                  className="pk-switch"
-                />
-              </div>
-            )
-          })}
+          {s.prefs!.map((key) => (
+            <SettingRow
+              key={key}
+              label={t(PREF_META[key].t)}
+              hint={t(PREF_META[key].hint)}
+              gatedReason={MASTER_GATED.has(key) && !prefs.sound ? t('settings.master_required') : undefined}
+              deviceNote={DEVICE_DEPENDENT.has(key) ? t('settings.device_note') : undefined}
+              checked={prefs[key]}
+              onToggle={() => toggle(key)}
+            />
+          ))}
         </div>
       )}
     </div>
@@ -203,6 +183,55 @@ export default function SettingsClient() {
       {confirmReset && (
         <ConfirmReset onCancel={() => setConfirmReset(false)} onConfirm={doReset} />
       )}
+    </div>
+  )
+}
+
+// One reusable, grid-based setting row. `1fr auto` columns keep every switch on a single vertical
+// line and vertically centred against the whole row regardless of how many description/support
+// lines the text column has. No manual margins — consistent min-height, padding and divider come
+// from here + the parent's `divide-y`.
+function SettingRow({
+  label,
+  hint,
+  gatedReason,
+  deviceNote,
+  checked,
+  onToggle,
+}: {
+  label: string
+  hint: string
+  gatedReason?: string
+  deviceNote?: string
+  checked: boolean
+  onToggle: () => void
+}) {
+  const disabled = !!gatedReason
+  return (
+    <div className={`grid min-h-[64px] grid-cols-[minmax(0,1fr)_auto] items-center gap-4 p-4 ${disabled ? 'opacity-55' : ''}`}>
+      <div className="min-w-0">
+        <p className="font-medium text-[color:var(--pkp-ink)]">{label}</p>
+        <p className="mt-0.5 text-xs text-[color:var(--pkp-ink-2)]">{hint}</p>
+        {gatedReason && (
+          <p className="mt-1 inline-flex items-center gap-1 text-[11px] font-medium text-[color:var(--pkp-amber-ink)]">
+            <Icon name="info" size={12} className="shrink-0" /> {gatedReason}
+          </p>
+        )}
+        {deviceNote && (
+          <p className="mt-1 inline-flex items-center gap-1 text-[11px] text-[color:var(--pkp-ink-3)]">
+            <Icon name="monitor" size={12} className="shrink-0" /> {deviceNote}
+          </p>
+        )}
+      </div>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={checked}
+        aria-label={label}
+        disabled={disabled}
+        onClick={onToggle}
+        className="pk-switch self-center"
+      />
     </div>
   )
 }

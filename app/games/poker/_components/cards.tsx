@@ -4,49 +4,19 @@
 //
 // Original poker-lounge card art (NOT the TLMN deck): a clean white face with crisp corner
 // indices and inline-SVG suit pips, plus a champagne-gold/charcoal card back matching the lounge
-// theme. Suits are ALWAYS inline SVG, never OS emoji (emoji break suit colour on Windows — the
-// same lesson the TLMN card module records). Colour is never the only signal: every card shows
-// the rank letter + a suit glyph, so ♠♣ vs ♥♦ is legible without relying on red/black.
+// theme. Number cards centre a single suit pip; J/Q/K centre an original mirrored court figure
+// (Jack / Queen / King) drawn from the shared art module so every surface — table, showdown,
+// history and the learning pages — draws the identical deck. Suits are ALWAYS inline SVG, never OS
+// emoji (emoji break suit colour on Windows). Colour is never the only signal: every card shows the
+// rank letter + a suit glyph, so ♠♣ vs ♥♦ is legible without relying on red/black.
 //
 // The card `value` is the domain Card string (`${Rank}${Suit}`, e.g. 'As', 'Td', '9h') from
 // lib/games/poker/types.ts. PokerCard renders ONLY a known value — opponents' face-down cards
 // use PokerCardBack and the client never even receives their values (privacy A1).
 
 import type { Card, Rank, Suit } from '@/lib/games/poker/types'
-
-const RED = '#c2253e' // true playing-card red for ♥♦
-const INK = '#1a1714' // near-black for ♠♣
-
-// Suit glyphs in a shared 48×48 viewBox so all suits scale uniformly (no stretch).
-const SPADE =
-  'M24 5C24 5 9 16 9 27 9 32 12 35 16 35 18.5 35 20.5 34 22 32.5 21.5 36 20 39.5 17 42L31 42C28 39.5 26.5 36 26 32.5 27.5 34 29.5 35 32 35 36 35 39 32 39 27 39 16 24 5 24 5Z'
-const DIAMOND = 'M24 3 41 24 24 45 7 24Z'
-const HEART =
-  'M24 42C24 42 7 30 7 17 7 10.8 11.6 6 16.5 6 20 6 22.8 8.3 24 11.2 25.2 8.3 28 6 31.5 6 36.4 6 41 10.8 41 17 41 30 24 42 24 42Z'
-
-function SuitGlyph({ suit }: { suit: Suit }) {
-  if (suit === 'c') {
-    return (
-      <>
-        <circle cx="24" cy="15" r="8.4" />
-        <circle cx="14.6" cy="27.4" r="8.4" />
-        <circle cx="33.4" cy="27.4" r="8.4" />
-        <path d="M20.4 28C21 33.4 19 38.5 14.5 42L33.5 42C29 38.5 27 33.4 27.6 28Z" />
-      </>
-    )
-  }
-  return <path d={suit === 's' ? SPADE : suit === 'd' ? DIAMOND : HEART} />
-}
-
-function SuitPip({ suit, size, color }: { suit: Suit; size: number; color: string }) {
-  return (
-    <svg viewBox="0 0 48 48" width={size} height={size} aria-hidden style={{ display: 'block', fill: color }}>
-      <SuitGlyph suit={suit} />
-    </svg>
-  )
-}
-
-const SUIT_LABEL: Record<Suit, string> = { s: 'spades', c: 'clubs', d: 'diamonds', h: 'hearts' }
+import { SUIT_LABEL, isCourtRank, rankLabel, suitColor } from '@/lib/games/poker/cardArt'
+import { SuitPip, CourtFigure } from './cardArt'
 
 function parseCard(card: Card): { rank: Rank; suit: Suit } {
   return { rank: card[0] as Rank, suit: card[1] as Suit }
@@ -69,20 +39,20 @@ export interface PokerCardProps {
 // larger own-hole cards.
 export function PokerCard({ card, w = 52, dim = false, highlight = false, dealt = false, className = '' }: PokerCardProps) {
   const { rank, suit } = parseCard(card)
-  const red = suit === 'd' || suit === 'h'
-  const color = red ? RED : INK
+  const color = suitColor(suit)
   const h = Math.round(w * 1.4)
   const rankSize = Math.round(w * 0.34)
   const cornerSuit = Math.round(w * 0.2)
   const centerSuit = Math.round(w * 0.5)
   const padX = Math.max(2, Math.round(w * 0.07))
   const padY = Math.max(2, Math.round(w * 0.05))
-  const label = `${rank === 'T' ? '10' : rank} of ${SUIT_LABEL[suit]}`
+  const court = isCourtRank(rank)
+  const label = `${rankLabel(rank)} of ${SUIT_LABEL[suit]}`
 
   const corner = (
     <>
       <span className="font-black" style={{ fontSize: rankSize }}>
-        {rank === 'T' ? '10' : rank}
+        {rankLabel(rank)}
       </span>
       <SuitPip suit={suit} size={cornerSuit} color={color} />
     </>
@@ -105,7 +75,7 @@ export function PokerCard({ card, w = 52, dim = false, highlight = false, dealt 
         {corner}
       </span>
       <span className="absolute inset-0 flex items-center justify-center" aria-hidden>
-        <SuitPip suit={suit} size={centerSuit} color={color} />
+        {court ? <CourtFigure rank={rank} suit={suit} size={Math.round(w * 0.86)} /> : <SuitPip suit={suit} size={centerSuit} color={color} />}
       </span>
       <span className="absolute z-10 flex flex-col items-center leading-[0.82] rotate-180" style={{ bottom: padY, right: padX }}>
         {corner}

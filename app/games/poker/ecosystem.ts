@@ -23,6 +23,7 @@ import { projectLobbyTable, type LobbyTableRaw, type LobbyTable } from '@/lib/ga
 import { POKER_ENTRY_MIN_BALANCE } from '@/lib/games/poker/economy'
 import type { Card, HoleCards, Pots, PokerActionType } from '@/lib/games/poker/types'
 import { checkPokerCapability } from './access'
+import { ensurePokerWallet } from './wallet-server'
 
 export type EcoResult<T = unknown> =
   | ({ ok: true } & T)
@@ -38,12 +39,6 @@ function isMissingRelation(err: { code?: string; message?: string } | null): boo
   return err.code === '42P01' || /relation .* does not exist/i.test(err.message ?? '')
 }
 
-async function walletBalance(): Promise<number> {
-  const supabase = createClient()
-  const { data } = await supabase.rpc('get_wallet')
-  const bal = (data as { balance?: number | string } | null)?.balance
-  return bal != null ? Number(bal) : 0
-}
 
 // ── quickPlay — deterministic server-side seat matching (NEVER a private table) ──────────
 // Picks the best OPEN, PUBLIC table that has a free seat and that the caller can afford
@@ -59,7 +54,9 @@ export async function quickPlay(preferredBigBlind?: number): Promise<EcoResult<{
   const capErr = await checkPokerCapability('public_lobby')
   if (capErr) return fail(capErr)
 
-  const balance = await walletBalance()
+  // Bootstrap the shared wallet (idempotent signup faucet) so a poker-first player is funded exactly
+  // like a TLMN-first player — otherwise the entry gate would read a 0 balance and reject them.
+  const balance = await ensurePokerWallet()
   if (balance < POKER_ENTRY_MIN_BALANCE) return fail('below_entry_gate')
 
   const admin = createAdminClient()

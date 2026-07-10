@@ -315,3 +315,67 @@ test('BETA-ALPHA-PRECEDENCE-001 alpha gate is checked before beta (fails closed 
   assert.equal(pokerVisibleTo(f, betaMember), false)
   assert.equal(pokerVisibleTo(f, tester), true)
 })
+
+// ── Public launch (27G-U2): publicDiscovery + publicPlayer ─────────────────────
+// publicDiscovery = public poker fully rolled out (opens discovery to everyone, incl. anon).
+// publicPlayer   = an authenticated, non-suspended viewer at full rollout (opens player capabilities).
+const anonDiscovery = { isAdmin: false, publicDiscovery: true }
+const publicPlayer = { isAdmin: false, publicDiscovery: true, publicPlayer: true }
+
+test('PUBLIC-VIS-001 publicDiscovery makes poker visible with every env flag OFF (legacy master off)', () => {
+  // The live prod shape: POKER_ENABLED off, but the public rollout is at 100% → discovery is open.
+  assert.equal(pokerVisibleTo(OFF, anonDiscovery), true)
+  assert.equal(pokerVisibleTo(OFF, publicPlayer), true)
+  // A plain viewer with no public signal still sees nothing (unchanged).
+  assert.equal(pokerVisibleTo(OFF, player), false)
+})
+
+test('PUBLIC-VIS-002 a suspended viewer is denied even at full public launch', () => {
+  assert.equal(pokerVisibleTo(OFF, { isAdmin: false, publicDiscovery: true, publicPlayer: true, suspended: true }), false)
+})
+
+test('PUBLIC-CAP-001 publicPlayer opens the standard player capabilities without per-cap env flags', () => {
+  for (const cap of ['enter', 'create', 'join', 'public_lobby', 'private_table', 'spectate'] as const) {
+    assert.equal(pokerCan(OFF, publicPlayer, cap), true, `publicPlayer cap=${cap}`)
+  }
+})
+
+test('PUBLIC-CAP-002 discovery-only (anonymous) is visible but holds NO seating capability', () => {
+  // Visible for discovery, but create/join/lobby/private/spectate stay closed until sign-in.
+  assert.equal(pokerCan(OFF, anonDiscovery, 'enter'), true)
+  assert.equal(pokerCan(OFF, anonDiscovery, 'join'), false, 'anon must sign in before joining')
+  assert.equal(pokerCan(OFF, anonDiscovery, 'create'), false)
+  assert.equal(pokerCan(OFF, anonDiscovery, 'public_lobby'), false)
+  assert.equal(pokerCan(OFF, anonDiscovery, 'private_table'), false)
+  assert.equal(pokerCan(OFF, anonDiscovery, 'spectate'), false)
+})
+
+test('PUBLIC-CAP-003 the wind-down freeze still closes create + join for a public player', () => {
+  const frozen = { ...OFF, blockNewJoins: true }
+  assert.equal(pokerCan(frozen, publicPlayer, 'create'), false)
+  assert.equal(pokerCan(frozen, publicPlayer, 'join'), false)
+  // …but never blocks entering / spectating a running table.
+  assert.equal(pokerCan(frozen, publicPlayer, 'enter'), true)
+  assert.equal(pokerCan(frozen, publicPlayer, 'spectate'), true)
+})
+
+test('PUBLIC-CAP-004 publicPlayer confers NO operator/admin capability (tournament stays privileged)', () => {
+  // Internal-alpha tournament flag OFF → even a full public player cannot see/operate it.
+  assert.equal(pokerTournamentInternalAlphaVisible(OFF, publicPlayer), false)
+  assert.equal(pokerTournamentCanOperate(OFF, publicPlayer), false)
+  // With the flag ON, a public player still cannot OPERATE (needs admin).
+  const on = { ...OFF, tournamentInternalAlpha: true }
+  assert.equal(pokerTournamentCanOperate(on, publicPlayer), false)
+})
+
+test('PUBLIC-PRACTICE-001 practice bots open to a public player without the practice env flag', () => {
+  assert.equal(pokerPracticeBotsOn(OFF, publicPlayer), true)
+  // …but a discovery-only anon does not get the practice runtime (visible, yet not a public player).
+  assert.equal(pokerPracticeBotsOn(OFF, anonDiscovery), false)
+})
+
+test('PUBLIC-SOCIAL-001 additive social features stay dark for a public player until their own flag flips', () => {
+  // publicPlayer does NOT open achievements/missions/etc — those keep their own env flags.
+  assert.equal(pokerSocialFeatureOn(OFF, publicPlayer, 'achievements'), false)
+  assert.equal(pokerSocialFeatureOn({ ...OFF, achievements: true }, publicPlayer, 'achievements'), true)
+})

@@ -20,7 +20,7 @@
 import { randomInt } from 'crypto'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { getPokerAccess } from './access'
+import { getPokerAccess, viewerOf } from './access'
 import { pokerPracticeBotsOn } from '@/lib/games/poker/flags'
 import { makeRng } from '@/lib/games/tlmn/ai/seededRandom'
 import type { AppliedAction } from '@/lib/games/poker/betting'
@@ -47,12 +47,7 @@ function fail(error: string): { ok: false; error: string } {
 // (a human seat needs a real user id). Fails closed.
 async function requirePractice(): Promise<{ ok: true; userId: string } | { ok: false; error: string }> {
   const access = await getPokerAccess()
-  if (!pokerPracticeBotsOn(access.flags, {
-    isAdmin: access.access.isAdmin,
-    isAlphaTester: access.isAlphaTester,
-    isBetaMember: access.isBetaMember,
-    suspended: access.betaSuspended,
-  })) {
+  if (!pokerPracticeBotsOn(access.flags, viewerOf(access))) {
     return fail('practice_bots_off')
   }
   const supabase = createClient()

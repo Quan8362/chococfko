@@ -5,7 +5,7 @@ import PokerShell from './_eco/PokerShell'
 import QuickPlayButton from './_eco/QuickPlayButton'
 import { listRecentTables, fetchPokerStats } from './ecosystem'
 import { coins, signedCoins, dateShort } from './_eco/format'
-import { getPokerAccess, pokerAccessCan, getBetaTermsAck, pokerAccessTournamentVisible } from './access'
+import { getPokerAccess, pokerAccessCan, getBetaTermsAck, pokerAccessTournamentVisible, viewerOf } from './access'
 import { pokerPracticeBotsOn } from '@/lib/games/poker/flags'
 import PokerTermsGate from './_components/PokerTermsGate'
 import { Icon, type IconName } from './_eco/icons'
@@ -45,12 +45,7 @@ export default async function PokerLandingPage() {
   const canPublicLobby = pokerAccessCan(pokerAccess, 'public_lobby')
   const canCreate = pokerAccessCan(pokerAccess, 'create')
   const canTournament = pokerAccessTournamentVisible(pokerAccess)
-  const canPractice = !!user && pokerPracticeBotsOn(pokerAccess.flags, {
-    isAdmin: pokerAccess.access.isAdmin,
-    isAlphaTester: pokerAccess.isAlphaTester,
-    isBetaMember: pokerAccess.isBetaMember,
-    suspended: pokerAccess.betaSuspended,
-  })
+  const canPractice = !!user && pokerPracticeBotsOn(pokerAccess.flags, viewerOf(pokerAccess))
 
   // Real activity summary — only rendered when the viewer actually has a record.
   let stats: { handsPlayed: number; handsWon: number; netChange: number } | null = null

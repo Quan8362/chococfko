@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
-import { getPokerAccess } from '../access'
+import { getPokerAccess, viewerOf } from '../access'
 import { pokerPracticeBotsOn } from '@/lib/games/poker/flags'
 import PracticeClient from './PracticeClient'
 
@@ -11,12 +11,7 @@ export const dynamic = 'force-dynamic'
 // does not advertise its own existence. Nothing here is reachable until the flag is flipped.
 export default async function PracticePage() {
   const access = await getPokerAccess()
-  const on = pokerPracticeBotsOn(access.flags, {
-    isAdmin: access.access.isAdmin,
-    isAlphaTester: access.isAlphaTester,
-    isBetaMember: access.isBetaMember,
-    suspended: access.betaSuspended,
-  })
+  const on = pokerPracticeBotsOn(access.flags, viewerOf(access))
   if (!on) notFound()
 
   const t = await getTranslations('games.poker.practice')

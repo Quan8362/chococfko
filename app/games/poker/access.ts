@@ -84,6 +84,16 @@ export interface PokerAccess {
   // their stable bucket falls under the effective %). This is the ONLY public path to the tournament
   // surface; admins / alpha / beta reach it through their own gates. Anonymous viewers are false.
   tournamentPublic: boolean
+  // ── Public launch (27G-U2) ────────────────────────────────────────────────────────────────────
+  // publicLive: public poker is FULLY LAUNCHED — the public-rollout master switch is on AND the
+  // effective rollout is 100%. This is the authoritative public signal: base poker access is now
+  // unified with the public rollout, so the legacy POKER_ENABLED master is no longer required. When
+  // true the discovery surface opens to everyone (incl. anonymous). Resolved purely server-side.
+  publicLive: boolean
+  // publicPlayer: THIS viewer is an eligible ordinary public player — authenticated + non-suspended +
+  // publicLive. The standard player capabilities (create/join/lobby/private/spectate/practice) open
+  // without admin/alpha/beta/cohort/allowlist/bucket membership. Never confers operator/admin rights.
+  publicPlayer: boolean
 }
 
 // Resolve the viewer's email once (server-only) to decide tester allowlist
@@ -103,12 +113,6 @@ export async function getPokerAccess(): Promise<PokerAccess> {
   const flags = resolvePokerFlags(process.env)
   const tester = isAlphaTester(email, process.env[POKER_ALPHA_TESTERS_ENV])
   const beta = resolveBetaMembership(email, process.env)
-  const viewer: PokerViewer = {
-    isAdmin: access.isAdmin,
-    isAlphaTester: tester,
-    isBetaMember: beta.inBeta,
-    suspended: beta.suspended,
-  }
   const publicRollout = resolvePublicRollout(process.env)
   // Public-rollout eligibility is derived from the SERVER-trusted auth user id ONLY (never a client
   // value). Suspension still locks a tester out on the public path.
@@ -116,6 +120,21 @@ export async function getPokerAccess(): Promise<PokerAccess> {
     userId: access.userId,
     suspended: beta.suspended,
   })
+  // Public launch (27G-U2): public poker is fully live when the rollout master switch is on AND the
+  // EFFECTIVE percentage is 100 (post phase-ceiling; a lowered ceiling fails this closed). At that
+  // point discovery opens to everyone, and any authenticated, non-suspended viewer becomes a full
+  // ordinary player — no admin/alpha/beta/cohort/allowlist/bucket membership required. Derived only
+  // from server-trusted config + the server-resolved auth id; never from a client value.
+  const publicLive = publicRollout.masterEnabled && publicRollout.pct === 100
+  const publicPlayer = publicLive && !!access.userId && !beta.suspended
+  const viewer: PokerViewer = {
+    isAdmin: access.isAdmin,
+    isAlphaTester: tester,
+    isBetaMember: beta.inBeta,
+    suspended: beta.suspended,
+    publicDiscovery: publicLive,
+    publicPlayer,
+  }
   return {
     flags,
     access,
@@ -130,15 +149,23 @@ export async function getPokerAccess(): Promise<PokerAccess> {
     maintenance: resolveMaintenance(process.env),
     publicRollout,
     tournamentPublic,
+    publicLive,
+    publicPlayer,
   }
 }
 
-function viewerOf(a: PokerAccess): PokerViewer {
+// The single source of truth for turning a resolved PokerAccess into the pure PokerViewer the
+// flags-layer gates consume. Exported so every call site (pages + server actions) builds the viewer
+// identically — including the public-launch fields — and no gate is accidentally evaluated against a
+// viewer missing publicDiscovery/publicPlayer.
+export function viewerOf(a: PokerAccess): PokerViewer {
   return {
     isAdmin: a.access.isAdmin,
     isAlphaTester: a.isAlphaTester,
     isBetaMember: a.isBetaMember,
     suspended: a.betaSuspended,
+    publicDiscovery: a.publicLive,
+    publicPlayer: a.publicPlayer,
   }
 }
 

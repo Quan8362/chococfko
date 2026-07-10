@@ -5,15 +5,17 @@ import { BETA_STATUS_MESSAGE_ENV } from '@/lib/games/poker/beta'
 import PokerBetaBanner from './_components/PokerBetaBanner'
 
 // Master feature-flag chokepoint for every player-facing poker route. When the
-// feature is not visible to the viewer (POKER_ENABLED off and not an admin) the
-// whole section 404s — the feature does not advertise its own existence. Finer
-// per-capability gates (create / public lobby / private / spectator) are applied
-// at their own entry points; the security boundary remains RLS + the RPCs.
+// feature is not visible to the viewer AND they are not in the public tournament
+// rollout, the whole section 404s — the feature does not advertise its existence.
+// Finer per-capability gates (create / public lobby / private / spectator) are
+// applied at their own entry points; the security boundary remains RLS + the RPCs.
 //
-// A public-rollout viewer (27G-N) is not otherwise "visible" but IS allowed into
-// the section so they can reach the Tournament routes; every non-tournament page
-// still fails its own capability gate (pokerAccessCan → not visible), so the
-// rollout opens the tournament surface ONLY and never a cash capability.
+// At full public launch (27G-U2: publicLive) the discovery surface is visible to
+// everyone — including anonymous visitors — so the landing page and the read-only
+// learning/rules/rankings/glossary pages open to all; capabilities (create/join/
+// lobby/private/practice) remain separately gated and still require an eligible,
+// authenticated player. A public-rollout viewer (27G-N) who is not otherwise
+// "visible" is still admitted so they can reach the Tournament routes.
 //
 // In Alpha mode a fixed, unmissable ALPHA ribbon labels every poker screen so a
 // tester always knows this is a pre-release build (test coins, expect bugs).

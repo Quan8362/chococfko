@@ -54,6 +54,7 @@ import { totalContributed } from '@/lib/games/poker/pot'
 import { assertSnapshotPrivacy, type PokerSnapshot, type PokerLegalView } from '@/lib/games/poker/realtime'
 import { emitSev1 } from '@/lib/games/poker/incidentNotifier'
 import { checkPokerCapability } from './access'
+import { ensurePokerWallet } from './wallet-server'
 import { hashTablePassword, verifyTablePassword, privateTableAccessAllowed } from '@/lib/games/poker/tableAccess'
 import {
   getActiveEconomyConfig,
@@ -382,6 +383,10 @@ export async function sitDown(tableId: string, seatIndex: number, buyIn: number)
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return fail('not_authenticated')
   if (await isRestricted(user.id, 'no_sit')) return fail('restricted')
+  // Bootstrap the shared wallet (idempotent signup faucet) so a poker-first player is funded before
+  // buy-in — otherwise poker_sit_down would raise `no_wallet`. Same shared faucet as TLMN's entry,
+  // so coin conservation is unchanged.
+  await ensurePokerWallet()
 
   // Private-table password gate: a direct-URL visitor who never passed the password (no
   // membership), is not the host, and is not already seated cannot take a seat. Denied BEFORE the

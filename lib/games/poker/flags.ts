@@ -165,6 +165,20 @@ export interface PokerViewer {
   // player_restriction (which lets them view but not sit). Admins are never
   // suspended by this flag. Optional; defaults to "not suspended".
   suspended?: boolean
+  // ── Public launch (27G-U2) ──────────────────────────────────────────────────
+  // publicDiscovery: public poker is FULLY LAUNCHED (the public-rollout master switch is on and the
+  //   effective rollout is 100%). When set, the DISCOVERY surface — the /games card, the landing
+  //   page, and the read-only learning/rules/rankings/terminology pages — is open to EVERYONE,
+  //   including anonymous visitors, even though the legacy POKER_ENABLED master remains off. It
+  //   confers VISIBILITY only, never a capability. Server-resolved (never a client value).
+  // publicPlayer: this viewer is an eligible ORDINARY public player — authenticated, not suspended,
+  //   and public poker is fully launched. It grants the standard player capabilities
+  //   (create/join/public_lobby/private_table/spectate + practice bots) WITHOUT requiring admin,
+  //   alpha, beta, cohort, a tester allowlist, a rollout bucket, or the per-capability env flags.
+  //   Server-resolved from the trusted auth user id + rollout config (never a client value); it never
+  //   grants an operator/admin capability.
+  publicDiscovery?: boolean
+  publicPlayer?: boolean
 }
 
 // May the viewer reach the poker feature at all?
@@ -180,6 +194,10 @@ export interface PokerViewer {
 export function pokerVisibleTo(flags: PokerFlags, viewer: PokerViewer): boolean {
   if (viewer.isAdmin) return true
   if (viewer.suspended) return false
+  // Public launch (27G-U2): once public poker is fully rolled out, the discovery surface is open to
+  // everyone (incl. anonymous) — this is the effective public master now that the rollout, not the
+  // legacy POKER_ENABLED flag, is the live public lever. Capabilities remain separately gated below.
+  if (viewer.publicDiscovery) return true
   if (flags.alpha) return !!viewer.isAlphaTester
   if (flags.closedBeta) return !!viewer.isBetaMember
   return flags.enabled
@@ -192,19 +210,26 @@ export function pokerVisibleTo(flags: PokerFlags, viewer: PokerViewer): boolean 
 // wind-down is total and predictable — lift the freeze to test seating again.
 export function pokerCan(flags: PokerFlags, viewer: PokerViewer, cap: PokerCapability): boolean {
   if (!pokerVisibleTo(flags, viewer)) return false
+  // At full public launch an eligible ordinary player (publicPlayer) holds the standard player
+  // capabilities directly — no per-capability env flag required — exactly as an admin does, but with
+  // NO operator/admin powers. `join`/`enter`/`spectate` already flow from visibility; `create` and the
+  // browse/private/spectate gates additionally honour publicPlayer so UI and server authorization agree.
   switch (cap) {
     case 'enter':
       return true
     case 'create':
-      return (flags.createTable || viewer.isAdmin) && !flags.blockNewJoins
+      return (flags.createTable || viewer.isAdmin || !!viewer.publicPlayer) && !flags.blockNewJoins
     case 'join':
-      return !flags.blockNewJoins
+      // Taking a seat needs a real, eligible account — never an anonymous DISCOVERY-only viewer
+      // (visible solely via publicDiscovery). Admin / eligible public player / alpha / beta / the
+      // legacy public-master path all qualify; the wind-down freeze then closes new joins for all.
+      return (viewer.isAdmin || !!viewer.publicPlayer || !!viewer.isAlphaTester || !!viewer.isBetaMember || flags.enabled) && !flags.blockNewJoins
     case 'public_lobby':
-      return flags.publicLobby || viewer.isAdmin
+      return flags.publicLobby || viewer.isAdmin || !!viewer.publicPlayer
     case 'private_table':
-      return flags.privateTable || viewer.isAdmin
+      return flags.privateTable || viewer.isAdmin || !!viewer.publicPlayer
     case 'spectate':
-      return flags.spectator || viewer.isAdmin
+      return flags.spectator || viewer.isAdmin || !!viewer.publicPlayer
     default:
       return false
   }
@@ -232,7 +257,9 @@ export function pokerSocialFeatureOn(
 // `POKER_PRACTICE_BOTS_ENABLED` is flipped, so an admin previewing prod flips the env like anyone
 // else. It NEVER interacts with cash seating, coins, or the join/maintenance freeze.
 export function pokerPracticeBotsOn(flags: PokerFlags, viewer: PokerViewer): boolean {
-  return pokerVisibleTo(flags, viewer) && flags.practiceBots
+  // Practice-with-bots is a normal player feature (isolated sandbox, no wallet/ranking). At full
+  // public launch an eligible player gets it directly; otherwise it stays dark behind its own env flag.
+  return pokerVisibleTo(flags, viewer) && (flags.practiceBots || !!viewer.publicPlayer)
 }
 
 // ── Internal-alpha tournament gate ───────────────────────────────────────────────────────────

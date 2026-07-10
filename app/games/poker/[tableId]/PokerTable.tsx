@@ -48,6 +48,8 @@ import {
   type StreetName,
 } from '../_components'
 import { ActionControls } from '../_components/ActionControls'
+import { PokerReactionTrigger, PokerReactionBubbleLayer } from '../_components/PokerReactions'
+import { usePokerReactions } from './usePokerReactions'
 import ReportProblemButton from '../_components/ReportProblemButton'
 import type { PokerBugContext } from '@/lib/games/poker/bugReport'
 import { recordUxSignal } from '@/lib/games/poker/uxSignals'
@@ -127,6 +129,10 @@ export default function PokerTable({ tableId, userId, config }: PokerTableProps)
   // Keep the screen awake ONLY while opted-in and actually seated in the hand (released on leave,
   // tab hide, or unmount). Never gates gameplay — silently inert where unsupported.
   useWakeLock(prefs.wakeLock, viewerSeatIndex !== null)
+
+  // Quick reactions — transient FX channel (separate from the authoritative game channel). Only a
+  // seated player can send; the seat on every bubble is server-authoritative.
+  const reactions = usePokerReactions(tableId, viewerSeatIndex)
 
   const geom = tableGeometry(config.capacity, geomLayout(vp.layout))
   const seats = useMemo<readonly PublicSeat[]>(() => publicState?.seats ?? [], [publicState?.seats])
@@ -558,6 +564,16 @@ export default function PokerTable({ tableId, userId, config }: PokerTableProps)
               </div>
             )
           })}
+
+          {/* Quick-reaction bubbles — anchored to each sender's seat in the SAME % coordinate space
+              as the pods, so they land on the correct seat on every client. */}
+          <PokerReactionBubbleLayer
+            bubbles={reactions.bubbles}
+            geom={geom}
+            viewerSeatIndex={viewerSeatIndex}
+            capacity={config.capacity}
+            lastAnnounceKey={reactions.lastAnnounceKey}
+          />
         </div>
       </TableBackground>
 
@@ -769,8 +785,13 @@ export default function PokerTable({ tableId, userId, config }: PokerTableProps)
             )}
           </div>
 
-          {/* grid col 3 — mirror spacer balancing the hero so col 2 stays centred */}
-          <div aria-hidden />
+          {/* grid col 3 — balances the hero (equal 1fr) so col 2 stays centred; holds the quick-
+              reaction trigger for a seated player (spectators cannot send). */}
+          <div className="flex items-end justify-end">
+            {viewerSeatIndex !== null && (
+              <PokerReactionTrigger send={reactions.send} compact={compact} />
+            )}
+          </div>
         </div>
       </div>
 

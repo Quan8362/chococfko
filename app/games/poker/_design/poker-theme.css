@@ -258,3 +258,157 @@
 .poker-root[data-pk-reduce-motion='1'] .pk-anim-timer-flash {
   animation: none !important;
 }
+
+/* ── Quick reactions (27G-S) — premium charcoal + champagne-gold, restrained ──────────────────
+ * A compact emote trigger near the hero controls + a floating popover panel + seat-anchored
+ * speech bubbles. Scoped under .poker-root so it can never leak into the rest of the app. Its
+ * own black-and-gold identity — deliberately NOT the Tiến Lên red-brown style. */
+.poker-root .pk-rx-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid var(--pk-gold-line);
+  color: var(--pk-gold-soft);
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.1s ease;
+}
+.poker-root .pk-rx-trigger:hover {
+  border-color: var(--pk-gold);
+  background: rgba(201, 161, 74, 0.16);
+}
+.poker-root .pk-rx-trigger:active {
+  transform: scale(0.94);
+}
+.poker-root .pk-rx-trigger[aria-expanded='true'] {
+  border-color: var(--pk-gold);
+  background: rgba(201, 161, 74, 0.22);
+  color: var(--pk-gold-soft);
+}
+.poker-root .pk-rx-trigger:focus-visible {
+  outline: 2px solid var(--pk-gold);
+  outline-offset: 2px;
+}
+
+.poker-root .pk-rx-panel {
+  background: linear-gradient(180deg, #1a1620, #0e0c12);
+  border: 1px solid var(--pk-gold-line);
+  border-radius: 16px;
+  box-shadow: var(--pk-shadow-raised);
+  animation: pk-rx-pop 0.16s ease-out;
+}
+@keyframes pk-rx-pop {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.poker-root .pk-rx-tabs {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(201, 161, 74, 0.14);
+  border-radius: 10px;
+}
+.poker-root .pk-rx-tab {
+  border-radius: 8px;
+  color: var(--pk-text-mid);
+  background: transparent;
+  border: 1px solid transparent;
+  transition: color 0.14s ease, background 0.14s ease, border-color 0.14s ease;
+}
+.poker-root .pk-rx-tab:hover {
+  color: var(--pk-text-hi);
+}
+.poker-root .pk-rx-tab[aria-selected='true'] {
+  color: #17130c;
+  background: linear-gradient(180deg, var(--pk-gold-soft), var(--pk-gold));
+  border-color: var(--pk-gold);
+  box-shadow: 0 1px 6px rgba(201, 161, 74, 0.35);
+}
+.poker-root .pk-rx-tab:focus-visible {
+  outline: 2px solid var(--pk-gold);
+  outline-offset: 1px;
+}
+
+.poker-root .pk-rx-opt {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  border-radius: 10px;
+  text-align: left;
+  color: var(--pk-text-hi);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(201, 161, 74, 0.16);
+  transition: background 0.13s ease, border-color 0.13s ease, transform 0.08s ease;
+}
+.poker-root .pk-rx-opt:hover {
+  background: rgba(157, 43, 63, 0.22);
+  border-color: rgba(230, 207, 149, 0.4);
+}
+.poker-root .pk-rx-opt:active {
+  transform: scale(0.97);
+}
+.poker-root .pk-rx-opt:focus-visible {
+  outline: 2px solid var(--pk-gold);
+  outline-offset: 1px;
+}
+.poker-root .pk-rx-ico {
+  flex: none;
+  line-height: 1;
+}
+
+.poker-root .pk-rx-foot {
+  border-radius: 999px;
+  color: var(--pk-text-mid);
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--pk-gold-line);
+  transition: color 0.14s ease, border-color 0.14s ease;
+}
+.poker-root .pk-rx-foot:hover {
+  color: var(--pk-gold-soft);
+  border-color: var(--pk-gold);
+}
+.poker-root .pk-rx-foot:focus-visible {
+  outline: 2px solid var(--pk-gold);
+  outline-offset: 1px;
+}
+
+/* Seat-anchored speech bubble — champagne edge, dark glassy fill; pointer-events off so it never
+ * blocks a card / control tap. */
+.poker-root .pk-rx-bubble {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  max-width: 150px;
+  padding: 4px 9px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--pk-text-hi);
+  background: linear-gradient(180deg, rgba(33, 28, 40, 0.97), rgba(14, 12, 18, 0.97));
+  border: 1px solid var(--pk-gold-line);
+  box-shadow: var(--pk-shadow-seat);
+  animation: pk-rx-in 0.2s ease-out;
+}
+.poker-root .pk-rx-bubble__emoji {
+  flex: none;
+  font-size: 14px;
+  line-height: 1;
+}
+@keyframes pk-rx-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

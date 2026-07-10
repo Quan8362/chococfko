@@ -14,6 +14,8 @@
 //   wakeLock     — keep the screen awake while seated in a live hand (Screen Wake Lock API)
 //   animation    — nonessential travel/celebration animation
 //   reducedMotion— force reduced motion regardless of the OS setting
+//   interactions — receive other players' quick-reaction bubbles ("Tắt tương tác" turns this off;
+//                  purely a local receive filter — never blocks gameplay, never told to others)
 //
 // The store is reactive: writes notify subscribers in the same tab (so toggling in Settings
 // instantly affects the open table) and a `storage` listener keeps other tabs in sync.
@@ -29,6 +31,7 @@ export type PokerPrefKey =
   | 'wakeLock'
   | 'animation'
   | 'reducedMotion'
+  | 'interactions'
 
 export type PokerPrefs = Record<PokerPrefKey, boolean>
 
@@ -41,6 +44,7 @@ export const PREF_DEFAULTS: PokerPrefs = {
   wakeLock: true,
   animation: true,
   reducedMotion: false,
+  interactions: true,
 }
 
 const STORAGE_KEY = 'poker:prefs'

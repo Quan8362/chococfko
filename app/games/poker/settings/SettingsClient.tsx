@@ -19,7 +19,7 @@ interface SectionDef {
 const SECTIONS: SectionDef[] = [
   { key: 'audio', icon: 'volume', tone: 'ruby', prefs: ['sound', 'effects', 'music'] },
   { key: 'feedback', icon: 'vibrate', tone: 'emerald', prefs: ['timerWarning', 'vibration'] },
-  { key: 'display', icon: 'sun', tone: 'amber', prefs: ['animation'] },
+  { key: 'display', icon: 'sun', tone: 'amber', prefs: ['animation', 'interactions'] },
   { key: 'device', icon: 'monitor', tone: 'royal', prefs: ['wakeLock'] },
   { key: 'accessibility', icon: 'accessibility', tone: 'violet', prefs: ['reducedMotion'] },
   { key: 'privacy', icon: 'ban', tone: 'neutral' },
@@ -33,6 +33,7 @@ const PREF_META: Record<PokerPrefKey, { t: string; hint: string }> = {
   vibration: { t: 'settings.vibration', hint: 'settings.vibration_hint' },
   wakeLock: { t: 'settings.wake_lock', hint: 'settings.wake_lock_hint' },
   animation: { t: 'settings.animation', hint: 'settings.animation_hint' },
+  interactions: { t: 'settings.interactions', hint: 'settings.interactions_hint' },
   reducedMotion: { t: 'settings.reduced_motion', hint: 'settings.reduced_motion_hint' },
 }
 // Prefs whose behaviour depends on the device supporting an API.

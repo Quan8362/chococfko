@@ -12,8 +12,10 @@
 // truncate; large/low stacks use formatCoinsShort with the exact value in the tooltip/aria.
 
 import type { Card, PokerActionType, SeatStatus } from '@/lib/games/poker/types'
+import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { formatCoinsShort, formatCoinsFull } from '@/lib/game/economy'
+import { seatInitials } from '@/lib/games/poker/seatIdentity'
 import { PokerCard, PokerCardBack } from './cards'
 import { PokerChip } from './chips'
 import { DealerButton, SmallBlindBadge, BigBlindBadge, AllInBadge } from './markers'
@@ -113,7 +115,13 @@ export function PlayerAvatarFrame({
   folded?: boolean
   disconnected?: boolean
 }) {
-  const initials = (name ?? '?').trim().slice(0, 2).toUpperCase()
+  const initials = seatInitials(name)
+  // A stored/OAuth avatar URL can be missing, revoked, or expired. Fall back to initials the
+  // instant the image fails to load, and reset the flag whenever the URL changes so a seat reused
+  // by a DIFFERENT player never inherits the previous occupant's broken/loaded state (privacy A9).
+  const [broken, setBroken] = useState(false)
+  useEffect(() => setBroken(false), [avatarUrl])
+  const showImage = !!avatarUrl && !broken
   const ringColor = winner
     ? 'var(--pk-gold-soft)'
     : actor
@@ -134,11 +142,20 @@ export function PlayerAvatarFrame({
         boxShadow: !actor && !winner ? 'var(--pk-shadow-seat)' : undefined,
       }}
     >
-      {avatarUrl ? (
+      {showImage ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={avatarUrl} alt="" className="w-full h-full object-cover" draggable={false} />
+        <img
+          // Key by URL so a new occupant's avatar remounts cleanly (no stale image reuse).
+          key={avatarUrl}
+          src={avatarUrl as string}
+          alt={name ?? ''}
+          className="w-full h-full object-cover"
+          draggable={false}
+          referrerPolicy="no-referrer"
+          onError={() => setBroken(true)}
+        />
       ) : (
-        <span className="font-bold" style={{ color: 'var(--pk-gold-soft)', fontSize: size * 0.38 }}>
+        <span className="font-bold" style={{ color: 'var(--pk-gold-soft)', fontSize: size * 0.38 }} aria-hidden>
           {initials}
         </span>
       )}

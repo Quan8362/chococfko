@@ -21,6 +21,7 @@ import { formatCoinsShort, formatCoinsFull } from '@/lib/game/economy'
 import type { PokerActionType } from '@/lib/games/poker/types'
 import {
   PlayerSeat,
+  PlayerAvatarFrame,
   SeatPocketCards,
   CommunityCardSlot,
   PokerCard,
@@ -301,16 +302,36 @@ export default function TournamentTable({ tournamentId, capacity }: TournamentTa
         >
           {/* hero identity + own cards */}
           {viewerSeat ? (
-            <div className="flex shrink-0 items-end gap-2" data-testid="tnmt-hero" data-seat-index={viewerSeatIndex ?? ''} data-stack={viewerSeat.stack}>
+            <div className="flex shrink-0 items-end gap-2" data-testid="tnmt-hero" data-seat-index={viewerSeatIndex ?? ''} data-stack={viewerSeat.stack} data-has-avatar={viewerSeat.avatarUrl ? '1' : '0'}>
               {ownCards && (
                 <div className="flex items-end gap-1" data-testid="tnmt-hero-cards" data-count={2}>
                   <PokerCard card={ownCards[0]} w={compact ? 40 : 52} highlight={winnerSeat === viewerSeatIndex} />
                   <PokerCard card={ownCards[1]} w={compact ? 40 : 52} highlight={winnerSeat === viewerSeatIndex} />
                 </div>
               )}
+              {/* Own occupied-seat identity: real profile avatar (initials fallback). */}
+              <div data-testid="tnmt-hero-avatar">
+                <PlayerAvatarFrame
+                  name={viewerSeat.displayName}
+                  avatarUrl={viewerSeat.avatarUrl}
+                  size={compact ? 38 : 46}
+                  actor={isMyTurn}
+                  winner={winnerSeat === viewerSeatIndex}
+                  disconnected={connUx === 'offline' || connUx === 'reconnecting'}
+                />
+              </div>
               <div className="flex flex-col">
-                <span className="max-w-[120px] truncate font-semibold" style={{ color: 'var(--pk-text-hi)', fontSize: 13 }} title={viewerSeat.displayName ?? ''}>
-                  {viewerSeat.displayName ?? t('seat.you')}
+                <span className="flex items-center gap-1.5">
+                  <span className="max-w-[120px] truncate font-semibold" style={{ color: 'var(--pk-text-hi)', fontSize: 13 }} title={viewerSeat.displayName ?? ''}>
+                    {viewerSeat.displayName ?? t('seat.you')}
+                  </span>
+                  <span
+                    className="rounded px-1 py-[1px] text-[9.5px] font-bold uppercase tracking-wide leading-none"
+                    style={{ background: 'var(--pk-gold-line)', color: 'var(--pk-gold-soft)' }}
+                    data-testid="tnmt-hero-you"
+                  >
+                    {t('seat.you')}
+                  </span>
                 </span>
                 <span className="font-bold tabular-nums" style={{ color: 'var(--pk-gold-soft)', fontSize: 15 }} title={formatCoinsFull(viewerSeat.stack)} data-testid="tnmt-hero-stack">
                   {formatCoinsShort(viewerSeat.stack)}

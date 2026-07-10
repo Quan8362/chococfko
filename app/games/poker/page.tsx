@@ -82,16 +82,21 @@ export default async function PokerLandingPage() {
     <PokerShell>
       {/* ── Hero ──────────────────────────────────────────────────────────────── */}
       <section className="pk-plum pk-fade-up pk-portal-on-plum relative overflow-hidden rounded-[20px] p-6 sm:p-9">
-        {/* Decorative card-suit motif — a balanced quad, gold-tinted (aria-hidden). */}
-        <div aria-hidden className="pointer-events-none absolute -right-2 top-5 select-none text-[color:var(--pkp-gold-soft)] sm:right-1 sm:top-8">
-          <div className="grid grid-cols-2 gap-1.5 rotate-[15deg] opacity-[0.11] sm:gap-2">
-            <Icon name="spade" size={64} className="sm:h-20 sm:w-20" />
-            <Icon name="heart" size={64} className="sm:h-20 sm:w-20" />
-            <Icon name="diamond" size={64} className="sm:h-20 sm:w-20" />
-            <Icon name="club" size={64} className="sm:h-20 sm:w-20" />
-          </div>
-        </div>
-        <div className="relative max-w-2xl">
+        {/* Premium abstract poker sculpture — decorative hero flourish, transparent silhouette
+            grounded on the plum ground with a soft plum drop-shadow (aria-hidden, non-interactive).
+            Hidden on phones to protect hero readability; scales up across tablet → desktop. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/poker-banner.webp"
+          alt=""
+          aria-hidden
+          width={1024}
+          height={1024}
+          draggable={false}
+          className="pointer-events-none absolute right-4 top-5 hidden h-auto w-[150px] select-none object-contain md:block lg:right-6 lg:top-6 lg:w-[208px] xl:right-8 xl:w-[280px]"
+          style={{ opacity: 0.95, filter: 'brightness(0.95) saturate(0.97) drop-shadow(0 12px 26px rgba(27,18,48,0.55))' }}
+        />
+        <div className="relative max-w-2xl md:pr-[152px] lg:pr-0 xl:pr-[72px]">
           <span className="pk-badge pk-badge-onplum">
             <Icon name="coins" size={13} /> {t('landing.responsible')}
           </span>

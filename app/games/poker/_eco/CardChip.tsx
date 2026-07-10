@@ -1,6 +1,6 @@
 import type { Card, Rank, Suit } from '@/lib/games/poker/types'
 import { SUIT_LABEL, isCourtRank, rankLabel, suitColor } from '@/lib/games/poker/cardArt'
-import { SuitPip, CourtFigure } from '../_components/cardArt'
+import { SuitPip, CourtFigure, COURT_INSET } from '../_components/cardArt'
 
 // ── History / replay card face — standard playing-card look ────────────────────────────────────
 // Display-only card used by the hand replay (history page renders in the LIGHT site theme, NOT the
@@ -60,9 +60,15 @@ export function CardChip({ card, size = 'md' }: { card: Card; size?: 'sm' | 'md'
       <span className="absolute z-10 flex flex-col items-center" style={{ top: padY, left: padX }}>
         {index}
       </span>
-      <span className="absolute inset-0 flex items-center justify-center" aria-hidden>
-        {court ? <CourtFigure rank={rank} suit={suit} size={Math.round(w * 0.86)} /> : <SuitPip suit={suit} size={centerSuit} color={color} />}
-      </span>
+      {court ? (
+        <span className="absolute" style={{ inset: COURT_INSET }} aria-hidden>
+          <CourtFigure rank={rank} suit={suit} />
+        </span>
+      ) : (
+        <span className="absolute inset-0 flex items-center justify-center" aria-hidden>
+          <SuitPip suit={suit} size={centerSuit} color={color} />
+        </span>
+      )}
       <span className="absolute z-10 flex rotate-180 flex-col items-center" style={{ bottom: padY, right: padX }}>
         {index}
       </span>

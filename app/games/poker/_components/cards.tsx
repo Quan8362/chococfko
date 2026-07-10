@@ -16,7 +16,7 @@
 
 import type { Card, Rank, Suit } from '@/lib/games/poker/types'
 import { SUIT_LABEL, isCourtRank, rankLabel, suitColor } from '@/lib/games/poker/cardArt'
-import { SuitPip, CourtFigure } from './cardArt'
+import { SuitPip, CourtFigure, COURT_INSET } from './cardArt'
 
 function parseCard(card: Card): { rank: Rank; suit: Suit } {
   return { rank: card[0] as Rank, suit: card[1] as Suit }
@@ -74,9 +74,15 @@ export function PokerCard({ card, w = 52, dim = false, highlight = false, dealt 
       <span className="absolute z-10 flex flex-col items-center leading-[0.82]" style={{ top: padY, left: padX }}>
         {corner}
       </span>
-      <span className="absolute inset-0 flex items-center justify-center" aria-hidden>
-        {court ? <CourtFigure rank={rank} suit={suit} size={Math.round(w * 0.86)} /> : <SuitPip suit={suit} size={centerSuit} color={color} />}
-      </span>
+      {court ? (
+        <span className="absolute" style={{ inset: COURT_INSET }} aria-hidden>
+          <CourtFigure rank={rank} suit={suit} />
+        </span>
+      ) : (
+        <span className="absolute inset-0 flex items-center justify-center" aria-hidden>
+          <SuitPip suit={suit} size={centerSuit} color={color} />
+        </span>
+      )}
       <span className="absolute z-10 flex flex-col items-center leading-[0.82] rotate-180" style={{ bottom: padY, right: padX }}>
         {corner}
       </span>

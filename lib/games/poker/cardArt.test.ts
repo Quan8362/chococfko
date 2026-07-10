@@ -1,14 +1,15 @@
 // Framework-free tests for the shared card art (suit glyphs + JQK court figures).
 // Run with:  node --test lib/games/poker/cardArt.test.ts
 //
-// These lock the STRUCTURE of the art the two React card renderers consume: that Jack, Queen and
-// King each resolve to distinct court figures, that suit colours are correct, and that the geometry
-// is well-formed. They deliberately do NOT touch card values, deck order or privacy.
+// These lock the contract the two React card renderers rely on: correct suit colours, T→10, the
+// court-rank predicate, and — crucially — that J/Q/K resolve to the vendored public-domain figure
+// files that actually exist on disk (so the deck really shows Jack/Queen/King artwork). They
+// deliberately do NOT touch card values, deck order or privacy.
 
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
+import { readFileSync, existsSync } from 'node:fs'
 import { RANKS, SUITS } from './deck.ts'
-import type { CourtRank } from './cardArt.ts'
 import {
   CARD_RED,
   CARD_INK,
@@ -18,7 +19,7 @@ import {
   HEART_PATH,
   SPADE_PATH,
   SUIT_LABEL,
-  courtFigure,
+  courtAssetSrc,
   isCourtRank,
   rankLabel,
   suitColor,
@@ -34,7 +35,7 @@ test('suit colours: hearts & diamonds are red, spades & clubs are ink', () => {
 
 test('every suit has a distinct human label', () => {
   const labels = SUITS.map((s) => SUIT_LABEL[s])
-  assert.deepEqual(new Set(labels).size, SUITS.length)
+  assert.equal(new Set(labels).size, SUITS.length)
 })
 
 test('rankLabel renders T as "10" and leaves other ranks intact', () => {
@@ -53,52 +54,36 @@ test('exactly J, Q, K are court ranks across the whole deck', () => {
   for (const r of ['A', 'T', '2', '9'] as const) assert.equal(isCourtRank(r), false)
 })
 
-test('J → jack, Q → queen, K → king figures', () => {
-  assert.equal(courtFigure('J').kind, 'jack')
-  assert.equal(courtFigure('Q').kind, 'queen')
-  assert.equal(courtFigure('K').kind, 'king')
-})
-
-test('Jack, Queen and King are structurally distinct', () => {
-  const kinds = COURT_RANKS.map((r) => courtFigure(r).kind)
-  assert.equal(new Set(kinds).size, 3)
-  // Distinct silhouettes: pearl/finial circle counts differ (Q crown pearls=3, K crown balls=2,
-  // J cap has none) — a stable, renderer-independent fingerprint that the three figures differ.
-  const circles = (r: CourtRank) => courtFigure(r).shapes.filter((s) => s.tag === 'circle').length
-  assert.equal(circles('Q'), 3)
-  assert.equal(circles('K'), 2)
-  assert.equal(circles('J'), 0)
-})
-
-test('King has a beard, Queen & King wear a crown, Jack wears a gold cap', () => {
-  // Every court figure carries gold headwear (cap or crown).
+test('court asset src maps rank+suit to the correct same-origin figure path', () => {
+  assert.equal(courtAssetSrc('J', 'h'), '/games/tlmn/cards/JH.svg')
+  assert.equal(courtAssetSrc('Q', 'd'), '/games/tlmn/cards/QD.svg')
+  assert.equal(courtAssetSrc('K', 's'), '/games/tlmn/cards/KS.svg')
+  assert.equal(courtAssetSrc('J', 'c'), '/games/tlmn/cards/JC.svg')
+  // Always a project-local path — never an external / hot-linked URL.
   for (const r of COURT_RANKS) {
-    assert.ok(courtFigure(r).shapes.some((s) => s.role === 'gold'), `${r} has gold headwear`)
-  }
-  // The King is the only figure with an outlined hair mass (the full beard) — the mature read.
-  const beardish = (r: CourtRank) => courtFigure(r).shapes.filter((s) => s.role === 'hair' && s.outline).length
-  assert.equal(beardish('K'), 1)
-  assert.equal(beardish('J'), 0)
-})
-
-test('every court figure has a face, a robe and a suit anchor', () => {
-  for (const r of COURT_RANKS) {
-    const f = courtFigure(r)
-    assert.ok(f.shapes.some((s) => s.role === 'skin'), `${r} has a face`)
-    assert.ok(f.shapes.some((s) => s.role === 'robe'), `${r} has a robe`)
-    assert.ok(f.suitAnchor.size > 0, `${r} suit anchor sized`)
-    assert.ok(f.suitAnchor.x > 0 && f.suitAnchor.y > 0, `${r} suit anchor placed`)
+    for (const s of SUITS) {
+      const src = courtAssetSrc(r, s)
+      assert.ok(src.startsWith('/games/tlmn/cards/'), `${r}${s} is same-origin`)
+      assert.ok(!/^https?:/i.test(src), `${r}${s} is not an external URL`)
+    }
   }
 })
 
-test('court geometry is well-formed (paths start with M, circles have radius)', () => {
+test('J, Q and K figures resolve to distinct files, one per rank×suit', () => {
+  const srcs = COURT_RANKS.flatMap((r) => SUITS.map((s) => courtAssetSrc(r, s)))
+  assert.equal(srcs.length, 12)
+  assert.equal(new Set(srcs).size, 12) // Jack ≠ Queen ≠ King, and each suit distinct
+})
+
+test('every vendored court figure file exists and is a real SVG', () => {
   for (const r of COURT_RANKS) {
-    for (const s of courtFigure(r).shapes) {
-      if (s.tag === 'path') {
-        assert.ok(typeof s.d === 'string' && s.d.startsWith('M'), `${r} path starts with M`)
-      } else {
-        assert.ok((s.r ?? 0) > 0, `${r} circle has radius`)
-      }
+    for (const s of SUITS) {
+      // courtAssetSrc is a web path (leading slash) → the file lives under public/.
+      const file = 'public' + courtAssetSrc(r, s)
+      assert.ok(existsSync(file), `${file} exists`)
+      const svg = readFileSync(file, 'utf8')
+      assert.ok(svg.includes('<svg') && svg.includes('</svg>'), `${file} is an SVG`)
+      assert.ok(svg.length > 200, `${file} has real figure content`)
     }
   }
 })

@@ -48,7 +48,7 @@ export default async function PokerRulesPage() {
         subtitle={t('rules.intro')}
       />
 
-      <div className="grid gap-6 lg:grid-cols-[13rem_minmax(0,1fr)]">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[13rem_minmax(0,1fr)]">
         {/* Contents nav */}
         <nav aria-label={t('rules.contents')} className="lg:sticky lg:top-28 lg:self-start">
           <p className="pk-eyebrow mb-2 hidden lg:flex">{t('rules.contents')}</p>

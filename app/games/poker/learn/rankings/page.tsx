@@ -67,13 +67,13 @@ export default async function PokerRankingsPage() {
       </ol>
 
       {/* Special cases — do NOT oversimplify these */}
-      <div className="mt-8 grid gap-4 sm:grid-cols-2">
+      <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <section className="rounded-xl border border-line bg-paper p-5">
           <h2 className="font-serif text-base font-semibold">{t('learn.rankings.kicker_title')}</h2>
           <p className="mt-1 text-sm text-muted">{t('learn.rankings.kicker_desc')}</p>
-          <div className="mt-3 flex items-center gap-3">
+          <div className="mt-3 flex items-center gap-3 overflow-x-auto py-0.5 [&::-webkit-scrollbar]:hidden">
             <Cards cards={KICKER_EXAMPLE.a} w={30} />
-            <span className="text-xs font-semibold uppercase text-rose">{t('learn.rankings.beats')}</span>
+            <span className="shrink-0 text-xs font-semibold uppercase text-rose">{t('learn.rankings.beats')}</span>
             <Cards cards={KICKER_EXAMPLE.b} w={30} />
           </div>
         </section>
@@ -81,7 +81,7 @@ export default async function PokerRankingsPage() {
         <section className="rounded-xl border border-line bg-paper p-5">
           <h2 className="font-serif text-base font-semibold">{t('learn.rankings.wheel_title')}</h2>
           <p className="mt-1 text-sm text-muted">{t('learn.rankings.wheel_desc')}</p>
-          <div className="mt-3">
+          <div className="mt-3 overflow-x-auto py-0.5 [&::-webkit-scrollbar]:hidden">
             <Cards cards={WHEEL_EXAMPLE.cards} w={30} />
           </div>
         </section>
@@ -91,10 +91,12 @@ export default async function PokerRankingsPage() {
           <p className="mt-1 text-sm text-muted">{t('learn.rankings.board_plays_desc')}</p>
           <div className="mt-3">
             <p className="mb-1 text-[11px] uppercase tracking-wide text-muted">{t('learn.training.board')}</p>
-            <Cards cards={BOARD_PLAYS_EXAMPLE.board} w={30} />
-            <div className="mt-2 flex items-center gap-3">
+            <div className="overflow-x-auto py-0.5 [&::-webkit-scrollbar]:hidden">
+              <Cards cards={BOARD_PLAYS_EXAMPLE.board} w={30} />
+            </div>
+            <div className="mt-2 flex items-center gap-3 overflow-x-auto py-0.5 [&::-webkit-scrollbar]:hidden">
               <Cards cards={BOARD_PLAYS_EXAMPLE.holeA} w={26} />
-              <span className="text-xs font-semibold uppercase text-muted">=</span>
+              <span className="shrink-0 text-xs font-semibold uppercase text-muted">=</span>
               <Cards cards={BOARD_PLAYS_EXAMPLE.holeB} w={26} />
             </div>
           </div>
@@ -103,9 +105,9 @@ export default async function PokerRankingsPage() {
         <section className="rounded-xl border border-line bg-paper p-5">
           <h2 className="font-serif text-base font-semibold">{t('learn.rankings.exact_tie_title')}</h2>
           <p className="mt-1 text-sm text-muted">{t('learn.rankings.exact_tie_desc')}</p>
-          <div className="mt-3 flex items-center gap-3">
+          <div className="mt-3 flex items-center gap-3 overflow-x-auto py-0.5 [&::-webkit-scrollbar]:hidden">
             <Cards cards={EXACT_TIE_EXAMPLE.a} w={26} />
-            <span className="text-xs font-semibold uppercase text-muted">=</span>
+            <span className="shrink-0 text-xs font-semibold uppercase text-muted">=</span>
             <Cards cards={EXACT_TIE_EXAMPLE.b} w={26} />
           </div>
         </section>

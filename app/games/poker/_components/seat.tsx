@@ -15,6 +15,7 @@ import type { Card, PokerActionType, SeatStatus } from '@/lib/games/poker/types'
 import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { formatCoinsShort, formatCoinsFull } from '@/lib/game/economy'
+import { avatarSrc, bumpAvatarSize } from '@/lib/avatar'
 import { seatInitials } from '@/lib/games/poker/seatIdentity'
 import { PokerCard, PokerCardBack } from './cards'
 import { PokerChip } from './chips'
@@ -116,12 +117,17 @@ export function PlayerAvatarFrame({
   disconnected?: boolean
 }) {
   const initials = seatInitials(name)
+  // Google / Facebook avatar hosts are blocked when loaded directly (firewall / CSP), so — exactly
+  // like the site-wide UserAvatar — route them through the same-origin /api/avatar proxy and bump
+  // the size token for a crisp retina render. Supabase-hosted avatars go through /api/img; local /
+  // data URLs pass through unchanged. Without this the felt fell back to initials for OAuth photos.
+  const resolvedSrc = avatarSrc(bumpAvatarSize(avatarUrl, size))
   // A stored/OAuth avatar URL can be missing, revoked, or expired. Fall back to initials the
   // instant the image fails to load, and reset the flag whenever the URL changes so a seat reused
   // by a DIFFERENT player never inherits the previous occupant's broken/loaded state (privacy A9).
   const [broken, setBroken] = useState(false)
-  useEffect(() => setBroken(false), [avatarUrl])
-  const showImage = !!avatarUrl && !broken
+  useEffect(() => setBroken(false), [resolvedSrc])
+  const showImage = !!resolvedSrc && !broken
   const ringColor = winner
     ? 'var(--pk-gold-soft)'
     : actor
@@ -145,12 +151,13 @@ export function PlayerAvatarFrame({
       {showImage ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
-          // Key by URL so a new occupant's avatar remounts cleanly (no stale image reuse).
-          key={avatarUrl}
-          src={avatarUrl as string}
+          // Key by src so a new occupant's avatar remounts cleanly (no stale image reuse).
+          key={resolvedSrc}
+          src={resolvedSrc}
           alt={name ?? ''}
           className="w-full h-full object-cover"
           draggable={false}
+          decoding="async"
           referrerPolicy="no-referrer"
           onError={() => setBroken(true)}
         />

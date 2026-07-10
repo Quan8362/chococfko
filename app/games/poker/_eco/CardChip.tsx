@@ -19,10 +19,13 @@ export function CardChip({ card, size = 'md' }: { card: Card; size?: 'sm' | 'md'
   const known = suit === 's' || suit === 'c' || suit === 'd' || suit === 'h'
   const color = suitColor(suit)
 
+  const court = isCourtRank(rank)
   const w = WIDTH[size]
   const h = Math.round(w * 1.4)
   const rankSize = Math.round(w * 0.36)
-  const cornerSuit = Math.round(w * 0.22)
+  // Court cards use a smaller, corner-hugging pip so it clears the framed J/Q/K figure.
+  const cornerSuit = Math.round(w * (court ? 0.16 : 0.22))
+  const cornerAlign = court ? 'items-start' : 'items-center'
   const centerSuit = Math.round(w * 0.52)
   const padX = Math.max(2, Math.round(w * 0.08))
   const padY = Math.max(1, Math.round(w * 0.05))
@@ -40,9 +43,8 @@ export function CardChip({ card, size = 'md' }: { card: Card; size?: 'sm' | 'md'
     )
   }
 
-  const court = isCourtRank(rank)
   const index = (
-    <span className="flex flex-col items-center leading-[0.82]">
+    <span className={`flex flex-col ${cornerAlign} leading-[0.82]`}>
       <span className="font-black" style={{ fontSize: rankSize }}>
         {rankLabel(rank)}
       </span>

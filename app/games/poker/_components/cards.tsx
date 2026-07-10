@@ -40,13 +40,16 @@ export interface PokerCardProps {
 export function PokerCard({ card, w = 52, dim = false, highlight = false, dealt = false, className = '' }: PokerCardProps) {
   const { rank, suit } = parseCard(card)
   const color = suitColor(suit)
+  const court = isCourtRank(rank)
   const h = Math.round(w * 1.4)
   const rankSize = Math.round(w * 0.34)
-  const cornerSuit = Math.round(w * 0.2)
+  // Court cards use a smaller, corner-hugging suit pip (left-aligned under the rank) so the pip
+  // stays clear of the framed J/Q/K illustration; number cards keep the larger centred pip.
+  const cornerSuit = Math.round(w * (court ? 0.15 : 0.2))
+  const cornerAlign = court ? 'items-start' : 'items-center'
   const centerSuit = Math.round(w * 0.5)
   const padX = Math.max(2, Math.round(w * 0.07))
   const padY = Math.max(2, Math.round(w * 0.05))
-  const court = isCourtRank(rank)
   const label = `${rankLabel(rank)} of ${SUIT_LABEL[suit]}`
 
   const corner = (
@@ -71,7 +74,7 @@ export function PokerCard({ card, w = 52, dim = false, highlight = false, dealt 
       ].join(' ')}
       style={{ width: w, height: h, color, borderRadius: 'var(--pk-r-card)', boxShadow: highlight ? undefined : 'var(--pk-shadow-seat)' }}
     >
-      <span className="absolute z-10 flex flex-col items-center leading-[0.82]" style={{ top: padY, left: padX }}>
+      <span className={`absolute z-10 flex flex-col ${cornerAlign} leading-[0.82]`} style={{ top: padY, left: padX }}>
         {corner}
       </span>
       {court ? (
@@ -83,7 +86,7 @@ export function PokerCard({ card, w = 52, dim = false, highlight = false, dealt 
           <SuitPip suit={suit} size={centerSuit} color={color} />
         </span>
       )}
-      <span className="absolute z-10 flex flex-col items-center leading-[0.82] rotate-180" style={{ bottom: padY, right: padX }}>
+      <span className={`absolute z-10 flex flex-col ${cornerAlign} leading-[0.82] rotate-180`} style={{ bottom: padY, right: padX }}>
         {corner}
       </span>
     </span>

@@ -58,6 +58,6 @@ export function CourtFigure({ rank, suit }: { rank: CourtRank; suit: Suit }) {
 }
 
 /** Inset for the court figure inside a card face, so J/Q/K never collide with the corner indices.
- *  Tuned so the figure sits in a clear inner panel with breathing room around the rank letter and
- *  suit pip in every corner (previously 16% 14% let the pip/crown crowd the illustration). */
-export const COURT_INSET = '19% 21%'
+ *  Paired with the smaller, corner-hugging pip the card renderers use for court cards, this keeps a
+ *  clear white gap between the rank/suit index and the framed J/Q/K illustration in every corner. */
+export const COURT_INSET = '16% 24%'

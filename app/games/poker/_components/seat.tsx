@@ -19,7 +19,7 @@ import { avatarSrc, bumpAvatarSize } from '@/lib/avatar'
 import { seatInitials } from '@/lib/games/poker/seatIdentity'
 import { PokerCard, PokerCardBack } from './cards'
 import { PokerChip } from './chips'
-import { DealerButton, SmallBlindBadge, BigBlindBadge, AllInBadge } from './markers'
+import { BigBlindBadge, AllInBadge } from './markers'
 import { TurnTimer } from './TurnTimer'
 
 // Presentation view of a seat — PUBLIC fields (mirror PublicSeat) + presentation-only flags. No
@@ -310,8 +310,8 @@ export function PlayerSeat({
     allIn,
     folded,
     connected = true,
-    isButton,
-    isSmallBlind,
+    // isButton / isSmallBlind remain in PublicSeat state (dealer + blind assignment untouched);
+    // their avatar overlays are intentionally not rendered. Only the big-blind marker is shown.
     isBigBlind,
     isCurrentActor,
     isWinner,
@@ -389,12 +389,15 @@ export function PlayerSeat({
           disconnected={!connected}
         />
 
-        {/* dealer / blind markers — top-right cluster */}
-        <span className="absolute -top-1 -right-2 flex flex-col items-end gap-0.5">
-          {isButton && <DealerButton size={compact ? 20 : 22} />}
-          {isSmallBlind && <SmallBlindBadge size={compact ? 18 : 20} />}
-          {isBigBlind && <BigBlindBadge size={compact ? 18 : 20} />}
-        </span>
+        {/* big-blind marker — top-right. Dealer ("D") and small-blind ("SB") avatar overlays are
+            intentionally omitted (UI declutter); dealer/blind state itself is unchanged. The
+            container renders only when a badge exists, so no empty placeholder or reserved space
+            is left behind. */}
+        {isBigBlind && (
+          <span className="absolute -top-1 -right-2 flex flex-col items-end gap-0.5">
+            <BigBlindBadge size={compact ? 18 : 20} />
+          </span>
+        )}
 
         {/* turn timer — bottom-left of avatar, isolated layer */}
         {showActor && deadline != null && (

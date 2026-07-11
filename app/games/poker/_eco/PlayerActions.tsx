@@ -121,7 +121,7 @@ function ReportDialog({
               placeholder={t('report.note_ph')}
               maxLength={1000}
               rows={3}
-              className="mt-3 w-full rounded-lg border border-line bg-cream px-3 py-2 text-sm outline-none focus:border-rose"
+              className="mt-3 w-full rounded-lg border border-line bg-cream px-3 py-2 text-sm outline-none"
             />
             {result && result !== 'success' && (
               <p className="mt-2 text-sm text-rose">

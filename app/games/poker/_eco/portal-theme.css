@@ -75,7 +75,7 @@
   --pkp-coral-tint: #fbe8e6;
   --pkp-coral-ink: #a5322c;
 
-  --pkp-focus: #2c5fa8;
+  --pkp-focus: #8a6d2c;  /* champagne-bronze keyboard-focus ring — branded, distinct from ruby (selected) & coral (invalid) */
 
   /* ── Radius scale ────────────────────────────────────────────────────────── */
   --pkp-r-sm: 10px;
@@ -115,14 +115,17 @@
 }
 .pk-portal > * { position: relative; z-index: 1; }
 
-/* Keyboard focus — visible ring, never colour-alone (thick, offset). */
+/* Keyboard focus — ONE branded ring for every control. Uses `outline` (not box-shadow) so the ring
+ * follows each element's own border-radius, never clobbers its existing shadow, and never shifts
+ * layout. `:focus-visible` keeps pointer/touch focus ring-free while keyboard users always get a
+ * clear indicator. This is the single source of truth — components must not add competing rings. */
 .pk-portal :focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 2px var(--pkp-surface), 0 0 0 4px var(--pkp-focus);
-  border-radius: 8px;
+  outline: 2px solid var(--pkp-focus);
+  outline-offset: 2px;
 }
+/* On dark plum surfaces the champagne-gold ring reads with high contrast. */
 .pk-portal-on-plum :focus-visible {
-  box-shadow: 0 0 0 2px var(--pkp-plum), 0 0 0 4px var(--pkp-gold-soft);
+  outline-color: var(--pkp-gold-soft);
 }
 
 /* ── Sticky top bar ────────────────────────────────────────────────────────── */
@@ -315,7 +318,13 @@
   transition: border-color 140ms ease, box-shadow 140ms ease;
 }
 .pk-input::placeholder { color: var(--pkp-ink-3); }
-.pk-input:focus { border-color: var(--pkp-gold); }
+/* Focus is signalled by the shared branded :focus-visible ring only — no border-colour change here,
+ * so the input never shows a second, competing border on top of the ring. */
+/* Invalid — only for genuinely invalid data (pair with aria-invalid + a message). Coral is visually
+ * distinct from the gold focus ring and the ruby selected state; the ring also turns coral so the
+ * two signals never disagree. */
+.pk-input[aria-invalid='true'] { border-color: var(--pkp-coral); }
+.pk-input[aria-invalid='true']:focus-visible { outline-color: var(--pkp-coral); }
 
 /* ── Search field ──────────────────────────────────────────────────────────── */
 /* The input padding uses a descendant selector so it always wins over `.pk-input`'s
@@ -359,7 +368,8 @@
   font-weight: 600;
   font-size: 0.9rem;
   cursor: pointer;
-  transition: all 140ms ease;
+  /* Explicit list (not `all`) so the shared :focus-visible outline snaps in crisply, never animates. */
+  transition: border-color 140ms ease, background 140ms ease, color 140ms ease, box-shadow 140ms ease;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -379,7 +389,8 @@
   background: var(--pkp-surface);
   padding: 0.85rem;
   cursor: pointer;
-  transition: all 140ms ease;
+  /* Explicit list (not `all`) so the shared :focus-visible outline snaps in crisply, never animates. */
+  transition: border-color 140ms ease, background 140ms ease, color 140ms ease, box-shadow 140ms ease;
 }
 .pk-option:hover { border-color: var(--pkp-gold); }
 .pk-option[data-active='true'] {

@@ -51,7 +51,7 @@
   --pk-allin: #d99836;
   --pk-fold: #6e6258;
   --pk-disconnected: #9d2b3f;
-  --pk-focus: #7fb0e6;
+  --pk-focus: #e6cf95;  /* champagne-gold keyboard-focus ring (matches the brand; high contrast on the dark felt) */
 
   /* radius / elevation */
   --pk-r-card: 8px;
@@ -80,12 +80,11 @@
   font-variant-numeric: lining-nums tabular-nums;
 }
 
-/* Champagne-gold focus ring — visible on the dark felt, never relies on colour alone (it is a
- * thick, offset ring). Keyboard focus only. */
+/* Champagne-gold focus ring — visible on the dark felt, never relies on colour alone. Uses `outline`
+ * so it follows each control's own radius and keeps the control's existing shadow. Keyboard focus only. */
 .poker-root :focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 2px var(--pk-bg-base), 0 0 0 4px var(--pk-focus);
-  border-radius: 6px;
+  outline: 2px solid var(--pk-focus);
+  outline-offset: 2px;
 }
 
 /* A subtle legibility scrim helper for text over the busy felt (visual-spec §6 contrast). */

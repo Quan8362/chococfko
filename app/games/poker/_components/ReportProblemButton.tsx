@@ -239,7 +239,7 @@ export default function ReportProblemButton({ context, variant = 'floating', cla
                     {reportKind === 'ux_feedback' ? t('field_description_ux') : t('field_description')} *
                   </span>
                   <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3}
-                    className="mt-1 w-full rounded-lg border border-line bg-cream/40 p-2 text-[14px] outline-none focus:border-rose"
+                    className="mt-1 w-full rounded-lg border border-line bg-cream/40 p-2 text-[14px] outline-none"
                     placeholder={reportKind === 'ux_feedback' ? t('ph_description_ux') : t('ph_description')} maxLength={4000} />
                 </label>
 
@@ -247,13 +247,13 @@ export default function ReportProblemButton({ context, variant = 'floating', cla
                   <label className="block">
                     <span className="text-[12px] font-medium text-ink">{t('field_expected')}</span>
                     <textarea value={expected} onChange={(e) => setExpected(e.target.value)} rows={2}
-                      className="mt-1 w-full rounded-lg border border-line bg-cream/40 p-2 text-[13px] outline-none focus:border-rose"
+                      className="mt-1 w-full rounded-lg border border-line bg-cream/40 p-2 text-[13px] outline-none"
                       placeholder={t('ph_expected')} maxLength={2000} />
                   </label>
                   <label className="block">
                     <span className="text-[12px] font-medium text-ink">{t('field_actual')}</span>
                     <textarea value={actual} onChange={(e) => setActual(e.target.value)} rows={2}
-                      className="mt-1 w-full rounded-lg border border-line bg-cream/40 p-2 text-[13px] outline-none focus:border-rose"
+                      className="mt-1 w-full rounded-lg border border-line bg-cream/40 p-2 text-[13px] outline-none"
                       placeholder={t('ph_actual')} maxLength={2000} />
                   </label>
                 </div>
@@ -262,7 +262,7 @@ export default function ReportProblemButton({ context, variant = 'floating', cla
                   <label className="block">
                     <span className="text-[12px] font-medium text-ink">{t('field_category')}</span>
                     <select value={feedbackCategory} onChange={(e) => setFeedbackCategory(e.target.value as BetaFeedbackCategory)}
-                      className="mt-1 w-full rounded-lg border border-line bg-cream/40 p-2 text-[13px] outline-none focus:border-rose">
+                      className="mt-1 w-full rounded-lg border border-line bg-cream/40 p-2 text-[13px] outline-none">
                       {BETA_FEEDBACK_CATEGORIES.map((c) => (
                         <option key={c} value={c}>{t(`feedback_category.${c}`)}</option>
                       ))}
@@ -275,7 +275,7 @@ export default function ReportProblemButton({ context, variant = 'floating', cla
                     <label className="block">
                       <span className="text-[12px] font-medium text-ink">{t('field_ux_category')}</span>
                       <select value={uxCategory} onChange={(e) => setUxCategory(e.target.value as UxCategory)}
-                        className="mt-1 w-full rounded-lg border border-line bg-cream/40 p-2 text-[13px] outline-none focus:border-rose">
+                        className="mt-1 w-full rounded-lg border border-line bg-cream/40 p-2 text-[13px] outline-none">
                         {UX_CATEGORIES.map((c) => (
                           <option key={c} value={c}>{t(`ux_category.${c}`)}</option>
                         ))}
@@ -285,7 +285,7 @@ export default function ReportProblemButton({ context, variant = 'floating', cla
                     <label className="block">
                       <span className="text-[12px] font-medium text-ink">{t('field_severity')}</span>
                       <select value={severity} onChange={(e) => setSeverity(e.target.value as BugSeverity)}
-                        className="mt-1 w-full rounded-lg border border-line bg-cream/40 p-2 text-[13px] outline-none focus:border-rose">
+                        className="mt-1 w-full rounded-lg border border-line bg-cream/40 p-2 text-[13px] outline-none">
                         {BUG_SEVERITIES.map((s) => (
                           <option key={s} value={s}>{t(`severity.${s}`)}</option>
                         ))}
@@ -295,7 +295,7 @@ export default function ReportProblemButton({ context, variant = 'floating', cla
                   <label className="block">
                     <span className="text-[12px] font-medium text-ink">{t('field_screenshot')}</span>
                     <input type="url" value={screenshotUrl} onChange={(e) => setScreenshotUrl(e.target.value)}
-                      className="mt-1 w-full rounded-lg border border-line bg-cream/40 p-2 text-[13px] outline-none focus:border-rose"
+                      className="mt-1 w-full rounded-lg border border-line bg-cream/40 p-2 text-[13px] outline-none"
                       placeholder={t('ph_screenshot')} maxLength={2000} />
                   </label>
                 </div>

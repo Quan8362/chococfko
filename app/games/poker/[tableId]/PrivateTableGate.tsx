@@ -42,7 +42,7 @@ export default function PrivateTableGate({ tableId, tableName }: { tableId: stri
           onChange={(e) => setPassword(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && password && submit()}
           placeholder={t('join.password_ph')}
-          className="mt-3 w-full rounded-lg border border-line bg-cream px-3 py-2 outline-none focus:border-rose"
+          className="mt-3 w-full rounded-lg border border-line bg-cream px-3 py-2 outline-none focus-visible:border-rose focus-visible:ring-2 focus-visible:ring-rose/25"
         />
         {error && (
           <p className="mt-2 text-sm text-rose">

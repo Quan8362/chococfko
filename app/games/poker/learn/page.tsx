@@ -66,15 +66,10 @@ export default async function PokerLearnPage() {
       <section className="mt-8">
         <SectionTitle icon="layers" tone="violet">{t('nav.learn')}</SectionTitle>
         <div className="grid gap-3 sm:grid-cols-2">
-          {surfaces.map((sf, i) => (
+          {surfaces.map((sf) => (
             <Link key={sf.href} href={sf.href} className="pk-card group flex items-start gap-4 p-5">
-              <span className="relative shrink-0">
-                <span className={`pk-ichip pk-ichip-${sf.tone} flex h-11 w-11`}>
-                  <Icon name={sf.icon} size={22} />
-                </span>
-                <span className="absolute -left-1.5 -top-1.5 grid h-5 w-5 place-items-center rounded-full bg-[color:var(--pkp-plum)] font-serif text-[11px] font-bold text-[color:var(--pkp-gold-soft)]" aria-hidden>
-                  {i + 1}
-                </span>
+              <span className={`pk-ichip pk-ichip-${sf.tone} flex h-11 w-11 shrink-0`}>
+                <Icon name={sf.icon} size={22} />
               </span>
               <span className="min-w-0 flex-1">
                 <span className="flex items-center gap-2">

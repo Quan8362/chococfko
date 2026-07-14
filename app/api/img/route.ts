@@ -58,13 +58,27 @@ export async function GET(req: NextRequest) {
       const { buffer, contentType } = await watermarkImage(input, upstreamType)
       return new Response(new Uint8Array(buffer), {
         status: 200,
-        headers: { 'Content-Type': contentType, ...cacheHeaders },
+        headers: {
+          'Content-Type': contentType,
+          'Content-Length': String(buffer.byteLength),
+          ...cacheHeaders,
+        },
       })
     }
 
-    return new Response(upstream.body, {
+    // Buffer the upstream body and send an explicit Content-Length. Streaming
+    // `upstream.body` here emits a chunked response with no Content-Length, which
+    // Next.js/Vercel Image Optimization (/_next/image) rejects with a 404 — so
+    // every proxied image wrapped in next/image broke. A finite, sized body lets
+    // the optimizer fetch and resize it normally.
+    const bytes = new Uint8Array(await upstream.arrayBuffer())
+    return new Response(bytes, {
       status: 200,
-      headers: { 'Content-Type': upstreamType, ...cacheHeaders },
+      headers: {
+        'Content-Type': upstreamType,
+        'Content-Length': String(bytes.byteLength),
+        ...cacheHeaders,
+      },
     })
   } catch {
     return new Response('fetch failed', { status: 502 })

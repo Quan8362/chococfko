@@ -97,6 +97,12 @@ const nextConfig = {
   },
   generateBuildId: async () => BUILD_ID,
   images: {
+    // Vercel Hobby's Image Optimization quota (5K transformations/mo) is easily
+    // blown by user-uploaded gallery/place photos, and once exceeded the optimizer
+    // returns 404 for every not-yet-cached image → site-wide broken images. Serve
+    // images unoptimized (plain <img src>) so rendering never depends on that quota.
+    // Upload-time compression (lib/imageCompress) keeps the source files small.
+    unoptimized: true,
     remotePatterns: [
       { protocol: 'https', hostname: 'loremflickr.com' },
       { protocol: 'https', hostname: 'picsum.photos' },

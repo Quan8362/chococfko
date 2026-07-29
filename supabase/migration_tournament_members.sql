@@ -155,8 +155,10 @@ GRANT ALL PRIVILEGES ON public.tournament_members TO service_role;
 REVOKE ALL ON public.tournament_members FROM anon;
 REVOKE INSERT, UPDATE, DELETE, TRUNCATE ON public.tournament_members FROM authenticated;
 
--- Claim RPC: authenticated only (never anon / never PUBLIC).
-REVOKE ALL ON FUNCTION public.tournament_claim_member_invitations() FROM PUBLIC;
+-- Claim RPC: authenticated only (never anon / never PUBLIC). NOTE: on Supabase a new function is
+-- default-privilege-granted EXECUTE to anon/authenticated, so revoking PUBLIC alone is NOT enough —
+-- anon retains the explicit default grant. Revoke anon explicitly (mirrors the table grants above).
+REVOKE ALL ON FUNCTION public.tournament_claim_member_invitations() FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.tournament_claim_member_invitations() TO authenticated, service_role;
 
 NOTIFY pgrst, 'reload schema';

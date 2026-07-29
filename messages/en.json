@@ -98,7 +98,8 @@
     "place_categories": "Place categories",
     "todays_suggestion": "Today’s suggestion",
     "about": "About",
-    "tournaments": "Tournaments"
+    "tournaments": "Tournaments",
+    "manage_tournaments": "Manage tournaments"
   },
   "home": {
     "write_cta": "✍️ Write a post",
@@ -6959,7 +6960,8 @@
       "disconnected": "Disconnected",
       "reconnecting": "Reconnecting",
       "refresh": "Refresh"
-    }
+    },
+    "scorekeeper_waiting": "Nothing to score yet. Check back once matches begin."
   },
   "admin_connection_status": {
     "data_changed": "Data changed elsewhere. Reload to see the latest.",
@@ -7013,5 +7015,60 @@
     "err_unknown": "Something went wrong. Please try again.",
     "err_confirmation_required": "Please type RESET exactly to confirm.",
     "err_no_change": "The winner did not change — use a normal correction."
+  },
+  "tournament_management": {
+    "list_title": "Manage tournaments",
+    "list_sub_admin": "Every tournament on the platform.",
+    "list_sub_scoped": "Tournaments you are assigned to manage.",
+    "empty_title": "No tournaments yet",
+    "empty_sub_admin": "Create the first tournament to get started.",
+    "empty_sub_scoped": "You have not been assigned to manage any tournament yet. Please contact an administrator.",
+    "back_list": "Tournament list",
+    "you_are_site_admin": "Site Admin",
+    "you_are_manager": "Manager",
+    "you_are_scorekeeper": "Scorekeeper"
+  },
+  "tournament_roles": {
+    "role_site_admin": "Site Admin",
+    "role_manager": "Manager",
+    "role_scorekeeper": "Scorekeeper"
+  },
+  "tournament_members": {
+    "section_title": "Management members",
+    "section_hint": "Invite managers or scorekeepers for this tournament. Only Site Admins see this area.",
+    "email_label": "Email",
+    "email_placeholder": "name@email.com",
+    "role_label": "Role",
+    "invite_cta": "Invite",
+    "working": "Working…",
+    "invited_ok": "Invitation sent.",
+    "role_changed_ok": "Role updated.",
+    "revoked_ok": "Access revoked.",
+    "col_member": "Member",
+    "col_role": "Role",
+    "col_status": "Status",
+    "col_invited": "Invited",
+    "col_accepted": "Accepted",
+    "col_actions": "Actions",
+    "empty": "No members yet.",
+    "revoke": "Revoke",
+    "reinvite": "Re-invite",
+    "cancel": "Cancel",
+    "confirm_revoke_title": "Revoke management access?",
+    "confirm_revoke_desc": "Revoke access for {email}. They lose access on their next check.",
+    "status_pending": "Pending",
+    "status_active": "Active",
+    "status_revoked": "Revoked",
+    "err_NOT_AUTHENTICATED": "Please sign in.",
+    "err_FORBIDDEN": "You do not have permission to do that.",
+    "err_INVALID_ROLE": "Invalid role.",
+    "err_INVALID_PERMISSION": "Invalid permission.",
+    "err_invalid": "Invalid data.",
+    "err_invalid_email": "Invalid email.",
+    "err_invalid_role": "Invalid role.",
+    "err_not_found": "Not found.",
+    "err_already_active": "This email is already an active member.",
+    "err_version_conflict": "The data just changed. Please reload.",
+    "err_unknown": "Something went wrong. Please try again."
   }
 }

@@ -39,17 +39,17 @@ test('actions.ts is a server module and defines every event + competitor action'
 
 test('every exported mutation checks admin BEFORE touching the service-role client', () => {
   const src = read(ACTIONS)
-  const firstCheck = src.indexOf('checkIsAdmin')
+  const firstCheck = src.indexOf('checkTournamentPermission')
   const firstAdminClient = src.indexOf('createAdminClient(')
   assert.ok(firstCheck > -1 && firstAdminClient > -1)
-  assert.ok(firstCheck < firstAdminClient, 'checkIsAdmin must precede createAdminClient()')
+  assert.ok(firstCheck < firstAdminClient, 'a permission guard must precede createAdminClient()')
 
-  // Per-action: checkIsAdmin must appear near the top of each exported action body.
+  // Per-action: a scoped permission guard (may()) must appear near the top of each action body.
   for (const name of [...EVENT_ACTIONS, ...COMPETITOR_ACTIONS]) {
     const fnStart = src.indexOf(`export async function ${name}`)
     assert.ok(fnStart > -1, `function ${name} not found`)
     const body = src.slice(fnStart, fnStart + 300)
-    assert.ok(body.includes('checkIsAdmin'), `${name} must call checkIsAdmin near the top`)
+    assert.ok(body.includes('may('), `${name} must guard with a scoped permission via may()`)
     assert.ok(body.includes("error: 'forbidden'"), `${name} must reject non-admins with forbidden`)
   }
 })

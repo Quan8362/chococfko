@@ -39,7 +39,7 @@ test('every knockout action checks admin BEFORE the service-role client and reje
   const src = read(ACTIONS)
   for (const name of KNOCKOUT_ACTIONS) {
     const body = actionBody(src, name).slice(0, 420)
-    assert.ok(body.includes('checkIsAdmin'), `${name} must call checkIsAdmin near the top`)
+    assert.ok(body.includes('may('), `${name} must guard with a scoped permission via may()`)
     assert.ok(body.includes("error: 'forbidden'"), `${name} must reject non-admins with forbidden`)
   }
 })

@@ -32,21 +32,31 @@ test('actions.ts is a server module and defines every admin action', () => {
   }
 })
 
-test('every mutation checks admin BEFORE touching the service-role client', () => {
+test('every mutation checks a permission BEFORE touching the service-role client', () => {
   const src = read(ACTIONS)
-  // Module-level: the first admin check must appear before the first service-role client use.
-  const firstCheck = src.indexOf('checkIsAdmin')
+  // 15B-2: guards are now SCOPED — Site Admin OR the tournament's manager/scorekeeper. The `may`
+  // helper wraps checkTournamentPermission; createTournament stays Site-Admin-only (checkIsAdmin).
+  // Module-level: the first permission guard must appear before the first service-role client use.
+  const firstCheck = Math.min(
+    ...[src.indexOf('checkTournamentPermission'), src.indexOf('checkIsAdmin')].filter((i) => i > -1),
+  )
   const firstAdminClient = src.indexOf('createAdminClient(')
-  assert.ok(firstCheck > -1, 'checkIsAdmin not used')
+  assert.ok(Number.isFinite(firstCheck), 'no permission guard used')
   assert.ok(firstAdminClient > -1, 'createAdminClient not used')
-  assert.ok(firstCheck < firstAdminClient, 'checkIsAdmin must precede createAdminClient()')
+  assert.ok(firstCheck < firstAdminClient, 'a permission guard must precede createAdminClient()')
 
-  // Per-action: the transitionStatus helper covers publish/archive; the other three guard inline.
-  for (const name of ['createTournament', 'updateTournament', 'deleteDraftTournament', 'transitionStatus']) {
+  // Per-action: create is Site-Admin-only; the rest guard on a scoped permission via `may(`.
+  const guarded: Record<string, string> = {
+    createTournament: 'checkIsAdmin',
+    updateTournament: "may(id, 'tournament.update')",
+    deleteDraftTournament: "may(id, 'tournament.delete')",
+    transitionStatus: 'may(id, opts.permission)',
+  }
+  for (const [name, needle] of Object.entries(guarded)) {
     const fnStart = src.indexOf(`function ${name}`)
     assert.ok(fnStart > -1, `function ${name} not found`)
     const body = src.slice(fnStart, fnStart + 400)
-    assert.ok(body.includes('checkIsAdmin'), `${name} must call checkIsAdmin near the top`)
+    assert.ok(body.includes(needle), `${name} must guard with ${needle}`)
   }
 })
 

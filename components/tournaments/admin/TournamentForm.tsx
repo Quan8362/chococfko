@@ -46,7 +46,14 @@ const Field = (props: React.InputHTMLAttributes<HTMLInputElement>) => (
   />
 )
 
-export default function TournamentForm({ initial }: { initial?: TournamentFormInitial }) {
+export default function TournamentForm({
+  initial,
+  basePath = '/admin/giai-dau',
+}: {
+  initial?: TournamentFormInitial
+  // Route prefix the workspace is mounted under (legacy admin vs scoped management surface).
+  basePath?: string
+}) {
   const t = useTranslations('admin_tournaments')
   const router = useRouter()
   const [pending, startTransition] = useTransition()
@@ -97,7 +104,7 @@ export default function TournamentForm({ initial }: { initial?: TournamentFormIn
         ? await updateTournament(initial.id, initial.updatedAt, values)
         : await createTournament(values)
       if (res.ok) {
-        router.push(`/admin/giai-dau/${res.id}`)
+        router.push(`${basePath}/${res.id}`)
         router.refresh()
         return
       }

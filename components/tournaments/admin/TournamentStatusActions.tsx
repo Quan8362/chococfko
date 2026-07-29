@@ -22,12 +22,19 @@ export default function TournamentStatusActions({
   eventCount,
   updatedAt,
   variant = 'list',
+  basePath = '/admin/giai-dau',
+  caps = { publish: true, archive: true, delete: true },
 }: {
   id: string
   status: TournamentStatus
   eventCount: number
   updatedAt: string
   variant?: 'list' | 'detail'
+  // Route prefix the workspace is mounted under (legacy admin vs scoped management surface).
+  basePath?: string
+  // Convenience UI gating — which status actions the viewer may perform. The server re-checks every
+  // mutation (tournament.publish / .archive / .delete); hiding a button is never the security gate.
+  caps?: { publish?: boolean; archive?: boolean; delete?: boolean }
 }) {
   const t = useTranslations('admin_tournaments')
   const router = useRouter()
@@ -71,14 +78,15 @@ export default function TournamentStatusActions({
     }
     run(() => deleteDraftTournament(id, updatedAt), () => {
       // The tournament no longer exists → the detail page would 404. Return to the list.
-      router.push('/admin/giai-dau')
+      router.push(basePath)
       router.refresh()
     })
   }
 
-  const canPublish = status === 'draft'
-  const canArchive = status === 'draft' || status === 'published' || status === 'completed'
-  const canDelete = status === 'draft'
+  const canPublish = status === 'draft' && caps.publish !== false
+  const canArchive =
+    (status === 'draft' || status === 'published' || status === 'completed') && caps.archive !== false
+  const canDelete = status === 'draft' && caps.delete !== false
 
   return (
     <>

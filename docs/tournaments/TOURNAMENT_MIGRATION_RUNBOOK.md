@@ -29,8 +29,9 @@ strict dependency chain:
 | 6 | `supabase/migration_tournament_reset_path.sql` | `tournament_reset_bracket_complete`, `tournament_reset_knockout_path`, **+ adds the 11 tables to the `supabase_realtime` publication** | core, scoring, knockout_bracket, group_knockout |
 | 7 | `supabase/migration_tournament_public_privacy.sql` | **Privacy fix (Prompt 14B).** `tournament_public_qualification_overrides(uuid)` public-safe projection RPC; **REVOKE SELECT** on `tournament_qualification_overrides` from anon/authenticated; **DROP** the `tqo_public_select` policy | core, scoring |
 | 8 | `supabase/migration_tournament_rule_engine.sql` | **Rule engine (Prompt 15A-2).** `tournament_rule_presets` + `tournament_event_rule_snapshots` tables (RLS admin-only, no public read), `tournament_public_event_rule_summary(uuid)` public-safe scoring-summary RPC, updated_at/version-bump triggers, indexes, grants | core |
+| 9 | `supabase/migration_tournament_members.sql` | **Membership & scoped permissions (Prompt 15B-1).** `tournament_members` table (RLS: no anon, authenticated self-read only, service-role writes), `tournament_claim_member_invitations()` `SECURITY DEFINER` claim RPC (auth.uid()+JWT email), updated_at/version-bump triggers, indexes, grants | core |
 
-Each rollback file is `..._rollback.sql` next to its migration. Roll back in **reverse** order (8 → 1).
+Each rollback file is `..._rollback.sql` next to its migration. Roll back in **reverse** order (9 → 1).
 
 > **Migration 8 is a separate branch (`feat/tournament-rules-fjp-2026`), NOT part of the pending
 > `feat/tournament-system` production deploy.** It is authored + locally-gated only. Apply it to
@@ -323,6 +324,46 @@ Verified 2026-07-29 on the local Supabase stack (all green):
 
 ---
 
+## 6c. Membership & scoped permissions — apply & local gate (migration #9, Prompt 15B-1)
+
+Membership lives on branch `feat/tournament-rules-fjp-2026`, after the rule engine (#8). It lets a few
+people manage **specific** tournaments without being global Site Admins. Site Admin remains
+`ADMIN_EMAILS`-only; it is **never** stored as a membership row.
+
+### Exact order
+```
+migration_tournament_members.sql              # after migration_tournament_rule_engine.sql (#8)
+```
+Rollback (reverse): `migration_tournament_members_rollback.sql` (drops the table **CASCADE** + the
+claim RPC — safe only while it holds no data you need). It does not touch migrations 1–8.
+
+### RLS / security
+- `tournament_members`: RLS enabled; **no anon** policy at all. Authenticated may `SELECT` **only their
+  own** rows (`tmem_self_select`, `user_id = auth.uid()`); one `tmem_service_all` policy for the
+  backend. `GRANT SELECT` to authenticated, `REVOKE INSERT/UPDATE/DELETE`; `REVOKE ALL FROM anon`.
+- Every admin write (invite / change-role / revoke) goes through the **service-role** client, after
+  `checkTournamentPermission(..., 'members.manage')` (Site Admin only in 15B-1).
+- The only thing an ordinary authenticated user can do is **claim** invitations for their **own**
+  verified email, via `tournament_claim_member_invitations()` (`SECURITY DEFINER`, pinned
+  `search_path=public, pg_temp`, `authenticated`-only; identity = `auth.uid()` + JWT email, never a
+  client argument). Revoked invitations are never claimed.
+
+### Local gate (WSL2 + Docker; local ONLY — never production, per §3)
+1. Migrations 1–8 already applied; no `tournament_members` table → clean start for #9.
+2. Apply `migration_tournament_members.sql` → **idempotent reapply** (both exit 0).
+3. Run `supabase/tournament_members_tests.sql` → `ALL ASSERTIONS PASSED`.
+4. Run the full tournament SQL harness (all files) → all pass (no regression from #9).
+5. Rollback `migration_tournament_members_rollback.sql` → 0 membership tables + claim RPC gone.
+6. Reapply → 7. Retest → `ALL ASSERTIONS PASSED`.
+8. Verify RLS (`true`), policies (`tmem_self_select` + `tmem_service_all`), anon base SELECT (`false`),
+   authenticated base SELECT (`true`) / INSERT (`false`), claim RPC EXECUTE (authenticated `true`, anon
+   `false`, `prosecdef true`), indexes (`tmem_*`).
+
+> Do **not** run `tournament_members_tests.sql` against production (it inserts-and-`ROLLBACK`s and
+> creates `auth.users` fixtures). Production verification stays read-only.
+
+---
+
 ## 7. What operators need to know
 
 - The module is **admin-authored**: only emails in `ADMIN_EMAILS` can create/edit/publish tournaments.
@@ -331,3 +372,15 @@ Verified 2026-07-29 on the local Supabase stack (all green):
 - All writes go through **service-role RPCs** guarded by `checkIsAdmin()` in server actions; anon and
   authenticated roles have **no** EXECUTE on any mutating tournament RPC.
 - The audit log is **service-role only** and is never exposed to the public read model or realtime.
+
+---
+
+## Prompt 15B-2 — no new migration (routes/UI only)
+
+15B-2 adds the scoped management surface (`/quan-ly-giai-dau`), member-management UI, the invitation
+claim flow and the action-guard refactor. It introduces **NO new SQL** — it relies entirely on
+migration **#9 `tournament_members`** shipped in 15B-1 (see §0/§6c). Deploy order is unchanged:
+apply migrations #1–#9 in the Supabase SQL Editor (operator-gated) BEFORE the app that reads them.
+The scoped routes fail closed if `tournament_members` is absent (capability resolution returns no
+membership → `notFound()`), so a code deploy ahead of the migration degrades safely for scoped users
+while Site Admins keep working.

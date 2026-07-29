@@ -131,3 +131,30 @@ Re-enter the corrected score and let the bracket/podium recompute.
 - Data model, formats, and algorithms: `TOURNAMENT_SYSTEM_DESIGN.md`.
 - Applying the database in production: `TOURNAMENT_MIGRATION_RUNBOOK.md`.
 - Test coverage and gate status: `TOURNAMENT_TEST_REPORT.md`.
+
+---
+
+## Scoped management surface (`/quan-ly-giai-dau`) — Prompt 15B-2
+
+`/quan-ly-giai-dau` is the shared management surface for **Site Admins, managers and scorekeepers**.
+It reuses the same workspace as `/admin/giai-dau` but is scoped by membership, so a person can manage
+specific tournaments without being a global Site Admin.
+
+**Roles**
+- **Site Admin** (`ADMIN_EMAILS`, e.g. `chococfko@gmail.com`): everything — create tournaments,
+  manage members, and hard-delete drafts.
+- **Manager**: run a tournament — update/publish/archive, events, competitors, groups, brackets,
+  scores, tie overrides. Cannot manage members or hard-delete, and cannot create tournaments.
+- **Scorekeeper**: view + record scores only. The event workspace collapses to a score-only view.
+
+**Inviting a manager/scorekeeper (Site Admin)**
+1. Open the tournament at `/quan-ly-giai-dau/<id>` → “Thành viên quản lý”.
+2. Enter the person's email, pick a role, press *Mời*. A PENDING invitation is created (no email is
+   sent yet — 15B-2 does not include delivery).
+3. The invitee signs in with that email and visits `/quan-ly-giai-dau`; the invitation is claimed
+   automatically (verified JWT email) and the tournament appears in their list.
+4. Change a role with the row's role select; **Thu hồi** revokes access (effective on their next
+   check); a revoked email can be **Mời lại** (re-invited).
+
+**Navigation**: the “Quản lý giải đấu” menu entry appears for Site Admins and for anyone with at
+least one active membership. Managers/scorekeepers never see the `/admin` area.

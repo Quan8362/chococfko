@@ -984,4 +984,159 @@ and were not invented.
 scoring integration behind the snapshot, competitor-composition persistence, handicap runtime numbers,
 and the **production** migration + deploy (operator-gated; see the runbook §6b).
 
+## 24. Prompt 15B-1 — Membership & scoped permissions (migration #9; branch `feat/tournament-rules-fjp-2026`)
+
+Lets a small set of people (4–5) MANAGE **specific** tournaments **without** being global Site
+Admins. DB + permission engine + server security only — no route/UI (that is 15B-2).
+
+### 24.1 Site Admin ≠ Tournament Manager
+- **Global Site Admin** = `ADMIN_EMAILS` only (`chococfko@gmail.com`). Resolved per-request by
+  `checkIsAdmin()`; **never** stored as a membership row. A Site Admin holds **every** permission on
+  **every** tournament and needs no membership.
+- **Scoped roles** live in `tournament_members.role` and apply to **one** tournament: `manager`,
+  `scorekeeper`. There is intentionally **no** `admin` membership role.
+
+### 24.2 Permission matrix
+Typed tokens (`lib/tournaments/permissions/types.ts`): `tournament.view/update/publish/archive`,
+`event.manage`, `competitor.manage`, `group.manage`, `bracket.manage`, `rules.manage`, `score.manage`,
+`tie.manage`, `members.manage`, `tournament.delete`. The role→permission table is the **single**
+source of truth (`lib/tournaments/permissions/roles.ts`); code never gates on a broad boolean like
+`isTournamentManager`.
+
+| Permission | Site Admin | Manager | Scorekeeper |
+|---|:--:|:--:|:--:|
+| tournament.view | ✅ | ✅ | ✅ |
+| tournament.update / publish / archive | ✅ | ✅ | ❌ |
+| event / competitor / group / bracket / rules / tie `.manage` | ✅ | ✅ | ❌ |
+| score.manage | ✅ | ✅ | ✅ |
+| members.manage | ✅ | ❌ | ❌ |
+| tournament.delete | ✅ | ❌ | ❌ |
+
+Only an **ACTIVE** membership confers anything; `pending`/`revoked` grant nothing (status gate lives
+in the pure `check.ts`, not the caller).
+
+### 24.3 Server checker order (`lib/tournaments/permissions/server.ts`)
+`checkTournamentPermission(tournamentId, permission)`:
+1. authenticate (`createClient().auth.getUser()`);
+2. resolve Site Admin (`checkIsAdmin()`) → **allow-all short-circuit** (no membership read, no admin
+   client);
+3. else resolve **this tournament's** active membership via the service-role client, filtered by
+   `(tournament_id, user_id)` → cross-tournament IDOR impossible;
+4. apply the pure `subjectCan()`; missing → **typed denial** (`FORBIDDEN` / `NOT_AUTHENTICATED`).
+Mutations create their service-role client **only after** `ok: true`. Defends against
+cross-tournament IDOR, pending/revoked grants, client-forged role/status/user id, and a membership in
+a different tournament satisfying the check.
+
+### 24.4 Invite / claim / revoke flow
+- **Invite** (Site Admin, `members.manage`): server normalizes the email (lowercase+trim, shape
+  check), creates a **pending** row keyed by `(tournament_id, email_normalized)`; **never** trusts a
+  client `user_id`. Re-inviting a `pending`/`revoked` email re-opens that same row.
+- **Claim** (invitee, on sign-in): `tournament_claim_member_invitations()` — `SECURITY DEFINER`,
+  pinned `search_path`, `authenticated`-only. Identity is the caller's **own** `auth.uid()` + verified
+  JWT email; it binds every `pending` invitation matching that email → `active` (sets `user_id`,
+  `accepted_at`) and writes a `tournament_member_claimed` audit row. A user can therefore only claim
+  invitations addressed to **their own** email; `revoked` rows are never claimed.
+- **Change role / revoke** (Site Admin): guarded service-role UPDATE scoped to `(id, tournament_id)`
+  with optimistic-concurrency on `version`.
+
+Service contracts: `lib/tournaments/members/service.ts` — `inviteTournamentMember`,
+`changeTournamentMemberRole`, `revokeTournamentMember`, `claimCurrentUserTournamentInvitations`,
+`listCurrentUserTournamentMemberships`, `getCurrentUserTournamentRole`,
+`listTournamentMembersForSiteAdmin`. Each validates server-side, has a concurrency guard, returns a
+typed result, exposes no raw SQL error, and writes an audit row.
+
+### 24.5 Migration #9 — `tournament_members`
+`supabase/migration_tournament_members.sql` (after #8). One table:
+`id, tournament_id (FK→tournaments, CASCADE), user_id (nullable, FK→auth.users, SET NULL),
+email_normalized, role, status, invited_by, invited_at, accepted_at, revoked_at, version,
+created_at, updated_at`. Constraints: `UNIQUE(tournament_id, email_normalized)`; role/status enums;
+email non-empty + normalized + shape; **active ⇒ user_id + accepted_at**; **revoked ⇒ revoked_at**.
+Triggers reuse `update_updated_at_column` + `tournament_bump_version`.
+
+**RLS:** enabled; **no anon** access; authenticated may `SELECT` only their **own** rows
+(`user_id = auth.uid()`); every write is service-role. `GRANT SELECT` to authenticated, `REVOKE
+INSERT/UPDATE/DELETE`; `REVOKE ALL FROM anon`. Audit actions:
+`tournament_member_invited/claimed/role_changed/revoked` (tournament id, target user/email per policy,
+role/status before→after, actor, timestamp — never tokens/cookies/sessions).
+
+### 24.6 Left for 15B-2
+Route `/quan-ly-giai-dau` + member-management UI; wiring the existing tournament mutations to
+`checkTournamentPermission` (so scoped managers/scorekeepers can operate); real invitation **email**
+delivery; and the **production** migration + deploy (operator-gated; runbook §6c).
+
+**Kết thúc Prompt 15B-1. Dừng lại, không tự sang Prompt 15B-2. Không commit. Không push. Không merge. Không deploy. Không chạy SQL production.**
+
 **Kết thúc Prompt 15A-2. Dừng lại, không tự sang Prompt 15B. Không merge. Không deploy. Không chạy SQL production.**
+
+---
+
+## 25. Scoped Management Surface & Action Guards (Prompt 15B-2)
+
+Prompt 15B-2 turns the 15B-1 permission engine + membership table into a **usable management
+surface** for Site Admins, managers and scorekeepers — WITHOUT opening `/admin`.
+
+### 25.1 Routes (`/quan-ly-giai-dau`)
+| Route | Who | Purpose |
+|---|---|---|
+| `/quan-ly-giai-dau` | Site Admin → all; scoped member → their active memberships; anon → login | List + claim invitations |
+| `/quan-ly-giai-dau/new` | Site Admin ONLY | Create a tournament |
+| `/quan-ly-giai-dau/[id]` | Site Admin or active member of THIS tournament | Detail + status actions + events + (Site-Admin) member management |
+| `/quan-ly-giai-dau/[id]/edit` | `tournament.update` | Edit tournament |
+| `/quan-ly-giai-dau/[id]/noi-dung/new` | `event.manage` | Add event |
+| `/quan-ly-giai-dau/[id]/noi-dung/[eventId]` | active member (capability-gated workspace) | Event workspace |
+| `/quan-ly-giai-dau/[id]/noi-dung/[eventId]/edit` | `event.manage` | Edit event |
+
+Every scoped page resolves `resolveTournamentCapabilities(id)` (server-only; Site-Admin short-circuit
+→ all; else this tournament's ACTIVE membership → role set). Denials: **anonymous → login**;
+**signed-in-but-not-permitted → `notFound()`** (existence never revealed → no cross-tournament IDOR).
+
+### 25.2 Reuse (no forked business logic)
+The scoped pages render the SAME workspace components (`components/tournaments/admin/*`), the SAME
+read models (`lib/tournaments/admin/queries.ts`) and the SAME server actions as `/admin/giai-dau`.
+The navigating components (`TournamentForm`, `EventForm`, `EventList`, `TournamentStatusActions`) took
+a `basePath` prop (default `/admin/giai-dau`); the scoped pages pass `/quan-ly-giai-dau`.
+`/admin/giai-dau` remains the Site-Admin mount of the SAME implementation (shared, not a second code
+path). `EventWorkspace` / `KnockoutWorkspace` take a `caps` prop → a scorekeeper collapses to a
+score-only workspace.
+
+### 25.3 Permission matrix (role → what the UI exposes; server always re-checks)
+| Capability | Site Admin | Manager | Scorekeeper |
+|---|---|---|---|
+| View workspace | ✓ | ✓ | ✓ |
+| Update / publish / archive tournament | ✓ | ✓ | — |
+| Hard delete tournament | ✓ | — | — |
+| Event / competitor / group / bracket / tie | ✓ | ✓ | — |
+| Record scores | ✓ | ✓ | ✓ |
+| Member management | ✓ | — | — |
+| Create tournament | ✓ | — | — |
+
+### 25.4 Action-guard mapping (the security refactor)
+Every tournament mutation moved off the blanket `checkIsAdmin()` onto a scoped
+`may(tournamentId, <permission>)` (which wraps `checkTournamentPermission`), created **before** the
+service-role client. `createTournament` stays Site-Admin-only.
+
+- `updateTournament → tournament.update`, `publish → tournament.publish`,
+  `archive → tournament.archive`, `deleteDraftTournament → tournament.delete`
+- event CRUD → `event.manage` · competitor CRUD → `competitor.manage`
+- group init/assign → `group.manage` · seed/generate/reset brackets & group-match generation → `bracket.manage`
+- score save/clear + affected-path preview/reset → `score.manage` · qualification override → `tie.manage`
+- invite / change-role / revoke → `members.manage` (Site Admin only in 15B)
+
+### 25.5 Member management & invitation claim
+Site-Admin-only panel on the detail page: list (email, display name once claimed, role, status,
+invited/accepted times), invite (email+role), change role, revoke, re-invite. All go through the
+15B-1 service (guarded on `members.manage`, `(id, tournament_id)`-scoped). On landing at
+`/quan-ly-giai-dau`, `claimCurrentUserTournamentInvitations()` binds any PENDING invitation addressed
+to the caller's **verified JWT email** via the SECURITY DEFINER RPC — never a client-supplied id, no
+request loop (one call per render, `revalidate:false`).
+
+### 25.6 Navigation
+`Nav` computes `canManageTournaments = isAdmin || viewerHasActiveTournamentRole()` and shows the
+“Quản lý giải đấu” entry (desktop dropdown + mobile drawer) only then. Managers/scorekeepers see this
+entry and nothing else from `/admin`.
+
+### 25.7 Left for Prompt 15C
+Rule preset picker, event rule editor, `rules.manage` wiring, and the scoring runtime (15/21 laws,
+handicap). Production migration + deploy remain operator-gated.
+
+**Kết thúc Prompt 15B-2. Dừng lại. Không tự sang Prompt 15C. Không merge. Không deploy. Không chạy SQL production.**

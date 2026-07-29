@@ -98,7 +98,8 @@
     "place_categories": "Danh mục địa điểm",
     "todays_suggestion": "Hôm nay đi đâu?",
     "about": "Giới thiệu",
-    "tournaments": "Giải đấu"
+    "tournaments": "Giải đấu",
+    "manage_tournaments": "Quản lý giải đấu"
   },
   "home": {
     "write_cta": "✍️ Viết bài",
@@ -6959,7 +6960,8 @@
       "disconnected": "Mất kết nối",
       "reconnecting": "Đang kết nối lại",
       "refresh": "Làm mới"
-    }
+    },
+    "scorekeeper_waiting": "Chưa có nội dung nào cần ghi điểm. Vui lòng quay lại khi trận đấu bắt đầu."
   },
   "admin_connection_status": {
     "data_changed": "Dữ liệu đã thay đổi ở nơi khác. Tải lại để xem bản mới nhất.",
@@ -7013,5 +7015,60 @@
     "err_unknown": "Đã xảy ra lỗi. Vui lòng thử lại.",
     "err_confirmation_required": "Vui lòng nhập đúng RESET để xác nhận.",
     "err_no_change": "Người thắng không đổi — dùng sửa kết quả thông thường."
+  },
+  "tournament_management": {
+    "list_title": "Quản lý giải đấu",
+    "list_sub_admin": "Toàn bộ giải đấu trên hệ thống.",
+    "list_sub_scoped": "Các giải đấu bạn được phân quyền quản lý.",
+    "empty_title": "Chưa có giải đấu nào",
+    "empty_sub_admin": "Tạo giải đấu đầu tiên để bắt đầu.",
+    "empty_sub_scoped": "Bạn chưa được phân quyền quản lý giải đấu nào. Vui lòng liên hệ quản trị viên.",
+    "back_list": "Danh sách giải đấu",
+    "you_are_site_admin": "Quản trị hệ thống",
+    "you_are_manager": "Quản lý",
+    "you_are_scorekeeper": "Trọng tài ghi điểm"
+  },
+  "tournament_roles": {
+    "role_site_admin": "Quản trị hệ thống",
+    "role_manager": "Quản lý",
+    "role_scorekeeper": "Trọng tài ghi điểm"
+  },
+  "tournament_members": {
+    "section_title": "Thành viên quản lý",
+    "section_hint": "Mời người quản lý hoặc trọng tài ghi điểm cho giải đấu này. Chỉ quản trị hệ thống mới thấy khu vực này.",
+    "email_label": "Email",
+    "email_placeholder": "nhap@email.com",
+    "role_label": "Vai trò",
+    "invite_cta": "Mời",
+    "working": "Đang xử lý…",
+    "invited_ok": "Đã gửi lời mời.",
+    "role_changed_ok": "Đã đổi vai trò.",
+    "revoked_ok": "Đã thu hồi quyền.",
+    "col_member": "Thành viên",
+    "col_role": "Vai trò",
+    "col_status": "Trạng thái",
+    "col_invited": "Mời lúc",
+    "col_accepted": "Chấp nhận lúc",
+    "col_actions": "Thao tác",
+    "empty": "Chưa có thành viên nào.",
+    "revoke": "Thu hồi",
+    "reinvite": "Mời lại",
+    "cancel": "Huỷ",
+    "confirm_revoke_title": "Thu hồi quyền quản lý?",
+    "confirm_revoke_desc": "Thu hồi quyền của {email}. Họ sẽ mất quyền truy cập ngay lần kiểm tra kế tiếp.",
+    "status_pending": "Chờ nhận",
+    "status_active": "Đang hoạt động",
+    "status_revoked": "Đã thu hồi",
+    "err_NOT_AUTHENTICATED": "Bạn cần đăng nhập.",
+    "err_FORBIDDEN": "Bạn không có quyền thực hiện thao tác này.",
+    "err_INVALID_ROLE": "Vai trò không hợp lệ.",
+    "err_INVALID_PERMISSION": "Quyền không hợp lệ.",
+    "err_invalid": "Dữ liệu không hợp lệ.",
+    "err_invalid_email": "Email không hợp lệ.",
+    "err_invalid_role": "Vai trò không hợp lệ.",
+    "err_not_found": "Không tìm thấy.",
+    "err_already_active": "Email này đã là thành viên đang hoạt động.",
+    "err_version_conflict": "Dữ liệu vừa thay đổi. Vui lòng tải lại.",
+    "err_unknown": "Có lỗi xảy ra. Vui lòng thử lại."
   }
 }

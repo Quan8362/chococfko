@@ -24,6 +24,17 @@ type Tab = 'competitors' | 'groups' | 'results' | 'standings' | 'ties' | 'gk_see
 // Tabbed workspace for one event: Vận động viên / Chia bảng / Lịch & kết quả / Bảng xếp hạng /
 // Phân định. The group tabs only exist for round_robin & group_knockout (groupSetup non-null);
 // scoring/standings/ties appear once the schedule is generated (scoring non-null).
+// Convenience UI capabilities — which tabs a viewer may use. Defaults to ALL (the Site-Admin mount).
+// A scorekeeper on the scoped surface gets only { score } → sees Results / Standings / bracket score
+// panels and none of the roster/group/seeding/tie management. The server re-checks every mutation.
+export interface EventWorkspaceCaps {
+  competitors?: boolean
+  groups?: boolean
+  score?: boolean
+  ties?: boolean
+  bracket?: boolean
+}
+
 export default function EventWorkspace({
   tournamentId,
   eventId,
@@ -34,6 +45,7 @@ export default function EventWorkspace({
   scoring,
   groupKnockoutSeed,
   groupKnockoutWorkspace,
+  caps = { competitors: true, groups: true, score: true, ties: true, bracket: true },
 }: {
   tournamentId: string
   eventId: string
@@ -44,6 +56,7 @@ export default function EventWorkspace({
   scoring: ScoringWorkspace | null
   groupKnockoutSeed: GroupKnockoutSeedSetup | null
   groupKnockoutWorkspace: GroupKnockoutWorkspace | null
+  caps?: EventWorkspaceCaps
 }) {
   const t = useTranslations('admin_tournament_groups')
   const ts = useTranslations('admin_group_standings')
@@ -63,18 +76,22 @@ export default function EventWorkspace({
   const hasBrackets = groupKnockoutWorkspace !== null && groupKnockoutWorkspace.hasBrackets
   const showConsolationBranch = hasBrackets && groupKnockoutWorkspace!.consolation !== null
 
+  // Capability gate layered on top of the data-availability gate: a tab shows only when its data
+  // exists AND the viewer's role may use it. Results/standings/bracket score panels ride on `score`.
+  const c = caps
   const tabs: { id: Tab; label: string; show: boolean; badge?: boolean }[] = [
-    { id: 'competitors', label: t('tab_competitors'), show: true },
-    { id: 'groups', label: t('tab_groups'), show: hasGroups },
-    { id: 'results', label: ts('tab_results'), show: hasSchedule },
-    { id: 'standings', label: ts('tab_standings'), show: hasSchedule },
-    { id: 'ties', label: ts('tab_ties'), show: needsTieAttention, badge: scoring?.hasBlockingTie },
-    { id: 'gk_seeding', label: tg('tab_seeding'), show: showSeeding },
-    { id: 'gk_championship', label: tg('tab_championship'), show: hasBrackets, badge: groupKnockoutWorkspace?.championship.isComplete },
-    { id: 'gk_consolation', label: tg('tab_consolation'), show: showConsolationBranch, badge: groupKnockoutWorkspace?.consolation?.isComplete },
+    { id: 'competitors', label: t('tab_competitors'), show: c.competitors !== false },
+    { id: 'groups', label: t('tab_groups'), show: hasGroups && c.groups !== false },
+    { id: 'results', label: ts('tab_results'), show: hasSchedule && c.score !== false },
+    { id: 'standings', label: ts('tab_standings'), show: hasSchedule && c.score !== false },
+    { id: 'ties', label: ts('tab_ties'), show: needsTieAttention && c.ties !== false, badge: scoring?.hasBlockingTie },
+    { id: 'gk_seeding', label: tg('tab_seeding'), show: showSeeding && c.bracket !== false },
+    { id: 'gk_championship', label: tg('tab_championship'), show: hasBrackets && c.score !== false, badge: groupKnockoutWorkspace?.championship.isComplete },
+    { id: 'gk_consolation', label: tg('tab_consolation'), show: showConsolationBranch && c.score !== false, badge: groupKnockoutWorkspace?.consolation?.isComplete },
   ]
 
-  const active = tabs.find((x) => x.id === tab)?.show ? tab : 'competitors'
+  const visibleTabs = tabs.filter((x) => x.show)
+  const active = visibleTabs.some((x) => x.id === tab) ? tab : (visibleTabs[0]?.id ?? 'competitors')
 
   return (
     <div>
@@ -89,7 +106,12 @@ export default function EventWorkspace({
       />
 
       <div role="tabpanel" id="ev-panel" aria-labelledby={`ev-tab-${active}`} tabIndex={0} className="focus:outline-none">
-      {active === 'competitors' && (
+      {visibleTabs.length === 0 && (
+        <div className="bg-cream border border-line rounded-2xl py-10 px-6 text-center">
+          <p className="text-[13px] text-muted">{tt('scorekeeper_waiting')}</p>
+        </div>
+      )}
+      {active === 'competitors' && c.competitors !== false && (
         <CompetitorManager
           tournamentId={tournamentId}
           eventId={eventId}

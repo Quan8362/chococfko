@@ -98,7 +98,8 @@
     "place_categories": "カテゴリ",
     "todays_suggestion": "今日のおすすめ",
     "about": "サイトについて",
-    "tournaments": "大会"
+    "tournaments": "大会",
+    "manage_tournaments": "大会管理"
   },
   "home": {
     "write_cta": "✍️ 投稿する",
@@ -6959,7 +6960,8 @@
       "disconnected": "切断されました",
       "reconnecting": "再接続中",
       "refresh": "更新"
-    }
+    },
+    "scorekeeper_waiting": "まだ採点する項目はありません。試合開始後にご確認ください。"
   },
   "admin_connection_status": {
     "data_changed": "他の場所でデータが変更されました。最新を表示するには再読み込みしてください。",
@@ -7013,5 +7015,60 @@
     "err_unknown": "エラーが発生しました。もう一度お試しください。",
     "err_confirmation_required": "確認のため RESET と正確に入力してください。",
     "err_no_change": "勝者が変わっていません。通常の修正を使用してください。"
+  },
+  "tournament_management": {
+    "list_title": "大会管理",
+    "list_sub_admin": "プラットフォーム上のすべての大会。",
+    "list_sub_scoped": "あなたが管理を任された大会。",
+    "empty_title": "大会がまだありません",
+    "empty_sub_admin": "最初の大会を作成して始めましょう。",
+    "empty_sub_scoped": "まだ管理を任された大会はありません。管理者にお問い合わせください。",
+    "back_list": "大会一覧",
+    "you_are_site_admin": "サイト管理者",
+    "you_are_manager": "マネージャー",
+    "you_are_scorekeeper": "採点担当"
+  },
+  "tournament_roles": {
+    "role_site_admin": "サイト管理者",
+    "role_manager": "マネージャー",
+    "role_scorekeeper": "採点担当"
+  },
+  "tournament_members": {
+    "section_title": "管理メンバー",
+    "section_hint": "この大会のマネージャーまたは採点担当を招待します。この領域はサイト管理者のみ表示されます。",
+    "email_label": "メール",
+    "email_placeholder": "name@email.com",
+    "role_label": "役割",
+    "invite_cta": "招待",
+    "working": "処理中…",
+    "invited_ok": "招待を送信しました。",
+    "role_changed_ok": "役割を更新しました。",
+    "revoked_ok": "アクセスを取り消しました。",
+    "col_member": "メンバー",
+    "col_role": "役割",
+    "col_status": "状態",
+    "col_invited": "招待日時",
+    "col_accepted": "承認日時",
+    "col_actions": "操作",
+    "empty": "メンバーはまだいません。",
+    "revoke": "取り消し",
+    "reinvite": "再招待",
+    "cancel": "キャンセル",
+    "confirm_revoke_title": "管理アクセスを取り消しますか？",
+    "confirm_revoke_desc": "{email} のアクセスを取り消します。次回の確認時にアクセスできなくなります。",
+    "status_pending": "保留中",
+    "status_active": "有効",
+    "status_revoked": "取り消し済み",
+    "err_NOT_AUTHENTICATED": "サインインしてください。",
+    "err_FORBIDDEN": "この操作を行う権限がありません。",
+    "err_INVALID_ROLE": "無効な役割です。",
+    "err_INVALID_PERMISSION": "無効な権限です。",
+    "err_invalid": "無効なデータです。",
+    "err_invalid_email": "無効なメールです。",
+    "err_invalid_role": "無効な役割です。",
+    "err_not_found": "見つかりません。",
+    "err_already_active": "このメールは既に有効なメンバーです。",
+    "err_version_conflict": "データが変更されました。再読み込みしてください。",
+    "err_unknown": "エラーが発生しました。もう一度お試しください。"
   }
 }

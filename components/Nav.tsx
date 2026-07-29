@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import { checkIsAdmin } from '@/lib/supabase/admin'
+import { viewerHasActiveTournamentRole } from '@/lib/tournaments/members/service'
 import HomeLogo from './HomeLogo'
 import LanguageSwitcher from './LanguageSwitcher'
 import UserMenu from './UserMenu'
@@ -15,14 +16,17 @@ async function getAuthState() {
   try {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return { user: null, isAdmin: false, avatarUrl: null as string | null }
+    if (!user) return { user: null, isAdmin: false, avatarUrl: null as string | null, canManageTournaments: false }
     const [isAdmin, { data: profile }] = await Promise.all([
       checkIsAdmin(),
       supabase.from('profiles').select('avatar_url').eq('id', user.id).single(),
     ])
-    return { user, isAdmin, avatarUrl: profile?.avatar_url ?? null }
+    // The scoped management surface is visible to Site Admins and to anyone holding an active
+    // manager/scorekeeper membership. Only pay for the membership probe when not already an admin.
+    const canManageTournaments = isAdmin || (await viewerHasActiveTournamentRole())
+    return { user, isAdmin, avatarUrl: profile?.avatar_url ?? null, canManageTournaments }
   } catch {
-    return { user: null, isAdmin: false, avatarUrl: null as string | null }
+    return { user: null, isAdmin: false, avatarUrl: null as string | null, canManageTournaments: false }
   }
 }
 
@@ -32,7 +36,7 @@ export default async function Nav() {
     getTranslations('confessions'),
     getTranslations('japanese'),
   ])
-  const { user, isAdmin, avatarUrl } = await getAuthState()
+  const { user, isAdmin, avatarUrl, canManageTournaments } = await getAuthState()
   const displayName =
     user?.user_metadata?.display_name || user?.email?.split('@')[0] || t('user_default')
   const initial = displayName[0].toUpperCase()
@@ -74,6 +78,9 @@ export default async function Nav() {
             items={[
               { href: '/games', label: t('mini_game'), icon: 'puzzle' },
               { href: '/giai-dau', label: t('tournaments'), icon: 'trophy' },
+              ...(canManageTournaments
+                ? [{ href: '/quan-ly-giai-dau', label: t('manage_tournaments'), icon: 'trophy' as const }]
+                : []),
             ]}
           />
         </nav>
@@ -107,7 +114,7 @@ export default async function Nav() {
             </Link>
           )}
 
-          <MobileMenu isAdmin={isAdmin} isLoggedIn={!!user} />
+          <MobileMenu isAdmin={isAdmin} isLoggedIn={!!user} canManageTournaments={canManageTournaments} />
         </div>
       </div>
     </header>

@@ -16,17 +16,17 @@ const PUBLIC_DETAIL = 'components/tournaments/public/TournamentDetail.tsx'
 const DIALOG = 'components/tournaments/admin/ImpactPreviewDialog.tsx'
 
 // ── Server authorization ordering ───────────────────────────────────────────────────────────────
-test('preview/reset actions call checkIsAdmin() BEFORE createAdminClient()', () => {
+test('preview/reset actions guard with may() BEFORE createAdminClient()', () => {
   const src = read(ACTIONS)
   for (const fn of ['previewAffectedKnockoutPath', 'resetAffectedKnockoutPath']) {
     const start = src.indexOf(`export async function ${fn}`)
     assert.ok(start >= 0, `${fn} must exist`)
     const body = src.slice(start, start + 1400)
-    const adminIdx = body.indexOf('checkIsAdmin(')
+    const adminIdx = body.indexOf('may(')
     const svcIdx = body.indexOf('createAdminClient(')
-    assert.ok(adminIdx >= 0, `${fn} must call checkIsAdmin`)
+    assert.ok(adminIdx >= 0, `${fn} must call may()`)
     assert.ok(svcIdx >= 0, `${fn} must call createAdminClient`)
-    assert.ok(adminIdx < svcIdx, `${fn} must checkIsAdmin before service-role client`)
+    assert.ok(adminIdx < svcIdx, `${fn} must guard before service-role client`)
   }
 })
 

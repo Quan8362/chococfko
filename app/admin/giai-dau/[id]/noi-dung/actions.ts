@@ -2,7 +2,7 @@
 
 // Admin CRUD for tournament EVENTS (nội dung thi đấu) and their COMPETITORS. Same discipline as
 // the tournament-entity actions (app/admin/giai-dau/actions.ts). EVERY mutation follows:
-//   1. authenticate → checkIsAdmin()  (Guest = anon OR logged-in non-admin → rejected)
+//   1. authenticate → may(tournamentId, <permission>)  (Site Admin OR scoped role → allowed)
 //   2. validate input with the shared pure validators
 //   3. verify the parent tournament exists AND the event/competitor belongs to it (anti-IDOR):
 //      never trust tournamentId / eventId / competitorId / status / version from the client
@@ -14,8 +14,10 @@
 
 import { revalidatePath } from 'next/cache'
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { checkIsAdmin, createAdminClient } from '@/lib/supabase/admin'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
+import { checkTournamentPermission } from '@/lib/tournaments/permissions/server'
+import type { TournamentPermission } from '@/lib/tournaments/permissions'
 import { validateEventInput } from '@/lib/tournaments/eventValidation'
 import type { EventFormValues } from '@/lib/tournaments/eventValidation'
 import {
@@ -82,11 +84,23 @@ import type {
 const PG_FK_VIOLATION = '23503'
 
 function revalidateEventViews(tournamentId: string, eventId?: string) {
-  revalidatePath(`/admin/giai-dau/${tournamentId}`)
-  if (eventId) {
-    revalidatePath(`/admin/giai-dau/${tournamentId}/noi-dung/${eventId}`)
-    revalidatePath(`/admin/giai-dau/${tournamentId}/noi-dung/${eventId}/edit`)
+  // Both the legacy Site-Admin mount and the scoped management surface render these views.
+  for (const base of ['/admin/giai-dau', '/quan-ly-giai-dau']) {
+    revalidatePath(`${base}/${tournamentId}`)
+    if (eventId) {
+      revalidatePath(`${base}/${tournamentId}/noi-dung/${eventId}`)
+      revalidatePath(`${base}/${tournamentId}/noi-dung/${eventId}/edit`)
+    }
   }
+}
+
+// Scoped guard for an event/competitor/group/bracket/score/tie mutation. Replaces the old blanket
+// checkIsAdmin(): a Site Admin still passes everything, while a scoped manager/scorekeeper passes
+// ONLY the permissions their role maps to. The service-role client is created only after this
+// returns true. Every mutation names the CONCRETE capability (see the role→permission table).
+async function may(tournamentId: string, permission: TournamentPermission): Promise<boolean> {
+  const check = await checkTournamentPermission(tournamentId, permission)
+  return check.ok
 }
 
 async function currentUserId(): Promise<string | null> {
@@ -217,7 +231,7 @@ export async function createTournamentEvent(
   tournamentId: string,
   values: EventFormValues,
 ): Promise<EventMutationResult> {
-  if (!(await checkIsAdmin())) return { ok: false, error: 'forbidden' }
+  if (!(await may(tournamentId, 'event.manage'))) return { ok: false, error: 'forbidden' }
   if (!tournamentId) return { ok: false, error: 'invalid' }
 
   const parsed = validateEventInput(values)
@@ -264,7 +278,7 @@ export async function updateTournamentEvent(
   expectedVersion: number,
   values: EventFormValues,
 ): Promise<EventMutationResult> {
-  if (!(await checkIsAdmin())) return { ok: false, error: 'forbidden' }
+  if (!(await may(tournamentId, 'event.manage'))) return { ok: false, error: 'forbidden' }
   if (!tournamentId || !eventId || !Number.isInteger(expectedVersion)) {
     return { ok: false, error: 'invalid' }
   }
@@ -342,7 +356,7 @@ export async function deleteTournamentEvent(
   eventId: string,
   expectedVersion: number,
 ): Promise<EventMutationResult> {
-  if (!(await checkIsAdmin())) return { ok: false, error: 'forbidden' }
+  if (!(await may(tournamentId, 'event.manage'))) return { ok: false, error: 'forbidden' }
   if (!tournamentId || !eventId || !Number.isInteger(expectedVersion)) {
     return { ok: false, error: 'invalid' }
   }
@@ -386,7 +400,7 @@ export async function reorderTournamentEvents(
   tournamentId: string,
   orderedIds: string[],
 ): Promise<EventMutationResult> {
-  if (!(await checkIsAdmin())) return { ok: false, error: 'forbidden' }
+  if (!(await may(tournamentId, 'event.manage'))) return { ok: false, error: 'forbidden' }
   if (!tournamentId || !Array.isArray(orderedIds) || orderedIds.length === 0) {
     return { ok: false, error: 'invalid' }
   }
@@ -447,7 +461,7 @@ export async function createCompetitor(
   eventId: string,
   values: CompetitorFormValues,
 ): Promise<CompetitorMutationResult> {
-  if (!(await checkIsAdmin())) return { ok: false, error: 'forbidden' }
+  if (!(await may(tournamentId, 'competitor.manage'))) return { ok: false, error: 'forbidden' }
   if (!tournamentId || !eventId) return { ok: false, error: 'invalid' }
 
   const parsed = validateCompetitorInput(values)
@@ -498,7 +512,7 @@ export async function updateCompetitor(
   expectedUpdatedAt: string,
   values: CompetitorFormValues,
 ): Promise<CompetitorMutationResult> {
-  if (!(await checkIsAdmin())) return { ok: false, error: 'forbidden' }
+  if (!(await may(tournamentId, 'competitor.manage'))) return { ok: false, error: 'forbidden' }
   if (!tournamentId || !eventId || !competitorId || !expectedUpdatedAt) {
     return { ok: false, error: 'invalid' }
   }
@@ -568,7 +582,7 @@ export async function deleteCompetitor(
   eventId: string,
   competitorId: string,
 ): Promise<CompetitorMutationResult> {
-  if (!(await checkIsAdmin())) return { ok: false, error: 'forbidden' }
+  if (!(await may(tournamentId, 'competitor.manage'))) return { ok: false, error: 'forbidden' }
   if (!tournamentId || !eventId || !competitorId) return { ok: false, error: 'invalid' }
 
   const actorId = await currentUserId()
@@ -638,7 +652,7 @@ export async function reorderCompetitors(
   eventId: string,
   orderedIds: string[],
 ): Promise<CompetitorMutationResult> {
-  if (!(await checkIsAdmin())) return { ok: false, error: 'forbidden' }
+  if (!(await may(tournamentId, 'competitor.manage'))) return { ok: false, error: 'forbidden' }
   if (!tournamentId || !eventId || !Array.isArray(orderedIds) || orderedIds.length === 0) {
     return { ok: false, error: 'invalid' }
   }
@@ -682,7 +696,7 @@ export async function bulkCreateCompetitors(
   eventId: string,
   rawText: string,
 ): Promise<BulkMutationResult> {
-  if (!(await checkIsAdmin())) return { ok: false, error: 'forbidden' }
+  if (!(await may(tournamentId, 'competitor.manage'))) return { ok: false, error: 'forbidden' }
   if (!tournamentId || !eventId) return { ok: false, error: 'invalid' }
 
   const actorId = await currentUserId()
@@ -850,7 +864,7 @@ export async function initializeTournamentGroups(
   eventId: string,
   expectedVersion: number,
 ): Promise<GroupMutationResult> {
-  if (!(await checkIsAdmin())) return { ok: false, error: 'forbidden' }
+  if (!(await may(tournamentId, 'group.manage'))) return { ok: false, error: 'forbidden' }
   if (!tournamentId || !eventId || !Number.isInteger(expectedVersion)) {
     return { ok: false, error: 'invalid' }
   }
@@ -889,7 +903,7 @@ export async function saveGroupAssignments(
   expectedVersion: number,
   payload: AssignmentPayload,
 ): Promise<GroupMutationResult> {
-  if (!(await checkIsAdmin())) return { ok: false, error: 'forbidden' }
+  if (!(await may(tournamentId, 'group.manage'))) return { ok: false, error: 'forbidden' }
   if (!tournamentId || !eventId || !Number.isInteger(expectedVersion)) {
     return { ok: false, error: 'invalid' }
   }
@@ -943,7 +957,7 @@ export async function generateGroupMatches(
   eventId: string,
   expectedVersion: number,
 ): Promise<GroupMutationResult> {
-  if (!(await checkIsAdmin())) return { ok: false, error: 'forbidden' }
+  if (!(await may(tournamentId, 'bracket.manage'))) return { ok: false, error: 'forbidden' }
   if (!tournamentId || !eventId || !Number.isInteger(expectedVersion)) {
     return { ok: false, error: 'invalid' }
   }
@@ -994,7 +1008,7 @@ export async function regenerateGroupMatches(
   expectedVersion: number,
   confirm: boolean,
 ): Promise<GroupMutationResult> {
-  if (!(await checkIsAdmin())) return { ok: false, error: 'forbidden' }
+  if (!(await may(tournamentId, 'bracket.manage'))) return { ok: false, error: 'forbidden' }
   if (!tournamentId || !eventId || !Number.isInteger(expectedVersion) || confirm !== true) {
     return { ok: false, error: 'invalid' }
   }
@@ -1039,7 +1053,7 @@ export async function regenerateGroupMatches(
 // ══════════════════════════════════════════════════════════════════════════════════════════
 // SCORING & QUALIFICATION-OVERRIDE ACTIONS (Prompt 07 — round_robin & group_knockout)
 // ══════════════════════════════════════════════════════════════════════════════════════════
-// Same discipline: authenticate → checkIsAdmin() → verify event↔tournament + not knockout → RELOAD
+// Same discipline: authenticate → may(tournamentId, <permission>) → verify event↔tournament + not knockout → RELOAD
 // ground truth from the DB → validate with the pure engine (deriveMatchOutcome via validateMatchScores;
 // resolveTieOrder) → compute the event's precise target status with evaluateGroupStage → apply
 // atomically via a service-role-only DEFINER RPC (match/event version guard) → audit → revalidate.
@@ -1189,7 +1203,7 @@ export async function saveGroupMatchResult(
   expectedMatchVersion: number,
   games: ScoreGameInput[],
 ): Promise<ScoreMutationResult> {
-  if (!(await checkIsAdmin())) return { ok: false, error: 'forbidden' }
+  if (!(await may(tournamentId, 'score.manage'))) return { ok: false, error: 'forbidden' }
   if (!tournamentId || !eventId || !matchId || !Number.isInteger(expectedMatchVersion)) {
     return { ok: false, error: 'invalid' }
   }
@@ -1307,7 +1321,7 @@ export async function clearGroupMatchResult(
   matchId: string,
   expectedMatchVersion: number,
 ): Promise<ScoreMutationResult> {
-  if (!(await checkIsAdmin())) return { ok: false, error: 'forbidden' }
+  if (!(await may(tournamentId, 'score.manage'))) return { ok: false, error: 'forbidden' }
   if (!tournamentId || !eventId || !matchId || !Number.isInteger(expectedMatchVersion)) {
     return { ok: false, error: 'invalid' }
   }
@@ -1372,7 +1386,7 @@ export async function saveQualificationOverride(
   orderedTieIds: string[],
   reason: string | null,
 ): Promise<ScoreMutationResult> {
-  if (!(await checkIsAdmin())) return { ok: false, error: 'forbidden' }
+  if (!(await may(tournamentId, 'tie.manage'))) return { ok: false, error: 'forbidden' }
   if (!tournamentId || !eventId || !groupId || !Number.isInteger(expectedEventVersion)) {
     return { ok: false, error: 'invalid' }
   }
@@ -1450,7 +1464,7 @@ export async function deleteQualificationOverride(
   groupId: string,
   expectedEventVersion: number,
 ): Promise<ScoreMutationResult> {
-  if (!(await checkIsAdmin())) return { ok: false, error: 'forbidden' }
+  if (!(await may(tournamentId, 'tie.manage'))) return { ok: false, error: 'forbidden' }
   if (!tournamentId || !eventId || !groupId || !Number.isInteger(expectedEventVersion)) {
     return { ok: false, error: 'invalid' }
   }
@@ -1504,7 +1518,7 @@ export async function deleteQualificationOverride(
 // ══════════════════════════════════════════════════════════════════════════════════════════
 // KNOCKOUT-ONLY ACTIONS (Prompt 08 — event format 'knockout'; group_knockout is Prompt 09)
 // ══════════════════════════════════════════════════════════════════════════════════════════
-// Same discipline: authenticate → checkIsAdmin() → verify event↔tournament + format='knockout' →
+// Same discipline: authenticate → may(tournamentId, <permission>) → verify event↔tournament + format='knockout' →
 // RELOAD ground truth from the DB (NEVER trust client seed order / match ids / winner / version) →
 // validate & build with the pure engine (validateSeedPayload / generateKnockout / progressKnockout /
 // calculatePodium; the winner via deriveMatchOutcome through validateMatchScores) → apply atomically
@@ -1646,7 +1660,7 @@ export async function saveKnockoutSeeds(
   expectedVersion: number,
   payload: SeedPayload,
 ): Promise<KnockoutMutationResult> {
-  if (!(await checkIsAdmin())) return { ok: false, error: 'forbidden' }
+  if (!(await may(tournamentId, 'bracket.manage'))) return { ok: false, error: 'forbidden' }
   if (!tournamentId || !eventId || !Number.isInteger(expectedVersion)) return { ok: false, error: 'invalid' }
   if (!payload || !Array.isArray(payload.seededIds) || !Array.isArray(payload.unassignedIds)) {
     return { ok: false, error: 'invalid' }
@@ -1691,7 +1705,7 @@ export async function clearKnockoutSeeds(
   eventId: string,
   expectedVersion: number,
 ): Promise<KnockoutMutationResult> {
-  if (!(await checkIsAdmin())) return { ok: false, error: 'forbidden' }
+  if (!(await may(tournamentId, 'bracket.manage'))) return { ok: false, error: 'forbidden' }
   if (!tournamentId || !eventId || !Number.isInteger(expectedVersion)) return { ok: false, error: 'invalid' }
 
   const actorId = await currentUserId()
@@ -1726,7 +1740,7 @@ export async function generateKnockoutBracket(
   eventId: string,
   expectedVersion: number,
 ): Promise<KnockoutMutationResult> {
-  if (!(await checkIsAdmin())) return { ok: false, error: 'forbidden' }
+  if (!(await may(tournamentId, 'bracket.manage'))) return { ok: false, error: 'forbidden' }
   if (!tournamentId || !eventId || !Number.isInteger(expectedVersion)) return { ok: false, error: 'invalid' }
 
   const actorId = await currentUserId()
@@ -1791,7 +1805,7 @@ export async function resetKnockoutBracket(
   expectedVersion: number,
   confirm: boolean,
 ): Promise<KnockoutMutationResult> {
-  if (!(await checkIsAdmin())) return { ok: false, error: 'forbidden' }
+  if (!(await may(tournamentId, 'bracket.manage'))) return { ok: false, error: 'forbidden' }
   if (!tournamentId || !eventId || !Number.isInteger(expectedVersion) || confirm !== true) {
     return { ok: false, error: 'invalid' }
   }
@@ -1863,7 +1877,7 @@ export async function saveKnockoutMatchResult(
   expectedMatchVersion: number,
   games: ScoreGameInput[],
 ): Promise<KnockoutMutationResult> {
-  if (!(await checkIsAdmin())) return { ok: false, error: 'forbidden' }
+  if (!(await may(tournamentId, 'score.manage'))) return { ok: false, error: 'forbidden' }
   if (!tournamentId || !eventId || !matchId || !Number.isInteger(expectedMatchVersion)) {
     return { ok: false, error: 'invalid' }
   }
@@ -1994,7 +2008,7 @@ export async function clearKnockoutMatchResult(
   matchId: string,
   expectedMatchVersion: number,
 ): Promise<KnockoutMutationResult> {
-  if (!(await checkIsAdmin())) return { ok: false, error: 'forbidden' }
+  if (!(await may(tournamentId, 'score.manage'))) return { ok: false, error: 'forbidden' }
   if (!tournamentId || !eventId || !matchId || !Number.isInteger(expectedMatchVersion)) {
     return { ok: false, error: 'invalid' }
   }
@@ -2052,7 +2066,7 @@ export async function clearKnockoutMatchResult(
 // GROUP + KNOCKOUT ACTIONS (Prompt 09 — event format 'group_knockout')
 // ══════════════════════════════════════════════════════════════════════════════════════════
 // Two INDEPENDENT brackets seeded from GROUP-RANK TOKENS (Nhất A / Nhì B …), not competitor ids.
-// Same discipline as every other mutation: authenticate → checkIsAdmin() → verify event↔tournament
+// Same discipline as every other mutation: authenticate → may(tournamentId, <permission>) → verify event↔tournament
 // + format='group_knockout' → RELOAD ground truth (roster / groups / standings / overrides / seeds /
 // board — NEVER trust client tokens, order, winner or version) → recompute standings & qualification
 // with the pure engine → validate/resolve tokens → apply atomically via a service-role DEFINER RPC
@@ -2128,7 +2142,7 @@ export async function saveGroupKnockoutSeeds(
   expectedVersion: number,
   payload: GroupKnockoutPayload,
 ): Promise<KnockoutMutationResult> {
-  if (!(await checkIsAdmin())) return { ok: false, error: 'forbidden' }
+  if (!(await may(tournamentId, 'bracket.manage'))) return { ok: false, error: 'forbidden' }
   if (!tournamentId || !eventId || !Number.isInteger(expectedVersion)) return { ok: false, error: 'invalid' }
   if (!payload || !payload.championship || !Array.isArray(payload.championship.seededIds)) {
     return { ok: false, error: 'invalid' }
@@ -2214,7 +2228,7 @@ export async function clearGroupKnockoutSeeds(
   eventId: string,
   expectedVersion: number,
 ): Promise<KnockoutMutationResult> {
-  if (!(await checkIsAdmin())) return { ok: false, error: 'forbidden' }
+  if (!(await may(tournamentId, 'bracket.manage'))) return { ok: false, error: 'forbidden' }
   if (!tournamentId || !eventId || !Number.isInteger(expectedVersion)) return { ok: false, error: 'invalid' }
 
   const actorId = await currentUserId()
@@ -2249,7 +2263,7 @@ export async function generateGroupKnockoutBrackets(
   eventId: string,
   expectedVersion: number,
 ): Promise<KnockoutMutationResult> {
-  if (!(await checkIsAdmin())) return { ok: false, error: 'forbidden' }
+  if (!(await may(tournamentId, 'bracket.manage'))) return { ok: false, error: 'forbidden' }
   if (!tournamentId || !eventId || !Number.isInteger(expectedVersion)) return { ok: false, error: 'invalid' }
 
   const actorId = await currentUserId()
@@ -2382,7 +2396,7 @@ export async function resetGroupKnockoutBrackets(
   expectedVersion: number,
   confirm: boolean,
 ): Promise<KnockoutMutationResult> {
-  if (!(await checkIsAdmin())) return { ok: false, error: 'forbidden' }
+  if (!(await may(tournamentId, 'bracket.manage'))) return { ok: false, error: 'forbidden' }
   if (!tournamentId || !eventId || !Number.isInteger(expectedVersion) || confirm !== true) {
     return { ok: false, error: 'invalid' }
   }
@@ -2420,7 +2434,7 @@ export async function saveGroupKnockoutMatchResult(
   expectedMatchVersion: number,
   games: ScoreGameInput[],
 ): Promise<KnockoutMutationResult> {
-  if (!(await checkIsAdmin())) return { ok: false, error: 'forbidden' }
+  if (!(await may(tournamentId, 'score.manage'))) return { ok: false, error: 'forbidden' }
   if (!tournamentId || !eventId || !matchId || !Number.isInteger(expectedMatchVersion)) {
     return { ok: false, error: 'invalid' }
   }
@@ -2555,7 +2569,7 @@ export async function clearGroupKnockoutMatchResult(
   matchId: string,
   expectedMatchVersion: number,
 ): Promise<KnockoutMutationResult> {
-  if (!(await checkIsAdmin())) return { ok: false, error: 'forbidden' }
+  if (!(await may(tournamentId, 'score.manage'))) return { ok: false, error: 'forbidden' }
   if (!tournamentId || !eventId || !matchId || !Number.isInteger(expectedMatchVersion)) {
     return { ok: false, error: 'invalid' }
   }
@@ -2726,7 +2740,7 @@ export async function previewAffectedKnockoutPath(
   matchId: string,
   games: ScoreGameInput[],
 ): Promise<ImpactPreviewResult> {
-  if (!(await checkIsAdmin())) return { ok: false, error: 'forbidden' }
+  if (!(await may(tournamentId, 'score.manage'))) return { ok: false, error: 'forbidden' }
   if (!tournamentId || !eventId || !matchId || !Array.isArray(games)) return { ok: false, error: 'invalid' }
 
   const admin = createAdminClient()
@@ -2809,7 +2823,7 @@ export async function resetAffectedKnockoutPath(
   confirmation: string,
   games: ScoreGameInput[],
 ): Promise<ResetPathResult> {
-  if (!(await checkIsAdmin())) return { ok: false, error: 'forbidden' }
+  if (!(await may(tournamentId, 'score.manage'))) return { ok: false, error: 'forbidden' }
   if (confirmation !== 'RESET') return { ok: false, error: 'confirmation_required' }
   if (!tournamentId || !eventId || !upstreamMatchId || !Number.isInteger(upstreamMatchVersion) || !Array.isArray(games)) {
     return { ok: false, error: 'invalid' }

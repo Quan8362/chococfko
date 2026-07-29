@@ -98,7 +98,8 @@
     "place_categories": "장소 카테고리",
     "todays_suggestion": "오늘의 추천",
     "about": "소개",
-    "tournaments": "토너먼트"
+    "tournaments": "토너먼트",
+    "manage_tournaments": "토너먼트 관리"
   },
   "home": {
     "write_cta": "✍️ 글쓰기",
@@ -6959,7 +6960,8 @@
       "disconnected": "연결 끊김",
       "reconnecting": "재연결 중",
       "refresh": "새로고침"
-    }
+    },
+    "scorekeeper_waiting": "아직 점수를 기록할 항목이 없습니다. 경기가 시작되면 다시 확인하세요."
   },
   "admin_connection_status": {
     "data_changed": "다른 곳에서 데이터가 변경되었습니다. 최신 내용을 보려면 새로고침하세요.",
@@ -7013,5 +7015,60 @@
     "err_unknown": "문제가 발생했습니다. 다시 시도하세요.",
     "err_confirmation_required": "확인하려면 RESET 을(를) 정확히 입력하세요.",
     "err_no_change": "승자가 바뀌지 않았습니다. 일반 수정을 사용하세요."
+  },
+  "tournament_management": {
+    "list_title": "토너먼트 관리",
+    "list_sub_admin": "플랫폼의 모든 토너먼트.",
+    "list_sub_scoped": "관리 권한이 부여된 토너먼트.",
+    "empty_title": "아직 토너먼트가 없습니다",
+    "empty_sub_admin": "첫 토너먼트를 만들어 시작하세요.",
+    "empty_sub_scoped": "아직 관리 권한이 부여된 토너먼트가 없습니다. 관리자에게 문의하세요.",
+    "back_list": "토너먼트 목록",
+    "you_are_site_admin": "사이트 관리자",
+    "you_are_manager": "매니저",
+    "you_are_scorekeeper": "점수 기록원"
+  },
+  "tournament_roles": {
+    "role_site_admin": "사이트 관리자",
+    "role_manager": "매니저",
+    "role_scorekeeper": "점수 기록원"
+  },
+  "tournament_members": {
+    "section_title": "관리 멤버",
+    "section_hint": "이 토너먼트의 매니저 또는 점수 기록원을 초대합니다. 이 영역은 사이트 관리자만 볼 수 있습니다.",
+    "email_label": "이메일",
+    "email_placeholder": "name@email.com",
+    "role_label": "역할",
+    "invite_cta": "초대",
+    "working": "처리 중…",
+    "invited_ok": "초대를 보냈습니다.",
+    "role_changed_ok": "역할을 변경했습니다.",
+    "revoked_ok": "접근 권한을 취소했습니다.",
+    "col_member": "멤버",
+    "col_role": "역할",
+    "col_status": "상태",
+    "col_invited": "초대 시각",
+    "col_accepted": "수락 시각",
+    "col_actions": "작업",
+    "empty": "아직 멤버가 없습니다.",
+    "revoke": "취소",
+    "reinvite": "다시 초대",
+    "cancel": "취소",
+    "confirm_revoke_title": "관리 권한을 취소할까요?",
+    "confirm_revoke_desc": "{email}의 접근 권한을 취소합니다. 다음 확인 시 접근할 수 없게 됩니다.",
+    "status_pending": "대기 중",
+    "status_active": "활성",
+    "status_revoked": "취소됨",
+    "err_NOT_AUTHENTICATED": "로그인하세요.",
+    "err_FORBIDDEN": "이 작업을 수행할 권한이 없습니다.",
+    "err_INVALID_ROLE": "유효하지 않은 역할입니다.",
+    "err_INVALID_PERMISSION": "유효하지 않은 권한입니다.",
+    "err_invalid": "유효하지 않은 데이터입니다.",
+    "err_invalid_email": "유효하지 않은 이메일입니다.",
+    "err_invalid_role": "유효하지 않은 역할입니다.",
+    "err_not_found": "찾을 수 없습니다.",
+    "err_already_active": "이 이메일은 이미 활성 멤버입니다.",
+    "err_version_conflict": "데이터가 방금 변경되었습니다. 다시 불러오세요.",
+    "err_unknown": "문제가 발생했습니다. 다시 시도하세요."
   }
 }

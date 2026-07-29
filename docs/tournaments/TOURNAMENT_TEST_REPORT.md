@@ -436,3 +436,82 @@ npx playwright test --config e2e/tournaments/tournaments.config.ts --project cru
 ```
 The config's `webServer` starts `next dev -p 3100` wired to the local stack when one is not already
 running (`reuseExistingServer` in local). The suite refuses to run against any non-local Supabase host.
+
+---
+
+## 10. Prompt 15B-1 — Membership & scoped permissions (branch `feat/tournament-rules-fjp-2026`)
+
+DB + permission engine + server security only (no route/UI — that is 15B-2).
+
+### 10.1 Unit tests (pure, `node --test`)
+- `lib/tournaments/permissions/permissions.test.ts` (13 tests) — covers the 8 required cases:
+  (1) Site Admin holds every permission, (2) manager mapping exact, (3) scorekeeper = view+score only,
+  (4) invalid role rejected (incl. `admin`), (5) unknown permission fail-closed + `INVALID_PERMISSION`,
+  (6) Site Admin needs no membership, (7) pending/revoked grant nothing, (8) cross-tournament isolation
+  (null membership → denied), plus structural guards on the mapping tables.
+- `lib/tournaments/members/email.test.ts` (4 tests) — normalize (lowercase+trim), shape validation,
+  combined normalize+validate.
+- Result: **all green**. Whole tournament unit suite **394** tests green; full `lib/**` suite green
+  (see gate below).
+
+### 10.2 SQL harness — `supabase/tournament_members_tests.sql`
+Self-contained `BEGIN … ROLLBACK`. Covers the required 12 in-transaction cases: (1) email
+normalization + shape, (2) unique `(tournament_id, email_normalized)`, (3) role/status/revoked-stamp
+CHECKs, (4) pending may be unbound, (5) correct email claims (pending→active, bound, idempotent),
+(6) wrong email does not claim, (7) revoked never claimed, (8) active requires user_id + accepted_at,
+(9) anon cannot read, (10) authenticated reads only own rows (outsider sees none), (11) member cannot
+write directly, (12) service-role mutation works + version bump; plus grants/function-shape asserts.
+Cases (13) migration idempotency, (14) rollback→reapply→retest and (15) migrations-1–8 regression are
+the **local database gate** (runbook §6c) because they re-run whole migration files.
+
+### 10.3 Quality gate (this session — all green)
+- `tsc --noEmit --skipLibCheck` — **0 errors**.
+- `next lint` — **0 errors** (only pre-existing warnings elsewhere; none in the new files).
+- `next build` — **success**.
+- Unit: permissions **13** + email **4**; tournament suite **394**; full `lib/**` suite **2297/2297**.
+- **Local SQL gate (WSL2 + Docker, local ONLY):** applied migrations 1–9 clean → idempotent reapply
+  of #9 → `tournament_members_tests.sql` **ALL ASSERTIONS PASSED** → rollback #9 (→ 0 membership
+  tables) → reapply #9 → retest **PASSED**. Full tournament harness regression (12 files:
+  core/events/admin/group_assignment/scoring/knockout_bracket/group_knockout/reset_path/
+  public_privacy/public_read/rule_engine/members) — **all pass**, no regression from #9.
+- Secret scan of the diff — clean (no keys/tokens).
+
+> Local-stack note: the Docker DB cold-starts on the first call of a batch (idle pause), so the apply
+> loop retries once on `the database system is starting up`. This is the documented WSL flapping, not
+> a migration fault.
+
+### 10.4 Deferred / not run here (honest)
+- No route/member-UI, no wiring of existing mutations to `checkTournamentPermission`, no real
+  invitation email — all 15B-2. No production SQL, no commit/push/merge/deploy.
+- Production still has **zero** tournament migrations; #1–#9 remain operator-gated (runbook §6/§6b/§6c).
+
+---
+
+## Prompt 15B-2 — scoped management routes, UI & action guards
+
+**Suite:** `2312` unit/structural tests pass, `0` fail (2297 from 15B-1 + **15 new** in
+`lib/tournaments/management/management-routes.test.ts`). `tsc --noEmit --skipLibCheck`, `next lint`
+and `next build` clean. i18n parity holds across vi/en/ja/ko/zh; secret scan clean.
+
+**New coverage (management-routes.test.ts):**
+1. Anonymous → login on every management route.
+2. Signed-in non-member → `notFound()` (existence not revealed) on scoped routes.
+3–4. `listManageableTournaments` scoped by ACTIVE membership (`.in(ids)`) for non-admins.
+5. Capability resolution filters `(tournament_id, user_id)` — no cross-tournament IDOR.
+6. Tournament creation is Site-Admin-only (`createTournament` keeps `checkIsAdmin`, no `may()`).
+7. Event page maps role → workspace caps; `EventWorkspace` gates tabs (scorekeeper = score-only).
+8. Member panel rendered ONLY for Site Admin.
+9. Detail page wires the member panel.
+10. invite/change/revoke actions delegate to the `members.manage`-guarded service.
+11. Claim runs on the list and uses the DEFINER RPC (verified email, no client user_id).
+12. Only ACTIVE membership confers permissions (revoked/pending grant nothing).
+13. Nav shows the management entry only to Site Admin or an active member (desktop + mobile).
+14. Every noi-dung mutation maps to the correct scoped permission and guards before service-role.
+15. Tournament-entity guards map update/publish/archive/delete to the right permissions.
+
+**Updated:** the `*Security.test.ts` guard-ordering assertions now check the scoped guard
+(`checkTournamentPermission` / `may()`) instead of the blanket `checkIsAdmin()`.
+
+**Not run here (environment):** the Playwright tournament E2E and the SQL harness require a running
+local Supabase stack (down in this environment); browser smoke is therefore deferred to an operator
+with the local stack. No production/remote DB was used.

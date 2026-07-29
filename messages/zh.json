@@ -98,7 +98,8 @@
     "place_categories": "地点分类",
     "todays_suggestion": "今天去哪儿？",
     "about": "关于",
-    "tournaments": "赛事"
+    "tournaments": "赛事",
+    "manage_tournaments": "赛事管理"
   },
   "home": {
     "write_cta": "✍️ 写文章",
@@ -6959,7 +6960,8 @@
       "disconnected": "已断开",
       "reconnecting": "重新连接中",
       "refresh": "刷新"
-    }
+    },
+    "scorekeeper_waiting": "暂无需要记分的内容。比赛开始后请再查看。"
   },
   "admin_connection_status": {
     "data_changed": "数据已在其他地方更改。请刷新以查看最新内容。",
@@ -7013,5 +7015,60 @@
     "err_unknown": "出现错误，请重试。",
     "err_confirmation_required": "请准确输入 RESET 以确认。",
     "err_no_change": "胜者未改变——请使用普通修改。"
+  },
+  "tournament_management": {
+    "list_title": "赛事管理",
+    "list_sub_admin": "平台上的所有赛事。",
+    "list_sub_scoped": "您获授权管理的赛事。",
+    "empty_title": "暂无赛事",
+    "empty_sub_admin": "创建第一个赛事以开始。",
+    "empty_sub_scoped": "您尚未被指派管理任何赛事。请联系管理员。",
+    "back_list": "赛事列表",
+    "you_are_site_admin": "站点管理员",
+    "you_are_manager": "管理员",
+    "you_are_scorekeeper": "记分员"
+  },
+  "tournament_roles": {
+    "role_site_admin": "站点管理员",
+    "role_manager": "管理员",
+    "role_scorekeeper": "记分员"
+  },
+  "tournament_members": {
+    "section_title": "管理成员",
+    "section_hint": "为此赛事邀请管理员或记分员。仅站点管理员可见此区域。",
+    "email_label": "邮箱",
+    "email_placeholder": "name@email.com",
+    "role_label": "角色",
+    "invite_cta": "邀请",
+    "working": "处理中…",
+    "invited_ok": "已发送邀请。",
+    "role_changed_ok": "已更新角色。",
+    "revoked_ok": "已撤销权限。",
+    "col_member": "成员",
+    "col_role": "角色",
+    "col_status": "状态",
+    "col_invited": "邀请时间",
+    "col_accepted": "接受时间",
+    "col_actions": "操作",
+    "empty": "暂无成员。",
+    "revoke": "撤销",
+    "reinvite": "重新邀请",
+    "cancel": "取消",
+    "confirm_revoke_title": "撤销管理权限？",
+    "confirm_revoke_desc": "撤销 {email} 的权限。他们将在下次检查时失去访问权限。",
+    "status_pending": "待接受",
+    "status_active": "已激活",
+    "status_revoked": "已撤销",
+    "err_NOT_AUTHENTICATED": "请先登录。",
+    "err_FORBIDDEN": "您没有权限执行此操作。",
+    "err_INVALID_ROLE": "角色无效。",
+    "err_INVALID_PERMISSION": "权限无效。",
+    "err_invalid": "数据无效。",
+    "err_invalid_email": "邮箱无效。",
+    "err_invalid_role": "角色无效。",
+    "err_not_found": "未找到。",
+    "err_already_active": "该邮箱已是活跃成员。",
+    "err_version_conflict": "数据刚刚发生变化。请重新加载。",
+    "err_unknown": "出现问题。请重试。"
   }
 }

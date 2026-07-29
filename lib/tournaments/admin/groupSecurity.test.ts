@@ -35,7 +35,7 @@ test('every group action is defined and checks admin BEFORE the service-role cli
   for (const name of GROUP_ACTIONS) {
     assert.ok(src.includes(`export async function ${name}`), `missing action: ${name}`)
     const body = src.slice(src.indexOf(`export async function ${name}`)).slice(0, 320)
-    assert.ok(body.includes('checkIsAdmin'), `${name} must call checkIsAdmin near the top`)
+    assert.ok(body.includes('may('), `${name} must guard with a scoped permission via may()`)
     assert.ok(body.includes("error: 'forbidden'"), `${name} must reject non-admins with forbidden`)
   }
 })

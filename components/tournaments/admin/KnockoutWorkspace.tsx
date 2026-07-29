@@ -14,31 +14,43 @@ type Tab = 'competitors' | 'seeding' | 'bracket' | 'results' | 'podium'
 
 // Tabbed workspace for a knockout-only event: Xếp nhánh / Nhánh đấu / Kết quả / Thành tích. The
 // bracket/results/podium tabs appear once the bracket has been generated. No group tabs are shown.
+// Convenience UI capabilities (see EventWorkspace). A scorekeeper gets only { score } → the bracket
+// view / results / podium, and none of the roster or seeding management. Server re-checks mutations.
+export interface KnockoutWorkspaceCaps {
+  competitors?: boolean
+  bracket?: boolean
+  score?: boolean
+}
+
 export default function KnockoutWorkspace({
   tournamentId,
   eventId,
   seedSetup,
   workspace,
+  caps = { competitors: true, bracket: true, score: true },
 }: {
   tournamentId: string
   eventId: string
   seedSetup: KnockoutSeedSetup
   workspace: KnockoutWorkspaceData | null
+  caps?: KnockoutWorkspaceCaps
 }) {
   const t = useTranslations('admin_knockout_seeding')
   const tc = useTranslations('admin_tournament_groups')
   const tt = useTranslations('tournaments')
+  const c = caps
   const hasBracket = workspace !== null && workspace.hasBracket
   const [tab, setTab] = useState<Tab>(hasBracket ? 'results' : 'competitors')
 
   const tabs: { id: Tab; label: string; show: boolean; badge?: boolean }[] = [
-    { id: 'competitors', label: tc('tab_competitors'), show: true },
-    { id: 'seeding', label: t('tab_seeding'), show: true },
-    { id: 'bracket', label: t('tab_bracket'), show: hasBracket },
-    { id: 'results', label: t('tab_results'), show: hasBracket },
-    { id: 'podium', label: t('tab_podium'), show: hasBracket, badge: workspace?.isComplete },
+    { id: 'competitors', label: tc('tab_competitors'), show: c.competitors !== false },
+    { id: 'seeding', label: t('tab_seeding'), show: c.bracket !== false },
+    { id: 'bracket', label: t('tab_bracket'), show: hasBracket && c.score !== false },
+    { id: 'results', label: t('tab_results'), show: hasBracket && c.score !== false },
+    { id: 'podium', label: t('tab_podium'), show: hasBracket && c.score !== false, badge: workspace?.isComplete },
   ]
-  const active = tabs.find((x) => x.id === tab)?.show ? tab : 'competitors'
+  const visibleTabs = tabs.filter((x) => x.show)
+  const active = visibleTabs.some((x) => x.id === tab) ? tab : (visibleTabs[0]?.id ?? 'competitors')
 
   return (
     <div>
@@ -52,7 +64,12 @@ export default function KnockoutWorkspace({
       />
 
       <div role="tabpanel" id="ko-panel" aria-labelledby={`ko-tab-${active}`} tabIndex={0} className="focus:outline-none">
-      {active === 'competitors' && (
+      {visibleTabs.length === 0 && (
+        <div className="bg-cream border border-line rounded-2xl py-10 px-6 text-center">
+          <p className="text-[13px] text-muted">{tt('scorekeeper_waiting')}</p>
+        </div>
+      )}
+      {active === 'competitors' && c.competitors !== false && (
         <CompetitorManager
           tournamentId={tournamentId}
           eventId={eventId}

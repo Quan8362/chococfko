@@ -18,6 +18,8 @@ import { revalidatePath } from 'next/cache'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { checkIsAdmin, createAdminClient } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
+import { checkTournamentPermission } from '@/lib/tournaments/permissions/server'
+import type { TournamentPermission } from '@/lib/tournaments/permissions'
 import {
   validateTournamentInput,
   type TournamentFormValues,
@@ -30,11 +32,23 @@ import type {
 const PG_UNIQUE_VIOLATION = '23505'
 
 function revalidateTournamentViews(id?: string) {
-  revalidatePath('/admin/giai-dau')
-  if (id) {
-    revalidatePath(`/admin/giai-dau/${id}`)
-    revalidatePath(`/admin/giai-dau/${id}/edit`)
+  // Both the legacy Site-Admin mount and the scoped management surface render these views.
+  for (const base of ['/admin/giai-dau', '/quan-ly-giai-dau']) {
+    revalidatePath(base)
+    if (id) {
+      revalidatePath(`${base}/${id}`)
+      revalidatePath(`${base}/${id}/edit`)
+    }
   }
+}
+
+// Scoped guard for a tournament-entity mutation. Replaces the old blanket checkIsAdmin(): a Site
+// Admin still passes everything (short-circuit inside checkTournamentPermission), while a scoped
+// manager passes only the permissions their role maps to. The mutation's service-role client is
+// created ONLY after this returns true.
+async function may(tournamentId: string, permission: TournamentPermission): Promise<boolean> {
+  const check = await checkTournamentPermission(tournamentId, permission)
+  return check.ok
 }
 
 async function currentUserId(): Promise<string | null> {
@@ -121,8 +135,8 @@ export async function updateTournament(
   expectedUpdatedAt: string,
   values: TournamentFormValues,
 ): Promise<TournamentMutationResult> {
-  if (!(await checkIsAdmin())) return { ok: false, error: 'forbidden' }
   if (!id || !expectedUpdatedAt) return { ok: false, error: 'invalid' }
+  if (!(await may(id, 'tournament.update'))) return { ok: false, error: 'forbidden' }
 
   const parsed = validateTournamentInput(values)
   if (!parsed.ok) return { ok: false, error: 'invalid', fieldErrors: parsed.errors }
@@ -187,11 +201,12 @@ async function transitionStatus(
     allowedFrom: TournamentStatus[]
     to: TournamentStatus
     action: string
+    permission: TournamentPermission
     requireEvent?: boolean
   },
 ): Promise<TournamentMutationResult> {
-  if (!(await checkIsAdmin())) return { ok: false, error: 'forbidden' }
   if (!id || !expectedUpdatedAt) return { ok: false, error: 'invalid' }
+  if (!(await may(id, opts.permission))) return { ok: false, error: 'forbidden' }
 
   const actorId = await currentUserId()
   const admin = createAdminClient()
@@ -242,6 +257,7 @@ export async function publishTournament(
     allowedFrom: ['draft'],
     to: 'published',
     action: 'tournament_published',
+    permission: 'tournament.publish',
     requireEvent: true,
   })
 }
@@ -255,6 +271,7 @@ export async function archiveTournament(
     allowedFrom: ['draft', 'published', 'completed'],
     to: 'archived',
     action: 'tournament_archived',
+    permission: 'tournament.archive',
   })
 }
 
@@ -263,8 +280,8 @@ export async function deleteDraftTournament(
   id: string,
   expectedUpdatedAt: string,
 ): Promise<TournamentMutationResult> {
-  if (!(await checkIsAdmin())) return { ok: false, error: 'forbidden' }
   if (!id || !expectedUpdatedAt) return { ok: false, error: 'invalid' }
+  if (!(await may(id, 'tournament.delete'))) return { ok: false, error: 'forbidden' }
 
   const actorId = await currentUserId()
   const admin = createAdminClient()

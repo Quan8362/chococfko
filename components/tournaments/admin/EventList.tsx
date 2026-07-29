@@ -12,9 +12,16 @@ import type { EventListItem, EventMutationError } from '@/lib/tournaments/admin/
 export default function EventList({
   tournamentId,
   events,
+  basePath = '/admin/giai-dau',
+  canManage = true,
 }: {
   tournamentId: string
   events: EventListItem[]
+  // Route prefix the workspace is mounted under (legacy admin vs scoped management surface).
+  basePath?: string
+  // When false (e.g. a scorekeeper), hide add/delete/reorder and keep only "open" — the server
+  // still rejects any event.manage mutation regardless of what the UI shows.
+  canManage?: boolean
 }) {
   const t = useTranslations('admin_tournament_events')
   const router = useRouter()
@@ -66,12 +73,14 @@ export default function EventList({
     <div>
       <div className="flex items-center justify-between gap-3 mb-3">
         <h2 className="font-serif font-bold text-[16px] text-ink">{t('section_title')}</h2>
-        <Link
-          href={`/admin/giai-dau/${tournamentId}/noi-dung/new`}
-          className="flex-none font-semibold text-[12.5px] px-4 py-2 rounded-full bg-rose text-white hover:bg-rose-deep transition-all"
-        >
-          + {t('add_cta')}
-        </Link>
+        {canManage && (
+          <Link
+            href={`${basePath}/${tournamentId}/noi-dung/new`}
+            className="flex-none font-semibold text-[12.5px] px-4 py-2 rounded-full bg-rose text-white hover:bg-rose-deep transition-all"
+          >
+            + {t('add_cta')}
+          </Link>
+        )}
       </div>
 
       {error && <p className="text-[12px] text-rose mb-3 max-w-[420px]">{t(`err_${error}`)}</p>}
@@ -83,12 +92,14 @@ export default function EventList({
           </div>
           <h3 className="font-serif font-bold text-[15.5px] text-ink mb-1">{t('empty_title')}</h3>
           <p className="text-[13px] text-muted max-w-[300px] mx-auto leading-relaxed mb-4">{t('empty_sub')}</p>
-          <Link
-            href={`/admin/giai-dau/${tournamentId}/noi-dung/new`}
-            className="inline-block font-semibold text-[12.5px] px-4 py-2 rounded-full bg-rose text-white hover:bg-rose-deep transition-all"
-          >
-            + {t('add_cta')}
-          </Link>
+          {canManage && (
+            <Link
+              href={`${basePath}/${tournamentId}/noi-dung/new`}
+              className="inline-block font-semibold text-[12.5px] px-4 py-2 rounded-full bg-rose text-white hover:bg-rose-deep transition-all"
+            >
+              + {t('add_cta')}
+            </Link>
+          )}
         </div>
       ) : (
         <div className="space-y-2.5">
@@ -98,26 +109,28 @@ export default function EventList({
               className="bg-paper border border-line rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center gap-3 hover:border-rose/25 transition-all"
             >
               {/* Order controls */}
-              <div className="flex sm:flex-col gap-1 flex-none">
-                <button
-                  type="button"
-                  disabled={pending || i === 0}
-                  onClick={() => move(i, -1)}
-                  aria-label={t('move_up')}
-                  className="w-7 h-7 grid place-items-center rounded-lg border border-line bg-cream text-muted hover:text-rose hover:border-rose/35 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                >
-                  ↑
-                </button>
-                <button
-                  type="button"
-                  disabled={pending || i === items.length - 1}
-                  onClick={() => move(i, 1)}
-                  aria-label={t('move_down')}
-                  className="w-7 h-7 grid place-items-center rounded-lg border border-line bg-cream text-muted hover:text-rose hover:border-rose/35 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                >
-                  ↓
-                </button>
-              </div>
+              {canManage && (
+                <div className="flex sm:flex-col gap-1 flex-none">
+                  <button
+                    type="button"
+                    disabled={pending || i === 0}
+                    onClick={() => move(i, -1)}
+                    aria-label={t('move_up')}
+                    className="w-7 h-7 grid place-items-center rounded-lg border border-line bg-cream text-muted hover:text-rose hover:border-rose/35 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                  >
+                    ↑
+                  </button>
+                  <button
+                    type="button"
+                    disabled={pending || i === items.length - 1}
+                    onClick={() => move(i, 1)}
+                    aria-label={t('move_down')}
+                    className="w-7 h-7 grid place-items-center rounded-lg border border-line bg-cream text-muted hover:text-rose hover:border-rose/35 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                  >
+                    ↓
+                  </button>
+                </div>
+              )}
 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap mb-1">
@@ -132,22 +145,24 @@ export default function EventList({
 
               <div className="flex gap-2 flex-none">
                 <Link
-                  href={`/admin/giai-dau/${tournamentId}/noi-dung/${ev.id}`}
+                  href={`${basePath}/${tournamentId}/noi-dung/${ev.id}`}
                   className="text-[12.5px] font-semibold px-3 py-[7px] rounded-lg bg-cream text-[#5c4d44] border border-line hover:border-rose/35 hover:text-rose transition-all"
                 >
                   {t('open')}
                 </Link>
-                <button
-                  type="button"
-                  disabled={pending}
-                  onClick={() => {
-                    setError(null)
-                    setConfirmDelete(ev)
-                  }}
-                  className="text-[12.5px] font-semibold px-3 py-[7px] rounded-lg bg-red-50 text-red-600 border border-red-200 hover:bg-red-500 hover:text-white hover:border-transparent disabled:opacity-50 transition-all"
-                >
-                  {t('delete')}
-                </button>
+                {canManage && (
+                  <button
+                    type="button"
+                    disabled={pending}
+                    onClick={() => {
+                      setError(null)
+                      setConfirmDelete(ev)
+                    }}
+                    className="text-[12.5px] font-semibold px-3 py-[7px] rounded-lg bg-red-50 text-red-600 border border-red-200 hover:bg-red-500 hover:text-white hover:border-transparent disabled:opacity-50 transition-all"
+                  >
+                    {t('delete')}
+                  </button>
+                )}
               </div>
             </div>
           ))}

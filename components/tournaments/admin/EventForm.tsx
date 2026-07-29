@@ -36,9 +36,13 @@ const inputCls =
 export default function EventForm({
   tournamentId,
   initial,
+  basePath = '/admin/giai-dau',
 }: {
   tournamentId: string
   initial?: EventFormInitial
+  // Route prefix the workspace is mounted under. Lets the same form serve the Site-Admin mount and
+  // the scoped /quan-ly-giai-dau management surface. Defaults to the legacy admin mount.
+  basePath?: string
 }) {
   const t = useTranslations('admin_tournament_events')
   const router = useRouter()
@@ -79,7 +83,7 @@ export default function EventForm({
         ? await updateTournamentEvent(tournamentId, initial.eventId, initial.version, values)
         : await createTournamentEvent(tournamentId, values)
       if (res.ok) {
-        router.push(`/admin/giai-dau/${tournamentId}/noi-dung/${res.id}`)
+        router.push(`${basePath}/${tournamentId}/noi-dung/${res.id}`)
         router.refresh()
         return
       }

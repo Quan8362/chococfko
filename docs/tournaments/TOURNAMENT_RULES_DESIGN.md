@@ -288,3 +288,12 @@ role writes re-validating via `validateEventRuleSnapshot`; public "rules" displa
 RPC; wiring `validateMatchScoresByRules` / `calculateStartingScore` into the scoring action **behind
 the snapshot**; competitor-composition persistence; and the **BTC-confirmed** handicap numbers. The
 **production** migration + deploy stay gated on the operator (see the runbook's rule-engine section).
+
+---
+
+## Prompt 15B-2 status
+
+15B-2 shipped the scoped management routes/roles and refactored action guards to scoped permissions.
+The `rules.manage` permission exists in the role map (managers hold it) but is **not yet wired to any
+UI or mutation** — the rule preset picker, the per-event rule editor and the scoring runtime (15/21
+laws, handicap) remain deferred to **Prompt 15C**.

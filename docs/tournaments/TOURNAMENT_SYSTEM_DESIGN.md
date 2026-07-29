@@ -948,3 +948,40 @@ UI; realtime edge cases (disconnect/polling/stale-banner); tie blocking-detectio
 HTTP 404 trên `next build && next start`. Migration tournament **vẫn chưa** áp production (đúng chủ trương).
 
 **Kết thúc Prompt 13. Dừng lại, không tự sang Prompt 14. Không chạy migration production. Không push/deploy.**
+
+---
+
+## 23. Prompt 15A-2 — Rule engine persistence (migration #8; branch `feat/tournament-rules-fjp-2026`)
+
+Persists the pure rule engine (Prompt 15A-1). Additive **migration #8**
+(`supabase/migration_tournament_rule_engine.sql`, after the privacy migration) — no change to any
+approved migration (1–7) or to `tournament_events`. Two admin-only tables:
+
+- **`tournament_rule_presets`** — versioned admin templates, one row per `(preset_key, version)`;
+  `payload jsonb` = the category-variant array. `is_default` CHECK-pinned **false**.
+- **`tournament_event_rule_snapshots`** — one row per event (`UNIQUE(event_id)`, FK → events, CASCADE);
+  `payload jsonb` = the deep-copied `RuleSet`. Metadata (source, preset provenance, category, schema/
+  snapshot/concurrency version, requires_configuration) is promoted to typed **columns**. **No FK** to
+  the presets table → a preset edit can never mutate a live snapshot (independence, DB-enforced).
+
+**Security:** both tables RLS admin/service-role-only (no public SELECT, `REVOKE ALL FROM anon,
+authenticated`) — same pattern as the qualification-override privacy fix (§ Prompt 14B). Guests read
+only a minimal scoring **summary** via `SECURITY DEFINER` RPC
+`tournament_public_event_rule_summary(event_id)` (published/completed only; no admin metadata).
+
+**Repository (server-only):** pure `lib/tournaments/rules/persistence.ts`
+(`createSnapshotPayload`, `toPublicEventRuleSummary`); admin reads
+`lib/tournaments/admin/ruleQueries.ts` (service-role); public read
+`lib/tournaments/public/ruleSummary.ts` (anon + safe RPC). Every future admin write still
+`authenticate → checkIsAdmin() → createAdminClient()`.
+
+**FJP seed:** `supabase/seed_tournament_rule_presets.sql` (idempotent) mirrors
+`buildFjpOlympiad2026Preset()`; seeds the template only. **Handicap blocker persists** — preset ships
+`requires_configuration = true`, `handicap.entries = []`; concrete numbers still need BTC confirmation
+and were not invented.
+
+**Deferred to 15B/15C:** admin picker + per-event editor with guarded writes, public rules display,
+scoring integration behind the snapshot, competitor-composition persistence, handicap runtime numbers,
+and the **production** migration + deploy (operator-gated; see the runbook §6b).
+
+**Kết thúc Prompt 15A-2. Dừng lại, không tự sang Prompt 15B. Không merge. Không deploy. Không chạy SQL production.**

@@ -28,8 +28,15 @@ strict dependency chain:
 | 5 | `supabase/migration_tournament_group_knockout.sql` | `tournament_gk_branch_complete`, `tournament_save_group_knockout_seeds`, `tournament_clear_group_knockout_seeds`, `tournament_generate_group_knockout`, `tournament_reset_group_knockout`, `tournament_save_group_knockout_result`, `tournament_clear_group_knockout_result` | core, knockout_bracket |
 | 6 | `supabase/migration_tournament_reset_path.sql` | `tournament_reset_bracket_complete`, `tournament_reset_knockout_path`, **+ adds the 11 tables to the `supabase_realtime` publication** | core, scoring, knockout_bracket, group_knockout |
 | 7 | `supabase/migration_tournament_public_privacy.sql` | **Privacy fix (Prompt 14B).** `tournament_public_qualification_overrides(uuid)` public-safe projection RPC; **REVOKE SELECT** on `tournament_qualification_overrides` from anon/authenticated; **DROP** the `tqo_public_select` policy | core, scoring |
+| 8 | `supabase/migration_tournament_rule_engine.sql` | **Rule engine (Prompt 15A-2).** `tournament_rule_presets` + `tournament_event_rule_snapshots` tables (RLS admin-only, no public read), `tournament_public_event_rule_summary(uuid)` public-safe scoring-summary RPC, updated_at/version-bump triggers, indexes, grants | core |
 
-Each rollback file is `..._rollback.sql` next to its migration. Roll back in **reverse** order (7 → 1).
+Each rollback file is `..._rollback.sql` next to its migration. Roll back in **reverse** order (8 → 1).
+
+> **Migration 8 is a separate branch (`feat/tournament-rules-fjp-2026`), NOT part of the pending
+> `feat/tournament-system` production deploy.** It is authored + locally-gated only. Apply it to
+> production **only after** migrations 1–7 are live and the rule-engine branch is merged — see
+> §"Rule engine — apply & local gate" below. Its optional preset seed is
+> `supabase/seed_tournament_rule_presets.sql`.
 
 ### Idempotency (verified on the local stack, Prompt 14B — clean apply → reapply → 10/10 harnesses → rollback → reapply → retest, all green)
 Re-applying any file is safe:
@@ -266,6 +273,53 @@ If you need to hide tournaments from users without touching the DB, remove the t
 (the `/giai-dau` links in `components/Nav.tsx` + `components/MobileMenu.tsx` and the card in
 `app/games/page.tsx`) and redeploy. The routes still exist but are unlinked. There is no server env flag
 for this module; navigation removal is the intended soft-disable.
+
+---
+
+## 6b. Rule engine — apply & local gate (migration #8, Prompt 15A-2)
+
+The rule engine lives on branch `feat/tournament-rules-fjp-2026` and is **not** part of the base
+tournament production deploy. Treat it as a follow-on migration once 1–7 are live.
+
+### Exact order
+```
+migration_tournament_rule_engine.sql          # after migration 7 (public_privacy)
+seed_tournament_rule_presets.sql              # optional: seeds the FJP preset template (idempotent)
+```
+Rollback (reverse): `migration_tournament_rule_engine_rollback.sql` (drops both tables **CASCADE** —
+safe only while they hold no data you need). It does not touch migrations 1–7.
+
+### RLS / privacy
+- `tournament_rule_presets` and `tournament_event_rule_snapshots` are **admin/service-role only**: RLS
+  enabled, one `*_service_all` policy each, **no** public SELECT policy, `REVOKE ALL FROM anon,
+  authenticated`. Guests cannot read either base table over REST or Realtime.
+- Guests read only a minimal scoring **summary** via `tournament_public_event_rule_summary(event_id)`
+  (`SECURITY DEFINER`, pinned `search_path`, gated on published/completed). It returns group/knockout
+  scoring numbers, tie-break labels, `handicap_enabled`, `category`, preset `label` — **no** admin
+  metadata.
+
+### Snapshot independence
+There is **no FK** from a snapshot's `preset_key/preset_version` to the presets table. Updating or
+deleting a preset can never change an existing event snapshot (the snapshot is a self-contained deep
+copy created by the app at apply-time).
+
+### Local gate (WSL2 + Docker; local ONLY — never production, per §3)
+Verified 2026-07-29 on the local Supabase stack (all green):
+1. Migrations 1–7 already applied (11 tournament tables), no rule tables → clean start for #8.
+2. Apply `migration_tournament_rule_engine.sql` → **idempotent reapply** (both exit 0).
+3. Apply `seed_tournament_rule_presets.sql` **twice** (idempotent; FJP row: `default=false,
+   reqcfg=true`).
+4. Run `supabase/tournament_rule_engine_tests.sql` → `ALL ASSERTIONS PASSED`.
+5. Run the full tournament SQL harness (10 files) → all pass (no regression from #8).
+6. Rollback `migration_tournament_rule_engine_rollback.sql` → 0 rule tables.
+7. Reapply + reseed → 8. Retest → `ALL ASSERTIONS PASSED`.
+9. Verify RLS (both `true`), policies (`*_service_all` only), anon/auth base SELECT (`false`), safe RPC
+   EXECUTE (anon/auth/service `true`, `prosecdef true`), indexes (`trp_*`, `ters_*`), and **no** FK
+   from snapshot → presets (`0`).
+
+> Do **not** run `tournament_rule_engine_tests.sql` against production (it inserts-and-`ROLLBACK`s).
+> Production verification stays read-only. The handicap numbers for FJP are **not yet configured**
+> (preset ships `requires_configuration = true`, `entries = []`); do not seed guessed values.
 
 ---
 

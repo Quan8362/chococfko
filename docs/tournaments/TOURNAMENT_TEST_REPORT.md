@@ -128,6 +128,55 @@ correct Supabase **project ref** + a **backup/PITR**, apply migrations 1→7 via
 
 ---
 
+## Prompt 15A-2 — Rule engine persistence + local DB gate (2026-07-29)
+
+Branch `feat/tournament-rules-fjp-2026` (base `feat/tournament-system` @ `336e068`). Adds **migration
+#8** (rule presets + event snapshots) beside the pure rule engine from 15A-1. All gates green.
+
+### 15A-2.1 What was tested
+- **New unit tests (+13):** `lib/tournaments/rules/persistence.test.ts` (6 — snapshot→row mapping,
+  deep-copy independence, safe-summary projection/null handling) + `ruleEngineSecurity.test.ts` (7 —
+  public path never uses service-role, server-only, no client import of the admin module, migration
+  keeps tables admin-only + safe RPC, FJP seed↔domain parity, no name/year branching).
+- **SQL harness** `supabase/tournament_rule_engine_tests.sql` (self-contained `BEGIN … ROLLBACK`)
+  covering the 18 required checks: preset (key,version) unique; non-empty payload CHECK; snapshot event
+  FK; one-snapshot-per-event; **snapshot unchanged when preset updated**; FJP not default; FJP requires
+  configuration (empty handicap entries); anon/authenticated cannot read **or** write either base
+  table; safe RPC returns only the public-safe projection for published events; draft never leaks;
+  cross-event/unknown-event blocked; service-role read+write incl. version-bump; grants + SECURITY
+  DEFINER + pinned search_path.
+
+### 15A-2.2 Local DB gate (WSL2 + Docker local stack; never production) — ALL GREEN
+Container `supabase_db_tnmti1r` (unix socket, db `postgres`). Migrations 1–7 present (11 tables), no
+rule tables → clean start for #8.
+1. Apply `migration_tournament_rule_engine.sql` → **idempotent reapply** — both exit 0.
+2. Seed `seed_tournament_rule_presets.sql` **twice** (idempotent). FJP row: `default=false, reqcfg=true`.
+3. `tournament_rule_engine_tests.sql` → **ALL ASSERTIONS PASSED**.
+4. Full tournament SQL harness (10 files: core, admin, events, group_assignment, scoring,
+   knockout_bracket, group_knockout, reset_path, public_read, public_privacy) → **all PASS** (no
+   regression from #8).
+5. Rollback → 0 rule tables → reapply + reseed → **retest ALL ASSERTIONS PASSED**.
+6. Verification: RLS enabled on both (`true`); policies = `*_service_all` only (no public SELECT);
+   anon/auth base-table SELECT = `false`; safe RPC EXECUTE anon/auth/service = `true`, `prosecdef =
+   true`; indexes `trp_key_idx / trp_status_idx / ters_preset_idx / ters_event_uq` present;
+   **snapshot → presets FK count = 0** (independence).
+
+### 15A-2.3 App-level quality gate
+- Unit suite: **2280 pass / 0 fail** (was 2267; +13). `tsc --noEmit --skipLibCheck`: **exit 0**.
+  `next lint` (lib/tournaments): **0 warnings/errors**. `next build`: **success**. Secret scan: clean
+  (only a negative assertion referencing the service-role key name). No poker files staged.
+
+### 15A-2.4 Handicap blocker (unchanged)
+FJP handicap numbers remain unconfirmed → preset persists `requires_configuration = true`,
+`entries = []`; `HANDICAP_NOT_CONFIGURED` fail-closed. Not invented.
+
+### 15A-2.5 Production gate — GATED (operator required)
+Production still has **zero** tournament migrations. Migration #8 is a follow-on branch, applied to
+prod only after 1–7 are live and the branch is merged (runbook §6b). This session ran **no** production
+SQL, no deploy, no merge.
+
+---
+
 ## 1. Summary
 
 Prompt 13 added a dedicated Playwright E2E suite under `e2e/tournaments/` that drives the **real app**

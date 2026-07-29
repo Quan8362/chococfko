@@ -27,17 +27,26 @@ strict dependency chain:
 | 4 | `supabase/migration_tournament_knockout_bracket.sql` | `tournament_save_knockout_seeds`, `tournament_clear_knockout_seeds`, `tournament_generate_knockout`, `tournament_reset_knockout`, `tournament_save_knockout_result`, `tournament_clear_knockout_result` | core |
 | 5 | `supabase/migration_tournament_group_knockout.sql` | `tournament_gk_branch_complete`, `tournament_save_group_knockout_seeds`, `tournament_clear_group_knockout_seeds`, `tournament_generate_group_knockout`, `tournament_reset_group_knockout`, `tournament_save_group_knockout_result`, `tournament_clear_group_knockout_result` | core, knockout_bracket |
 | 6 | `supabase/migration_tournament_reset_path.sql` | `tournament_reset_bracket_complete`, `tournament_reset_knockout_path`, **+ adds the 11 tables to the `supabase_realtime` publication** | core, scoring, knockout_bracket, group_knockout |
+| 7 | `supabase/migration_tournament_public_privacy.sql` | **Privacy fix (Prompt 14B).** `tournament_public_qualification_overrides(uuid)` public-safe projection RPC; **REVOKE SELECT** on `tournament_qualification_overrides` from anon/authenticated; **DROP** the `tqo_public_select` policy | core, scoring |
 
-Each rollback file is `..._rollback.sql` next to its migration. Roll back in **reverse** order (6 → 1).
+Each rollback file is `..._rollback.sql` next to its migration. Roll back in **reverse** order (7 → 1).
 
-### Idempotency (verified statically, Prompt 14)
+### Idempotency (verified on the local stack, Prompt 14B — clean apply → reapply → 10/10 harnesses → rollback → reapply → retest, all green)
 Re-applying any file is safe:
 - Tables: `CREATE TABLE IF NOT EXISTS` (×11, all in core).
-- Functions: `CREATE OR REPLACE FUNCTION` (×26).
-- Policies: each `CREATE POLICY` is preceded by `DROP POLICY IF EXISTS`.
+- Functions: `CREATE OR REPLACE FUNCTION` (×27, incl. the privacy RPC).
+- Policies: each `CREATE POLICY` is preceded by `DROP POLICY IF EXISTS`; the privacy migration `DROP POLICY IF EXISTS tqo_public_select`.
+- Grants: `REVOKE`/`GRANT` are naturally idempotent.
 - Indexes: `CREATE [UNIQUE] INDEX IF NOT EXISTS` (×15).
 - Realtime: guarded by a `pg_publication_tables` existence check before `ALTER PUBLICATION … ADD TABLE`.
 - No unguarded `ALTER TABLE … ADD`.
+
+> **Privacy note (Prompt 14B):** after migration 7, anon/authenticated have **no direct SELECT** on
+> `tournament_qualification_overrides` — the public page reads the tie-resolution ordering only through
+> the `tournament_public_qualification_overrides(event_id)` RPC, which returns just `group_id` +
+> `resolved_order` for public events. `reason` and `created_by` are never exposed via REST, RPC, or
+> Realtime. If you apply the first 6 without migration 7, the override `reason`/`created_by` remain
+> anon-readable — **migration 7 is required for the privacy guarantee.**
 
 ---
 
@@ -109,6 +118,7 @@ psql "$PROD_DB_URL" -v ON_ERROR_STOP=1 -f supabase/migration_tournament_scoring.
 psql "$PROD_DB_URL" -v ON_ERROR_STOP=1 -f supabase/migration_tournament_knockout_bracket.sql
 psql "$PROD_DB_URL" -v ON_ERROR_STOP=1 -f supabase/migration_tournament_group_knockout.sql
 psql "$PROD_DB_URL" -v ON_ERROR_STOP=1 -f supabase/migration_tournament_reset_path.sql
+psql "$PROD_DB_URL" -v ON_ERROR_STOP=1 -f supabase/migration_tournament_public_privacy.sql
 ```
 
 Record the result of each file (file name → success / error text) as you go.
@@ -201,6 +211,22 @@ order by tablename;
 select count(*) as tournaments from public.tournaments;
 ```
 
+**4.9 — Override privacy is enforced (Prompt 14B)** — expect
+`privacy_rpc=1, anon_base_sel=f, auth_base_sel=f, anon_rpc=t, pub_policy=0, rpc_secdef=t`:
+```sql
+select
+  (select count(*) from pg_proc where proname='tournament_public_qualification_overrides') as privacy_rpc,
+  has_table_privilege('anon','public.tournament_qualification_overrides','SELECT')          as anon_base_sel,
+  has_table_privilege('authenticated','public.tournament_qualification_overrides','SELECT') as auth_base_sel,
+  has_function_privilege('anon','public.tournament_public_qualification_overrides(uuid)','EXECUTE') as anon_rpc,
+  (select count(*) from pg_policies where tablename='tournament_qualification_overrides'
+      and policyname='tqo_public_select') as pub_policy,
+  (select prosecdef from pg_proc where proname='tournament_public_qualification_overrides') as rpc_secdef;
+```
+`anon`/`authenticated` must **not** be able to `select reason, created_by from
+tournament_qualification_overrides` — a direct select returns permission-denied; only the RPC
+(returning `group_id`, `resolved_order`) is reachable.
+
 ---
 
 ## 5. Failure handling
@@ -212,6 +238,7 @@ select count(*) as tournaments from public.tournaments;
 - **Rollback (only if forward-fix is not viable):** run the matching `..._rollback.sql` files in
   **reverse** order down to the point you need, e.g. to undo everything:
   ```
+  migration_tournament_public_privacy_rollback.sql
   migration_tournament_reset_path_rollback.sql
   migration_tournament_group_knockout_rollback.sql
   migration_tournament_knockout_bracket_rollback.sql

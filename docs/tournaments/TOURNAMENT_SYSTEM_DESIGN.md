@@ -200,6 +200,10 @@ knockout_seed_slots
 qualification_overrides
   id, event_id, group_id, resolved_order(jsonb: [competitor_id...]),
   reason(nullable), created_by, created_at
+  -- PRIVACY (migration 7, Prompt 14B): `reason` + `created_by` are internal. anon/authenticated have
+  -- NO direct SELECT on this table; the public page reads only (group_id, resolved_order) via the
+  -- SECURITY DEFINER RPC `tournament_public_qualification_overrides(event_id)`. reason/created_by never
+  -- leave the server for a Guest (REST/RPC/Realtime). Admin/service-role read the full row as before.
 
 podiums
   id, event_id, bracket[championship|consolation],

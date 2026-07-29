@@ -323,10 +323,10 @@ export async function getPublicEventWorkspace(
           .eq('event_id', eventId)
           .order('round_number', { ascending: true })
           .order('match_number', { ascending: true }),
-        supabase
-          .from('tournament_qualification_overrides')
-          .select('group_id, resolved_order')
-          .eq('event_id', eventId),
+        // Qualification overrides are read through a SECURITY DEFINER RPC that exposes ONLY the
+        // public-safe projection (group_id + resolved_order). anon/authenticated have no direct SELECT
+        // on the base table, so `reason`/`created_by` never reach a Guest over REST or Realtime.
+        supabase.rpc('tournament_public_qualification_overrides', { p_event_id: eventId }),
         supabase
           .from('tournament_podium')
           .select('bracket, rank, competitor_id, is_joint')

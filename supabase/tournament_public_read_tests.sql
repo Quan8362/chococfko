@@ -114,10 +114,16 @@ BEGIN
    WHERE match_id IN ('19000000-0000-0000-0000-000000000091','29000000-0000-0000-0000-000000000092');
   IF n <> 4 THEN RAISE EXCEPTION 'P7: anon cannot see published+completed match games (n=%)', n; END IF;
 
-  -- Qualification override readable (public standings need resolved_order).
-  SELECT count(*) INTO n FROM public.tournament_qualification_overrides
-   WHERE event_id = 'e1000000-0000-0000-0000-000000000001';
-  IF n <> 1 THEN RAISE EXCEPTION 'P8: anon cannot see override for standings (n=%)', n; END IF;
+  -- Qualification override: DIRECT base-table read is denied to anon (Prompt 14B privacy fix);
+  -- the public-safe projection RPC returns only group_id + resolved_order for the public event.
+  BEGIN
+    SELECT count(*) INTO n FROM public.tournament_qualification_overrides
+     WHERE event_id = 'e1000000-0000-0000-0000-000000000001';
+    RAISE EXCEPTION 'P8: anon can directly read the override base table (n=%)', n;
+  EXCEPTION WHEN insufficient_privilege THEN NULL; END;
+  SELECT count(*) INTO n
+    FROM public.tournament_public_qualification_overrides('e1000000-0000-0000-0000-000000000001');
+  IF n <> 1 THEN RAISE EXCEPTION 'P8b: anon cannot read override via safe RPC (n=%)', n; END IF;
 
   -- Completed-tournament podium readable.
   SELECT count(*) INTO n FROM public.tournament_podium

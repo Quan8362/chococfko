@@ -123,9 +123,12 @@ export default function TournamentDetail({
       { table: 'tournament_match_games' },
     ]
     if (selectedEventId) {
+      // Note: we intentionally do NOT subscribe to tournament_qualification_overrides — Guests have no
+      // SELECT on that table (privacy fix), so Realtime would deliver nothing and only add noise. Tie
+      // overrides are set alongside the final group result, so the tournament_matches signal already
+      // triggers the refetch that surfaces the "BTC phân định" marker.
       subs.push(
         { table: 'tournament_matches', filter: `event_id=eq.${selectedEventId}` },
-        { table: 'tournament_qualification_overrides', filter: `event_id=eq.${selectedEventId}` },
         { table: 'tournament_podium', filter: `event_id=eq.${selectedEventId}` },
       )
     }

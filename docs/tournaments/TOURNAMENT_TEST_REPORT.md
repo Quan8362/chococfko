@@ -16,7 +16,7 @@ regression fixes, and production-gate status.**_
 | F2 (Prompt 13) | Low (a11y) | ✅ FIXED | Public detail tablist now handles **Home/End** (not just Arrows) and has a **focus-visible** ring — matches the admin `WorkspaceTabs` WAI-ARIA set. Regression: `ui-structure.test.ts #3`. |
 | F3 (Prompt 13) | Low (dev-only) | ✅ FIXED | `ConfirmDialog` focus effect is now keyed on `open` **only**, reading `onCancel`/`pending` through refs, so a fresh `onCancel` identity on a parent re-render can't re-run the effect and steal focus back to the opener (the observed `next dev` + StrictMode artifact). Regression: `ui-structure.test.ts #4`. |
 | **P14-XSS** | **High** | ✅ FIXED | **Stored XSS via JSON-LD.** `lib/seo.ts#jsonLdString` did a bare `JSON.stringify` whose output is injected into a `<script type="application/ld+json">` via `dangerouslySetInnerHTML` on the public tournament pages. An admin-authored tournament **name**/**location** containing `</script>…` would break out of the tag and execute. Fixed by re-encoding `< > &` + U+2028/U+2029 as `\uXXXX` (lossless — browsers decode back; structured data unchanged). Shared helper, so the whole site is hardened. Regression: new `lib/seo.test.ts` (4 tests). |
-| P14-QO | Low/Med (info-disclosure) | ⚠️ DOCUMENTED | `tournament_qualification_overrides.reason` (admin free-text) and `.created_by` (an admin `auth.users` UUID) are readable by **anon via direct REST** on published tournaments, because the row is public-gated and `SELECT` is granted table-wide. The **app never exposes them** (the public query selects only `group_id, resolved_order`; the UI shows a neutral "Ban tổ chức phân định" marker), so there is no in-product leak. The row's *existence* is public by design. Remediation if desired: an additive migration that `REVOKE SELECT ON tournament_qualification_overrides FROM anon, authenticated` then `GRANT SELECT (id, event_id, group_id, resolved_order, created_at)` — note Realtime may still deliver full-row payloads, so also treat the realtime channel as a signal-only (already the case). Not shipped in the reviewed 6-migration set to keep it stable for the first production apply. |
+| P14-QO | Low/Med (info-disclosure) | ✅ FIXED (14B) | `tournament_qualification_overrides.reason` (admin free-text) and `.created_by` (an admin `auth.users` UUID) were readable by **anon via direct REST/Realtime** on published tournaments (row public-gated, `SELECT` granted table-wide; RLS is row-level, not column-level). **Fixed in Prompt 14B** with `migration_tournament_public_privacy.sql`: **REVOKE SELECT** on the base table from anon/authenticated + **DROP** the `tqo_public_select` policy, and expose only the public-safe projection through a `SECURITY DEFINER` RPC `tournament_public_qualification_overrides(event_id) → (group_id, resolved_order)` (pinned `search_path`, `REVOKE … FROM PUBLIC`, `GRANT EXECUTE TO anon, authenticated, service_role`, with its own `tournament_event_is_public` guard so draft/archived never leak). The public query layer now calls this RPC; the client no longer subscribes to that table over Realtime. `reason`/`created_by` are unreachable via REST, RPC, or Realtime. Regression: `tournament_public_privacy_tests.sql` (12 checks) + updated `tournament_public_read_tests.sql` (P8). |
 
 ### 11. Security audit (read-level, Prompt 14) — PASS
 
@@ -69,6 +69,62 @@ stack is brought back up.
 - **Production deploy:** **NOT deployed** — must follow the DB migration (deploying tournament code
   against a DB without the tables would error the pages). Vercel is git-linked to `main`; the branch was
   pushed for a **Preview** first.
+
+---
+
+## Prompt 14B — Qualification-metadata privacy fix + live DB gate (2026-07-29)
+
+### 14B.1 Privacy fix (P14-QO closed)
+Implemented the fix for the P14-QO info-disclosure (see the findings table above): a new **migration 7**
+`migration_tournament_public_privacy.sql` that (a) creates the public-safe projection RPC
+`tournament_public_qualification_overrides(uuid) → (group_id, resolved_order)` — `SECURITY DEFINER`,
+`search_path=public, pg_temp`, `REVOKE … FROM PUBLIC`, `GRANT EXECUTE TO anon, authenticated,
+service_role`, with an internal `tournament_event_is_public` guard; (b) **REVOKEs SELECT** on
+`tournament_qualification_overrides` from anon/authenticated; (c) **DROPs** the `tqo_public_select`
+policy. The public read layer (`lib/tournaments/public/queries.ts`) now calls the RPC, and
+`TournamentDetail` no longer subscribes to the override table over Realtime. Result: `reason` and
+`created_by` are unreachable by anon/authenticated via REST, RPC **or** Realtime; the public page still
+shows the "BTC phân định" marker and the resolved ordering. Admin/service-role are unchanged.
+
+### 14B.2 Live local DB gate — GREEN (Supabase local stack, project `tnmti1r`, host = local Docker)
+Ran the full DB gate **on a clean local database** (rollback-all → apply-all), never against production:
+
+| Step | Result |
+|---|---|
+| Apply canonical order + migration 7 (`ON_ERROR_STOP=1`, one file at a time) | ✅ 7/7 OK |
+| Reapply migration 7 (idempotency) | ✅ OK |
+| SQL harnesses (10 — the 9 prior + new `tournament_public_privacy_tests`) | ✅ **10/10 PASS** |
+| Rollback migration 7 → grants restored → reapply → grants closed → re-test | ✅ PASS |
+| Grant snapshot | `privacy_rpc=1, anon_base_sel=f, auth_base_sel=f, anon_rpc=t, svc_rpc=t, pub_policy=0, rpc_secdef=t, search_path=public,pg_temp, tournament_tables=11` |
+
+`tournament_public_privacy_tests.sql` (12 checks) verifies: anon **and** authenticated cannot direct-read
+the base table (V1/V2) nor its `reason`/`created_by` columns (V4/V5); the safe RPC returns only
+group_id+resolved_order for the **public** event (V6/V7) and nothing for a **draft** event (V8/V2c);
+service-role still reads the full row (V9); and the grants/DEFINER/search_path are correct (V10a–e). The
+updated `tournament_public_read_tests.sql` P8 now asserts anon's direct read is **denied** and the RPC
+returns the ordering. (Note: `core`/`admin` harnesses initially failed against the long-lived local DB
+due to **stale audit_log rows** from prior interrupted runs; both pass on the clean-slate apply,
+confirming the failures were data contamination, not a regression.)
+
+### 14B.3 Local quality gate refresh (2026-07-29)
+`tsc --noEmit --skipLibCheck` ✅ 0 · unit `node --test` ✅ **2219/2219** · `next lint` ✅ 0 errors ·
+`next build` ✅ exit 0 · i18n parity ✅ `6523×5` · secret scan ✅ clean (privacy migration/tests +
+changed code carry no secrets).
+
+### 14B.4 Browser E2E status
+The Playwright tournament suite was **55/55 green in Prompt 13**; the 14B app-code delta is minimal (one
+public read swapped to the safe RPC; one Realtime subscription removed) and is covered by tsc + `next
+build`. The privacy behaviour itself is validated at the authoritative DB layer (14B.2). Re-running the
+full Playwright suite / `next start` HTTP-status + live-KO browser flows against the local stack is a
+residual for a session with a **stable** local stack — the WSL2/Docker Postgres container flaps on
+idle (`[[wsl-supabase-e2e-stability]]`), which makes a long browser run unreliable here.
+
+### 14B.5 Production gate — STILL GATED (unchanged, operator required)
+Privacy migration is **migration 7** in the canonical order. Production still has **zero** tournament
+migrations. Production migration + deploy remain gated on the operator per the runbook: confirm the
+correct Supabase **project ref** + a **backup/PITR**, apply migrations 1→7 via the SQL Editor, verify
+(incl. §4.9 privacy check), confirm the **Vercel Preview** build, then merge `feat/tournament-system` →
+`main`. This session did **not** run production SQL, deploy, or confirm the Preview (no Vercel/gh access).
 
 ---
 

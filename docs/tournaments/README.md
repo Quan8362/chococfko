@@ -45,6 +45,10 @@ e2e/tournaments/**                  Playwright suite (local stack only)
   action re-verifies the event belongs to the tournament in the URL (no IDOR across tournaments/events).
 - **XSS:** public JSON-LD is emitted through `jsonLdString()`, which re-encodes `< > &` + U+2028/9 so an
   admin-authored name/location can't break out of the `<script>` tag.
+- **Override privacy:** tie-resolution overrides carry internal `reason` + `created_by`; anon/authenticated
+  have **no** direct SELECT on `tournament_qualification_overrides`. The public page reads only
+  `group_id`+`resolved_order` via the `tournament_public_qualification_overrides` `SECURITY DEFINER` RPC,
+  so `reason`/`created_by` never reach a Guest over REST, RPC, or Realtime (migration 7).
 
 ## Documents in this folder
 

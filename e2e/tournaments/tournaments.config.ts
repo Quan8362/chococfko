@@ -50,6 +50,7 @@ export default defineConfig({
   },
   projects: [
     { name: 'setup', testMatch: /auth\.setup\.ts/ },
+    scenario('permissions', 'permissions.spec.ts'),
     scenario('authorization', 'authorization.spec.ts'),
     scenario('crud', 'crud.spec.ts'),
     scenario('public', 'public.spec.ts'),
@@ -69,6 +70,9 @@ export default defineConfig({
         command:
           process.env.TNMT_E2E_WEB_CMD ||
           'npx next dev -p 3100',
+        // Playwright defaults webServer.cwd to the CONFIG file's directory (e2e/tournaments); Next must
+        // be spawned from the app root so it finds app/. The npm scripts run from the web root (cwd).
+        cwd: process.cwd(),
         url: BASE_URL,
         reuseExistingServer: !isCI,
         timeout: 180_000,

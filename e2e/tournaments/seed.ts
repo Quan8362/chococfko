@@ -286,8 +286,136 @@ export async function seedRoundRobinReadyToGenerate(): Promise<RoundRobinFixture
   }
 }
 
+// ── Membership seeding (15B-2E) ───────────────────────────────────────────────────────────────
+// Scoped-role helpers. Memberships are always attached to a RUN_PREFIX tournament, so cleanupRun's
+// ON DELETE CASCADE removes them too — no separate member cleanup is needed.
+export type MemberRole = 'manager' | 'scorekeeper'
+export type MemberStatus = 'pending' | 'active' | 'revoked'
+
+const normEmail = (e: string) => e.toLowerCase().trim()
+
+// Resolve an auth user id by email (the setup project provisions these before any spec runs).
+export async function authUserIdByEmail(email: string): Promise<string> {
+  const a = admin()
+  for (let page = 1; page <= 20; page++) {
+    const { data, error } = await a.auth.admin.listUsers({ page, perPage: 200 })
+    if (error || !data?.users?.length) break
+    const hit = data.users.find((u) => (u.email || '').toLowerCase() === email.toLowerCase())
+    if (hit) return hit.id
+    if (data.users.length < 200) break
+  }
+  throw new Error(`seed authUserIdByEmail: no auth user for ${email}`)
+}
+
+// A PENDING invitation (unbound to any user) keyed by normalized email — the exact state the invite
+// action produces. The invitee binds it by claiming on first sign-in.
+export async function invitePendingMember(opts: {
+  tournamentId: string
+  email: string
+  role: MemberRole
+}): Promise<string> {
+  const { data, error } = await admin()
+    .from('tournament_members')
+    .insert({
+      tournament_id: opts.tournamentId,
+      email_normalized: normEmail(opts.email),
+      role: opts.role,
+      status: 'pending',
+    })
+    .select('id')
+    .single()
+  if (error) throw new Error(`seed invitePendingMember: ${error.message}`)
+  return data.id
+}
+
+// An already-ACTIVE membership bound to a real user (satisfies the tmem_active_bound CHECK). Used to
+// put a manager / scorekeeper straight into a tournament without driving the whole claim flow.
+export async function seedActiveMember(opts: {
+  tournamentId: string
+  email: string
+  role: MemberRole
+  userId: string
+}): Promise<string> {
+  const { data, error } = await admin()
+    .from('tournament_members')
+    .insert({
+      tournament_id: opts.tournamentId,
+      user_id: opts.userId,
+      email_normalized: normEmail(opts.email),
+      role: opts.role,
+      status: 'active',
+      accepted_at: new Date().toISOString(),
+    })
+    .select('id')
+    .single()
+  if (error) throw new Error(`seed seedActiveMember: ${error.message}`)
+  return data.id
+}
+
+// A REVOKED invitation (satisfies tmem_revoked_stamped). The claim RPC must skip these.
+export async function seedRevokedMember(opts: {
+  tournamentId: string
+  email: string
+  role: MemberRole
+}): Promise<string> {
+  const { data, error } = await admin()
+    .from('tournament_members')
+    .insert({
+      tournament_id: opts.tournamentId,
+      email_normalized: normEmail(opts.email),
+      role: opts.role,
+      status: 'revoked',
+      revoked_at: new Date().toISOString(),
+    })
+    .select('id')
+    .single()
+  if (error) throw new Error(`seed seedRevokedMember: ${error.message}`)
+  return data.id
+}
+
+// Read one membership row back for assertions (status transitions, binding, version).
+export interface MemberSnapshot {
+  status: MemberStatus
+  userId: string | null
+  role: MemberRole
+  version: number
+}
+export async function getMemberSnapshot(opts: {
+  tournamentId: string
+  email: string
+}): Promise<MemberSnapshot | null> {
+  const { data } = await admin()
+    .from('tournament_members')
+    .select('status, user_id, role, version')
+    .eq('tournament_id', opts.tournamentId)
+    .eq('email_normalized', normEmail(opts.email))
+    .maybeSingle()
+  if (!data) return null
+  return {
+    status: data.status as MemberStatus,
+    userId: (data.user_id as string | null) ?? null,
+    role: data.role as MemberRole,
+    version: data.version as number,
+  }
+}
+
+// Directly revoke a member (service-role), for deterministic "revoke while logged in" setups that do
+// not go through the Site-Admin UI. Idempotent-ish: only flips a currently-active/pending row.
+export async function revokeMemberDirect(opts: {
+  tournamentId: string
+  email: string
+}): Promise<void> {
+  const { error } = await admin()
+    .from('tournament_members')
+    .update({ status: 'revoked', revoked_at: new Date().toISOString() })
+    .eq('tournament_id', opts.tournamentId)
+    .eq('email_normalized', normEmail(opts.email))
+    .neq('status', 'revoked')
+  if (error) throw new Error(`seed revokeMemberDirect: ${error.message}`)
+}
+
 // ── Cleanup: delete every tournament this run created (cascades to events/competitors/groups/
-// matches/games/podium/overrides). Safe to call in afterAll even after failures.
+// matches/games/podium/overrides/members). Safe to call in afterAll even after failures.
 export async function cleanupRun(): Promise<{ deleted: number }> {
   assertLocalTarget()
   const { data, error } = await admin()

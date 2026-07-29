@@ -82,6 +82,33 @@ export function assertNoAuditLogRequests(guard: PageGuard): void {
   expect(audit.map((r) => r.url()), 'public page must not touch tournament_audit_log').toEqual([])
 }
 
+// The hard security invariants for any page in the scoped-management flow, WITHOUT coupling to console
+// noise: no uncaught/hydration error, no 5xx on a real flow, no prod host, no service-role leak, and
+// the browser never touches the membership table directly. Use this in functional tests; use the
+// stricter assertClean() only in the dedicated console/network test.
+export function assertSecure(guard: PageGuard): void {
+  expect(guard.pageErrors, `uncaught page errors:\n${guard.pageErrors.join('\n')}`).toEqual([])
+  const hydration = guard.consoleErrors.filter((e) => /hydrat|did not match|Text content does not match/i.test(e))
+  expect(hydration, `hydration errors:\n${hydration.join('\n')}`).toEqual([])
+  const serverErrors = guard.failedResponses.filter((r) => r.status >= 500)
+  expect(serverErrors, `server errors:\n${JSON.stringify(serverErrors, null, 2)}`).toEqual([])
+  const prod = guard.requests.filter((r) => looksLikeProdSupabase(r.url()))
+  expect(prod.map((r) => r.url()), 'requests to a PRODUCTION host').toEqual([])
+  for (const r of guard.requests) {
+    expect(r.url().includes(SERVICE_ROLE_KEY), `service-role key leaked in URL: ${r.url()}`).toBe(false)
+    expect(JSON.stringify(r.headers()).includes(SERVICE_ROLE_KEY), `service-role key leaked in headers of ${r.url()}`).toBe(false)
+    expect((r.postData() || '').includes(SERVICE_ROLE_KEY), `service-role key leaked in body of ${r.url()}`).toBe(false)
+  }
+  assertNoMembersTableRequests(guard)
+}
+
+// The browser must NEVER query the membership table directly — all membership reads happen server-side
+// (RSC / service-role). A tournament_members request from the page would mean a client leak (§15).
+export function assertNoMembersTableRequests(guard: PageGuard): void {
+  const hits = guard.requests.filter((r) => /\/rest\/v1\/tournament_members/i.test(r.url()))
+  expect(hits.map((r) => r.url()), 'browser must not query tournament_members directly').toEqual([])
+}
+
 // Every Supabase request from a page should target the local stack host only.
 export function assertOnlyLocalSupabase(guard: PageGuard): void {
   const supa = guard.requests.filter((r) => /\/(rest|auth|realtime)\/v1\//.test(r.url()))

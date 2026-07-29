@@ -37,6 +37,12 @@ export const BASE_URL = process.env.TNMT_E2E_BASE_URL || 'http://localhost:3100'
 
 export const ADMIN_EMAIL = process.env.TNMT_E2E_ADMIN_EMAIL || 'tourn.admin@chococfko.test'
 export const USER_EMAIL = process.env.TNMT_E2E_USER_EMAIL || 'tourn.user@chococfko.test'
+// Scoped-role identities (15B-2E). NONE of these are in ADMIN_EMAILS (the config passes only
+// ADMIN_EMAIL) — so Site-Admin status can ONLY come from the admin identity, never from a membership.
+export const MANAGER_EMAIL = process.env.TNMT_E2E_MANAGER_EMAIL || 'tourn.manager@chococfko.test'
+export const SCOREKEEPER_EMAIL = process.env.TNMT_E2E_SCOREKEEPER_EMAIL || 'tourn.scorekeeper@chococfko.test'
+// A membership-less identity used only for the invitation-claim flow (starts with no active role).
+export const INVITEE_EMAIL = process.env.TNMT_E2E_INVITEE_EMAIL || 'tourn.invitee@chococfko.test'
 export const TEST_PASSWORD = process.env.TNMT_E2E_PASSWORD || 'Tnmt!e2e-local-2026'
 
 // Every row this suite creates is tagged with this run id so cleanup only ever removes its own data
@@ -49,6 +55,9 @@ export const ARTIFACT_DIR = path.resolve(HERE, '.artifacts')
 export const SCREENSHOT_DIR = path.resolve(ARTIFACT_DIR, 'screenshots')
 export const adminStateFile = path.join(AUTH_DIR, 'admin.json')
 export const userStateFile = path.join(AUTH_DIR, 'user.json')
+export const managerStateFile = path.join(AUTH_DIR, 'manager.json')
+export const scorekeeperStateFile = path.join(AUTH_DIR, 'scorekeeper.json')
+export const inviteeStateFile = path.join(AUTH_DIR, 'invitee.json')
 
 // ── HARD LOCAL-ONLY SAFETY GATE ───────────────────────────────────────────────────────────────
 // A hostname is "local" only if it is localhost / 127.0.0.1 / ::1 / *.local. Anything else — most

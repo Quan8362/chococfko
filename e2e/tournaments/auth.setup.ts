@@ -8,8 +8,9 @@ import { createServerClient } from '@supabase/ssr'
 import fs from 'node:fs'
 import {
   SUPABASE_URL, SUPABASE_ANON_KEY, SERVICE_ROLE_KEY, BASE_URL,
-  ADMIN_EMAIL, USER_EMAIL, TEST_PASSWORD,
-  AUTH_DIR, adminStateFile, userStateFile, assertLocalTarget,
+  ADMIN_EMAIL, USER_EMAIL, MANAGER_EMAIL, SCOREKEEPER_EMAIL, INVITEE_EMAIL, TEST_PASSWORD,
+  AUTH_DIR, adminStateFile, userStateFile, managerStateFile, scorekeeperStateFile, inviteeStateFile,
+  assertLocalTarget,
 } from './_env'
 
 async function findUserIdByEmail(admin: SupabaseClient, email: string): Promise<string | null> {
@@ -51,12 +52,23 @@ async function captureStorageState(email: string, outFile: string): Promise<void
   fs.writeFileSync(outFile, JSON.stringify({ cookies, origins: [] }, null, 2))
 }
 
-setup('provision admin + user (local only)', async () => {
+// Every identity this suite signs in as. Only ADMIN_EMAIL is wired into ADMIN_EMAILS (see the
+// config's webServer), so the manager / scorekeeper / invitee are strictly non-admin — a scoped
+// membership is the ONLY thing that can grant them anything.
+const IDENTITIES: { email: string; state: string }[] = [
+  { email: ADMIN_EMAIL, state: adminStateFile },
+  { email: USER_EMAIL, state: userStateFile },
+  { email: MANAGER_EMAIL, state: managerStateFile },
+  { email: SCOREKEEPER_EMAIL, state: scorekeeperStateFile },
+  { email: INVITEE_EMAIL, state: inviteeStateFile },
+]
+
+setup('provision test identities (local only)', async () => {
   assertLocalTarget()
   fs.mkdirSync(AUTH_DIR, { recursive: true })
   const admin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, { auth: { persistSession: false, autoRefreshToken: false } })
-  await ensureUser(admin, ADMIN_EMAIL)
-  await ensureUser(admin, USER_EMAIL)
-  await captureStorageState(ADMIN_EMAIL, adminStateFile)
-  await captureStorageState(USER_EMAIL, userStateFile)
+  for (const id of IDENTITIES) {
+    await ensureUser(admin, id.email)
+    await captureStorageState(id.email, id.state)
+  }
 })

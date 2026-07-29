@@ -73,6 +73,7 @@ export default async function Nav() {
             label={t('entertainment')}
             items={[
               { href: '/games', label: t('mini_game'), icon: 'puzzle' },
+              { href: '/giai-dau', label: t('tournaments'), icon: 'trophy' },
             ]}
           />
         </nav>

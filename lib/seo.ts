@@ -44,7 +44,12 @@ export function breadcrumbJsonLd(items: { name: string; path: string }[]) {
  * `JSON.stringify` drops object keys whose value is `undefined`, so callers can
  * leave optional fields inline without emitting invalid `null`/`undefined` data
  * (just avoid putting `undefined` inside arrays).
+ *
+ * The `<`, `>`, `&` and the U+2028/U+2029 line separators are re-encoded as `\uXXXX`
+ * so an admin-authored value (e.g. a tournament name containing `</script>`) can never
+ * break out of the script tag. Browsers decode the escapes back, so the structured data
+ * is byte-for-byte equivalent — the escaping is purely an XSS guard.
  */
 export function jsonLdString(obj: unknown): string {
-  return JSON.stringify(obj)
+  return JSON.stringify(obj).replace(/[<>&\u2028\u2029]/g, (c) => '\\u' + c.charCodeAt(0).toString(16).padStart(4, '0'))
 }

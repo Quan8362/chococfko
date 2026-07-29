@@ -1,0 +1,559 @@
+'use client'
+
+import { useMemo, useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
+import {
+  DndContext,
+  closestCorners,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  useDroppable,
+  type DragEndEvent,
+  type DragOverEvent,
+} from '@dnd-kit/core'
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+import ConfirmDialog from './ConfirmDialog'
+import RoundRobinPreviewPanel from './RoundRobinPreviewPanel'
+import {
+  UNASSIGNED,
+  buildBoardState,
+  containerOrder,
+  findContainer,
+  moveItem,
+  shiftContainer,
+  nudgeWithin,
+  toAssignmentPayload,
+  type BoardState,
+  type ContainerId,
+} from '@/lib/tournaments/domain/group-board'
+import { evaluateReadiness, type GroupStageFormat } from '@/lib/tournaments/domain/group-assignment'
+import {
+  initializeTournamentGroups,
+  saveGroupAssignments,
+  generateGroupMatches,
+  regenerateGroupMatches,
+} from '@/app/admin/giai-dau/[id]/noi-dung/actions'
+import type { CompetitorRow, GroupMutationError, GroupRow } from '@/lib/tournaments/admin/types'
+
+interface Props {
+  tournamentId: string
+  eventId: string
+  format: GroupStageFormat
+  version: number
+  desiredGroupCount: number
+  winnerQualifiersPerGroup: number
+  consolationQualifiersPerGroup: number
+  competitors: CompetitorRow[]
+  groups: GroupRow[]
+  memberships: Record<string, string[]>
+  unassignedIds: string[]
+  locked: boolean // group matches exist → assignment frozen (edit needs regenerate/reset)
+  hasResults: boolean // a completed match or recorded score exists → regenerate blocked
+  hasKnockout: boolean // knockout downstream exists → regenerate blocked
+}
+
+export default function GroupAssignmentBoard(props: Props) {
+  const t = useTranslations('admin_group_assignment')
+  const tm = useTranslations('admin_group_matches')
+  const tg = useTranslations('admin_tournament_groups')
+  const router = useRouter()
+  const [pending, startTransition] = useTransition()
+  const [error, setError] = useState<GroupMutationError | null>(null)
+  const [showPreview, setShowPreview] = useState(false)
+  const [confirmRegen, setConfirmRegen] = useState(false)
+
+  const groupIds = useMemo(() => props.groups.map((g) => g.id), [props.groups])
+  const order = useMemo(() => containerOrder(groupIds), [groupIds])
+
+  const initialState = useMemo(
+    () =>
+      buildBoardState(
+        props.groups.map((g) => ({ groupId: g.id, competitorIds: props.memberships[g.id] ?? [] })),
+        props.unassignedIds,
+      ),
+    [props.groups, props.memberships, props.unassignedIds],
+  )
+  const [state, setState] = useState<BoardState>(initialState)
+  // Re-sync when the server data changes identity (after a refresh).
+  const [seed, setSeed] = useState(initialState)
+  if (seed !== initialState) {
+    setSeed(initialState)
+    setState(initialState)
+  }
+
+  const nameOf = useMemo(() => {
+    const map = new Map(props.competitors.map((c) => [c.id, c.shortName || c.name]))
+    return (id: string | null) => (id ? map.get(id) ?? id : '—')
+  }, [props.competitors])
+  const groupNameOf = useMemo(() => {
+    const map = new Map(props.groups.map((g) => [g.id, g.name]))
+    return (id: string) => map.get(id) ?? id
+  }, [props.groups])
+
+  const payload = useMemo(() => toAssignmentPayload(state, groupIds), [state, groupIds])
+  const readiness = useMemo(
+    () =>
+      evaluateReadiness(payload, {
+        format: props.format,
+        winnerQualifiersPerGroup: props.winnerQualifiersPerGroup,
+        consolationQualifiersPerGroup: props.consolationQualifiersPerGroup,
+      }),
+    [payload, props.format, props.winnerQualifiersPerGroup, props.consolationQualifiersPerGroup],
+  )
+  const dirty = useMemo(
+    () => JSON.stringify(toAssignmentPayload(state, groupIds)) !== JSON.stringify(toAssignmentPayload(seed, groupIds)),
+    [state, seed, groupIds],
+  )
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  )
+
+  const resolveContainer = (id: string): ContainerId | null =>
+    id in state ? (id as ContainerId) : findContainer(state, id)
+
+  function handleDragOver(e: DragOverEvent) {
+    const { active, over } = e
+    if (!over) return
+    const activeId = String(active.id)
+    const overId = String(over.id)
+    const from = findContainer(state, activeId)
+    const to = resolveContainer(overId)
+    if (!from || !to || from === to) return
+    setState((prev) => {
+      const overItems = prev[to] ?? []
+      const idx = overId in prev ? overItems.length : overItems.indexOf(overId)
+      return moveItem(prev, activeId, to, idx >= 0 ? idx : overItems.length)
+    })
+  }
+
+  function handleDragEnd(e: DragEndEvent) {
+    const { active, over } = e
+    if (!over) return
+    const activeId = String(active.id)
+    const overId = String(over.id)
+    const from = findContainer(state, activeId)
+    const to = resolveContainer(overId)
+    if (from && to && from === to && activeId !== overId) {
+      const items = state[from]
+      const newIndex = overId in state ? items.length - 1 : items.indexOf(overId)
+      if (newIndex >= 0) setState((prev) => moveItem(prev, activeId, from, newIndex))
+    }
+  }
+
+  function run(fn: () => Promise<{ ok: boolean; error?: GroupMutationError }>, onOk?: () => void) {
+    setError(null)
+    startTransition(async () => {
+      const res = await fn()
+      if (res.ok) {
+        onOk?.()
+        router.refresh()
+      } else {
+        setError(res.error ?? 'unknown')
+      }
+    })
+  }
+
+  const doInitialize = () =>
+    run(() => initializeTournamentGroups(props.tournamentId, props.eventId, props.version))
+
+  const doSave = () =>
+    run(() => saveGroupAssignments(props.tournamentId, props.eventId, props.version, payload))
+
+  const doGenerate = () =>
+    run(() => generateGroupMatches(props.tournamentId, props.eventId, props.version))
+
+  const doRegenerate = () =>
+    run(
+      () => regenerateGroupMatches(props.tournamentId, props.eventId, props.version, true),
+      () => setConfirmRegen(false),
+    )
+
+  // ── Accessible move handlers (shared with drag-and-drop via the pure reducer) ───────────────
+  const move = (id: string, mutate: (s: BoardState) => BoardState) => setState((prev) => mutate(prev))
+
+  const banner = error && (
+    <div className="rounded-lg bg-red-50 border border-red-200 px-3 py-2.5 mb-3" role="alert">
+      <p className="text-[13px] text-red-600">{t(`err_${error}`)}</p>
+    </div>
+  )
+
+  // ── State 1: no groups yet → initialize ─────────────────────────────────────────────────────
+  if (props.groups.length === 0) {
+    return (
+      <div>
+        {banner}
+        <div className="bg-cream border border-line rounded-2xl py-10 px-6 text-center">
+          <p className="text-[13.5px] text-ink font-medium mb-1">{tg('none_title')}</p>
+          <p className="text-[12.5px] text-muted mb-4">
+            {tg('none_hint', { count: props.desiredGroupCount })}
+          </p>
+          <button
+            type="button"
+            disabled={pending}
+            onClick={doInitialize}
+            className="font-semibold text-[13px] px-5 py-2.5 rounded-full bg-rose text-white hover:bg-rose-deep transition-all disabled:opacity-50"
+          >
+            {pending ? tg('working') : tg('create_cta', { count: props.desiredGroupCount })}
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  const groupCountMismatch = props.groups.length !== props.desiredGroupCount && !props.locked
+
+  return (
+    <div>
+      {banner}
+
+      {props.locked && (
+        <div className="rounded-lg bg-amber-50 border border-amber-200 px-3 py-2.5 mb-3">
+          <p className="text-[13px] text-amber-700">{t('locked_notice')}</p>
+        </div>
+      )}
+
+      {groupCountMismatch && (
+        <div className="rounded-lg bg-cream border border-line px-3 py-2.5 mb-3 flex items-center justify-between gap-3 flex-wrap">
+          <p className="text-[12.5px] text-muted">
+            {tg('count_mismatch', { current: props.groups.length, desired: props.desiredGroupCount })}
+          </p>
+          <button
+            type="button"
+            disabled={pending}
+            onClick={doInitialize}
+            className="flex-none font-semibold text-[12px] px-3 py-1.5 rounded-full border border-teal/25 bg-teal-soft text-teal hover:bg-teal hover:text-white transition-all disabled:opacity-50"
+          >
+            {tg('rebuild_cta')}
+          </button>
+        </div>
+      )}
+
+      {/* Validation summary */}
+      {!props.locked && !readiness.ok && (
+        <ul className="rounded-lg bg-amber-50 border border-amber-200 px-3 py-2.5 mb-3 space-y-1">
+          {readiness.issues.map((issue, i) => (
+            <li key={i} className="text-[12.5px] text-amber-700">
+              {issue.code === 'unassigned_remaining'
+                ? t('issue_unassigned', {
+                    names: issue.competitorIds.map((id) => nameOf(id)).join(', '),
+                  })
+                : issue.code === 'empty_group'
+                  ? t('issue_empty_group', { name: groupNameOf(issue.groupId) })
+                  : issue.code === 'group_too_small'
+                    ? t('issue_too_small', { name: groupNameOf(issue.groupId) })
+                    : issue.code === 'insufficient_qualifier_capacity'
+                      ? t('issue_capacity', {
+                          name: groupNameOf(issue.groupId),
+                          size: issue.size,
+                          required: issue.required,
+                        })
+                      : t('issue_no_groups')}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {/* Board */}
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCorners}
+        onDragOver={props.locked ? undefined : handleDragOver}
+        onDragEnd={props.locked ? undefined : handleDragEnd}
+      >
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <Column
+            id={UNASSIGNED}
+            title={t('unassigned_title')}
+            count={state[UNASSIGNED]?.length ?? 0}
+            tone="neutral"
+            itemIds={state[UNASSIGNED] ?? []}
+          >
+            {(state[UNASSIGNED] ?? []).map((id) => (
+              <Chip
+                key={id}
+                id={id}
+                label={nameOf(id)}
+                container={UNASSIGNED}
+                order={order}
+                locked={props.locked}
+                labelFor={(c) => (c === UNASSIGNED ? t('unassigned_short') : groupNameOf(c))}
+                onPrev={() => move(id, (s) => shiftContainer(s, id, -1, order))}
+                onNext={() => move(id, (s) => shiftContainer(s, id, 1, order))}
+                onUp={() => move(id, (s) => nudgeWithin(s, id, -1))}
+                onDown={() => move(id, (s) => nudgeWithin(s, id, 1))}
+                onMoveTo={(c) => move(id, (s) => moveItem(s, id, c))}
+                moveLabels={t}
+              />
+            ))}
+          </Column>
+
+          {props.groups.map((g) => (
+            <Column
+              key={g.id}
+              id={g.id}
+              title={t('group_col', { name: g.name })}
+              count={state[g.id]?.length ?? 0}
+              tone="group"
+              itemIds={state[g.id] ?? []}
+            >
+              {(state[g.id] ?? []).map((id) => (
+                <Chip
+                  key={id}
+                  id={id}
+                  label={nameOf(id)}
+                  container={g.id}
+                  order={order}
+                  locked={props.locked}
+                  labelFor={(c) => (c === UNASSIGNED ? t('unassigned_short') : groupNameOf(c))}
+                  onPrev={() => move(id, (s) => shiftContainer(s, id, -1, order))}
+                  onNext={() => move(id, (s) => shiftContainer(s, id, 1, order))}
+                  onUp={() => move(id, (s) => nudgeWithin(s, id, -1))}
+                  onDown={() => move(id, (s) => nudgeWithin(s, id, 1))}
+                  onMoveTo={(c) => move(id, (s) => moveItem(s, id, c))}
+                  moveLabels={t}
+                />
+              ))}
+            </Column>
+          ))}
+        </div>
+      </DndContext>
+
+      {/* Action bar */}
+      <div className="flex flex-wrap items-center gap-2 mt-4">
+        {!props.locked && (
+          <>
+            <button
+              type="button"
+              disabled={pending || !dirty}
+              onClick={doSave}
+              className="font-semibold text-[13px] px-5 py-2.5 rounded-full bg-rose text-white hover:bg-rose-deep transition-all disabled:opacity-50"
+            >
+              {pending ? t('saving') : t('save_cta')}
+            </button>
+            <button
+              type="button"
+              disabled={pending || !readiness.ok}
+              onClick={() => setShowPreview(true)}
+              className="font-semibold text-[13px] px-4 py-2.5 rounded-full border border-teal/25 bg-teal-soft text-teal hover:bg-teal hover:text-white transition-all disabled:opacity-50"
+            >
+              {t('preview_cta')}
+            </button>
+            <button
+              type="button"
+              disabled={pending || !readiness.ok || dirty}
+              title={dirty ? t('save_first') : undefined}
+              onClick={doGenerate}
+              className="font-semibold text-[13px] px-5 py-2.5 rounded-full bg-teal text-white hover:opacity-90 transition-all disabled:opacity-50"
+            >
+              {tm('generate_cta')}
+            </button>
+            {dirty && <span className="text-[12px] text-muted">{t('unsaved')}</span>}
+          </>
+        )}
+
+        {props.locked && (
+          <button
+            type="button"
+            disabled={pending || props.hasResults || props.hasKnockout}
+            title={
+              props.hasResults ? tm('regen_blocked_results') : props.hasKnockout ? tm('regen_blocked_knockout') : undefined
+            }
+            onClick={() => setConfirmRegen(true)}
+            className="font-semibold text-[13px] px-5 py-2.5 rounded-full border border-red-200 bg-red-50 text-red-600 hover:bg-red-500 hover:text-white hover:border-transparent transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {tm('regenerate_cta')}
+          </button>
+        )}
+      </div>
+      {props.locked && (props.hasResults || props.hasKnockout) && (
+        <p className="text-[12px] text-muted mt-2">
+          {props.hasResults ? tm('regen_blocked_results') : tm('regen_blocked_knockout')}
+        </p>
+      )}
+
+      {showPreview && (
+        <RoundRobinPreviewPanel
+          groups={props.groups.map((g) => ({
+            groupId: g.id,
+            competitors: (state[g.id] ?? []).map((id) => ({ id, name: nameOf(id) })),
+          }))}
+          nameOf={(id) => nameOf(id)}
+          groupNameOf={groupNameOf}
+          onClose={() => setShowPreview(false)}
+        />
+      )}
+
+      <ConfirmDialog
+        open={confirmRegen}
+        icon="♻️"
+        tone="warning"
+        title={tm('confirm_regen_title')}
+        description={tm('confirm_regen_desc')}
+        confirmLabel={tm('regenerate_cta')}
+        cancelLabel={t('cancel')}
+        pending={pending}
+        onConfirm={doRegenerate}
+        onCancel={() => setConfirmRegen(false)}
+      />
+    </div>
+  )
+}
+
+// ── Column (droppable) ─────────────────────────────────────────────────────────────────────
+function Column({
+  id,
+  title,
+  count,
+  tone,
+  itemIds,
+  children,
+}: {
+  id: string
+  title: string
+  count: number
+  tone: 'neutral' | 'group'
+  itemIds: readonly string[]
+  children: React.ReactNode
+}) {
+  const { setNodeRef, isOver } = useDroppable({ id })
+  return (
+    <div
+      className={`rounded-2xl border p-3 min-h-[120px] transition-colors ${
+        tone === 'group' ? 'bg-paper border-line' : 'bg-cream/60 border-line'
+      } ${isOver ? 'ring-2 ring-rose/40' : ''}`}
+    >
+      <div className="flex items-baseline justify-between gap-2 mb-2 px-1">
+        <span className="font-serif font-bold text-[13.5px] text-ink">{title}</span>
+        <span className="text-[11.5px] text-muted">{count}</span>
+      </div>
+      <div ref={setNodeRef} className="space-y-1.5">
+        <SortableContext items={itemIds as string[]} strategy={verticalListSortingStrategy}>
+          {children}
+        </SortableContext>
+      </div>
+    </div>
+  )
+}
+
+// ── Chip (sortable item + accessible controls) ───────────────────────────────────────────────
+function Chip({
+  id,
+  label,
+  container,
+  order,
+  locked,
+  labelFor,
+  onPrev,
+  onNext,
+  onUp,
+  onDown,
+  onMoveTo,
+  moveLabels,
+}: {
+  id: string
+  label: string
+  container: ContainerId
+  order: ContainerId[]
+  locked: boolean
+  labelFor: (c: ContainerId) => string
+  onPrev: () => void
+  onNext: () => void
+  onUp: () => void
+  onDown: () => void
+  onMoveTo: (c: ContainerId) => void
+  moveLabels: (key: string, values?: Record<string, string | number>) => string
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id,
+    disabled: locked,
+  })
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  }
+  const idx = order.indexOf(container)
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="bg-cream border border-line rounded-xl px-2 py-1.5 flex items-center gap-1.5"
+    >
+      {!locked && (
+        <button
+          type="button"
+          {...attributes}
+          {...listeners}
+          aria-label={moveLabels('drag_handle', { name: label })}
+          className="flex-none w-6 h-6 grid place-items-center rounded-md text-muted hover:text-rose cursor-grab active:cursor-grabbing touch-none"
+        >
+          ⠿
+        </button>
+      )}
+      <span className="flex-1 min-w-0 text-[13px] text-ink font-medium truncate">{label}</span>
+
+      {!locked && (
+        <div className="flex-none flex items-center gap-0.5">
+          <button
+            type="button"
+            onClick={onUp}
+            aria-label={moveLabels('move_up')}
+            className="w-6 h-6 grid place-items-center rounded-md border border-line bg-paper text-[11px] text-muted hover:text-rose transition-colors"
+          >
+            ↑
+          </button>
+          <button
+            type="button"
+            onClick={onDown}
+            aria-label={moveLabels('move_down')}
+            className="w-6 h-6 grid place-items-center rounded-md border border-line bg-paper text-[11px] text-muted hover:text-rose transition-colors"
+          >
+            ↓
+          </button>
+          <button
+            type="button"
+            onClick={onPrev}
+            disabled={idx <= 0}
+            aria-label={moveLabels('move_prev')}
+            className="w-6 h-6 grid place-items-center rounded-md border border-line bg-paper text-[11px] text-muted hover:text-rose disabled:opacity-30 transition-colors"
+          >
+            ◀
+          </button>
+          <button
+            type="button"
+            onClick={onNext}
+            disabled={idx >= order.length - 1}
+            aria-label={moveLabels('move_next')}
+            className="w-6 h-6 grid place-items-center rounded-md border border-line bg-paper text-[11px] text-muted hover:text-rose disabled:opacity-30 transition-colors"
+          >
+            ▶
+          </button>
+          <select
+            value={container}
+            onChange={(e) => onMoveTo(e.target.value as ContainerId)}
+            aria-label={moveLabels('move_to')}
+            className="ml-0.5 text-[11px] px-1 py-1 rounded-md border border-line bg-paper text-muted focus:outline-none focus:border-rose/50 max-w-[86px]"
+          >
+            {order.map((c) => (
+              <option key={c} value={c}>
+                {labelFor(c)}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+    </div>
+  )
+}

@@ -7191,7 +7191,12 @@
     "error_warning_not_acknowledged": "適用する前にハンディキャップの警告を確認してください。",
     "error_not_preset_sourced": "これはカスタムルールのため、プリセットにリセットできません。",
     "error_preset_version_gone": "元のプリセットのバージョンが利用できないため、リセットできません。",
-    "error_unknown": "問題が発生しました。もう一度お試しください。"
+    "error_unknown": "問題が発生しました。もう一度お試しください。",
+    "controlled_change": "ルールの管理変更",
+    "change_heading": "ルール変更（リセット・再生成）",
+    "preview_impact": "影響を確認",
+    "error_not_found": "見つかりません。",
+    "error_event_completed": "イベントは終了しています。ルール変更前に再開してください。"
   },
   "admin_rule_snapshot": {
     "current_source": "ルールの出所",
@@ -7265,5 +7270,58 @@
     "line_no_runtime": "ハンディキャップはまだ実際の採点に適用できません。",
     "line_requires_config_flag": "スナップショットは「設定が必要」として保存されます。",
     "acknowledge": "理解した上で、ハンディキャップ未完成のプリセットを適用します。"
+  },
+  "admin_rule_change": {
+    "title": "大会ルールの変更",
+    "destructive_warning": "この操作は本イベントの既存の結果とトーナメント表を完全に削除します。元に戻せません。",
+    "affected_heading": "影響を受けるデータ",
+    "affected_none": "影響を受けるダウンストリームデータはありません。",
+    "reset_mode_label": "リセット範囲",
+    "regenerate_mode_label": "再生成",
+    "regenerate_manual_note": "有効な順位が確定した後、ノックアウト表は手動で再シードする必要があります。",
+    "confirm_label": "確認のため「{phrase}」と入力してください",
+    "cancel": "キャンセル",
+    "apply": "変更を適用",
+    "severity": {
+      "none": "採点に影響する変更はありません。",
+      "scoring": "試合の採点方法が変わります。",
+      "structural": "順位／勝ち上がりに影響する変更です。"
+    },
+    "reset_mode": {
+      "schedule_only": "日程のみ（結果なし）",
+      "all_results_and_downstream": "すべての結果とダウンストリーム"
+    },
+    "regenerate_mode": {
+      "none": "再生成しない",
+      "round_robin": "総当たり",
+      "knockout": "ノックアウト表",
+      "all_applicable": "適用可能なすべて"
+    },
+    "count": {
+      "group_matches": "グループ戦",
+      "championship_matches": "本戦の試合",
+      "consolation_matches": "敗者戦",
+      "scored_games": "採点済みゲーム",
+      "completed_matches": "完了した試合",
+      "qualification_overrides": "勝ち上がりの上書き",
+      "podium_rows": "表彰台"
+    },
+    "error": {
+      "forbidden": "この操作を行う権限がありません。",
+      "not_authenticated": "ログインしてください。",
+      "invalid": "無効なリクエストです。",
+      "not_found": "見つかりません。",
+      "snapshot_not_found": "ルールスナップショットが見つかりません。",
+      "event_completed": "イベントは終了しています。先に再開してください。",
+      "validation_failed": "ルールが無効です。",
+      "warning_not_acknowledged": "ハンデ設定の警告を確認してください。",
+      "confirmation_required": "確認フレーズを入力してください。",
+      "results_present": "結果があります。完全リセットを選択してください。",
+      "rule_change_impact_stale": "データが変更されました。影響を再確認してください。",
+      "snapshot_version_conflict": "ルールスナップショットが変更されました。再読み込みしてください。",
+      "event_version_conflict": "イベントが変更されました。再読み込みしてください。",
+      "not_ready": "グループ割り当てが再生成の準備ができていません。",
+      "unknown": "エラーが発生しました。"
+    }
   }
 }

@@ -83,6 +83,23 @@ import type {
   ResetPathResult,
 } from '@/lib/tournaments/admin/types'
 
+import {
+  buildRuleSetFromEditorFields,
+  createEventRuleSnapshot,
+  validateEventRuleSnapshot,
+  classifyRuleChange,
+  deriveRuleChangeGuard,
+  summarizeRuleChangeImpact,
+  computeRuleChangeImpactToken,
+  applicableRegenerateModes,
+  RULE_CHANGE_CONFIRM_PHRASE,
+  type RuleSet,
+  type RuleChangeImpactInput,
+  type RuleChangePreviewResult,
+  type RuleChangeApplyResult,
+  type RuleChangeApplyInput,
+} from '@/lib/tournaments/rules'
+
 const PG_FK_VIOLATION = '23503'
 
 // Build the RPC games payload from a resolved score. Carries the SERVER-COMPUTED handicap starting
@@ -3016,4 +3033,326 @@ export async function resetAffectedKnockoutPath(
   revalidateEventViews(tournamentId, eventId)
   if (meta) revalidatePublicViews(meta.slug)
   return { ok: true, status: newStatus, completed }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════════════════════
+// CONTROLLED RULE CHANGE / RESET / REGENERATION (Prompt 15D-2)
+// ══════════════════════════════════════════════════════════════════════════════════════════════
+// The controlled path for changing an event's scoring rules AFTER a schedule/bracket has been
+// generated (even after results). previewEventRuleChangeImpact is READ-ONLY; applyRuleChangeWithReset
+// is the single atomic mutation (RPC tournament_apply_rule_change) that resets downstream data, updates
+// the rule snapshot and optionally regenerates the round-robin schedule — all-or-nothing. Both re-derive
+// the impact from freshly reloaded DB truth; the client preview / token is never trusted. Gated on
+// rules.manage (Scorekeeper denied; Manager only within the tournament they own; cross-tournament 404).
+
+const RULE_SNAPSHOT_COLS =
+  'id, event_id, source, preset_key, preset_version, category, schema_version, snapshot_version, requires_configuration, version, payload'
+
+interface RuleSnapshotRow {
+  id: string
+  event_id: string
+  source: string
+  preset_key: string | null
+  preset_version: number | null
+  category: string | null
+  snapshot_version: number
+  requires_configuration: boolean
+  version: number
+  payload: RuleSet
+}
+
+async function loadRuleSnapshotRow(admin: SupabaseClient, eventId: string): Promise<RuleSnapshotRow | null> {
+  const { data } = await admin
+    .from('tournament_event_rule_snapshots')
+    .select(RULE_SNAPSHOT_COLS)
+    .eq('event_id', eventId)
+    .maybeSingle()
+  return (data as RuleSnapshotRow | null) ?? null
+}
+
+type ImpactFormat = RuleChangeImpactInput['eventFormat']
+const IMPACT_FORMATS: readonly ImpactFormat[] = ['round_robin', 'knockout', 'group_knockout']
+
+// Reload every piece of DB truth the impact preview + token depend on, for one event. Counts only —
+// never identities. The generation keys + per-match versions are the strongest concurrency signal.
+async function loadRuleChangeImpactTruth(
+  admin: SupabaseClient,
+  ev: EventContext,
+  snapshot: RuleSnapshotRow,
+  proposedRules: RuleSet,
+): Promise<RuleChangeImpactInput> {
+  const [{ data: matches }, { data: statusRow }, { count: podiumCount }, { count: qualCount }, { count: groupCount }] =
+    await Promise.all([
+      admin.from('tournament_matches').select('id, version, stage, bracket, generation_key').eq('event_id', ev.id),
+      admin.from('tournament_events').select('status').eq('id', ev.id).maybeSingle(),
+      admin.from('tournament_podium').select('*', { count: 'exact', head: true }).eq('event_id', ev.id),
+      admin.from('tournament_qualification_overrides').select('*', { count: 'exact', head: true }).eq('event_id', ev.id),
+      admin.from('tournament_groups').select('*', { count: 'exact', head: true }).eq('event_id', ev.id),
+    ])
+
+  const rows =
+    (matches as { id: string; version: number; stage: string; bracket: string | null; generation_key: string }[] | null) ?? []
+  // Count scored games by the reloaded match ids (avoids a fragile embedded-filter query).
+  let scoredGameCount = 0
+  if (rows.length > 0) {
+    const { count } = await admin
+      .from('tournament_match_games')
+      .select('*', { count: 'exact', head: true })
+      .in('match_id', rows.map((m) => m.id))
+    scoredGameCount = count ?? 0
+  }
+  const groupMatchCount = rows.filter((m) => m.stage === 'group').length
+  const knockoutChampionshipMatchCount = rows.filter((m) => m.stage === 'knockout' && m.bracket === 'championship').length
+  const knockoutConsolationMatchCount = rows.filter((m) => m.stage === 'knockout' && m.bracket === 'consolation').length
+  const matchVersions = rows.map((m) => ({ id: m.id, version: m.version }))
+  const generationKeys = Array.from(new Set(rows.map((m) => m.generation_key)))
+  const format = (IMPACT_FORMATS.includes(ev.format as ImpactFormat) ? ev.format : 'round_robin') as ImpactFormat
+
+  return {
+    eventVersion: ev.version,
+    eventStatus: (statusRow as { status: string } | null)?.status ?? 'setup',
+    eventFormat: format,
+    snapshotVersion: snapshot.version,
+    snapshotId: snapshot.id,
+    groupMatchCount,
+    knockoutChampionshipMatchCount,
+    knockoutConsolationMatchCount,
+    scoredGameCount,
+    completedMatchCount: ev.completedMatchCount,
+    standingsGroupCount: groupCount ?? 0,
+    qualificationOverrideCount: qualCount ?? 0,
+    podiumRowCount: podiumCount ?? 0,
+    matchVersions,
+    generationKeys,
+    proposedRules,
+  }
+}
+
+// Rebuild the proposed rule set + validate it, preserving the current snapshot's provenance. Returns
+// the domain snapshot (for snapshot_version / requires_configuration) alongside the raw rule set.
+function buildProposedSnapshot(current: RuleSnapshotRow, fields: RuleChangeApplyInput['fields']) {
+  const proposedRules = buildRuleSetFromEditorFields(fields, current.payload)
+  const domain = createEventRuleSnapshot({
+    rules: proposedRules,
+    source: current.source === 'preset' ? 'preset' : 'custom',
+    presetKey: current.preset_key,
+    presetVersion: current.preset_version,
+    category: current.category,
+    snapshotVersion: current.snapshot_version + 1,
+  })
+  return { proposedRules, domain }
+}
+
+async function rulesManageActor(
+  tournamentId: string,
+): Promise<{ ok: true; actorId: string | null } | { ok: false; error: 'forbidden' | 'not_authenticated' }> {
+  const check = await checkTournamentPermission(tournamentId, 'rules.manage')
+  if (check.ok) return { ok: true, actorId: check.actorId }
+  return { ok: false, error: check.error === 'NOT_AUTHENTICATED' ? 'not_authenticated' : 'forbidden' }
+}
+
+// ── Preview: what a rule change would reset (READ-ONLY, never mutates) ──────────────────────────
+export async function previewEventRuleChangeImpact(
+  tournamentId: string,
+  eventId: string,
+  fields: RuleChangeApplyInput['fields'],
+): Promise<RuleChangePreviewResult> {
+  const gate = await rulesManageActor(tournamentId)
+  if (!gate.ok) return { ok: false, error: gate.error }
+  if (!tournamentId || !eventId || !fields) return { ok: false, error: 'invalid' }
+
+  const admin = createAdminClient()
+  const ev = await loadEvent(admin, tournamentId, eventId)
+  if (!ev) return { ok: false, error: 'not_found' }
+
+  const snapshot = await loadRuleSnapshotRow(admin, eventId)
+  if (!snapshot) return { ok: false, error: 'snapshot_not_found' }
+
+  const meta = await loadEventStatusAndSlug(admin, tournamentId, eventId)
+  if (meta?.status === 'completed') return { ok: false, error: 'event_completed' }
+
+  const { proposedRules, domain } = buildProposedSnapshot(snapshot, fields)
+  const validation = validateEventRuleSnapshot(domain)
+  if (!validation.ok) return { ok: false, error: 'validation_failed', issues: validation.issues }
+
+  const classification = classifyRuleChange(snapshot.payload, proposedRules)
+  const guard = deriveRuleChangeGuard({ matchCount: ev.matchCount, completedMatchCount: ev.completedMatchCount }, classification)
+
+  const impactInput = await loadRuleChangeImpactTruth(admin, ev, snapshot, proposedRules)
+  const impactToken = computeRuleChangeImpactToken(impactInput)
+  const summary = summarizeRuleChangeImpact(impactInput, guard.requiredResetScope)
+
+  return {
+    ok: true,
+    preview: {
+      snapshotId: snapshot.id,
+      snapshotVersion: snapshot.version,
+      eventVersion: ev.version,
+      eventFormat: impactInput.eventFormat,
+      classification,
+      mode: guard.mode,
+      requiredResetScope: guard.requiredResetScope,
+      requiresDestructiveConfirmation: guard.requiresDestructiveConfirmation,
+      summary,
+      impactToken,
+    },
+  }
+}
+
+// ── Apply: reset downstream + update snapshot + regenerate — ONE atomic RPC ─────────────────────
+export async function applyRuleChangeWithReset(input: RuleChangeApplyInput): Promise<RuleChangeApplyResult> {
+  const gate = await rulesManageActor(input.tournamentId)
+  if (!gate.ok) return { ok: false, error: gate.error }
+  if (
+    !input.tournamentId || !input.eventId || !input.snapshotId || !input.fields ||
+    !Number.isInteger(input.expectedSnapshotVersion) || !Number.isInteger(input.expectedEventVersion) ||
+    !input.expectedImpactToken || (input.resetMode !== 'schedule_only' && input.resetMode !== 'all_results_and_downstream')
+  ) {
+    return { ok: false, error: 'invalid' }
+  }
+
+  const admin = createAdminClient()
+  const ev = await loadEvent(admin, input.tournamentId, input.eventId)
+  if (!ev) return { ok: false, error: 'not_found' }
+
+  const snapshot = await loadRuleSnapshotRow(admin, input.eventId)
+  if (!snapshot || snapshot.id !== input.snapshotId) return { ok: false, error: 'snapshot_not_found' }
+
+  const meta = await loadEventStatusAndSlug(admin, input.tournamentId, input.eventId)
+  if (meta?.status === 'completed') return { ok: false, error: 'event_completed' }
+
+  const { proposedRules, domain } = buildProposedSnapshot(snapshot, input.fields)
+  const validation = validateEventRuleSnapshot(domain)
+  if (!validation.ok) return { ok: false, error: 'validation_failed', issues: validation.issues }
+  if (domain.metadata.requires_configuration && !input.acknowledgeWarning) {
+    return { ok: false, error: 'warning_not_acknowledged' }
+  }
+
+  const classification = classifyRuleChange(snapshot.payload, proposedRules)
+  const guard = deriveRuleChangeGuard({ matchCount: ev.matchCount, completedMatchCount: ev.completedMatchCount }, classification)
+
+  // Enforce the controlled guard server-side (never trust a client flag).
+  if (guard.requiresDestructiveConfirmation && input.confirmation !== RULE_CHANGE_CONFIRM_PHRASE) {
+    return { ok: false, error: 'confirmation_required' }
+  }
+  if (guard.requiredResetScope === 'all_results_and_downstream' && input.resetMode !== 'all_results_and_downstream') {
+    return { ok: false, error: 'results_present' }
+  }
+  const eventFormat = (IMPACT_FORMATS.includes(ev.format as ImpactFormat) ? ev.format : 'round_robin') as ImpactFormat
+  if (!applicableRegenerateModes(eventFormat).includes(input.regenerateMode)) {
+    return { ok: false, error: 'invalid' }
+  }
+
+  // Re-derive the impact token from fresh truth; refuse if the preview went stale (data changed).
+  const impactInput = await loadRuleChangeImpactTruth(admin, ev, snapshot, proposedRules)
+  const freshToken = computeRuleChangeImpactToken(impactInput)
+  if (freshToken !== input.expectedImpactToken) return { ok: false, error: 'rule_change_impact_stale' }
+
+  // Build the round-robin regeneration payload when requested + applicable (§10 — knockout is never
+  // auto-generated here). Not-ready group assignment → not_ready (never a partial regenerate).
+  let regenMatches: Record<string, unknown>[] | null = null
+  const wantsRoundRobin = input.regenerateMode === 'round_robin' || input.regenerateMode === 'all_applicable'
+  if (wantsRoundRobin && (ev.format === 'round_robin' || ev.format === 'group_knockout')) {
+    const state = await loadGroupState(admin, input.eventId)
+    const rows = buildMatchRowsFromState(
+      state,
+      ev.format as GroupStageFormat,
+      ev.winnerQualifiersPerGroup,
+      ev.consolationQualifiersPerGroup,
+    )
+    if (rows === null) return { ok: false, error: 'not_ready' }
+    regenMatches = rows
+  }
+
+  await writeAudit(admin, {
+    tournamentId: input.tournamentId,
+    eventId: input.eventId,
+    actorId: gate.actorId,
+    action: 'event_rule_change_reset_started',
+    detail: {
+      reset_mode: input.resetMode,
+      regenerate_mode: input.regenerateMode,
+      severity: classification.severity,
+      changed_paths: classification.changedPaths,
+      snapshot_version_before: snapshot.snapshot_version,
+      generation_keys_before: impactInput.generationKeys,
+    },
+  })
+
+  const { data, error } = await admin.rpc('tournament_apply_rule_change', {
+    p_event_id: input.eventId,
+    p_tournament_id: input.tournamentId,
+    p_snapshot_id: input.snapshotId,
+    p_expected_snapshot_version: input.expectedSnapshotVersion,
+    p_expected_event_version: input.expectedEventVersion,
+    p_new_payload: proposedRules,
+    p_new_snapshot_version: domain.metadata.snapshot_version,
+    p_requires_configuration: domain.metadata.requires_configuration,
+    p_reset_mode: input.resetMode,
+    p_regenerate_mode: input.regenerateMode,
+    p_regen_matches: regenMatches,
+    p_confirm: input.confirmation === RULE_CHANGE_CONFIRM_PHRASE,
+  })
+
+  const result = data as
+    | { code?: string; status?: string; snapshot_version?: number; regenerated?: boolean; reset?: Record<string, number> }
+    | null
+  if (error || !result || result.code !== 'ok') {
+    await writeAudit(admin, {
+      tournamentId: input.tournamentId,
+      eventId: input.eventId,
+      actorId: gate.actorId,
+      action: 'event_rule_change_failed',
+      detail: { code: error ? 'rpc_error' : result?.code ?? 'unknown', reset_mode: input.resetMode },
+    })
+    switch (result?.code) {
+      case 'snapshot_version_conflict':
+        return { ok: false, error: 'snapshot_version_conflict' }
+      case 'event_version_conflict':
+        return { ok: false, error: 'event_version_conflict' }
+      case 'results_present':
+        return { ok: false, error: 'results_present' }
+      case 'confirmation_required':
+        return { ok: false, error: 'confirmation_required' }
+      case 'event_completed':
+        return { ok: false, error: 'event_completed' }
+      case 'snapshot_not_found':
+        return { ok: false, error: 'snapshot_not_found' }
+      case 'not_found':
+        return { ok: false, error: 'not_found' }
+      default:
+        return { ok: false, error: 'unknown' }
+    }
+  }
+
+  await writeAudit(admin, {
+    tournamentId: input.tournamentId,
+    eventId: input.eventId,
+    actorId: gate.actorId,
+    action: 'event_rule_change_applied',
+    detail: {
+      reset_mode: input.resetMode,
+      snapshot_version_after: result.snapshot_version ?? domain.metadata.snapshot_version,
+      reset: result.reset ?? {},
+      status_after: result.status ?? 'setup',
+    },
+  })
+  if (result.regenerated) {
+    await writeAudit(admin, {
+      tournamentId: input.tournamentId,
+      eventId: input.eventId,
+      actorId: gate.actorId,
+      action: 'event_schedule_regenerated',
+      detail: { match_count: regenMatches?.length ?? 0, generation_keys_after: (regenMatches ?? []).map((m) => m.generation_key) },
+    })
+  }
+
+  revalidateEventViews(input.tournamentId, input.eventId)
+  if (meta) revalidatePublicViews(meta.slug)
+  return {
+    ok: true,
+    snapshotVersion: result.snapshot_version ?? domain.metadata.snapshot_version,
+    status: result.status ?? 'setup',
+    regenerated: result.regenerated === true,
+  }
 }

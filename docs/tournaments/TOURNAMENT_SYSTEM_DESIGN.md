@@ -1213,3 +1213,34 @@ handicap is unconfigured. No new migration; no production SQL at commit time.
 ### 26.9 Left for Prompt 15D-2
 Real handicap value application, automatic schedule/bracket reset on a rule change, a full scoring
 browser E2E, and public-standings table-point consistency.
+
+## 27. Controlled rule change / reset / regeneration (Prompt 15D-2)
+
+**Flow.** RuleWorkspace ("Luật thi đấu" tab) → when the guard blocks a plain edit it offers a
+*controlled change* entry. The admin edits fields, "Xem tác động" calls the READ-ONLY server action
+`previewEventRuleChangeImpact` (counts + classification + a deterministic impact token). The impact
+modal shows the counts, a destructive warning when results exist, reset-scope + regenerate-mode
+selectors and — for the destructive path — a confirmation phrase. Applying calls
+`applyRuleChangeWithReset`.
+
+**Server (`app/admin/giai-dau/[id]/noi-dung/actions.ts`).** Both actions gate on
+`checkTournamentPermission(tournamentId, 'rules.manage')` (Site Admin OR Manager; Scorekeeper denied;
+cross-tournament → not_found), reload DB truth, rebuild + validate the proposed snapshot with the pure
+engine, classify, derive the controlled guard, and recompute the impact token. Apply re-derives the
+token from fresh truth and refuses a stale preview, enforces the destructive confirmation + reset scope
+server-side, builds the round-robin regeneration payload with the same pure generator used by
+`regenerateGroupMatches`, then calls ONE atomic RPC.
+
+**RPC `tournament_apply_rule_change` (migration #11, SECURITY DEFINER, service_role-only).** Locks the
+event + snapshot `FOR UPDATE`, verifies anti-IDOR/format/version/completed-block/destructive-gate, then
+in ONE savepoint block: resets downstream (podium → qualification overrides → games → matches), updates
+the snapshot (payload + bumped snapshot_version + trigger-bumped version), and regenerates the
+round-robin schedule. Any failure rolls the whole block back — the event is never mixed-generation. The
+knockout bracket is never auto-seeded (needs valid standings/manual reseed).
+
+**Audit.** `event_rule_change_reset_started`, `event_rule_change_applied`, `event_schedule_regenerated`,
+`event_rule_change_failed` — ids/counts/versions/changed-paths only, never tokens/cookies/secrets.
+
+**Public consistency.** After a successful transaction the action revalidates the admin + public routes;
+Guests then see the not-started state, never old standings/brackets under new rules. Realtime only
+signals a refetch after commit.

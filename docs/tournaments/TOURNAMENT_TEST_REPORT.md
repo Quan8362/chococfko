@@ -677,3 +677,26 @@ never a name/category. Preset **v2** carries it configured; **v1** stays depreca
 none) — the migration re-defines four DEFINER RPCs verbatim-except-INSERT, so the operator's local SQL
 gate (runbook §6d) is the required validation before merge. No production/remote DB, no production SQL,
 no commit / merge / deploy. A full scoring browser E2E for the handicap path is deferred (unit-covered).
+
+## Prompt 15D-2 — controlled rule change / reset / regeneration
+
+**Ran in this session (green):**
+- `lib/tournaments/rules/change.test.ts` — 16 new pure tests (classifier, guard modes, impact summary,
+  deterministic + order-independent token, staleness sensitivity).
+- Full lib suite: **2419/2419 pass** (2403 baseline + 16 new).
+- `tsc --noEmit --skipLibCheck` — clean (whole project + the new e2e spec typechecks under the e2e
+  config).
+- i18n parity — all 5 locales carry the new `admin_rule_change.*` + `admin_event_rules` keys (equal key
+  sets).
+
+**Added, operator-run (WSL Docker Postgres — not available in this session):**
+- `supabase/tournament_rule_reset_tests.sql` — 8 assertions for `tournament_apply_rule_change`:
+  anon/authenticated denied, cross-tournament → not_found, schedule_only-over-results → results_present,
+  no-confirm → confirmation_required, stale snapshot/event version conflicts, **atomicity** (bad regen
+  FK → invalid AND nothing changed), destructive reset+regenerate happy path (results/podium/overrides
+  wiped, snapshot bumped, fresh matches, competitors/groups preserved), completed-event blocked.
+- `e2e/tournaments/rule-change-reset.spec.ts` — Manager destructive change+regenerate (DB wiped +
+  rebuilt + audit), cancel = no-op, two-context stale conflict, mobile modal no-overflow, Scorekeeper
+  denied. Requires the local stack + the tournaments Playwright project (`workers=1`).
+
+No production/remote DB, no production SQL, no merge/deploy in this session.

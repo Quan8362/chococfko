@@ -422,3 +422,21 @@ apply migrations #1–#9 in the Supabase SQL Editor (operator-gated) BEFORE the 
 The scoped routes fail closed if `tournament_members` is absent (capability resolution returns no
 membership → `notFound()`), so a code deploy ahead of the migration degrades safely for scoped users
 while Site Admins keep working.
+
+## Migration #11 — controlled rule change / reset (Prompt 15D-2)
+
+- **Files.** `supabase/migration_tournament_rule_reset.sql` (apply),
+  `supabase/migration_tournament_rule_reset_rollback.sql` (rollback),
+  `supabase/tournament_rule_reset_tests.sql` (SQL harness — run against an ISOLATED DB; it `ROLLBACK`s).
+- **What it adds.** One SECURITY-DEFINER function `tournament_apply_rule_change(...)`, EXECUTE granted to
+  **service_role only** (REVOKEd from PUBLIC/anon/authenticated). Purely additive — it CREATEs one
+  function and touches no existing object or data. `CREATE OR REPLACE` ⇒ idempotent; the rollback is a
+  single symmetric `DROP FUNCTION IF EXISTS`.
+- **Depends on.** Migrations #1–#10 (core, group assignment, knockout, group_knockout, rule engine).
+- **Deploy order.** Apply #11 in the Supabase SQL Editor (operator-gated, after a backup) **BEFORE** the
+  app that calls it. If the app is deployed first, `applyRuleChangeWithReset` returns `unknown` (the RPC
+  is missing) and no data is touched — preview and every other rule action keep working, so it degrades
+  safely.
+- **Local gate.** Apply #1–#11 to the WSL Docker Postgres, then run `tournament_rule_reset_tests.sql`
+  (expects `PASS: tournament_apply_rule_change — all assertions passed`) plus the full tournament SQL
+  regression. No production/remote SQL until the operator runs it.

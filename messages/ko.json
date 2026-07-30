@@ -7191,7 +7191,12 @@
     "error_warning_not_acknowledged": "적용하기 전에 핸디캡 경고를 확인하세요.",
     "error_not_preset_sourced": "사용자 지정 규칙이므로 프리셋으로 초기화할 수 없습니다.",
     "error_preset_version_gone": "원래 프리셋 버전을 더 이상 사용할 수 없어 초기화할 수 없습니다.",
-    "error_unknown": "문제가 발생했습니다. 다시 시도하세요."
+    "error_unknown": "문제가 발생했습니다. 다시 시도하세요.",
+    "controlled_change": "규칙 통제 변경",
+    "change_heading": "규칙 변경 (재설정 및 재생성)",
+    "preview_impact": "영향 보기",
+    "error_not_found": "찾을 수 없습니다.",
+    "error_event_completed": "이벤트가 종료되었습니다. 규칙 변경 전에 다시 여세요."
   },
   "admin_rule_snapshot": {
     "current_source": "규칙 출처",
@@ -7265,5 +7270,58 @@
     "line_no_runtime": "핸디캡은 아직 실제 채점에 적용할 수 없습니다.",
     "line_requires_config_flag": "스냅샷은 “설정 필요” 상태로 저장됩니다.",
     "acknowledge": "핸디캡이 미완성인 프리셋을 이해하고 적용합니다."
+  },
+  "admin_rule_change": {
+    "title": "대회 규칙 변경",
+    "destructive_warning": "이 작업은 이 이벤트의 기존 결과와 대진표를 영구적으로 삭제합니다. 되돌릴 수 없습니다.",
+    "affected_heading": "영향을 받는 데이터",
+    "affected_none": "영향을 받는 다운스트림 데이터가 없습니다.",
+    "reset_mode_label": "재설정 범위",
+    "regenerate_mode_label": "재생성",
+    "regenerate_manual_note": "유효한 순위가 생긴 후 토너먼트 대진은 수동으로 다시 시드해야 합니다.",
+    "confirm_label": "확인하려면 “{phrase}”를 입력하세요",
+    "cancel": "취소",
+    "apply": "변경 적용",
+    "severity": {
+      "none": "채점에 영향을 주는 변경이 없습니다.",
+      "scoring": "경기 채점 방식이 변경됩니다.",
+      "structural": "순위 / 진출에 영향을 주는 변경입니다."
+    },
+    "reset_mode": {
+      "schedule_only": "일정만 (결과 없음)",
+      "all_results_and_downstream": "모든 결과 및 다운스트림"
+    },
+    "regenerate_mode": {
+      "none": "재생성 안 함",
+      "round_robin": "풀리그",
+      "knockout": "토너먼트 대진",
+      "all_applicable": "적용 가능한 전체"
+    },
+    "count": {
+      "group_matches": "조별 경기",
+      "championship_matches": "본선 경기",
+      "consolation_matches": "패자전 경기",
+      "scored_games": "채점된 게임",
+      "completed_matches": "완료된 경기",
+      "qualification_overrides": "진출 재정의",
+      "podium_rows": "시상대"
+    },
+    "error": {
+      "forbidden": "이 작업을 수행할 권한이 없습니다.",
+      "not_authenticated": "로그인하세요.",
+      "invalid": "잘못된 요청입니다.",
+      "not_found": "찾을 수 없습니다.",
+      "snapshot_not_found": "규칙 스냅샷을 찾을 수 없습니다.",
+      "event_completed": "이벤트가 종료되었습니다. 먼저 다시 여세요.",
+      "validation_failed": "규칙이 유효하지 않습니다.",
+      "warning_not_acknowledged": "핸디캡 구성 경고를 확인하세요.",
+      "confirmation_required": "확인 문구를 입력하세요.",
+      "results_present": "결과가 있습니다. 전체 재설정을 선택하세요.",
+      "rule_change_impact_stale": "데이터가 변경되었습니다. 영향을 다시 확인하세요.",
+      "snapshot_version_conflict": "규칙 스냅샷이 변경되었습니다. 새로고침하세요.",
+      "event_version_conflict": "이벤트가 변경되었습니다. 새로고침하세요.",
+      "not_ready": "조 배정이 재생성 준비가 되지 않았습니다.",
+      "unknown": "문제가 발생했습니다."
+    }
   }
 }

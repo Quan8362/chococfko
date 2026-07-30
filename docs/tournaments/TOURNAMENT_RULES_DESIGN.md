@@ -478,3 +478,29 @@ Never a raw payload, token or secret.
 Real handicap starting-score / adjustment application (values still organizer-pending), automatic
 schedule/bracket reset on a rule change, a full scoring browser E2E, and public-standings table-point
 consistency. No new migration; no production SQL, commit, merge or deploy in 15D-1.
+
+## Controlled rule change, reset & regeneration (Prompt 15D-2)
+
+The conservative guard (`evaluateRuleMutationGuard`) blocks a naive rule edit once matches exist. 15D-2
+adds the **controlled** path so an organizer can change scoring rules AFTER a schedule/bracket exists,
+without ever leaving old scores under new rules. All the decision logic is a PURE module,
+`lib/tournaments/rules/change.ts`:
+
+- **`classifyRuleChange(before, after)`** — path-driven, never keyed on a field label. Returns three
+  orthogonal flags — `affectsMatchScoring` (points_to_win / win_by / points_cap / games_to_win /
+  max_games / allow_tied_game / handicap.*), `affectsStandings` (table win/loss points),
+  `affectsQualification` (tie-break order + table points) — and a `severity` of `none` / `scoring` /
+  `structural`.
+- **`deriveRuleChangeGuard(state, change)`** — maps the current match/score state to a controlled mode:
+  `direct` (no matches → update in place), `reset` (generated, unscored → schedule reset),
+  `destructive` (results exist → full reset, requires an explicit confirmation phrase), `no_change`.
+- **`summarizeRuleChangeImpact`** — counts only (never identities) of what a reset touches, plus which
+  regeneration modes apply (a `group_knockout` bracket is never auto-seeded — §10).
+- **`computeRuleChangeImpactToken`** — a deterministic FNV-1a fingerprint over event/snapshot versions,
+  per-match versions, generation keys and the proposed rules. The mutation recomputes it from fresh
+  truth and refuses a stale preview (`rule_change_impact_stale`). Never minted by the client.
+
+The atomic mutation is the SQL RPC `tournament_apply_rule_change` (migration #11): validation → one
+savepoint block that resets downstream (podium → qualification overrides → games → matches), updates
+the snapshot and regenerates the round-robin schedule — all-or-nothing. FJP v2 is untouched; a completed
+event is blocked until reopened; the preset is never mutated.

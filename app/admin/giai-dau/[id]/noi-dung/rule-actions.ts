@@ -24,6 +24,16 @@ import {
   type DeleteSnapshotInput,
 } from '@/lib/tournaments/admin/ruleService'
 import type { RuleMutationResult, RuleAckResult, RuleDeleteResult } from '@/lib/tournaments/rules'
+import type {
+  RuleChangePreviewResult,
+  RuleChangeApplyResult,
+  RuleChangeApplyInput,
+  RuleEditorFields,
+} from '@/lib/tournaments/rules'
+import {
+  previewEventRuleChangeImpact,
+  applyRuleChangeWithReset,
+} from './actions'
 
 export async function applyRulePresetAction(input: ApplyPresetInput): Promise<RuleMutationResult> {
   return applyRulePresetToEvent(input)
@@ -47,4 +57,19 @@ export async function resetRuleSnapshotToPresetAction(input: ResetSnapshotInput)
 
 export async function deleteRuleSnapshotAction(input: DeleteSnapshotInput): Promise<RuleDeleteResult> {
   return deleteEventRuleSnapshot(input)
+}
+
+// ── Controlled rule change / reset / regeneration (Prompt 15D-2) ────────────────────────────────
+// Preview is READ-ONLY; apply is the single atomic reset+snapshot-update+regenerate. Both gate on
+// rules.manage server-side (Scorekeeper denied, Manager scoped, cross-tournament 404).
+export async function previewEventRuleChangeImpactAction(
+  tournamentId: string,
+  eventId: string,
+  fields: RuleEditorFields,
+): Promise<RuleChangePreviewResult> {
+  return previewEventRuleChangeImpact(tournamentId, eventId, fields)
+}
+
+export async function applyRuleChangeWithResetAction(input: RuleChangeApplyInput): Promise<RuleChangeApplyResult> {
+  return applyRuleChangeWithReset(input)
 }

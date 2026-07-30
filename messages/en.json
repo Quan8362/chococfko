@@ -7191,7 +7191,12 @@
     "error_warning_not_acknowledged": "Please acknowledge the handicap warning before applying.",
     "error_not_preset_sourced": "These rules are custom and cannot be reset to a preset.",
     "error_preset_version_gone": "The original preset version is no longer available, so these rules cannot be reset to it.",
-    "error_unknown": "Something went wrong. Please try again."
+    "error_unknown": "Something went wrong. Please try again.",
+    "controlled_change": "Controlled rule change",
+    "change_heading": "Change rules (reset & regenerate)",
+    "preview_impact": "View impact",
+    "error_not_found": "Not found.",
+    "error_event_completed": "The event is completed — reopen it before changing the rules."
   },
   "admin_rule_snapshot": {
     "current_source": "Rule source",
@@ -7265,5 +7270,58 @@
     "line_no_runtime": "The handicap cannot be applied to live scoring yet.",
     "line_requires_config_flag": "The snapshot will be saved as “needs configuration”.",
     "acknowledge": "I understand and still want to apply this handicap-incomplete preset."
+  },
+  "admin_rule_change": {
+    "title": "Change tournament rules",
+    "destructive_warning": "This permanently deletes this event’s existing results and bracket. It cannot be undone.",
+    "affected_heading": "Data that will be affected",
+    "affected_none": "No downstream data is affected.",
+    "reset_mode_label": "Reset scope",
+    "regenerate_mode_label": "Regenerate",
+    "regenerate_manual_note": "The knockout bracket must be reseeded manually once valid standings exist.",
+    "confirm_label": "Type “{phrase}” to confirm",
+    "cancel": "Cancel",
+    "apply": "Apply change",
+    "severity": {
+      "none": "No change affecting scoring.",
+      "scoring": "Changes how matches are scored.",
+      "structural": "Change affects standings / qualification."
+    },
+    "reset_mode": {
+      "schedule_only": "Schedule only (no results yet)",
+      "all_results_and_downstream": "All results & downstream"
+    },
+    "regenerate_mode": {
+      "none": "Do not regenerate",
+      "round_robin": "Round-robin",
+      "knockout": "Knockout bracket",
+      "all_applicable": "All applicable"
+    },
+    "count": {
+      "group_matches": "Group matches",
+      "championship_matches": "Championship matches",
+      "consolation_matches": "Consolation matches",
+      "scored_games": "Scored games",
+      "completed_matches": "Completed matches",
+      "qualification_overrides": "Qualification overrides",
+      "podium_rows": "Podium places"
+    },
+    "error": {
+      "forbidden": "You are not allowed to do this.",
+      "not_authenticated": "Please sign in.",
+      "invalid": "Invalid request.",
+      "not_found": "Not found.",
+      "snapshot_not_found": "Rule snapshot not found.",
+      "event_completed": "The event is completed — reopen it first.",
+      "validation_failed": "The rules are invalid.",
+      "warning_not_acknowledged": "Acknowledge the handicap-configuration warning.",
+      "confirmation_required": "Type the confirmation phrase.",
+      "results_present": "Results exist — choose the full reset.",
+      "rule_change_impact_stale": "The data changed — review the impact again.",
+      "snapshot_version_conflict": "The rule snapshot changed — reload.",
+      "event_version_conflict": "The event changed — reload.",
+      "not_ready": "Group assignment is not ready to regenerate.",
+      "unknown": "Something went wrong."
+    }
   }
 }

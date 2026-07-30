@@ -7191,7 +7191,12 @@
     "error_warning_not_acknowledged": "应用前请确认让分警告。",
     "error_not_preset_sourced": "这是自定义规则，无法重置为预设。",
     "error_preset_version_gone": "原始预设版本已不可用，无法重置。",
-    "error_unknown": "出现问题。请重试。"
+    "error_unknown": "出现问题。请重试。",
+    "controlled_change": "受控规则变更",
+    "change_heading": "变更规则（重置并重新生成）",
+    "preview_impact": "查看影响",
+    "error_not_found": "未找到。",
+    "error_event_completed": "赛事已结束——变更规则前请先重新开启。"
   },
   "admin_rule_snapshot": {
     "current_source": "规则来源",
@@ -7265,5 +7270,58 @@
     "line_no_runtime": "让分暂时无法用于实际计分。",
     "line_requires_config_flag": "快照将以“需配置”状态保存。",
     "acknowledge": "我了解并仍要应用此让分不完整的预设。"
+  },
+  "admin_rule_change": {
+    "title": "变更赛事规则",
+    "destructive_warning": "此操作将永久删除该赛事的现有成绩与对阵表，无法撤销。",
+    "affected_heading": "将受影响的数据",
+    "affected_none": "没有下游数据受影响。",
+    "reset_mode_label": "重置范围",
+    "regenerate_mode_label": "重新生成",
+    "regenerate_manual_note": "待有效排名产生后，淘汰赛对阵表需手动重新抽签。",
+    "confirm_label": "输入“{phrase}”以确认",
+    "cancel": "取消",
+    "apply": "应用变更",
+    "severity": {
+      "none": "没有影响计分的变更。",
+      "scoring": "更改比赛的计分方式。",
+      "structural": "变更影响排名／出线。"
+    },
+    "reset_mode": {
+      "schedule_only": "仅赛程（尚无成绩）",
+      "all_results_and_downstream": "全部成绩及下游"
+    },
+    "regenerate_mode": {
+      "none": "不重新生成",
+      "round_robin": "循环赛",
+      "knockout": "淘汰赛对阵",
+      "all_applicable": "全部适用"
+    },
+    "count": {
+      "group_matches": "小组赛",
+      "championship_matches": "正赛对阵",
+      "consolation_matches": "附加赛",
+      "scored_games": "已计分局",
+      "completed_matches": "已完成比赛",
+      "qualification_overrides": "出线覆盖",
+      "podium_rows": "领奖台"
+    },
+    "error": {
+      "forbidden": "您无权执行此操作。",
+      "not_authenticated": "请先登录。",
+      "invalid": "请求无效。",
+      "not_found": "未找到。",
+      "snapshot_not_found": "未找到规则快照。",
+      "event_completed": "赛事已结束——请先重新开启。",
+      "validation_failed": "规则无效。",
+      "warning_not_acknowledged": "请确认让分配置警告。",
+      "confirmation_required": "请输入确认短语。",
+      "results_present": "已有成绩——请选择完全重置。",
+      "rule_change_impact_stale": "数据已更改——请重新查看影响。",
+      "snapshot_version_conflict": "规则快照已更改——请重新加载。",
+      "event_version_conflict": "赛事已更改——请重新加载。",
+      "not_ready": "分组尚未准备好重新生成。",
+      "unknown": "出现错误。"
+    }
   }
 }

@@ -16,6 +16,7 @@ import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import TieBreakOrderEditor from './TieBreakOrderEditor'
 import ConfirmDialog from './ConfirmDialog'
+import RuleChangeImpactModal from './RuleChangeImpactModal'
 import {
   buildRuleSetFromEditorFields,
   ruleSetToEditorFields,
@@ -27,6 +28,7 @@ import {
   type RulePresetPickerOption,
   type RuleMutationResult,
   type RuleSnapshotView,
+  type RuleChangeImpactPreview,
 } from '@/lib/tournaments/rules'
 import {
   applyRulePresetAction,
@@ -34,6 +36,8 @@ import {
   updateRuleSnapshotAction,
   resetRuleSnapshotToPresetAction,
   deleteRuleSnapshotAction,
+  previewEventRuleChangeImpactAction,
+  applyRuleChangeWithResetAction,
 } from '@/app/admin/giai-dau/[id]/noi-dung/rule-actions'
 
 export type RuleGuardCode = 'event_rules_locked' | 'event_requires_schedule_reset' | null
@@ -66,7 +70,7 @@ const DEFAULT_FIELDS: RuleEditorFields = {
   handicap: { enabled: false },
 }
 
-type Mode = 'view' | 'pick' | 'custom' | 'edit'
+type Mode = 'view' | 'pick' | 'custom' | 'edit' | 'change'
 
 export default function RuleWorkspace({
   tournamentId,
@@ -84,6 +88,12 @@ export default function RuleWorkspace({
   const [dialog, setDialog] = useState<'reset' | 'delete' | null>(null)
   const [actionPending, setActionPending] = useState(false)
   const [actionError, setActionError] = useState<string | null>(null)
+  // Controlled rule-change flow (Prompt 15D-2): the preview + the fields it was built from, held while
+  // the impact modal is open. Cleared on close / apply.
+  const [changePreview, setChangePreview] = useState<RuleChangeImpactPreview | null>(null)
+  const [changeFields, setChangeFields] = useState<RuleEditorFields | null>(null)
+  const [changeAck, setChangeAck] = useState(false)
+  const [changePreviewing, setChangePreviewing] = useState(false)
 
   const locked = guard === 'event_rules_locked'
   const needsReset = guard === 'event_requires_schedule_reset'
@@ -157,6 +167,28 @@ export default function RuleWorkspace({
     setDialog(null)
     if (res.error === 'version_conflict') setConflict(true)
     else setActionError(t(`error_${res.error}`))
+  }
+
+  // Controlled change: run the READ-ONLY impact preview, then open the reset/regenerate modal.
+  async function doPreviewChange(fields: RuleEditorFields, ack: boolean) {
+    if (changePreviewing) return
+    setChangePreviewing(true)
+    setActionError(null)
+    const res = await previewEventRuleChangeImpactAction(tournamentId, eventId, fields)
+    setChangePreviewing(false)
+    if (res.ok) {
+      setChangeFields(fields)
+      setChangeAck(ack)
+      setChangePreview(res.preview)
+      return
+    }
+    setActionError(t(`error_${res.error}`))
+  }
+
+  function closeChange() {
+    setChangePreview(null)
+    setChangeFields(null)
+    setChangeAck(false)
   }
 
   return (
@@ -235,10 +267,23 @@ export default function RuleWorkspace({
       {(locked || needsReset) && (
         <div
           role="status"
-          className="mb-4 rounded-xl border border-line bg-cream/70 px-4 py-3 text-[12.5px] text-ink flex items-start gap-2"
+          className="mb-4 rounded-xl border border-line bg-cream/70 px-4 py-3 text-[12.5px] text-ink flex items-start gap-2 flex-wrap"
         >
           <WarnIcon />
-          <span>{locked ? t('guard_locked') : t('guard_requires_reset')}</span>
+          <span className="min-w-0 flex-1">{locked ? t('guard_locked') : t('guard_requires_reset')}</span>
+          {canManage && current && mode !== 'change' && (
+            <button
+              type="button"
+              onClick={() => {
+                setConflict(false)
+                setActionError(null)
+                setMode('change')
+              }}
+              className="flex-none font-semibold text-[12.5px] px-3.5 py-1.5 rounded-full border border-rose/40 text-rose bg-rose/5 hover:bg-rose hover:text-white transition-colors"
+            >
+              {t('controlled_change')}
+            </button>
+          )}
         </div>
       )}
 
@@ -310,6 +355,41 @@ export default function RuleWorkspace({
           onConflict={() => setConflict(true)}
         />
       )}
+
+      {/* Controlled rule change (Prompt 15D-2): available even when the guard blocks a plain edit. The
+          editor validates; "Xem tác động" runs the impact preview → the reset/regenerate modal. */}
+      {canManage && mode === 'change' && current && (
+        <RuleEditorForm
+          heading={t('change_heading')}
+          submitLabel={t('preview_impact')}
+          previewLabel={t('preview_impact')}
+          mode="change"
+          initial={ruleSetToEditorFields(current.rules)}
+          baseRules={current.rules}
+          onCancel={() => setMode('view')}
+          onSubmit={async () => ({ ok: false, error: 'unknown' }) as RuleMutationResult}
+          onPreview={doPreviewChange}
+          onSaved={onSaved}
+          onConflict={() => setConflict(true)}
+        />
+      )}
+
+      <RuleChangeImpactModal
+        open={changePreview !== null}
+        preview={changePreview}
+        tournamentId={tournamentId}
+        eventId={eventId}
+        fields={changeFields}
+        acknowledgeWarning={changeAck}
+        apply={applyRuleChangeWithResetAction}
+        onApplied={() => {
+          closeChange()
+          setMode('view')
+          setConflict(false)
+          router.refresh()
+        }}
+        onClose={closeChange}
+      />
 
       <ConfirmDialog
         open={dialog === 'reset'}
@@ -600,6 +680,9 @@ function RuleEditorForm({
   onSubmit,
   onSaved,
   onConflict,
+  mode = 'save',
+  onPreview,
+  previewLabel,
 }: {
   heading: string
   submitLabel: string
@@ -609,6 +692,11 @@ function RuleEditorForm({
   onSubmit: (fields: RuleEditorFields, acknowledgeWarning: boolean) => Promise<RuleMutationResult>
   onSaved: (s: RuleSnapshotView) => void
   onConflict: () => void
+  // Controlled rule-change mode (Prompt 15D-2): instead of committing, hand the validated fields to
+  // onPreview so the parent can run the impact preview → reset/regenerate modal. No commit happens here.
+  mode?: 'save' | 'change'
+  onPreview?: (fields: RuleEditorFields, acknowledgeWarning: boolean) => void
+  previewLabel?: string
 }) {
   const t = useTranslations('admin_event_rules')
   const te = useTranslations('admin_rule_editor')
@@ -645,6 +733,11 @@ function RuleEditorForm({
     }
     if (willRequireConfig && !ack) return
     setErrorPaths(new Set())
+    // Controlled-change mode: don't commit — hand off to the impact-preview flow.
+    if (mode === 'change' && onPreview) {
+      onPreview(fields, ack)
+      return
+    }
     setPending(true)
     setError(null)
     const res = await onSubmit(fields, ack)
@@ -743,7 +836,7 @@ function RuleEditorForm({
           disabled={pending || (willRequireConfig && !ack)}
           className="font-semibold text-[13px] px-5 py-2.5 rounded-full bg-rose text-white hover:bg-rose/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose/40"
         >
-          {pending ? t('saving') : submitLabel}
+          {pending ? t('saving') : mode === 'change' ? previewLabel ?? submitLabel : submitLabel}
         </button>
         <button
           type="button"

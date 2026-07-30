@@ -7191,7 +7191,12 @@
     "error_warning_not_acknowledged": "Vui lòng xác nhận cảnh báo điểm chấp trước khi áp dụng.",
     "error_not_preset_sourced": "Đây là luật tùy chỉnh nên không thể đặt lại theo bộ luật.",
     "error_preset_version_gone": "Phiên bản bộ luật gốc không còn khả dụng nên không thể đặt lại theo phiên bản đó.",
-    "error_unknown": "Đã xảy ra lỗi. Vui lòng thử lại."
+    "error_unknown": "Đã xảy ra lỗi. Vui lòng thử lại.",
+    "controlled_change": "Thay đổi luật có kiểm soát",
+    "change_heading": "Thay đổi luật (đặt lại & tạo lại)",
+    "preview_impact": "Xem tác động",
+    "error_not_found": "Không tìm thấy nội dung.",
+    "error_event_completed": "Nội dung đã kết thúc — cần mở lại trước khi đổi luật."
   },
   "admin_rule_snapshot": {
     "current_source": "Nguồn luật",
@@ -7265,5 +7270,58 @@
     "line_no_runtime": "Chưa thể áp dụng điểm chấp khi tính điểm.",
     "line_requires_config_flag": "Bản luật sẽ được lưu ở trạng thái “cần cấu hình”.",
     "acknowledge": "Tôi hiểu và vẫn muốn áp dụng bộ luật chưa hoàn chỉnh về điểm chấp."
+  },
+  "admin_rule_change": {
+    "title": "Thay đổi luật thi đấu",
+    "destructive_warning": "Thao tác này sẽ xoá vĩnh viễn kết quả và nhánh đấu hiện có của nội dung này. Không thể hoàn tác.",
+    "affected_heading": "Dữ liệu sẽ bị ảnh hưởng",
+    "affected_none": "Không có dữ liệu downstream nào bị ảnh hưởng.",
+    "reset_mode_label": "Phạm vi đặt lại",
+    "regenerate_mode_label": "Tạo lại",
+    "regenerate_manual_note": "Nhánh loại trực tiếp cần gieo hạt lại thủ công sau khi có bảng xếp hạng hợp lệ.",
+    "confirm_label": "Nhập “{phrase}” để xác nhận",
+    "cancel": "Huỷ",
+    "apply": "Áp dụng thay đổi",
+    "severity": {
+      "none": "Không có thay đổi ảnh hưởng tính điểm.",
+      "scoring": "Thay đổi cách tính điểm trận đấu.",
+      "structural": "Thay đổi ảnh hưởng xếp hạng / vượt qua vòng bảng."
+    },
+    "reset_mode": {
+      "schedule_only": "Chỉ lịch thi đấu (chưa có kết quả)",
+      "all_results_and_downstream": "Toàn bộ kết quả & downstream"
+    },
+    "regenerate_mode": {
+      "none": "Không tạo lại",
+      "round_robin": "Vòng tròn tính điểm",
+      "knockout": "Nhánh loại trực tiếp",
+      "all_applicable": "Tất cả áp dụng được"
+    },
+    "count": {
+      "group_matches": "Trận vòng bảng",
+      "championship_matches": "Trận nhánh chính",
+      "consolation_matches": "Trận nhánh phụ",
+      "scored_games": "Ván đã ghi điểm",
+      "completed_matches": "Trận đã hoàn tất",
+      "qualification_overrides": "Ghi đè vượt vòng bảng",
+      "podium_rows": "Bục vinh danh"
+    },
+    "error": {
+      "forbidden": "Bạn không có quyền thực hiện.",
+      "not_authenticated": "Vui lòng đăng nhập.",
+      "invalid": "Yêu cầu không hợp lệ.",
+      "not_found": "Không tìm thấy nội dung.",
+      "snapshot_not_found": "Không tìm thấy bản luật.",
+      "event_completed": "Nội dung đã kết thúc — cần mở lại trước.",
+      "validation_failed": "Luật không hợp lệ.",
+      "warning_not_acknowledged": "Cần xác nhận cảnh báo cấu hình chấp.",
+      "confirmation_required": "Cần nhập cụm từ xác nhận.",
+      "results_present": "Đã có kết quả — phải chọn đặt lại toàn bộ.",
+      "rule_change_impact_stale": "Dữ liệu đã thay đổi — hãy xem lại tác động.",
+      "snapshot_version_conflict": "Bản luật đã bị thay đổi — hãy tải lại.",
+      "event_version_conflict": "Nội dung đã bị thay đổi — hãy tải lại.",
+      "not_ready": "Phân bảng chưa sẵn sàng để tạo lại.",
+      "unknown": "Có lỗi xảy ra."
+    }
   }
 }

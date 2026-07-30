@@ -243,3 +243,21 @@ never confirmed) — an existing v1 event stays blocked until you apply v2.
 - **Blocked cases.** If a pair's make-up is not set, scoring is blocked with "set each pair's make-up"
   (never a silent 0–0); an invalid make-up is rejected too. A client can never forge a head start —
   it is always computed server-side and stored per game for audit (why a game started 2–0 / 4–0).
+
+## Changing rules after a schedule / bracket exists (controlled reset)
+
+Once matches are generated, the **Luật thi đấu** editor is locked so live scores can't shift under new
+rules. To change the rules anyway, use **"Thay đổi luật có kiểm soát"** in the guard banner:
+
+1. Edit the fields, then press **Xem tác động**. A dialog lists exactly how much data a reset would
+   touch (group/knockout matches, scored games, completed matches, qualification overrides, podium).
+2. Pick a **reset scope** and a **regenerate** option. If any result exists, the scope is forced to the
+   full reset and you must type the confirmation phrase **RESET** — this permanently deletes the event's
+   results and bracket.
+3. Press **Áp dụng thay đổi**. Everything (reset + new rules + schedule regeneration) happens in one
+   atomic step; if anything fails, nothing changes. The round-robin schedule can be regenerated
+   automatically; a knockout bracket must be **re-seeded manually** afterwards (it needs fresh
+   standings). A **completed** event must be reopened first.
+
+Only Site Admins and Managers (of that tournament) can do this — Scorekeepers see a read-only tab. Every
+step is written to the audit log. Guests never see stale standings/brackets after a reset.

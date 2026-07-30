@@ -1,6 +1,7 @@
 import 'server-only'
 
 import { createPublicClient } from '@/lib/supabase/public'
+import { toPublicEventRuleSummary, type PublicEventRuleSummary, type RawPublicRuleSummaryRow } from '@/lib/tournaments/rules'
 import { evaluateGroupStage, type GroupEvaluationInput } from '@/lib/tournaments/domain/event-progress'
 import type { GroupStageFormat } from '@/lib/tournaments/domain/group-assignment'
 import { buildBracketRounds, type BracketMatchRef } from '@/lib/tournaments/domain/bracket-view'
@@ -568,6 +569,19 @@ export async function getPublicEventWorkspace(
       }
     }
 
+    // Public-safe scoring rules via the SECURITY DEFINER summary RPC. The RPC re-checks event
+    // visibility (published/completed) itself, so a draft/archived event can never leak a summary even
+    // if this call were reached. It exposes NO internal fields (no snapshot/preset id, no version, no
+    // requires_configuration internals, no actor) — only the human-readable scoring numbers.
+    let ruleSummary: PublicEventRuleSummary | null = null
+    try {
+      const { data: ruleRows } = await supabase.rpc('tournament_public_event_rule_summary', { p_event_id: eventId })
+      const row = Array.isArray(ruleRows) ? (ruleRows[0] as RawPublicRuleSummaryRow | undefined) : undefined
+      ruleSummary = toPublicEventRuleSummary(row ?? null)
+    } catch {
+      ruleSummary = null
+    }
+
     const summary: PublicEventSummary = {
       id: event.id,
       name: event.name,
@@ -592,6 +606,7 @@ export async function getPublicEventWorkspace(
       brackets,
       hasGroups: groups.length > 0,
       hasKnockout: koRows.length > 0,
+      ruleSummary,
     }
   } catch {
     return null

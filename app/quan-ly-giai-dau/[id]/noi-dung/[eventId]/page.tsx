@@ -15,6 +15,8 @@ import EventStatusBadge from '@/components/tournaments/admin/EventStatusBadge'
 import EventWorkspace from '@/components/tournaments/admin/EventWorkspace'
 import KnockoutWorkspace from '@/components/tournaments/admin/KnockoutWorkspace'
 import AdminRealtimeBanner from '@/components/tournaments/admin/AdminRealtimeBanner'
+import EventDetailTabs from '@/components/tournaments/admin/EventDetailTabs'
+import EventRulesPanel from '@/components/tournaments/admin/EventRulesPanel'
 import { MANAGEMENT_BASE, isSignedIn, eventWorkspaceCaps, knockoutWorkspaceCaps } from '../../../_access'
 
 export const dynamic = 'force-dynamic'
@@ -97,60 +99,76 @@ export default async function ManagementEventPage({
         )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-6">
-        {/* Settings + counts */}
-        <div className="space-y-6">
-          <div className="bg-paper border border-line rounded-2xl p-5">
-            <h2 className="font-serif font-bold text-[15px] text-ink mb-2">{t('settings_heading')}</h2>
-            {event.format !== 'knockout' && <Setting label={t('f_group_count')} value={event.groupCount} />}
-            {event.format === 'group_knockout' && (
-              <>
-                <Setting label={t('f_winner_qualifiers')} value={event.winnerQualifiersPerGroup} />
-                <Setting label={t('f_consolation_qualifiers')} value={event.consolationQualifiersPerGroup} />
-              </>
-            )}
-            {event.format !== 'round_robin' && <Setting label={t('f_third_place')} value={yesNo(event.thirdPlaceEnabled)} />}
-            <Setting label={t('competitor_count_label')} value={event.competitorCount} />
-            {groupSetup && (
-              <>
-                <Setting label={t('assigned_label')} value={assignedCount} />
-                <Setting label={t('unassigned_label')} value={groupSetup.unassignedIds.length} />
-                <Setting label={t('group_current_label')} value={groupSetup.groups.length} />
-              </>
-            )}
-            {event.matchCount > 0 && <Setting label={t('match_count_label')} value={event.matchCount} />}
-            {event.completedMatchCount > 0 && (
-              <Setting label={t('completed_match_count_label')} value={event.completedMatchCount} />
-            )}
-          </div>
-        </div>
+      <EventDetailTabs
+        showRules
+        competition={
+          <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-6">
+            {/* Settings + counts */}
+            <div className="space-y-6">
+              <div className="bg-paper border border-line rounded-2xl p-5">
+                <h2 className="font-serif font-bold text-[15px] text-ink mb-2">{t('settings_heading')}</h2>
+                {event.format !== 'knockout' && <Setting label={t('f_group_count')} value={event.groupCount} />}
+                {event.format === 'group_knockout' && (
+                  <>
+                    <Setting label={t('f_winner_qualifiers')} value={event.winnerQualifiersPerGroup} />
+                    <Setting label={t('f_consolation_qualifiers')} value={event.consolationQualifiersPerGroup} />
+                  </>
+                )}
+                {event.format !== 'round_robin' && <Setting label={t('f_third_place')} value={yesNo(event.thirdPlaceEnabled)} />}
+                <Setting label={t('competitor_count_label')} value={event.competitorCount} />
+                {groupSetup && (
+                  <>
+                    <Setting label={t('assigned_label')} value={assignedCount} />
+                    <Setting label={t('unassigned_label')} value={groupSetup.unassignedIds.length} />
+                    <Setting label={t('group_current_label')} value={groupSetup.groups.length} />
+                  </>
+                )}
+                {event.matchCount > 0 && <Setting label={t('match_count_label')} value={event.matchCount} />}
+                {event.completedMatchCount > 0 && (
+                  <Setting label={t('completed_match_count_label')} value={event.completedMatchCount} />
+                )}
+              </div>
+            </div>
 
-        {/* Workspace (capability-gated: a scorekeeper gets a score-only view) */}
-        <div className="bg-paper border border-line rounded-2xl p-5 sm:p-6">
-          {isKnockout && knockoutSeed ? (
-            <KnockoutWorkspace
+            {/* Workspace (capability-gated: a scorekeeper gets a score-only view) */}
+            <div className="bg-paper border border-line rounded-2xl p-5 sm:p-6">
+              {isKnockout && knockoutSeed ? (
+                <KnockoutWorkspace
+                  tournamentId={params.id}
+                  eventId={event.id}
+                  seedSetup={knockoutSeed}
+                  workspace={knockoutWorkspace}
+                  caps={knockoutWorkspaceCaps(caps)}
+                />
+              ) : (
+                <EventWorkspace
+                  tournamentId={params.id}
+                  eventId={event.id}
+                  competitors={event.competitors}
+                  showSeed={event.format !== 'round_robin'}
+                  locked={event.matchCount > 0}
+                  groupSetup={groupSetup}
+                  scoring={scoring}
+                  groupKnockoutSeed={groupKnockoutSeed}
+                  groupKnockoutWorkspace={groupKnockoutWorkspace}
+                  caps={eventWorkspaceCaps(caps)}
+                />
+              )}
+            </div>
+          </div>
+        }
+        rules={
+          <div className="bg-paper border border-line rounded-2xl p-5 sm:p-6">
+            <EventRulesPanel
               tournamentId={params.id}
               eventId={event.id}
-              seedSetup={knockoutSeed}
-              workspace={knockoutWorkspace}
-              caps={knockoutWorkspaceCaps(caps)}
+              canManage={caps.can('rules.manage')}
+              matchCount={event.matchCount}
+              completedMatchCount={event.completedMatchCount}
             />
-          ) : (
-            <EventWorkspace
-              tournamentId={params.id}
-              eventId={event.id}
-              competitors={event.competitors}
-              showSeed={event.format !== 'round_robin'}
-              locked={event.matchCount > 0}
-              groupSetup={groupSetup}
-              scoring={scoring}
-              groupKnockoutSeed={groupKnockoutSeed}
-              groupKnockoutWorkspace={groupKnockoutWorkspace}
-              caps={eventWorkspaceCaps(caps)}
-            />
-          )}
-        </div>
-      </div>
+          </div>
+        }
+      />
     </div>
   )
 }

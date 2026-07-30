@@ -51,6 +51,7 @@ export default defineConfig({
   projects: [
     { name: 'setup', testMatch: /auth\.setup\.ts/ },
     scenario('permissions', 'permissions.spec.ts'),
+    scenario('rules', 'rules.spec.ts'),
     scenario('authorization', 'authorization.spec.ts'),
     scenario('crud', 'crud.spec.ts'),
     scenario('public', 'public.spec.ts'),

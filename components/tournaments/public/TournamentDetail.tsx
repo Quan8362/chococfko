@@ -21,6 +21,7 @@ import PublicCompetitors from './PublicCompetitors'
 import PublicSchedule from './PublicSchedule'
 import PublicStandings from './PublicStandings'
 import PublicPodium from './PublicPodium'
+import PublicRuleSummary from './PublicRuleSummary'
 import EmptyState from './EmptyState'
 
 // TAB_SLUGS + tabFromSlug live in '@/lib/tournaments/public/tabs' (a plain module) so the server route
@@ -51,8 +52,11 @@ export default function TournamentDetail({
     const tabs = ['overview', 'competitors', 'schedule']
     if (format === 'round_robin' || format === 'group_knockout') tabs.push('standings')
     if (format === 'knockout' || format === 'group_knockout') tabs.push('bracket', 'podium')
+    // The rules tab is always available once an event workspace is loaded — it shows the event's
+    // public scoring summary, or a "system default rules" notice when there is no snapshot.
+    if (workspace) tabs.push('rules')
     return tabs
-  }, [format])
+  }, [format, workspace])
 
   const [activeTab, setActiveTab] = useState(() => (availableTabs.includes(initialTab) ? initialTab : 'overview'))
   const [branch, setBranch] = useState<'championship' | 'consolation'>('championship')
@@ -290,6 +294,7 @@ export default function TournamentDetail({
               </div>
             )}
             {activeTab === 'podium' && <PublicPodium brackets={brackets} nameOf={nameOf} />}
+            {activeTab === 'rules' && <PublicRuleSummary summary={workspace.ruleSummary} />}
           </div>
         </>
       )}

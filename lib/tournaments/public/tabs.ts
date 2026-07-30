@@ -9,6 +9,7 @@ export const TAB_SLUGS: Record<string, string> = {
   standings: 'bang-xep-hang',
   bracket: 'nhanh-dau',
   podium: 'thanh-tich',
+  rules: 'luat-thi-dau',
 }
 
 const SLUG_TO_TAB: Record<string, string> = Object.fromEntries(

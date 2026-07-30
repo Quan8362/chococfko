@@ -158,3 +158,59 @@ specific tournaments without being a global Site Admin.
 
 **Navigation**: the “Quản lý giải đấu” menu entry appears for Site Admins and for anyone with at
 least one active membership. Managers/scorekeepers never see the `/admin` area.
+
+---
+
+## Competition rules — the “Luật thi đấu” tab (Prompt 15C-1)
+
+Every event now has a **Luật thi đấu** tab (both `/admin/giai-dau/<id>/noi-dung/<eventId>` and the
+scoped `/quan-ly-giai-dau/...`). Editing requires the `rules.manage` permission — **Site Admins and
+Managers** have it; Scorekeepers see the rules read-only.
+
+**When an event has no rules yet** you get three choices (nothing is saved until you confirm):
+1. **Use default rules** — a custom snapshot from the current default scoring.
+2. **Choose a preset** — e.g. *FJP Olympiad 2026*. Pick the **category** (Beginner = group touch-15;
+   Standard = group touch-21; both knockout touch-21, win-by-2, cap 31), preview it, then apply. The
+   category is chosen explicitly — it is **never** guessed from the event name.
+3. **Create custom rules** — set each value yourself.
+
+**Handicap is not yet configured.** The FJP preset intentionally ships with the gender handicap
+**enabled but without numbers**. The tab shows a warning that the preset is incomplete on the
+handicap, needs the organizer's numbers, cannot drive live scoring yet, and will be saved as “needs
+configuration”. You must tick the acknowledgement before applying. **Do not invent handicap numbers.**
+
+**Editing existing rules** uses optimistic concurrency: if someone else changed the rules while you
+were editing, you get a “rules changed, reload” banner and your edit is not saved.
+
+**Safety guard.** Once an event has a generated schedule/bracket or any recorded result, the scoring
+rules are **locked** (or require a schedule reset, coming in a later update) and cannot be changed
+here. Legacy events with no rule snapshot keep working on the old scoring.
+
+**Tie-break order.** Reorder criteria with the up/down buttons (keyboard friendly). Criteria the
+system can't compute automatically (head-to-head, organizer decision, random draw) are kept and
+marked **manual** — they are never dropped.
+
+**Reset to preset.** A rules set that came from a preset shows a **Reset to preset** button. It
+re-applies the *exact* preset version the rules were created from (never a newer one) and discards any
+custom edits since. If that original preset version is no longer available you get a typed error rather
+than a silent fallback. Reset is blocked once the event has a schedule or results.
+
+**Delete rules.** While an event is still in setup (no schedule, no results) you can **Delete rules**;
+the event then falls back to the system default rules. This never deletes the preset and never affects
+any other event. Once a schedule or result exists, delete is blocked.
+
+**Version conflict.** If someone else changed the rules while you were editing, saving shows a banner
+with a **Reload rules** button — your draft is kept until you choose to reload, and your stale save
+never overwrites theirs.
+
+**Public rule summary.** On the public tournament page, viewers see a read-only **Luật thi đấu** tab
+with the scoring numbers (group + knockout points, win-by, cap), tie-break order, and whether a
+handicap is enabled (shown as “pending organizer setup”). No internal detail is ever shown. An event
+that still uses the default rules shows a “system default rules” notice. Draft tournaments show nothing.
+
+Every rule change is written to the audit log (preset applied / snapshot created / snapshot updated /
+warning acknowledged / snapshot reset / snapshot deleted).
+
+**Handicap blocker (Prompt 15D).** The FJP preset enables a gender handicap but its numbers are still
+pending — the rules never feed handicap into scoring yet, and you cannot type handicap numbers in this
+phase. Scoring under these rules (the 15/21 laws) and real handicap calculation arrive in Prompt 15D.

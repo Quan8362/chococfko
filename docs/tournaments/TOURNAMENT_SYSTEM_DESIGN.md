@@ -1140,3 +1140,50 @@ Rule preset picker, event rule editor, `rules.manage` wiring, and the scoring ru
 handicap). Production migration + deploy remain operator-gated.
 
 **Kết thúc Prompt 15B-2. Dừng lại. Không tự sang Prompt 15C. Không merge. Không deploy. Không chạy SQL production.**
+
+---
+
+## 26. Prompt 15C-1 — Event rule tab (preset picker + snapshot editor)
+
+### 26.1 Shared surface
+The event workspace page gains a top-level **“Luật thi đấu”** tab beside the competition workspace,
+via `EventDetailTabs` (client shell, WAI-ARIA tabs) wrapping two server-rendered slots. Both the
+Site-Admin (`/admin/giai-dau`) and scoped (`/quan-ly-giai-dau`) event pages render the SAME shell +
+`EventRulesPanel` (server) + `RuleWorkspace` (client) — one implementation, no per-route fork.
+
+### 26.2 Permission
+`rules.manage` gates every rule mutation (Site Admin + Manager pass; Scorekeeper / ordinary user /
+anonymous are denied server-side by `checkTournamentPermission`). The tab renders read-only for a
+viewer without `rules.manage`; hiding controls is never the security boundary.
+
+### 26.3 Data flow
+`EventRulesPanel` (server) reads the current snapshot (`getEventRuleSnapshotForAdmin`) + available
+presets (`listRulePresetsForPicker`) via the service-role query layer and computes the safety guard
+from DB match counts, then passes plain serializable DTOs (from the pure `rules/views.ts`) to the
+client. Mutations go through the `rule-actions.ts` `'use server'` wrappers → `ruleService.ts`. The
+service-role client never reaches the client bundle.
+
+### 26.4 Safety & concurrency
+Conservative guard (`event_rules_locked` / `event_requires_schedule_reset`) blocks rule changes once
+matches exist; optimistic concurrency (`expectedVersion` pinned in the UPDATE) returns
+`version_conflict` instead of clobbering. Snapshots are deep copies — independent of the preset.
+
+### 26.5 Public rule summary (15C-2)
+`getPublicEventWorkspace()` additionally calls `tournament_public_event_rule_summary(event_id)` (the
+anon RPC — no service role, no base-table read) and maps it with the pure `toPublicEventRuleSummary()`
+into `PublicEventWorkspace.ruleSummary`. `TournamentDetail` renders it in a new **rules** tab
+(`PublicRuleSummary`), or a "system default rules" notice when there is no snapshot. A draft/archived
+tournament is already 404 at the page + invisible at the RPC, so nothing leaks; the summary carries no
+internal field (no id/version/`requires_configuration` internals/actor).
+
+### 26.6 Reset / delete / locking (15C-2)
+`ruleService.ts` adds `resetEventRuleSnapshotToPreset` (re-copies the ORIGINAL preset version, keeps
+category, bumps `snapshot_version`, optimistic-concurrency pinned; `not_preset_sourced` /
+`preset_version_gone` typed errors) and `deleteEventRuleSnapshot` (setup-only via the guard → falls
+back to default rules; version-pinned; never touches the preset). Audit adds
+`event_rule_snapshot_reset` + `event_rule_snapshot_deleted`. The rule tab is read-only under the
+schedule/result guard; a version conflict surfaces a banner + Reload with no auto-merge / no draft loss.
+
+### 26.7 Left for Prompt 15D
+Scoring runtime under the snapshot (15/21 laws), real handicap numbers, and automatic schedule/bracket
+reset on a rule change. No new migration, no production SQL at commit time.

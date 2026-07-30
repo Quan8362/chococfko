@@ -414,6 +414,144 @@ export async function revokeMemberDirect(opts: {
   if (error) throw new Error(`seed revokeMemberDirect: ${error.message}`)
 }
 
+// ── Rule engine seeding (15C-2) ─────────────────────────────────────────────────────────────────
+// The FJP Olympiad 2026 preset payload — the DB mirror of buildFjpOlympiad2026Preset() (see
+// lib/tournaments/rules/presets.ts + seed_tournament_rule_presets.sql). Beginner group touch-15,
+// Standard group touch-21; both knockout touch-21 win-by-2 cap 31; handicap enabled but PENDING
+// (entries [], requires_configuration true) — never seeded with guessed numbers.
+export const FJP_PRESET_KEY = 'fjp_olympiad_2026'
+export const FJP_PRESET_VERSION = 1
+
+const FJP_TIE_BREAK = ['table_points', 'point_difference', 'points_for', 'organizer_decision']
+function fjpVariant(category: 'beginner' | 'standard', groupPoints: number) {
+  return {
+    category,
+    rules: {
+      group: {
+        match: { games_to_win: 1, max_games: 1, points_to_win: groupPoints, win_by: 1, points_cap: null, allow_tied_game: false },
+        win_table_points: 1,
+        loss_table_points: 0,
+        tie_break_order: FJP_TIE_BREAK,
+      },
+      knockout: {
+        match: { games_to_win: 1, max_games: 1, points_to_win: 21, win_by: 2, points_cap: 31, allow_tied_game: false },
+      },
+      handicap: { enabled: true, mode: 'starting_score', entries: [], requires_configuration: true },
+    },
+  }
+}
+
+// Idempotent upsert of the FJP preset so the picker has it. Safe to call in beforeAll of every run.
+export async function seedFjpPreset(): Promise<void> {
+  const payload = [fjpVariant('beginner', 15), fjpVariant('standard', 21)]
+  const { error } = await admin()
+    .from('tournament_rule_presets')
+    .upsert(
+      {
+        preset_key: FJP_PRESET_KEY,
+        version: FJP_PRESET_VERSION,
+        label: 'FJP Olympiad 2026',
+        description: 'FJP Olympiad 2026 badminton preset (E2E seed).',
+        schema_version: 1,
+        is_default: false,
+        requires_configuration: true,
+        status: 'active',
+        payload,
+      },
+      { onConflict: 'preset_key,version' },
+    )
+  if (error) throw new Error(`seed seedFjpPreset: ${error.message}`)
+}
+
+export interface RuleSnapshotSeed {
+  eventId: string
+  source: 'default' | 'preset' | 'custom'
+  presetKey?: string | null
+  presetVersion?: number | null
+  category?: string | null
+  requiresConfiguration?: boolean
+  snapshotVersion?: number
+  payload: unknown
+}
+
+// A ready-made custom rule payload (touch-21 group, knockout touch-21 win-by-2 cap 31, handicap off).
+export function customRulePayload(groupPoints = 21) {
+  return {
+    group: {
+      match: { games_to_win: 1, max_games: 1, points_to_win: groupPoints, win_by: 1, points_cap: null, allow_tied_game: false },
+      win_table_points: 1,
+      loss_table_points: 0,
+      tie_break_order: ['table_points', 'point_difference', 'points_for'],
+    },
+    knockout: { match: { games_to_win: 1, max_games: 1, points_to_win: 21, win_by: 2, points_cap: 31, allow_tied_game: false } },
+    handicap: { enabled: false, mode: 'starting_score', entries: [], requires_configuration: false },
+  }
+}
+
+// Insert an event rule snapshot directly (the exact starting state the UI then reads/asserts).
+export async function seedRuleSnapshot(s: RuleSnapshotSeed): Promise<string> {
+  const isPreset = s.source === 'preset'
+  const { data, error } = await admin()
+    .from('tournament_event_rule_snapshots')
+    .insert({
+      event_id: s.eventId,
+      source: s.source,
+      preset_key: isPreset ? s.presetKey ?? FJP_PRESET_KEY : null,
+      preset_version: isPreset ? s.presetVersion ?? FJP_PRESET_VERSION : null,
+      category: s.category ?? null,
+      schema_version: 1,
+      snapshot_version: s.snapshotVersion ?? 1,
+      requires_configuration: s.requiresConfiguration ?? false,
+      payload: s.payload,
+    })
+    .select('id')
+    .single()
+  if (error) throw new Error(`seed seedRuleSnapshot: ${error.message}`)
+  return data.id
+}
+
+export interface RuleSnapshotRead {
+  id: string
+  source: string
+  presetKey: string | null
+  presetVersion: number | null
+  category: string | null
+  snapshotVersion: number
+  requiresConfiguration: boolean
+  version: number
+  payload: Record<string, unknown>
+}
+
+export async function readRuleSnapshot(eventId: string): Promise<RuleSnapshotRead | null> {
+  const { data } = await admin()
+    .from('tournament_event_rule_snapshots')
+    .select('id, source, preset_key, preset_version, category, snapshot_version, requires_configuration, version, payload')
+    .eq('event_id', eventId)
+    .maybeSingle()
+  if (!data) return null
+  return {
+    id: data.id,
+    source: data.source,
+    presetKey: data.preset_key,
+    presetVersion: data.preset_version,
+    category: data.category,
+    snapshotVersion: data.snapshot_version,
+    requiresConfiguration: data.requires_configuration,
+    version: data.version,
+    payload: data.payload as Record<string, unknown>,
+  }
+}
+
+// Count audit rows for an event by action (proves reset/delete/apply wrote exactly one entry each).
+export async function countAudit(eventId: string, action: string): Promise<number> {
+  const { count } = await admin()
+    .from('tournament_audit_log')
+    .select('*', { count: 'exact', head: true })
+    .eq('event_id', eventId)
+    .eq('action', action)
+  return count ?? 0
+}
+
 // ── Cleanup: delete every tournament this run created (cascades to events/competitors/groups/
 // matches/games/podium/overrides/members). Safe to call in afterAll even after failures.
 export async function cleanupRun(): Promise<{ deleted: number }> {

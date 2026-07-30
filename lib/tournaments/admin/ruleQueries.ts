@@ -4,6 +4,9 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import {
   getRulePreset,
   type EventRuleSnapshot,
+  type RulePresetVariant,
+  type RulePresetPickerOption,
+  type RulePresetPickerVariant,
   type RuleSet,
   type RuleSnapshotDbSource,
 } from '@/lib/tournaments/rules'
@@ -153,6 +156,34 @@ export async function getEventRuleSnapshotForAdmin(
     version: r.version,
     rules: r.payload,
   }
+}
+
+// ── Preset picker view (serializable for a Client Component) ──────────────────────────────────
+// The picker DTOs live in the PURE rules package (lib/tournaments/rules/views.ts) so a Client
+// Component can consume them without importing this server-only module even for a type. Built here
+// from the persisted preset rows — the DB template mirrors the in-code registry.
+function toPickerVariants(payload: unknown): RulePresetPickerVariant[] {
+  if (!Array.isArray(payload)) return []
+  return (payload as RulePresetVariant[])
+    .filter((v) => v && typeof v.category === 'string' && v.rules && typeof v.rules === 'object')
+    .map((v) => ({ category: v.category, rules: v.rules }))
+}
+
+/**
+ * The active presets available to an event's rule picker, with each variant's full rule set for
+ * preview. Admin-only (service-role read). A preset seeded in code but not yet in the DB simply does
+ * not appear — the DB is the source of what is offered (see listRulePresetsForAdmin).
+ */
+export async function listRulePresetsForPicker(): Promise<RulePresetPickerOption[]> {
+  const rows = await listRulePresetsForAdmin()
+  return rows.map((r) => ({
+    presetKey: r.presetKey,
+    version: r.version,
+    label: r.label,
+    isDefault: r.isDefault,
+    requiresConfiguration: r.requiresConfiguration,
+    variants: toPickerVariants(r.payload),
+  }))
 }
 
 // Re-export the pure registry lookup so an admin caller has one import surface. The registry (not a

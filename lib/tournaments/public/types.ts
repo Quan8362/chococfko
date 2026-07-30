@@ -3,6 +3,7 @@
 // override reason text, audit metadata). Pure data shapes, no I/O.
 
 import type { EventFormat } from '@/lib/tournaments/eventValidation'
+import type { PublicEventRuleSummary } from '@/lib/tournaments/rules'
 import type {
   CompetitorRow,
   KnockoutMatchView,
@@ -136,6 +137,10 @@ export interface PublicEventWorkspace {
   brackets: PublicBracket[]
   hasGroups: boolean
   hasKnockout: boolean
+  // The minimal, public-safe scoring rules for this event (via the SECURITY DEFINER summary RPC).
+  // null when the event still runs on the system default rules (no snapshot) → the UI shows a
+  // "default rules" notice rather than a half-empty card.
+  ruleSummary: PublicEventRuleSummary | null
 }
 
 // Small adapter: the reused BracketView takes admin CompetitorRow[]. Build minimal rows (no real

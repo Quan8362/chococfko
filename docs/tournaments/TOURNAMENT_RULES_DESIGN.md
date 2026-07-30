@@ -297,3 +297,101 @@ the snapshot**; competitor-composition persistence; and the **BTC-confirmed** ha
 The `rules.manage` permission exists in the role map (managers hold it) but is **not yet wired to any
 UI or mutation** — the rule preset picker, the per-event rule editor and the scoring runtime (15/21
 laws, handicap) remain deferred to **Prompt 15C**.
+
+---
+
+## Prompt 15C-1 — Rule preset picker & event rule snapshot editor (Admin/Manager UI)
+
+15C-1 wires the rule engine to the admin UI. It is **UI + server actions only**; the scoring runtime
+(15/21 laws, real handicap numbers) and schedule reset remain deferred to **Prompt 15C-2**.
+
+### Surface
+A new **“Luật thi đấu”** tab in the shared event workspace (`.../noi-dung/[eventId]`), mounted
+identically on the Site-Admin (`/admin/giai-dau`) and scoped (`/quan-ly-giai-dau`) routes via one
+implementation: `EventDetailTabs` (top-level tabs) → `EventRulesPanel` (server data-loader) →
+`RuleWorkspace` (client). The picker/editor render only when the viewer holds `rules.manage`;
+everyone else who can view the workspace sees a read-only summary.
+
+### Empty state (no snapshot yet)
+A snapshot is **never auto-created** by opening the page. When an event has none, the workspace
+offers three explicit choices: use the current **default** rules, choose a **preset**, or build a
+**custom** rule set. The admin/manager must confirm (save) before anything is written. A legacy event
+with no snapshot keeps working on the old scoring — nothing is forced onto it.
+
+### Preset picker & preview
+Presets are read from the DB (`listRulePresetsForPicker`, service-role) — never hardcoded in a Client
+Component. For FJP the picker shows the label + version, the **not-the-default** note, both category
+variants (Beginner / Standard) and the **requires-configuration** (handicap) state. Category is chosen
+explicitly and is **never inferred from the event name**. The preview renders human labels (touch-15
+group / touch-21 group, knockout touch-21 win-by-2 cap 31, table points, tie-break order) — never raw
+JSON.
+
+### Server actions (`lib/tournaments/admin/ruleService.ts`, wrapped by `rule-actions.ts`)
+`applyRulePresetToEvent`, `createCustomEventRuleSnapshot`, `updateEventRuleSnapshot`,
+`acknowledgeRuleWarning`. Every mutation: authenticate → `checkTournamentPermission(id,'rules.manage')`
+→ verify the event belongs to the tournament (anti-IDOR) → reload DB truth → **safety guard** →
+build+validate with the pure engine (`buildRuleSetFromEditorFields` / `applyRulePreset` /
+`createEventRuleSnapshot` / `validateEventRuleSnapshot`) → mutate via service-role → audit → revalidate
+both mounts. The service-role client is created **only after** the check passes and is never imported
+into the client (DTOs live in the pure `lib/tournaments/rules/views.ts`).
+
+### Snapshot independence & optimistic concurrency
+Applying a preset deep-copies the variant (`applyRulePreset`) — later preset edits can never change a
+live snapshot. `updateEventRuleSnapshot` takes an `expectedVersion` and pins it in the UPDATE `WHERE`
+(`.eq('version', expectedVersion)`), returning `version_conflict` on a stale write. Two concurrent
+edits are never auto-merged. Editing bumps the domain `snapshot_version`; the DB `version` column is
+the trigger-bumped concurrency token.
+
+### Conservative safety guard (§14)
+`evaluateRuleMutationGuard({matchCount, completedMatchCount})`: any completed match/score →
+`event_rules_locked`; matches generated but unscored → `event_requires_schedule_reset`. The server
+checks DB truth; nothing resets a schedule/bracket in this Prompt.
+
+### Handicap blocker (§15)
+The FJP preset ships `requires_configuration = true` with **no** handicap entries. The UI shows the
+incomplete-handicap warning (icon + text, not colour alone), never presents the preset as “complete”,
+and an unacknowledged `requires_configuration` snapshot is rejected server-side
+(`warning_not_acknowledged`). Acknowledgement is recorded in the audit (`event_rule_warning_acknowledged`).
+No handicap numbers are invented.
+
+### Tie-break editor (§12)
+Move up/down (full keyboard) + add/remove; **no duplicate token**; tokens the runtime cannot evaluate
+automatically (`head_to_head`, `organizer_decision`, `random_draw`) are kept and flagged **manual** —
+never silently dropped.
+
+### Audit actions
+`event_rule_preset_applied`, `event_rule_snapshot_created`, `event_rule_snapshot_updated`,
+`event_rule_warning_acknowledged`, `event_rule_snapshot_reset`, `event_rule_snapshot_deleted` —
+metadata carries ids / source / preset key+version / category / snapshot version before/after /
+changed field paths / requires_configuration; never a token/cookie/session.
+
+## Prompt 15C-2 additions
+
+### Public rule summary (§4–§5)
+The public detail page (`/giai-dau/[slug]`) gains a **Luật thi đấu** tab. It reads ONLY the
+`tournament_public_event_rule_summary(event_id)` SECURITY DEFINER RPC (via `createPublicClient()` — no
+service role, no base-table read) mapped by the pure `toPublicEventRuleSummary()`. It shows source
+(preset label / custom), category, group + knockout scoring (points-to-win / win-by / cap), tie-break
+order, and handicap on/off (on → "pending organizer setup"). It exposes NO internal field (no
+snapshot/preset id, no version, no `requires_configuration` internals, no actor, no audit). The RPC's
+own `WHERE tournament_event_is_public` gate means a draft/archived event never leaks a summary. A
+**legacy event with no snapshot** shows "system default rules" and is never auto-created.
+
+### Reset & delete lifecycle (§6–§7)
+- **`resetEventRuleSnapshotToPreset`** — re-copies the EXACT `(preset_key, preset_version)` the snapshot
+  was created from (never the newest version; a gone version → typed `preset_version_gone`), keeps the
+  category, bumps `snapshot_version`, validates with the pure engine, and is pinned by optimistic
+  concurrency. Only a preset-sourced snapshot can reset (`not_preset_sourced` otherwise).
+- **`deleteEventRuleSnapshot`** — allowed ONLY in setup (the same conservative guard); deletes the row
+  so the event falls back to the system default rules. Never deletes the preset, never touches another
+  event, version-pinned.
+
+### Locking (§8) & version-conflict UX (§9)
+A generated-but-unscored schedule makes the rule tab read-only with a "reset the schedule in the
+Competition tab first" hint (no auto-reset, no silent discard). A recorded result hard-locks all rule
+mutations while the public summary keeps reading the current snapshot. On `version_conflict` the UI
+shows a banner + **Reload** button and never auto-merges or discards the draft before the user reloads.
+
+### Left for Prompt 15D
+Scoring runtime under the snapshot (15/21 laws), real handicap calculation, and automatic
+schedule/bracket reset on a rule change. No new migration; no commit-time production SQL.

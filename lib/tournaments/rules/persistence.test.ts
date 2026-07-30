@@ -118,3 +118,33 @@ test('toPublicEventRuleSummary coerces a non-array tie_break_order to []', () =>
   assert.deepEqual(summary!.tieBreakOrder, [])
   assert.equal(summary!.handicapEnabled, false)
 })
+
+// Prompt 15C-2 — the public summary object must carry EXACTLY the safe key set. If a future edit adds
+// an internal field to the projection this fails loudly (defence against a summary leak on /giai-dau).
+test('toPublicEventRuleSummary output has exactly the public-safe key set (no internal leak)', () => {
+  const summary = toPublicEventRuleSummary({
+    category: 'beginner', preset_label: 'FJP Olympiad 2026',
+    group_points_to_win: 15, group_win_by: 1, group_points_cap: null,
+    knockout_points_to_win: 21, knockout_win_by: 2, knockout_points_cap: 31,
+    tie_break_order: ['table_points'], handicap_enabled: true,
+  })
+  assert.ok(summary)
+  assert.deepEqual(
+    Object.keys(summary!).sort(),
+    ['category', 'group', 'handicapEnabled', 'knockout', 'presetLabel', 'tieBreakOrder'],
+  )
+})
+
+// A custom row (no preset label) still yields a summary — the source is inferable from a null label,
+// never leaked as an id.
+test('toPublicEventRuleSummary maps a custom row with a null preset label', () => {
+  const summary = toPublicEventRuleSummary({
+    category: null, preset_label: null,
+    group_points_to_win: 21, group_win_by: 1, group_points_cap: null,
+    knockout_points_to_win: 21, knockout_win_by: 2, knockout_points_cap: 31,
+    tie_break_order: ['table_points'], handicap_enabled: false,
+  })
+  assert.ok(summary)
+  assert.equal(summary!.presetLabel, null)
+  assert.equal(summary!.category, null)
+})

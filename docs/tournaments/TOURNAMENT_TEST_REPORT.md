@@ -515,3 +515,81 @@ and `next build` clean. i18n parity holds across vi/en/ja/ko/zh; secret scan cle
 **Not run here (environment):** the Playwright tournament E2E and the SQL harness require a running
 local Supabase stack (down in this environment); browser smoke is therefore deferred to an operator
 with the local stack. No production/remote DB was used.
+
+---
+
+## Prompt 15C-1 — Rule preset picker & snapshot editor
+
+**New pure/structural tests**
+
+- `lib/tournaments/rules/editor.test.ts` (11) — `buildRuleSetFromEditorFields` produces valid rules;
+  enabled-but-pending handicap never fabricates entries; base handicap mode/entries preserved;
+  deep-copy independence; `ruleSetToEditorFields` round-trip; FJP round-trip; duplicate tie-break
+  rejected; `unsupportedTieBreakTokens` flags manual tokens; safety-guard verdicts (locked /
+  requires-reset / free).
+- `lib/tournaments/admin/ruleSecurity.test.ts` (17) — every action gates `rules.manage` **before** the
+  service-role client; `not_authenticated`/`forbidden` mapping; anti-IDOR event↔tournament and no
+  name-based category inference; safety guard on every mutating action; update optimistic concurrency
+  + `version_conflict`, no auto-merge; apply loads the **stored** preset (not a client payload); the
+  handicap-warning gate; service never fabricates handicap entries; all four audit actions; the
+  `'use server'` wrappers add no bypass; the client never imports the service-role client / server-only
+  rule modules; the tie-break editor never silently drops a token; plus pure FJP Beginner(15)/Standard(21),
+  deep-copy, handicap-pending, custom-no-provenance and invalid-payload guarantees.
+
+Mapped to the Prompt 15C-1 test checklist (§19): #1–#4 (permission: site-admin/manager pass,
+scorekeeper/cross-tournament denied) are enforced by `checkTournamentPermission(id,'rules.manage')` and
+covered structurally by the guard-ordering + anti-IDOR assertions (and the existing
+`permissions.test.ts` role map). #5–#17 are covered by the pure + structural tests above. #18 legacy
+event still renders (no snapshot → read-only/empty-state, no auto-create). #19 client never imports
+service-role. #20 all pre-existing tests kept green.
+
+**Local gate results**
+
+- `node --test lib/tournaments/**/*.test.ts` — **437 pass / 0 fail** (was 409 pre-15C-1).
+- `tsc --noEmit --skipLibCheck` — clean.
+- `next lint` (changed files) — no warnings or errors.
+- i18n parity — **6682 keys × 5 locales** OK (5 new namespaces: `admin_event_rules`,
+  `admin_rule_snapshot`, `admin_rule_presets`, `admin_rule_editor`, `admin_handicap_warning`).
+
+**Not run here (environment):** browser E2E is out of scope for 15C-1; no new migration or DB helper
+changed, so the SQL harness was not re-run. No production/remote DB was used.
+
+## Prompt 15C-2 — Public rule summary, snapshot lifecycle & E2E
+
+**New / extended coverage**
+
+- Pure — `lib/tournaments/rules/persistence.test.ts` (extended): the public summary object exposes
+  EXACTLY the safe key set (`category, group, handicapEnabled, knockout, presetLabel, tieBreakOrder`),
+  maps preset + custom rows, and never carries an internal field.
+- Structural/security — `lib/tournaments/admin/ruleSecurity.test.ts` (extended): reset re-copies the
+  snapshot's ORIGINAL `(preset_key, preset_version)` (never `order('version')`), rejects a custom
+  snapshot (`not_preset_sourced`) and a gone version (`preset_version_gone`), and is version-pinned;
+  delete is guarded (setup-only), version-pinned, and never touches the preset registry; all SIX audit
+  actions are written; the two lifecycle wrappers delegate through the `'use server'` boundary with no
+  service-role client; `RuleWorkspace` wires the reset/delete actions via that boundary only.
+- Browser — `e2e/tournaments/rules.spec.ts` (project `rules`, **20 tests**): access (site
+  admin/manager/scorekeeper-readonly/regular-404/cross-tournament-404), apply FJP Beginner/Standard,
+  preview 15/21/win-by-2/cap-31, handicap warning gate, custom create, edit, tie-break duplicate guard,
+  two-context version conflict + reload, reset-to-original-version, delete→default, schedule/result
+  locks, public summary correct + no internal field, legacy default notice, draft no-leak. Uses the
+  service-role seed helpers (`seedFjpPreset`, `seedRuleSnapshot`, `readRuleSnapshot`, `countAudit`) and
+  asserts DB truth after each mutation.
+
+**Local gate results (this session — all green)**
+
+- `node --test lib/tournaments/**/*.test.ts` — **439 pass / 0 fail**.
+- `node --test lib/**/*.test.ts` (full lib) — **2344 pass / 0 fail**.
+- `tsc --noEmit --skipLibCheck` — clean.
+- `next lint` — only pre-existing warnings in unrelated modules (japanese/poker/tlmn/chinese-chess);
+  none in the tournament rule files.
+- i18n parity — **6715 keys × 5 locales** OK (adds `admin_event_rules` reset/delete/reload/confirm +
+  two errors, and a public `tournaments.rules` namespace + `tournaments.tabs.rules`).
+- `next build` — production build compiles.
+- `playwright test --config e2e/tournaments/tournaments.config.ts --list` — the `rules` project's 20
+  tests compile and register alongside the existing 82.
+
+**Not run here (environment):** the browser E2E (`rules` project) requires the LOCAL Supabase stack
+(WSL2/Docker); it is authored, registered and compiles, but the live run is environmentally blocked in
+this session and was not executed. No migration or SQL changed in 15C-2, so the SQL harness /
+tournament SQL regression were not re-run. No production/remote DB was used; no production SQL, no
+merge, no deploy.

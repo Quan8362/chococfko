@@ -30,8 +30,9 @@ strict dependency chain:
 | 7 | `supabase/migration_tournament_public_privacy.sql` | **Privacy fix (Prompt 14B).** `tournament_public_qualification_overrides(uuid)` public-safe projection RPC; **REVOKE SELECT** on `tournament_qualification_overrides` from anon/authenticated; **DROP** the `tqo_public_select` policy | core, scoring |
 | 8 | `supabase/migration_tournament_rule_engine.sql` | **Rule engine (Prompt 15A-2).** `tournament_rule_presets` + `tournament_event_rule_snapshots` tables (RLS admin-only, no public read), `tournament_public_event_rule_summary(uuid)` public-safe scoring-summary RPC, updated_at/version-bump triggers, indexes, grants | core |
 | 9 | `supabase/migration_tournament_members.sql` | **Membership & scoped permissions (Prompt 15B-1).** `tournament_members` table (RLS: no anon, authenticated self-read only, service-role writes), `tournament_claim_member_invitations()` `SECURITY DEFINER` claim RPC (auth.uid()+JWT email), updated_at/version-bump triggers, indexes, grants | core |
+| 10 | `supabase/migration_tournament_fjp_handicap.sql` | **Official FJP handicap (Prompt 15D-1B).** Adds `competitor_kind`/`male_count`/`female_count` (+ CHECKs) to `tournament_competitors`; adds `starting_score_a`/`starting_score_b`/`handicap_mode`/`handicap_version` (+ `tmg_scores_ge_starting` CHECK) to `tournament_match_games`; **CREATE OR REPLACE** of the four score RPCs (`tournament_save_match_result`, `tournament_save_knockout_result`, `tournament_save_group_knockout_result`, `tournament_reset_knockout_path`) to persist the starting scores atomically (game INSERT column list only — bodies otherwise verbatim; re-REVOKE/GRANT to service_role); seeds FJP preset **v2** (handicap configured, 2 pts/surplus woman) idempotently and marks **v1 deprecated** | core, scoring, knockout_bracket, group_knockout, rule_engine |
 
-Each rollback file is `..._rollback.sql` next to its migration. Roll back in **reverse** order (9 → 1).
+Each rollback file is `..._rollback.sql` next to its migration. Roll back in **reverse** order (10 → 1).
 
 > **Migration 8 is a separate branch (`feat/tournament-rules-fjp-2026`), NOT part of the pending
 > `feat/tournament-system` production deploy.** It is authored + locally-gated only. Apply it to
@@ -361,6 +362,43 @@ claim RPC — safe only while it holds no data you need). It does not touch migr
 
 > Do **not** run `tournament_members_tests.sql` against production (it inserts-and-`ROLLBACK`s and
 > creates `auth.users` fixtures). Production verification stays read-only.
+
+---
+
+## 6d. Official FJP handicap — apply & local gate (migration #10, Prompt 15D-1B)
+
+Migration #10 integrates the official FJP gender handicap into scoring. It is **additive** (only
+NULLABLE / DEFAULTed columns on `tournament_competitors` + `tournament_match_games`) and re-defines the
+four score RPCs to persist the starting score **atomically** (the only body change is the game INSERT
+column list). It seeds FJP preset **v2** (handicap configured, `points_per_difference = 2`) and marks
+**v1 deprecated** so the picker defaults to v2 — v1 stays for provenance and remains scoring-blocked.
+
+### Exact order
+```
+migration_tournament_fjp_handicap.sql          # after migration_tournament_members.sql (#9)
+```
+Rollback (reverse): `migration_tournament_fjp_handicap_rollback.sql` — **restores the four RPC bodies to
+their pre-#10 form FIRST** (so no function references a dropped column), then drops the constraints +
+columns, deletes preset v2, and re-activates v1. It touches migrations 1–9 not at all.
+
+### Local gate (WSL2 + Docker; local ONLY — never production, per §3)
+1. Migrations 1–9 already applied → apply `migration_tournament_fjp_handicap.sql` → **idempotent
+   reapply** (both exit 0; `ADD COLUMN IF NOT EXISTS` + guarded constraint DO-blocks + `ON CONFLICT`).
+2. Run `supabase/tournament_fjp_handicap_tests.sql` → `ALL FJP HANDICAP TESTS PASSED` (composition
+   CHECKs, `tmg_scores_ge_starting` backstop, the save RPC persists starting scores atomically, v2
+   seeded configured, v1 deprecated).
+3. Run the full tournament SQL harness (all files) → all pass (no regression from #10 — the RPC bodies
+   are byte-for-byte the pre-#10 logic apart from the extra INSERT columns).
+4. Rollback `migration_tournament_fjp_handicap_rollback.sql` → columns/constraints gone, v2 removed,
+   v1 active, the four RPCs restored → **5. Reapply → 6. Retest** → all pass.
+7. Verify the four RPCs are still `service_role`-only (`REVOKE` from anon/authenticated held across the
+   `CREATE OR REPLACE`; the migration re-asserts it), and `tournament_rule_presets` shows v2 `active` /
+   v1 `deprecated`.
+
+> **RPC transcription note (operator action).** Migration #10 reproduces the four score-RPC bodies
+> verbatim except for the game INSERT. This was authored **without** a local Postgres in the session,
+> so the local SQL gate above is the required validation before merge — run steps 1–7 in the WSL Docker
+> stack and confirm the full harness is green.
 
 ---
 

@@ -70,7 +70,7 @@ test('generate recomputes standings, resolves tokens, builds BOTH branches with 
 
 test('branch result derives the winner via the pure engine and progresses within the branch', () => {
   const fn = actionBody(read(ACTIONS), 'saveGroupKnockoutMatchResult')
-  assert.ok(fn.includes('validateMatchScores('), 'save must derive the winner via validateMatchScores')
+  assert.ok(fn.includes('resolveMatchScore('), 'save must derive the winner via the rule-aware runtime (resolveMatchScore)')
   assert.ok(fn.includes('progressKnockout('), 'save must compute downstream slots via progressKnockout')
   assert.ok(fn.includes('computeBracketPodium('), 'save must compute the branch podium via calculatePodium')
   assert.ok(fn.includes('p_bracket: bracket'), 'save must pass the match branch to the RPC')

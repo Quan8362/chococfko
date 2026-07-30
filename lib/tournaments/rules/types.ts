@@ -82,13 +82,19 @@ export interface KnockoutRules {
 }
 
 // ── Handicap rules ──────────────────────────────────────────────────────────────────────────
-// `starting_score`  → each side begins a game on a non-zero score.
-// `point_adjustment`→ a side's final points are adjusted by the value (kept as a distinct mode so
-//                     callers never conflate a head-start with a post-hoc correction).
-export type HandicapMode = 'starting_score' | 'point_adjustment'
+// `starting_score`         → each side begins a game on a non-zero score, matched from `entries`.
+// `point_adjustment`       → a side's final points are adjusted by the value (kept distinct so
+//                            callers never conflate a head-start with a post-hoc correction).
+// `female_count_difference`→ the OFFICIAL FJP OLYMPIAD 2026 handicap: the pair with MORE women
+//                            starts each game/set ahead by `points_per_difference` for every surplus
+//                            woman. It is difference-based (femaleCountA − femaleCountB) and needs
+//                            NO `entries` — the head start comes from the two compositions, never
+//                            from an identity, a pair name, or a category string.
+export type HandicapMode = 'starting_score' | 'point_adjustment' | 'female_count_difference'
 
 // One handicap entry keyed by an exact composition class (kind + gender counts). A side's
-// composition is matched against these; there is no name / identity input by design.
+// composition is matched against these; there is no name / identity input by design. Used only by
+// the entry-matched modes (`starting_score` / `point_adjustment`), never by `female_count_difference`.
 export interface HandicapRuleEntry {
   readonly kind: CompetitorKind
   readonly maleCount: number
@@ -100,6 +106,10 @@ export interface HandicapRules {
   readonly enabled: boolean
   readonly mode: HandicapMode
   readonly entries: readonly HandicapRuleEntry[]
+  // Points granted per surplus woman for mode `female_count_difference` (FJP official = 2). Optional
+  // so pre-existing entry-matched snapshots (which never carried it) stay structurally valid; the
+  // difference mode REQUIRES a positive integer here (validation.ts enforces it).
+  readonly points_per_difference?: number
   // True when the handicap is intended but its concrete values are not yet confirmed by the
   // organizer. A snapshot in this state validates structurally but MUST NOT be applied to a live
   // score (calculateStartingScore returns a typed error).

@@ -104,6 +104,7 @@ export default function KnockoutWorkspace({
           rounds={workspace.rounds}
           thirdPlaceMatch={workspace.thirdPlaceMatch}
           competitors={workspace.competitors}
+          scoringRules={workspace.scoringRules}
         />
       )}
 

@@ -61,7 +61,7 @@ test('seed order is materialized by array index — the client slot value is nev
 
 test('result save derives the winner with the pure engine and progresses via progressKnockout', () => {
   const fn = actionBody(read(ACTIONS), 'saveKnockoutMatchResult')
-  assert.ok(fn.includes('validateMatchScores('), 'save must derive the winner via validateMatchScores')
+  assert.ok(fn.includes('resolveMatchScore('), 'save must derive the winner via the rule-aware runtime (resolveMatchScore)')
   assert.ok(fn.includes('scored.winnerId'), 'save must pass the engine-derived winner to the RPC')
   assert.ok(fn.includes('progressKnockout('), 'save must compute downstream slots via progressKnockout')
   assert.ok(fn.includes('calculatePodium(') || fn.includes('computeKnockoutPodium('), 'save must compute the podium via calculatePodium')

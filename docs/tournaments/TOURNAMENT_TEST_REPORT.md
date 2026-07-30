@@ -593,3 +593,87 @@ changed, so the SQL harness was not re-run. No production/remote DB was used.
 this session and was not executed. No migration or SQL changed in 15C-2, so the SQL harness /
 tournament SQL regression were not re-run. No production/remote DB was used; no production SQL, no
 merge, no deploy.
+
+## Prompt 15D-1 — Rule-aware scoring runtime
+
+**Gate 0 (close out the 15C-2 rule browser E2E).** Brought up the LOCAL Supabase stack
+(WSL2/Docker; Kong :54421, DB :54422 — migrations 1–9 applied) and ran
+`e2e/tournaments/rules.spec.ts` against it. The initial run flapped when the WSL2 VM idle-shut-down
+mid-run (Kong `ECONNREFUSED`); pinning the VM with a long-lived attached `wsl … sleep` fixed it. Two
+consecutive clean runs: **21/21 passed, then 21/21 passed** — non-flaky. Fixed one test bug found by
+the run: `rules.spec.ts` asserted a hard HTTP 404 for a draft public page, but under
+`dynamic = 'force-dynamic'` Next dev serves `notFound()` as HTTP 200 while rendering the not-found UI
+(documented in `routes.spec.ts` §16). Verified there is NO data leak (canary draft name absent, the
+not-found title renders) and aligned the assertion with the suite's dev/prod-stable convention
+(`[200, 404]` + not-found title + no rule summary).
+
+**Unit / integration.** New `lib/tournaments/rules/scoring.test.ts` (stage resolver +
+`evaluateMatchScoreWithSnapshot`) and a table-points case in `standings.test.ts` cover the 26 required
+scenarios: 15/21 targets, win-by 1 vs 2, deuce cap 31 (at-cap valid, over-cap blocked), tie blocked,
+best-of-N games-to-win, extra-game-after-decided blocked, too-many-games, group/championship/
+consolation stage resolution, BYE not scoreable, unknown stage typed, winner always derived (no winner
+input), handicap unconfigured blocked vs disabled allowed, and snapshot table points driving standings.
+New `lib/tournaments/admin/scoringRuntimeSecurity.test.ts` asserts every score mutation routes through
+the single `resolveMatchScore` runtime, never re-runs the legacy validator directly, passes only the
+server-derived winner, verifies event↔tournament (anti-IDOR), keeps progression/podium wired, and that
+scorekeeper/manager/Site-Admin all hold `score.manage`. Updated the three existing security tests that
+pinned the old `validateMatchScores(` call to the new `resolveMatchScore(` entry point (assertion
+strength preserved).
+
+**Full local gate.**
+- `node --test "lib/**/*.test.ts"` — **2373 / 2373 pass, 0 fail** (baseline 2344 + the new suites).
+- `tsc --noEmit --skipLibCheck` — clean.
+- `next lint` — 0 errors; no warnings in any 15D-1 file (only pre-existing warnings elsewhere).
+- i18n parity — **6742 keys × 5 locales**, identical key sets (adds `admin_match_scores` rule labels +
+  handicap-blocked + 10 error codes, and the same 10 error codes under `admin_knockout_results`).
+- `next build` — production build compiles.
+- Secret scan — clean (no keys/tokens in the diff).
+- No migration / RPC signature changed, so the SQL harness / tournament SQL regression were not re-run.
+
+**Not run here (deferred to 15D-2 by design):** a full SCORING browser E2E (the scoring specs already
+exercise the unchanged legacy path; the rule-aware path is unit-covered). No production/remote DB was
+used; no production SQL, no commit, no merge, no deploy.
+
+---
+
+## 15D-1B — Official FJP gender handicap
+
+**Source.** ĐIỀU LỆ FJP OLYMPIAD 2026: the pair with more women starts each game/set **2 points ahead
+per surplus woman**. Difference-based (`femaleCountA − femaleCountB`), keyed off composition only —
+never a name/category. Preset **v2** carries it configured; **v1** stays deprecated + blocked.
+
+**New / changed tests.**
+- `lib/tournaments/rules/handicap-scoring.test.ts` — **25 scenarios** (§17): MM/FF/MF permutations →
+  0–4 / 4–0 / 0–2 / 2–0 / 0–0 (1–9); missing composition blocked (10); invalid pair blocked (11); no
+  client starting-score channel (12); final < starting blocked (13); beginner-15 / standard-21 /
+  knockout win-by-2 cap-31 with handicap (14–16); starting score carried for persistence (17);
+  deterministic re-entry (18); v1 blocked / v2 scores / no silent upgrade (19–21); legacy no-handicap
+  no regression (22); winner from final scoreboard (23); knockout progression no regression (24);
+  public summary no leak (25). **25 / 25 pass.**
+- `lib/tournaments/rules/handicap.test.ts` — extended `StartingScore` shape (femaleCount*, difference,
+  mode, reason) asserted; still green.
+- `lib/tournaments/admin/scoringRuntimeSecurity.test.ts` — +4 structural guards: runtime loads DB
+  compositions behind the enabled-handicap gate; the persisted starting score is the server-derived
+  value (no client field); every save flow builds its payload via `toGamesPayload`; the runtime maps
+  the three new typed blockers.
+- `supabase/tournament_fjp_handicap_tests.sql` — DB harness: composition CHECKs, `tmg_scores_ge_starting`
+  backstop, `tournament_save_match_result` persists starting score + mode + version atomically, v2
+  seeded configured, v1 deprecated. **(Requires the WSL Docker stack — see the runbook §6d; not run in
+  this session, which has no local Postgres.)**
+- `lib/tournaments/admin/security.test.ts` — the N+1 guard regex tightened to the Supabase `count:
+  'exact'` OPTION form so a column literally named `*_count` (male_count/female_count) is not a false
+  positive; still catches a real per-row head-count fan-out.
+
+**Full local gate.**
+- `node --test "lib/**/*.test.ts"` — **2402 / 2402 pass, 0 fail**.
+- `tsc --noEmit --skipLibCheck` — clean.
+- `next lint --dir lib/tournaments --dir components/tournaments` — 0 errors, 0 warnings.
+- i18n parity — **6755 keys × 5 locales**, identical key sets (adds 3 score-error codes under both
+  `admin_match_scores` + `admin_knockout_results`, `handicap_configured`, and 6 competitor-composition
+  keys under `admin_tournament_competitors`).
+- Secret scan — clean.
+
+**Not run here.** Migration #10 + its SQL harness need the WSL Docker Postgres stack (this session has
+none) — the migration re-defines four DEFINER RPCs verbatim-except-INSERT, so the operator's local SQL
+gate (runbook §6d) is the required validation before merge. No production/remote DB, no production SQL,
+no commit / merge / deploy. A full scoring browser E2E for the handicap path is deferred (unit-covered).

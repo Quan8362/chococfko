@@ -214,3 +214,32 @@ warning acknowledged / snapshot reset / snapshot deleted).
 **Handicap blocker (Prompt 15D).** The FJP preset enables a gender handicap but its numbers are still
 pending — the rules never feed handicap into scoring yet, and you cannot type handicap numbers in this
 phase. Scoring under these rules (the 15/21 laws) and real handicap calculation arrive in Prompt 15D.
+
+**Scoring under the rules (Prompt 15D-1).** Score entry now follows the event's rule snapshot. The
+score editor shows the applied rule for that match's stage — group vs knockout points-to-win, win-by,
+cap and games-to-win — or a "system default rules" label for an event with no snapshot (those events
+score exactly as before). The server judges every score against the snapshot (touch-15 for FJP
+Beginner group, touch-21 for Standard group and all knockout matches, win-by-2 and cap-31 for
+knockout) and derives the winner itself — an illegal score (below target, wrong margin, over the cap, a
+draw, too many games, or a game after the match was decided) is rejected with a clear message.
+
+If a snapshot customises the table points (e.g. win = 2), the group standings and qualification use
+those values. The FJP preset uses the classic win = 1 / loss = 0.
+
+**Official gender handicap (Prompt 15D-1B).** The picker now offers **FJP Olympiad 2026 (v2)** by
+default — the official gender handicap is **configured**: the pair with more women starts each
+game **2 points ahead per surplus woman** (Nữ+Nữ vs Nam+Nam → 4–0 for the women's pair; a 1-woman
+difference → 2–0). The older **v1** preset is deprecated and still **blocks** scoring (its numbers were
+never confirmed) — an existing v1 event stays blocked until you apply v2.
+
+- **Set each pair's make-up.** For a handicap event, the competitor manager shows a **Pair make-up**
+  select (Nam+Nam / Nam+Nữ / Nữ+Nữ). A **Scorekeeper** sees it read-only; a **Manager / Site Admin**
+  (with `competitor.manage`) can set it. It is a select — you never type men/women counts, and the
+  system **never** guesses gender from a name.
+- **Score editor.** The rule banner shows "Handicap: 2 points head start per extra woman (configured)".
+  You enter the **final scoreboard** score (already including the head start — e.g. a Nữ+Nữ pair that
+  starts 4–0 and wins to 21 is entered as 21–x). The server computes the head start itself, rejects a
+  final score **below** the head start, and applies the 15/21 / win-by / cap laws to the final board.
+- **Blocked cases.** If a pair's make-up is not set, scoring is blocked with "set each pair's make-up"
+  (never a silent 0–0); an invalid make-up is rejected too. A client can never forge a head start —
+  it is always computed server-side and stored per game for audit (why a game started 2–0 / 4–0).

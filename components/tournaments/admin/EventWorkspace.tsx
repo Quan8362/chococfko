@@ -40,6 +40,7 @@ export default function EventWorkspace({
   eventId,
   competitors,
   showSeed,
+  showComposition = false,
   locked,
   groupSetup,
   scoring,
@@ -51,6 +52,7 @@ export default function EventWorkspace({
   eventId: string
   competitors: CompetitorRow[]
   showSeed: boolean
+  showComposition?: boolean
   locked: boolean
   groupSetup: GroupSetup | null
   scoring: ScoringWorkspace | null
@@ -118,6 +120,7 @@ export default function EventWorkspace({
           competitors={competitors}
           locked={locked}
           showSeed={showSeed}
+          showComposition={showComposition}
         />
       )}
 
@@ -148,6 +151,7 @@ export default function EventWorkspace({
           matches={scoring.matches}
           competitors={competitors}
           hasKnockout={scoring.hasKnockout}
+          scoringRules={scoring.scoringRules}
         />
       )}
 
@@ -182,6 +186,7 @@ export default function EventWorkspace({
           eventId={eventId}
           branch={groupKnockoutWorkspace.championship}
           competitors={groupKnockoutWorkspace.competitors}
+          scoringRules={groupKnockoutWorkspace.scoringRules}
         />
       )}
 
@@ -191,6 +196,7 @@ export default function EventWorkspace({
           eventId={eventId}
           branch={groupKnockoutWorkspace.consolation}
           competitors={groupKnockoutWorkspace.competitors}
+          scoringRules={groupKnockoutWorkspace.scoringRules}
         />
       )}
       </div>

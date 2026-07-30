@@ -11,6 +11,8 @@ export type RuleEngineErrorCode =
   | 'INVALID_GAME_SCORE'      // game cannot be judged (non-integer, negative, or undecidable)
   | 'HANDICAP_NOT_CONFIGURED' // handicap is enabled but its values are not yet confirmed
   | 'HANDICAP_NO_ENTRY'       // handicap is configured but no entry matches a competitor
+  | 'HANDICAP_COMPOSITION_REQUIRED' // difference handicap needs a composition a competitor lacks
+  | 'HANDICAP_COMPOSITION_INVALID'  // a competitor composition is structurally invalid (bad counts)
   | 'NEGATIVE_STARTING_SCORE' // a handicap would produce a negative starting score
   | 'UNKNOWN_PRESET'          // getRulePreset called with an unknown key/version
   | 'UNKNOWN_CATEGORY'        // applyRulePreset called with a category the preset does not define
@@ -44,6 +46,8 @@ export type RuleValidationCode =
   | 'TIE_BREAK_UNKNOWN_TOKEN'
   | 'HANDICAP_MISSING_ENTRIES'
   | 'HANDICAP_ENTRY_INVALID'
+  | 'HANDICAP_MODE_UNKNOWN'
+  | 'HANDICAP_POINTS_PER_DIFF_INVALID'
   | 'PRESET_KEY_INVALID'
   | 'PRESET_VERSION_INVALID'
   | 'SNAPSHOT_INCOMPLETE'

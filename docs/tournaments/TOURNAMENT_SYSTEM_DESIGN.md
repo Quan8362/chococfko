@@ -976,13 +976,21 @@ only a minimal scoring **summary** via `SECURITY DEFINER` RPC
 `authenticate → checkIsAdmin() → createAdminClient()`.
 
 **FJP seed:** `supabase/seed_tournament_rule_presets.sql` (idempotent) mirrors
-`buildFjpOlympiad2026Preset()`; seeds the template only. **Handicap blocker persists** — preset ships
-`requires_configuration = true`, `handicap.entries = []`; concrete numbers still need BTC confirmation
-and were not invented.
+`buildFjpOlympiad2026Preset()` (**v1**); seeds the template only. V1 shipped the handicap blocked
+(`requires_configuration = true`, `entries = []`).
 
-**Deferred to 15B/15C:** admin picker + per-event editor with guarded writes, public rules display,
-scoring integration behind the snapshot, competitor-composition persistence, handicap runtime numbers,
-and the **production** migration + deploy (operator-gated; see the runbook §6b).
+**Handicap — DONE (Prompt 15D-1B).** The official FJP gender handicap is integrated. Preset **v2**
+(`buildFjpOlympiad2026PresetV2()`, seeded by `migration_tournament_fjp_handicap.sql` = migration #10)
+carries `mode: 'female_count_difference'`, `points_per_difference: 2`, `requires_configuration: false`;
+v1 is deprecated. The pair with more women opens each game `2·(femaleDiff)` ahead. `calculateStartingScore`
+computes it purely from the two compositions; `resolveMatchScore` loads compositions from the DB, blocks
+a missing/invalid composition or a final-below-starting score with typed codes, applies 15/21/win-by/cap
+to the **final** scoreboard, and persists the starting score + `handicap_mode`/`handicap_version` per game
+(migration #10) and in the score audit. Competitor composition is a select (Nam+Nam / Nam+Nữ / Nữ+Nữ)
+persisted on `tournament_competitors`. A v1 snapshot is never silently upgraded to v2.
+
+**Deferred (15D-2+):** production migration #10 apply + deploy (operator-gated; runbook §6d), a full
+scoring browser E2E for the handicap path, and any non-doubles composition entry.
 
 ## 24. Prompt 15B-1 — Membership & scoped permissions (migration #9; branch `feat/tournament-rules-fjp-2026`)
 
@@ -1187,3 +1195,21 @@ schedule/result guard; a version conflict surfaces a banner + Reload with no aut
 ### 26.7 Left for Prompt 15D
 Scoring runtime under the snapshot (15/21 laws), real handicap numbers, and automatic schedule/bracket
 reset on a rule change. No new migration, no production SQL at commit time.
+
+### 26.8 Rule-aware scoring runtime (15D-1)
+The event rule snapshot now drives score entry. `lib/tournaments/rules/scoring.ts` (pure) resolves a
+match's stage to group vs knockout rules (`resolveMatchScoringRules`) and judges the games via the
+existing engine (`evaluateMatchScoreWithSnapshot`) — the 15/21 laws are never re-implemented. The
+server glue `lib/tournaments/admin/scoringRuntime.ts` (`resolveMatchScore`) is the SINGLE entry point
+for every score mutation (group / knockout / group-knockout save + correction preview/reset): it loads
+the event snapshot (never the client), falls back to the legacy `validateMatchScores` engine only when
+there is NO snapshot (`legacy_default`), blocks an invalid snapshot (`rules_snapshot_invalid`, no
+fallback), fails closed on an enabled handicap (`handicap_not_configured`), derives the winner
+server-side, and returns safe audit metadata. Snapshot table points flow into standings/qualification
+through an optional `tablePoints` param on `calculateStandings` / `evaluateGroupStage` (default 1/0).
+The score editors show the applied rule (or a "system default" label) and disable saving while a
+handicap is unconfigured. No new migration; no production SQL at commit time.
+
+### 26.9 Left for Prompt 15D-2
+Real handicap value application, automatic schedule/bracket reset on a rule change, a full scoring
+browser E2E, and public-standings table-point consistency.

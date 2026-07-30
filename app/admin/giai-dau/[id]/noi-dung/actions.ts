@@ -41,7 +41,9 @@ import {
   type GroupStageFormat,
 } from '@/lib/tournaments/domain/group-assignment'
 import { buildRoundRobinMatches } from '@/lib/tournaments/domain/group-preview'
-import { validateMatchScores, type ScoreGameInput } from '@/lib/tournaments/domain/score-input'
+import { type ScoreGameInput } from '@/lib/tournaments/domain/score-input'
+import { resolveMatchScore, getEventGroupTablePoints, type ResolvedMatchScore } from '@/lib/tournaments/admin/scoringRuntime'
+import type { TablePointsConfig } from '@/lib/tournaments/domain/standings'
 import { resolveTieOrder } from '@/lib/tournaments/domain/tie-resolution'
 import {
   evaluateGroupStage,
@@ -82,6 +84,22 @@ import type {
 } from '@/lib/tournaments/admin/types'
 
 const PG_FK_VIOLATION = '23503'
+
+// Build the RPC games payload from a resolved score. Carries the SERVER-COMPUTED handicap starting
+// score (§12) — never a client value — plus the handicap mode/version so an old result stays auditable
+// even after a preset is edited. starting_score_* default to 0 for non-handicap events. The RPCs read
+// these keys with COALESCE, so older RPCs (pre-migration-10) ignore them harmlessly.
+function toGamesPayload(scored: ResolvedMatchScore) {
+  return scored.games.map((g) => ({
+    game_number: g.gameNumber,
+    score_a: g.scoreA,
+    score_b: g.scoreB,
+    starting_score_a: g.startingScoreA,
+    starting_score_b: g.startingScoreB,
+    handicap_mode: scored.handicapMode,
+    handicap_version: scored.handicapVersion,
+  }))
+}
 
 function revalidateEventViews(tournamentId: string, eventId?: string) {
   // Both the legacy Site-Admin mount and the scoped management surface render these views.
@@ -480,6 +498,7 @@ export async function createCompetitor(
   }
 
   const displayOrder = await nextDisplayOrder(admin, 'tournament_competitors', 'event_id', eventId)
+  const comp = parsed.value.composition
   const { data, error } = await admin
     .from('tournament_competitors')
     .insert({
@@ -488,6 +507,11 @@ export async function createCompetitor(
       short_name: parsed.value.shortName,
       seed: parsed.value.seed,
       display_order: displayOrder,
+      // Gender composition for the handicap layer (Prompt 15D-1B). Null when unset — the whole set
+      // is null-or-all (DB CHECK tc_composition_complete).
+      competitor_kind: comp ? comp.kind : null,
+      male_count: comp ? comp.maleCount : null,
+      female_count: comp ? comp.femaleCount : null,
     })
     .select('id')
     .single()
@@ -541,12 +565,16 @@ export async function updateCompetitor(
     return { ok: false, error: 'invalid', fieldErrors: { name: 'name_duplicate' } }
   }
 
+  const comp = parsed.value.composition
   const { data: updated, error } = await admin
     .from('tournament_competitors')
     .update({
       name: parsed.value.name,
       short_name: parsed.value.shortName,
       seed: parsed.value.seed,
+      competitor_kind: comp ? comp.kind : null,
+      male_count: comp ? comp.maleCount : null,
+      female_count: comp ? comp.femaleCount : null,
     })
     .eq('id', competitorId)
     .eq('event_id', eventId)
@@ -1180,11 +1208,13 @@ async function loadGroupEvalRaw(admin: SupabaseClient, eventId: string): Promise
 }
 
 // Build engine inputs from the (possibly locally-mutated) raw truth and evaluate → target status.
+// `tablePoints` (Prompt 15D-1) comes from the event rule snapshot; omitted ⇒ classic win 1 / loss 0.
 function evalTargetStatus(
   raw: GroupEvalRaw,
   format: GroupStageFormat,
   winnerQualifiers: number,
   consolationQualifiers: number,
+  tablePoints?: TablePointsConfig,
 ): EventProgressStatus {
   const groups: GroupEvaluationInput[] = raw.groupIds.map((id) => ({
     groupId: id,
@@ -1192,7 +1222,7 @@ function evalTargetStatus(
     matches: (raw.matchesByGroup.get(id) ?? []).map((m) => m.input),
     resolvedOrder: raw.overridesByGroup.get(id),
   }))
-  return evaluateGroupStage({ format, winnerQualifiers, consolationQualifiers, groups }).status
+  return evaluateGroupStage({ format, winnerQualifiers, consolationQualifiers, groups, tablePoints }).status
 }
 
 // ── Save (create / update) a group match result ──────────────────────────────────────────────
@@ -1241,16 +1271,21 @@ export async function saveGroupMatchResult(
     return { ok: false, error: 'not_scoreable' }
   }
 
-  // Derive the winner with the pure engine — never re-implemented here or in the RPC.
-  const scored = validateMatchScores({
+  // Judge the score against the event's rule snapshot (or the legacy engine when there is none) and
+  // derive the winner — never re-implemented here or in the RPC, never trusted from the client.
+  const resolved = await resolveMatchScore({
+    eventId,
     competitorAId: match.competitor_a_id,
     competitorBId: match.competitor_b_id,
+    stage: { stage: match.stage, bracket: null, status: match.status },
     games,
   })
-  if (!scored.ok) {
-    const gameNumber = scored.error.code === 'INVALID_SCORE' ? scored.error.gameNumber : undefined
-    return gameNumber ? { ok: false, error: 'invalid_score', gameNumber } : { ok: false, error: 'invalid_score' }
+  if (!resolved.ok) {
+    return resolved.gameNumber
+      ? { ok: false, error: resolved.error, gameNumber: resolved.gameNumber }
+      : { ok: false, error: resolved.error }
   }
+  const scored = resolved.value
 
   // Compute the precise target event status: reload truth, apply THIS edit (completed + drop this
   // group's now-stale override), evaluate. The RPC clamps the status to SQL completion as a backstop.
@@ -1275,13 +1310,10 @@ export async function saveGroupMatchResult(
     ev.format as GroupStageFormat,
     ev.winnerQualifiersPerGroup,
     ev.consolationQualifiersPerGroup,
+    await getEventGroupTablePoints(eventId),
   )
 
-  const gamesPayload = scored.games.map((g) => ({
-    game_number: g.gameNumber,
-    score_a: g.scoreA,
-    score_b: g.scoreB,
-  }))
+  const gamesPayload = toGamesPayload(scored)
   const { data, error } = await admin.rpc('tournament_save_match_result', {
     p_match_id: matchId,
     p_event_id: eventId,
@@ -1308,6 +1340,7 @@ export async function saveGroupMatchResult(
       winner_after: scored.winnerId,
       games_won: `${scored.gamesWonA}-${scored.gamesWonB}`,
       event_status_after: result.status ?? targetStatus,
+      rule: scored.audit,
     },
   })
   revalidateEventViews(tournamentId, eventId)
@@ -1412,7 +1445,10 @@ export async function saveQualificationOverride(
   const competitors = raw.competitorsByGroup.get(groupId) ?? []
   const matches = (raw.matchesByGroup.get(groupId) ?? []).map((m) => m.input)
   // Standings are override-independent → validate the proposed order against the CURRENT standings.
-  const standings = calculateStandings({ competitors, matches })
+  // Rank against standings using the snapshot's table points (§15) — override validation must use the
+  // same ranking the standings display + qualification use.
+  const groupTablePoints = await getEventGroupTablePoints(eventId)
+  const standings = calculateStandings({ competitors, matches, tablePoints: groupTablePoints })
   const resolved = resolveTieOrder({ standings, orderedTieIds })
   if (!resolved.ok) {
     return { ok: false, error: resolved.code === 'NO_SUCH_TIE' ? 'no_such_tie' : 'invalid' }
@@ -1425,6 +1461,7 @@ export async function saveQualificationOverride(
     ev.format as GroupStageFormat,
     ev.winnerQualifiersPerGroup,
     ev.consolationQualifiersPerGroup,
+    groupTablePoints,
   )
 
   const cleanReason = typeof reason === 'string' ? reason.trim().slice(0, 500) : ''
@@ -1492,6 +1529,7 @@ export async function deleteQualificationOverride(
     ev.format as GroupStageFormat,
     ev.winnerQualifiersPerGroup,
     ev.consolationQualifiersPerGroup,
+    await getEventGroupTablePoints(eventId),
   )
 
   const { data, error } = await admin.rpc('tournament_delete_qualification_override', {
@@ -1901,13 +1939,22 @@ export async function saveKnockoutMatchResult(
     return { ok: false, error: 'not_scoreable' }
   }
 
-  // Derive the winner with the pure engine — never re-implemented here or in the RPC.
-  const scored = validateMatchScores({ competitorAId: match.competitorAId, competitorBId: match.competitorBId, games })
-  if (!scored.ok) {
-    const gameNumber = scored.error.code === 'INVALID_SCORE' ? scored.error.gameNumber : undefined
-    return gameNumber ? { ok: false, error: 'invalid_score', gameNumber } : { ok: false, error: 'invalid_score' }
+  // Judge the score against the event's rule snapshot (knockout rules) or the legacy engine, and
+  // derive the winner — never re-implemented here or in the RPC, never trusted from the client.
+  const resolved = await resolveMatchScore({
+    eventId,
+    competitorAId: match.competitorAId,
+    competitorBId: match.competitorBId,
+    stage: { stage: 'knockout', bracket: match.bracket, status: match.status },
+    games,
+  })
+  if (!resolved.ok) {
+    return resolved.gameNumber
+      ? { ok: false, error: resolved.error, gameNumber: resolved.gameNumber }
+      : { ok: false, error: resolved.error }
   }
-  const loserId = scored.winnerId === match.competitorAId ? match.competitorBId : match.competitorAId
+  const scored = resolved.value
+  const loserId = scored.loserId
 
   // Compute downstream progression via progressKnockout (winner → next slot; SF loser → third place).
   const dbBracket = reconstructBracketForProgression(toDbBracket(board))
@@ -1944,7 +1991,7 @@ export async function saveKnockoutMatchResult(
       : null
   const targetStatus = podium.status === 'ready' ? 'completed' : 'knockout_running'
 
-  const gamesPayload = scored.games.map((g) => ({ game_number: g.gameNumber, score_a: g.scoreA, score_b: g.scoreB }))
+  const gamesPayload = toGamesPayload(scored)
   const { data, error } = await admin.rpc('tournament_save_knockout_result', {
     p_match_id: matchId,
     p_event_id: eventId,
@@ -1970,6 +2017,7 @@ export async function saveKnockoutMatchResult(
       winner_after: scored.winnerId,
       games_won: `${scored.gamesWonA}-${scored.gamesWonB}`,
       event_status_after: result.status ?? targetStatus,
+      rule: scored.audit,
     },
   })
   if (patches.length > 0) {
@@ -2084,6 +2132,7 @@ function evaluateGkStage(
   raw: GroupEvalRaw,
   winnerQualifiers: number,
   consolationQualifiers: number,
+  tablePoints?: TablePointsConfig,
 ): { qualificationByGroup: Map<string, QualificationOutcome>; status: EventProgressStatus; groupIds: string[] } {
   const groups: GroupEvaluationInput[] = raw.groupIds.map((id) => ({
     groupId: id,
@@ -2096,6 +2145,7 @@ function evaluateGkStage(
     winnerQualifiers,
     consolationQualifiers,
     groups,
+    tablePoints,
   })
   const qualificationByGroup = new Map<string, QualificationOutcome>()
   for (const g of evaluation.groups) qualificationByGroup.set(g.groupId, g.qualification)
@@ -2157,7 +2207,12 @@ export async function saveGroupKnockoutSeeds(
 
   // Reload the group stage and require it to be settled (knockout_ready) before seeding.
   const raw = await loadGroupEvalRaw(admin, eventId)
-  const { status } = evaluateGkStage(raw, ev.winnerQualifiersPerGroup, ev.consolationQualifiersPerGroup)
+  const { status } = evaluateGkStage(
+    raw,
+    ev.winnerQualifiersPerGroup,
+    ev.consolationQualifiersPerGroup,
+    await getEventGroupTablePoints(eventId),
+  )
   if (status !== 'knockout_ready') return { ok: false, error: 'not_ready' }
 
   const { championship: champTokens, consolation: consoTokens } = buildGroupRankTokens({
@@ -2278,6 +2333,7 @@ export async function generateGroupKnockoutBrackets(
     raw,
     ev.winnerQualifiersPerGroup,
     ev.consolationQualifiersPerGroup,
+    await getEventGroupTablePoints(eventId),
   )
   if (status !== 'knockout_ready') return { ok: false, error: 'not_ready' }
 
@@ -2454,12 +2510,22 @@ export async function saveGroupKnockoutMatchResult(
   }
   const bracket = match.bracket as Bracket
 
-  const scored = validateMatchScores({ competitorAId: match.competitorAId, competitorBId: match.competitorBId, games })
-  if (!scored.ok) {
-    const gameNumber = scored.error.code === 'INVALID_SCORE' ? scored.error.gameNumber : undefined
-    return gameNumber ? { ok: false, error: 'invalid_score', gameNumber } : { ok: false, error: 'invalid_score' }
+  // Championship AND consolation branch matches both use the snapshot's knockout rules (or the legacy
+  // engine when there is no snapshot). Winner derived here — never trusted from the client.
+  const resolved = await resolveMatchScore({
+    eventId,
+    competitorAId: match.competitorAId,
+    competitorBId: match.competitorBId,
+    stage: { stage: 'knockout', bracket: match.bracket, status: match.status },
+    games,
+  })
+  if (!resolved.ok) {
+    return resolved.gameNumber
+      ? { ok: false, error: resolved.error, gameNumber: resolved.gameNumber }
+      : { ok: false, error: resolved.error }
   }
-  const loserId = scored.winnerId === match.competitorAId ? match.competitorBId : match.competitorAId
+  const scored = resolved.value
+  const loserId = scored.loserId
 
   // Progression is branch-isolated: reconstruct ONLY the match's own bracket (each branch has its own
   // third-place match, and reconstructBracketForProgression models a single third-place slot).
@@ -2502,7 +2568,7 @@ export async function saveGroupKnockoutMatchResult(
       ? podium.entries.map((e) => ({ rank: e.rank, competitor_id: e.competitorId, is_joint: e.isJoint }))
       : null
 
-  const gamesPayload = scored.games.map((g) => ({ game_number: g.gameNumber, score_a: g.scoreA, score_b: g.scoreB }))
+  const gamesPayload = toGamesPayload(scored)
   const { data, error } = await admin.rpc('tournament_save_group_knockout_result', {
     p_match_id: matchId,
     p_event_id: eventId,
@@ -2529,6 +2595,7 @@ export async function saveGroupKnockoutMatchResult(
       winner_after: scored.winnerId,
       games_won: `${scored.gamesWonA}-${scored.gamesWonB}`,
       event_status_after: result.status ?? 'knockout_running',
+      rule: scored.audit,
     },
   })
   if (patches.length > 0) {
@@ -2755,11 +2822,20 @@ export async function previewAffectedKnockoutPath(
     return { ok: false, error: 'not_scoreable' }
   }
 
-  const scored = validateMatchScores({ competitorAId: match.competitorAId, competitorBId: match.competitorBId, games })
-  if (!scored.ok) {
-    const gameNumber = scored.error.code === 'INVALID_SCORE' ? scored.error.gameNumber : undefined
-    return gameNumber ? { ok: false, error: 'invalid_score', gameNumber } : { ok: false, error: 'invalid_score' }
+  // The corrected score is judged against the SAME rule-aware runtime as a normal save.
+  const resolved = await resolveMatchScore({
+    eventId,
+    competitorAId: match.competitorAId,
+    competitorBId: match.competitorBId,
+    stage: { stage: 'knockout', bracket: match.bracket, status: match.status },
+    games,
+  })
+  if (!resolved.ok) {
+    return resolved.gameNumber
+      ? { ok: false, error: resolved.error, gameNumber: resolved.gameNumber }
+      : { ok: false, error: resolved.error }
   }
+  const scored = resolved.value
 
   const gameCounts = await loadKnockoutGameCounts(admin, eventId)
   const analysis = analyzeKnockoutCorrection({
@@ -2845,11 +2921,20 @@ export async function resetAffectedKnockoutPath(
   // Block a preview that went stale: the upstream must still be at the version captured in the preview.
   if (match.version !== upstreamMatchVersion) return { ok: false, error: 'version_conflict' }
 
-  const scored = validateMatchScores({ competitorAId: match.competitorAId, competitorBId: match.competitorBId, games })
-  if (!scored.ok) {
-    const gameNumber = scored.error.code === 'INVALID_SCORE' ? scored.error.gameNumber : undefined
-    return gameNumber ? { ok: false, error: 'invalid_score', gameNumber } : { ok: false, error: 'invalid_score' }
+  // The corrected score is judged against the SAME rule-aware runtime as a normal save.
+  const resolved = await resolveMatchScore({
+    eventId,
+    competitorAId: match.competitorAId,
+    competitorBId: match.competitorBId,
+    stage: { stage: 'knockout', bracket: match.bracket, status: match.status },
+    games,
+  })
+  if (!resolved.ok) {
+    return resolved.gameNumber
+      ? { ok: false, error: resolved.error, gameNumber: resolved.gameNumber }
+      : { ok: false, error: resolved.error }
   }
+  const scored = resolved.value
 
   const gameCounts = await loadKnockoutGameCounts(admin, eventId)
   const analysis = analyzeKnockoutCorrection({
@@ -2867,7 +2952,7 @@ export async function resetAffectedKnockoutPath(
   const resetIds = im.affected.map((a) => a.matchId)
   const clearSlots = im.affected.flatMap((a) => a.clearSlots.map((s) => ({ match_id: s.matchId, slot: s.slot })))
   const patches = im.reprogress.map((p) => ({ match_id: p.matchId, slot: p.slot, competitor_id: p.competitorId }))
-  const gamesPayload = scored.games.map((g) => ({ game_number: g.gameNumber, score_a: g.scoreA, score_b: g.scoreB }))
+  const gamesPayload = toGamesPayload(scored)
 
   const { data, error } = await admin.rpc('tournament_reset_knockout_path', {
     p_upstream_match_id: upstreamMatchId,

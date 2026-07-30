@@ -5,7 +5,9 @@ import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { saveKnockoutMatchResult, clearKnockoutMatchResult, previewAffectedKnockoutPath } from '@/app/admin/giai-dau/[id]/noi-dung/actions'
 import type { KnockoutImpactPreview, KnockoutMatchView, KnockoutMutationError, KnockoutMutationResult } from '@/lib/tournaments/admin/types'
+import type { EventScoringRuleView, HandicapRuleView, StageRuleView } from '@/lib/tournaments/rules'
 import ImpactPreviewDialog from './ImpactPreviewDialog'
+import ScoreRuleBanner from './ScoreRuleBanner'
 
 // The save/clear actions are injectable so the SAME editor drives both the knockout-only flow and the
 // group_knockout championship / consolation branches (identical signatures, different server action).
@@ -39,6 +41,10 @@ export default function KnockoutScoreEditor({
   match,
   nameA,
   nameB,
+  rule,
+  ruleSource,
+  handicapBlocked = false,
+  handicap,
   onClose,
   saveAction = saveKnockoutMatchResult,
   clearAction = clearKnockoutMatchResult,
@@ -48,6 +54,10 @@ export default function KnockoutScoreEditor({
   match: KnockoutMatchView
   nameA: string
   nameB: string
+  rule?: StageRuleView | null
+  ruleSource?: EventScoringRuleView['source']
+  handicapBlocked?: boolean
+  handicap?: HandicapRuleView | null
   onClose: () => void
   saveAction?: KnockoutSaveAction
   clearAction?: KnockoutClearAction
@@ -92,7 +102,7 @@ export default function KnockoutScoreEditor({
   const wonA = parsed.filter((p) => p.valid && p.a > p.b).length
   const wonB = parsed.filter((p) => p.valid && p.b > p.a).length
   const decisive = wonA !== wonB
-  const canSave = allValid && decisive && !pending
+  const canSave = allValid && decisive && !pending && !handicapBlocked
 
   const setRow = (i: number, patch: Partial<Row>) => setRows((prev) => prev.map((r, k) => (k === i ? { ...r, ...patch } : r)))
   const addRow = () => setRows((prev) => [...prev, { a: '', b: '' }])
@@ -164,6 +174,8 @@ export default function KnockoutScoreEditor({
           <span className="text-[11px] text-muted">{t('vs')}</span>
           <span className="text-[13.5px] font-semibold text-ink truncate">{nameB}</span>
         </div>
+
+        <ScoreRuleBanner rule={rule} source={ruleSource} handicapBlocked={handicapBlocked} handicap={handicap} />
 
         {error && (
           <div className="rounded-lg bg-red-50 border border-red-200 px-3 py-2.5 mb-3" role="alert">

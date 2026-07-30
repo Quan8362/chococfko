@@ -17,6 +17,7 @@ import KnockoutWorkspace from '@/components/tournaments/admin/KnockoutWorkspace'
 import AdminRealtimeBanner from '@/components/tournaments/admin/AdminRealtimeBanner'
 import EventDetailTabs from '@/components/tournaments/admin/EventDetailTabs'
 import EventRulesPanel from '@/components/tournaments/admin/EventRulesPanel'
+import { getEventScoringRuleView } from '@/lib/tournaments/admin/scoringRuntime'
 
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Nội dung thi đấu' }
@@ -47,6 +48,12 @@ export default async function EventDetailPage({
   const groupKnockoutWorkspace = isGroupKnockout
     ? await getGroupKnockoutWorkspaceForAdmin(params.id, params.eventId)
     : null
+
+  // Show the competitor composition (men/women) control only when the event's rule snapshot uses the
+  // gender-difference handicap (FJP v2) — a plain roster stays uncluttered.
+  const scoringRuleView = await getEventScoringRuleView(params.eventId)
+  const showComposition =
+    scoringRuleView.handicap.enabled && scoringRuleView.handicap.mode === 'female_count_difference'
 
   const assignedCount = groupSetup
     ? groupSetup.competitors.length - groupSetup.unassignedIds.length
@@ -146,6 +153,7 @@ export default async function EventDetailPage({
                   eventId={event.id}
                   competitors={event.competitors}
                   showSeed={event.format !== 'round_robin'}
+                  showComposition={showComposition}
                   locked={event.matchCount > 0}
                   groupSetup={groupSetup}
                   scoring={scoring}

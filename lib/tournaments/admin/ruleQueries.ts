@@ -158,6 +158,48 @@ export async function getEventRuleSnapshotForAdmin(
   }
 }
 
+// ── Competitor composition reads (for the handicap layer) ─────────────────────────────────────
+// The gender composition of a competitor, loaded so the scoring runtime can compute a handicap
+// starting score server-side. `null` for a competitor whose composition has not been set (a legacy
+// row, or a non-handicap event) — the runtime fails closed on a null when the handicap needs it.
+import type { CompetitorComposition } from '@/lib/tournaments/rules'
+
+interface RawCompositionRow {
+  id: string
+  competitor_kind: string | null
+  male_count: number | null
+  female_count: number | null
+}
+
+function toComposition(r: RawCompositionRow): CompetitorComposition | null {
+  const kind = r.competitor_kind
+  if (kind !== 'single' && kind !== 'pair' && kind !== 'team') return null
+  if (typeof r.male_count !== 'number' || typeof r.female_count !== 'number') return null
+  return { kind, maleCount: r.male_count, femaleCount: r.female_count }
+}
+
+/**
+ * Load the compositions of specific competitors of one event, keyed by id. Proves each row belongs to
+ * the event (anti-IDOR). A competitor with an unset composition maps to `null`. Admin-only.
+ */
+export async function getCompetitorCompositionsForAdmin(
+  eventId: string,
+  competitorIds: readonly string[],
+): Promise<Map<string, CompetitorComposition | null>> {
+  const out = new Map<string, CompetitorComposition | null>()
+  const ids = competitorIds.filter((id) => !!id)
+  if (!eventId || ids.length === 0) return out
+  const admin = createAdminClient()
+  const { data, error } = await admin
+    .from('tournament_competitors')
+    .select('id, competitor_kind, male_count, female_count')
+    .eq('event_id', eventId)
+    .in('id', ids)
+  if (error || !data) return out
+  for (const r of data as RawCompositionRow[]) out.set(r.id, toComposition(r))
+  return out
+}
+
 // ── Preset picker view (serializable for a Client Component) ──────────────────────────────────
 // The picker DTOs live in the PURE rules package (lib/tournaments/rules/views.ts) so a Client
 // Component can consume them without importing this server-only module even for a type. Built here

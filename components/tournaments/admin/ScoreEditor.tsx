@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { saveGroupMatchResult, clearGroupMatchResult } from '@/app/admin/giai-dau/[id]/noi-dung/actions'
 import type { MatchView, ScoreMutationError } from '@/lib/tournaments/admin/types'
+import type { EventScoringRuleView, HandicapRuleView, StageRuleView } from '@/lib/tournaments/rules'
+import ScoreRuleBanner from './ScoreRuleBanner'
 
 // Modal for entering / editing the game scores of ONE group match. The client only does OPTIMISTIC
 // UX validation (integer, non-negative, no per-game tie, at least one game, games won not equal) and
@@ -21,6 +23,10 @@ export default function ScoreEditor({
   match,
   nameA,
   nameB,
+  rule,
+  ruleSource,
+  handicapBlocked = false,
+  handicap,
   onClose,
 }: {
   tournamentId: string
@@ -28,6 +34,10 @@ export default function ScoreEditor({
   match: MatchView
   nameA: string
   nameB: string
+  rule?: StageRuleView | null
+  ruleSource?: EventScoringRuleView['source']
+  handicapBlocked?: boolean
+  handicap?: HandicapRuleView | null
   onClose: () => void
 }) {
   const t = useTranslations('admin_match_scores')
@@ -68,7 +78,7 @@ export default function ScoreEditor({
   const wonA = parsed.filter((p) => p.valid && p.a > p.b).length
   const wonB = parsed.filter((p) => p.valid && p.b > p.a).length
   const decisive = wonA !== wonB
-  const canSave = allValid && decisive && !pending
+  const canSave = allValid && decisive && !pending && !handicapBlocked
 
   const setRow = (i: number, patch: Partial<Row>) =>
     setRows((prev) => prev.map((r, k) => (k === i ? { ...r, ...patch } : r)))
@@ -142,6 +152,8 @@ export default function ScoreEditor({
           <span className="text-[11px] text-muted">{t('vs')}</span>
           <span className="text-[13.5px] font-semibold text-ink truncate">{nameB}</span>
         </div>
+
+        <ScoreRuleBanner rule={rule} source={ruleSource} handicapBlocked={handicapBlocked} handicap={handicap} />
 
         {error && (
           <div className="rounded-lg bg-red-50 border border-red-200 px-3 py-2.5 mb-3" role="alert">

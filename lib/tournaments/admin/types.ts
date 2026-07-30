@@ -8,6 +8,7 @@ import type {
   CompetitorFormValues,
 } from '@/lib/tournaments/competitorValidation'
 import type { Bracket } from '@/lib/tournaments/domain/types'
+import type { EventScoringRuleView } from '@/lib/tournaments/rules'
 
 export type { TournamentFormValues, TournamentFieldErrors }
 export type { EventFormValues, EventFieldErrors, EventFormat }
@@ -112,6 +113,8 @@ export interface CompetitorRow {
   seed: number | null
   displayOrder: number
   updatedAt: string
+  // Gender make-up for the handicap layer (Prompt 15D-1B). Null when unset (legacy / non-handicap).
+  composition: { kind: 'single' | 'pair' | 'team'; maleCount: number; femaleCount: number } | null
 }
 
 // Full detail for the event-detail screen: settings + counts + roster.
@@ -335,6 +338,8 @@ export interface ScoringWorkspace {
   allCompleted: boolean
   hasBlockingTie: boolean
   hasKnockout: boolean
+  // The rule the score editors display + optimistically validate against (Prompt 15D-1). Server-authoritative.
+  scoringRules: EventScoringRuleView
 }
 
 // Stable machine codes for scoring / override mutation failures → the UI localizes each one.
@@ -350,7 +355,26 @@ export type ScoreMutationError =
   | 'has_knockout'
   | 'invalid_score'
   | 'no_such_tie'
+  // Rule-aware scoring (Prompt 15D-1): a match score judged against the event rule snapshot.
+  | ScoreRuleError
   | 'unknown'
+
+// The rule-snapshot-driven scoring failures shared by every score mutation (group / knockout /
+// group-knockout, save + correction). Kept in one place so no scoring action can bypass a code.
+export type ScoreRuleError =
+  | 'rules_snapshot_invalid'   // the event's snapshot exists but is structurally invalid (no fallback)
+  | 'match_stage_unsupported'  // the match's stage cannot be resolved to a rule set
+  | 'bye_not_scoreable'        // a BYE can never carry a score
+  | 'handicap_not_configured'  // an enabled handicap has no confirmed values (fail closed)
+  | 'competitor_composition_required' // handicap needs a composition a competitor lacks (block save)
+  | 'competitor_composition_invalid'  // a competitor composition is structurally invalid
+  | 'score_below_starting_score'      // a final scoreboard score is below the handicap head start
+  | 'score_below_target'       // a game ended before points_to_win (and no cap reached)
+  | 'score_margin_invalid'     // margin below win_by, or an illegal deuce overshoot
+  | 'score_above_cap'          // a winning score above points_cap
+  | 'game_tied_not_allowed'    // a drawn game where the rules forbid it
+  | 'too_many_games'           // more games than max_games
+  | 'match_already_decided'    // a game recorded after a side already reached games_to_win
 
 export type ScoreMutationResult =
   | { ok: true }
@@ -433,6 +457,7 @@ export interface KnockoutWorkspace {
   hasBracket: boolean
   hasResults: boolean // any completed knockout match / games / podium → reset blocked
   isComplete: boolean // final (+ third-place if present) completed
+  scoringRules: EventScoringRuleView // Prompt 15D-1 — knockout rule shown/validated by the editor
 }
 
 // Stable machine codes for knockout seed/bracket/result mutation failures → the UI localizes each.
@@ -452,6 +477,8 @@ export type KnockoutMutationError =
   | 'downstream_has_results' // correction blocked: a downstream match already has a result
   | 'qualification_changed' // Prompt 09: the group-rank tokens no longer match current standings
   | 'invalid_score'
+  // Rule-aware scoring (Prompt 15D-1) — same codes as the group path (see ScoreRuleError).
+  | ScoreRuleError
   | 'unknown'
 
 export type KnockoutMutationResult =
@@ -534,6 +561,7 @@ export interface GroupKnockoutWorkspace {
   hasBrackets: boolean
   hasResults: boolean
   isComplete: boolean // the event is completed (all required branches done)
+  scoringRules: EventScoringRuleView // Prompt 15D-1 — knockout rule shown/validated by the editor
 }
 
 // ── Prompt 11: knockout dependency-path impact preview & controlled reset ─────────────────────
@@ -585,6 +613,8 @@ export type ImpactPreviewError =
   | 'wrong_stage'
   | 'not_scoreable' // upstream is not a completed, correctable pairing
   | 'invalid_score'
+  // Rule-aware scoring (Prompt 15D-1) — the corrected score is judged against the snapshot too.
+  | ScoreRuleError
   | 'unknown'
 
 export type ImpactPreviewResult =

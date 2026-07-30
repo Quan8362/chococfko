@@ -107,3 +107,23 @@ test('standings: empty roster → empty', () => {
   assert.equal(s.rows.length, 0)
   assert.equal(s.tieGroups.length, 0)
 })
+
+// Prompt 15D-1 (§15) — a rule snapshot may override the table-point award; standings must use it.
+test('standings: custom snapshot table points (win=2) drive tablePoints and can reorder', () => {
+  // a: 2 wins, b: 1 win, c: 0 wins. With win=2/loss=0, a=4, b=2, c=0.
+  const matches = [M('a', 'b', 21, 10), M('a', 'c', 21, 15), M('b', 'c', 21, 19)]
+  const custom = calculateStandings({ competitors: roster('a', 'b', 'c'), matches, tablePoints: { win: 2, loss: 0 } })
+  assert.equal(byId(custom.rows, 'a').tablePoints, 4)
+  assert.equal(byId(custom.rows, 'b').tablePoints, 2)
+  assert.equal(byId(custom.rows, 'c').tablePoints, 0)
+
+  // A loss-award of 1 (win=3/loss=1) must be reflected too.
+  const withLoss = calculateStandings({ competitors: roster('a', 'b', 'c'), matches, tablePoints: { win: 3, loss: 1 } })
+  assert.equal(byId(withLoss.rows, 'a').tablePoints, 6)     // 2 wins × 3
+  assert.equal(byId(withLoss.rows, 'b').tablePoints, 4)     // 1 win × 3 + 1 loss × 1
+  assert.equal(byId(withLoss.rows, 'c').tablePoints, 2)     // 2 losses × 1
+
+  // Default (omitted) stays win=1/loss=0 — backward compatible.
+  const dflt = calculateStandings({ competitors: roster('a', 'b', 'c'), matches })
+  assert.equal(byId(dflt.rows, 'a').tablePoints, 2)
+})

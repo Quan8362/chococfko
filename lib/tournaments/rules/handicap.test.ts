@@ -7,12 +7,24 @@ import type { CompetitorComposition, HandicapRules } from './types.ts'
 const pairMixed: CompetitorComposition = { kind: 'pair', maleCount: 1, femaleCount: 1 }
 const pairMen: CompetitorComposition = { kind: 'pair', maleCount: 2, femaleCount: 0 }
 
+// The composition diagnostics (femaleCount*, difference, mode, reason) the extended result always
+// carries — spread into an expected `value` so these assertions stay focused on the scores.
+const diag = (
+  femaleCountA: number,
+  femaleCountB: number,
+  mode: HandicapRules['mode'],
+  reason: 'disabled' | 'entry_match' | 'female_count_difference',
+) => ({ femaleCountA, femaleCountB, difference: femaleCountA - femaleCountB, mode, reason })
+
 // (16) Handicap disabled → 0 / 0.
 test('handicap disabled returns 0 / 0', () => {
   const h: HandicapRules = { enabled: false, mode: 'starting_score', entries: [], requires_configuration: false }
   const r = calculateStartingScore({ handicap: h, competitorA: pairMixed, competitorB: pairMen })
   assert.equal(r.ok, true)
-  assert.deepEqual(r.ok && r.value, { startingScoreA: 0, startingScoreB: 0, adjustmentA: 0, adjustmentB: 0 })
+  assert.deepEqual(r.ok && r.value, {
+    startingScoreA: 0, startingScoreB: 0, adjustmentA: 0, adjustmentB: 0,
+    ...diag(1, 0, 'starting_score', 'disabled'),
+  })
 })
 
 // (17) Handicap enabled but not configured → typed error (never a guessed number).
@@ -41,7 +53,10 @@ test('configured handicap applies a starting score by composition', () => {
   }
   const r = calculateStartingScore({ handicap: h, competitorA: pairMixed, competitorB: pairMen })
   assert.equal(r.ok, true)
-  assert.deepEqual(r.ok && r.value, { startingScoreA: 3, startingScoreB: 0, adjustmentA: 3, adjustmentB: 0 })
+  assert.deepEqual(r.ok && r.value, {
+    startingScoreA: 3, startingScoreB: 0, adjustmentA: 3, adjustmentB: 0,
+    ...diag(1, 0, 'starting_score', 'entry_match'),
+  })
 })
 
 test('configured handicap with no matching entry fails typed', () => {
@@ -59,7 +74,10 @@ test('point_adjustment mode keeps starting score at 0 and surfaces the adjustmen
     entries: [{ kind: 'pair', maleCount: 1, femaleCount: 1, value: 2 }, { kind: 'pair', maleCount: 2, femaleCount: 0, value: 0 }],
   }
   const r = calculateStartingScore({ handicap: h, competitorA: pairMixed, competitorB: pairMen })
-  assert.deepEqual(r.ok && r.value, { startingScoreA: 0, startingScoreB: 0, adjustmentA: 2, adjustmentB: 0 })
+  assert.deepEqual(r.ok && r.value, {
+    startingScoreA: 0, startingScoreB: 0, adjustmentA: 2, adjustmentB: 0,
+    ...diag(1, 0, 'point_adjustment', 'entry_match'),
+  })
 })
 
 test('compositionKey is stable and distinguishes gender mix', () => {

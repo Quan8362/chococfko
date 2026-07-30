@@ -18,7 +18,14 @@ import {
 
 // ── FJP OLYMPIAD 2026 ───────────────────────────────────────────────────────────────────────
 export const FJP_OLYMPIAD_2026_KEY = 'fjp_olympiad_2026'
+// Version 1 shipped the sporting rules with the gender handicap in the PENDING state (values not yet
+// confirmed by the organizer). Version 2 (Prompt 15D-1B) carries the OFFICIAL handicap: 2 points per
+// surplus woman, difference-based. V1 is retained ONLY so existing v1 snapshots still resolve for
+// provenance/validation — new events get v2. Never mutate v1's payload.
 export const FJP_OLYMPIAD_2026_VERSION = 1
+export const FJP_OLYMPIAD_2026_VERSION_V2 = 2
+// The version an admin picker offers by default (the highest registered version for this preset).
+export const FJP_OLYMPIAD_2026_CURRENT_VERSION = FJP_OLYMPIAD_2026_VERSION_V2
 
 // The defined category enum for this preset (never an arbitrary string).
 export const FJP_EVENT_CATEGORIES = ['beginner', 'standard'] as const
@@ -71,11 +78,10 @@ function fjpKnockout(): KnockoutRules {
   return { match: fjpKnockoutMatch() }
 }
 
-// Gender handicap is INTENDED for FJP but its concrete values are not yet confirmed by the
-// organizer. Ship the schema in the pending state: enabled, but requires_configuration = true and no
-// entries — applying it to a live score returns a typed HANDICAP_NOT_CONFIGURED error. Do NOT invent
-// values here.
-function fjpHandicap(): HandicapRules {
+// V1 handicap: INTENDED but not yet confirmed by the organizer. Pending state: enabled, but
+// requires_configuration = true and no entries — applying it to a live score returns a typed
+// HANDICAP_NOT_CONFIGURED error. Do NOT invent values here or backfill v1 with the v2 numbers.
+function fjpHandicapPendingV1(): HandicapRules {
   return {
     enabled: true,
     mode: 'starting_score',
@@ -84,15 +90,29 @@ function fjpHandicap(): HandicapRules {
   }
 }
 
-function fjpRules(groupPoints: number): RuleSet {
+// V2 handicap: the OFFICIAL FJP OLYMPIAD 2026 rule. The pair with more women starts each game ahead
+// by 2 points per surplus woman (difference-based, keyed off composition, never identity). Configured
+// → requires_configuration = false, so scoring is unblocked once both compositions are known.
+function fjpHandicapOfficialV2(): HandicapRules {
+  return {
+    enabled: true,
+    mode: 'female_count_difference',
+    entries: [],
+    points_per_difference: 2,
+    requires_configuration: false,
+  }
+}
+
+function fjpRules(groupPoints: number, handicap: HandicapRules): RuleSet {
   return {
     group: fjpGroup(groupPoints),
     knockout: fjpKnockout(),
-    handicap: fjpHandicap(),
+    handicap,
   }
 }
 
 // Build a fresh preset object each call so no two callers share a mutable reference.
+// V1 — retained for provenance only; handicap still pending.
 export function buildFjpOlympiad2026Preset(): RulePreset {
   return {
     key: FJP_OLYMPIAD_2026_KEY,
@@ -101,9 +121,23 @@ export function buildFjpOlympiad2026Preset(): RulePreset {
     isDefault: false,
     variants: [
       // Beginner group play: single set to 15.
-      { category: 'beginner', rules: fjpRules(15) },
+      { category: 'beginner', rules: fjpRules(15, fjpHandicapPendingV1()) },
       // Every other content: single set to 21.
-      { category: 'standard', rules: fjpRules(21) },
+      { category: 'standard', rules: fjpRules(21, fjpHandicapPendingV1()) },
+    ],
+  }
+}
+
+// V2 — the official preset with the confirmed gender handicap. Same sporting rules as v1.
+export function buildFjpOlympiad2026PresetV2(): RulePreset {
+  return {
+    key: FJP_OLYMPIAD_2026_KEY,
+    version: FJP_OLYMPIAD_2026_VERSION_V2,
+    label: 'FJP Olympiad 2026',
+    isDefault: false,
+    variants: [
+      { category: 'beginner', rules: fjpRules(15, fjpHandicapOfficialV2()) },
+      { category: 'standard', rules: fjpRules(21, fjpHandicapOfficialV2()) },
     ],
   }
 }
@@ -115,6 +149,7 @@ type PresetBuilder = () => RulePreset
 
 const REGISTRY: ReadonlyMap<string, PresetBuilder> = new Map<string, PresetBuilder>([
   [`${FJP_OLYMPIAD_2026_KEY}@${FJP_OLYMPIAD_2026_VERSION}`, buildFjpOlympiad2026Preset],
+  [`${FJP_OLYMPIAD_2026_KEY}@${FJP_OLYMPIAD_2026_VERSION_V2}`, buildFjpOlympiad2026PresetV2],
 ])
 
 export function getRulePreset(key: string, version: number): RulePreset | null {

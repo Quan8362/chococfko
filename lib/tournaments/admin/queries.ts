@@ -1,6 +1,7 @@
 import 'server-only'
 
 import { createAdminClient } from '@/lib/supabase/admin'
+import { getEventScoringRuleView, getEventGroupTablePoints } from './scoringRuntime'
 import type {
   CompetitorRow,
   EventDetail,
@@ -195,9 +196,19 @@ interface RawCompetitorRow {
   seed: number | null
   display_order: number
   updated_at: string
+  competitor_kind: string | null
+  male_count: number | null
+  female_count: number | null
 }
 
 function mapCompetitorRow(r: RawCompetitorRow): CompetitorRow {
+  const kind = r.competitor_kind
+  const composition: CompetitorRow['composition'] =
+    (kind === 'single' || kind === 'pair' || kind === 'team') &&
+    typeof r.male_count === 'number' &&
+    typeof r.female_count === 'number'
+      ? { kind, maleCount: r.male_count, femaleCount: r.female_count }
+      : null
   return {
     id: r.id,
     name: r.name,
@@ -205,6 +216,7 @@ function mapCompetitorRow(r: RawCompetitorRow): CompetitorRow {
     seed: r.seed,
     displayOrder: r.display_order,
     updatedAt: r.updated_at,
+    composition,
   }
 }
 
@@ -237,7 +249,7 @@ export async function getEventForAdmin(
   const [{ data: comps }, { count: matchCount }, { count: completedCount }] = await Promise.all([
     admin
       .from('tournament_competitors')
-      .select('id, name, short_name, seed, display_order, updated_at')
+      .select('id, name, short_name, seed, display_order, updated_at, competitor_kind, male_count, female_count')
       .eq('event_id', eventId)
       .order('display_order', { ascending: true })
       .order('created_at', { ascending: true }),
@@ -337,7 +349,7 @@ export async function getGroupSetupForAdmin(
     await Promise.all([
       admin
         .from('tournament_competitors')
-        .select('id, name, short_name, seed, display_order, updated_at')
+        .select('id, name, short_name, seed, display_order, updated_at, competitor_kind, male_count, female_count')
         .eq('event_id', eventId)
         .order('display_order', { ascending: true })
         .order('created_at', { ascending: true }),
@@ -500,7 +512,7 @@ export async function getScoringWorkspaceForAdmin(
     await Promise.all([
       admin
         .from('tournament_competitors')
-        .select('id, name, short_name, seed, display_order, updated_at')
+        .select('id, name, short_name, seed, display_order, updated_at, competitor_kind, male_count, female_count')
         .eq('event_id', eventId)
         .order('display_order', { ascending: true })
         .order('created_at', { ascending: true }),
@@ -622,6 +634,7 @@ export async function getScoringWorkspaceForAdmin(
     winnerQualifiers: event.winner_qualifiers_per_group,
     consolationQualifiers: event.consolation_qualifiers_per_group,
     groups: groupInputs,
+    tablePoints: await getEventGroupTablePoints(eventId),
   })
 
   const groupNameById = new Map(groups.map((g) => [g.id, g.name]))
@@ -693,6 +706,7 @@ export async function getScoringWorkspaceForAdmin(
     allCompleted: evaluation.allCompleted,
     hasBlockingTie: evaluation.hasBlockingTie,
     hasKnockout,
+    scoringRules: await getEventScoringRuleView(eventId),
   }
 }
 
@@ -741,7 +755,7 @@ export async function getKnockoutSeedSetupForAdmin(
   const [{ data: comps }, { data: slotRows }, { data: bracketProbe }] = await Promise.all([
     admin
       .from('tournament_competitors')
-      .select('id, name, short_name, seed, display_order, updated_at')
+      .select('id, name, short_name, seed, display_order, updated_at, competitor_kind, male_count, female_count')
       .eq('event_id', eventId)
       .order('display_order', { ascending: true })
       .order('created_at', { ascending: true }),
@@ -832,7 +846,7 @@ export async function getKnockoutWorkspaceForAdmin(
   const [{ data: comps }, { data: matchRows }, { data: podiumRows }] = await Promise.all([
     admin
       .from('tournament_competitors')
-      .select('id, name, short_name, seed, display_order, updated_at')
+      .select('id, name, short_name, seed, display_order, updated_at, competitor_kind, male_count, female_count')
       .eq('event_id', eventId)
       .order('display_order', { ascending: true })
       .order('created_at', { ascending: true }),
@@ -969,6 +983,7 @@ export async function getKnockoutWorkspaceForAdmin(
     hasBracket: rows.length > 0,
     hasResults,
     isComplete: !!finalRow && finalDone && thirdDone,
+    scoringRules: await getEventScoringRuleView(eventId),
   }
 }
 
@@ -1018,7 +1033,7 @@ async function evaluateGroupStageForEvent(
     await Promise.all([
       admin
         .from('tournament_competitors')
-        .select('id, name, short_name, seed, display_order, updated_at')
+        .select('id, name, short_name, seed, display_order, updated_at, competitor_kind, male_count, female_count')
         .eq('event_id', eventId)
         .order('display_order', { ascending: true })
         .order('created_at', { ascending: true }),
@@ -1113,6 +1128,7 @@ async function evaluateGroupStageForEvent(
     winnerQualifiers: event.winner_qualifiers_per_group,
     consolationQualifiers: event.consolation_qualifiers_per_group,
     groups: groupInputs,
+    tablePoints: await getEventGroupTablePoints(event.id),
   })
 
   const qualificationByGroup = new Map<string, QualificationOutcome>()
@@ -1372,7 +1388,7 @@ export async function getGroupKnockoutWorkspaceForAdmin(
   const [{ data: comps }, { data: matchRows }, { data: podiumRows }] = await Promise.all([
     admin
       .from('tournament_competitors')
-      .select('id, name, short_name, seed, display_order, updated_at')
+      .select('id, name, short_name, seed, display_order, updated_at, competitor_kind, male_count, female_count')
       .eq('event_id', eventId)
       .order('display_order', { ascending: true })
       .order('created_at', { ascending: true }),
@@ -1437,5 +1453,6 @@ export async function getGroupKnockoutWorkspaceForAdmin(
     hasBrackets: allRows.length > 0,
     hasResults: champ.hasResults || (conso?.hasResults ?? false),
     isComplete: eventComplete,
+    scoringRules: await getEventScoringRuleView(eventId),
   }
 }

@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import ScoreEditor from './ScoreEditor'
 import type { CompetitorRow, GroupRow, MatchView } from '@/lib/tournaments/admin/types'
+import type { EventScoringRuleView } from '@/lib/tournaments/rules'
 
 // "Lịch và kết quả" tab: the group schedule grouped by group → round, each match showing its result
 // (games won + per-game scores + winner) or a "nhập tỉ số" button that opens the ScoreEditor.
@@ -15,6 +16,7 @@ export default function MatchResultsPanel({
   matches,
   competitors,
   hasKnockout,
+  scoringRules,
 }: {
   tournamentId: string
   eventId: string
@@ -22,6 +24,7 @@ export default function MatchResultsPanel({
   matches: MatchView[]
   competitors: CompetitorRow[]
   hasKnockout: boolean
+  scoringRules?: EventScoringRuleView
 }) {
   const t = useTranslations('admin_match_scores')
   const tm = useTranslations('admin_group_matches')
@@ -166,6 +169,10 @@ export default function MatchResultsPanel({
           match={openMatch}
           nameA={nameOf(openMatch.competitorAId)}
           nameB={nameOf(openMatch.competitorBId)}
+          rule={scoringRules?.group ?? null}
+          ruleSource={scoringRules?.source}
+          handicapBlocked={scoringRules?.handicapBlocked ?? false}
+          handicap={scoringRules?.handicap}
           onClose={() => setOpenMatchId(null)}
         />
       )}

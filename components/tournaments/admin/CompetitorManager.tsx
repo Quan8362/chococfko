@@ -7,6 +7,8 @@ import ConfirmDialog from './ConfirmDialog'
 import {
   validateCompetitorInput,
   parseBulkCompetitors,
+  doublesCompositionToken,
+  DOUBLES_COMPOSITION_OPTIONS,
   type CompetitorFieldErrors,
   type CompetitorFieldErrorCode,
 } from '@/lib/tournaments/competitorValidation'
@@ -28,12 +30,14 @@ export default function CompetitorManager({
   competitors,
   locked,
   showSeed,
+  showComposition = false,
 }: {
   tournamentId: string
   eventId: string
   competitors: CompetitorRow[]
   locked: boolean
   showSeed: boolean
+  showComposition?: boolean
 }) {
   const t = useTranslations('admin_tournament_competitors')
   const router = useRouter()
@@ -45,6 +49,7 @@ export default function CompetitorManager({
   const [addName, setAddName] = useState('')
   const [addShort, setAddShort] = useState('')
   const [addSeed, setAddSeed] = useState('')
+  const [addComp, setAddComp] = useState('')
   const [addErrors, setAddErrors] = useState<CompetitorFieldErrors>({})
 
   // ── Bulk form ────────────────────────────────────────────────────────────
@@ -57,6 +62,7 @@ export default function CompetitorManager({
   const [editName, setEditName] = useState('')
   const [editShort, setEditShort] = useState('')
   const [editSeed, setEditSeed] = useState('')
+  const [editComp, setEditComp] = useState('')
   const [editErrors, setEditErrors] = useState<CompetitorFieldErrors>({})
 
   const [confirmRow, setConfirmRow] = useState<CompetitorRow | null>(null)
@@ -85,7 +91,7 @@ export default function CompetitorManager({
 
   function submitAdd() {
     clearBanner()
-    const values = { name: addName, shortName: addShort, seed: addSeed }
+    const values = { name: addName, shortName: addShort, seed: addSeed, composition: addComp }
     const parsed = validateCompetitorInput(values)
     if (!parsed.ok) {
       setAddErrors(parsed.errors)
@@ -98,6 +104,7 @@ export default function CompetitorManager({
         setAddName('')
         setAddShort('')
         setAddSeed('')
+        setAddComp('')
       } else if (res.fieldErrors) {
         setAddErrors(res.fieldErrors)
       }
@@ -124,11 +131,12 @@ export default function CompetitorManager({
     setEditName(row.name)
     setEditShort(row.shortName ?? '')
     setEditSeed(row.seed != null ? String(row.seed) : '')
+    setEditComp(doublesCompositionToken(row.composition))
     setEditErrors({})
   }
 
   function submitEdit(row: CompetitorRow) {
-    const values = { name: editName, shortName: editShort, seed: editSeed }
+    const values = { name: editName, shortName: editShort, seed: editSeed, composition: editComp }
     const parsed = validateCompetitorInput(values)
     if (!parsed.ok) {
       setEditErrors(parsed.errors)
@@ -295,6 +303,20 @@ export default function CompetitorManager({
               </div>
             )}
           </div>
+          {showComposition && (
+            <div className="mt-2">
+              <label className="block text-[12px] font-semibold text-[#5c4d44] mb-1">{t('composition_label')}</label>
+              <select value={addComp} onChange={(e) => setAddComp(e.target.value)} className={inputCls}>
+                <option value="">{t('comp_unset')}</option>
+                {DOUBLES_COMPOSITION_OPTIONS.map((tok) => (
+                  <option key={tok} value={tok}>{t(`comp_${tok}`)}</option>
+                ))}
+              </select>
+              {addErrors.composition && (
+                <p className="text-[12px] text-rose mt-1">{fieldLabel(addErrors.composition)}</p>
+              )}
+            </div>
+          )}
           <button
             type="button"
             disabled={pending}
@@ -372,6 +394,19 @@ export default function CompetitorManager({
                       </div>
                     )}
                   </div>
+                  {showComposition && (
+                    <div className="mt-2">
+                      <select value={editComp} onChange={(e) => setEditComp(e.target.value)} className={inputCls}>
+                        <option value="">{t('comp_unset')}</option>
+                        {DOUBLES_COMPOSITION_OPTIONS.map((tok) => (
+                          <option key={tok} value={tok}>{t(`comp_${tok}`)}</option>
+                        ))}
+                      </select>
+                      {editErrors.composition && (
+                        <p className="text-[12px] text-rose mt-1">{fieldLabel(editErrors.composition)}</p>
+                      )}
+                    </div>
+                  )}
                   <div className="flex gap-2 mt-2">
                     <button
                       type="button"
@@ -400,6 +435,11 @@ export default function CompetitorManager({
                     </span>
                     {row.seed != null && (
                       <span className="text-[11.5px] text-muted">{t('seed_label', { seed: row.seed })}</span>
+                    )}
+                    {showComposition && doublesCompositionToken(row.composition) && (
+                      <span className="ml-2 text-[11.5px] text-teal font-medium">
+                        {t(`comp_${doublesCompositionToken(row.composition)}`)}
+                      </span>
                     )}
                   </div>
                   {!locked && (

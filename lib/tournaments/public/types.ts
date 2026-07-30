@@ -153,5 +153,8 @@ export function toBracketCompetitors(competitors: PublicCompetitor[]): Competito
     seed: c.seed,
     displayOrder: 0,
     updatedAt: '',
+    // Public bracket rows never carry gender composition (handicap is not a public-privacy concern of
+    // the BracketView); the adapter fills the required field as null.
+    composition: null,
   }))
 }

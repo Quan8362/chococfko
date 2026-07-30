@@ -18,7 +18,7 @@ import type {
   MatchInput,
   Standings,
 } from './types.ts'
-import { calculateStandings } from './standings.ts'
+import { calculateStandings, type TablePointsConfig } from './standings.ts'
 import { classifyTies } from './ties.ts'
 import { qualifyGroup, type QualificationOutcome } from './qualification.ts'
 import type { GroupStageFormat } from './group-assignment.ts'
@@ -64,12 +64,14 @@ export function evaluateGroupStage(input: {
   readonly winnerQualifiers: number
   readonly consolationQualifiers: number
   readonly groups: readonly GroupEvaluationInput[]
+  // Rule-snapshot table points (Prompt 15D-1). Omitted ⇒ the classic win = 1 / loss = 0.
+  readonly tablePoints?: TablePointsConfig
 }): GroupStageEvaluation {
-  const { format, winnerQualifiers, consolationQualifiers } = input
+  const { format, winnerQualifiers, consolationQualifiers, tablePoints } = input
   const mode = format === 'group_knockout' ? 'group_knockout' : 'round_robin'
 
   const groups: GroupEvaluation[] = input.groups.map((g) => {
-    const standings = calculateStandings({ competitors: g.competitors, matches: g.matches })
+    const standings = calculateStandings({ competitors: g.competitors, matches: g.matches, tablePoints })
     const ties = classifyTies({ standings, mode, winnerQualifiers, consolationQualifiers })
     const qualification: QualificationOutcome =
       format === 'group_knockout'

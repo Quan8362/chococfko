@@ -10,6 +10,7 @@ import {
   clearGroupKnockoutMatchResult,
 } from '@/app/admin/giai-dau/[id]/noi-dung/actions'
 import type { BranchWorkspace, CompetitorRow } from '@/lib/tournaments/admin/types'
+import type { EventScoringRuleView } from '@/lib/tournaments/rules'
 
 type SubTab = 'bracket' | 'results' | 'podium'
 
@@ -21,11 +22,13 @@ export default function GroupKnockoutBranchPanel({
   eventId,
   branch,
   competitors,
+  scoringRules,
 }: {
   tournamentId: string
   eventId: string
   branch: BranchWorkspace
   competitors: CompetitorRow[]
+  scoringRules?: EventScoringRuleView
 }) {
   const t = useTranslations('admin_knockout_seeding')
   const [tab, setTab] = useState<SubTab>(branch.hasBracket ? 'results' : 'bracket')
@@ -66,6 +69,7 @@ export default function GroupKnockoutBranchPanel({
           rounds={branch.rounds}
           thirdPlaceMatch={branch.thirdPlaceMatch}
           competitors={competitors}
+          scoringRules={scoringRules}
           saveAction={saveGroupKnockoutMatchResult}
           clearAction={clearGroupKnockoutMatchResult}
         />

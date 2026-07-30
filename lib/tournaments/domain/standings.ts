@@ -23,11 +23,22 @@ function sameSortKey(a: StandingRow, b: StandingRow): boolean {
     && a.pointsFor === b.pointsFor
 }
 
+// Table-point award for a win / loss. Defaults to the classic 1 / 0 so every existing caller keeps
+// its behaviour; a rule snapshot (Prompt 15D-1) may override it (e.g. win = 2, loss = 0).
+export interface TablePointsConfig {
+  readonly win: number
+  readonly loss: number
+}
+
+const DEFAULT_TABLE_POINTS: TablePointsConfig = { win: 1, loss: 0 }
+
 export function calculateStandings(input: {
   readonly competitors: readonly Competitor[]
   readonly matches: readonly MatchInput[]
+  readonly tablePoints?: TablePointsConfig
 }): Standings {
   const { competitors, matches } = input
+  const tp = input.tablePoints ?? DEFAULT_TABLE_POINTS
 
   const order = new Map<CompetitorId, number>()
   const acc = new Map<CompetitorId, Acc>()
@@ -62,7 +73,7 @@ export function calculateStandings(input: {
   // Build unsorted rows.
   const draft = competitors.map((c) => {
     const s = acc.get(c.id)!
-    const tablePoints = s.wins // win = 1 point, loss = 0
+    const tablePoints = s.wins * tp.win + s.losses * tp.loss
     return {
       competitorId: c.id,
       played: s.played,

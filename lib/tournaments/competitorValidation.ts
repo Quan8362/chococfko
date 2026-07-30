@@ -16,12 +16,13 @@ export type CompetitorFieldErrorCode =
   | 'name_too_long'
   | 'short_name_too_long'
   | 'seed_invalid'
+  | 'composition_invalid'
   // Set by the SERVER action (not the pure validator) when the name collides with another
   // competitor in the same event — duplicates are guarded at the application layer since the
   // schema has no unique(event_id, name) constraint.
   | 'name_duplicate'
 
-export type CompetitorFieldKey = 'name' | 'shortName' | 'seed'
+export type CompetitorFieldKey = 'name' | 'shortName' | 'seed' | 'composition'
 
 export type CompetitorFieldErrors = Partial<Record<CompetitorFieldKey, CompetitorFieldErrorCode>>
 
@@ -29,12 +30,52 @@ export interface CompetitorFormValues {
   name: string
   shortName: string
   seed: string
+  // Doubles gender make-up (Prompt 15D-1B): '' = unset, or 'MM' | 'MF' | 'FF'. Only needed when the
+  // event uses the FJP gender handicap; a select in the UI, never free-typed men/women counts.
+  composition?: string
+}
+
+// The normalized composition a competitor is stored with. `null` = unset (legacy / non-handicap).
+export interface CompetitorCompositionInput {
+  kind: 'single' | 'pair' | 'team'
+  maleCount: number
+  femaleCount: number
 }
 
 export interface NormalizedCompetitorInput {
   name: string
   shortName: string | null
   seed: number | null
+  composition: CompetitorCompositionInput | null
+}
+
+// The doubles composition tokens offered in the competitor form.
+export const DOUBLES_COMPOSITION_OPTIONS = ['MM', 'MF', 'FF'] as const
+export type DoublesCompositionToken = (typeof DOUBLES_COMPOSITION_OPTIONS)[number]
+
+// Map a doubles token to a composition. '' ⇒ null (unset); an unknown token ⇒ 'invalid'.
+export function parseDoublesComposition(
+  token: string | undefined,
+): CompetitorCompositionInput | null | 'invalid' {
+  const t = (token ?? '').trim()
+  if (t === '') return null
+  switch (t) {
+    case 'MM': return { kind: 'pair', maleCount: 2, femaleCount: 0 }
+    case 'MF': return { kind: 'pair', maleCount: 1, femaleCount: 1 }
+    case 'FF': return { kind: 'pair', maleCount: 0, femaleCount: 2 }
+    default: return 'invalid'
+  }
+}
+
+// The token for a stored composition (for pre-filling the form). Non-doubles ⇒ ''.
+export function doublesCompositionToken(
+  comp: { kind: string; maleCount: number; femaleCount: number } | null,
+): string {
+  if (!comp || comp.kind !== 'pair') return ''
+  if (comp.maleCount === 2 && comp.femaleCount === 0) return 'MM'
+  if (comp.maleCount === 1 && comp.femaleCount === 1) return 'MF'
+  if (comp.maleCount === 0 && comp.femaleCount === 2) return 'FF'
+  return ''
 }
 
 /**
@@ -76,10 +117,13 @@ export function validateCompetitorInput(
     }
   }
 
+  const composition = parseDoublesComposition(values.composition)
+  if (composition === 'invalid') errors.composition = 'composition_invalid'
+
   if (Object.keys(errors).length > 0) return { ok: false, errors }
   return {
     ok: true,
-    value: { name, shortName: shortRaw || null, seed },
+    value: { name, shortName: shortRaw || null, seed, composition: composition === 'invalid' ? null : composition },
   }
 }
 

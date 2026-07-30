@@ -139,7 +139,43 @@ organizer_decision`.
 
 ---
 
-## 5. Handicap — known and still needed
+## 5. Handicap — OFFICIAL (Prompt 15D-1B)
+
+> **Source:** the ĐIỀU LỆ FJP OLYMPIAD 2026 handicap rule (chấp điểm) is now integrated. The pair with
+> **more women** starts each game/set ahead by **2 points per surplus woman**. Concretely:
+> Nam+Nam vs Nữ+Nữ → Nữ+Nữ chấp 4; Nam+Nam vs Nam+Nữ → Nam+Nữ chấp 2; Nam+Nữ vs Nữ+Nữ → Nữ+Nữ chấp 2;
+> equal women → 0–0. **Never** keyed off a pair/category name — only composition.
+>
+> **Formula:** `difference = femaleCountA − femaleCountB`. `difference > 0` ⇒ A opens on `difference·2`;
+> `difference < 0` ⇒ B opens on `|difference|·2`; `= 0` ⇒ 0–0.
+
+### 5.1 Preset versions
+
+- **`fjp_olympiad_2026` v1** — retained (deprecated) for provenance. Handicap `enabled` but
+  `requires_configuration: true`, `mode: 'starting_score'`, no entries. **Still blocks** scoring with
+  `HANDICAP_NOT_CONFIGURED`. A v1 snapshot is **never** silently upgraded to v2.
+- **`fjp_olympiad_2026` v2** — official. Handicap `enabled`, `mode: 'female_count_difference'`,
+  `points_per_difference: 2`, `requires_configuration: false`. Same sporting rules (group 15/21,
+  knockout 21/win-by-2/cap-31). The admin picker offers **v2 by default** (v1 is `status='deprecated'`).
+
+### 5.2 Starting / final score semantics
+
+The handicap is each side's **opening** score for **every** game/set. The score entered/stored is the
+**final scoreboard** score (already including the head start). The server:
+
+1. computes the starting score authoritatively from the two compositions (never from the client),
+2. blocks a final score **below** its starting score (`score_below_starting_score`; DB CHECK
+   `tmg_scores_ge_starting` backstops it),
+3. applies target/win-by/cap to the **final** scoreboard, and derives the winner server-side,
+4. persists the starting score + `handicap_mode`/`handicap_version` per game (migration #10) and in the
+   score audit — so a later preset edit can **never** re-interpret an old result.
+
+`calculateStartingScore` output (`§9`): `startingScoreA/B`, `adjustmentA/B`, `femaleCountA/B`,
+`difference`, `mode`, `reason` (`disabled | entry_match | female_count_difference`). A missing
+composition → `HANDICAP_COMPOSITION_REQUIRED`; an invalid one → `HANDICAP_COMPOSITION_INVALID`
+(mapped at the runtime to `competitor_composition_required` / `competitor_composition_invalid`).
+
+### 5.3 The entry-matched modes (still available)
 
 The FJP handicap ("chấp điểm") depends on competitor **composition** (kind + male/female counts),
 never identity. The schema, validation, and a fail-closed evaluator are shipped:
@@ -395,3 +431,50 @@ shows a banner + **Reload** button and never auto-merges or discards the draft b
 ### Left for Prompt 15D
 Scoring runtime under the snapshot (15/21 laws), real handicap calculation, and automatic
 schedule/bracket reset on a rule change. No new migration; no commit-time production SQL.
+
+## Prompt 15D-1 — Rule-aware scoring runtime
+
+The event rule snapshot now DRIVES score entry. Pure logic lives in `lib/tournaments/rules/scoring.ts`
+(no I/O); the server glue is `lib/tournaments/admin/scoringRuntime.ts`.
+
+### Stage resolution — `resolveMatchScoringRules(descriptor, ruleSet)`
+Maps a match's physical placement to the rules that judge it:
+- group / round-robin match → **group rules**;
+- knockout match — championship, consolation, third-place, or the pure-knockout (null) bracket — all →
+  **knockout rules** (third-place is structurally a knockout match);
+- a **BYE** → typed `bye_not_scoreable`; an unknown stage → typed `match_stage_unsupported` (never a
+  silent fallback).
+
+### Evaluation — `evaluateMatchScoreWithSnapshot({ rules, stage, games })`
+Reuses the engine (`validateGameScoreByRules` / `validateMatchScoresByRules`) — the 15/21 / win-by /
+deuce-cap laws are NOT re-implemented. It also rejects a game recorded after a side already reached
+`games_to_win` (`match_already_decided`). An **enabled** handicap fails closed here
+(`handicap_not_configured`) — 15D-1 never applies a handicap value; a **disabled** handicap scores
+normally. The winner is always derived from the scores — there is no winner input.
+
+### Server runtime — `resolveMatchScore(...)`
+Every score mutation (group / knockout / group-knockout save + the correction preview/reset) calls
+this ONE entry point after verifying ownership + a scoreable pairing:
+- **no snapshot → legacy fallback**: the exact previous behaviour (`validateMatchScores` →
+  `deriveMatchOutcome`), tagged `legacy_default`. Never auto-creates a snapshot; old events are
+  unchanged.
+- **snapshot present → authoritative**. An **invalid** snapshot blocks the save
+  (`rules_snapshot_invalid`) and does NOT fall back to legacy.
+- The rule payload is always loaded from the DB snapshot — never trusted from the client (no client
+  rule / winner / stage / starting score).
+
+### Standings table points (§15)
+`calculateStandings` / `evaluateGroupStage` take an optional `tablePoints` config (default win 1 /
+loss 0). The snapshot's `win_table_points` / `loss_table_points` flow into the scoring-time evaluation,
+the standings display and the group-knockout qualification via `getEventGroupTablePoints(eventId)`.
+The FJP preset uses the defaults, so its behaviour is unchanged.
+
+### Audit (§16)
+Each stored result records safe rule metadata under `detail.rule`: rule source, preset key/version,
+snapshot version, category, match stage, games-to-win, points-to-win, win-by, cap, handicap state.
+Never a raw payload, token or secret.
+
+### Left for Prompt 15D-2
+Real handicap starting-score / adjustment application (values still organizer-pending), automatic
+schedule/bracket reset on a rule change, a full scoring browser E2E, and public-standings table-point
+consistency. No new migration; no production SQL, commit, merge or deploy in 15D-1.

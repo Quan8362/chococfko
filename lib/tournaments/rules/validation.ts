@@ -123,12 +123,39 @@ function validateKnockoutRules(knockout: KnockoutRules, basePath: string): RuleV
 }
 
 // ── Handicap ────────────────────────────────────────────────────────────────────────────────
+const HANDICAP_MODES: readonly HandicapRules['mode'][] = [
+  'starting_score',
+  'point_adjustment',
+  'female_count_difference',
+]
+
 export function validateHandicapRules(handicap: HandicapRules, basePath: string): RuleValidationIssue[] {
   const out: RuleValidationIssue[] = []
   if (!handicap.enabled) return out
 
-  // A configured (non-pending) handicap MUST carry at least one valid entry. A pending one
-  // (requires_configuration) may be empty — it is intentionally not-yet-ready, not malformed.
+  if (!HANDICAP_MODES.includes(handicap.mode)) {
+    out.push(issue(`${basePath}.mode`, 'HANDICAP_MODE_UNKNOWN', `unknown handicap mode "${String(handicap.mode)}"`))
+    return out
+  }
+
+  // The OFFICIAL FJP difference handicap needs no entries — the head start is derived from the two
+  // competitor compositions. It DOES need a positive per-difference value once configured.
+  if (handicap.mode === 'female_count_difference') {
+    if (!handicap.requires_configuration) {
+      const ppd = handicap.points_per_difference
+      if (typeof ppd !== 'number' || !Number.isInteger(ppd) || ppd <= 0) {
+        out.push(issue(
+          `${basePath}.points_per_difference`,
+          'HANDICAP_POINTS_PER_DIFF_INVALID',
+          'a configured female_count_difference handicap needs a positive integer points_per_difference',
+        ))
+      }
+    }
+    return out
+  }
+
+  // Entry-matched modes: a configured (non-pending) handicap MUST carry at least one valid entry. A
+  // pending one (requires_configuration) may be empty — intentionally not-yet-ready, not malformed.
   if (!handicap.requires_configuration && handicap.entries.length === 0) {
     out.push(issue(`${basePath}.entries`, 'HANDICAP_MISSING_ENTRIES', 'an enabled, configured handicap needs at least one entry'))
   }

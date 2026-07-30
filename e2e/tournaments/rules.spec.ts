@@ -451,7 +451,13 @@ test.describe('public rule summary (anonymous)', () => {
 
   test('a draft tournament never leaks a page or a rule summary', async ({ page }) => {
     const resp = await page.goto(`/giai-dau/${draftT.slug}?event=${eDraft}&tab=luat-thi-dau`)
-    expect(resp?.status()).toBe(404)
+    // Content assertions (dev/prod stable): the not-found view renders and neither the tournament
+    // detail nor the rule summary leaks. Status is 404 in a production build but — with
+    // `dynamic = 'force-dynamic'` — Next dev serves notFound() as HTTP 200 while rendering the
+    // not-found UI (documented dev quirk; see routes.spec.ts §16), so tolerate [200, 404].
+    await expect(page).toHaveTitle(new RegExp(t('tournaments.public.not_found_title')))
+    expect([200, 404]).toContain(resp?.status() ?? 0)
+    await expect(page.getByRole('tablist')).toHaveCount(0)
     await expect(page.getByText('FJP Olympiad 2026')).toHaveCount(0)
   })
 })

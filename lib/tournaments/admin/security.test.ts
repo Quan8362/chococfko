@@ -71,8 +71,10 @@ test('admin list uses a single embedded-count query (no N+1)', () => {
   const src = read(QUERIES)
   assert.ok(src.includes("import 'server-only'"), 'queries.ts must be server-only')
   assert.ok(src.includes('tournament_events(count)'), 'list must aggregate event count in one query')
-  // Guard against a re-introduced per-row count fan-out.
-  assert.ok(!/for\s*\([^)]*\)[^]*\.select\([^)]*count/.test(src), 'no per-row count loop allowed')
+  // Guard against a re-introduced per-row count fan-out: a Supabase head-count option query
+  // (`.select('*', { count: 'exact', … })`) reached after a `for` loop. Matches the aggregate OPTION
+  // form specifically so a column literally named `*_count` (e.g. male_count) is not a false positive.
+  assert.ok(!/for\s*\([^)]*\)[^]*\.select\([^)]*count:\s*['"]exact/.test(src), 'no per-row count loop allowed')
 })
 
 test('validation.ts is dependency-free and client-safe', () => {

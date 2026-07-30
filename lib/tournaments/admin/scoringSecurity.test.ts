@@ -59,7 +59,7 @@ test('match actions verify the match belongs to the event and is a group match',
 
 test('the winner is derived by the pure engine (never re-implemented in the action)', () => {
   const fn = actionBody(read(ACTIONS), 'saveGroupMatchResult')
-  assert.ok(fn.includes('validateMatchScores('), 'save must derive the winner via validateMatchScores')
+  assert.ok(fn.includes('resolveMatchScore('), 'save must derive the winner via the rule-aware runtime (resolveMatchScore)')
   assert.ok(fn.includes('scored.winnerId'), 'save must pass the engine-derived winner to the RPC')
   // No hand-rolled winner logic (e.g. counting games) in the action.
   assert.ok(!/gamesWon\w*\s*[<>]=?/.test(fn), 'action must not re-derive the winner from game tallies')

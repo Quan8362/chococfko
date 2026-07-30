@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import KnockoutScoreEditor, { type KnockoutSaveAction, type KnockoutClearAction } from './KnockoutScoreEditor'
 import type { CompetitorRow, KnockoutMatchView, KnockoutRoundView } from '@/lib/tournaments/admin/types'
+import type { EventScoringRuleView } from '@/lib/tournaments/rules'
 
 // Interactive results list: every knockout match grouped by round (+ the third-place match). A
 // ready/completed pairing opens the score editor; BYE and not-yet-decided (pending) matches are
@@ -14,6 +15,7 @@ export default function KnockoutResultsPanel({
   rounds,
   thirdPlaceMatch,
   competitors,
+  scoringRules,
   saveAction,
   clearAction,
 }: {
@@ -22,6 +24,7 @@ export default function KnockoutResultsPanel({
   rounds: KnockoutRoundView[]
   thirdPlaceMatch: KnockoutMatchView | null
   competitors: CompetitorRow[]
+  scoringRules?: EventScoringRuleView
   saveAction?: KnockoutSaveAction
   clearAction?: KnockoutClearAction
 }) {
@@ -111,6 +114,10 @@ export default function KnockoutResultsPanel({
           match={editing}
           nameA={nameOf(editing.competitorAId) ?? tb('tbd')}
           nameB={nameOf(editing.competitorBId) ?? tb('tbd')}
+          rule={scoringRules?.knockout ?? null}
+          ruleSource={scoringRules?.source}
+          handicapBlocked={scoringRules?.handicapBlocked ?? false}
+          handicap={scoringRules?.handicap}
           onClose={() => setEditing(null)}
           saveAction={saveAction}
           clearAction={clearAction}

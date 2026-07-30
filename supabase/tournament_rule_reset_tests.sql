@@ -72,8 +72,12 @@ INSERT INTO public.tournament_event_rule_snapshots (id, event_id, source, catego
    '{"group":{"match":{"points_to_win":21}}}'::jsonb);
 
 -- The proposed new rules + a valid round-robin regen payload (3 matches, unique generation keys).
-\set new_rules '{"group":{"match":{"points_to_win":15}},"knockout":{"match":{"points_to_win":15}},"handicap":{"enabled":false}}'
-\set regen '[{"group_id":"a9000000-0000-0000-0000-0000000000a1","round_number":1,"match_number":1,"competitor_a_id":"f1000000-0000-0000-0000-000000000001","competitor_b_id":"f1000000-0000-0000-0000-000000000002","generation_key":"grp:a:1"},{"group_id":"a9000000-0000-0000-0000-0000000000a1","round_number":1,"match_number":2,"competitor_a_id":"f1000000-0000-0000-0000-000000000001","competitor_b_id":"f1000000-0000-0000-0000-000000000003","generation_key":"grp:a:2"},{"group_id":"a9000000-0000-0000-0000-0000000000a1","round_number":1,"match_number":3,"competitor_a_id":"f1000000-0000-0000-0000-000000000002","competitor_b_id":"f1000000-0000-0000-0000-000000000003","generation_key":"grp:a:3"}]'
+-- Held in transaction-local GUCs (not psql \set) so they are visible inside DO $$ … $$ blocks —
+-- psql variable interpolation (:'var') does NOT reach inside dollar-quoted PL/pgSQL bodies.
+SELECT set_config('tourn_test.new_rules',
+  '{"group":{"match":{"points_to_win":15}},"knockout":{"match":{"points_to_win":15}},"handicap":{"enabled":false}}', true);
+SELECT set_config('tourn_test.regen',
+  '[{"group_id":"a9000000-0000-0000-0000-0000000000a1","round_number":1,"match_number":1,"competitor_a_id":"f1000000-0000-0000-0000-000000000001","competitor_b_id":"f1000000-0000-0000-0000-000000000002","generation_key":"grp:a:1"},{"group_id":"a9000000-0000-0000-0000-0000000000a1","round_number":1,"match_number":2,"competitor_a_id":"f1000000-0000-0000-0000-000000000001","competitor_b_id":"f1000000-0000-0000-0000-000000000003","generation_key":"grp:a:2"},{"group_id":"a9000000-0000-0000-0000-0000000000a1","round_number":1,"match_number":3,"competitor_a_id":"f1000000-0000-0000-0000-000000000002","competitor_b_id":"f1000000-0000-0000-0000-000000000003","generation_key":"grp:a:3"}]', true);
 
 -- ── 1. anon & authenticated cannot EXECUTE ─────────────────────────────────────────────────────
 SET LOCAL ROLE anon;
@@ -96,7 +100,7 @@ DECLARE r jsonb;
 BEGIN
   r := public.tournament_apply_rule_change('d1000000-0000-0000-0000-0000000000e1'::uuid,
     'd0000000-0000-0000-0000-000000000002'::uuid, 'c8000000-0000-0000-0000-0000000000c1'::uuid, 1, NULL,
-    :'new_rules'::jsonb, 2, false, 'all_results_and_downstream', 'none', NULL, true);
+    current_setting('tourn_test.new_rules')::jsonb, 2, false, 'all_results_and_downstream', 'none', NULL, true);
   IF r->>'code' <> 'not_found' THEN RAISE EXCEPTION 'FAIL: cross-tournament expected not_found, got %', r; END IF;
 END $$;
 
@@ -106,7 +110,7 @@ DECLARE r jsonb;
 BEGIN
   r := public.tournament_apply_rule_change('d1000000-0000-0000-0000-0000000000e1'::uuid,
     'd0000000-0000-0000-0000-000000000001'::uuid, 'c8000000-0000-0000-0000-0000000000c1'::uuid, 1, NULL,
-    :'new_rules'::jsonb, 2, false, 'schedule_only', 'round_robin', :'regen'::jsonb, false);
+    current_setting('tourn_test.new_rules')::jsonb, 2, false, 'schedule_only', 'round_robin', current_setting('tourn_test.regen')::jsonb, false);
   IF r->>'code' <> 'results_present' THEN RAISE EXCEPTION 'FAIL: schedule_only over results expected results_present, got %', r; END IF;
 END $$;
 
@@ -116,7 +120,7 @@ DECLARE r jsonb;
 BEGIN
   r := public.tournament_apply_rule_change('d1000000-0000-0000-0000-0000000000e1'::uuid,
     'd0000000-0000-0000-0000-000000000001'::uuid, 'c8000000-0000-0000-0000-0000000000c1'::uuid, 1, NULL,
-    :'new_rules'::jsonb, 2, false, 'all_results_and_downstream', 'round_robin', :'regen'::jsonb, false);
+    current_setting('tourn_test.new_rules')::jsonb, 2, false, 'all_results_and_downstream', 'round_robin', current_setting('tourn_test.regen')::jsonb, false);
   IF r->>'code' <> 'confirmation_required' THEN RAISE EXCEPTION 'FAIL: no-confirm expected confirmation_required, got %', r; END IF;
 END $$;
 
@@ -126,12 +130,12 @@ DECLARE r jsonb;
 BEGIN
   r := public.tournament_apply_rule_change('d1000000-0000-0000-0000-0000000000e1'::uuid,
     'd0000000-0000-0000-0000-000000000001'::uuid, 'c8000000-0000-0000-0000-0000000000c1'::uuid, 999, NULL,
-    :'new_rules'::jsonb, 2, false, 'all_results_and_downstream', 'round_robin', :'regen'::jsonb, true);
+    current_setting('tourn_test.new_rules')::jsonb, 2, false, 'all_results_and_downstream', 'round_robin', current_setting('tourn_test.regen')::jsonb, true);
   IF r->>'code' <> 'snapshot_version_conflict' THEN RAISE EXCEPTION 'FAIL: stale snapshot expected snapshot_version_conflict, got %', r; END IF;
 
   r := public.tournament_apply_rule_change('d1000000-0000-0000-0000-0000000000e1'::uuid,
     'd0000000-0000-0000-0000-000000000001'::uuid, 'c8000000-0000-0000-0000-0000000000c1'::uuid, 1, 999,
-    :'new_rules'::jsonb, 2, false, 'all_results_and_downstream', 'round_robin', :'regen'::jsonb, true);
+    current_setting('tourn_test.new_rules')::jsonb, 2, false, 'all_results_and_downstream', 'round_robin', current_setting('tourn_test.regen')::jsonb, true);
   IF r->>'code' <> 'event_version_conflict' THEN RAISE EXCEPTION 'FAIL: stale event expected event_version_conflict, got %', r; END IF;
 END $$;
 
@@ -142,7 +146,7 @@ BEGIN
   bad_regen := '[{"group_id":"a9000000-0000-0000-0000-0000000000a1","round_number":1,"match_number":1,"competitor_a_id":"f1000000-0000-0000-0000-0000000000ff","competitor_b_id":"f1000000-0000-0000-0000-000000000002","generation_key":"grp:bad:1"}]'::jsonb;
   r := public.tournament_apply_rule_change('d1000000-0000-0000-0000-0000000000e1'::uuid,
     'd0000000-0000-0000-0000-000000000001'::uuid, 'c8000000-0000-0000-0000-0000000000c1'::uuid, 1, NULL,
-    :'new_rules'::jsonb, 2, false, 'all_results_and_downstream', 'round_robin', bad_regen, true);
+    current_setting('tourn_test.new_rules')::jsonb, 2, false, 'all_results_and_downstream', 'round_robin', bad_regen, true);
   IF r->>'code' <> 'invalid' THEN RAISE EXCEPTION 'FAIL: bad regen FK expected invalid, got %', r; END IF;
 
   -- Everything must be untouched — the failed insert rolled the whole mutation back.
@@ -161,7 +165,7 @@ DECLARE r jsonb; v_pod integer; v_qual integer; v_games integer; v_snap integer;
 BEGIN
   r := public.tournament_apply_rule_change('d1000000-0000-0000-0000-0000000000e1'::uuid,
     'd0000000-0000-0000-0000-000000000001'::uuid, 'c8000000-0000-0000-0000-0000000000c1'::uuid, 1, NULL,
-    :'new_rules'::jsonb, 2, false, 'all_results_and_downstream', 'round_robin', :'regen'::jsonb, true);
+    current_setting('tourn_test.new_rules')::jsonb, 2, false, 'all_results_and_downstream', 'round_robin', current_setting('tourn_test.regen')::jsonb, true);
   IF r->>'code' <> 'ok' THEN RAISE EXCEPTION 'FAIL: destructive apply not ok: %', r; END IF;
   IF (r->>'regenerated')::boolean <> true THEN RAISE EXCEPTION 'FAIL: expected regenerated=true, got %', r; END IF;
   IF (r->'reset'->>'scored_games')::int <> 1 THEN RAISE EXCEPTION 'FAIL: reset counts wrong: %', r; END IF;
@@ -204,7 +208,7 @@ BEGIN
   SELECT version INTO v_sv FROM public.tournament_event_rule_snapshots WHERE id='c8000000-0000-0000-0000-0000000000c1'::uuid;
   r := public.tournament_apply_rule_change('d1000000-0000-0000-0000-0000000000e1'::uuid,
     'd0000000-0000-0000-0000-000000000001'::uuid, 'c8000000-0000-0000-0000-0000000000c1'::uuid, v_sv, v_ver,
-    :'new_rules'::jsonb, 3, false, 'all_results_and_downstream', 'none', NULL, true);
+    current_setting('tourn_test.new_rules')::jsonb, 3, false, 'all_results_and_downstream', 'none', NULL, true);
   IF r->>'code' <> 'event_completed' THEN RAISE EXCEPTION 'FAIL: completed event expected event_completed, got %', r; END IF;
 END $$;
 

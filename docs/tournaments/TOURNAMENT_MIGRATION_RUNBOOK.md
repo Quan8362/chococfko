@@ -32,7 +32,10 @@ strict dependency chain:
 | 9 | `supabase/migration_tournament_members.sql` | **Membership & scoped permissions (Prompt 15B-1).** `tournament_members` table (RLS: no anon, authenticated self-read only, service-role writes), `tournament_claim_member_invitations()` `SECURITY DEFINER` claim RPC (auth.uid()+JWT email), updated_at/version-bump triggers, indexes, grants | core |
 | 10 | `supabase/migration_tournament_fjp_handicap.sql` | **Official FJP handicap (Prompt 15D-1B).** Adds `competitor_kind`/`male_count`/`female_count` (+ CHECKs) to `tournament_competitors`; adds `starting_score_a`/`starting_score_b`/`handicap_mode`/`handicap_version` (+ `tmg_scores_ge_starting` CHECK) to `tournament_match_games`; **CREATE OR REPLACE** of the four score RPCs (`tournament_save_match_result`, `tournament_save_knockout_result`, `tournament_save_group_knockout_result`, `tournament_reset_knockout_path`) to persist the starting scores atomically (game INSERT column list only — bodies otherwise verbatim; re-REVOKE/GRANT to service_role); seeds FJP preset **v2** (handicap configured, 2 pts/surplus woman) idempotently and marks **v1 deprecated** | core, scoring, knockout_bracket, group_knockout, rule_engine |
 
-Each rollback file is `..._rollback.sql` next to its migration. Roll back in **reverse** order (10 → 1).
+| 11 | `supabase/migration_tournament_rule_reset.sql` | **Controlled rule change / reset (Prompt 15D-2).** Single orchestrator `tournament_apply_rule_change(...)` — `SECURITY DEFINER`, `search_path = public, pg_temp`, **REVOKE ALL FROM PUBLIC, anon, authenticated** + **GRANT EXECUTE service_role only**. Purely additive (one function); no schema/table changes. Anti-IDOR (event↔tournament), completed-event block, optimistic `snapshot_version`/`event_version` conflict, destructive-confirmation gate, one savepoint wrapping delete→snapshot-update→regenerate (all-or-nothing). Knockout is **never** auto-generated (needs fresh standings/reseed). | core, scoring, knockout_bracket, group_knockout, rule_engine |
+
+Each rollback file is `..._rollback.sql` next to its migration. Roll back in **reverse** order (11 → 1).
+`migration_tournament_rule_reset_rollback.sql` drops only the single function (symmetric one-line rollback).
 
 > **Migration 8 is a separate branch (`feat/tournament-rules-fjp-2026`), NOT part of the pending
 > `feat/tournament-system` production deploy.** It is authored + locally-gated only. Apply it to
@@ -440,3 +443,23 @@ while Site Admins keep working.
 - **Local gate.** Apply #1–#11 to the WSL Docker Postgres, then run `tournament_rule_reset_tests.sql`
   (expects `PASS: tournament_apply_rule_change — all assertions passed`) plus the full tournament SQL
   regression. No production/remote SQL until the operator runs it.
+
+---
+
+## Migration 11 — local gate verified (Prompt 15D-2V, 2026-07-31)
+
+Verified on the local WSL2 branch stack (`tnmti1r`, DB `:54422`) via `docker exec … psql`,
+`ON_ERROR_STOP=1`, all steps exit 0:
+
+**Apply order (canonical 1→11):** core → group_assignment → scoring → knockout_bracket →
+group_knockout → reset_path → public_privacy → rule_engine → members → fjp_handicap → **rule_reset**.
+(The standalone `seed_tournament_rule_presets.sql` seeds FJP **v1 active** and must run at the #8 stage —
+migration #10 later seeds v2 and marks v1 **deprecated**; running the seed *after* #10 re-activates v1.)
+
+**Cycle:** clean (rollback 11→1 → 0 tournament tables) → apply 1→11 → **reapply #11 ×2 (idempotent)** →
+**rollback #11** (`tournament_apply_rule_change` dropped, count 0, no residual grant) → **reapply #11**
+(restored: `prosecdef=true`, `search_path=public, pg_temp`, EXECUTE = `service_role` only).
+
+**Rollback order:** reverse (11 → 1); `migration_tournament_rule_reset_rollback.sql` is a symmetric
+one-line `DROP FUNCTION IF EXISTS`. Full 14-harness SQL regression **28/28 double-run**, 0 fail.
+No production/remote SQL, no merge, no deploy in this session.

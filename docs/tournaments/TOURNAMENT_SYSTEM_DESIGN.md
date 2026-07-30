@@ -1244,3 +1244,9 @@ knockout bracket is never auto-seeded (needs valid standings/manual reseed).
 **Public consistency.** After a successful transaction the action revalidates the admin + public routes;
 Guests then see the not-started state, never old standings/brackets under new rules. Realtime only
 signals a refetch after commit.
+
+> **Verified (Prompt 15D-2V, 2026-07-31, local WSL2 stack).** Controlled rule-reset migration #11 and its
+> orchestrator RPC pass the full local gate (migration apply/reapply/rollback, 28/28 double-run SQL
+> regression, rule-change browser E2E 6/6 + double-run 6/6). Two harness/E2E authoring bugs were found and
+> fixed (psql `:'var'` inside `DO $$` blocks; rule-change spec unwired in `tournaments.config.ts`). See
+> `TOURNAMENT_TEST_REPORT.md`.

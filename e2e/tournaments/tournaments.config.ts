@@ -64,6 +64,7 @@ export default defineConfig({
     scenario('knockout', 'knockout.spec.ts'),
     scenario('group-knockout', 'group-knockout.spec.ts'),
     scenario('realtime', 'realtime.spec.ts'),
+    scenario('rule-change', 'rule-change-reset.spec.ts'),
   ],
   metadata: { adminStateFile, userStateFile, admin: ADMIN_EMAIL },
   webServer: /localhost|127\.0\.0\.1/.test(BASE_URL)

@@ -700,3 +700,54 @@ no commit / merge / deploy. A full scoring browser E2E for the handicap path is 
   denied. Requires the local stack + the tournaments Playwright project (`workers=1`).
 
 No production/remote DB, no production SQL, no merge/deploy in this session.
+
+---
+
+## Prompt 15D-2V — controlled rule reset: SQL + E2E verification (2026-07-31)
+
+Ran on the **local WSL2 branch stack only** (`tnmti1r`: Kong `:54421`, Postgres `:54422`), driven via
+`docker exec … psql` (DB path stayed reliable throughout). Hard local-only guard confirmed — no
+`supabase.co`, no production/remote DB, no production SQL.
+
+**Migration 11 gate (`ON_ERROR_STOP=1`, all exit 0):** clean rollback of all 11 tournament migrations
+(→ 0 tournament tables) → apply 1→11 in canonical order → **reapply #11 twice (idempotent)** → rollback
+#11 (RPC `tournament_apply_rule_change` gone, count 0, no residual grant) → reapply #11 (restored).
+RPC shape verified live: `prosecdef=true`, `proconfig=search_path=public, pg_temp`, ACL = `postgres` +
+`service_role` **only** (no PUBLIC/anon/authenticated).
+
+**SQL harness — full tournament regression, double-run: 28/28 (14 harnesses × 2), 0 fail.** Includes
+`tournament_rule_reset_tests.sql` (anon/authenticated denied; cross-tournament→`not_found`;
+`schedule_only` over results→`results_present`; destructive w/o confirm→`confirmation_required`; stale
+snapshot/event version→`*_conflict`; destructive reset+round-robin regen wipes results/podium/overrides
++ bumps snapshot + rebuilds 3 fresh `ready` group matches + status `group_stage`, competitors/groups/
+memberships preserved; bad-FK regen → `invalid` with full rollback (atomicity); completed event→
+`event_completed`).
+
+> **Bug fixed (harness):** `tournament_rule_reset_tests.sql` referenced `:'new_rules'`/`:'regen'` psql
+> variables **inside `DO $$ … $$` blocks**, where psql interpolation does not reach — the harness could
+> never run (syntax error at `:`). Rewritten to transaction-local GUCs (`set_config('tourn_test.*', …,
+> true)` + `current_setting(...)::jsonb`). All assertions preserved.
+
+**Rule-change browser E2E** (`e2e/tournaments/rule-change-reset.spec.ts`, `workers:1`, `next dev` vs the
+branch stack): **6/6 PASS, and the critical double-run is 6/6 PASS — not flaky.** Covers manager
+destructive change+regenerate (wipe+rebuild), read-only cancel (no DB mutation), two-context stale
+apply refused (never silent overwrite), impact modal mobile no-overflow, scorekeeper blocked (read-only
+tab, no controlled-change control). Confirmation is an in-page `role="dialog"` with a typed phrase +
+reset/regenerate mode — **no `window.confirm`**.
+
+> **Bug fixed (E2E wiring):** the spec existed but was **not registered** in `tournaments.config.ts`
+> `projects[]`, so its `testMatch` matched no project and it never ran. Added
+> `scenario('rule-change', 'rule-change-reset.spec.ts')`.
+
+**Regression E2E (rules + permissions): 46/48.** The 2 non-passes were both the unrelated
+`rules › public rule summary` (15C-2) spec, failing at **seed/setup with `TypeError: fetch failed` /
+`ECONNREFUSED 127.0.0.1:54421`** — the WSL2↔Windows localhost port-forward to Kong flapping mid-run,
+never an app assertion. Retries were blocked by the same forwarding instability (DB-side `docker exec`
+stayed healthy the whole time). **Not claimed green.** Environmental only; unrelated to rule-reset.
+
+**Code gates (all green):** lib `node --test` **2419/2419**; `tsc --noEmit --skipLibCheck` exit 0;
+`next lint` exit 0 (pre-existing warnings only, none in tournament code); i18n parity **6801 × 5**;
+secret scan clean; `next build` exit 0 (`/quan-ly-giai-dau/**` present).
+
+**Blocker for 15E:** none code/SQL-side. Only residual is the 2 environmental E2E flaps on the unrelated
+public-rule-summary spec (WSL port-forward), re-runnable by an operator on a stable stack.

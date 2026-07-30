@@ -261,3 +261,10 @@ rules. To change the rules anyway, use **"Thay đổi luật có kiểm soát"**
 
 Only Site Admins and Managers (of that tournament) can do this — Scorekeepers see a read-only tab. Every
 step is written to the audit log. Guests never see stale standings/brackets after a reset.
+
+> **Verified (Prompt 15D-2V, 2026-07-31, local WSL2 stack).** The controlled rule-change / reset flow was
+> exercised end-to-end: a manager on an assigned tournament can apply a destructive change + regenerate
+> (results/podium/overrides wiped, fresh matches rebuilt); the confirmation is an in-page dialog with a
+> typed phrase (no browser `window.confirm`); a stale second apply is refused, never a silent overwrite;
+> a scorekeeper sees a read-only rule tab with no controlled-change control. Public standings/brackets
+> only refetch after commit. See `TOURNAMENT_TEST_REPORT.md`.

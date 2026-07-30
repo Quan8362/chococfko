@@ -504,3 +504,10 @@ The atomic mutation is the SQL RPC `tournament_apply_rule_change` (migration #11
 savepoint block that resets downstream (podium → qualification overrides → games → matches), updates
 the snapshot and regenerates the round-robin schedule — all-or-nothing. FJP v2 is untouched; a completed
 event is blocked until reopened; the preset is never mutated.
+
+> **Verified (Prompt 15D-2V, 2026-07-31, local WSL2 stack).** `tournament_apply_rule_change` migration #11
+> apply/reapply/rollback all green; `tournament_rule_reset_tests.sql` all assertions pass (double-run
+> 28/28 full SQL regression). RPC confirmed `SECURITY DEFINER` + pinned `search_path` + `service_role`-only
+> EXECUTE, no client-trusted actor/impact token (staleness via `snapshot_version`/`event_version`
+> conflicts), single-savepoint atomicity, knockout never auto-generated. Rule-change browser E2E 6/6 +
+> double-run 6/6. Details in `TOURNAMENT_TEST_REPORT.md`.

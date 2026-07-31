@@ -64,15 +64,23 @@ test('capability resolution is scoped per (tournament_id, user_id) — no cross-
     'membership lookup must filter by BOTH tournament_id and user_id')
 })
 
-// ── 6. Managers never enter /admin; only Site Admin may CREATE a tournament ────────────────────
-test('tournament creation is Site-Admin only (no implicit owner for managers)', () => {
+// ── 6. Creation is SELF-SERVICE: any signed-in user may create + become owner (15F-1) ──────────
+test('tournament creation is self-service (any authenticated user, never Site-Admin-gated)', () => {
   const src = read(NEW)
-  assert.ok(src.includes('checkIsAdmin'), 'new-tournament page must gate on checkIsAdmin (Site Admin only)')
-  // The create action itself stays Site-Admin-only.
+  assert.ok(src.includes('isSignedIn') && src.includes('/login?next='),
+    'new-tournament page must require ONLY sign-in (login-redirect anon)')
+  assert.ok(!src.includes('checkIsAdmin'), 'new-tournament page must NOT gate on checkIsAdmin')
+  // The create action delegates to the self-service flow and does NOT use checkIsAdmin or may().
   const actions = read(T_ACTIONS)
   const create = actions.slice(actions.indexOf('function createTournament'), actions.indexOf('function createTournament') + 300)
-  assert.ok(create.includes('checkIsAdmin'), 'createTournament must remain Site-Admin-only')
+  assert.ok(create.includes('createOwnedTournament'), 'createTournament must delegate to createOwnedTournament')
+  assert.ok(!create.includes('checkIsAdmin'), 'createTournament must NOT be Site-Admin-gated')
   assert.ok(!create.includes('may('), 'createTournament must NOT use the scoped may() guard')
+  // The self-service service authorizes on authentication (not admin) and uses the DEFINER RPC.
+  const svc = read('lib/tournaments/create/service.ts')
+  assert.ok(svc.includes('auth.getUser()'), 'create service must authorize on authentication')
+  assert.ok(svc.includes("supabase.rpc('tournament_create_self_service'"),
+    'create service must use the atomic SECURITY DEFINER RPC')
 })
 
 // ── 7. Scorekeeper gets score-only workspace ──────────────────────────────────────────────────
@@ -89,12 +97,14 @@ test('event page maps role → workspace capabilities and workspace filters tabs
     'EventWorkspace must gate tabs by caps')
 })
 
-// ── 8. Managers/scorekeepers never see member management ──────────────────────────────────────
-test('member management panel is rendered ONLY for Site Admin', () => {
+// ── 8. Member management is gated on members.manage (Site Admin OR Owner) — not managers/scorers ─
+test('member management panel is rendered ONLY for members.manage holders (Site Admin or Owner)', () => {
   const src = read(DETAIL)
-  assert.ok(src.includes('caps.siteAdmin && membersResult'), 'members panel must require caps.siteAdmin')
-  assert.ok(src.includes('caps.siteAdmin ? await listTournamentMembersForSiteAdmin'),
-    'member roster must be fetched only for Site Admin')
+  assert.ok(src.includes("caps.can('members.manage')"), 'members panel must require members.manage')
+  assert.ok(src.includes('canManageMembers && membersResult'), 'panel gated by the members.manage flag')
+  assert.ok(src.includes('canManageMembers ? await listTournamentMembersForSiteAdmin'),
+    'member roster fetched only for members.manage holders')
+  // Manager (has no members.manage) and scorekeeper therefore never receive the panel.
 })
 
 // ── 9. Site Admin sees the member tab ─────────────────────────────────────────────────────────
@@ -140,17 +150,17 @@ test('only an ACTIVE membership confers permissions (revoked/pending grant nothi
   assert.ok(fn.includes("m.status === 'active'"), 'resolvePermissions must require ACTIVE status')
 })
 
-// ── 13. Navigation capability is correct on desktop + mobile ──────────────────────────────────
-test('nav shows management entry only to Site Admin or an active member', () => {
+// ── 13. Navigation: every signed-in user sees "my tournaments" + "create" (self-service) ───────
+test('nav shows my-tournaments + create entries to every authenticated user', () => {
   const nav = read(NAV)
-  assert.ok(nav.includes('viewerHasActiveTournamentRole'), 'nav must probe active membership')
-  assert.ok(nav.includes('isAdmin || (await viewerHasActiveTournamentRole())'),
-    'canManageTournaments = admin OR active member')
-  assert.ok(nav.includes('canManageTournaments') && nav.includes("t('manage_tournaments')"),
-    'desktop nav must gate the management entry')
+  assert.ok(nav.includes('canManageTournaments = true'),
+    'canManageTournaments is true for any signed-in user (self-service)')
+  assert.ok(nav.includes("t('my_tournaments')") && nav.includes("t('create_tournament')"),
+    'desktop nav must expose the my-tournaments + create entries')
   const mobile = read(MOBILE)
-  assert.ok(mobile.includes('canManageTournaments') && mobile.includes("t('manage_tournaments')"),
-    'mobile menu must gate the management entry')
+  assert.ok(mobile.includes('canManageTournaments') && mobile.includes("t('my_tournaments')") &&
+    mobile.includes("t('create_tournament')"),
+    'mobile menu must expose the my-tournaments + create entries')
 })
 
 // ── 14. Every noi-dung mutation guards a scoped permission before the service-role client ──────
@@ -218,4 +228,38 @@ test('member panel is a client component with no server-only import', () => {
   assert.match(src, /^'use client'/)
   assert.ok(!src.includes('@/lib/supabase/admin'), 'client panel must not import the service-role client')
   assert.ok(!src.includes('permissions/server'), 'client panel must not import the server permission resolver')
+})
+
+// ── 16. Owner protections: owner is never invitable, re-roled or revoked via the member service ─
+test('member service protects the owner role (no invite/promote/revoke to or from owner)', () => {
+  const src = read(SERVICE)
+  const invite = src.slice(src.indexOf('export async function inviteTournamentMember'),
+    src.indexOf('export async function changeTournamentMemberRole'))
+  assert.ok(invite.includes('isInvitableRole(input.role)'), 'invite must reject the owner role (isInvitableRole)')
+
+  const change = src.slice(src.indexOf('export async function changeTournamentMemberRole'),
+    src.indexOf('export async function revokeTournamentMember'))
+  assert.ok(change.includes('isInvitableRole(newRole)'), 'role-change target must be an invitable role')
+  assert.ok(change.includes("existing.role === 'owner'") && change.includes('cannot_modify_owner'),
+    'role-change must refuse to modify an owner row')
+
+  const revoke = src.slice(src.indexOf('export async function revokeTournamentMember'),
+    src.indexOf('export async function claimCurrentUserTournamentInvitations'))
+  assert.ok(revoke.includes("existing.role === 'owner'") && revoke.includes('cannot_modify_owner'),
+    'revoke must refuse to revoke an owner row')
+})
+
+// ── 17. The self-service create flow is atomic + draft-only + identity-safe (migration + service) ─
+test('self-service create is atomic, draft-only and identity-safe', () => {
+  const mig = read('supabase/migration_tournament_owner_self_service.sql')
+  assert.ok(mig.includes('SECURITY DEFINER') && mig.includes('search_path = public, pg_temp'),
+    'create RPC must be SECURITY DEFINER with a pinned search_path')
+  assert.ok(mig.includes('auth.uid()'), 'identity must come from auth.uid(), not a client argument')
+  assert.ok(/status[^;]*'draft'/.test(mig), 'tournament must be created as draft')
+  assert.ok(mig.includes("'owner'") && mig.includes("'active'"), 'creator becomes an active owner')
+  assert.ok(mig.includes('tmem_one_active_owner_uq'), 'at most one active owner per tournament')
+  assert.ok(mig.includes('REVOKE ALL ON FUNCTION public.tournament_create_self_service') &&
+    mig.includes('FROM PUBLIC, anon'), 'create RPC must be revoked from PUBLIC/anon')
+  assert.ok(mig.includes('tournament_created') && mig.includes('tournament_owner_assigned'),
+    'both audit rows must be written')
 })

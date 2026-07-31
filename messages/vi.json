@@ -99,7 +99,9 @@
     "todays_suggestion": "Hôm nay đi đâu?",
     "about": "Giới thiệu",
     "tournaments": "Giải đấu",
-    "manage_tournaments": "Quản lý giải đấu"
+    "manage_tournaments": "Quản lý giải đấu",
+    "my_tournaments": "Giải của tôi",
+    "create_tournament": "Tạo giải đấu"
   },
   "home": {
     "write_cta": "✍️ Viết bài",
@@ -7090,19 +7092,22 @@
     "empty_title": "Chưa có giải đấu nào",
     "empty_sub_admin": "Tạo giải đấu đầu tiên để bắt đầu.",
     "empty_sub_scoped": "Bạn chưa được phân quyền quản lý giải đấu nào. Vui lòng liên hệ quản trị viên.",
+    "empty_sub_create": "Tạo giải đấu đầu tiên của bạn để bắt đầu quản lý.",
     "back_list": "Danh sách giải đấu",
     "you_are_site_admin": "Quản trị hệ thống",
     "you_are_manager": "Quản lý",
-    "you_are_scorekeeper": "Trọng tài ghi điểm"
+    "you_are_scorekeeper": "Trọng tài ghi điểm",
+    "you_are_owner": "Chủ giải"
   },
   "tournament_roles": {
     "role_site_admin": "Quản trị hệ thống",
     "role_manager": "Quản lý",
-    "role_scorekeeper": "Trọng tài ghi điểm"
+    "role_scorekeeper": "Trọng tài ghi điểm",
+    "role_owner": "Chủ giải"
   },
   "tournament_members": {
     "section_title": "Thành viên quản lý",
-    "section_hint": "Mời người quản lý hoặc trọng tài ghi điểm cho giải đấu này. Chỉ quản trị hệ thống mới thấy khu vực này.",
+    "section_hint": "Mời người quản lý hoặc trọng tài ghi điểm cho giải đấu này. Chỉ chủ giải và quản trị hệ thống thấy khu vực này.",
     "email_label": "Email",
     "email_placeholder": "nhap@email.com",
     "role_label": "Vai trò",
@@ -7135,6 +7140,8 @@
     "err_invalid_role": "Vai trò không hợp lệ.",
     "err_not_found": "Không tìm thấy.",
     "err_already_active": "Email này đã là thành viên đang hoạt động.",
+    "err_cannot_modify_owner": "Không thể thay đổi vai trò chủ giải.",
+    "owner_locked": "Chủ giải",
     "err_version_conflict": "Dữ liệu vừa thay đổi. Vui lòng tải lại.",
     "err_unknown": "Có lỗi xảy ra. Vui lòng thử lại."
   },

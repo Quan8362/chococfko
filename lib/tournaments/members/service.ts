@@ -16,7 +16,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
 import { checkTournamentPermission } from '@/lib/tournaments/permissions/server.ts'
-import { isTournamentRole, type TournamentRole } from '@/lib/tournaments/permissions'
+import { isInvitableRole, isTournamentRole, type TournamentRole } from '@/lib/tournaments/permissions'
 import { normalizeAndValidateEmail } from './email.ts'
 import type {
   ClaimInvitationsResult,
@@ -68,7 +68,9 @@ export async function inviteTournamentMember(
   const check = await checkTournamentPermission(tournamentId, 'members.manage')
   if (!check.ok) return { ok: false, error: check.error }
 
-  if (!isTournamentRole(input.role)) return { ok: false, error: 'invalid_role' }
+  // Only manager/scorekeeper are invitable — 'owner' is granted solely by creating the tournament
+  // (15F-1: at most one owner, no transfer/second-owner flow yet). isInvitableRole rejects 'owner'.
+  if (!isInvitableRole(input.role)) return { ok: false, error: 'invalid_role' }
   const role: TournamentRole = input.role
   const email = normalizeAndValidateEmail(input.email ?? '')
   if (!email) return { ok: false, error: 'invalid_email' }
@@ -156,7 +158,8 @@ export async function changeTournamentMemberRole(
   const check = await checkTournamentPermission(tournamentId, 'members.manage')
   if (!check.ok) return { ok: false, error: check.error }
   if (!memberId || !Number.isInteger(expectedVersion)) return { ok: false, error: 'invalid' }
-  if (!isTournamentRole(newRole)) return { ok: false, error: 'invalid_role' }
+  // Target role must be an INVITABLE role — nobody can be promoted to 'owner' (no second owner).
+  if (!isInvitableRole(newRole)) return { ok: false, error: 'invalid_role' }
 
   const admin = createAdminClient()
   // Scope to (id, tournament_id): a member id from ANOTHER tournament resolves to not_found.
@@ -167,6 +170,8 @@ export async function changeTournamentMemberRole(
     .eq('tournament_id', tournamentId)
     .maybeSingle()
   if (!existing) return { ok: false, error: 'not_found' }
+  // The owner's row is never re-roled here (no owner transfer flow yet).
+  if (existing.role === 'owner') return { ok: false, error: 'cannot_modify_owner' }
   if (existing.version !== expectedVersion) return { ok: false, error: 'version_conflict' }
   const roleBefore = existing.role as TournamentRole
 
@@ -207,6 +212,10 @@ export async function revokeTournamentMember(
     .eq('tournament_id', tournamentId)
     .maybeSingle()
   if (!existing) return { ok: false, error: 'not_found' }
+  // The owner cannot be revoked — a tournament must always keep its single active owner (15F-1 has
+  // no owner-transfer flow, so revoking would leave it ownerless). Site Admin manages such cases
+  // out of band via service-role if ever needed.
+  if (existing.role === 'owner') return { ok: false, error: 'cannot_modify_owner' }
   // Idempotent: revoking an already-revoked membership is a success no-op.
   if (existing.status === 'revoked') return { ok: true, id: memberId }
   if (existing.version !== expectedVersion) return { ok: false, error: 'version_conflict' }

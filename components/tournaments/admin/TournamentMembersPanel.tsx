@@ -1,9 +1,10 @@
 'use client'
 
-// Site-Admin member-management panel for one tournament. Renders the membership table + an invite
-// form and calls the scoped server actions (which re-check members.manage server-side). This UI is
-// CONVENIENCE only — a manager/scorekeeper never receives this component, and even if they did every
-// action is rejected server-side.
+// Member-management panel for one tournament — shown to whoever holds members.manage (Site Admin OR
+// the tournament's Owner, 15F-1). Renders the membership table + an invite form and calls the scoped
+// server actions (which re-check members.manage server-side). This UI is CONVENIENCE only — a
+// manager/scorekeeper never receives this component, and even if they did every action is rejected
+// server-side. The OWNER row is shown read-only: it can never be re-roled or revoked here.
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
@@ -178,20 +179,29 @@ export default function TournamentMembersPanel({
                     {m.displayName && <div className="text-[11.5px] text-muted truncate max-w-[240px]">{m.email}</div>}
                   </td>
                   <td className="py-2.5 pr-3">
-                    <label className="sr-only" htmlFor={`role-${m.id}`}>{t('role_label')}</label>
-                    <select
-                      id={`role-${m.id}`}
-                      value={m.role}
-                      disabled={pending || m.status === 'revoked'}
-                      onChange={(e) => onChangeRole(m, e.target.value)}
-                      className="text-[12.5px] px-2 py-1 rounded-lg bg-cream border border-line text-ink disabled:opacity-50 focus:outline-none focus:border-rose/50"
-                    >
-                      {ROLES.map((r) => (
-                        <option key={r} value={r}>
-                          {tr(`role_${r}`)}
-                        </option>
-                      ))}
-                    </select>
+                    {m.role === 'owner' ? (
+                      // The owner is fixed — shown as a static badge, never a role picker.
+                      <span className="inline-block text-[11.5px] font-semibold px-2 py-[3px] rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                        {tr('role_owner')}
+                      </span>
+                    ) : (
+                      <>
+                        <label className="sr-only" htmlFor={`role-${m.id}`}>{t('role_label')}</label>
+                        <select
+                          id={`role-${m.id}`}
+                          value={m.role}
+                          disabled={pending || m.status === 'revoked'}
+                          onChange={(e) => onChangeRole(m, e.target.value)}
+                          className="text-[12.5px] px-2 py-1 rounded-lg bg-cream border border-line text-ink disabled:opacity-50 focus:outline-none focus:border-rose/50"
+                        >
+                          {ROLES.map((r) => (
+                            <option key={r} value={r}>
+                              {tr(`role_${r}`)}
+                            </option>
+                          ))}
+                        </select>
+                      </>
+                    )}
                   </td>
                   <td className="py-2.5 pr-3">
                     <span className={`inline-block text-[11px] font-semibold px-2 py-[3px] rounded-full border ${statusTone[m.status] ?? ''}`}>
@@ -201,7 +211,9 @@ export default function TournamentMembersPanel({
                   <td className="py-2.5 pr-3 text-muted whitespace-nowrap">{fmt(m.invitedAt)}</td>
                   <td className="py-2.5 pr-3 text-muted whitespace-nowrap">{fmt(m.acceptedAt)}</td>
                   <td className="py-2.5 pr-3 text-right whitespace-nowrap">
-                    {m.status === 'revoked' ? (
+                    {m.role === 'owner' ? (
+                      <span className="text-[11.5px] text-muted">{t('owner_locked')}</span>
+                    ) : m.status === 'revoked' ? (
                       <button
                         type="button"
                         disabled={pending}

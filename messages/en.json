@@ -99,7 +99,9 @@
     "todays_suggestion": "Today’s suggestion",
     "about": "About",
     "tournaments": "Tournaments",
-    "manage_tournaments": "Manage tournaments"
+    "manage_tournaments": "Manage tournaments",
+    "my_tournaments": "My tournaments",
+    "create_tournament": "Create tournament"
   },
   "home": {
     "write_cta": "✍️ Write a post",
@@ -7090,19 +7092,22 @@
     "empty_title": "No tournaments yet",
     "empty_sub_admin": "Create the first tournament to get started.",
     "empty_sub_scoped": "You have not been assigned to manage any tournament yet. Please contact an administrator.",
+    "empty_sub_create": "Create your first tournament to get started.",
     "back_list": "Tournament list",
     "you_are_site_admin": "Site Admin",
     "you_are_manager": "Manager",
-    "you_are_scorekeeper": "Scorekeeper"
+    "you_are_scorekeeper": "Scorekeeper",
+    "you_are_owner": "Owner"
   },
   "tournament_roles": {
     "role_site_admin": "Site Admin",
     "role_manager": "Manager",
-    "role_scorekeeper": "Scorekeeper"
+    "role_scorekeeper": "Scorekeeper",
+    "role_owner": "Owner"
   },
   "tournament_members": {
     "section_title": "Management members",
-    "section_hint": "Invite managers or scorekeepers for this tournament. Only Site Admins see this area.",
+    "section_hint": "Invite managers or scorekeepers for this tournament. Only the owner and Site Admins see this area.",
     "email_label": "Email",
     "email_placeholder": "name@email.com",
     "role_label": "Role",
@@ -7135,6 +7140,8 @@
     "err_invalid_role": "Invalid role.",
     "err_not_found": "Not found.",
     "err_already_active": "This email is already an active member.",
+    "err_cannot_modify_owner": "The owner cannot be changed.",
+    "owner_locked": "Owner",
     "err_version_conflict": "The data just changed. Please reload.",
     "err_unknown": "Something went wrong. Please try again."
   },

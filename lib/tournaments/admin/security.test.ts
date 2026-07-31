@@ -34,20 +34,19 @@ test('actions.ts is a server module and defines every admin action', () => {
 
 test('every mutation checks a permission BEFORE touching the service-role client', () => {
   const src = read(ACTIONS)
-  // 15B-2: guards are now SCOPED — Site Admin OR the tournament's manager/scorekeeper. The `may`
-  // helper wraps checkTournamentPermission; createTournament stays Site-Admin-only (checkIsAdmin).
-  // Module-level: the first permission guard must appear before the first service-role client use.
-  const firstCheck = Math.min(
-    ...[src.indexOf('checkTournamentPermission'), src.indexOf('checkIsAdmin')].filter((i) => i > -1),
-  )
+  // 15F-1: create is SELF-SERVICE (delegated to createOwnedTournament → the DEFINER RPC, no
+  // service-role client here). Every OTHER mutation is SCOPED — Site Admin OR the tournament's
+  // owner/manager/scorekeeper — via the `may` helper that wraps checkTournamentPermission. The first
+  // scoped guard must still appear before the first service-role client use.
+  const firstCheck = src.indexOf('checkTournamentPermission')
   const firstAdminClient = src.indexOf('createAdminClient(')
-  assert.ok(Number.isFinite(firstCheck), 'no permission guard used')
+  assert.ok(firstCheck > -1, 'no scoped permission guard used')
   assert.ok(firstAdminClient > -1, 'createAdminClient not used')
   assert.ok(firstCheck < firstAdminClient, 'a permission guard must precede createAdminClient()')
 
-  // Per-action: create is Site-Admin-only; the rest guard on a scoped permission via `may(`.
+  // Per-action: create delegates to the self-service flow; the rest guard on a scoped permission.
   const guarded: Record<string, string> = {
-    createTournament: 'checkIsAdmin',
+    createTournament: 'createOwnedTournament',
     updateTournament: "may(id, 'tournament.update')",
     deleteDraftTournament: "may(id, 'tournament.delete')",
     transitionStatus: 'may(id, opts.permission)',

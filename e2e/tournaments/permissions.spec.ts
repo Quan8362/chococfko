@@ -22,7 +22,7 @@
 import { test, expect, type Page } from '@playwright/test'
 import {
   adminStateFile, userStateFile, managerStateFile, scorekeeperStateFile, inviteeStateFile,
-  MANAGER_EMAIL, SCOREKEEPER_EMAIL, INVITEE_EMAIL,
+  MANAGER_EMAIL, SCOREKEEPER_EMAIL, INVITEE_EMAIL, USER_EMAIL, RUN_PREFIX,
 } from './_env'
 import { t, attachGuard, assertSecure } from './helpers'
 import {
@@ -98,12 +98,14 @@ test.describe('anonymous', () => {
 test.describe('regular user (no membership)', () => {
   test.use({ storageState: userStateFile })
 
-  test('lands on an empty scoped list — no create CTA, no tournaments', async ({ page }) => {
+  test('lands on an empty self-service list WITH a create CTA (15F-1), no tournaments', async ({ page }) => {
     const g = attachGuard(page)
     await page.goto(BASE)
     await expect(page).toHaveURL(/\/quan-ly-giai-dau/)
-    await expect(page.getByText(t('tournament_management.empty_sub_scoped'))).toBeVisible()
-    await expect(page.getByRole('link', { name: t('admin_tournaments.create_cta') })).toHaveCount(0)
+    // Self-service: a member-less user is invited to create their first tournament, not told to
+    // contact an admin.
+    await expect(page.getByText(t('tournament_management.empty_sub_create'))).toBeVisible()
+    await expect(page.getByRole('link', { name: t('admin_tournaments.create_cta') }).first()).toBeVisible()
     await expect(heading(page, A.name)).toHaveCount(0)
     assertSecure(g)
   })
@@ -112,6 +114,35 @@ test.describe('regular user (no membership)', () => {
     const resp = await page.goto(`${BASE}/${A.id}`)
     expect(resp?.status()).toBe(404)
     await expect(page.getByText(A.name)).toHaveCount(0)
+  })
+
+  // Self-service create (15F-1): a regular user creates a DRAFT and becomes its ACTIVE OWNER.
+  test('creates a draft tournament and becomes its owner', async ({ page }) => {
+    const g = attachGuard(page)
+    const name = `${RUN_PREFIX} SelfServe ${Date.now().toString(36)}`
+    await page.goto(`${BASE}/new`)
+    await expect(page).toHaveURL(/\/quan-ly-giai-dau\/new/)
+
+    await page.getByLabel(t('admin_tournaments.f_name')).fill(name)
+    await page.getByRole('button', { name: t('admin_tournaments.save_create') }).click()
+
+    // Lands on the new tournament's detail workspace, showing the DRAFT badge + "Owner" role badge.
+    await expect(page).toHaveURL(new RegExp(`/quan-ly-giai-dau/[0-9a-f-]{36}$`))
+    await expect(heading(page, name)).toBeVisible()
+    await expect(page.getByText(t('admin_tournaments.status_draft')).first()).toBeVisible()
+    await expect(page.getByText(t('tournament_management.you_are_owner')).first()).toBeVisible()
+    // The owner (members.manage) sees the member panel; the invite roles never include owner.
+    await expect(page.getByText(t('tournament_members.section_title'))).toBeVisible()
+
+    // The browser never touched the membership table — the owner row was written server-side (RPC).
+    assertSecure(g)
+
+    // Verify the DB truth: an ACTIVE owner membership bound to the creator.
+    const tournamentId = page.url().split('/').pop() as string
+    const snap = await getMemberSnapshot({ tournamentId, email: USER_EMAIL })
+    expect(snap?.role).toBe('owner')
+    expect(snap?.status).toBe('active')
+    expect(snap?.userId).not.toBeNull()
   })
 })
 
@@ -165,12 +196,13 @@ test.describe('site admin', () => {
 test.describe('manager', () => {
   test.use({ storageState: managerStateFile })
 
-  test('list shows their tournaments (A) but not a foreign one (B) and no create CTA', async ({ page }) => {
+  test('list shows their tournaments (A) but not a foreign one (B); create CTA present (15F-1)', async ({ page }) => {
     const g = attachGuard(page)
     await page.goto(BASE)
     await expect(heading(page, A.name)).toBeVisible()
     await expect(heading(page, B.name)).toHaveCount(0)
-    await expect(page.getByRole('link', { name: t('admin_tournaments.create_cta') })).toHaveCount(0)
+    // Self-service: every signed-in user (managers included) may create their own tournament.
+    await expect(page.getByRole('link', { name: t('admin_tournaments.create_cta') }).first()).toBeVisible()
     assertSecure(g)
   })
 
@@ -226,7 +258,8 @@ test.describe('scorekeeper', () => {
     await expect(heading(page, A.name)).toBeVisible()
     await expect(heading(page, B.name)).toHaveCount(0)
     await expect(heading(page, draftA.name)).toHaveCount(0)
-    await expect(page.getByRole('link', { name: t('admin_tournaments.create_cta') })).toHaveCount(0)
+    // Self-service: a scorekeeper can still create their OWN tournament (they'd own it).
+    await expect(page.getByRole('link', { name: t('admin_tournaments.create_cta') }).first()).toBeVisible()
     assertSecure(g)
   })
 
@@ -354,22 +387,25 @@ test.describe('revocation', () => {
 })
 
 // ── Navigation + responsive ──────────────────────────────────────────────────────────────────────
+// Self-service (15F-1): the management + create entries are shown to EVERY signed-in user (mobile).
 test.describe('navigation (mobile)', () => {
-  test.describe('manager sees the management entry', () => {
+  test.describe('manager sees the my-tournaments + create entries', () => {
     test.use({ storageState: managerStateFile, viewport: { width: 390, height: 844 } })
-    test('the mobile menu exposes "Quản lý giải đấu"', async ({ page }) => {
+    test('the mobile menu exposes my-tournaments + create', async ({ page }) => {
       await page.goto('/')
       await page.getByRole('button', { name: t('nav.open_menu') }).click()
-      await expect(page.getByRole('link', { name: t('nav.manage_tournaments') })).toBeVisible()
+      await expect(page.getByRole('link', { name: t('nav.my_tournaments') })).toBeVisible()
+      await expect(page.getByRole('link', { name: t('nav.create_tournament') })).toBeVisible()
     })
   })
 
-  test.describe('a regular user does not', () => {
+  test.describe('a regular user ALSO sees them (can create their own)', () => {
     test.use({ storageState: userStateFile, viewport: { width: 390, height: 844 } })
-    test('the mobile menu has no management entry', async ({ page }) => {
+    test('the mobile menu exposes my-tournaments + create', async ({ page }) => {
       await page.goto('/')
       await page.getByRole('button', { name: t('nav.open_menu') }).click()
-      await expect(page.getByRole('link', { name: t('nav.manage_tournaments') })).toHaveCount(0)
+      await expect(page.getByRole('link', { name: t('nav.my_tournaments') })).toBeVisible()
+      await expect(page.getByRole('link', { name: t('nav.create_tournament') })).toBeVisible()
     })
   })
 })

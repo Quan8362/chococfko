@@ -10,8 +10,19 @@
 
 // ── Scoped roles (stored in tournament_members.role) ─────────────────────────────────────────
 // There is intentionally NO 'admin' membership role: site-wide admin comes from ADMIN_EMAILS only.
-export const TOURNAMENT_ROLES = ['manager', 'scorekeeper'] as const
+//   • 'owner'       — the user who CREATED the tournament (self-service). Full per-tournament rights
+//                     (incl. members.manage + delete-draft) but scoped to THAT tournament only. Never
+//                     a global Site Admin. Assigned atomically at create time via the DB RPC; a
+//                     client can never set it (see migration_tournament_owner_self_service.sql).
+//   • 'manager'     — invited operator: everything an owner can do EXCEPT membership admin + delete.
+//   • 'scorekeeper' — invited scorer: view + record scores only.
+export const TOURNAMENT_ROLES = ['owner', 'manager', 'scorekeeper'] as const
 export type TournamentRole = (typeof TOURNAMENT_ROLES)[number]
+
+// The roles an owner/Site-Admin may INVITE an email to (owner is NEVER invitable — it is granted only
+// by creating the tournament, and 15F-1 permits at most ONE active owner with no transfer flow yet).
+export const INVITABLE_ROLES = ['manager', 'scorekeeper'] as const
+export type InvitableRole = (typeof INVITABLE_ROLES)[number]
 
 // ── Membership status (stored in tournament_members.status) ──────────────────────────────────
 // Only `active` grants any permission; pending/revoked never do.
@@ -59,6 +70,11 @@ export interface PermissionSubject {
 // ── Type guards for untrusted values (form/DB strings) ───────────────────────────────────────
 export function isTournamentRole(value: unknown): value is TournamentRole {
   return typeof value === 'string' && (TOURNAMENT_ROLES as readonly string[]).includes(value)
+}
+
+// Guard for a role a client may legitimately request in an invite / role-change (owner excluded).
+export function isInvitableRole(value: unknown): value is InvitableRole {
+  return typeof value === 'string' && (INVITABLE_ROLES as readonly string[]).includes(value)
 }
 
 export function isMembershipStatus(value: unknown): value is MembershipStatus {

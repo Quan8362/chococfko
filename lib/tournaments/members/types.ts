@@ -56,6 +56,7 @@ export type MemberErrorCode =
   | 'invalid_role'
   | 'not_found'
   | 'already_active'
+  | 'cannot_modify_owner' // owner rows are never re-roled/revoked via the member panel (15F-1)
   | 'version_conflict'
   | 'unknown'
 

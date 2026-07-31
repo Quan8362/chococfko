@@ -2,7 +2,6 @@ import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import { checkIsAdmin } from '@/lib/supabase/admin'
-import { viewerHasActiveTournamentRole } from '@/lib/tournaments/members/service'
 import HomeLogo from './HomeLogo'
 import LanguageSwitcher from './LanguageSwitcher'
 import UserMenu from './UserMenu'
@@ -21,9 +20,9 @@ async function getAuthState() {
       checkIsAdmin(),
       supabase.from('profiles').select('avatar_url').eq('id', user.id).single(),
     ])
-    // The scoped management surface is visible to Site Admins and to anyone holding an active
-    // manager/scorekeeper membership. Only pay for the membership probe when not already an admin.
-    const canManageTournaments = isAdmin || (await viewerHasActiveTournamentRole())
+    // Self-service (15F-1): ANY signed-in user can create + manage their own tournaments, so the
+    // management surface ("Giải của tôi") is shown to every authenticated user — no membership probe.
+    const canManageTournaments = true
     return { user, isAdmin, avatarUrl: profile?.avatar_url ?? null, canManageTournaments }
   } catch {
     return { user: null, isAdmin: false, avatarUrl: null as string | null, canManageTournaments: false }
@@ -79,7 +78,10 @@ export default async function Nav() {
               { href: '/games', label: t('mini_game'), icon: 'puzzle' },
               { href: '/giai-dau', label: t('tournaments'), icon: 'trophy' },
               ...(canManageTournaments
-                ? [{ href: '/quan-ly-giai-dau', label: t('manage_tournaments'), icon: 'trophy' as const }]
+                ? [
+                    { href: '/quan-ly-giai-dau', label: t('my_tournaments'), icon: 'trophy' as const },
+                    { href: '/quan-ly-giai-dau/new', label: t('create_tournament'), icon: 'trophy' as const },
+                  ]
                 : []),
             ]}
           />

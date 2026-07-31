@@ -751,3 +751,22 @@ secret scan clean; `next build` exit 0 (`/quan-ly-giai-dau/**` present).
 
 **Blocker for 15E:** none code/SQL-side. Only residual is the 2 environmental E2E flaps on the unrelated
 public-rule-summary spec (WSL port-forward), re-runnable by an operator on a stable stack.
+
+---
+
+## Prompt 15E preflight — E2E flaps cleared (2026-07-31)
+
+Re-ran the **exact** 15D-2V regression set (`rules` + `permissions`, `workers=1`) against the same
+local WSL2 branch stack (`tnmti1r`: Kong `:54421`, Postgres `:54422`) — **localhost only, no remote/
+production**. The VM was **pinned** for the duration (long-lived attached `wsl … sleep` keepalive) so
+the WSL2↔Windows localhost forward could not idle-drop mid-run. Verified Windows→Kong reachability
+before starting: REST `/rest/v1/` `200`, auth `/health` `200`; `tnmti1r` holds 14 `tournament*` tables.
+
+**Result: `48 passed (6.3m)`, 0 failed, 0 flaky, exit 0.** The two previously-flapping cases both
+passed cleanly:
+- `rules.spec.ts:427 › public rule summary (anonymous) › a preset event shows a correct, minimal summary — and never an internal field` — **ok (4.5s)**
+- `rules.spec.ts:446 › public rule summary (anonymous) › a legacy event (no snapshot) shows the system-default notice` — **ok (4.6s)**
+
+No skips, no fake retries (`retries=0`). The earlier non-passes were confirmed purely environmental
+(port-forward), not assertion failures. **Gate A is now FULLY GREEN** — code/SQL gates + the complete
+tournament E2E regression. No production/remote SQL, no merge, no deploy in this preflight.

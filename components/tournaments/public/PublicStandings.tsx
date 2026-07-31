@@ -58,7 +58,9 @@ export default function PublicStandings({
             )}
           </div>
           <div className="overflow-x-auto rounded-2xl border border-line">
-            <table className="w-full min-w-[560px] text-[12.5px]">
+            {/* Points-for / points-against are secondary and hide below md so the table fits a phone
+                without page-level horizontal scroll; rank/name/P/W/L/Pts/Diff always stay. */}
+            <table className="w-full min-w-[380px] sm:min-w-[440px] text-[12.5px]">
               <thead>
                 <tr className="bg-cream text-muted text-[11px] uppercase tracking-wide">
                   <th scope="col" className="text-left font-semibold px-3 py-2 w-10">{t('standings.col_rank')}</th>
@@ -67,8 +69,8 @@ export default function PublicStandings({
                   <th scope="col" className="text-center font-semibold px-2 py-2">{t('standings.col_wins')}</th>
                   <th scope="col" className="text-center font-semibold px-2 py-2">{t('standings.col_losses')}</th>
                   <th scope="col" className="text-center font-semibold px-2 py-2">{t('standings.col_points')}</th>
-                  <th scope="col" className="text-center font-semibold px-2 py-2">{t('standings.col_points_for')}</th>
-                  <th scope="col" className="text-center font-semibold px-2 py-2">{t('standings.col_points_against')}</th>
+                  <th scope="col" className="hidden md:table-cell text-center font-semibold px-2 py-2">{t('standings.col_points_for')}</th>
+                  <th scope="col" className="hidden md:table-cell text-center font-semibold px-2 py-2">{t('standings.col_points_against')}</th>
                   <th scope="col" className="text-center font-semibold px-2 py-2">{t('standings.col_diff')}</th>
                 </tr>
               </thead>
@@ -79,9 +81,9 @@ export default function PublicStandings({
                       {r.rank}
                       {r.tied && <span className="text-muted font-normal" title={t('standings.tie_marker')}> =</span>}
                     </td>
-                    <td className="px-3 py-2">
+                    <td className="px-3 py-2 min-w-0">
                       <div className="flex flex-col">
-                        <span className="text-ink font-medium">{nameOf(r.competitorId)}</span>
+                        <span className="text-ink font-medium break-words">{nameOf(r.competitorId)}</span>
                         {r.qualification !== 'none' && <span className="mt-0.5">{qualMarker(r.qualification)}</span>}
                       </div>
                     </td>
@@ -89,8 +91,8 @@ export default function PublicStandings({
                     <td className="px-2 py-2 text-center tabular-nums text-ink">{r.wins}</td>
                     <td className="px-2 py-2 text-center tabular-nums text-muted">{r.losses}</td>
                     <td className="px-2 py-2 text-center tabular-nums font-bold text-ink">{r.tablePoints}</td>
-                    <td className="px-2 py-2 text-center tabular-nums text-muted">{r.pointsFor}</td>
-                    <td className="px-2 py-2 text-center tabular-nums text-muted">{r.pointsAgainst}</td>
+                    <td className="hidden md:table-cell px-2 py-2 text-center tabular-nums text-muted">{r.pointsFor}</td>
+                    <td className="hidden md:table-cell px-2 py-2 text-center tabular-nums text-muted">{r.pointsAgainst}</td>
                     <td className="px-2 py-2 text-center tabular-nums text-muted">
                       {r.pointDifference > 0 ? `+${r.pointDifference}` : r.pointDifference}
                     </td>

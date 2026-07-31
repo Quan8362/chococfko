@@ -47,7 +47,7 @@ export default function PublicPodium({
                     <p className="text-[11px] font-bold uppercase tracking-wide text-muted mb-1">
                       {p.rank === 3 && isJointThird ? t('podium.joint_third') : meta.label}
                     </p>
-                    <p className="text-[14px] font-semibold text-ink">{nameOf(p.competitorId)}</p>
+                    <p className="text-[14px] font-semibold text-ink break-words">{nameOf(p.competitorId)}</p>
                   </div>
                 )
               })}

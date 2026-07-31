@@ -6574,7 +6574,10 @@
     "err_already_generated": "The schedule has already been generated.",
     "err_event_has_results": "Results already exist. Cannot regenerate.",
     "err_event_has_knockout": "A knockout stage exists. Cannot regenerate the group stage.",
-    "err_unknown": "Something went wrong. Please try again."
+    "err_unknown": "Something went wrong. Please try again.",
+    "move_to_named": "Move {name} to another group",
+    "unassigned_remaining_count": "{count} competitors still unassigned",
+    "unassigned_view_list": "View list"
   },
   "admin_group_matches": {
     "generate_cta": "Generate group matches",

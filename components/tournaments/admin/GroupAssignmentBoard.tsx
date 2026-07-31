@@ -29,8 +29,6 @@ import {
   containerOrder,
   findContainer,
   moveItem,
-  shiftContainer,
-  nudgeWithin,
   toAssignmentPayload,
   type BoardState,
   type ContainerId,
@@ -239,30 +237,62 @@ export default function GroupAssignmentBoard(props: Props) {
         </div>
       )}
 
-      {/* Validation summary */}
-      {!props.locked && !readiness.ok && (
-        <ul className="rounded-lg bg-amber-50 border border-amber-200 px-3 py-2.5 mb-3 space-y-1">
-          {readiness.issues.map((issue, i) => (
-            <li key={i} className="text-[12.5px] text-amber-700">
-              {issue.code === 'unassigned_remaining'
-                ? t('issue_unassigned', {
-                    names: issue.competitorIds.map((id) => nameOf(id)).join(', '),
-                  })
-                : issue.code === 'empty_group'
-                  ? t('issue_empty_group', { name: groupNameOf(issue.groupId) })
-                  : issue.code === 'group_too_small'
-                    ? t('issue_too_small', { name: groupNameOf(issue.groupId) })
-                    : issue.code === 'insufficient_qualifier_capacity'
-                      ? t('issue_capacity', {
-                          name: groupNameOf(issue.groupId),
-                          size: issue.size,
-                          required: issue.required,
-                        })
-                      : t('issue_no_groups')}
-            </li>
-          ))}
-        </ul>
-      )}
+      {/* Validation summary. The "unassigned" case can carry up to 32 names, so it is a prominent
+          count with the full roster tucked into an expandable panel rather than a long paragraph. */}
+      {!props.locked && !readiness.ok && (() => {
+        type Issue = (typeof readiness.issues)[number]
+        const unassigned = readiness.issues.find(
+          (x): x is Extract<Issue, { code: 'unassigned_remaining' }> => x.code === 'unassigned_remaining',
+        )
+        const others = readiness.issues.filter((x) => x.code !== 'unassigned_remaining')
+        return (
+          <div className="rounded-xl bg-amber-50 border border-amber-200 px-3 py-3 mb-3 space-y-2.5" role="alert">
+            {unassigned && (
+              <details className="group">
+                <summary className="flex items-center gap-2 cursor-pointer list-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 rounded-md">
+                  <span className="inline-flex items-center justify-center min-w-[24px] h-6 px-1.5 rounded-full bg-amber-500 text-white text-[12px] font-bold tabular-nums">
+                    {unassigned.competitorIds.length}
+                  </span>
+                  <span className="text-[12.5px] font-semibold text-amber-800">
+                    {t('unassigned_remaining_count', { count: unassigned.competitorIds.length })}
+                  </span>
+                  <span className="ml-auto flex-none inline-flex items-center gap-1 text-[11.5px] font-semibold text-amber-700">
+                    {t('unassigned_view_list')}
+                    <svg className="w-3.5 h-3.5 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </span>
+                </summary>
+                <p className="mt-2 pl-[32px] text-[12px] text-amber-700 break-words leading-relaxed">
+                  {unassigned.competitorIds.map((id) => nameOf(id)).join(', ')}
+                </p>
+              </details>
+            )}
+            {others.length > 0 && (
+              <ul className="space-y-1">
+                {others.map((issue, i) => (
+                  <li key={i} className="text-[12.5px] text-amber-700 flex items-start gap-1.5">
+                    <span aria-hidden="true" className="flex-none mt-[3px] w-1.5 h-1.5 rounded-full bg-amber-500" />
+                    <span>
+                      {issue.code === 'empty_group'
+                        ? t('issue_empty_group', { name: groupNameOf(issue.groupId) })
+                        : issue.code === 'group_too_small'
+                          ? t('issue_too_small', { name: groupNameOf(issue.groupId) })
+                          : issue.code === 'insufficient_qualifier_capacity'
+                            ? t('issue_capacity', {
+                                name: groupNameOf(issue.groupId),
+                                size: issue.size,
+                                required: issue.required,
+                              })
+                            : t('issue_no_groups')}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )
+      })()}
 
       {/* Board */}
       <DndContext
@@ -271,7 +301,7 @@ export default function GroupAssignmentBoard(props: Props) {
         onDragOver={props.locked ? undefined : handleDragOver}
         onDragEnd={props.locked ? undefined : handleDragEnd}
       >
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
           <Column
             id={UNASSIGNED}
             title={t('unassigned_title')}
@@ -288,10 +318,6 @@ export default function GroupAssignmentBoard(props: Props) {
                 order={order}
                 locked={props.locked}
                 labelFor={(c) => (c === UNASSIGNED ? t('unassigned_short') : groupNameOf(c))}
-                onPrev={() => move(id, (s) => shiftContainer(s, id, -1, order))}
-                onNext={() => move(id, (s) => shiftContainer(s, id, 1, order))}
-                onUp={() => move(id, (s) => nudgeWithin(s, id, -1))}
-                onDown={() => move(id, (s) => nudgeWithin(s, id, 1))}
                 onMoveTo={(c) => move(id, (s) => moveItem(s, id, c))}
                 moveLabels={t}
               />
@@ -316,10 +342,6 @@ export default function GroupAssignmentBoard(props: Props) {
                   order={order}
                   locked={props.locked}
                   labelFor={(c) => (c === UNASSIGNED ? t('unassigned_short') : groupNameOf(c))}
-                  onPrev={() => move(id, (s) => shiftContainer(s, id, -1, order))}
-                  onNext={() => move(id, (s) => shiftContainer(s, id, 1, order))}
-                  onUp={() => move(id, (s) => nudgeWithin(s, id, -1))}
-                  onDown={() => move(id, (s) => nudgeWithin(s, id, 1))}
                   onMoveTo={(c) => move(id, (s) => moveItem(s, id, c))}
                   moveLabels={t}
                 />
@@ -429,15 +451,21 @@ function Column({
   const { setNodeRef, isOver } = useDroppable({ id })
   return (
     <div
-      className={`rounded-2xl border p-3 min-h-[120px] transition-colors ${
-        tone === 'group' ? 'bg-paper border-line' : 'bg-cream/60 border-line'
-      } ${isOver ? 'ring-2 ring-rose/40' : ''}`}
+      className={`rounded-2xl border p-3 min-h-[132px] transition-colors ${
+        tone === 'group' ? 'bg-paper border-line' : 'bg-cream/60 border-dashed border-line'
+      } ${isOver ? 'ring-2 ring-rose/50 border-rose/40' : ''}`}
     >
-      <div className="flex items-baseline justify-between gap-2 mb-2 px-1">
-        <span className="font-serif font-bold text-[13.5px] text-ink">{title}</span>
-        <span className="text-[11.5px] text-muted">{count}</span>
+      <div className="flex items-center justify-between gap-2 mb-2 px-1">
+        <span className="font-serif font-bold text-[13.5px] text-ink truncate">{title}</span>
+        <span
+          className={`flex-none inline-flex items-center justify-center min-w-[22px] h-[22px] px-1.5 rounded-full text-[11.5px] font-bold tabular-nums ${
+            tone === 'group' ? 'bg-teal-soft text-teal' : 'bg-cream text-muted border border-line'
+          }`}
+        >
+          {count}
+        </span>
       </div>
-      <div ref={setNodeRef} className="space-y-1.5">
+      <div ref={setNodeRef} className="space-y-1.5 min-h-[64px]">
         <SortableContext items={itemIds as string[]} strategy={verticalListSortingStrategy}>
           {children}
         </SortableContext>
@@ -446,7 +474,10 @@ function Column({
   )
 }
 
-// ── Chip (sortable item + accessible controls) ───────────────────────────────────────────────
+// ── Chip (sortable item + accessible move control) ───────────────────────────────────────────
+// Drag-and-drop is the primary interaction (pointer + keyboard via dnd-kit). The single "move to"
+// <select> is the accessible, unambiguous alternative — it replaces the old cluster of tiny ↑ ↓ ◀ ▶
+// arrow buttons (which read as noise and never said where a competitor would land).
 function Chip({
   id,
   label,
@@ -454,10 +485,6 @@ function Chip({
   order,
   locked,
   labelFor,
-  onPrev,
-  onNext,
-  onUp,
-  onDown,
   onMoveTo,
   moveLabels,
 }: {
@@ -467,10 +494,6 @@ function Chip({
   order: ContainerId[]
   locked: boolean
   labelFor: (c: ContainerId) => string
-  onPrev: () => void
-  onNext: () => void
-  onUp: () => void
-  onDown: () => void
   onMoveTo: (c: ContainerId) => void
   moveLabels: (key: string, values?: Record<string, string | number>) => string
 }) {
@@ -483,13 +506,14 @@ function Chip({
     transition,
     opacity: isDragging ? 0.5 : 1,
   }
-  const idx = order.indexOf(container)
 
   return (
     <div
       ref={setNodeRef}
       style={style}
-      className="bg-cream border border-line rounded-xl px-2 py-1.5 flex items-center gap-1.5"
+      className={`bg-cream border rounded-xl px-2 py-1.5 flex items-center gap-2 min-h-[40px] ${
+        isDragging ? 'border-rose/50 shadow-md' : 'border-line'
+      }`}
     >
       {!locked && (
         <button
@@ -497,7 +521,7 @@ function Chip({
           {...attributes}
           {...listeners}
           aria-label={moveLabels('drag_handle', { name: label })}
-          className="flex-none w-6 h-6 grid place-items-center rounded-md text-muted hover:text-rose cursor-grab active:cursor-grabbing touch-none"
+          className="flex-none w-7 h-7 grid place-items-center rounded-md text-muted hover:text-rose focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose/40 cursor-grab active:cursor-grabbing touch-none"
         >
           ⠿
         </button>
@@ -505,46 +529,13 @@ function Chip({
       <span className="flex-1 min-w-0 text-[13px] text-ink font-medium truncate">{label}</span>
 
       {!locked && (
-        <div className="flex-none flex items-center gap-0.5">
-          <button
-            type="button"
-            onClick={onUp}
-            aria-label={moveLabels('move_up')}
-            className="w-6 h-6 grid place-items-center rounded-md border border-line bg-paper text-[11px] text-muted hover:text-rose transition-colors"
-          >
-            ↑
-          </button>
-          <button
-            type="button"
-            onClick={onDown}
-            aria-label={moveLabels('move_down')}
-            className="w-6 h-6 grid place-items-center rounded-md border border-line bg-paper text-[11px] text-muted hover:text-rose transition-colors"
-          >
-            ↓
-          </button>
-          <button
-            type="button"
-            onClick={onPrev}
-            disabled={idx <= 0}
-            aria-label={moveLabels('move_prev')}
-            className="w-6 h-6 grid place-items-center rounded-md border border-line bg-paper text-[11px] text-muted hover:text-rose disabled:opacity-30 transition-colors"
-          >
-            ◀
-          </button>
-          <button
-            type="button"
-            onClick={onNext}
-            disabled={idx >= order.length - 1}
-            aria-label={moveLabels('move_next')}
-            className="w-6 h-6 grid place-items-center rounded-md border border-line bg-paper text-[11px] text-muted hover:text-rose disabled:opacity-30 transition-colors"
-          >
-            ▶
-          </button>
+        <label className="flex-none">
+          <span className="sr-only">{moveLabels('move_to')}</span>
           <select
             value={container}
             onChange={(e) => onMoveTo(e.target.value as ContainerId)}
-            aria-label={moveLabels('move_to')}
-            className="ml-0.5 text-[11px] px-1 py-1 rounded-md border border-line bg-paper text-muted focus:outline-none focus:border-rose/50 max-w-[86px]"
+            aria-label={moveLabels('move_to_named', { name: label })}
+            className="text-[11.5px] px-1.5 py-1 rounded-md border border-line bg-paper text-ink max-w-[104px] focus:outline-none focus:border-rose/50 focus-visible:ring-2 focus-visible:ring-rose/40"
           >
             {order.map((c) => (
               <option key={c} value={c}>
@@ -552,7 +543,7 @@ function Chip({
               </option>
             ))}
           </select>
-        </div>
+        </label>
       )}
     </div>
   )

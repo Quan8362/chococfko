@@ -11,6 +11,7 @@ import type { ReactNode } from 'react'
 // into the module's slim themed scrollbar (see globals.css) so Windows never paints the native
 // stepper-arrow scrollbar ("phantom arrows") on tab strips, modals or board columns.
 const WIDTHS = {
+  board: 'max-w-[1440px]',
   wide: 'max-w-[1240px]',
   detail: 'max-w-[1120px]',
   form: 'max-w-[840px]',

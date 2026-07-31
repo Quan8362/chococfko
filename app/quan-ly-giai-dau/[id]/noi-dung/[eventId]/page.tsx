@@ -17,6 +17,7 @@ import KnockoutWorkspace from '@/components/tournaments/admin/KnockoutWorkspace'
 import AdminRealtimeBanner from '@/components/tournaments/admin/AdminRealtimeBanner'
 import EventDetailTabs from '@/components/tournaments/admin/EventDetailTabs'
 import EventRulesPanel from '@/components/tournaments/admin/EventRulesPanel'
+import TournamentShell from '@/components/tournaments/TournamentShell'
 import { MANAGEMENT_BASE, isSignedIn, eventWorkspaceCaps, knockoutWorkspaceCaps } from '../../../_access'
 
 export const dynamic = 'force-dynamic'
@@ -56,15 +57,15 @@ export default async function ManagementEventPage({
   const canEditSettings = caps.can('event.manage')
 
   const Setting = ({ label, value }: { label: string; value: React.ReactNode }) => (
-    <div className="flex items-baseline justify-between gap-3 py-1.5 border-b border-line/60 last:border-b-0">
+    <div className="flex items-baseline justify-between gap-3 py-2 border-b border-line/60 last:border-b-0">
       <span className="text-[12.5px] text-muted">{label}</span>
-      <span className="text-[13.5px] font-medium text-ink text-right">{value}</span>
+      <span className="text-[13.5px] font-semibold text-ink text-right tabular-nums">{value}</span>
     </div>
   )
   const yesNo = (v: boolean) => (v ? t('yes') : t('no'))
 
   return (
-    <div className="trn-scope max-w-[1120px] mx-auto px-4 sm:px-6 lg:px-8 py-10 pb-20">
+    <TournamentShell size="board">
       <Link
         href={`${MANAGEMENT_BASE}/${params.id}`}
         className="inline-flex items-center gap-1 text-[12.5px] text-muted hover:text-rose transition-colors mb-3"
@@ -102,10 +103,10 @@ export default async function ManagementEventPage({
       <EventDetailTabs
         showRules
         competition={
-          <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-6">
-            {/* Settings + counts */}
-            <div className="space-y-6">
-              <div className="bg-paper border border-line rounded-2xl p-5">
+          <div className="grid grid-cols-1 lg:grid-cols-[minmax(280px,300px)_minmax(0,1fr)] gap-6 items-start">
+            {/* Settings + counts (sticky on desktop; content is short so it never nests a scrollbar) */}
+            <div className="space-y-6 lg:sticky lg:top-20 self-start">
+              <div className="bg-paper border border-line rounded-2xl p-5 sm:p-6">
                 <h2 className="font-serif font-bold text-[15px] text-ink mb-2">{t('settings_heading')}</h2>
                 {event.format !== 'knockout' && <Setting label={t('f_group_count')} value={event.groupCount} />}
                 {event.format === 'group_knockout' && (
@@ -131,7 +132,7 @@ export default async function ManagementEventPage({
             </div>
 
             {/* Workspace (capability-gated: a scorekeeper gets a score-only view) */}
-            <div className="bg-paper border border-line rounded-2xl p-5 sm:p-6">
+            <div className="min-w-0 bg-paper border border-line rounded-2xl p-5 sm:p-6">
               {isKnockout && knockoutSeed ? (
                 <KnockoutWorkspace
                   tournamentId={params.id}
@@ -169,6 +170,6 @@ export default async function ManagementEventPage({
           </div>
         }
       />
-    </div>
+    </TournamentShell>
   )
 }

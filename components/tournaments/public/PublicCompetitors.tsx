@@ -53,7 +53,7 @@ export default function PublicCompetitors({
         <h2 className="font-serif font-bold text-[16px] text-ink mb-3">
           {t('competitors.heading')} <span className="text-muted font-sans font-normal text-[13px]">({competitors.length})</span>
         </h2>
-        <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <ul className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2">
           {competitors.map((c) => (
             <Chip key={c.id} c={c} />
           ))}
@@ -70,7 +70,7 @@ export default function PublicCompetitors({
         return (
           <div key={g.id}>
             <h3 className="text-[13px] font-bold text-teal mb-2">{t('competitors.group', { name: g.name })}</h3>
-            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <ul className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2">
               {members.map((c) => (
                 <Chip key={c.id} c={c} />
               ))}
@@ -81,7 +81,7 @@ export default function PublicCompetitors({
       {grouped.ungrouped.length > 0 && (
         <div>
           <h3 className="text-[13px] font-bold text-muted mb-2">{t('competitors.ungrouped')}</h3>
-          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <ul className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2">
             {grouped.ungrouped.map((c) => (
               <Chip key={c.id} c={c} />
             ))}

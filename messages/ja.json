@@ -6574,7 +6574,10 @@
     "err_already_generated": "日程は既に生成されています。",
     "err_event_has_results": "結果が既にあります。再生成できません。",
     "err_event_has_knockout": "決勝トーナメントが存在します。組ステージを再生成できません。",
-    "err_unknown": "エラーが発生しました。もう一度お試しください。"
+    "err_unknown": "エラーが発生しました。もう一度お試しください。",
+    "move_to_named": "{name} を別の組へ移動",
+    "unassigned_remaining_count": "未割り当ての選手が {count} 名います",
+    "unassigned_view_list": "一覧を表示"
   },
   "admin_group_matches": {
     "generate_cta": "組の試合を生成",

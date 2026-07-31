@@ -4,6 +4,7 @@ import { getTranslations } from 'next-intl/server'
 import { getEventForAdmin } from '@/lib/tournaments/admin/queries'
 import { resolveTournamentCapabilities } from '@/lib/tournaments/permissions/server'
 import EventForm from '@/components/tournaments/admin/EventForm'
+import TournamentShell from '@/components/tournaments/TournamentShell'
 import { MANAGEMENT_BASE, isSignedIn } from '../../../../_access'
 
 export const dynamic = 'force-dynamic'
@@ -27,7 +28,7 @@ export default async function EditManagedEventPage({
   if (!event) notFound()
 
   return (
-    <div className="max-w-[720px] mx-auto px-5 sm:px-6 py-10 pb-20">
+    <TournamentShell size="form">
       <Link
         href={`${MANAGEMENT_BASE}/${params.id}/noi-dung/${event.id}`}
         className="inline-flex items-center gap-1 text-[12.5px] text-muted hover:text-rose transition-colors mb-3"
@@ -52,6 +53,6 @@ export default async function EditManagedEventPage({
           thirdPlaceEnabled: event.thirdPlaceEnabled,
         }}
       />
-    </div>
+    </TournamentShell>
   )
 }

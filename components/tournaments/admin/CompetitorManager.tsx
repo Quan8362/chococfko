@@ -334,11 +334,11 @@ export default function CompetitorManager({
           <p className="text-[13px] text-muted">{t('empty')}</p>
         </div>
       ) : (
-        <ul className="space-y-2">
+        <ul className="space-y-1.5">
           {rows.map((row, i) => (
             <li
               key={row.id}
-              className="bg-paper border border-line rounded-xl p-2.5 flex items-center gap-2.5"
+              className="bg-paper border border-line rounded-xl px-2.5 py-2 flex items-center gap-2.5 min-h-[48px]"
             >
               {!locked && (
                 <div className="flex flex-col gap-0.5 flex-none">
@@ -428,20 +428,22 @@ export default function CompetitorManager({
                 </div>
               ) : (
                 <>
-                  <div className="flex-1 min-w-0">
-                    <span className="text-[14px] text-ink font-medium truncate block">
-                      {row.name}
-                      {row.shortName && <span className="text-muted font-normal"> · {row.shortName}</span>}
-                    </span>
-                    {row.seed != null && (
-                      <span className="text-[11.5px] text-muted">{t('seed_label', { seed: row.seed })}</span>
+                  <div className="flex-1 min-w-0 flex items-center gap-2">
+                    <span className="text-[14px] text-ink font-medium truncate">{row.name}</span>
+                    {row.shortName && row.shortName !== row.name && (
+                      <span className="hidden sm:inline text-[12px] text-muted truncate flex-none max-w-[30%]">· {row.shortName}</span>
                     )}
                     {showComposition && doublesCompositionToken(row.composition) && (
-                      <span className="ml-2 text-[11.5px] text-teal font-medium">
+                      <span className="flex-none text-[11px] text-teal font-medium bg-teal-soft px-1.5 py-0.5 rounded-md">
                         {t(`comp_${doublesCompositionToken(row.composition)}`)}
                       </span>
                     )}
                   </div>
+                  {row.seed != null && (
+                    <span className="flex-none text-[11px] font-bold text-teal bg-teal-soft px-1.5 py-0.5 rounded-md tabular-nums">
+                      {t('seed_label', { seed: row.seed })}
+                    </span>
+                  )}
                   {!locked && (
                     <div className="flex gap-1.5 flex-none">
                       <button

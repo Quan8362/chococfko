@@ -6574,7 +6574,10 @@
     "err_already_generated": "Lịch đã được tạo.",
     "err_event_has_results": "Đã có kết quả thi đấu. Không thể tạo lại.",
     "err_event_has_knockout": "Đã có nhánh loại trực tiếp. Không thể tạo lại vòng bảng.",
-    "err_unknown": "Đã có lỗi xảy ra. Vui lòng thử lại."
+    "err_unknown": "Đã có lỗi xảy ra. Vui lòng thử lại.",
+    "move_to_named": "Chuyển {name} đến bảng khác",
+    "unassigned_remaining_count": "Còn {count} vận động viên chưa xếp bảng",
+    "unassigned_view_list": "Xem danh sách"
   },
   "admin_group_matches": {
     "generate_cta": "Tạo lịch vòng bảng",

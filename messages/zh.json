@@ -6574,7 +6574,10 @@
     "err_already_generated": "赛程已生成。",
     "err_event_has_results": "已有比赛结果，无法重新生成。",
     "err_event_has_knockout": "已存在淘汰赛阶段，无法重新生成小组赛。",
-    "err_unknown": "发生错误，请重试。"
+    "err_unknown": "发生错误，请重试。",
+    "move_to_named": "将 {name} 移动到其他分组",
+    "unassigned_remaining_count": "仍有 {count} 名选手未分组",
+    "unassigned_view_list": "查看名单"
   },
   "admin_group_matches": {
     "generate_cta": "生成小组比赛",

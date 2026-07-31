@@ -137,10 +137,16 @@ export default function MobileMenu({ isLoggedIn, canManageTournaments }: MobileM
                 {t('tournaments')}
               </Link>
               {canManageTournaments && (
-                <Link href="/quan-ly-giai-dau" onClick={close} className="group/m flex items-center gap-3 px-2.5 py-2.5 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
-                  <span className="flex-none grid place-items-center w-9 h-9 rounded-lg bg-cream text-muted group-hover/m:bg-rose/10 group-hover/m:text-rose transition-colors"><NavIcon name="trophy" /></span>
-                  {t('manage_tournaments')}
-                </Link>
+                <>
+                  <Link href="/quan-ly-giai-dau" onClick={close} className="group/m flex items-center gap-3 px-2.5 py-2.5 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
+                    <span className="flex-none grid place-items-center w-9 h-9 rounded-lg bg-cream text-muted group-hover/m:bg-rose/10 group-hover/m:text-rose transition-colors"><NavIcon name="trophy" /></span>
+                    {t('my_tournaments')}
+                  </Link>
+                  <Link href="/quan-ly-giai-dau/new" onClick={close} className="group/m flex items-center gap-3 px-2.5 py-2.5 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
+                    <span className="flex-none grid place-items-center w-9 h-9 rounded-lg bg-cream text-muted group-hover/m:bg-rose/10 group-hover/m:text-rose transition-colors"><NavIcon name="trophy" /></span>
+                    {t('create_tournament')}
+                  </Link>
+                </>
               )}
 
               <div className="my-1.5 border-t border-line" />

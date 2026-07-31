@@ -53,14 +53,13 @@ export default async function ManagementListPage() {
             </h1>
             <p className="text-[14px] text-muted">{siteAdmin ? t('list_sub_admin') : t('list_sub_scoped')}</p>
           </div>
-          {siteAdmin && (
-            <Link
-              href={`${MANAGEMENT_BASE}/new`}
-              className="flex-none font-semibold text-[13.5px] px-5 py-2.5 rounded-full bg-rose text-white hover:bg-rose-deep transition-all"
-            >
-              + {ta('create_cta')}
-            </Link>
-          )}
+          {/* Self-service (15F-1): every signed-in user may create their own tournament. */}
+          <Link
+            href={`${MANAGEMENT_BASE}/new`}
+            className="flex-none font-semibold text-[13.5px] px-5 py-2.5 rounded-full bg-rose text-white hover:bg-rose-deep transition-all"
+          >
+            + {ta('create_cta')}
+          </Link>
         </div>
       </div>
 
@@ -70,9 +69,15 @@ export default async function ManagementListPage() {
             🗂️
           </div>
           <h3 className="font-serif font-bold text-[18px] text-ink mb-2">{t('empty_title')}</h3>
-          <p className="text-[13.5px] text-muted max-w-[360px] mx-auto leading-relaxed">
-            {siteAdmin ? t('empty_sub_admin') : t('empty_sub_scoped')}
+          <p className="text-[13.5px] text-muted max-w-[380px] mx-auto leading-relaxed mb-5">
+            {siteAdmin ? t('empty_sub_admin') : t('empty_sub_create')}
           </p>
+          <Link
+            href={`${MANAGEMENT_BASE}/new`}
+            className="inline-flex items-center gap-1.5 font-semibold text-[13.5px] px-5 py-2.5 rounded-full bg-rose text-white hover:bg-rose-deep transition-all"
+          >
+            + {ta('create_cta')}
+          </Link>
         </div>
       ) : (
         <div className="space-y-2.5">

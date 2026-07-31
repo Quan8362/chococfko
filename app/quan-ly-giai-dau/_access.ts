@@ -70,7 +70,9 @@ export function listRowStatusCaps(role: ManageableTournament['viewerRole']): {
   canEdit: boolean
   showActions: boolean
 } {
-  if (role === 'site_admin') return { publish: true, archive: true, delete: true, canEdit: true, showActions: true }
+  // Owner has the SAME row actions as a Site Admin (incl. delete-draft), scoped to their tournament.
+  if (role === 'site_admin' || role === 'owner')
+    return { publish: true, archive: true, delete: true, canEdit: true, showActions: true }
   if (role === 'manager') return { publish: true, archive: true, delete: false, canEdit: true, showActions: true }
   // scorekeeper: view only
   return { publish: false, archive: false, delete: false, canEdit: false, showActions: false }

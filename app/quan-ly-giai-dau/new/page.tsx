@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
-import { checkIsAdmin } from '@/lib/supabase/admin'
 import TournamentForm from '@/components/tournaments/admin/TournamentForm'
 import { MANAGEMENT_BASE, isSignedIn } from '../_access'
 
@@ -9,12 +8,9 @@ export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Tạo giải đấu' }
 
 export default async function NewManagedTournamentPage() {
-  // Creating a tournament is Site-Admin ONLY (no implicit owner role for managers). A scoped manager
-  // is sent back to their list; an anonymous caller to login.
-  if (!(await checkIsAdmin())) {
-    if (!(await isSignedIn())) redirect(`/login?next=${encodeURIComponent(`${MANAGEMENT_BASE}/new`)}`)
-    redirect(MANAGEMENT_BASE)
-  }
+  // Self-service (15F-1): creating a tournament requires ONLY that the caller is signed in. Anyone
+  // authenticated becomes the OWNER of the draft they create (no Site-Admin gate). Anon → login.
+  if (!(await isSignedIn())) redirect(`/login?next=${encodeURIComponent(`${MANAGEMENT_BASE}/new`)}`)
   const t = await getTranslations('admin_tournaments')
 
   return (

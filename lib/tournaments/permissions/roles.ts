@@ -12,6 +12,14 @@ export const ALL_PERMISSIONS: readonly TournamentPermission[] = Object.freeze([
   ...TOURNAMENT_PERMISSIONS,
 ])
 
+// Owner: the tournament's creator. Holds EVERY per-tournament permission (including members.manage
+// and tournament.delete = delete-draft) — but only for THEIR tournament, resolved from an active
+// 'owner' membership row. This is the full token set, same shape as a Site Admin's set except it is
+// scoped by membership to one tournament rather than being global.
+const OWNER_PERMISSIONS: readonly TournamentPermission[] = Object.freeze([
+  ...TOURNAMENT_PERMISSIONS,
+])
+
 // Manager: full tournament operation EXCEPT membership administration and hard-delete.
 // (No 'members.manage' → cannot invite/change/revoke; no 'tournament.delete'.)
 const MANAGER_PERMISSIONS: readonly TournamentPermission[] = Object.freeze([
@@ -38,6 +46,7 @@ const SCOREKEEPER_PERMISSIONS: readonly TournamentPermission[] = Object.freeze([
 // without a mapping is a compile error.
 export const ROLE_PERMISSIONS: Readonly<Record<TournamentRole, readonly TournamentPermission[]>> =
   Object.freeze({
+    owner: OWNER_PERMISSIONS,
     manager: MANAGER_PERMISSIONS,
     scorekeeper: SCOREKEEPER_PERMISSIONS,
   })

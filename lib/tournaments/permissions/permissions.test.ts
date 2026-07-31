@@ -10,6 +10,7 @@ import {
   isMembershipStatus,
   isTournamentPermission,
   isTournamentRole,
+  isInvitableRole,
   permissionsForRole,
   resolvePermissions,
   roleGrantsPermission,
@@ -21,6 +22,10 @@ import {
 } from './index.ts'
 
 const admin = (): PermissionSubject => ({ siteAdmin: true, membership: null })
+const owner = (status: 'pending' | 'active' | 'revoked' = 'active'): PermissionSubject => ({
+  siteAdmin: false,
+  membership: { role: 'owner', status },
+})
 const manager = (status: 'pending' | 'active' | 'revoked' = 'active'): PermissionSubject => ({
   siteAdmin: false,
   membership: { role: 'manager', status },
@@ -79,15 +84,34 @@ test('scorekeeper has exactly tournament.view + score.manage', () => {
   }
 })
 
+// Owner holds EVERY per-tournament permission (scoped to their tournament by membership).
+test('owner holds every tournament permission (like a Site Admin but scoped by membership)', () => {
+  for (const p of TOURNAMENT_PERMISSIONS) {
+    assert.equal(subjectCan(owner(), p), true, `owner should have ${p}`)
+  }
+  assert.equal(subjectCan(owner(), 'members.manage'), true)
+  assert.equal(subjectCan(owner(), 'tournament.delete'), true)
+  assert.equal(resolvePermissions(owner()).size, TOURNAMENT_PERMISSIONS.length)
+})
+
 // (4) Invalid role values are rejected by the guard (never coerced into a role).
-test('isTournamentRole rejects invalid roles including "admin"', () => {
+test('isTournamentRole accepts the three scoped roles and rejects "admin"', () => {
+  assert.equal(isTournamentRole('owner'), true)
   assert.equal(isTournamentRole('manager'), true)
   assert.equal(isTournamentRole('scorekeeper'), true)
   assert.equal(isTournamentRole('admin'), false) // there is NO admin membership role
-  assert.equal(isTournamentRole('owner'), false)
   assert.equal(isTournamentRole(''), false)
   assert.equal(isTournamentRole(null), false)
   assert.equal(isTournamentRole(42), false)
+})
+
+// Owner is NOT invitable — it is granted only by creating the tournament (no second owner / transfer).
+test('isInvitableRole allows only manager/scorekeeper (never owner)', () => {
+  assert.equal(isInvitableRole('manager'), true)
+  assert.equal(isInvitableRole('scorekeeper'), true)
+  assert.equal(isInvitableRole('owner'), false)
+  assert.equal(isInvitableRole('admin'), false)
+  assert.equal(isInvitableRole(null), false)
 })
 
 // (5) Invalid permission tokens are rejected (fail-closed).
@@ -130,9 +154,9 @@ test('membership resolved for a different tournament does not leak (null members
 })
 
 // Structural guarantees on the mapping tables.
-test('ROLE_PERMISSIONS covers exactly the two scoped roles and is frozen', () => {
-  assert.deepEqual(Object.keys(ROLE_PERMISSIONS).sort(), ['manager', 'scorekeeper'])
-  assert.deepEqual([...TOURNAMENT_ROLES], ['manager', 'scorekeeper'])
+test('ROLE_PERMISSIONS covers exactly the three scoped roles and is frozen', () => {
+  assert.deepEqual(Object.keys(ROLE_PERMISSIONS).sort(), ['manager', 'owner', 'scorekeeper'])
+  assert.deepEqual([...TOURNAMENT_ROLES], ['owner', 'manager', 'scorekeeper'])
   assert.equal(Object.isFrozen(ROLE_PERMISSIONS), true)
 })
 

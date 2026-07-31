@@ -14,7 +14,10 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 const ROOT = process.cwd()
-const read = (p: string) => readFileSync(join(ROOT, p), 'utf8')
+// Normalize CRLF→LF so line-based analysis (split('\n') + the `//comment` strip regex, which relies on
+// `$`/`.` not seeing a trailing \r) is identical on a Windows checkout (git autocrlf=true → CRLF) and
+// a POSIX/LF checkout. Reads source only; never mutates.
+const read = (p: string) => readFileSync(join(ROOT, p), 'utf8').replace(/\r\n/g, '\n')
 const LOCALES = ['vi', 'en', 'ja', 'ko', 'zh'] as const
 const messages = Object.fromEntries(
   LOCALES.map((l) => [l, JSON.parse(read(`messages/${l}.json`))]),

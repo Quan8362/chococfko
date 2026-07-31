@@ -99,7 +99,9 @@
     "todays_suggestion": "오늘의 추천",
     "about": "소개",
     "tournaments": "토너먼트",
-    "manage_tournaments": "토너먼트 관리"
+    "manage_tournaments": "토너먼트 관리",
+    "my_tournaments": "내 토너먼트",
+    "create_tournament": "토너먼트 만들기"
   },
   "home": {
     "write_cta": "✍️ 글쓰기",
@@ -7090,19 +7092,22 @@
     "empty_title": "아직 토너먼트가 없습니다",
     "empty_sub_admin": "첫 토너먼트를 만들어 시작하세요.",
     "empty_sub_scoped": "아직 관리 권한이 부여된 토너먼트가 없습니다. 관리자에게 문의하세요.",
+    "empty_sub_create": "첫 토너먼트를 만들어 시작하세요.",
     "back_list": "토너먼트 목록",
     "you_are_site_admin": "사이트 관리자",
     "you_are_manager": "매니저",
-    "you_are_scorekeeper": "점수 기록원"
+    "you_are_scorekeeper": "점수 기록원",
+    "you_are_owner": "주최자"
   },
   "tournament_roles": {
     "role_site_admin": "사이트 관리자",
     "role_manager": "매니저",
-    "role_scorekeeper": "점수 기록원"
+    "role_scorekeeper": "점수 기록원",
+    "role_owner": "주최자"
   },
   "tournament_members": {
     "section_title": "관리 멤버",
-    "section_hint": "이 토너먼트의 매니저 또는 점수 기록원을 초대합니다. 이 영역은 사이트 관리자만 볼 수 있습니다.",
+    "section_hint": "이 토너먼트의 매니저 또는 점수 기록원을 초대합니다. 이 영역은 주최자와 사이트 관리자만 볼 수 있습니다.",
     "email_label": "이메일",
     "email_placeholder": "name@email.com",
     "role_label": "역할",
@@ -7135,6 +7140,8 @@
     "err_invalid_role": "유효하지 않은 역할입니다.",
     "err_not_found": "찾을 수 없습니다.",
     "err_already_active": "이 이메일은 이미 활성 멤버입니다.",
+    "err_cannot_modify_owner": "주최자는 변경할 수 없습니다.",
+    "owner_locked": "주최자",
     "err_version_conflict": "데이터가 방금 변경되었습니다. 다시 불러오세요.",
     "err_unknown": "문제가 발생했습니다. 다시 시도하세요."
   },

@@ -41,8 +41,10 @@ export default async function ManagementDetailPage({ params }: { params: { id: s
   const canManageEvents = caps.can('event.manage')
   const anyStatusAction = sac.publish || sac.archive || sac.delete
 
-  // Member management is Site-Admin only (members.manage). Fetch the roster only then.
-  const membersResult = caps.siteAdmin ? await listTournamentMembersForSiteAdmin(tournament.id) : null
+  // Member management is gated on members.manage — Site Admin OR the tournament's Owner (15F-1).
+  // Managers/scorekeepers do NOT hold members.manage and never receive the roster.
+  const canManageMembers = caps.can('members.manage')
+  const membersResult = canManageMembers ? await listTournamentMembersForSiteAdmin(tournament.id) : null
 
   const Row = ({ label, children }: { label: string; children: React.ReactNode }) => (
     <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-3 py-2.5 border-b border-line/60 last:border-b-0">
@@ -69,7 +71,15 @@ export default async function ManagementDetailPage({ params }: { params: { id: s
           <div className="mb-2 flex items-center gap-2 flex-wrap">
             <StatusBadge status={tournament.status} label={t(`status_${tournament.status}`)} />
             <span className="text-[11px] font-semibold px-2 py-[3px] rounded-full bg-cream border border-line text-[#5c4d44]">
-              {tm(caps.siteAdmin ? 'you_are_site_admin' : caps.role === 'manager' ? 'you_are_manager' : 'you_are_scorekeeper')}
+              {tm(
+                caps.siteAdmin
+                  ? 'you_are_site_admin'
+                  : caps.role === 'owner'
+                    ? 'you_are_owner'
+                    : caps.role === 'manager'
+                      ? 'you_are_manager'
+                      : 'you_are_scorekeeper',
+              )}
             </span>
           </div>
           <h1 className="font-serif font-bold text-[27px] tracking-[-0.3px] leading-tight text-ink break-words">
@@ -128,8 +138,8 @@ export default async function ManagementDetailPage({ params }: { params: { id: s
         <EventList tournamentId={tournament.id} events={events} basePath={MANAGEMENT_BASE} canManage={canManageEvents} />
       </div>
 
-      {/* Member management — Site Admin only */}
-      {caps.siteAdmin && membersResult && membersResult.ok && (
+      {/* Member management — Site Admin or Owner (members.manage) */}
+      {canManageMembers && membersResult && membersResult.ok && (
         <div className="bg-paper border border-line rounded-2xl p-5 sm:p-6">
           <TournamentMembersPanel tournamentId={tournament.id} members={membersResult.members} />
         </div>

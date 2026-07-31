@@ -99,7 +99,9 @@
     "todays_suggestion": "今日のおすすめ",
     "about": "サイトについて",
     "tournaments": "大会",
-    "manage_tournaments": "大会管理"
+    "manage_tournaments": "大会管理",
+    "my_tournaments": "自分の大会",
+    "create_tournament": "大会を作成"
   },
   "home": {
     "write_cta": "✍️ 投稿する",
@@ -7090,19 +7092,22 @@
     "empty_title": "大会がまだありません",
     "empty_sub_admin": "最初の大会を作成して始めましょう。",
     "empty_sub_scoped": "まだ管理を任された大会はありません。管理者にお問い合わせください。",
+    "empty_sub_create": "最初の大会を作成して始めましょう。",
     "back_list": "大会一覧",
     "you_are_site_admin": "サイト管理者",
     "you_are_manager": "マネージャー",
-    "you_are_scorekeeper": "採点担当"
+    "you_are_scorekeeper": "採点担当",
+    "you_are_owner": "主催者"
   },
   "tournament_roles": {
     "role_site_admin": "サイト管理者",
     "role_manager": "マネージャー",
-    "role_scorekeeper": "採点担当"
+    "role_scorekeeper": "採点担当",
+    "role_owner": "主催者"
   },
   "tournament_members": {
     "section_title": "管理メンバー",
-    "section_hint": "この大会のマネージャーまたは採点担当を招待します。この領域はサイト管理者のみ表示されます。",
+    "section_hint": "この大会のマネージャーまたは採点担当を招待します。この領域は主催者とサイト管理者のみ表示されます。",
     "email_label": "メール",
     "email_placeholder": "name@email.com",
     "role_label": "役割",
@@ -7135,6 +7140,8 @@
     "err_invalid_role": "無効な役割です。",
     "err_not_found": "見つかりません。",
     "err_already_active": "このメールは既に有効なメンバーです。",
+    "err_cannot_modify_owner": "主催者は変更できません。",
+    "owner_locked": "主催者",
     "err_version_conflict": "データが変更されました。再読み込みしてください。",
     "err_unknown": "エラーが発生しました。もう一度お試しください。"
   },

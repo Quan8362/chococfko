@@ -16,10 +16,11 @@
 
 import { revalidatePath } from 'next/cache'
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { checkIsAdmin, createAdminClient } from '@/lib/supabase/admin'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
 import { checkTournamentPermission } from '@/lib/tournaments/permissions/server'
 import type { TournamentPermission } from '@/lib/tournaments/permissions'
+import { createOwnedTournament } from '@/lib/tournaments/create/service'
 import {
   validateTournamentInput,
   type TournamentFormValues,
@@ -84,49 +85,16 @@ async function writeAudit(
   }
 }
 
-// ── create ────────────────────────────────────────────────────────────────────────────────
+// ── create (SELF-SERVICE — any authenticated user, 15F-1) ──────────────────────────────────
+// Creation is NO LONGER Site-Admin-only: any signed-in user may create a DRAFT tournament and
+// becomes its OWNER, atomically. The authorization + atomic tournament/owner/audit write live in
+// lib/tournaments/create/service.ts (which calls the SECURITY DEFINER RPC). We deliberately do NOT
+// use checkIsAdmin() here, and we do NOT use the scoped may() guard (there is no tournament to scope
+// to yet). Every mutation AFTER create still goes through the per-tournament scoped permission below.
 export async function createTournament(
   values: TournamentFormValues,
 ): Promise<TournamentMutationResult> {
-  if (!(await checkIsAdmin())) return { ok: false, error: 'forbidden' }
-
-  const parsed = validateTournamentInput(values)
-  if (!parsed.ok) return { ok: false, error: 'invalid', fieldErrors: parsed.errors }
-
-  const actorId = await currentUserId()
-  const admin = createAdminClient()
-  const { name, slug, startsAt, endsAt, location, rulesUrl } = parsed.value
-
-  const { data, error } = await admin
-    .from('tournaments')
-    .insert({
-      slug,
-      name,
-      starts_at: startsAt,
-      ends_at: endsAt,
-      location,
-      rules_url: rulesUrl,
-      status: 'draft', // ALWAYS draft on create — never accept a client-chosen status.
-      created_by: actorId,
-    })
-    .select('id, slug')
-    .single()
-
-  if (error) {
-    if (error.code === PG_UNIQUE_VIOLATION) {
-      return { ok: false, error: 'slug_taken', fieldErrors: { slug: 'slug_invalid' } }
-    }
-    return { ok: false, error: 'unknown' }
-  }
-
-  await writeAudit(admin, {
-    tournamentId: data.id,
-    actorId,
-    action: 'tournament_created',
-    detail: { name, slug, status_after: 'draft' },
-  })
-  revalidateTournamentViews(data.id)
-  return { ok: true, id: data.id, slug: data.slug }
+  return createOwnedTournament(values)
 }
 
 // ── update ────────────────────────────────────────────────────────────────────────────────

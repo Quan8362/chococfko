@@ -99,7 +99,9 @@
     "todays_suggestion": "今天去哪儿？",
     "about": "关于",
     "tournaments": "赛事",
-    "manage_tournaments": "赛事管理"
+    "manage_tournaments": "赛事管理",
+    "my_tournaments": "我的赛事",
+    "create_tournament": "创建赛事"
   },
   "home": {
     "write_cta": "✍️ 写文章",
@@ -7090,19 +7092,22 @@
     "empty_title": "暂无赛事",
     "empty_sub_admin": "创建第一个赛事以开始。",
     "empty_sub_scoped": "您尚未被指派管理任何赛事。请联系管理员。",
+    "empty_sub_create": "创建您的第一个赛事以开始管理。",
     "back_list": "赛事列表",
     "you_are_site_admin": "站点管理员",
     "you_are_manager": "管理员",
-    "you_are_scorekeeper": "记分员"
+    "you_are_scorekeeper": "记分员",
+    "you_are_owner": "赛事所有者"
   },
   "tournament_roles": {
     "role_site_admin": "站点管理员",
     "role_manager": "管理员",
-    "role_scorekeeper": "记分员"
+    "role_scorekeeper": "记分员",
+    "role_owner": "赛事所有者"
   },
   "tournament_members": {
     "section_title": "管理成员",
-    "section_hint": "为此赛事邀请管理员或记分员。仅站点管理员可见此区域。",
+    "section_hint": "为此赛事邀请管理员或记分员。仅赛事所有者和站点管理员可见此区域。",
     "email_label": "邮箱",
     "email_placeholder": "name@email.com",
     "role_label": "角色",
@@ -7135,6 +7140,8 @@
     "err_invalid_role": "角色无效。",
     "err_not_found": "未找到。",
     "err_already_active": "该邮箱已是活跃成员。",
+    "err_cannot_modify_owner": "无法更改赛事所有者。",
+    "owner_locked": "赛事所有者",
     "err_version_conflict": "数据刚刚发生变化。请重新加载。",
     "err_unknown": "出现问题。请重试。"
   },

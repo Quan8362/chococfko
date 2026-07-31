@@ -6,7 +6,9 @@ import path from 'node:path'
 // Structural / security guarantees for the EVENT + COMPETITOR admin actions (Prompt 05) that
 // can't be a pure-function unit test but still MUST hold. Run from the web/ git root (npm test).
 const ROOT = process.cwd()
-const read = (rel: string) => fs.readFileSync(path.resolve(ROOT, rel), 'utf8')
+// Normalize CRLF→LF so byte-offset windows (e.g. slice(fnStart, fnStart+N)) behave identically on a
+// Windows checkout (git autocrlf=true → CRLF) and a POSIX/LF checkout. Reads source only; never mutates.
+const read = (rel: string) => fs.readFileSync(path.resolve(ROOT, rel), 'utf8').replace(/\r\n/g, '\n')
 
 const ACTIONS = 'app/admin/giai-dau/[id]/noi-dung/actions.ts'
 const QUERIES = 'lib/tournaments/admin/queries.ts'

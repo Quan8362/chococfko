@@ -25,7 +25,7 @@ export default function PublicOverview({
   return (
     <div className="space-y-3">
       <h2 className="font-serif font-bold text-[16px] text-ink">{t('overview.events_heading')}</h2>
-      <ul className="space-y-2.5">
+      <ul className="grid gap-2.5 md:grid-cols-2 xl:grid-cols-3">
         {events.map((ev) => {
           const pct = completionPercent(ev.completedMatchCount, ev.matchCount)
           const active = ev.id === selectedEventId

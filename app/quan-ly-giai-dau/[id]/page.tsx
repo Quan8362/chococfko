@@ -8,6 +8,7 @@ import StatusBadge from '@/components/tournaments/admin/StatusBadge'
 import TournamentStatusActions from '@/components/tournaments/admin/TournamentStatusActions'
 import EventList from '@/components/tournaments/admin/EventList'
 import TournamentMembersPanel from '@/components/tournaments/admin/TournamentMembersPanel'
+import TournamentShell from '@/components/tournaments/TournamentShell'
 import { MANAGEMENT_BASE, isSignedIn, statusActionCaps } from '../_access'
 
 export const dynamic = 'force-dynamic'
@@ -54,7 +55,7 @@ export default async function ManagementDetailPage({ params }: { params: { id: s
   )
 
   return (
-    <div className="max-w-[820px] mx-auto px-5 sm:px-6 py-10 pb-20">
+    <TournamentShell size="detail">
       <Link
         href={MANAGEMENT_BASE}
         className="inline-flex items-center gap-1 text-[12.5px] text-muted hover:text-rose transition-colors mb-3"
@@ -97,41 +98,45 @@ export default async function ManagementDetailPage({ params }: { params: { id: s
         )}
       </div>
 
-      {/* Info card */}
-      <div className="bg-paper border border-line rounded-2xl p-5 sm:p-6 mb-6">
-        <Row label={t('f_starts')}>{fmtDateTime(tournament.startsAt)}</Row>
-        <Row label={t('f_ends')}>{fmtDateTime(tournament.endsAt)}</Row>
-        <Row label={t('f_location')}>{tournament.location || '—'}</Row>
-        <Row label={t('f_rules_url')}>
-          {tournament.rulesUrl ? (
-            <a href={tournament.rulesUrl} target="_blank" rel="noopener noreferrer nofollow" className="text-rose underline break-all">
-              {tournament.rulesUrl}
-            </a>
-          ) : (
-            '—'
-          )}
-        </Row>
-        <Row label={t('created_at')}>{fmtDateTime(tournament.createdAt)}</Row>
-        <Row label={t('updated_at')}>{fmtDateTime(tournament.updatedAt)}</Row>
-        <Row label={t('events_label')}>{t('events_count', { count: tournament.eventCount })}</Row>
-      </div>
-
-      {/* Status actions (only what this role may do) */}
-      {anyStatusAction && (
-        <div className="bg-paper border border-line rounded-2xl p-5 sm:p-6 mb-6">
-          <h2 className="font-serif font-bold text-[16px] text-ink mb-1">{t('actions_heading')}</h2>
-          <p className="text-[12.5px] text-muted mb-3">{t('actions_hint')}</p>
-          <TournamentStatusActions
-            id={tournament.id}
-            status={tournament.status}
-            eventCount={tournament.eventCount}
-            updatedAt={tournament.updatedAt}
-            variant="detail"
-            basePath={MANAGEMENT_BASE}
-            caps={sac}
-          />
+      {/* Info + status: two zones on desktop (main info wider than the actions sidebar), stacked on
+          mobile. Events and members stay full-width below so their content never gets cramped. */}
+      <div className={`mb-6 grid gap-6 ${anyStatusAction ? 'lg:grid-cols-[1.5fr_1fr]' : 'grid-cols-1'}`}>
+        {/* Info card */}
+        <div className="bg-paper border border-line rounded-2xl p-5 sm:p-6">
+          <Row label={t('f_starts')}>{fmtDateTime(tournament.startsAt)}</Row>
+          <Row label={t('f_ends')}>{fmtDateTime(tournament.endsAt)}</Row>
+          <Row label={t('f_location')}>{tournament.location || '—'}</Row>
+          <Row label={t('f_rules_url')}>
+            {tournament.rulesUrl ? (
+              <a href={tournament.rulesUrl} target="_blank" rel="noopener noreferrer nofollow" className="text-rose underline break-all">
+                {tournament.rulesUrl}
+              </a>
+            ) : (
+              '—'
+            )}
+          </Row>
+          <Row label={t('created_at')}>{fmtDateTime(tournament.createdAt)}</Row>
+          <Row label={t('updated_at')}>{fmtDateTime(tournament.updatedAt)}</Row>
+          <Row label={t('events_label')}>{t('events_count', { count: tournament.eventCount })}</Row>
         </div>
-      )}
+
+        {/* Status actions (only what this role may do) */}
+        {anyStatusAction && (
+          <div className="bg-paper border border-line rounded-2xl p-5 sm:p-6 lg:self-start">
+            <h2 className="font-serif font-bold text-[16px] text-ink mb-1">{t('actions_heading')}</h2>
+            <p className="text-[12.5px] text-muted mb-3">{t('actions_hint')}</p>
+            <TournamentStatusActions
+              id={tournament.id}
+              status={tournament.status}
+              eventCount={tournament.eventCount}
+              updatedAt={tournament.updatedAt}
+              variant="detail"
+              basePath={MANAGEMENT_BASE}
+              caps={sac}
+            />
+          </div>
+        )}
+      </div>
 
       {/* Events (nội dung thi đấu) */}
       <div className="bg-cream border border-line rounded-2xl p-5 sm:p-6 mb-6">
@@ -144,6 +149,6 @@ export default async function ManagementDetailPage({ params }: { params: { id: s
           <TournamentMembersPanel tournamentId={tournament.id} members={membersResult.members} />
         </div>
       )}
-    </div>
+    </TournamentShell>
   )
 }

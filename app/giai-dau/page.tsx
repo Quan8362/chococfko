@@ -4,6 +4,7 @@ import { getTranslations, getLocale } from 'next-intl/server'
 import { listPublicTournaments } from '@/lib/tournaments/public/queries'
 import { formatDateRange } from '@/lib/tournaments/public/format'
 import StatusPill from '@/components/tournaments/public/StatusPill'
+import TournamentShell from '@/components/tournaments/TournamentShell'
 import { SITE_URL, SITE_NAME, DEFAULT_OG_IMAGE, OG_LOCALE, breadcrumbJsonLd, jsonLdString } from '@/lib/seo'
 
 // The next-intl cookie already forces dynamic rendering; render on every request so admin-entered
@@ -46,11 +47,11 @@ export default async function TournamentsListPage() {
   )
 
   return (
-    <div className="max-w-[960px] mx-auto px-5 sm:px-6 py-10 pb-20">
+    <TournamentShell size="wide">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: breadcrumb }} />
 
       {/* Header band */}
-      <div className="relative overflow-hidden rounded-3xl border border-line bg-gradient-to-br from-gold-light/50 via-paper to-rose-soft px-6 py-8 sm:px-10 sm:py-11 mb-9">
+      <div className="relative overflow-hidden rounded-3xl border border-line bg-gradient-to-br from-gold-light/50 via-paper to-rose-soft px-6 py-7 sm:px-10 sm:py-9 mb-8">
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-[0.5]">
           <span className="absolute top-6 right-8 w-20 h-20 rounded-full bg-gold/15 blur-2xl" />
           <span className="absolute -bottom-6 right-28 w-24 h-24 rounded-full bg-rose/10 blur-2xl" />
@@ -75,7 +76,13 @@ export default async function TournamentsListPage() {
           <p className="text-[13.5px] text-muted max-w-[380px] mx-auto">{t('public.empty_desc')}</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+        <div
+          className={
+            tournaments.length === 1
+              ? 'max-w-[440px]'
+              : 'grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5'
+          }
+        >
           {tournaments.map((tn) => {
             const range = formatDateRange(tn.startsAt, tn.endsAt, locale)
             return (
@@ -116,7 +123,7 @@ export default async function TournamentsListPage() {
           })}
         </div>
       )}
-    </div>
+    </TournamentShell>
   )
 }
 

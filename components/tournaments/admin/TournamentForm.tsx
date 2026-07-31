@@ -42,7 +42,7 @@ function localInputToIso(local: string): string {
 const Field = (props: React.InputHTMLAttributes<HTMLInputElement>) => (
   <input
     {...props}
-    className="w-full text-[14px] px-3 py-2 rounded-lg bg-cream border border-line text-ink focus:outline-none focus:border-rose/50"
+    className="mt-1 w-full text-[14px] px-3 py-2 rounded-lg bg-cream border border-line text-ink focus:outline-none focus:border-rose/50 focus-visible:ring-2 focus-visible:ring-rose/30 aria-[invalid=true]:border-rose aria-[invalid=true]:ring-1 aria-[invalid=true]:ring-rose/30"
   />
 )
 
@@ -82,6 +82,22 @@ export default function TournamentForm({
     if (!slugTouched) setSlug(slugifyTournament(v))
   }
 
+  // Move keyboard focus to the first field with an error so a failed submit is never silent.
+  function focusFirstError(errs: TournamentFieldErrors) {
+    const order: [TournamentFieldKey, string][] = [
+      ['name', 'trn-f-name'],
+      ['slug', 'trn-f-slug'],
+      ['dates', 'trn-f-startsAt'],
+      ['rulesUrl', 'trn-f-rulesUrl'],
+    ]
+    for (const [key, id] of order) {
+      if (errs[key]) {
+        document.getElementById(id)?.focus()
+        break
+      }
+    }
+  }
+
   function submit() {
     setFormError(null)
     const values = {
@@ -95,6 +111,7 @@ export default function TournamentForm({
     const parsed = validateTournamentInput(values)
     if (!parsed.ok) {
       setFieldErrors(parsed.errors)
+      focusFirstError(parsed.errors)
       return
     }
     setFieldErrors({})
@@ -108,7 +125,10 @@ export default function TournamentForm({
         router.refresh()
         return
       }
-      if (res.fieldErrors) setFieldErrors(res.fieldErrors)
+      if (res.fieldErrors) {
+        setFieldErrors(res.fieldErrors)
+        focusFirstError(res.fieldErrors)
+      }
       setFormError(res.error)
     })
   }
@@ -129,19 +149,27 @@ export default function TournamentForm({
 
       <label className="block text-[12.5px] font-semibold text-[#5c4d44]">
         {t('f_name')}
-        <Field value={name} onChange={(e) => onNameChange(e.target.value)} placeholder={t('f_name_ph')} />
+        <Field
+          id="trn-f-name"
+          value={name}
+          onChange={(e) => onNameChange(e.target.value)}
+          placeholder={t('f_name_ph')}
+          aria-invalid={!!fieldErrors.name}
+        />
         {errFor('name')}
       </label>
 
       <label className="block text-[12.5px] font-semibold text-[#5c4d44]">
         {t('f_slug')}
         <Field
+          id="trn-f-slug"
           value={effectiveSlug}
           onChange={(e) => {
             setSlugTouched(true)
             setSlug(e.target.value)
           }}
           placeholder={t('f_slug_ph')}
+          aria-invalid={!!fieldErrors.slug}
         />
         <span className="block text-[11.5px] font-normal text-muted mt-1">{t('f_slug_hint')}</span>
         {errFor('slug')}
@@ -150,7 +178,7 @@ export default function TournamentForm({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <label className="block text-[12.5px] font-semibold text-[#5c4d44]">
           {t('f_starts')}
-          <Field type="datetime-local" value={startsAt} onChange={(e) => setStartsAt(e.target.value)} />
+          <Field id="trn-f-startsAt" type="datetime-local" value={startsAt} onChange={(e) => setStartsAt(e.target.value)} aria-invalid={!!fieldErrors.dates} />
         </label>
         <label className="block text-[12.5px] font-semibold text-[#5c4d44]">
           {t('f_ends')}
@@ -166,7 +194,7 @@ export default function TournamentForm({
 
       <label className="block text-[12.5px] font-semibold text-[#5c4d44]">
         {t('f_rules_url')}
-        <Field value={rulesUrl} onChange={(e) => setRulesUrl(e.target.value)} placeholder={t('f_rules_url_ph')} />
+        <Field id="trn-f-rulesUrl" value={rulesUrl} onChange={(e) => setRulesUrl(e.target.value)} placeholder={t('f_rules_url_ph')} aria-invalid={!!fieldErrors.rulesUrl} />
         {errFor('rulesUrl')}
       </label>
 

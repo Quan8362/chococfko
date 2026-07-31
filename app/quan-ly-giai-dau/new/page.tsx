@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import TournamentForm from '@/components/tournaments/admin/TournamentForm'
+import TournamentShell from '@/components/tournaments/TournamentShell'
 import { MANAGEMENT_BASE, isSignedIn } from '../_access'
 
 export const dynamic = 'force-dynamic'
@@ -14,7 +15,7 @@ export default async function NewManagedTournamentPage() {
   const t = await getTranslations('admin_tournaments')
 
   return (
-    <div className="max-w-[720px] mx-auto px-5 sm:px-6 py-10 pb-20">
+    <TournamentShell size="form">
       <Link
         href={MANAGEMENT_BASE}
         className="inline-flex items-center gap-1 text-[12.5px] text-muted hover:text-rose transition-colors mb-3"
@@ -26,6 +27,6 @@ export default async function NewManagedTournamentPage() {
       </Link>
       <h1 className="font-serif font-bold text-[26px] tracking-[-0.3px] text-ink mb-5">{t('create_cta')}</h1>
       <TournamentForm basePath={MANAGEMENT_BASE} />
-    </div>
+    </TournamentShell>
   )
 }

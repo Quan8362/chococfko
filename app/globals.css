@@ -1142,6 +1142,44 @@ body.tlmn-scroll-lock {
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { scrollbar-width: none; }
 
+/* Tournament module scrollbars ------------------------------------------------
+   Root cause of the "phantom" up/down-arrow scrollbars reported in the tournament
+   UI: when Chrome on Windows uses the native OS scrollbar (the default when a
+   scroll container has NO custom ::-webkit-scrollbar style), and the OS is set to
+   "always show scrollbars", it paints classic steppers — ▲ thumb ▼ — at the edge
+   of every overflow:auto/scroll element (horizontal tab strips, modal bodies,
+   assignment-board columns). Defining a themed webkit scrollbar makes Chrome draw
+   its own slim bar WITHOUT stepper buttons. Scoped to .trn-scope so the rest of
+   the site is untouched; scrollbar-color/width are inherited properties so they
+   cascade to every descendant scroll container. */
+.trn-scope {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+}
+.trn-scope ::-webkit-scrollbar,
+.trn-scope::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.trn-scope ::-webkit-scrollbar-track,
+.trn-scope::-webkit-scrollbar-track {
+  background: transparent;
+}
+.trn-scope ::-webkit-scrollbar-thumb,
+.trn-scope::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 9999px;
+}
+.trn-scope ::-webkit-scrollbar-thumb:hover,
+.trn-scope::-webkit-scrollbar-thumb:hover {
+  background: #d8c8b4;
+}
+/* Never paint the little corner square where two bars would meet. */
+.trn-scope ::-webkit-scrollbar-corner,
+.trn-scope::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
 /* Explore category anchor: land the section heading just below the sticky
    header/search/chips bar. JS keeps --explore-sticky-offset accurate (live
    sticky height + 24px desktop / 16px mobile); these are sensible fallbacks for

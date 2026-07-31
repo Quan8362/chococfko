@@ -12,6 +12,7 @@ import type {
 import { toBracketCompetitors } from '@/lib/tournaments/public/types'
 import { TAB_SLUGS } from '@/lib/tournaments/public/tabs'
 import BracketView from '@/components/tournaments/admin/BracketView'
+import TournamentShell from '@/components/tournaments/TournamentShell'
 import { useTournamentRealtime, type RealtimeSubscription } from '@/components/tournaments/useTournamentRealtime'
 import ConnectionIndicator from '@/components/tournaments/ConnectionIndicator'
 import StatusPill from './StatusPill'
@@ -148,7 +149,7 @@ export default function TournamentDetail({
   const activeBranch = brackets.find((b) => b.bracket === branch) ?? brackets.find((b) => b.bracket === 'championship') ?? null
 
   return (
-    <div className="max-w-[960px] mx-auto px-5 sm:px-6 py-8 pb-20">
+    <TournamentShell size="wide">
       {/* Back link */}
       <Link href="/giai-dau" className="inline-flex items-center gap-1.5 text-[13px] text-muted hover:text-rose transition-colors mb-4">
         <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24" aria-hidden="true">
@@ -157,43 +158,49 @@ export default function TournamentDetail({
         {t('public.all_tournaments')}
       </Link>
 
-      {/* Header */}
+      {/* Header — title/meta and status/actions split into two zones on desktop, stacked on mobile */}
       <header className="rounded-3xl border border-line bg-gradient-to-br from-gold-light/40 via-paper to-rose-soft/60 p-6 sm:p-8 mb-6">
-        <div className="flex flex-wrap items-start justify-between gap-3 mb-3">
-          <h1 className="font-serif font-bold text-[clamp(24px,3.4vw,36px)] leading-tight text-ink">{summary.name}</h1>
-          <StatusPill phase={phase} label={t(`status.${phase}`)} />
-        </div>
-        <div className="flex flex-wrap gap-x-5 gap-y-1.5 text-[13px] text-muted mb-4">
-          <span>{dateRange || t('public.dates_tbd')}</span>
-          <span>{summary.location || t('public.location_tbd')}</span>
-          <span>{t('public.events_count', { count: summary.events.length })}</span>
-        </div>
-        <div className="flex flex-wrap items-center gap-2.5">
-          {summary.rulesUrl && (
-            <a
-              href={summary.rulesUrl}
-              target="_blank"
-              rel="noopener noreferrer nofollow"
-              className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-teal bg-teal-soft hover:bg-teal-soft/70 px-3 py-1.5 rounded-xl transition-colors"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.7} viewBox="0 0 24 24" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-              </svg>
-              {t('public.rules')}
-            </a>
-          )}
-          <ShareButton />
-          <ConnectionIndicator status={rtStatus} onRefresh={refreshNow} className="ml-1" />
-          <button
-            type="button"
-            onClick={() => router.refresh()}
-            className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-ink bg-paper border border-line hover:border-rose/40 hover:text-rose px-3 py-1.5 rounded-xl transition-colors"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.7} viewBox="0 0 24 24" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
-            </svg>
-            {t('public.refresh')}
-          </button>
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+          <div className="min-w-0">
+            <h1 className="font-serif font-bold text-[clamp(24px,3.4vw,36px)] leading-tight text-ink break-words">
+              {summary.name}
+            </h1>
+            <div className="flex flex-wrap gap-x-5 gap-y-1.5 text-[13px] text-muted mt-3">
+              <span>{dateRange || t('public.dates_tbd')}</span>
+              <span>{summary.location || t('public.location_tbd')}</span>
+              <span>{t('public.events_count', { count: summary.events.length })}</span>
+            </div>
+          </div>
+          <div className="flex flex-col items-start gap-3 lg:items-end lg:flex-none">
+            <StatusPill phase={phase} label={t(`status.${phase}`)} />
+            <div className="flex flex-wrap items-center gap-2.5 lg:justify-end">
+              {summary.rulesUrl && (
+                <a
+                  href={summary.rulesUrl}
+                  target="_blank"
+                  rel="noopener noreferrer nofollow"
+                  className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-teal bg-teal-soft hover:bg-teal-soft/70 px-3 py-1.5 rounded-xl transition-colors"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.7} viewBox="0 0 24 24" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                  </svg>
+                  {t('public.rules')}
+                </a>
+              )}
+              <ShareButton />
+              <ConnectionIndicator status={rtStatus} onRefresh={refreshNow} />
+              <button
+                type="button"
+                onClick={() => router.refresh()}
+                className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-ink bg-paper border border-line hover:border-rose/40 hover:text-rose px-3 py-1.5 rounded-xl transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.7} viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                </svg>
+                {t('public.refresh')}
+              </button>
+            </div>
+          </div>
         </div>
       </header>
 
@@ -201,14 +208,14 @@ export default function TournamentDetail({
       {summary.events.length > 1 && (
         <div className="mb-5">
           <p className="text-[11px] font-semibold uppercase tracking-wide text-muted mb-1.5">{t('public.event_selector')}</p>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-1 px-1 pb-0.5">
             {summary.events.map((ev) => (
               <button
                 key={ev.id}
                 type="button"
                 onClick={() => selectEvent(ev.id)}
                 aria-pressed={ev.id === selectedEventId}
-                className={`text-[13px] font-medium px-3 py-1.5 rounded-xl border transition-colors ${
+                className={`flex-none whitespace-nowrap text-[13px] font-medium px-3 py-1.5 rounded-xl border transition-colors ${
                   ev.id === selectedEventId
                     ? 'border-rose bg-rose text-white'
                     : 'border-line bg-paper text-ink hover:border-rose/40'
@@ -226,7 +233,7 @@ export default function TournamentDetail({
       ) : (
         <>
           {/* Tabs */}
-          <div role="tablist" aria-label={t('public.tabs_label')} className="flex flex-wrap gap-1 border-b border-line mb-5">
+          <div role="tablist" aria-label={t('public.tabs_label')} className="flex gap-1 border-b border-line mb-5 overflow-x-auto no-scrollbar">
             {availableTabs.map((tab, idx) => (
               <button
                 key={tab}
@@ -240,7 +247,7 @@ export default function TournamentDetail({
                 tabIndex={activeTab === tab ? 0 : -1}
                 onKeyDown={(e) => onTabKeyDown(e, idx)}
                 onClick={() => selectTab(tab)}
-                className={`text-[13px] font-semibold px-3.5 py-2 -mb-px border-b-2 rounded-t transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose/40 ${
+                className={`flex-none whitespace-nowrap text-[13px] font-semibold px-3.5 py-2 -mb-px border-b-2 rounded-t transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose/40 ${
                   activeTab === tab
                     ? 'border-rose text-rose'
                     : 'border-transparent text-muted hover:text-ink'
@@ -298,6 +305,6 @@ export default function TournamentDetail({
           </div>
         </>
       )}
-    </div>
+    </TournamentShell>
   )
 }

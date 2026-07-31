@@ -119,7 +119,7 @@ export default function PublicSchedule({
                           <p className="text-[11px] font-semibold text-muted/80 uppercase tracking-wide mb-1">
                             {t('schedule.round_label', { n: round })}
                           </p>
-                          <ul className="space-y-1.5">
+                          <ul className="grid gap-1.5 lg:grid-cols-2 xl:grid-cols-3">
                             {matches.map((m) => (
                               <MatchRow key={m.id} m={m} nameOf={nameOf} t={t} />
                             ))}
@@ -142,7 +142,7 @@ export default function PublicSchedule({
                     <h3 className="text-[13px] font-bold text-teal mb-2">
                       {t(`bracket.${bracket}`)} · {roundLabelText(matches[0]?.roundLabel ?? label, roundNumber)}
                     </h3>
-                    <ul className="space-y-1.5">
+                    <ul className="grid gap-1.5 lg:grid-cols-2 xl:grid-cols-3">
                       {matches.map((m) => (
                         <MatchRow key={m.id} m={m} nameOf={nameOf} t={t} />
                       ))}
@@ -193,7 +193,7 @@ function MatchRow({
                 ? 'text-amber-700 bg-amber-50 border-amber-200'
                 : m.status === 'cancelled'
                   ? 'text-muted bg-cream border-line line-through'
-                  : 'text-muted bg-cream border-line'
+                  : 'text-[#8a6d1f] bg-gold-light/50 border-gold/30'
           }`}
         >
           {t(statusKey)}

@@ -64,7 +64,7 @@ export default async function ManagementEventPage({
   const yesNo = (v: boolean) => (v ? t('yes') : t('no'))
 
   return (
-    <div className="max-w-[860px] mx-auto px-5 sm:px-6 py-10 pb-20">
+    <div className="trn-scope max-w-[1120px] mx-auto px-4 sm:px-6 lg:px-8 py-10 pb-20">
       <Link
         href={`${MANAGEMENT_BASE}/${params.id}`}
         className="inline-flex items-center gap-1 text-[12.5px] text-muted hover:text-rose transition-colors mb-3"

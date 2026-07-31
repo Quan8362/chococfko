@@ -9,6 +9,7 @@ import {
 import type { TournamentStatus } from '@/lib/tournaments/admin/types'
 import StatusBadge from '@/components/tournaments/admin/StatusBadge'
 import TournamentStatusActions from '@/components/tournaments/admin/TournamentStatusActions'
+import TournamentShell from '@/components/tournaments/TournamentShell'
 import { MANAGEMENT_BASE, listRowStatusCaps } from './_access'
 
 export const dynamic = 'force-dynamic'
@@ -44,7 +45,7 @@ export default async function ManagementListPage() {
   const statusLabel = (s: string) => ta(`status_${s as TournamentStatus}`)
 
   return (
-    <div className="max-w-[1100px] mx-auto px-5 sm:px-6 py-10 pb-20">
+    <TournamentShell size="wide">
       <div className="mb-8">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
@@ -139,6 +140,6 @@ export default async function ManagementListPage() {
           })}
         </div>
       )}
-    </div>
+    </TournamentShell>
   )
 }

@@ -39,5 +39,11 @@ __pycache__/
 # Poker load-test stop switch (operator-created kill file)
 /scripts/poker-load/.STOP
 
+# Tournament E2E: auth states (session tokens), run artifacts (traces/screenshots/
+# results.json — can embed keys), and the LOCAL stack env file — never commit
+/e2e/tournaments/.auth/
+/e2e/tournaments/.artifacts/
+/e2e/tournaments/.env.stack.local
+
 # FUSE mount artifacts (appear when an open file is deleted)
 .fuse_hidden*

@@ -231,6 +231,7 @@ export default async function GamesPage() {
         </div>
       </div>
 
+      <h2 className="font-serif font-bold text-[19px] text-ink mb-4">{t('section_online')}</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
         {GAMES.map((g) => (
           <Link
@@ -279,6 +280,38 @@ export default async function GamesPage() {
           <p className="text-[13px] text-muted/70 font-medium max-w-[180px]">{t('coming_soon')}</p>
         </div>
       </div>
+
+      {/* ── Tournaments & community activities ── (an independent module, not a mini game) */}
+      <h2 className="font-serif font-bold text-[19px] text-ink mt-12 mb-4">{t('section_community')}</h2>
+      <Link
+        href="/giai-dau"
+        className="group relative overflow-hidden block bg-paper border border-line rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1 hover:border-rose/40 hover:shadow-[0_18px_40px_-16px_rgba(194,24,91,0.28)]"
+      >
+        <span aria-hidden="true" className="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-rose to-transparent opacity-60 group-hover:opacity-100 transition-opacity" />
+        <span aria-hidden="true" className="absolute -top-12 -right-10 w-32 h-32 rounded-full bg-gold/20 blur-2xl opacity-0 group-hover:opacity-70 transition-opacity duration-500" />
+        <div className="relative flex items-start gap-4">
+          <div className="flex-none w-14 h-14 rounded-2xl flex items-center justify-center shadow-sm ring-1 ring-black/[0.04]" style={{ background: 'linear-gradient(140deg,#fdf6e6,#f3e2b8)' }}>
+            <svg className="w-7 h-7 text-gold" fill="none" stroke="currentColor" strokeWidth={1.6} viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 002.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 012.916.52 6.003 6.003 0 01-5.395 4.972m0 0a6.726 6.726 0 01-2.749 1.35m0 0a6.772 6.772 0 01-3.044 0" />
+            </svg>
+          </div>
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 mb-1.5">
+              <h3 className="font-serif font-bold text-[18px] text-ink group-hover:text-rose transition-colors">{t('community_card_title')}</h3>
+              <span className="text-[10px] font-bold px-2.5 py-1 rounded-full tracking-wide bg-gradient-to-r from-amber-400 to-gold text-white shadow-[0_2px_8px_-2px_rgba(201,154,61,0.5)]">
+                {t('community_card_tag')}
+              </span>
+            </div>
+            <p className="text-[13.5px] text-muted leading-relaxed mb-3 max-w-[560px]">{t('community_card_desc')}</p>
+            <span className="inline-flex items-center gap-1 text-[12.5px] font-semibold text-rose">
+              {t('community_card_cta')}
+              <svg className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </span>
+          </div>
+        </div>
+      </Link>
     </div>
   )
 }

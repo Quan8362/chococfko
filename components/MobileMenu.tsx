@@ -12,9 +12,10 @@ import { trackMapOpen } from '@/lib/mapNav'
 interface MobileMenuProps {
   isAdmin?: boolean
   isLoggedIn?: boolean
+  canManageTournaments?: boolean
 }
 
-export default function MobileMenu({ isLoggedIn }: MobileMenuProps) {
+export default function MobileMenu({ isLoggedIn, canManageTournaments }: MobileMenuProps) {
   const t = useTranslations('nav')
   const tConf = useTranslations('confessions')
   const tJp = useTranslations('japanese')
@@ -131,6 +132,16 @@ export default function MobileMenu({ isLoggedIn }: MobileMenuProps) {
                 <span className="flex-none grid place-items-center w-9 h-9 rounded-lg bg-cream text-muted group-hover/m:bg-rose/10 group-hover/m:text-rose transition-colors"><NavIcon name="puzzle" /></span>
                 {t('mini_game')}
               </Link>
+              <Link href="/giai-dau" onClick={close} className="group/m flex items-center gap-3 px-2.5 py-2.5 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
+                <span className="flex-none grid place-items-center w-9 h-9 rounded-lg bg-cream text-muted group-hover/m:bg-rose/10 group-hover/m:text-rose transition-colors"><NavIcon name="trophy" /></span>
+                {t('tournaments')}
+              </Link>
+              {canManageTournaments && (
+                <Link href="/quan-ly-giai-dau" onClick={close} className="group/m flex items-center gap-3 px-2.5 py-2.5 rounded-xl text-[15px] font-medium text-ink hover:bg-cream transition-colors">
+                  <span className="flex-none grid place-items-center w-9 h-9 rounded-lg bg-cream text-muted group-hover/m:bg-rose/10 group-hover/m:text-rose transition-colors"><NavIcon name="trophy" /></span>
+                  {t('manage_tournaments')}
+                </Link>
+              )}
 
               <div className="my-1.5 border-t border-line" />
               <Link href="/community/write" onClick={close} className="group/m flex items-center gap-3 px-2.5 py-2.5 rounded-xl text-[15px] font-semibold text-rose hover:bg-rose-soft transition-colors">

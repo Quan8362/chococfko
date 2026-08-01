@@ -242,6 +242,20 @@ async function tournamentExists(admin: SupabaseClient, tournamentId: string): Pr
   return !!data
 }
 
+// Whether the KNOCKOUT bracket has been generated for an event. For group_knockout, the group-stage
+// matches (stage='group') always exist once the groups are played, so `ev.matchCount > 0` is NOT a
+// valid "bracket already created" signal there — seeding happens precisely AFTER the group stage.
+// The bracket-existence probe (mirroring getGroupKnockoutSeedSetupForAdmin) is stage='knockout' only.
+async function hasKnockoutMatches(admin: SupabaseClient, eventId: string): Promise<boolean> {
+  const { data } = await admin
+    .from('tournament_matches')
+    .select('id')
+    .eq('event_id', eventId)
+    .eq('stage', 'knockout')
+    .limit(1)
+  return Array.isArray(data) && data.length > 0
+}
+
 async function nextDisplayOrder(
   admin: SupabaseClient,
   table: 'tournament_events' | 'tournament_competitors',
@@ -2220,7 +2234,9 @@ export async function saveGroupKnockoutSeeds(
   const ev = await loadEvent(admin, tournamentId, eventId)
   if (!ev) return { ok: false, error: 'not_found' }
   if (ev.format !== 'group_knockout') return { ok: false, error: 'wrong_format' }
-  if (ev.matchCount > 0) return { ok: false, error: 'has_matches' }
+  // Block only when the KNOCKOUT bracket already exists — NOT merely because group-stage matches do
+  // (they always do at seeding time). Using ev.matchCount here made saving seeds impossible.
+  if (await hasKnockoutMatches(admin, eventId)) return { ok: false, error: 'has_matches' }
 
   // Reload the group stage and require it to be settled (knockout_ready) before seeding.
   const raw = await loadGroupEvalRaw(admin, eventId)
@@ -2308,7 +2324,8 @@ export async function clearGroupKnockoutSeeds(
   const ev = await loadEvent(admin, tournamentId, eventId)
   if (!ev) return { ok: false, error: 'not_found' }
   if (ev.format !== 'group_knockout') return { ok: false, error: 'wrong_format' }
-  if (ev.matchCount > 0) return { ok: false, error: 'has_matches' }
+  // Same fix as save: only an existing KNOCKOUT bracket blocks clearing seeds, not group matches.
+  if (await hasKnockoutMatches(admin, eventId)) return { ok: false, error: 'has_matches' }
 
   const { data, error } = await admin.rpc('tournament_clear_group_knockout_seeds', {
     p_event_id: eventId,

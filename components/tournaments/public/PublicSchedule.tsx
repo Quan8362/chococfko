@@ -158,6 +158,51 @@ export default function PublicSchedule({
   )
 }
 
+// Small non-colour winner cue (a check mark) so the winner is not signalled by colour/weight alone.
+function WinnerMark({ show }: { show: boolean }) {
+  return (
+    <span className="flex-none w-3.5 text-center" aria-hidden={!show}>
+      {show ? (
+        <svg viewBox="0 0 20 20" className="inline-block h-3 w-3 text-teal" fill="currentColor">
+          <path
+            fillRule="evenodd"
+            d="M16.7 5.3a1 1 0 0 1 0 1.4l-7.5 7.5a1 1 0 0 1-1.4 0L3.3 9.7a1 1 0 1 1 1.4-1.4l3.3 3.3 6.8-6.8a1 1 0 0 1 1.4 0Z"
+            clipRule="evenodd"
+          />
+        </svg>
+      ) : null}
+    </span>
+  )
+}
+
+function StatusBadge({
+  status,
+  done,
+  t,
+}: {
+  status: string
+  done: boolean
+  t: (key: string, values?: Record<string, string | number>) => string
+}) {
+  return (
+    <span
+      className={`flex-none text-[10.5px] font-semibold px-2 py-0.5 rounded-full border ${
+        done
+          ? 'text-teal bg-teal-soft border-transparent'
+          : status === 'bye'
+            ? 'text-amber-700 bg-amber-50 border-amber-200'
+            : status === 'cancelled'
+              ? 'text-muted bg-cream border-line line-through'
+              : status === 'ready'
+                ? 'text-teal bg-teal-soft/60 border-teal/20'
+                : 'text-[#8a6d1f] bg-gold-light/50 border-gold/30'
+      }`}
+    >
+      {t(`schedule.status_${status}`)}
+    </span>
+  )
+}
+
 function MatchRow({
   m,
   nameOf,
@@ -169,42 +214,93 @@ function MatchRow({
 }) {
   const done = m.status === 'completed'
   const a = m.competitorAId ? nameOf(m.competitorAId) : t('schedule.tbd')
-  const b = m.competitorBId ? nameOf(m.competitorBId) : t('schedule.tbd')
-  const statusKey = `schedule.status_${m.status}`
+  const b = m.isBye ? t('schedule.bye_advances') : m.competitorBId ? nameOf(m.competitorBId) : t('schedule.tbd')
+  const aWin = done && m.winnerId != null && m.winnerId === m.competitorAId
+  const bWin = done && m.winnerId != null && m.winnerId === m.competitorBId
+
+  const games = m.games
+  // A best-of-N result gets a per-game table (V1 V2 … + Set won). One game (or a completed match
+  // with no per-game breakdown) collapses to a single point-score column. Not-yet-played shows "–".
+  const multiGame = done && games.length > 1
+
+  // Single point score (the played game's points, or the sets-won fallback when there is no per-game
+  // breakdown). Never rendered as 0–0 for a match that has not been played.
+  const pointA = !done ? '–' : games.length >= 1 ? games[0].scoreA : m.gamesWonA
+  const pointB = !done ? '–' : games.length >= 1 ? games[0].scoreB : m.gamesWonB
 
   return (
-    <li className="rounded-xl border border-line bg-paper px-3 py-2">
-      <div className="flex items-center gap-2">
-        <div className="flex-1 min-w-0">
-          <div className={`flex items-center justify-between gap-2 ${done && m.winnerId === m.competitorAId ? 'font-bold text-teal' : 'text-ink'}`}>
-            <span className="text-[13px] truncate">{a}</span>
-            {done && <span className="flex-none text-[13px] font-bold tabular-nums">{m.gamesWonA}</span>}
-          </div>
-          <div className={`flex items-center justify-between gap-2 mt-0.5 ${done && m.winnerId === m.competitorBId ? 'font-bold text-teal' : 'text-ink'}`}>
-            <span className="text-[13px] truncate">{m.isBye ? t('schedule.bye_advances') : b}</span>
-            {done && <span className="flex-none text-[13px] font-bold tabular-nums">{m.gamesWonB}</span>}
-          </div>
-        </div>
-        <span
-          className={`flex-none text-[10.5px] font-semibold px-2 py-0.5 rounded-full border ${
-            done
-              ? 'text-teal bg-teal-soft border-transparent'
-              : m.status === 'bye'
-                ? 'text-amber-700 bg-amber-50 border-amber-200'
-                : m.status === 'cancelled'
-                  ? 'text-muted bg-cream border-line line-through'
-                  : 'text-[#8a6d1f] bg-gold-light/50 border-gold/30'
-          }`}
-        >
-          {t(statusKey)}
-        </span>
+    <li className="rounded-xl border border-line bg-paper px-3 py-2.5">
+      <div className="flex justify-end mb-1.5">
+        <StatusBadge status={m.status} done={done} t={t} />
       </div>
-      {done && m.games.length > 0 && (
-        <p className="mt-1.5 text-[11px] text-muted">
-          {t('schedule.game_scores')}:{' '}
-          {m.games.map((g) => `${g.scoreA}–${g.scoreB}`).join(', ')}
-        </p>
+
+      {multiGame ? (
+        <table className="w-full table-fixed border-collapse">
+          <thead>
+            <tr className="text-[10px] font-semibold uppercase tracking-wide text-muted/70">
+              <th className="text-left pb-1 pr-2">{t('schedule.col_team')}</th>
+              {games.map((g) => (
+                <th key={g.gameNumber} className="w-7 text-center pb-1 tabular-nums font-semibold">
+                  {t('schedule.game_short', { n: g.gameNumber })}
+                </th>
+              ))}
+              <th className="w-9 text-center pb-1 font-bold text-teal/80">{t('schedule.col_set')}</th>
+            </tr>
+          </thead>
+          <tbody className="text-[13px]">
+            <ScoreTableRow name={a} games={games} pick={(g) => g.scoreA} setWon={m.gamesWonA} win={aWin} />
+            <ScoreTableRow name={b} games={games} pick={(g) => g.scoreB} setWon={m.gamesWonB} win={bWin} />
+          </tbody>
+        </table>
+      ) : (
+        <div className="space-y-1">
+          <CompetitorScoreRow name={a} score={pointA} win={aWin} />
+          <CompetitorScoreRow name={b} score={pointB} win={bWin} />
+        </div>
       )}
     </li>
+  )
+}
+
+// One competitor / point-score line for single-game (or pending) matches.
+function CompetitorScoreRow({ name, score, win }: { name: string; score: number | string; win: boolean }) {
+  return (
+    <div className={`flex items-center gap-1.5 ${win ? 'font-bold text-teal' : 'text-ink'}`}>
+      <WinnerMark show={win} />
+      <span className="min-w-0 flex-1 text-[13px] leading-snug break-words">{name}</span>
+      <span className="flex-none w-10 text-center text-[14px] tabular-nums">{score}</span>
+    </div>
+  )
+}
+
+// One competitor row inside the per-game (best-of-N) results table.
+function ScoreTableRow({
+  name,
+  games,
+  pick,
+  setWon,
+  win,
+}: {
+  name: string
+  games: PublicScheduleMatch['games']
+  pick: (g: PublicScheduleMatch['games'][number]) => number
+  setWon: number
+  win: boolean
+}) {
+  return (
+    <tr className={win ? 'font-bold text-teal' : 'text-ink'}>
+      <td className="py-0.5 pr-2 align-middle">
+        <div className="flex items-center gap-1.5">
+          <WinnerMark show={win} />
+          <span className="min-w-0 break-words leading-snug">{name}</span>
+        </div>
+      </td>
+      {games.map((g) => (
+        <td key={g.gameNumber} className="py-0.5 text-center tabular-nums align-middle">
+          {pick(g)}
+        </td>
+      ))}
+      <td className="py-0.5 text-center tabular-nums font-bold align-middle">{setWon}</td>
+    </tr>
   )
 }

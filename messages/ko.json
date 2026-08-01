@@ -6963,7 +6963,8 @@
       "heading": "선수",
       "group": "{name}조",
       "ungrouped": "미배정",
-      "seed": "시드 {n}"
+      "seed": "시드 {n}",
+      "empty_group": "아직 선수가 없습니다"
     },
     "schedule": {
       "filter_group": "조:",
@@ -6980,7 +6981,10 @@
       "round_label": "{n}라운드",
       "tbd": "미정",
       "bye_advances": "부전승 (진출)",
-      "game_scores": "게임 스코어"
+      "game_scores": "게임 스코어",
+      "col_team": "팀",
+      "game_short": "G{n}",
+      "col_set": "Set"
     },
     "standings": {
       "group_heading": "{name}조",

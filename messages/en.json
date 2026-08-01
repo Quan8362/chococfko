@@ -6963,7 +6963,8 @@
       "heading": "Competitors",
       "group": "Group {name}",
       "ungrouped": "Unassigned",
-      "seed": "Seed {n}"
+      "seed": "Seed {n}",
+      "empty_group": "No competitors yet"
     },
     "schedule": {
       "filter_group": "Group:",
@@ -6980,7 +6981,10 @@
       "round_label": "Round {n}",
       "tbd": "TBD",
       "bye_advances": "Bye (advances)",
-      "game_scores": "Game scores"
+      "game_scores": "Game scores",
+      "col_team": "Team",
+      "game_short": "G{n}",
+      "col_set": "Set"
     },
     "standings": {
       "group_heading": "Group {name}",

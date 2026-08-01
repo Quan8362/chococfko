@@ -6963,7 +6963,8 @@
       "heading": "Vận động viên",
       "group": "Bảng {name}",
       "ungrouped": "Chưa xếp bảng",
-      "seed": "Hạt {n}"
+      "seed": "Hạt {n}",
+      "empty_group": "Chưa có vận động viên"
     },
     "schedule": {
       "filter_group": "Bảng:",
@@ -6980,7 +6981,10 @@
       "round_label": "Vòng {n}",
       "tbd": "Chưa xác định",
       "bye_advances": "Vào thẳng (BYE)",
-      "game_scores": "Chi tiết ván"
+      "game_scores": "Chi tiết ván",
+      "col_team": "Đội",
+      "game_short": "V{n}",
+      "col_set": "Set"
     },
     "standings": {
       "group_heading": "Bảng {name}",

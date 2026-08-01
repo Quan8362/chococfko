@@ -6963,7 +6963,8 @@
       "heading": "選手",
       "group": "グループ {name}",
       "ungrouped": "未割り当て",
-      "seed": "シード {n}"
+      "seed": "シード {n}",
+      "empty_group": "選手がまだいません"
     },
     "schedule": {
       "filter_group": "グループ：",
@@ -6980,7 +6981,10 @@
       "round_label": "第 {n} ラウンド",
       "tbd": "未定",
       "bye_advances": "不戦勝（進出）",
-      "game_scores": "ゲームスコア"
+      "game_scores": "ゲームスコア",
+      "col_team": "チーム",
+      "game_short": "G{n}",
+      "col_set": "Set"
     },
     "standings": {
       "group_heading": "グループ {name}",

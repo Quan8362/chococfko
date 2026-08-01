@@ -6963,7 +6963,8 @@
       "heading": "选手",
       "group": "{name} 组",
       "ungrouped": "未分组",
-      "seed": "种子 {n}"
+      "seed": "种子 {n}",
+      "empty_group": "暂无参赛者"
     },
     "schedule": {
       "filter_group": "分组：",
@@ -6980,7 +6981,10 @@
       "round_label": "第 {n} 轮",
       "tbd": "待定",
       "bye_advances": "轮空（晋级）",
-      "game_scores": "每局比分"
+      "game_scores": "每局比分",
+      "col_team": "队伍",
+      "game_short": "G{n}",
+      "col_set": "局"
     },
     "standings": {
       "group_heading": "{name} 组",

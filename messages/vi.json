@@ -6385,7 +6385,14 @@
     "events_empty": "Chưa có nội dung thi đấu nào cho giải này.",
     "events_next_phase": "Quản lý nội dung thi đấu và vận động viên sẽ có ở Prompt 05.",
     "actions_heading": "Trạng thái & thao tác",
-    "actions_hint": "Công khai, lưu trữ hoặc xoá giải đấu theo trạng thái hiện tại."
+    "actions_hint": "Công khai, lưu trữ hoặc xoá giải đấu theo trạng thái hiện tại.",
+    "action_unpublish": "Ngừng công khai",
+    "action_restore": "Khôi phục về nháp",
+    "action_restore_publish": "Khôi phục & công khai",
+    "confirm_unpublish_title": "Ngừng công khai giải đấu?",
+    "confirm_unpublish_desc": "Giải đấu sẽ ẩn khỏi trang công khai và chuyển về bản nháp. Bạn có thể công khai lại bất cứ lúc nào.",
+    "confirm_restore_publish_title": "Khôi phục và công khai?",
+    "confirm_restore_publish_desc": "Giải đấu sẽ được khôi phục từ kho lưu trữ và hiển thị công khai ngay. Cần có ít nhất một nội dung thi đấu."
   },
   "admin_tournament_events": {
     "back_tournament": "Về chi tiết giải đấu",
@@ -6802,7 +6809,13 @@
     "status_ready": "Sẵn sàng",
     "status_pending": "Chờ",
     "empty_title": "Chưa có nhánh đấu",
-    "empty_hint": "Xếp hạt giống rồi tạo nhánh đấu ở tab Xếp nhánh."
+    "empty_hint": "Xếp hạt giống rồi tạo nhánh đấu ở tab Xếp nhánh.",
+    "view_mode_label": "Chế độ xem",
+    "view_by_round": "Theo vòng",
+    "view_whole": "Toàn nhánh",
+    "winner_of_match": "Thắng trận {n}",
+    "winner_label": "Thắng",
+    "match_no": "Trận {n}"
   },
   "admin_knockout_results": {
     "enter_result": "Nhập kết quả",
@@ -6953,7 +6966,10 @@
       "event_status_group_stage_completed": "Đã xong vòng bảng",
       "event_status_knockout_ready": "Sẵn sàng vào nhánh",
       "event_status_knockout_running": "Đang thi đấu loại trực tiếp",
-      "event_status_completed": "Đã kết thúc"
+      "event_status_completed": "Đã kết thúc",
+      "format_desc_round_robin": "Vòng tròn — tất cả vận động viên đều gặp nhau.",
+      "format_desc_knockout": "Loại trực tiếp — thua một trận là dừng bước.",
+      "format_desc_group_knockout": "Hai giai đoạn: vòng bảng ({groups} bảng) rồi loại trực tiếp, {winners} suất mỗi bảng vào nhánh vô địch."
     },
     "competitors": {
       "heading": "Vận động viên",
@@ -7001,8 +7017,10 @@
       "tie_marker": "Đồng hạng"
     },
     "bracket": {
-      "championship": "Nhánh thắng",
-      "consolation": "Nhánh thua"
+      "championship": "Nhánh vô địch",
+      "consolation": "Nhánh an ủi",
+      "championship_desc": "Nhánh tranh chức vô địch.",
+      "consolation_desc": "Nhánh an ủi dành cho vận động viên không vào nhánh vô địch."
     },
     "podium": {
       "championship": "Nhánh thắng",

@@ -45,6 +45,16 @@ export default function PublicOverview({
                     {t(`overview.format_${ev.format}`)}
                   </span>
                 </div>
+                {/* One-line explanation of the format so a Guest understands the structure at a glance.
+                    For group+knockout it names both phases (design §2/§3). Copy is keyed by format;
+                    the numeric params are only consumed by the group+knockout message. */}
+                <p className="text-[12px] text-muted mb-2 leading-snug">
+                  {t(`overview.format_desc_${ev.format}`, {
+                    groups: ev.groupCount,
+                    winners: ev.winnerQualifiersPerGroup,
+                    consolation: ev.consolationQualifiersPerGroup,
+                  })}
+                </p>
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px] text-muted">
                   <span>{t('overview.competitors_n', { count: ev.competitorCount })}</span>
                   <span>{t('overview.matches_n', { count: ev.matchCount })}</span>

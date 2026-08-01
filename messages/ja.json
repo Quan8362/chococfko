@@ -6385,7 +6385,14 @@
     "events_empty": "この大会にはまだ種目がありません。",
     "events_next_phase": "種目と参加者の管理はPrompt 05で追加されます。",
     "actions_heading": "ステータスと操作",
-    "actions_hint": "現在のステータスに応じて大会を公開・アーカイブ・削除します。"
+    "actions_hint": "現在のステータスに応じて大会を公開・アーカイブ・削除します。",
+    "action_unpublish": "非公開にする",
+    "action_restore": "下書きに戻す",
+    "action_restore_publish": "復元して公開",
+    "confirm_unpublish_title": "この大会を非公開にしますか？",
+    "confirm_unpublish_desc": "大会は公開ページから非表示になり、下書きに戻ります。いつでも再公開できます。",
+    "confirm_restore_publish_title": "復元して公開しますか？",
+    "confirm_restore_publish_desc": "大会はアーカイブから復元され、すぐに公開されます。少なくとも1つの種目が必要です。"
   },
   "admin_tournament_events": {
     "back_tournament": "大会詳細に戻る",
@@ -6802,7 +6809,13 @@
     "status_ready": "準備完了",
     "status_pending": "待機",
     "empty_title": "トーナメント表がありません",
-    "empty_hint": "シードタブで選手を配置してトーナメント表を作成してください。"
+    "empty_hint": "シードタブで選手を配置してトーナメント表を作成してください。",
+    "view_mode_label": "表示モード",
+    "view_by_round": "ラウンド別",
+    "view_whole": "全体表示",
+    "winner_of_match": "第{n}試合の勝者",
+    "winner_label": "勝者",
+    "match_no": "第{n}試合"
   },
   "admin_knockout_results": {
     "enter_result": "結果を入力",
@@ -6953,7 +6966,10 @@
       "event_status_group_stage_completed": "グループ終了",
       "event_status_knockout_ready": "ノックアウト準備完了",
       "event_status_knockout_running": "ノックアウト進行中",
-      "event_status_completed": "終了"
+      "event_status_completed": "終了",
+      "format_desc_round_robin": "総当たり戦 — 全選手が対戦します。",
+      "format_desc_knockout": "トーナメント戦 — 一度負けると敗退です。",
+      "format_desc_group_knockout": "2ステージ制：グループステージ（{groups}グループ）の後トーナメント。各グループ上位{winners}名が優勝トーナメントに進みます。"
     },
     "competitors": {
       "heading": "選手",
@@ -7001,8 +7017,10 @@
       "tie_marker": "同順位"
     },
     "bracket": {
-      "championship": "勝者トーナメント",
-      "consolation": "敗者トーナメント"
+      "championship": "優勝トーナメント",
+      "consolation": "敢闘賞トーナメント",
+      "championship_desc": "優勝者を決めるトーナメントです。",
+      "consolation_desc": "優勝トーナメントに進めなかった選手のためのトーナメントです。"
     },
     "podium": {
       "championship": "勝者トーナメント",

@@ -12,7 +12,7 @@ import type {
 import { toBracketCompetitors } from '@/lib/tournaments/public/types'
 import { formatCapabilities } from '@/lib/tournaments/domain/format-capabilities'
 import { TAB_SLUGS } from '@/lib/tournaments/public/tabs'
-import BracketView from '@/components/tournaments/admin/BracketView'
+import PublicBracket from './PublicBracket'
 import TournamentShell from '@/components/tournaments/TournamentShell'
 import { useTournamentRealtime, type RealtimeSubscription } from '@/components/tournaments/useTournamentRealtime'
 import ConnectionIndicator from '@/components/tournaments/ConnectionIndicator'
@@ -66,7 +66,6 @@ export default function TournamentDetail({
   }, [format, workspace])
 
   const [activeTab, setActiveTab] = useState(() => (availableTabs.includes(initialTab) ? initialTab : 'overview'))
-  const [branch, setBranch] = useState<'championship' | 'consolation'>('championship')
 
   // Build a stable URL that carries event + tab so refresh/share/deep-link keep the view.
   const pushUrl = useCallback(
@@ -121,7 +120,13 @@ export default function TournamentDetail({
   }
 
   const brackets = workspace?.brackets ?? []
-  const hasConsolation = brackets.some((b) => b.bracket === 'consolation' && b.hasBracket)
+  // A branch is only shown once its template exists (hasBracket). Before the group stage finishes the
+  // template already carries placeholder slots ("Nhất A", "Thắng trận N") and is rendered — an empty
+  // state appears only when there is genuinely no template (design §4/§13).
+  const visibleBranches = brackets.filter((b) => b.hasBracket)
+  // Two titled sections only when there really are two branches — a pure knockout shows its single
+  // bracket with no redundant "Nhánh vô địch" heading.
+  const showBranchHeaders = visibleBranches.length > 1
 
   // ── Realtime: a change made by an admin is delivered as a SIGNAL → refetch the safe read model via
   // router.refresh() (the page is force-dynamic). Payloads are never trusted; bursts are coalesced by
@@ -152,7 +157,6 @@ export default function TournamentDetail({
     subscriptions,
     onSignal,
   })
-  const activeBranch = brackets.find((b) => b.bracket === branch) ?? brackets.find((b) => b.bracket === 'championship') ?? null
 
   return (
     <TournamentShell size="wide">
@@ -277,32 +281,27 @@ export default function TournamentDetail({
             )}
             {activeTab === 'standings' && <PublicStandings standings={workspace.standings} nameOf={nameOf} />}
             {activeTab === 'bracket' && (
-              <div>
-                {hasConsolation && (
-                  <div className="flex gap-2 mb-4">
-                    {(['championship', 'consolation'] as const).map((br) => (
-                      <button
-                        key={br}
-                        type="button"
-                        onClick={() => setBranch(br)}
-                        aria-pressed={branch === br}
-                        className={`text-[12.5px] font-semibold px-3 py-1.5 rounded-xl border transition-colors ${
-                          branch === br ? 'border-teal bg-teal-soft text-teal' : 'border-line bg-paper text-muted hover:text-ink'
-                        }`}
-                      >
-                        {t(`bracket.${br}`)}
-                      </button>
-                    ))}
-                  </div>
-                )}
-                {activeBranch && activeBranch.hasBracket ? (
-                  <BracketView
-                    rounds={activeBranch.rounds}
-                    thirdPlaceMatch={activeBranch.thirdPlaceMatch}
-                    competitors={toBracketCompetitors(workspace.competitors)}
-                  />
-                ) : (
+              <div className="space-y-8">
+                {visibleBranches.length === 0 ? (
                   <EmptyState title={t('empty.no_knockout')} hint={t('empty.no_knockout_hint')} />
+                ) : (
+                  visibleBranches.map((b) => (
+                    <section key={b.bracket} aria-labelledby={showBranchHeaders ? `branch-${b.bracket}` : undefined}>
+                      {showBranchHeaders && (
+                        <div className="mb-3">
+                          <h3 id={`branch-${b.bracket}`} className="font-serif font-bold text-[17px] text-ink">
+                            {t(`bracket.${b.bracket}`)}
+                          </h3>
+                          <p className="text-[12.5px] text-muted mt-0.5">{t(`bracket.${b.bracket}_desc`)}</p>
+                        </div>
+                      )}
+                      <PublicBracket
+                        rounds={b.rounds}
+                        thirdPlaceMatch={b.thirdPlaceMatch}
+                        competitors={toBracketCompetitors(workspace.competitors)}
+                      />
+                    </section>
+                  ))
                 )}
               </div>
             )}

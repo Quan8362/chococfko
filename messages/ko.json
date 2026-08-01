@@ -6385,7 +6385,14 @@
     "events_empty": "이 대회에는 아직 종목이 없습니다.",
     "events_next_phase": "종목 및 참가자 관리는 Prompt 05에서 추가됩니다.",
     "actions_heading": "상태 및 작업",
-    "actions_hint": "현재 상태에 따라 대회를 공개, 보관 또는 삭제합니다."
+    "actions_hint": "현재 상태에 따라 대회를 공개, 보관 또는 삭제합니다.",
+    "action_unpublish": "게시 취소",
+    "action_restore": "초안으로 복원",
+    "action_restore_publish": "복원 후 게시",
+    "confirm_unpublish_title": "이 대회 게시를 취소할까요?",
+    "confirm_unpublish_desc": "대회가 공개 페이지에서 숨겨지고 초안으로 돌아갑니다. 언제든 다시 게시할 수 있습니다.",
+    "confirm_restore_publish_title": "복원 후 게시할까요?",
+    "confirm_restore_publish_desc": "대회가 보관함에서 복원되어 즉시 공개됩니다. 최소 한 개의 종목이 필요합니다."
   },
   "admin_tournament_events": {
     "back_tournament": "대회 상세로 돌아가기",
@@ -6802,7 +6809,13 @@
     "status_ready": "준비됨",
     "status_pending": "대기",
     "empty_title": "대진표 없음",
-    "empty_hint": "시드 탭에서 참가자를 배정한 뒤 대진표를 생성하세요."
+    "empty_hint": "시드 탭에서 참가자를 배정한 뒤 대진표를 생성하세요.",
+    "view_mode_label": "보기 모드",
+    "view_by_round": "라운드별",
+    "view_whole": "전체 대진",
+    "winner_of_match": "{n}경기 승자",
+    "winner_label": "승자",
+    "match_no": "{n}경기"
   },
   "admin_knockout_results": {
     "enter_result": "결과 입력",
@@ -6953,7 +6966,10 @@
       "event_status_group_stage_completed": "조별 리그 종료",
       "event_status_knockout_ready": "토너먼트 준비 완료",
       "event_status_knockout_running": "토너먼트 진행 중",
-      "event_status_completed": "종료"
+      "event_status_completed": "종료",
+      "format_desc_round_robin": "리그전 — 모든 선수가 서로 경기합니다.",
+      "format_desc_knockout": "토너먼트 — 한 번 패하면 탈락합니다.",
+      "format_desc_group_knockout": "2단계: 조별 리그({groups}개 조) 후 토너먼트, 각 조 상위 {winners}명이 우승 토너먼트에 진출합니다."
     },
     "competitors": {
       "heading": "선수",
@@ -7001,8 +7017,10 @@
       "tie_marker": "공동 순위"
     },
     "bracket": {
-      "championship": "승자 브래킷",
-      "consolation": "패자 브래킷"
+      "championship": "우승 토너먼트",
+      "consolation": "위로 토너먼트",
+      "championship_desc": "우승자를 가리는 토너먼트입니다.",
+      "consolation_desc": "우승 토너먼트에 오르지 못한 선수를 위한 토너먼트입니다."
     },
     "podium": {
       "championship": "승자 브래킷",

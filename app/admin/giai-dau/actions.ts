@@ -230,6 +230,38 @@ export async function publishTournament(
   })
 }
 
+// ── unpublish (published → draft) ──────────────────────────────────────────────────────────
+// The reverse of publish: takes a live tournament off the public listing and back to an editable
+// draft. No child data is touched — only the entity status flips, so it is always reversible.
+export async function unpublishTournament(
+  id: string,
+  expectedUpdatedAt: string,
+): Promise<TournamentMutationResult> {
+  return transitionStatus(id, expectedUpdatedAt, {
+    allowedFrom: ['published'],
+    to: 'draft',
+    action: 'tournament_unpublished',
+    permission: 'tournament.publish',
+  })
+}
+
+// ── restore from archive (archived → draft | published) ────────────────────────────────────
+// Brings an archived tournament back. `to: 'draft'` restores it as an editable, non-public draft;
+// `to: 'published'` restores it straight to the public listing (requires ≥1 event, like publish).
+export async function restoreTournament(
+  id: string,
+  expectedUpdatedAt: string,
+  to: 'draft' | 'published' = 'draft',
+): Promise<TournamentMutationResult> {
+  return transitionStatus(id, expectedUpdatedAt, {
+    allowedFrom: ['archived'],
+    to,
+    action: to === 'published' ? 'tournament_restored_published' : 'tournament_restored',
+    permission: to === 'published' ? 'tournament.publish' : 'tournament.archive',
+    requireEvent: to === 'published',
+  })
+}
+
 // ── archive (draft/published/completed → archived) ─────────────────────────────────────────
 export async function archiveTournament(
   id: string,

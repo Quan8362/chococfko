@@ -6,12 +6,14 @@ import { useTranslations } from 'next-intl'
 import ConfirmDialog from './ConfirmDialog'
 import {
   publishTournament,
+  unpublishTournament,
+  restoreTournament,
   archiveTournament,
   deleteDraftTournament,
 } from '@/app/admin/giai-dau/actions'
 import type { TournamentMutationError, TournamentStatus } from '@/lib/tournaments/admin/types'
 
-type Dialog = 'archive' | 'delete' | null
+type Dialog = 'archive' | 'delete' | 'unpublish' | 'restore_publish' | null
 
 const BTN =
   'text-[12.5px] font-semibold px-3 py-[7px] rounded-lg border transition-all whitespace-nowrap disabled:opacity-50'
@@ -70,6 +72,22 @@ export default function TournamentStatusActions({
     })
   }
 
+  function onUnpublish() {
+    run(() => unpublishTournament(id, updatedAt), () => {
+      setDialog(null)
+      router.refresh()
+    })
+  }
+
+  // Restore an archived tournament. `to: 'draft'` is a safe, non-public restore (no confirmation);
+  // `to: 'published'` makes it public again (needs ≥1 event) and is confirmed first.
+  function onRestore(to: 'draft' | 'published') {
+    run(() => restoreTournament(id, updatedAt, to), () => {
+      setDialog(null)
+      router.refresh()
+    })
+  }
+
   function onDelete() {
     if (eventCount > 0) {
       setDialog(null)
@@ -84,8 +102,11 @@ export default function TournamentStatusActions({
   }
 
   const canPublish = status === 'draft' && caps.publish !== false
+  const canUnpublish = status === 'published' && caps.publish !== false
   const canArchive =
     (status === 'draft' || status === 'published' || status === 'completed') && caps.archive !== false
+  const canRestore = status === 'archived' && caps.archive !== false
+  const canRestorePublish = status === 'archived' && caps.publish !== false
   const canDelete = status === 'draft' && caps.delete !== false
 
   return (
@@ -99,6 +120,45 @@ export default function TournamentStatusActions({
             className={`${BTN} bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-500 hover:text-white hover:border-transparent`}
           >
             {t('action_publish')}
+          </button>
+        )}
+        {canUnpublish && (
+          <button
+            type="button"
+            disabled={pending}
+            onClick={() => {
+              setError(null)
+              setDialog('unpublish')
+            }}
+            className={`${BTN} bg-cream text-ink border-line hover:border-rose/40 hover:text-rose`}
+          >
+            {t('action_unpublish')}
+          </button>
+        )}
+        {canRestore && (
+          <button
+            type="button"
+            disabled={pending}
+            onClick={() => {
+              setError(null)
+              onRestore('draft')
+            }}
+            className={`${BTN} bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-500 hover:text-white hover:border-transparent`}
+          >
+            {t('action_restore')}
+          </button>
+        )}
+        {canRestorePublish && (
+          <button
+            type="button"
+            disabled={pending}
+            onClick={() => {
+              setError(null)
+              setDialog('restore_publish')
+            }}
+            className={`${BTN} bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-500 hover:text-white hover:border-transparent`}
+          >
+            {t('action_restore_publish')}
           </button>
         )}
         {canArchive && (
@@ -145,6 +205,30 @@ export default function TournamentStatusActions({
         cancelLabel={t('cancel')}
         pending={pending}
         onConfirm={onArchive}
+        onCancel={() => setDialog(null)}
+      />
+      <ConfirmDialog
+        open={dialog === 'unpublish'}
+        icon="📥"
+        tone="warning"
+        title={t('confirm_unpublish_title')}
+        description={t('confirm_unpublish_desc')}
+        confirmLabel={t('action_unpublish')}
+        cancelLabel={t('cancel')}
+        pending={pending}
+        onConfirm={onUnpublish}
+        onCancel={() => setDialog(null)}
+      />
+      <ConfirmDialog
+        open={dialog === 'restore_publish'}
+        icon="📣"
+        tone="warning"
+        title={t('confirm_restore_publish_title')}
+        description={t('confirm_restore_publish_desc')}
+        confirmLabel={t('action_restore_publish')}
+        cancelLabel={t('cancel')}
+        pending={pending}
+        onConfirm={() => onRestore('published')}
         onCancel={() => setDialog(null)}
       />
       <ConfirmDialog

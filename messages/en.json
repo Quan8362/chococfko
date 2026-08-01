@@ -6385,7 +6385,14 @@
     "events_empty": "This tournament has no events yet.",
     "events_next_phase": "Event and competitor management arrives in Prompt 05.",
     "actions_heading": "Status & actions",
-    "actions_hint": "Publish, archive or delete the tournament based on its current status."
+    "actions_hint": "Publish, archive or delete the tournament based on its current status.",
+    "action_unpublish": "Unpublish",
+    "action_restore": "Restore to draft",
+    "action_restore_publish": "Restore & publish",
+    "confirm_unpublish_title": "Unpublish this tournament?",
+    "confirm_unpublish_desc": "The tournament will be hidden from the public site and moved back to draft. You can publish it again anytime.",
+    "confirm_restore_publish_title": "Restore and publish?",
+    "confirm_restore_publish_desc": "The tournament will be restored from the archive and shown publicly immediately. It needs at least one event."
   },
   "admin_tournament_events": {
     "back_tournament": "Back to tournament",
@@ -6802,7 +6809,13 @@
     "status_ready": "Ready",
     "status_pending": "Pending",
     "empty_title": "No bracket yet",
-    "empty_hint": "Seed the competitors, then generate the bracket in the Seeding tab."
+    "empty_hint": "Seed the competitors, then generate the bracket in the Seeding tab.",
+    "view_mode_label": "View mode",
+    "view_by_round": "By round",
+    "view_whole": "Whole bracket",
+    "winner_of_match": "Winner of match {n}",
+    "winner_label": "Winner",
+    "match_no": "Match {n}"
   },
   "admin_knockout_results": {
     "enter_result": "Enter result",
@@ -6953,7 +6966,10 @@
       "event_status_group_stage_completed": "Group stage done",
       "event_status_knockout_ready": "Ready for knockout",
       "event_status_knockout_running": "Knockout in progress",
-      "event_status_completed": "Completed"
+      "event_status_completed": "Completed",
+      "format_desc_round_robin": "Round robin — every competitor plays everyone else.",
+      "format_desc_knockout": "Single elimination — one loss and you are out.",
+      "format_desc_group_knockout": "Two phases: a group stage ({groups} groups) then single elimination, top {winners} per group into the championship bracket."
     },
     "competitors": {
       "heading": "Competitors",
@@ -7002,7 +7018,9 @@
     },
     "bracket": {
       "championship": "Championship",
-      "consolation": "Consolation"
+      "consolation": "Consolation",
+      "championship_desc": "The bracket that decides the champion.",
+      "consolation_desc": "A separate bracket for competitors who did not reach the championship bracket."
     },
     "podium": {
       "championship": "Championship",

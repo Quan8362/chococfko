@@ -6385,7 +6385,14 @@
     "events_empty": "该赛事暂无项目。",
     "events_next_phase": "项目和参赛者管理将在 Prompt 05 中加入。",
     "actions_heading": "状态与操作",
-    "actions_hint": "根据当前状态公开、归档或删除赛事。"
+    "actions_hint": "根据当前状态公开、归档或删除赛事。",
+    "action_unpublish": "取消发布",
+    "action_restore": "恢复为草稿",
+    "action_restore_publish": "恢复并发布",
+    "confirm_unpublish_title": "取消发布此赛事？",
+    "confirm_unpublish_desc": "赛事将从公开页面隐藏并回到草稿状态。你可以随时重新发布。",
+    "confirm_restore_publish_title": "恢复并发布？",
+    "confirm_restore_publish_desc": "赛事将从归档中恢复并立即公开显示。至少需要一个比赛项目。"
   },
   "admin_tournament_events": {
     "back_tournament": "返回赛事详情",
@@ -6802,7 +6809,13 @@
     "status_ready": "就绪",
     "status_pending": "待定",
     "empty_title": "暂无对阵表",
-    "empty_hint": "在“种子排位”标签中排位后生成对阵表。"
+    "empty_hint": "在“种子排位”标签中排位后生成对阵表。",
+    "view_mode_label": "查看模式",
+    "view_by_round": "按轮次",
+    "view_whole": "完整对阵",
+    "winner_of_match": "第{n}场胜者",
+    "winner_label": "胜者",
+    "match_no": "第{n}场"
   },
   "admin_knockout_results": {
     "enter_result": "录入成绩",
@@ -6953,7 +6966,10 @@
       "event_status_group_stage_completed": "小组赛结束",
       "event_status_knockout_ready": "淘汰赛就绪",
       "event_status_knockout_running": "淘汰赛进行中",
-      "event_status_completed": "已结束"
+      "event_status_completed": "已结束",
+      "format_desc_round_robin": "循环赛 — 所有选手互相对阵。",
+      "format_desc_knockout": "单败淘汰 — 输一场即出局。",
+      "format_desc_group_knockout": "两个阶段：小组赛（{groups}个小组）后进入淘汰赛，每组前{winners}名晋级冠军淘汰赛。"
     },
     "competitors": {
       "heading": "选手",
@@ -7001,8 +7017,10 @@
       "tie_marker": "并列"
     },
     "bracket": {
-      "championship": "胜者组",
-      "consolation": "败者组"
+      "championship": "冠军淘汰赛",
+      "consolation": "安慰赛",
+      "championship_desc": "决出冠军的淘汰赛。",
+      "consolation_desc": "为未进入冠军淘汰赛的选手设置的独立赛程。"
     },
     "podium": {
       "championship": "胜者组",

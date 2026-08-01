@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState, useTransition } from 'react'
+import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import ConfirmDialog from './ConfirmDialog'
@@ -31,7 +31,7 @@ export default function TournamentStatusActions({
   status: TournamentStatus
   eventCount: number
   updatedAt: string
-  variant?: 'list' | 'detail' | 'menu'
+  variant?: 'list' | 'detail'
   // Route prefix the workspace is mounted under (legacy admin vs scoped management surface).
   basePath?: string
   // Convenience UI gating — which status actions the viewer may perform. The server re-checks every
@@ -43,24 +43,6 @@ export default function TournamentStatusActions({
   const [pending, startTransition] = useTransition()
   const [dialog, setDialog] = useState<Dialog>(null)
   const [error, setError] = useState<TournamentMutationError | null>(null)
-  const [menuOpen, setMenuOpen] = useState(false)
-  const menuRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    if (!menuOpen) return
-    const onPointerDown = (event: MouseEvent) => {
-      if (!menuRef.current?.contains(event.target as Node)) setMenuOpen(false)
-    }
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setMenuOpen(false)
-    }
-    document.addEventListener('mousedown', onPointerDown)
-    document.addEventListener('keydown', onKeyDown)
-    return () => {
-      document.removeEventListener('mousedown', onPointerDown)
-      document.removeEventListener('keydown', onKeyDown)
-    }
-  }, [menuOpen])
 
   function run(fn: () => Promise<{ ok: boolean; error?: TournamentMutationError }>, onOk: () => void) {
     setError(null)
@@ -129,49 +111,13 @@ export default function TournamentStatusActions({
 
   return (
     <>
-      <div ref={menuRef} className={variant === 'menu' ? 'relative' : undefined}>
-        {variant === 'menu' && (
-          <button
-            type="button"
-            disabled={pending}
-            onClick={() => setMenuOpen((open) => !open)}
-            aria-haspopup="menu"
-            aria-expanded={menuOpen}
-            aria-label={t('action_more')}
-            title={t('action_more')}
-            className="grid h-10 w-10 place-items-center rounded-xl border border-line bg-paper text-muted transition-colors hover:border-rose/30 hover:bg-rose-soft hover:text-rose focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose/35 disabled:opacity-50"
-          >
-            <svg aria-hidden className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-              <circle cx="5" cy="12" r="1.7" />
-              <circle cx="12" cy="12" r="1.7" />
-              <circle cx="19" cy="12" r="1.7" />
-            </svg>
-          </button>
-        )}
-
-        {(variant !== 'menu' || menuOpen) && (
-          <div
-            role={variant === 'menu' ? 'menu' : undefined}
-            onClickCapture={() => {
-              if (variant === 'menu') setMenuOpen(false)
-            }}
-            className={
-              variant === 'menu'
-                ? 'absolute right-0 top-[calc(100%+8px)] z-40 grid min-w-[200px] gap-1 rounded-2xl border border-line bg-paper p-2 shadow-dropdown [&>button]:min-h-10 [&>button]:w-full [&>button]:text-left'
-                : variant === 'detail'
-                  ? 'flex flex-wrap gap-2'
-                  : 'flex flex-wrap gap-2 sm:flex-nowrap'
-            }
-          >
+      <div className={variant === 'detail' ? 'flex flex-wrap gap-2' : 'flex flex-wrap gap-2 sm:flex-nowrap'}>
         {canPublish && (
           <button
             type="button"
-            role={variant === 'menu' ? 'menuitem' : undefined}
             disabled={pending}
             onClick={onPublish}
-            className={variant === 'menu'
-              ? `${BTN} flex items-center border-transparent bg-transparent text-emerald-700 hover:bg-emerald-50`
-              : `${BTN} bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-500 hover:text-white hover:border-transparent`}
+            className={`${BTN} bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-500 hover:text-white hover:border-transparent`}
           >
             {t('action_publish')}
           </button>
@@ -179,15 +125,12 @@ export default function TournamentStatusActions({
         {canUnpublish && (
           <button
             type="button"
-            role={variant === 'menu' ? 'menuitem' : undefined}
             disabled={pending}
             onClick={() => {
               setError(null)
               setDialog('unpublish')
             }}
-            className={variant === 'menu'
-              ? `${BTN} flex items-center border-transparent bg-transparent text-ink hover:bg-cream hover:text-rose`
-              : `${BTN} bg-cream text-ink border-line hover:border-rose/40 hover:text-rose`}
+            className={`${BTN} bg-cream text-ink border-line hover:border-rose/40 hover:text-rose`}
           >
             {t('action_unpublish')}
           </button>
@@ -195,15 +138,12 @@ export default function TournamentStatusActions({
         {canRestore && (
           <button
             type="button"
-            role={variant === 'menu' ? 'menuitem' : undefined}
             disabled={pending}
             onClick={() => {
               setError(null)
               onRestore('draft')
             }}
-            className={variant === 'menu'
-              ? `${BTN} flex items-center border-transparent bg-transparent text-emerald-700 hover:bg-emerald-50`
-              : `${BTN} bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-500 hover:text-white hover:border-transparent`}
+            className={`${BTN} bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-500 hover:text-white hover:border-transparent`}
           >
             {t('action_restore')}
           </button>
@@ -211,15 +151,12 @@ export default function TournamentStatusActions({
         {canRestorePublish && (
           <button
             type="button"
-            role={variant === 'menu' ? 'menuitem' : undefined}
             disabled={pending}
             onClick={() => {
               setError(null)
               setDialog('restore_publish')
             }}
-            className={variant === 'menu'
-              ? `${BTN} flex items-center border-transparent bg-transparent text-emerald-700 hover:bg-emerald-50`
-              : `${BTN} bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-500 hover:text-white hover:border-transparent`}
+            className={`${BTN} bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-500 hover:text-white hover:border-transparent`}
           >
             {t('action_restore_publish')}
           </button>
@@ -227,15 +164,12 @@ export default function TournamentStatusActions({
         {canArchive && (
           <button
             type="button"
-            role={variant === 'menu' ? 'menuitem' : undefined}
             disabled={pending}
             onClick={() => {
               setError(null)
               setDialog('archive')
             }}
-            className={variant === 'menu'
-              ? `${BTN} flex items-center border-transparent bg-transparent text-amber-700 hover:bg-amber-50`
-              : `${BTN} bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-500 hover:text-white hover:border-transparent`}
+            className={`${BTN} bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-500 hover:text-white hover:border-transparent`}
           >
             {t('action_archive')}
           </button>
@@ -243,7 +177,6 @@ export default function TournamentStatusActions({
         {canDelete && (
           <button
             type="button"
-            role={variant === 'menu' ? 'menuitem' : undefined}
             disabled={pending}
             onClick={() => {
               setError(null)
@@ -253,14 +186,10 @@ export default function TournamentStatusActions({
               }
               setDialog('delete')
             }}
-            className={variant === 'menu'
-              ? `${BTN} flex items-center border-transparent bg-transparent text-red-600 hover:bg-red-50`
-              : `${BTN} bg-red-50 text-red-600 border-red-200 hover:bg-red-500 hover:text-white hover:border-transparent`}
+            className={`${BTN} bg-red-50 text-red-600 border-red-200 hover:bg-red-500 hover:text-white hover:border-transparent`}
           >
             {t('action_delete')}
           </button>
-        )}
-          </div>
         )}
       </div>
 

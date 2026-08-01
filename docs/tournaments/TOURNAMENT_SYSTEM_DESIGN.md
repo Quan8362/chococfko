@@ -248,7 +248,7 @@ Ràng buộc & index chính: xem §5 và Prompt 02/14.
 1. **Vòng tròn:** mỗi cặp gặp đúng 1 lần, không self-match; số trận bảng `n` = `n·(n−1)/2`; generation deterministic + có `generation_key` → **idempotent**.
 2. **BXH:** thắng 1đ / thua 0đ, không hoà; sắp xếp `tablePoints ↓ → pointDifference ↓ → pointsFor ↓`; nếu vẫn bằng → **tied**, KHÔNG dùng tên/seed làm tiêu chí thể thao.
 3. **Qualification:** championship lấy top `winner_qualifiers_per_group`, consolation lấy các hạng kế tiếp `consolation_qualifiers_per_group`; **không** competitor nào ở cả 2 nhánh; thiếu người → validation error; tie ở ranh giới → chặn generate, chờ Admin override.
-4. **Nhánh thắng vs nhánh thua:** `championship` = nhánh thắng, `consolation` = nhánh thua. **KHÔNG double-elimination** — người thua ở championship **không** rơi xuống consolation. Consolation là knockout độc lập lấy từ hạng kế tiếp vòng bảng. Sau khi bắt đầu, 2 nhánh **không** trao đổi competitor.
+4. **Serie A vs Serie B:** `championship` = Serie A, `consolation` = Serie B. **KHÔNG double-elimination** — người thua ở championship **không** rơi xuống consolation. Consolation là knockout độc lập lấy từ hạng kế tiếp vòng bảng. Sau khi bắt đầu, 2 nhánh **không** trao đổi competitor.
 5. **Knockout:** bracket size = power-of-two gần nhất ≥ số VĐV; BYE tự advance (không tính là trận có điểm); winner tiến đúng slot; loser bán kết → tranh hạng ba (nếu bật).
 6. **Podium:** có tranh hạng ba → 3 = winner trận đó; không có → 2 loser bán kết đồng hạng ba. Áp dụng riêng từng nhánh.
 7. **Score:** điểm ≥ 0, game completed không hoà; winner suy ra từ số game thắng; `points_for` = tổng điểm mọi game.
@@ -444,7 +444,7 @@ Không cài package nào khác. Chưa cài trong Prompt 01.
 Trường: `name`, `format` (`round_robin|knockout|group_knockout`), `group_count`, `winner_qualifiers_per_group`, `consolation_qualifiers_per_group`, `third_place_enabled`, `display_order`. Event mới **luôn** `status='setup'` (server hardcode; **không** nhận status từ client).
 - **round_robin:** hiện *số bảng*; reset qualifiers=0, third-place=false; validate `group_count ≥ 1`.
 - **knockout:** hiện *tranh hạng ba*; neutralize `group_count=1`, qualifiers=0.
-- **group_knockout:** hiện *số bảng / suất nhánh thắng / suất nhánh thua / tranh hạng ba*; validate `group_count ≥ 1`, `winner ≥ 1`, `consolation ≥ 0`. UI giải thích: nhánh thắng=championship, nhánh thua=consolation (knockout độc lập từ hạng vòng bảng, **không** double-elimination, đội thua championship **không** rơi xuống consolation).
+- **group_knockout:** hiện *số bảng / suất Serie A / suất Serie B / tranh hạng ba*; validate `group_count ≥ 1`, `winner ≥ 1`, `consolation ≥ 0`. UI giải thích: Serie A=championship, Serie B=consolation (knockout độc lập từ hạng vòng bảng, **không** double-elimination, đội thua championship **không** rơi xuống consolation).
 
 ### 14.3 Quy tắc sửa/xoá & concurrency
 - **Concurrency:** event dùng cột `version` (trigger `tournament_bump_version`), guard `WHERE id=? AND version=?`; competitor dùng `updated_at` (trigger `update_updated_at_column`), guard `WHERE id=? AND updated_at=?`. Token luôn lấy từ server, không tin client.
@@ -682,7 +682,7 @@ Không phát hiện schema blocker. Migration Prompt-02 **không** bị sửa �
 
 ---
 
-## 18. Prompt 09 — Group + Knockout: nhánh thắng, nhánh thua & podium
+## 18. Prompt 09 — Group + Knockout: Serie A, Serie B & podium
 
 > **Trạng thái:** triển khai + kiểm thử JS/TS **local** — **KHÔNG** chạm production, **KHÔNG** push/deploy. Chỉ triển khai format **`group_knockout`**; **không** đổi flow `round_robin` hay `knockout`. SQL harness + migration cycle: **đã viết** theo đúng pattern đã-pass của Prompt 08 nhưng **CHƯA chạy trong session này** (môi trường Windows không có Postgres/Docker local) — chạy trong WSL Docker stack như các phase trước.
 
@@ -697,7 +697,7 @@ Không phát hiện schema blocker. Migration Prompt-02 **không** bị sửa �
 - **Queries (server-only):** `getGroupKnockoutSeedSetupForAdmin` (roster+groups+token 2 nhánh với preview resolve từ standings hiện tại + seed order đã lưu + readiness/blockReason theo `evaluateGroupStage`) và `getGroupKnockoutWorkspaceForAdmin` (2 nhánh: rounds+games+podium+status; final/third nhận diện **cấu trúc** trong từng bracket; event complete = champ done ∧ (không có conso ∨ conso done)).
 - **Actions:** 6 action mới trong `.../noi-dung/actions.ts` — `saveGroupKnockoutSeeds`, `clearGroupKnockoutSeeds`, `generateGroupKnockoutBrackets`, `resetGroupKnockoutBrackets`, `saveGroupKnockoutMatchResult`, `clearGroupKnockoutMatchResult` (tái dùng `loadEvent`/`writeAudit`/`loadGroupEvalRaw`/`loadKnockoutMatches`/`progressKnockout`/`calculatePodium`).
 - **Migration:** `supabase/migration_tournament_group_knockout.sql` (+ `_rollback.sql`, `tournament_group_knockout_tests.sql`) — **chỉ CREATE FUNCTION** (6 DEFINER RPC + 1 helper `tournament_gk_branch_complete`), KHÔNG sửa schema Prompt-02.
-- **UI (client):** `GroupKnockoutSeedEditor.tsx` (2 nhánh độc lập, **tái dùng reducer `group-board.ts`** + dnd-kit + nút a11y; token label "Nhất bảng A" + preview competitor; preview bracket/nhánh dùng `buildKnockoutPreview`), `GroupKnockoutBranchPanel.tsx` (bracket/kết quả/podium mỗi nhánh, **tái dùng** `BracketView`/`KnockoutResultsPanel`/`PodiumPanel`); `KnockoutScoreEditor`/`KnockoutResultsPanel` nhận `saveAction`/`clearAction` injectable (mặc định knockout-only) để nhánh group_knockout gọi action riêng. `EventWorkspace.tsx` thêm 3 tab (Xếp nhánh / Nhánh thắng / Nhánh thua) khi `knockout_ready`/đã generate; `[eventId]/page.tsx` nạp 2 query mới.
+- **UI (client):** `GroupKnockoutSeedEditor.tsx` (2 nhánh độc lập, **tái dùng reducer `group-board.ts`** + dnd-kit + nút a11y; token label "Nhất bảng A" + preview competitor; preview bracket/nhánh dùng `buildKnockoutPreview`), `GroupKnockoutBranchPanel.tsx` (bracket/kết quả/podium mỗi nhánh, **tái dùng** `BracketView`/`KnockoutResultsPanel`/`PodiumPanel`); `KnockoutScoreEditor`/`KnockoutResultsPanel` nhận `saveAction`/`clearAction` injectable (mặc định knockout-only) để nhánh group_knockout gọi action riêng. `EventWorkspace.tsx` thêm 3 tab (Xếp nhánh / Serie A / Serie B) khi `knockout_ready`/đã generate; `[eventId]/page.tsx` nạp 2 query mới.
 - **i18n:** namespace mới `admin_group_knockout` (27 key × 5 locale) + `err_qualification_changed`. Parity: **6364 key × 5**.
 - **Tests:** `lib/tournaments/admin/groupKnockoutSecurity.test.ts` (12 structural), SQL harness `tournament_group_knockout_tests.sql`.
 
@@ -714,7 +714,7 @@ Mỗi hàm 1 transaction ngầm, `SELECT … FOR UPDATE` + so version **trước
 `checkIsAdmin()` → `loadEvent` (event↔tournament, chặn non-group_knockout `wrong_format`) → **reload group stage truth** (`loadGroupEvalRaw` → `evaluateGroupStage`) → yêu cầu `knockout_ready` → build token (`buildGroupRankTokens`) → verify payload là permutation ĐÚNG token hiện tại (set khác ⇒ `qualification_changed`) → seed lưu group_rank (slot_index = array index) → generate: reload seed order DB, **resolve token → competitor từ standings hiện tại** (`resolveBranchSeeds`; unresolved ⇒ `qualification_changed`), `buildKnockoutBracketFromSeeds(bracket)` + `buildKnockoutMatchRows` → RPC. Result: winner qua `validateMatchScores`→`deriveMatchOutcome`; progression **reconstruct chỉ nhánh của match** (mỗi nhánh có third-place riêng) rồi `progressKnockout`; podium nhánh qua `calculatePodium`. Server luôn tính lại từ DB, không tin token/order/winner/version client.
 
 ### 18.5 Quy tắc nghiệp vụ được bảo đảm
-- Championship=nhánh thắng, consolation=nhánh thua; **không double-elimination** — patch/podium/completion scope theo bracket, đội thua championship **không** vào consolation (test SQL #7).
+- Championship=Serie A, consolation=Serie B; **không double-elimination** — patch/podium/completion scope theo bracket, đội thua championship **không** vào consolation (test SQL #7).
 - `consolation=0` ⇒ không token/editor/match/podium consolation (query trả `consolation:null`; generate bỏ nhánh); `consolation>0` ⇒ nhánh độc lập.
 - Token = nguồn (group+rank), ổn định qua thay đổi standings; **resolve mới** khi generate; seed stale bị chặn bằng event version + so token-set + resolve-time check.
 - BYE là slot kind (không 0–0), auto-advance từng nhánh; không nhập điểm.
@@ -773,7 +773,7 @@ Xác nhận trong harness: RPC chỉ `service_role` EXECUTE (anon/authenticated 
 - Slug không public ⇒ `notFound()` + metadata `robots:{index:false}` (không lộ draft). Metadata: title/description/OG/canonical + JSON-LD `BreadcrumbList` + `SportsEvent` (chỉ tournament public).
 
 ### 19.3 Tabs (client `TournamentDetail.tsx`, tái dùng component)
-Tổng quan (event list + format + status + progress + counts) · Vận động viên (grouped/flat, không lộ internal ID) · Lịch & kết quả (group→round, knockout→bracket/round, filter bảng/trạng thái, BYE/pending rõ, **không** 0–0 giả) · Bảng xếp hạng (chỉ group format; đủ cột Hạng/Trận/T/B/Điểm/Điểm thắng/Điểm thua/Hiệu số; marker vào-nhánh-thắng/thua/chưa-phân-định bằng **ký hiệu + chữ** không chỉ màu; "BTC phân định" khi có override; "=" cho đồng hạng) · Nhánh đấu (**tái dùng `BracketView` admin** read-only, sub-tab Nhánh thắng/Nhánh thua khi có consolation) · Thành tích (podium mỗi nhánh; đồng hạng ba; không trộn championship/consolation; chỉ hiện khi đủ điều kiện). Tabs a11y: `role=tablist/tab/tabpanel`, mũi tên trái/phải, focus rõ. Link điều lệ `target=_blank rel="noopener noreferrer nofollow"`. Nút Chia sẻ (copy URL/Web Share) + Làm mới (`router.refresh()`).
+Tổng quan (event list + format + status + progress + counts) · Vận động viên (grouped/flat, không lộ internal ID) · Lịch & kết quả (group→round, knockout→bracket/round, filter bảng/trạng thái, BYE/pending rõ, **không** 0–0 giả) · Bảng xếp hạng (chỉ group format; đủ cột Hạng/Trận/T/B/Điểm/Điểm thắng/Điểm thua/Hiệu số; marker vào-Serie-A/B/chưa-phân-định bằng **ký hiệu + chữ** không chỉ màu; "BTC phân định" khi có override; "=" cho đồng hạng) · Nhánh đấu (**tái dùng `BracketView` admin** read-only, sub-tab Serie A/Serie B khi có consolation) · Thành tích (podium mỗi nhánh; đồng hạng ba; không trộn championship/consolation; chỉ hiện khi đủ điều kiện). Tabs a11y: `role=tablist/tab/tabpanel`, mũi tên trái/phải, focus rõ. Link điều lệ `target=_blank rel="noopener noreferrer nofollow"`. Nút Chia sẻ (copy URL/Web Share) + Làm mới (`router.refresh()`).
 
 ### 19.4 Trạng thái thiếu dữ liệu & cache
 - Mọi tab có empty state riêng (chưa VĐV/chưa chia bảng/chưa lịch/vòng bảng chưa xong/chưa knockout/chưa kết quả/chưa podium) — **thiếu dữ liệu = "chưa bắt đầu", KHÔNG phải lỗi server**.
@@ -877,7 +877,7 @@ Local stack WSL2 + Docker (`supabase_db_tnmti1r`, cổng 54422). Chu trình đ�
 
 ### 21.2 Kết quả audit — UI đã đạt chuẩn từ các phase trước
 Audit toàn bộ route admin (`/admin/giai-dau*`) + public (`/giai-dau`, `/giai-dau/[slug]`) + navigation. Phần lớn yêu cầu Prompt 12 **đã được đáp ứng** ở phase trước:
-- **I18n:** 0 hardcode user-facing trong module tournament; 20 namespace tournament × 5 locale parity (6523 key). Thuật ngữ tiếng Việt thống nhất (Giải đấu / Nội dung thi đấu / Vòng bảng / Loại trực tiếp / Nhánh thắng-thua / Tranh hạng ba / Ban tổ chức phân định / Hiệu số …).
+- **I18n:** 0 hardcode user-facing trong module tournament; 20 namespace tournament × 5 locale parity (6523 key). Thuật ngữ tiếng Việt thống nhất (Giải đấu / Nội dung thi đấu / Vòng bảng / Loại trực tiếp / Serie A/Serie B / Tranh hạng ba / Ban tổ chức phân định / Hiệu số …).
 - **Dialog impact/reset:** đã có `role=dialog` + `aria-modal` + `aria-labelledby`, Escape đóng, focus input khi mở, gate **gõ đúng `RESET`**, disable double-submit, nút nguy hiểm tách biệt, pending/error, responsive `max-h-[90vh]` scroll — **không** `window.confirm`.
 - **ConnectionIndicator:** `role=status` + `aria-live=polite`, chấm hình **kèm text** (không color-only), nút Làm mới khi mất realtime.
 - **Drag/drop chia bảng:** đã có fallback nút ↑/↓/‹/› + `<select>` chuyển bảng, mỗi control có `aria-label`.

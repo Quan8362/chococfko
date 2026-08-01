@@ -4,8 +4,8 @@
 // from the CURRENT standings only at generate time (never trusting a client-supplied competitor).
 //
 // Two independent brackets share this machinery:
-//   • championship (nhánh thắng) — the top `winnerQualifiers` ranks of each group,
-//   • consolation  (nhánh thua)  — the NEXT `consolationQualifiers` ranks of each group.
+//   • championship (Serie A) — the top `winnerQualifiers` ranks of each group,
+//   • consolation  (Serie B) — the NEXT `consolationQualifiers` ranks of each group.
 // This is NOT double elimination: a competitor belongs to exactly one branch, and the loser of a
 // championship match never drops into consolation. The two brackets never exchange competitors.
 //

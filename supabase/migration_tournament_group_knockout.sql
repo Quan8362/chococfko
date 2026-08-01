@@ -8,8 +8,8 @@
 -- NOT change the round_robin or knockout flows.
 --
 -- Scope: EVENT FORMAT = 'group_knockout'. Two INDEPENDENT single-elimination brackets:
---   • championship (nhánh thắng) — the top winner_qualifiers ranks of each group,
---   • consolation  (nhánh thua)  — the next consolation_qualifiers ranks (only when > 0).
+--   • championship (Serie A) — the top winner_qualifiers ranks of each group,
+--   • consolation  (Serie B) — the next consolation_qualifiers ranks (only when > 0).
 -- NOT double elimination: a competitor is in exactly one branch; a championship loser never drops to
 -- consolation; the two brackets never exchange competitors after generation.
 --

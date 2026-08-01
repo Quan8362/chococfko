@@ -52,7 +52,7 @@ export default function WorkspaceTabs<T extends string>({
       role="tablist"
       aria-label={ariaLabel}
       aria-orientation="horizontal"
-      className="flex items-center gap-1 border-b border-line mb-5 -mt-1 overflow-x-auto"
+      className="flex items-center gap-1 border-b border-line mb-5 -mt-1 overflow-x-auto overflow-y-hidden"
     >
       {visible.map((x, i) => {
         const selected = active === x.id

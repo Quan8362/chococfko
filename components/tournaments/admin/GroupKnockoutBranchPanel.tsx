@@ -41,7 +41,7 @@ export default function GroupKnockoutBranchPanel({
 
   return (
     <div>
-      <div className="flex items-center gap-1 border-b border-line/70 mb-4 overflow-x-auto">
+      <div className="flex items-center gap-1 border-b border-line/70 mb-4 overflow-x-auto overflow-y-hidden">
         {tabs.map((x) => (
           <button
             key={x.id}

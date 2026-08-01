@@ -182,9 +182,12 @@ test('#4 dialogs are modal, Escape-closable and manage focus', () => {
 })
 
 // ── #5 — drag/drop has a keyboard/button fallback ───────────────────────────────────────────
+// The board offers a labelled drag handle for pointer users and, as the keyboard/no-DnD fallback,
+// a native <select> ("move to any container") on every chip — keyboard-operable and screen-reader
+// labelled. Asserting those controls keeps the fallback guarantee without pinning the exact UI shape.
 test('#5 group assignment + seeding expose button/select move controls (dnd fallback)', () => {
   const board = read('components/tournaments/admin/GroupAssignmentBoard.tsx')
-  for (const label of ['move_up', 'move_down', 'move_prev', 'move_next', 'move_to']) {
+  for (const label of ['drag_handle', 'move_to', 'move_to_named']) {
     assert.match(board, new RegExp(`moveLabels\\('${label}'`), `GroupAssignmentBoard missing ${label} control`)
   }
 })

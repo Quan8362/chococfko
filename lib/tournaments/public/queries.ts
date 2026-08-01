@@ -5,6 +5,7 @@ import { toPublicEventRuleSummary, type PublicEventRuleSummary, type RawPublicRu
 import { evaluateGroupStage, type GroupEvaluationInput } from '@/lib/tournaments/domain/event-progress'
 import type { GroupStageFormat } from '@/lib/tournaments/domain/group-assignment'
 import { buildBracketRounds, type BracketMatchRef } from '@/lib/tournaments/domain/bracket-view'
+import { formatCapabilities } from '@/lib/tournaments/domain/format-capabilities'
 import { tournamentPhase } from './format'
 import type { Competitor, MatchInput } from '@/lib/tournaments/domain/types'
 import type { EventFormat } from '@/lib/tournaments/eventValidation'
@@ -514,9 +515,14 @@ export async function getPublicEventWorkspace(
 
     // ── Brackets (knockout / group_knockout), via the shared structural helper ───────────────────
     const brackets: PublicBracket[] = []
-    if (format === 'knockout' || format === 'group_knockout') {
-      const branchList: ('championship' | 'consolation')[] =
-        format === 'knockout' ? ['championship'] : ['championship', 'consolation']
+    const caps = formatCapabilities(format)
+    if (caps.needsBracket) {
+      // A consolation branch is only possible for group_knockout, and even then only materializes
+      // when consolation qualifiers were configured — an absent branch (no rows) is skipped below,
+      // so an empty consolation bracket is never surfaced (design §6).
+      const branchList: ('championship' | 'consolation')[] = caps.canHaveConsolationBracket
+        ? ['championship', 'consolation']
+        : ['championship']
 
       for (const branch of branchList) {
         const rows = koRows.filter((m) => m.bracket === branch)

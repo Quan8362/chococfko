@@ -11,6 +11,8 @@ import {
   getGroupKnockoutWorkspaceForAdmin,
 } from '@/lib/tournaments/admin/queries'
 import { resolveTournamentCapabilities } from '@/lib/tournaments/permissions/server'
+import { formatCapabilities } from '@/lib/tournaments/domain/format-capabilities'
+import { eventFieldVisibility } from '@/lib/tournaments/eventValidation'
 import EventStatusBadge from '@/components/tournaments/admin/EventStatusBadge'
 import EventWorkspace from '@/components/tournaments/admin/EventWorkspace'
 import KnockoutWorkspace from '@/components/tournaments/admin/KnockoutWorkspace'
@@ -41,8 +43,13 @@ export default async function ManagementEventPage({
   const event = await getEventForAdmin(params.id, params.eventId)
   if (!event) notFound()
 
-  const isKnockout = event.format === 'knockout'
+  // Which format-specific workspace/queries to load. `isKnockout` (knockout-only) uses the dedicated
+  // KnockoutWorkspace; round_robin and group_knockout both flow through EventWorkspace.
+  const fmtCaps = formatCapabilities(event.format)
+  const isKnockout = !fmtCaps.hasGroupStage
   const isGroupKnockout = event.format === 'group_knockout'
+  // Which setting fields are meaningful for this format (single source of truth — no ad-hoc checks).
+  const fields = eventFieldVisibility(event.format)
 
   const groupSetup = !isKnockout ? await getGroupSetupForAdmin(params.id, params.eventId) : null
   const scoring = !isKnockout ? await getScoringWorkspaceForAdmin(params.id, params.eventId) : null
@@ -108,14 +115,14 @@ export default async function ManagementEventPage({
             <div className="space-y-6 lg:sticky lg:top-20 self-start">
               <div className="bg-paper border border-line rounded-2xl p-5 sm:p-6">
                 <h2 className="font-serif font-bold text-[15px] text-ink mb-2">{t('settings_heading')}</h2>
-                {event.format !== 'knockout' && <Setting label={t('f_group_count')} value={event.groupCount} />}
-                {event.format === 'group_knockout' && (
+                {fields.groupCount && <Setting label={t('f_group_count')} value={event.groupCount} />}
+                {fields.winnerQualifiers && (
                   <>
                     <Setting label={t('f_winner_qualifiers')} value={event.winnerQualifiersPerGroup} />
                     <Setting label={t('f_consolation_qualifiers')} value={event.consolationQualifiersPerGroup} />
                   </>
                 )}
-                {event.format !== 'round_robin' && <Setting label={t('f_third_place')} value={yesNo(event.thirdPlaceEnabled)} />}
+                {fields.thirdPlace && <Setting label={t('f_third_place')} value={yesNo(event.thirdPlaceEnabled)} />}
                 <Setting label={t('competitor_count_label')} value={event.competitorCount} />
                 {groupSetup && (
                   <>
@@ -146,7 +153,7 @@ export default async function ManagementEventPage({
                   tournamentId={params.id}
                   eventId={event.id}
                   competitors={event.competitors}
-                  showSeed={event.format !== 'round_robin'}
+                  showSeed={fmtCaps.hasKnockout}
                   locked={event.matchCount > 0}
                   groupSetup={groupSetup}
                   scoring={scoring}

@@ -10,6 +10,7 @@ import type {
   TournamentPhase,
 } from '@/lib/tournaments/public/types'
 import { toBracketCompetitors } from '@/lib/tournaments/public/types'
+import { formatCapabilities } from '@/lib/tournaments/domain/format-capabilities'
 import { TAB_SLUGS } from '@/lib/tournaments/public/tabs'
 import BracketView from '@/components/tournaments/admin/BracketView'
 import TournamentShell from '@/components/tournaments/TournamentShell'
@@ -51,8 +52,13 @@ export default function TournamentDetail({
   const format = workspace?.event.format
   const availableTabs = useMemo(() => {
     const tabs = ['overview', 'competitors', 'schedule']
-    if (format === 'round_robin' || format === 'group_knockout') tabs.push('standings')
-    if (format === 'knockout' || format === 'group_knockout') tabs.push('bracket', 'podium')
+    // Tab visibility is driven by the format's capabilities, never by ad-hoc string checks, so a
+    // pure round-robin can never surface an empty "Nhánh đấu" and a pure knockout never shows a
+    // group-standings tab (see lib/tournaments/domain/format-capabilities).
+    const caps = format ? formatCapabilities(format) : null
+    if (caps?.needsStandings) tabs.push('standings')
+    if (caps?.needsBracket) tabs.push('bracket')
+    if (caps?.hasPodium) tabs.push('podium')
     // The rules tab is always available once an event workspace is loaded — it shows the event's
     // public scoring summary, or a "system default rules" notice when there is no snapshot.
     if (workspace) tabs.push('rules')

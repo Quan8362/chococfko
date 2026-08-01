@@ -1,5 +1,6 @@
 // Public surface of the tournament domain engine — pure TypeScript, no I/O.
 export * from './types.ts'
+export * from './format-capabilities.ts'
 export * from './errors.ts'
 export * from './outcome.ts'
 export * from './round-robin.ts'

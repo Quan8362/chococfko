@@ -517,10 +517,10 @@ export async function getPublicEventWorkspace(
     const brackets: PublicBracket[] = []
     const caps = formatCapabilities(format)
     if (caps.needsBracket) {
-      // A consolation branch is only possible for group_knockout, and even then only materializes
-      // when consolation qualifiers were configured — an absent branch (no rows) is skipped below,
-      // so an empty consolation bracket is never surfaced (design §6).
-      const branchList: ('championship' | 'consolation')[] = caps.canHaveConsolationBracket
+      // Serie B is a configured, independent branch. Gate it on the quota as well as the format so
+      // stale or inconsistent persisted rows can never surface a Serie B section when the quota is 0.
+      const branchList: ('championship' | 'consolation')[] =
+        caps.canHaveConsolationBracket && event.consolation_qualifiers_per_group > 0
         ? ['championship', 'consolation']
         : ['championship']
 

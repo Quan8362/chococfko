@@ -180,6 +180,31 @@ export async function addCompletedGroupMatch(opts: {
   if (gErr) throw new Error(`seed addCompletedGroupMatch(game): ${gErr.message}`)
 }
 
+export async function addKnockoutMatch(opts: {
+  eventId: string
+  bracket: 'championship' | 'consolation'
+  matchNumber: number
+  aId: string
+  bId: string
+}): Promise<void> {
+  const { error } = await admin().from('tournament_matches').insert({
+    id: randomUUID(),
+    event_id: opts.eventId,
+    group_id: null,
+    stage: 'knockout',
+    bracket: opts.bracket,
+    round_number: 1,
+    match_number: opts.matchNumber,
+    competitor_a_id: opts.aId,
+    competitor_b_id: opts.bId,
+    status: 'ready',
+    winner_competitor_id: null,
+    generation_key: `ko:${opts.bracket}:r1:m${opts.matchNumber}`,
+    version: 1,
+  })
+  if (error) throw new Error(`seed addKnockoutMatch: ${error.message}`)
+}
+
 export async function setEventStatus(eventId: string, status: string): Promise<void> {
   const { error } = await admin().from('tournament_events').update({ status }).eq('id', eventId)
   if (error) throw new Error(`seed setEventStatus: ${error.message}`)
@@ -284,6 +309,47 @@ export async function seedRoundRobinReadyToGenerate(): Promise<RoundRobinFixture
     expectedOrder: competitors.map((c) => c.id),
     qualifierIds: [competitors[0].id, competitors[1].id],
   }
+}
+
+export interface GroupKnockoutLabelFixture {
+  tournament: TournamentHandle
+  event: EventHandle
+  competitors: CompetitorHandle[]
+}
+
+// Published group+knockout fixture for branch-label QA. `includeStaleSerieB` deliberately permits a
+// persisted Serie B row with quota=0 so the public read-model gate is verified, not merely empty data.
+export async function seedPublishedGroupKnockoutLabels(opts: {
+  consolationQuota: number
+  includeStaleSerieB?: boolean
+}): Promise<GroupKnockoutLabelFixture> {
+  const tournament = await createTournament({ status: 'published', label: `gk-label-${opts.consolationQuota}` })
+  const event = await addEvent(tournament.id, {
+    format: 'group_knockout',
+    label: 'GK labels',
+    groupCount: 1,
+    winnerQualifiersPerGroup: 2,
+    consolationQualifiersPerGroup: opts.consolationQuota,
+    status: 'knockout_running',
+  })
+  const competitors = await addCompetitors(event.id, ['Alpha A', 'Bravo A', 'Alpha B', 'Bravo B'])
+  await addKnockoutMatch({
+    eventId: event.id,
+    bracket: 'championship',
+    matchNumber: 1,
+    aId: competitors[0].id,
+    bId: competitors[1].id,
+  })
+  if (opts.consolationQuota > 0 || opts.includeStaleSerieB) {
+    await addKnockoutMatch({
+      eventId: event.id,
+      bracket: 'consolation',
+      matchNumber: 1,
+      aId: competitors[2].id,
+      bId: competitors[3].id,
+    })
+  }
+  return { tournament, event, competitors }
 }
 
 // ── Membership seeding (15B-2E) ───────────────────────────────────────────────────────────────

@@ -60,6 +60,14 @@ function placeholders(s: string): string[] {
   return [...s.matchAll(/\{(\w+)(?:,[^}]*)?\}/g)].map((m) => m[1]).sort()
 }
 
+function flatStrings(obj: unknown, prefix = ''): Array<[string, string]> {
+  if (typeof obj === 'string') return [[prefix, obj]]
+  if (obj === null || typeof obj !== 'object') return []
+  return Object.entries(obj as Record<string, unknown>).flatMap(([k, v]) =>
+    flatStrings(v, prefix ? `${prefix}.${k}` : k),
+  )
+}
+
 // ── #1 — i18n key completeness across 5 locales for every tournament namespace ──────────────
 test('#1 i18n: every tournament namespace has identical key sets across 5 locales', () => {
   for (const ns of TOURNAMENT_NAMESPACES) {
@@ -97,6 +105,82 @@ test('#1b i18n: no empty tournament strings, and interpolation placeholders matc
       }
     }
   }
+})
+
+test('#1c i18n: branch titles are exactly Serie A and Serie B in every locale', () => {
+  const serieAPaths = [
+    'admin_qualification.slot_championship_short',
+    'admin_group_knockout.tab_championship',
+    'admin_group_knockout.branch_championship',
+    'tournaments.bracket.championship',
+    'tournaments.podium.championship',
+    'admin_downstream_reset.bracket_championship',
+  ]
+  const serieBPaths = [
+    'admin_qualification.slot_consolation_short',
+    'admin_group_knockout.tab_consolation',
+    'admin_group_knockout.branch_consolation',
+    'tournaments.bracket.consolation',
+    'tournaments.podium.consolation',
+    'admin_downstream_reset.bracket_consolation',
+  ]
+
+  for (const locale of LOCALES) {
+    for (const path of serieAPaths) assert.equal(getPath(messages[locale], path), 'Serie A', `${locale}.${path}`)
+    for (const path of serieBPaths) assert.equal(getPath(messages[locale], path), 'Serie B', `${locale}.${path}`)
+  }
+})
+
+test('#1d i18n: user-facing tournament copy contains no legacy branch terminology', () => {
+  const namespaces = [
+    'admin_tournament_events',
+    'admin_qualification',
+    'admin_group_knockout',
+    'tournaments',
+    'admin_downstream_reset',
+    'admin_rule_change',
+  ]
+  const legacyTerms = /\b(?:championship|consolation)\b|nhánh vô địch|nhánh an ủi/i
+
+  for (const locale of LOCALES) {
+    for (const namespace of namespaces) {
+      for (const [path, value] of flatStrings(messages[locale][namespace], namespace)) {
+        const visibleCopy = value.replace(/\{[^}]+\}/g, '')
+        assert.doesNotMatch(visibleCopy, legacyTerms, `${locale}.${path} still exposes legacy branch terminology`)
+      }
+    }
+  }
+})
+
+test('#1e Serie B is gated by a positive quota on public and admin surfaces', () => {
+  const publicQueries = read('lib/tournaments/public/queries.ts')
+  assert.match(
+    publicQueries,
+    /caps\.canHaveConsolationBracket\s*&&\s*event\.consolation_qualifiers_per_group\s*>\s*0/,
+    'public bracket read model must hide Serie B when its quota is 0',
+  )
+
+  const adminQueries = read('lib/tournaments/admin/queries.ts')
+  assert.match(
+    adminQueries,
+    /const consolationEnabled = event\.consolation_qualifiers_per_group > 0/,
+    'admin seeding model must hide Serie B when its quota is 0',
+  )
+  assert.match(
+    adminQueries,
+    /const consolation = consolationEnabled\s*\?\s*buildBranchSeedState/,
+    'admin seeding model must not build an empty Serie B card',
+  )
+})
+
+test('#1f branch types are translated through shared i18n keys instead of rendered directly', () => {
+  const detail = read('components/tournaments/public/TournamentDetail.tsx')
+  assert.match(detail, /t\(`bracket\.\$\{b\.bracket\}`\)/, 'public branch heading must use its i18n key')
+  assert.doesNotMatch(detail, />\s*\{b\.bracket\}\s*</, 'public UI must not render bracket.type directly')
+
+  const seedEditor = read('components/tournaments/admin/GroupKnockoutSeedEditor.tsx')
+  assert.match(seedEditor, /title=\{t\('branch_championship'\)\}/, 'Serie A seed card must use i18n')
+  assert.match(seedEditor, /title=\{t\('branch_consolation'\)\}/, 'Serie B seed card must use i18n')
 })
 
 // ── #2 — no hardcoded user-facing text in tournament UI ─────────────────────────────────────

@@ -124,10 +124,6 @@ export default function TournamentDetail({
   // template already carries placeholder slots ("Nhất A", "Thắng trận N") and is rendered — an empty
   // state appears only when there is genuinely no template (design §4/§13).
   const visibleBranches = brackets.filter((b) => b.hasBracket)
-  // Two titled sections only when there really are two branches — a pure knockout shows its single
-  // bracket with no redundant "Nhánh vô địch" heading.
-  const showBranchHeaders = visibleBranches.length > 1
-
   // ── Realtime: a change made by an admin is delivered as a SIGNAL → refetch the safe read model via
   // router.refresh() (the page is force-dynamic). Payloads are never trusted; bursts are coalesced by
   // the controller. Scoped to THIS tournament + the open event. Disconnect is not a page error — the
@@ -286,15 +282,13 @@ export default function TournamentDetail({
                   <EmptyState title={t('empty.no_knockout')} hint={t('empty.no_knockout_hint')} />
                 ) : (
                   visibleBranches.map((b) => (
-                    <section key={b.bracket} aria-labelledby={showBranchHeaders ? `branch-${b.bracket}` : undefined}>
-                      {showBranchHeaders && (
-                        <div className="mb-3">
-                          <h3 id={`branch-${b.bracket}`} className="font-serif font-bold text-[17px] text-ink">
-                            {t(`bracket.${b.bracket}`)}
-                          </h3>
-                          <p className="text-[12.5px] text-muted mt-0.5">{t(`bracket.${b.bracket}_desc`)}</p>
-                        </div>
-                      )}
+                    <section key={b.bracket} aria-labelledby={`branch-${b.bracket}`}>
+                      <div className="mb-3">
+                        <h3 id={`branch-${b.bracket}`} className="font-serif font-bold text-[17px] text-ink">
+                          {t(`bracket.${b.bracket}`)}
+                        </h3>
+                        <p className="text-[12.5px] text-muted mt-0.5">{t(`bracket.${b.bracket}_desc`)}</p>
+                      </div>
                       <PublicBracket
                         rounds={b.rounds}
                         thirdPlaceMatch={b.thirdPlaceMatch}

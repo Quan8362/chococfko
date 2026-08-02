@@ -6413,13 +6413,13 @@
     "f_group_count": "Số bảng",
     "f_group_count_hint": "Số bảng đấu ở vòng tròn.",
     "f_winner_qualifiers": "Suất vào Serie A mỗi bảng",
-    "f_winner_qualifiers_hint": "Số đội đứng đầu mỗi bảng vào Serie A.",
+    "f_winner_qualifiers_hint": "Số đội đứng đầu mỗi bảng vào nhánh championship.",
     "f_consolation_qualifiers": "Suất vào Serie B mỗi bảng",
-    "f_consolation_qualifiers_hint": "Số đội hạng kế tiếp mỗi bảng vào Serie B (0 nếu không dùng).",
+    "f_consolation_qualifiers_hint": "Số đội hạng kế tiếp mỗi bảng vào nhánh consolation (0 nếu không dùng).",
     "f_third_place": "Có trận tranh hạng ba",
     "gk_explain_title": "Serie A và Serie B",
-    "gk_explain_winner": "Serie A gồm các đội đứng đầu mỗi bảng.",
-    "gk_explain_consolation": "Serie B gồm các đội hạng kế tiếp mỗi bảng.",
+    "gk_explain_winner": "Serie A (championship) gồm các đội đứng đầu mỗi bảng.",
+    "gk_explain_consolation": "Serie B (consolation) gồm các đội hạng kế tiếp mỗi bảng.",
     "gk_explain_independent": "Serie B là một nhánh loại trực tiếp độc lập, lấy từ thứ hạng vòng bảng.",
     "gk_explain_no_drop": "Đây không phải double-elimination: đội thua ở Serie A không rơi xuống Serie B.",
     "field_name_required": "Vui lòng nhập tên nội dung.",
@@ -6862,10 +6862,10 @@
     "tab_seeding": "Xếp nhánh",
     "tab_championship": "Serie A",
     "tab_consolation": "Serie B",
-    "branch_championship": "Serie A",
-    "branch_championship_hint": "Các suất đầu bảng vào nhánh tranh chức vô địch.",
-    "branch_consolation": "Serie B",
-    "branch_consolation_hint": "Các suất thứ hạng kế tiếp vào nhánh đấu độc lập.",
+    "branch_championship": "Serie A (championship)",
+    "branch_championship_hint": "Các suất đầu bảng vào nhánh tranh vô địch.",
+    "branch_consolation": "Serie B (consolation)",
+    "branch_consolation_hint": "Các suất hạng kế tiếp vào nhánh an ủi độc lập.",
     "unassigned_title": "Chưa xếp",
     "seeds_title": "Thứ tự hạt giống",
     "rank_1": "Nhất",
@@ -6969,7 +6969,7 @@
       "event_status_completed": "Đã kết thúc",
       "format_desc_round_robin": "Vòng tròn — tất cả vận động viên đều gặp nhau.",
       "format_desc_knockout": "Loại trực tiếp — thua một trận là dừng bước.",
-      "format_desc_group_knockout": "Hai giai đoạn: vòng bảng ({groups} bảng) rồi loại trực tiếp, {winners} suất mỗi bảng vào Serie A."
+      "format_desc_group_knockout": "Hai giai đoạn: vòng bảng ({groups} bảng) rồi loại trực tiếp, {winners} suất mỗi bảng vào nhánh vô địch."
     },
     "competitors": {
       "heading": "Vận động viên",
@@ -7017,10 +7017,10 @@
       "tie_marker": "Đồng hạng"
     },
     "bracket": {
-      "championship": "Serie A",
-      "consolation": "Serie B",
-      "championship_desc": "Các suất đầu bảng vào nhánh tranh chức vô địch.",
-      "consolation_desc": "Các suất thứ hạng kế tiếp vào nhánh đấu độc lập."
+      "championship": "Nhánh vô địch",
+      "consolation": "Nhánh an ủi",
+      "championship_desc": "Nhánh tranh chức vô địch.",
+      "consolation_desc": "Nhánh an ủi dành cho vận động viên không vào nhánh vô địch."
     },
     "podium": {
       "championship": "Serie A",
@@ -7327,8 +7327,8 @@
     },
     "count": {
       "group_matches": "Trận vòng bảng",
-      "championship_matches": "Trận Serie A",
-      "consolation_matches": "Trận Serie B",
+      "championship_matches": "Trận nhánh chính",
+      "consolation_matches": "Trận nhánh phụ",
       "scored_games": "Ván đã ghi điểm",
       "completed_matches": "Trận đã hoàn tất",
       "qualification_overrides": "Ghi đè vượt vòng bảng",

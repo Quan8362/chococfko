@@ -2,26 +2,13 @@
 // tournament's schedule, results and standings, sees qualification conveyed with text (not colour
 // alone), and never sees any admin action. Runs fully unauthenticated (no storageState).
 import { test, expect } from '@playwright/test'
-import fs from 'node:fs'
-import {
-  seedPublishedRoundRobin,
-  seedPublishedGroupKnockoutLabels,
-  cleanupRun,
-  type RoundRobinFixture,
-  type GroupKnockoutLabelFixture,
-} from './seed'
+import { seedPublishedRoundRobin, cleanupRun, type RoundRobinFixture } from './seed'
 import { attachGuard, assertNoAuditLogRequests, assertOnlyLocalSupabase, t } from './helpers'
-import { SCREENSHOT_DIR } from './_env'
 
 let fx: RoundRobinFixture
-let dualBranchFx: GroupKnockoutLabelFixture
-let serieAOnlyFx: GroupKnockoutLabelFixture
 
 test.beforeAll(async () => {
   fx = await seedPublishedRoundRobin({ completed: true })
-  dualBranchFx = await seedPublishedGroupKnockoutLabels({ consolationQuota: 2 })
-  serieAOnlyFx = await seedPublishedGroupKnockoutLabels({ consolationQuota: 0, includeStaleSerieB: true })
-  fs.mkdirSync(SCREENSHOT_DIR, { recursive: true })
 })
 test.afterAll(async () => {
   await cleanupRun()
@@ -69,31 +56,4 @@ test('deep link to the standings tab restores that view on load', async ({ page 
   const standingsTab = page.getByRole('tab', { name: t('tournaments.tabs.standings') })
   await expect(standingsTab).toHaveAttribute('aria-selected', 'true')
   await expect(page.getByRole('table')).toBeVisible()
-})
-
-for (const viewport of [
-  { name: 'desktop-1440x900', width: 1440, height: 900 },
-  { name: 'mobile-390x844', width: 390, height: 844 },
-]) {
-  test(`public bracket displays only Serie A / Serie B @ ${viewport.name}`, async ({ page }) => {
-    await page.setViewportSize({ width: viewport.width, height: viewport.height })
-    await page.goto(`/giai-dau/${dualBranchFx.tournament.slug}?event=${dualBranchFx.event.id}&tab=nhanh-dau`)
-
-    await expect(page.getByRole('heading', { name: 'Serie A', exact: true })).toBeVisible()
-    await expect(page.getByRole('heading', { name: 'Serie B', exact: true })).toBeVisible()
-    await expect(page.getByText(t('tournaments.bracket.championship_desc'), { exact: true })).toBeVisible()
-    await expect(page.getByText(t('tournaments.bracket.consolation_desc'), { exact: true })).toBeVisible()
-    expect(await page.locator('body').innerText()).not.toMatch(
-      /Nhánh vô địch|Nhánh an ủi|\(championship\)|\(consolation\)/i,
-    )
-    await page.screenshot({ path: `${SCREENSHOT_DIR}/serie-labels-${viewport.name}.png`, fullPage: true })
-  })
-}
-
-test('public bracket hides Serie B when its quota is 0, even if a stale row exists', async ({ page }) => {
-  await page.goto(`/giai-dau/${serieAOnlyFx.tournament.slug}?event=${serieAOnlyFx.event.id}&tab=nhanh-dau`)
-
-  await expect(page.getByRole('heading', { name: 'Serie A', exact: true })).toBeVisible()
-  await expect(page.getByRole('heading', { name: 'Serie B', exact: true })).toHaveCount(0)
-  await expect(page.getByText(t('tournaments.bracket.consolation_desc'), { exact: true })).toHaveCount(0)
 })

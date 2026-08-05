@@ -6612,6 +6612,8 @@
   },
   "admin_match_scores": {
     "editor_title": "スコア入力",
+    "completed_no_score": "完了",
+    "score_aria": "スコア {scores}",
     "match_label": "第{number}試合",
     "close": "閉じる",
     "vs": "対",
@@ -6821,6 +6823,8 @@
   },
   "admin_knockout_results": {
     "enter_result": "結果を入力",
+    "completed_no_score": "完了",
+    "score_aria": "スコア {scores}",
     "edit_result": "結果を編集",
     "err_forbidden": "権限がありません。",
     "err_invalid": "無効なデータです。",

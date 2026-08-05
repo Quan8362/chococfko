@@ -6612,6 +6612,8 @@
   },
   "admin_match_scores": {
     "editor_title": "录入比分",
+    "completed_no_score": "已完成",
+    "score_aria": "比分 {scores}",
     "match_label": "第{number}场",
     "close": "关闭",
     "vs": "对",
@@ -6821,6 +6823,8 @@
   },
   "admin_knockout_results": {
     "enter_result": "录入成绩",
+    "completed_no_score": "已完成",
+    "score_aria": "比分 {scores}",
     "edit_result": "修改成绩",
     "err_forbidden": "你没有权限执行此操作。",
     "err_invalid": "数据无效。",

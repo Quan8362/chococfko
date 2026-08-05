@@ -8,6 +8,10 @@ import {
   evaluateBranchSeedReadiness,
   resolveGroupRankToken,
   resolveBranchSeeds,
+  sameTokenIdSet,
+  evaluateGroupKnockoutTemplatePhase,
+  templatePhaseAllowsEditing,
+  isGroupKnockoutTemplateStale,
 } from './group-knockout-seed.ts'
 import type { QualificationOutcome } from './qualification.ts'
 
@@ -223,4 +227,77 @@ test('resolveBranchSeeds refuses the same competitor twice in one branch', () =>
   assert.equal(res.ok, false)
   assert.deepEqual(res.competitorIds, ['X'])
   assert.deepEqual(res.unresolved, ['group:A:rank:2'])
+})
+
+// ── Preconfigured template: phase derivation ─────────────────────────────────────────────────────
+test('phase: unassigned groups → groups_pending (no template possible)', () => {
+  assert.equal(
+    evaluateGroupKnockoutTemplatePhase({ groupsAssigned: false, hasBrackets: false, stageStatus: 'group_stage' }),
+    'groups_pending',
+  )
+})
+
+test('phase: groups assigned but stage not finished → template (draft, tokens unresolved)', () => {
+  assert.equal(
+    evaluateGroupKnockoutTemplatePhase({ groupsAssigned: true, hasBrackets: false, stageStatus: 'group_stage' }),
+    'template',
+  )
+})
+
+test('phase: stage finished with a blocking boundary tie → blocking_tie (edit ok, apply blocked)', () => {
+  assert.equal(
+    evaluateGroupKnockoutTemplatePhase({ groupsAssigned: true, hasBrackets: false, stageStatus: 'group_stage_completed' }),
+    'blocking_tie',
+  )
+})
+
+test('phase: knockout_ready → ready (tokens resolve, can generate)', () => {
+  assert.equal(
+    evaluateGroupKnockoutTemplatePhase({ groupsAssigned: true, hasBrackets: false, stageStatus: 'knockout_ready' }),
+    'ready',
+  )
+})
+
+test('phase: an existing bracket wins over everything → generated', () => {
+  assert.equal(
+    evaluateGroupKnockoutTemplatePhase({ groupsAssigned: true, hasBrackets: true, stageStatus: 'group_stage' }),
+    'generated',
+  )
+})
+
+test('editing is allowed in template / blocking_tie / ready, not in groups_pending / generated', () => {
+  assert.equal(templatePhaseAllowsEditing('template'), true)
+  assert.equal(templatePhaseAllowsEditing('blocking_tie'), true)
+  assert.equal(templatePhaseAllowsEditing('ready'), true)
+  assert.equal(templatePhaseAllowsEditing('groups_pending'), false)
+  assert.equal(templatePhaseAllowsEditing('generated'), false)
+})
+
+// ── Preconfigured template: staleness ────────────────────────────────────────────────────────────
+test('staleness: no saved slots is never stale', () => {
+  assert.equal(isGroupKnockoutTemplateStale([], ['group:A:rank:1', 'group:B:rank:1']), false)
+})
+
+test('staleness: saved token set equals current pool → not stale (order irrelevant)', () => {
+  const saved = ['group:B:rank:1', 'group:A:rank:1']
+  const pool = ['group:A:rank:1', 'group:B:rank:1']
+  assert.equal(isGroupKnockoutTemplateStale(saved, pool), false)
+})
+
+test('staleness: a group shrank (rank 2 disappeared) → stale', () => {
+  const saved = ['group:A:rank:1', 'group:A:rank:2', 'group:B:rank:1']
+  const pool = ['group:A:rank:1', 'group:B:rank:1'] // A dropped to a single qualifier
+  assert.equal(isGroupKnockoutTemplateStale(saved, pool), true)
+})
+
+test('staleness: a new group appeared → stale', () => {
+  const saved = ['group:A:rank:1', 'group:B:rank:1']
+  const pool = ['group:A:rank:1', 'group:B:rank:1', 'group:C:rank:1']
+  assert.equal(isGroupKnockoutTemplateStale(saved, pool), true)
+})
+
+test('sameTokenIdSet is order-independent and length-sensitive', () => {
+  assert.equal(sameTokenIdSet(['a', 'b'], ['b', 'a']), true)
+  assert.equal(sameTokenIdSet(['a', 'b'], ['a', 'b', 'c']), false)
+  assert.equal(sameTokenIdSet(['a'], ['b']), false)
 })

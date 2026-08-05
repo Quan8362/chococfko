@@ -137,18 +137,13 @@ export default function GroupKnockoutSeedEditor({ tournamentId, eventId, setup }
     )
   }
 
-  // ── Not ready to seed yet (group stage not settled). ─────────────────────────────────────────
-  if (!setup.readyToSeed) {
-    const reason =
-      setup.blockReason === 'group_stage_incomplete'
-        ? t('block_group_incomplete')
-        : setup.blockReason === 'blocking_tie'
-          ? t('block_blocking_tie')
-          : t('block_not_ready')
+  // ── Groups not assigned yet → no stable token pool, nothing to lay out. ──────────────────────
+  // (The tab itself is hidden in this phase; this is a defensive fallback.)
+  if (setup.templatePhase === 'groups_pending') {
     return (
       <div className="bg-cream border border-line rounded-2xl py-10 px-6 text-center">
-        <p className="text-[13.5px] text-ink font-medium mb-1">{t('not_ready_title')}</p>
-        <p className="text-[12.5px] text-muted">{reason}</p>
+        <p className="text-[13.5px] text-ink font-medium mb-1">{t('groups_pending_title')}</p>
+        <p className="text-[12.5px] text-muted">{t('groups_pending_hint')}</p>
       </div>
     )
   }
@@ -183,6 +178,7 @@ export default function GroupKnockoutSeedEditor({ tournamentId, eventId, setup }
       version={version}
       setup={setup}
       hasConso={hasConso}
+      canApply={setup.readyToSeed}
       pending={pending}
       error={error}
       tokenLabel={tokenLabel}
@@ -202,6 +198,7 @@ function SeedEditorBody({
   version,
   setup,
   hasConso,
+  canApply,
   pending,
   error,
   tokenLabel,
@@ -215,6 +212,7 @@ function SeedEditorBody({
   version: number
   setup: GroupKnockoutSeedSetup
   hasConso: boolean
+  canApply: boolean
   pending: boolean
   error: KnockoutMutationError | null
   tokenLabel: (id: string) => string
@@ -252,6 +250,21 @@ function SeedEditorBody({
   )
   const allReady = champReady.ok && (!hasConso || consoReady.ok)
 
+  // The official bracket may be generated only in the 'ready' phase, with a clean saved template that
+  // is a full permutation. Everything else surfaces an explicit reason (never a silent disabled button).
+  const applyDisabled = pending || !canApply || !allReady || dirty || setup.templateStale
+  const applyReason = dirty
+    ? tk('save_first')
+    : setup.templateStale
+      ? t('apply_blocked_stale')
+      : setup.templatePhase === 'template'
+        ? t('apply_blocked_incomplete')
+        : setup.templatePhase === 'blocking_tie'
+          ? t('apply_blocked_tie')
+          : !allReady
+            ? t('apply_blocked_readiness')
+            : null
+
   const doSave = () =>
     run(() =>
       saveGroupKnockoutSeeds(tournamentId, eventId, version, {
@@ -271,6 +284,23 @@ function SeedEditorBody({
           <p className="text-[13px] text-red-600">{tk(`err_${error}`)}</p>
         </div>
       )}
+
+      {/* Phase banner: draft template (stage not finished), a blocking tie, or a stale template. */}
+      {setup.templateStale ? (
+        <div className="rounded-lg bg-amber-50 border border-amber-200 px-3 py-2.5 mb-3">
+          <p className="text-[13px] font-semibold text-amber-800">{t('template_stale_title')}</p>
+          <p className="text-[12px] text-amber-700 mt-0.5">{t('template_stale_hint')}</p>
+        </div>
+      ) : setup.templatePhase === 'template' ? (
+        <div className="rounded-lg bg-teal-soft border border-teal/25 px-3 py-2.5 mb-3">
+          <p className="text-[13px] font-semibold text-teal">{t('template_mode_title')}</p>
+          <p className="text-[12px] text-ink/70 mt-0.5">{t('template_mode_hint')}</p>
+        </div>
+      ) : setup.templatePhase === 'blocking_tie' ? (
+        <div className="rounded-lg bg-amber-50 border border-amber-200 px-3 py-2.5 mb-3">
+          <p className="text-[13px] text-amber-700">{t('block_blocking_tie')}</p>
+        </div>
+      ) : null}
 
       <BranchBoard
         idKey="champ"
@@ -304,7 +334,7 @@ function SeedEditorBody({
         </div>
       )}
 
-      {/* Action bar */}
+      {/* Action bar — distinct SAVE-TEMPLATE vs APPLY (generate official bracket) actions. */}
       <div className="flex flex-wrap items-center gap-2 mt-5">
         <button
           type="button"
@@ -312,16 +342,17 @@ function SeedEditorBody({
           onClick={doSave}
           className="font-semibold text-[13px] px-5 py-2.5 rounded-full bg-rose text-white hover:bg-rose-deep transition-all disabled:opacity-50"
         >
-          {pending ? tk('saving') : tk('save_cta')}
+          {pending ? tk('saving') : t('save_template_cta')}
         </button>
         <button
           type="button"
-          disabled={pending || !allReady || dirty}
-          title={dirty ? tk('save_first') : undefined}
+          disabled={applyDisabled}
+          title={applyReason ?? undefined}
+          aria-describedby={applyReason ? 'gk-apply-reason' : undefined}
           onClick={doGenerate}
           className="font-semibold text-[13px] px-5 py-2.5 rounded-full bg-teal text-white hover:opacity-90 transition-all disabled:opacity-50"
         >
-          {t('generate_cta')}
+          {t('apply_cta')}
         </button>
         {anySeeded && !dirty && (
           <button
@@ -335,6 +366,12 @@ function SeedEditorBody({
         )}
         {dirty && <span className="text-[12px] text-muted">{tk('unsaved')}</span>}
       </div>
+      {/* Why APPLY is unavailable — always explained, never a bare disabled control. */}
+      {applyReason && !dirty && (
+        <p id="gk-apply-reason" className="text-[12px] text-muted mt-2">
+          {applyReason}
+        </p>
+      )}
 
       {preview && (
         <KnockoutPreviewPanel

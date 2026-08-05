@@ -6861,6 +6861,18 @@
     "rank_joint_third": "Joint third"
   },
   "admin_group_knockout": {
+    "groups_pending_title": "Bracket setup not available yet",
+    "groups_pending_hint": "Assign the groups first before laying out a knockout template.",
+    "template_mode_title": "Setting up the knockout template",
+    "template_mode_hint": "You can arrange the seed order and pairings ahead of time. Player names are filled in once the group stage is complete.",
+    "template_stale_title": "Knockout template needs updating",
+    "template_stale_hint": "The group configuration has changed. Review the seed order and save a new version.",
+    "save_template_cta": "Save template",
+    "apply_cta": "Apply and create the official bracket",
+    "apply_blocked_stale": "The template needs updating because the group configuration changed.",
+    "apply_blocked_incomplete": "The group stage isn't finished — the official bracket can't be created yet.",
+    "apply_blocked_tie": "A tie-break must be resolved before creating the official bracket.",
+    "apply_blocked_readiness": "Seat every qualifier into the bracket before creating it.",
     "tab_seeding": "Seeding",
     "tab_championship": "Serie A",
     "tab_consolation": "Serie B",

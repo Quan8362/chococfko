@@ -48,13 +48,22 @@ test('group_knockout actions verify event↔tournament (anti-IDOR) and reject no
   }
 })
 
-test('seeding requires knockout_ready and validates each branch is a permutation of current tokens', () => {
+test('seeding allows a preconfigured TEMPLATE (no knockout_ready gate) but still validates each branch permutation', () => {
   const fn = actionBody(read(ACTIONS), 'saveGroupKnockoutSeeds')
-  assert.ok(fn.includes("status !== 'knockout_ready'"), 'save must require the group stage settled')
+  // A template may be laid out BEFORE the group stage settles → SAVE must NOT gate on knockout_ready
+  // (only APPLY/generate does). It still requires an assigned, 2+ slot championship token pool.
+  assert.ok(!fn.includes("status !== 'knockout_ready'"), 'save must NOT require knockout_ready (template preconfig)')
+  assert.ok(fn.includes('raw.groupIds.length === 0'), 'save must require the groups to exist / be assigned')
+  assert.ok(fn.includes('champTokens.length < 2'), 'save must require a 2+ slot championship token pool')
   assert.ok(fn.includes('validateBranchSeedPayload('), 'save must validate each branch permutation')
   assert.ok(fn.includes("error: 'qualification_changed'"), 'stale tokens must return qualification_changed')
   // slot_index comes from the seeded array index, never a client slot value.
   assert.ok(fn.includes('slot_index: i'), 'slot_index must come from the array index')
+})
+
+test('generate (APPLY) still requires knockout_ready — the official bracket is never made before the stage settles', () => {
+  const fn = actionBody(read(ACTIONS), 'generateGroupKnockoutBrackets')
+  assert.ok(fn.includes("status !== 'knockout_ready'"), 'apply must require the group stage settled')
 })
 
 test('generate recomputes standings, resolves tokens, builds BOTH branches with the pure engine', () => {
@@ -102,8 +111,10 @@ test('group_knockout mutations go through the transactional RPCs with a version 
 test('every group_knockout audit action is written', () => {
   const src = read(ACTIONS)
   for (const action of [
-    'group_knockout_seeds_updated',
-    'group_knockout_generated',
+    'tournament_knockout_template_updated',
+    'tournament_knockout_template_applied',
+    'tournament_knockout_template_marked_stale',
+    'tournament_knockout_template_apply_failed',
     'group_knockout_reset',
     'championship_result_updated',
     'consolation_result_updated',

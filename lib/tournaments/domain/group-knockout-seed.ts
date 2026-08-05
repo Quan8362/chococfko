@@ -14,6 +14,7 @@
 // knockout-only flow (with the branch's bracket name), and permutation checks reuse validateSeedPayload.
 
 import type { Bracket, CompetitorId, GroupId } from './types.ts'
+import type { EventProgressStatus } from './event-progress.ts'
 import { effectiveQualifierCounts, type QualificationOutcome } from './qualification.ts'
 import {
   validateSeedPayload,
@@ -189,4 +190,70 @@ export function resolveBranchSeeds(
     competitorIds.push(res.competitorId)
   }
   return { ok: unresolved.length === 0, competitorIds, unresolved }
+}
+
+// ── Preconfigured template phase + staleness (Prompt: knockout template before group completion) ──
+//
+// A knockout TEMPLATE is the same group-rank seed order persisted BEFORE the group stage is settled:
+// it names qualification SOURCES ("Nhất A vs Nhì B"), never competitors, so an organiser can lay out
+// the bracket on the qualifier settings + group sizes alone — days before the first match. Nothing
+// here resolves a competitor or writes an official match; that only happens at APPLY time (the 'ready'
+// phase), gated by knockout_ready. These are pure derivations the read + save layers share so the UI,
+// the save gate, and the apply gate agree on exactly one phase.
+
+/** Order-independent equality of two token-id sets (each list assumed free of duplicates by callers). */
+export function sameTokenIdSet(a: readonly string[], b: readonly string[]): boolean {
+  if (a.length !== b.length) return false
+  const set = new Set(a)
+  for (const id of b) if (!set.has(id)) return false
+  return true
+}
+
+export type GroupKnockoutTemplatePhase =
+  // Groups are not assigned yet — the token pool is not stable, so no template can be laid out.
+  | 'groups_pending'
+  // Groups assigned, group stage NOT finished → a DRAFT template only (tokens unresolved, no apply).
+  | 'template'
+  // Group stage finished but a qualification-boundary tie is unresolved → template editable, apply blocked.
+  | 'blocking_tie'
+  // knockout_ready — every token resolves; the official bracket can be generated.
+  | 'ready'
+  // The official bracket already exists (seeds frozen); only a guarded reset changes it.
+  | 'generated'
+
+/**
+ * The single template phase for a group_knockout event, derived from three stable facts. `hasBrackets`
+ * wins (an existing bracket is terminal for the editor); otherwise groups must be assigned before any
+ * template exists; then the group-stage progress status maps to template / blocking_tie / ready. A
+ * `round_robin`-shaped 'completed' should never reach here, but is treated as 'ready' defensively.
+ */
+export function evaluateGroupKnockoutTemplatePhase(input: {
+  readonly groupsAssigned: boolean
+  readonly hasBrackets: boolean
+  readonly stageStatus: EventProgressStatus
+}): GroupKnockoutTemplatePhase {
+  if (input.hasBrackets) return 'generated'
+  if (!input.groupsAssigned) return 'groups_pending'
+  if (input.stageStatus === 'knockout_ready' || input.stageStatus === 'completed') return 'ready'
+  if (input.stageStatus === 'group_stage_completed') return 'blocking_tie'
+  return 'template'
+}
+
+/** The editor may be opened (seed order edited/saved) in every phase except groups_pending/generated. */
+export function templatePhaseAllowsEditing(phase: GroupKnockoutTemplatePhase): boolean {
+  return phase === 'template' || phase === 'blocking_tie' || phase === 'ready'
+}
+
+/**
+ * A saved template is STALE when its persisted token set no longer equals the CURRENT valid token
+ * pool — i.e. the group count / a group's size / the Serie A|B quotas changed after the save, so the
+ * old seed order references sources that no longer exist (or misses new ones). No saved slots ⇒ never
+ * stale (there is nothing to reconcile). Purely a set comparison; ordering is irrelevant to staleness.
+ */
+export function isGroupKnockoutTemplateStale(
+  savedTokenIds: readonly string[],
+  currentValidTokenIds: readonly string[],
+): boolean {
+  if (savedTokenIds.length === 0) return false
+  return !sameTokenIdSet(savedTokenIds, currentValidTokenIds)
 }

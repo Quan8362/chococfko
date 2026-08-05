@@ -6861,6 +6861,18 @@
     "rank_joint_third": "Đồng hạng ba"
   },
   "admin_group_knockout": {
+    "groups_pending_title": "Chưa thể xếp nhánh",
+    "groups_pending_hint": "Hãy chia bảng hợp lệ trước khi thiết lập mẫu nhánh.",
+    "template_mode_title": "Đang thiết lập mẫu nhánh",
+    "template_mode_hint": "Bạn có thể chuẩn bị thứ tự hạt giống và cặp đấu trước. Tên vận động viên sẽ được điền sau khi vòng bảng hoàn tất.",
+    "template_stale_title": "Mẫu nhánh cần được cập nhật",
+    "template_stale_hint": "Cấu hình vòng bảng đã thay đổi. Hãy kiểm tra lại thứ tự hạt giống rồi lưu phiên bản mới.",
+    "save_template_cta": "Lưu mẫu nhánh",
+    "apply_cta": "Áp dụng và tạo nhánh chính thức",
+    "apply_blocked_stale": "Mẫu nhánh cần được cập nhật do cấu hình vòng bảng đã thay đổi.",
+    "apply_blocked_incomplete": "Vòng bảng chưa hoàn tất — chưa thể tạo nhánh chính thức.",
+    "apply_blocked_tie": "Có tie-break cần xử lý trước khi tạo nhánh chính thức.",
+    "apply_blocked_readiness": "Cần xếp đủ tất cả suất vào nhánh trước khi tạo.",
     "tab_seeding": "Xếp nhánh",
     "tab_championship": "Serie A",
     "tab_consolation": "Serie B",

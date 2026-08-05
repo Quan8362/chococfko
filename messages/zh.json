@@ -6861,6 +6861,18 @@
     "rank_joint_third": "并列季军"
   },
   "admin_group_knockout": {
+    "groups_pending_title": "暂时无法设置对阵表",
+    "groups_pending_hint": "请先完成分组，再排布淘汰赛模板。",
+    "template_mode_title": "正在设置淘汰赛模板",
+    "template_mode_hint": "你可以提前排布种子顺序和对阵。选手姓名将在小组赛结束后自动填入。",
+    "template_stale_title": "淘汰赛模板需要更新",
+    "template_stale_hint": "分组配置已更改。请检查种子顺序并保存新版本。",
+    "save_template_cta": "保存模板",
+    "apply_cta": "应用并生成正式对阵表",
+    "apply_blocked_stale": "由于分组配置已更改，模板需要更新。",
+    "apply_blocked_incomplete": "小组赛尚未结束，暂时无法生成正式对阵表。",
+    "apply_blocked_tie": "生成正式对阵表前需先解决并列名次。",
+    "apply_blocked_readiness": "生成前请将所有出线名额排入对阵表。",
     "tab_seeding": "排位",
     "tab_championship": "Serie A",
     "tab_consolation": "Serie B",

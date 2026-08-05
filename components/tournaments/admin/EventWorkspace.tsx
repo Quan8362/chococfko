@@ -71,10 +71,12 @@ export default function EventWorkspace({
   const needsTieAttention =
     scoring !== null && (scoring.hasBlockingTie || scoring.standings.some((g) => g.hasOverride))
 
-  // group_knockout knockout stage: the seeding tab appears once the group stage is ready (or a bracket
-  // exists); the branch tabs appear once brackets are generated.
+  // group_knockout knockout stage: the seeding tab appears as soon as the groups are ASSIGNED — so an
+  // organiser can lay out a preconfigured knockout TEMPLATE (qualification tokens, seed order, BYEs)
+  // before a single group match is played. Only 'groups_pending' (roster not yet placed) hides it. The
+  // branch tabs still appear only once the official brackets are generated.
   const isGk = groupKnockoutSeed !== null
-  const showSeeding = isGk && (groupKnockoutSeed!.readyToSeed || groupKnockoutSeed!.hasBrackets)
+  const showSeeding = isGk && groupKnockoutSeed!.templatePhase !== 'groups_pending'
   const hasBrackets = groupKnockoutWorkspace !== null && groupKnockoutWorkspace.hasBrackets
   const showConsolationBranch = hasBrackets && groupKnockoutWorkspace!.consolation !== null
 
@@ -87,7 +89,7 @@ export default function EventWorkspace({
     { id: 'results', label: ts('tab_results'), show: hasSchedule && c.score !== false },
     { id: 'standings', label: ts('tab_standings'), show: hasSchedule && c.score !== false },
     { id: 'ties', label: ts('tab_ties'), show: needsTieAttention && c.ties !== false, badge: scoring?.hasBlockingTie },
-    { id: 'gk_seeding', label: tg('tab_seeding'), show: showSeeding && c.bracket !== false },
+    { id: 'gk_seeding', label: tg('tab_seeding'), show: showSeeding && c.bracket !== false, badge: groupKnockoutSeed?.templateStale },
     { id: 'gk_championship', label: tg('tab_championship'), show: hasBrackets && c.score !== false, badge: groupKnockoutWorkspace?.championship.isComplete },
     { id: 'gk_consolation', label: tg('tab_consolation'), show: showConsolationBranch && c.score !== false, badge: groupKnockoutWorkspace?.consolation?.isComplete },
   ]

@@ -6861,6 +6861,18 @@
     "rank_joint_third": "공동 3위"
   },
   "admin_group_knockout": {
+    "groups_pending_title": "대진표 설정을 아직 사용할 수 없습니다",
+    "groups_pending_hint": "토너먼트 템플릿을 구성하기 전에 먼저 조를 배정하세요.",
+    "template_mode_title": "토너먼트 템플릿 설정 중",
+    "template_mode_hint": "시드 순서와 대진을 미리 준비할 수 있습니다. 선수 이름은 조별 리그가 끝난 후 채워집니다.",
+    "template_stale_title": "토너먼트 템플릿을 업데이트해야 합니다",
+    "template_stale_hint": "조 구성이 변경되었습니다. 시드 순서를 확인한 후 새 버전을 저장하세요.",
+    "save_template_cta": "템플릿 저장",
+    "apply_cta": "적용하고 공식 대진표 생성",
+    "apply_blocked_stale": "조 구성이 변경되어 템플릿을 업데이트해야 합니다.",
+    "apply_blocked_incomplete": "조별 리그가 끝나지 않아 아직 공식 대진표를 만들 수 없습니다.",
+    "apply_blocked_tie": "공식 대진표를 만들기 전에 동점을 해결해야 합니다.",
+    "apply_blocked_readiness": "생성하기 전에 모든 진출 자리를 대진표에 배치하세요.",
     "tab_seeding": "시드 배정",
     "tab_championship": "Serie A",
     "tab_consolation": "Serie B",

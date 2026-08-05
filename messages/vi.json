@@ -6886,7 +6886,13 @@
     "not_ready_title": "Chưa thể xếp nhánh",
     "block_group_incomplete": "Vòng bảng chưa đá xong toàn bộ.",
     "block_blocking_tie": "Còn trường hợp hòa ở ranh giới suất chưa được ban tổ chức phân định.",
-    "block_not_ready": "Nội dung chưa đạt trạng thái sẵn sàng tạo nhánh."
+    "block_not_ready": "Nội dung chưa đạt trạng thái sẵn sàng tạo nhánh.",
+    "first_round_title": "Cặp đấu vòng đầu",
+    "first_round_empty": "Chưa đủ hạt giống để xác định cặp đấu.",
+    "bye_advance": "Miễn vòng đầu",
+    "pairing_updated": "Thứ tự đã thay đổi. Cặp đấu vòng đầu đã được cập nhật.",
+    "full_bracket_cta": "Xem toàn bộ nhánh",
+    "full_bracket_hint": "Xem sơ đồ đầy đủ của tất cả các vòng đấu."
   },
   "tournaments": {
     "tabs_label": "Các mục quản lý nội dung",

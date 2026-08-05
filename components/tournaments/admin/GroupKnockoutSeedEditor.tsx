@@ -23,6 +23,7 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import ConfirmDialog from './ConfirmDialog'
 import KnockoutPreviewPanel from './KnockoutPreviewPanel'
+import FirstRoundPairingPreview from './FirstRoundPairingPreview'
 import {
   UNASSIGNED,
   buildBoardState,
@@ -272,11 +273,13 @@ function SeedEditorBody({
       )}
 
       <BranchBoard
+        idKey="champ"
         title={t('branch_championship')}
         subtitle={t('branch_championship_hint')}
         state={champState}
         setState={setChampState}
         readiness={champReady}
+        thirdPlaceEnabled={setup.event.thirdPlaceEnabled}
         tokenLabel={tokenLabel}
         tokenSub={tokenSub}
         onPreview={() => setPreview('championship')}
@@ -286,11 +289,13 @@ function SeedEditorBody({
       {hasConso && (
         <div className="mt-6">
           <BranchBoard
+            idKey="conso"
             title={t('branch_consolation')}
             subtitle={t('branch_consolation_hint')}
             state={consoState}
             setState={setConsoState}
             readiness={consoReady}
+            thirdPlaceEnabled={setup.event.thirdPlaceEnabled}
             tokenLabel={tokenLabel}
             tokenSub={tokenSub}
             onPreview={() => setPreview('consolation')}
@@ -343,23 +348,27 @@ function SeedEditorBody({
   )
 }
 
-// ── One branch's dnd board (unassigned pool + ordered seeds) ────────────────────────────────────
+// ── One branch's dnd board (unassigned pool + ordered seeds) + live first-round pairing preview ──
 function BranchBoard({
+  idKey,
   title,
   subtitle,
   state,
   setState,
   readiness,
+  thirdPlaceEnabled,
   tokenLabel,
   tokenSub,
   onPreview,
   previewDisabled,
 }: {
+  idKey: string
   title: string
   subtitle: string
   state: BoardState
   setState: React.Dispatch<React.SetStateAction<BoardState>>
   readiness: ReturnType<typeof evaluateBranchSeedReadiness>
+  thirdPlaceEnabled: boolean
   tokenLabel: (id: string) => string
   tokenSub: (id: string) => string | null
   onPreview: () => void
@@ -418,9 +427,10 @@ function BranchBoard({
           type="button"
           disabled={previewDisabled}
           onClick={onPreview}
+          title={t('full_bracket_hint')}
           className="flex-none font-semibold text-[12.5px] px-3 py-2 rounded-full border border-teal/25 bg-teal-soft text-teal hover:bg-teal hover:text-white transition-all disabled:opacity-50"
         >
-          {tk('preview_cta')}
+          {t('full_bracket_cta')}
         </button>
       </div>
 
@@ -441,47 +451,61 @@ function BranchBoard({
         </ul>
       )}
 
-      <DndContext sensors={sensors} collisionDetection={closestCorners} onDragOver={handleDragOver} onDragEnd={handleDragEnd}>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <Column id={UNASSIGNED} title={t('unassigned_title')} count={unassignedIds.length} tone="neutral" itemIds={unassignedIds}>
-            {unassignedIds.map((id) => (
-              <Chip
-                key={id}
-                id={id}
-                label={tokenLabel(id)}
-                sub={tokenSub(id)}
-                container={UNASSIGNED}
-                onPrev={() => move((s) => shiftContainer(s, id, -1, ORDER))}
-                onNext={() => move((s) => shiftContainer(s, id, 1, ORDER))}
-                onUp={() => move((s) => nudgeWithin(s, id, -1))}
-                onDown={() => move((s) => nudgeWithin(s, id, 1))}
-                onMoveTo={(c) => move((s) => moveItem(s, id, c))}
-                containerLabel={containerLabel}
-                labels={tk}
-              />
-            ))}
-          </Column>
-          <Column id={SEEDS} title={t('seeds_title')} count={seededIds.length} tone="seeds" itemIds={seededIds}>
-            {seededIds.map((id, i) => (
-              <Chip
-                key={id}
-                id={id}
-                label={tokenLabel(id)}
-                sub={tokenSub(id)}
-                slot={i + 1}
-                container={SEEDS}
-                onPrev={() => move((s) => shiftContainer(s, id, -1, ORDER))}
-                onNext={() => move((s) => shiftContainer(s, id, 1, ORDER))}
-                onUp={() => move((s) => nudgeWithin(s, id, -1))}
-                onDown={() => move((s) => nudgeWithin(s, id, 1))}
-                onMoveTo={(c) => move((s) => moveItem(s, id, c))}
-                containerLabel={containerLabel}
-                labels={tk}
-              />
-            ))}
-          </Column>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 lg:gap-4">
+        {/* Left: the seeding board (unassigned pool + ordered seeds) */}
+        <div className="lg:col-span-7">
+          <DndContext sensors={sensors} collisionDetection={closestCorners} onDragOver={handleDragOver} onDragEnd={handleDragEnd}>
+            <div className="space-y-3">
+              <Column id={UNASSIGNED} title={t('unassigned_title')} count={unassignedIds.length} tone="neutral" itemIds={unassignedIds}>
+                {unassignedIds.map((id) => (
+                  <Chip
+                    key={id}
+                    id={id}
+                    label={tokenLabel(id)}
+                    sub={tokenSub(id)}
+                    container={UNASSIGNED}
+                    onPrev={() => move((s) => shiftContainer(s, id, -1, ORDER))}
+                    onNext={() => move((s) => shiftContainer(s, id, 1, ORDER))}
+                    onUp={() => move((s) => nudgeWithin(s, id, -1))}
+                    onDown={() => move((s) => nudgeWithin(s, id, 1))}
+                    onMoveTo={(c) => move((s) => moveItem(s, id, c))}
+                    containerLabel={containerLabel}
+                    labels={tk}
+                  />
+                ))}
+              </Column>
+              <Column id={SEEDS} title={t('seeds_title')} count={seededIds.length} tone="seeds" itemIds={seededIds}>
+                {seededIds.map((id, i) => (
+                  <Chip
+                    key={id}
+                    id={id}
+                    label={tokenLabel(id)}
+                    sub={tokenSub(id)}
+                    slot={i + 1}
+                    container={SEEDS}
+                    onPrev={() => move((s) => shiftContainer(s, id, -1, ORDER))}
+                    onNext={() => move((s) => shiftContainer(s, id, 1, ORDER))}
+                    onUp={() => move((s) => nudgeWithin(s, id, -1))}
+                    onDown={() => move((s) => nudgeWithin(s, id, 1))}
+                    onMoveTo={(c) => move((s) => moveItem(s, id, c))}
+                    containerLabel={containerLabel}
+                    labels={tk}
+                  />
+                ))}
+              </Column>
+            </div>
+          </DndContext>
         </div>
-      </DndContext>
+
+        {/* Right: live first-round pairings derived from the SAME engine as the full preview */}
+        <FirstRoundPairingPreview
+          className="lg:col-span-5"
+          headingId={`frp-${idKey}`}
+          seededIds={seededIds}
+          thirdPlaceEnabled={thirdPlaceEnabled}
+          nameOf={tokenLabel}
+        />
+      </div>
     </div>
   )
 }

@@ -6886,7 +6886,13 @@
     "not_ready_title": "シードの準備ができていません",
     "block_group_incomplete": "グループステージがまだ完了していません。",
     "block_blocking_tie": "通過ライン上の同着が主催者による判定待ちです。",
-    "block_not_ready": "この種目はまだシード可能な状態に達していません。"
+    "block_not_ready": "この種目はまだシード可能な状態に達していません。",
+    "first_round_title": "初戦の組み合わせ",
+    "first_round_empty": "組み合わせを確定するにはシードが足りません。",
+    "bye_advance": "不戦勝",
+    "pairing_updated": "順序が変更されました。初戦の組み合わせを更新しました。",
+    "full_bracket_cta": "ブラケット全体を見る",
+    "full_bracket_hint": "すべてのラウンドの完全な図を表示します。"
   },
   "tournaments": {
     "tabs_label": "種目管理のセクション",

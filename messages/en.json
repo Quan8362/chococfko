@@ -6886,7 +6886,13 @@
     "not_ready_title": "Not ready to seed",
     "block_group_incomplete": "The group stage is not fully played yet.",
     "block_blocking_tie": "A tie at a qualification boundary still needs the organizer to resolve it.",
-    "block_not_ready": "The event has not reached the ready-to-seed state."
+    "block_not_ready": "The event has not reached the ready-to-seed state.",
+    "first_round_title": "First-round matches",
+    "first_round_empty": "Not enough seeds yet to determine the matches.",
+    "bye_advance": "Bye",
+    "pairing_updated": "Order changed. First-round matches updated.",
+    "full_bracket_cta": "View full bracket",
+    "full_bracket_hint": "See the complete diagram of all rounds."
   },
   "tournaments": {
     "tabs_label": "Event management sections",

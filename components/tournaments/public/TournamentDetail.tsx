@@ -284,7 +284,11 @@ export default function TournamentDetail({
             )}
             {activeTab === 'standings' && <PublicStandings standings={workspace.standings} nameOf={nameOf} />}
             {activeTab === 'bracket' && (
-              <div className="space-y-8">
+              // Break the bracket out of the ≤1320px reading shell so the board can use most of the
+              // viewport on desktop. Centred via left-1/2/-translate-x-1/2 (works regardless of the
+              // shell's own centring); capped at 1560px and 94vw so the page body never scrolls
+              // sideways and ultra-wide monitors stay balanced. Below lg it stays in the shell column.
+              <div className="lg:relative lg:left-1/2 lg:-translate-x-1/2 lg:w-[min(94vw,1560px)] space-y-8">
                 {visibleBranches.length === 0 ? (
                   <EmptyState title={t('empty.no_knockout')} hint={t('empty.no_knockout_hint')} />
                 ) : (

@@ -26,6 +26,30 @@ test('resolved competitor names render through the truncating tooltip label', ()
   assert.match(src, /<TruncatedName\b/, 'resolved names must render via TruncatedName')
 })
 
+test('desktop board expands each round to share the width (no fixed-width scroll trap)', () => {
+  const src = read('components/tournaments/public/PublicBracket.tsx')
+  // At lg+ every round column becomes flex-1 and is capped, so all rounds share the row and fit on one
+  // screen — the old behaviour was a fixed w-[232px] per column that forced a horizontal scrollbar.
+  assert.match(src, /lg:flex-1/, 'columns must grow to share the desktop width')
+  assert.match(src, /lg:max-w-\[\d+px\]/, 'columns stay capped so a small bracket stays balanced')
+  assert.match(src, /lg:justify-center/, 'the round row is centred at desktop widths')
+  assert.doesNotMatch(src, /flex-none w-\[232px\]/, 'the old fixed-width desktop column must be gone')
+})
+
+test('mobile bracket keeps a fixed-width column inside a horizontal-scroll container (touch)', () => {
+  const src = read('components/tournaments/public/PublicBracket.tsx')
+  assert.match(src, /overflow-x-auto/, 'the board scrolls inside its own container, never the page body')
+  assert.match(src, /flex-none w-\[220px\]/, 'below lg the column keeps a readable fixed width and scrolls')
+})
+
+test('public bracket panel breaks out of the reading shell to a capped full-bleed width', () => {
+  const src = read('components/tournaments/public/TournamentDetail.tsx')
+  // The bracket panel escapes the ≤1320px reading column at lg+ (centred, capped at 94vw/1560px) so the
+  // board uses most of the viewport without ever making the page body scroll sideways.
+  assert.match(src, /lg:w-\[min\(94vw,1560px\)\]/, 'full-bleed width is capped so ultra-wide stays balanced')
+  assert.match(src, /lg:-translate-x-1\/2/, 'the widened panel stays centred in the viewport')
+})
+
 test('TruncatedName exposes the full name to hover, focus and assistive tech', () => {
   const src = read('components/tournaments/public/TruncatedName.tsx')
   assert.match(src, /className=\{`truncate /, 'name stays on one line with an ellipsis (protects card width)')

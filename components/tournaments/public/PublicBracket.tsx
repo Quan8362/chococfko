@@ -169,8 +169,14 @@ function MirroredView({
   }, [])
 
   return (
-    <div className="overflow-x-auto overflow-y-hidden pb-3 -mx-1 px-1">
-      <div ref={innerRef} className="relative inline-flex items-stretch gap-5 lg:gap-7 min-w-full">
+    <div className="overflow-x-auto overflow-y-hidden no-scrollbar pb-3 -mx-1 px-1">
+      {/* Below lg the columns keep a fixed width and the row scrolls horizontally (touch). At lg+ the
+          columns become flex-1 and share the full-bleed width, so every round fits on one screen with
+          no scrollbar; the row is centred so a small bracket (e.g. Serie A) stays balanced. */}
+      <div
+        ref={innerRef}
+        className="relative flex items-stretch gap-4 lg:gap-[clamp(0.75rem,1.8vw,2.25rem)] min-w-full lg:w-full lg:justify-center"
+      >
         {/* Connector overlay — decorative, never intercepts taps on a match card. */}
         <svg
           className="absolute inset-0 pointer-events-none"
@@ -180,13 +186,20 @@ function MirroredView({
           focusable="false"
         >
           {paths.map((d, i) => (
-            <path key={i} d={d} fill="none" className="stroke-line" strokeWidth={1.5} />
+            <path key={i} d={d} fill="none" className="stroke-line" strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
           ))}
         </svg>
 
         {columns.map((col) => (
-          <div key={col.key} className="relative z-10 flex flex-col flex-none w-[232px]">
-            <h4 className={`text-[11.5px] font-bold mb-2 text-center ${col.side === 'center' ? 'text-rose' : 'text-teal'}`}>
+          <div
+            key={col.key}
+            className="relative z-10 flex flex-col flex-none w-[220px] lg:flex-1 lg:w-auto lg:min-w-[172px] lg:max-w-[264px]"
+          >
+            <h4
+              className={`text-[11px] font-bold uppercase tracking-[0.06em] mb-2.5 text-center ${
+                col.side === 'center' ? 'text-rose' : 'text-teal'
+              }`}
+            >
               {roundName(t, col.label)}
             </h4>
             <div className="flex-1 flex flex-col justify-around gap-4">
@@ -197,13 +210,16 @@ function MirroredView({
                   nameOf={nameOf}
                   feeders={feeders.get(m.id)}
                   t={t}
+                  tone={col.side === 'center' ? 'final' : 'normal'}
                   nodeRef={register}
                 />
               ))}
             </div>
             {col.side === 'center' && thirdPlaceMatch && (
               <div className="mt-5">
-                <h4 className="text-[11.5px] font-bold mb-2 text-center text-amber-600">{t('label_third_place')}</h4>
+                <h4 className="text-[11px] font-bold uppercase tracking-[0.06em] mb-2.5 text-center text-amber-600">
+                  {t('label_third_place')}
+                </h4>
                 <MatchNode match={thirdPlaceMatch} nameOf={nameOf} feeders={undefined} t={t} tone="third" />
               </div>
             )}
@@ -289,7 +305,7 @@ function MatchNode({
   nameOf: (id: string | null) => string | null
   feeders: { a?: number; b?: number } | undefined
   t: BracketT
-  tone?: 'normal' | 'third'
+  tone?: 'normal' | 'third' | 'final'
   fullWidth?: boolean
   nodeRef?: (id: string, el: HTMLElement | null) => void
 }) {
@@ -322,9 +338,13 @@ function MatchNode({
   return (
     <div
       ref={nodeRef ? (el) => nodeRef(match.id, el) : undefined}
-      className={`rounded-xl border overflow-hidden bg-paper shadow-card ${tone === 'third' ? 'border-amber-200' : 'border-line'} ${
-        fullWidth ? 'w-full' : ''
-      }`}
+      className={`rounded-xl border overflow-hidden bg-paper shadow-card transition-shadow ${
+        tone === 'third'
+          ? 'border-amber-200'
+          : tone === 'final'
+            ? 'border-rose/40 ring-1 ring-rose/15 shadow-[0_10px_30px_-14px_rgba(194,24,91,0.35)]'
+            : 'border-line'
+      } ${fullWidth ? 'w-full' : ''}`}
     >
       <Side
         present={!!match.competitorAId}
@@ -386,13 +406,13 @@ function Side({
       {present ? (
         <TruncatedName
           name={name ?? ''}
-          className={`min-w-0 flex-1 text-[12.5px] ${isWinner ? 'font-bold text-teal' : 'text-ink'}`}
+          className={`min-w-0 flex-1 text-[13px] ${isWinner ? 'font-bold text-teal' : 'text-ink'}`}
         />
       ) : (
-        <span className="min-w-0 flex-1 text-[12.5px] truncate text-muted italic">{placeholder}</span>
+        <span className="min-w-0 flex-1 text-[13px] truncate text-muted italic">{placeholder}</span>
       )}
       {/* Stable-width score column so numbers align down the node and never collide with the name. */}
-      <span className={`flex-none w-6 text-right text-[12px] font-bold tabular-nums ${isWinner ? 'text-teal' : 'text-muted'}`}>
+      <span className={`flex-none w-7 text-right text-[13.5px] font-extrabold tabular-nums ${isWinner ? 'text-teal' : 'text-muted'}`}>
         {score !== null ? score : ''}
       </span>
     </div>

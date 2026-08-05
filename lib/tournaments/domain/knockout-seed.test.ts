@@ -10,6 +10,7 @@ import {
   buildKnockoutMatchRows,
   buildKnockoutBracketFromSeeds,
   reconstructBracketForProgression,
+  deriveFirstRoundPairings,
   type DbKnockoutMatch,
   type SeedPayload,
 } from './knockout-seed.ts'
@@ -88,6 +89,62 @@ test('preview is deterministic and reports totals', () => {
 test('preview has no third-place placeholder when disabled', () => {
   const p = buildKnockoutPreview(ids(4), false)
   assert.equal(p.thirdPlaceMatch, null)
+})
+
+// ── first-round pairing preview (shared engine, no second algorithm) ────────────────────────────
+const slotId = (s: { kind: string; competitorId?: string }) => (s.kind === 'competitor' ? s.competitorId! : s.kind)
+
+test('four seeds derive exactly two first-round matches', () => {
+  const p = deriveFirstRoundPairings(ids(4), false)
+  assert.equal(p.length, 2)
+  assert.ok(p.every((m) => !m.isBye))
+})
+
+test('eight seeds derive exactly four first-round matches', () => {
+  const p = deriveFirstRoundPairings(ids(8), false)
+  assert.equal(p.length, 4)
+})
+
+test('first-round pairings match the full preview round[0] exactly (same mapping)', () => {
+  const seeds = ids(6)
+  const inline = deriveFirstRoundPairings(seeds, true)
+  const full = buildKnockoutPreview(seeds, true).rounds[0].matches
+  assert.equal(inline.length, full.length)
+  inline.forEach((m, i) => {
+    assert.equal(m.matchNumber, full[i].matchNumber)
+    assert.equal(slotId(m.slotA), slotId(full[i].slotA))
+    assert.equal(slotId(m.slotB), slotId(full[i].slotB))
+    assert.equal(m.isBye, full[i].isBye)
+  })
+})
+
+test('reordering seeds changes the derived pairings (live preview source of truth)', () => {
+  const before = deriveFirstRoundPairings(['a', 'b', 'c', 'd'], false)
+  const after = deriveFirstRoundPairings(['a', 'c', 'b', 'd'], false)
+  assert.notEqual(JSON.stringify(before), JSON.stringify(after))
+})
+
+test('a bye seed shows an explicit bye opponent, never a fabricated competitor', () => {
+  const p = deriveFirstRoundPairings(ids(3), false) // size 4 → one bye
+  const byeMatch = p.find((m) => m.isBye)!
+  assert.ok(byeMatch, 'a bye match exists')
+  const kinds = [byeMatch.slotA.kind, byeMatch.slotB.kind].sort()
+  assert.deepEqual(kinds, ['bye', 'competitor'])
+})
+
+test('fewer than two seeds derive no pairings and do not throw', () => {
+  assert.deepEqual(deriveFirstRoundPairings([], false), [])
+  assert.deepEqual(deriveFirstRoundPairings(['solo'], false), [])
+})
+
+test('first-round pairings only reference the given seeds (no cross contamination)', () => {
+  const seeds = ['x1', 'x2', 'x3', 'x4']
+  const ref = new Set(seeds)
+  for (const m of deriveFirstRoundPairings(seeds, false)) {
+    for (const s of [m.slotA, m.slotB]) {
+      if (s.kind === 'competitor') assert.ok(ref.has(s.competitorId))
+    }
+  }
 })
 
 // ── materialization: BYE auto-advance ──────────────────────────────────────────────────────────

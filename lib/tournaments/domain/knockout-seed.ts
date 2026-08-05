@@ -218,6 +218,40 @@ export function buildKnockoutPreview(
   }
 }
 
+// ── First-round pairing preview (same mapping as the full preview) ─────────────────────────────────
+
+export interface FirstRoundPairing {
+  readonly matchNumber: number
+  readonly matchKey: string
+  readonly slotA: KnockoutPreviewSlot
+  readonly slotB: KnockoutPreviewSlot
+  readonly isBye: boolean
+}
+
+/**
+ * The first-round pairings that WOULD be produced for the current seed order — the SAME mapping the
+ * full-bracket preview and the generate action use (buildKnockoutPreview → rounds[0]); there is no
+ * second pairing algorithm for the UI. Returns [] when there are fewer than two seeds (a bracket can
+ * not be formed yet) instead of throwing, so a live seeding UI can call it on every keystroke. Never
+ * fabricates competitors — an empty first-round slot stays an explicit BYE.
+ */
+export function deriveFirstRoundPairings(
+  seededIds: readonly CompetitorId[],
+  thirdPlaceEnabled = false,
+  forBracket: Bracket = KNOCKOUT_BRACKET,
+): readonly FirstRoundPairing[] {
+  if (seededIds.length < 2) return []
+  const first = buildKnockoutPreview(seededIds, thirdPlaceEnabled, forBracket).rounds[0]
+  if (!first) return []
+  return first.matches.map((m) => ({
+    matchNumber: m.matchNumber,
+    matchKey: m.matchKey,
+    slotA: m.slotA,
+    slotB: m.slotB,
+    isBye: m.isBye,
+  }))
+}
+
 // ── Materialization → DB rows (with BYE auto-advance already applied) ─────────────────────────────
 
 export interface KnockoutMatchRow {

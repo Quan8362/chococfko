@@ -6886,7 +6886,13 @@
     "not_ready_title": "尚不能排位",
     "block_group_incomplete": "小组赛尚未全部完成。",
     "block_blocking_tie": "出线边界的并列仍需主办方判定。",
-    "block_not_ready": "该项目尚未达到可排位状态。"
+    "block_not_ready": "该项目尚未达到可排位状态。",
+    "first_round_title": "首轮对阵",
+    "first_round_empty": "种子数量不足，暂时无法确定对阵。",
+    "bye_advance": "轮空",
+    "pairing_updated": "顺序已更改。首轮对阵已更新。",
+    "full_bracket_cta": "查看完整对阵图",
+    "full_bracket_hint": "查看所有轮次的完整对阵图。"
   },
   "tournaments": {
     "tabs_label": "赛事项目管理分区",

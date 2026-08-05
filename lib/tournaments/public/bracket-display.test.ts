@@ -42,12 +42,31 @@ test('mobile bracket keeps a fixed-width column inside a horizontal-scroll conta
   assert.match(src, /flex-none w-\[220px\]/, 'below lg the column keeps a readable fixed width and scrolls')
 })
 
-test('public bracket panel breaks out of the reading shell to a capped full-bleed width', () => {
+test('public bracket panel stays contained inside the reading shell (no viewport breakout)', () => {
   const src = read('components/tournaments/public/TournamentDetail.tsx')
-  // The bracket panel escapes the ≤1320px reading column at lg+ (centred, capped at 94vw/1560px) so the
-  // board uses most of the viewport without ever making the page body scroll sideways.
-  assert.match(src, /lg:w-\[min\(94vw,1560px\)\]/, 'full-bleed width is capped so ultra-wide stays balanced')
-  assert.match(src, /lg:-translate-x-1\/2/, 'the widened panel stays centred in the viewport')
+  // The bracket panel must share the shell's horizontal bounds with the hero/tabs — it may never break
+  // out to a viewport width, which is what spilled the board past the page edges and scrolled the body.
+  assert.doesNotMatch(src, /100vw/, 'the bracket panel must not size itself to the viewport width')
+  assert.doesNotMatch(src, /94vw/, 'the old 94vw full-bleed breakout must be gone')
+  assert.doesNotMatch(src, /-translate-x-1\/2/, 'the panel must not be re-centred on the viewport')
+  assert.doesNotMatch(src, /lg:left-1\/2/, 'the panel must not be pulled out of the shell column')
+})
+
+test('the desktop bracket board is a self-contained scroll region, not a page-widening element', () => {
+  const src = read('components/tournaments/public/PublicBracket.tsx')
+  // The board scrolls inside its own overflow-x-auto container; it must not use a negative margin to
+  // spill past the shell padding, and it must never key its width off the viewport.
+  assert.match(src, /overflow-x-auto overflow-y-hidden no-scrollbar pb-3 px-1/, 'board is its own scroll region')
+  assert.doesNotMatch(src, /overflow-y-hidden[^"]*-mx-/, 'the board shell must not use a negative margin to break out')
+  assert.doesNotMatch(src, /100vw/, 'the board must not size any element off the viewport width')
+})
+
+test('every desktop round column can shrink to share the shell width (min-width:0)', () => {
+  const src = read('components/tournaments/public/PublicBracket.tsx')
+  // A flex column that cannot shrink below its content forces horizontal overflow when five rounds must
+  // share one shell width. min-w-0 (+ the capped lg:min-w) lets the columns fit; the name truncates.
+  assert.match(src, /min-w-0 lg:flex-1/, 'columns must be allowed to shrink to fit the shell')
+  assert.match(src, /lg:min-w-\[16\dpx\]/, 'a small capped floor keeps five columns readable yet contained')
 })
 
 test('TruncatedName exposes the full name to hover, focus and assistive tech', () => {

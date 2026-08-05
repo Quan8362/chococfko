@@ -65,8 +65,11 @@ function PodiumSerieColumn({
   const rows = orderPodiumRows(bracket.podium)
   const joint = isJointThird(bracket.podium)
   return (
-    <section className="rounded-3xl border border-line bg-paper p-4 sm:p-5">
-      <h3 className="mb-3 text-[14px] font-bold text-ink">{title}</h3>
+    <section className="rounded-3xl border border-line bg-paper shadow-card p-5 sm:p-6">
+      <h3 className="mb-3.5 flex items-center gap-2 font-serif text-[16px] font-bold text-ink">
+        <span aria-hidden className="h-4 w-1 rounded-full bg-gold" />
+        {title}
+      </h3>
       <ol className="list-none space-y-2.5">
         {rows.map((row, i) => (
           <PodiumPlacementItem

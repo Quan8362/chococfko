@@ -49,15 +49,18 @@ export default function PublicStandings({
     <div className="space-y-6">
       {standings.map((g) => (
         <div key={g.groupId}>
-          <div className="flex items-center justify-between gap-2 mb-2">
-            <h3 className="text-[14px] font-bold text-ink">{t('standings.group_heading', { name: g.groupName })}</h3>
+          <div className="flex items-center justify-between gap-2 mb-2.5">
+            <h3 className="flex items-center gap-2 text-[14px] font-bold text-ink">
+              <span aria-hidden className="h-4 w-1 rounded-full bg-rose/50" />
+              {t('standings.group_heading', { name: g.groupName })}
+            </h3>
             {g.resolvedByOrganizer && (
               <span className="text-[10.5px] font-semibold text-rose bg-rose-soft px-2 py-0.5 rounded-full">
                 {t('standings.organizer_resolved')}
               </span>
             )}
           </div>
-          <div className="overflow-x-auto rounded-2xl border border-line">
+          <div className="overflow-x-auto rounded-2xl border border-line shadow-card">
             {/* Points-for / points-against are secondary and hide below md so the table fits a phone
                 without page-level horizontal scroll; rank/name/P/W/L/Pts/Diff always stay. */}
             <table className="w-full min-w-[380px] sm:min-w-[440px] text-[12.5px]">
@@ -76,7 +79,16 @@ export default function PublicStandings({
               </thead>
               <tbody>
                 {g.rows.map((r) => (
-                  <tr key={r.competitorId} className="border-t border-line">
+                  <tr
+                    key={r.competitorId}
+                    className={`border-t border-line ${
+                      r.qualification === 'championship'
+                        ? 'bg-[#f4faef]'
+                        : r.qualification === 'consolation'
+                          ? 'bg-teal-soft/30'
+                          : ''
+                    }`}
+                  >
                     <td className="px-3 py-2 font-bold text-ink tabular-nums">
                       {r.rank}
                       {r.tied && <span className="text-muted font-normal" title={t('standings.tie_marker')}> =</span>}

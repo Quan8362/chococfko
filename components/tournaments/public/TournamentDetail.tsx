@@ -169,19 +169,21 @@ export default function TournamentDetail({
       </Link>
 
       {/* Header — title/meta and status/actions split into two zones on desktop, stacked on mobile */}
-      <header className="rounded-3xl border border-line bg-gradient-to-br from-gold-light/40 via-paper to-rose-soft/60 p-6 sm:p-8 mb-6">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+      <header className="rounded-3xl border border-line shadow-card bg-gradient-to-br from-gold-light/40 via-paper to-rose-soft/60 p-5 sm:p-6 mb-6">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div className="min-w-0">
-            <h1 className="font-serif font-bold text-[clamp(24px,3.4vw,36px)] leading-tight text-ink break-words">
+            <h1 className="font-serif font-bold text-[clamp(23px,3.1vw,34px)] leading-tight text-ink break-words">
               {summary.name}
             </h1>
-            <div className="flex flex-wrap gap-x-5 gap-y-1.5 text-[13px] text-muted mt-3">
+            <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5 text-[13px] text-muted mt-2.5">
               <span>{dateRange || t('public.dates_tbd')}</span>
+              <span aria-hidden className="text-line">•</span>
               <span>{summary.location || t('public.location_tbd')}</span>
+              <span aria-hidden className="text-line">•</span>
               <span>{t('public.events_count', { count: summary.events.length })}</span>
             </div>
           </div>
-          <div className="flex flex-col items-start gap-3 lg:items-end lg:flex-none">
+          <div className="flex flex-col items-start gap-2.5 lg:items-end lg:flex-none">
             <StatusPill phase={phase} label={t(`status.${phase}`)} />
             <div className="flex flex-wrap items-center gap-2.5 lg:justify-end">
               {summary.rulesUrl && (
@@ -225,10 +227,11 @@ export default function TournamentDetail({
                 type="button"
                 onClick={() => selectEvent(ev.id)}
                 aria-pressed={ev.id === selectedEventId}
-                className={`flex-none whitespace-nowrap text-[13px] font-medium px-3 py-1.5 rounded-xl border transition-colors ${
+                title={ev.name}
+                className={`flex-none inline-flex items-center min-h-[40px] max-w-[240px] truncate whitespace-nowrap text-[13px] font-medium px-3.5 rounded-xl border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose/40 ${
                   ev.id === selectedEventId
-                    ? 'border-rose bg-rose text-white'
-                    : 'border-line bg-paper text-ink hover:border-rose/40'
+                    ? 'border-rose bg-rose text-white shadow-card'
+                    : 'border-line bg-paper text-ink hover:border-rose/40 hover:bg-rose-soft/30'
                 }`}
               >
                 {ev.name}
@@ -243,7 +246,7 @@ export default function TournamentDetail({
       ) : (
         <>
           {/* Tabs */}
-          <div role="tablist" aria-label={t('public.tabs_label')} className="flex gap-1 border-b border-line mb-5 overflow-x-auto no-scrollbar">
+          <div role="tablist" aria-label={t('public.tabs_label')} className="flex gap-0.5 sm:gap-1 border-b border-line mb-6 overflow-x-auto no-scrollbar">
             {availableTabs.map((tab, idx) => (
               <button
                 key={tab}
@@ -257,10 +260,10 @@ export default function TournamentDetail({
                 tabIndex={activeTab === tab ? 0 : -1}
                 onKeyDown={(e) => onTabKeyDown(e, idx)}
                 onClick={() => selectTab(tab)}
-                className={`flex-none whitespace-nowrap text-[13px] font-semibold px-3.5 py-2 -mb-px border-b-2 rounded-t transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose/40 ${
+                className={`flex-none inline-flex items-center min-h-[44px] whitespace-nowrap text-[13.5px] px-3.5 -mb-px border-b-2 rounded-t transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose/40 ${
                   activeTab === tab
-                    ? 'border-rose text-rose'
-                    : 'border-transparent text-muted hover:text-ink'
+                    ? 'border-rose text-rose font-bold'
+                    : 'border-transparent text-muted font-semibold hover:text-ink hover:border-line'
                 }`}
               >
                 {t(`tabs.${tab}`)}
@@ -288,11 +291,12 @@ export default function TournamentDetail({
                   visibleBranches.map((b) => (
                     <section key={b.bracket} aria-labelledby={showBranchHeaders ? `branch-${b.bracket}` : undefined}>
                       {showBranchHeaders && (
-                        <div className="mb-3">
-                          <h3 id={`branch-${b.bracket}`} className="font-serif font-bold text-[17px] text-ink">
+                        <div className="mb-4">
+                          <h3 id={`branch-${b.bracket}`} className="flex items-center gap-2 font-serif font-bold text-[18px] text-ink">
+                            <span aria-hidden className="h-5 w-1.5 rounded-full bg-rose/60" />
                             {t(`bracket.${b.bracket}`)}
                           </h3>
-                          <p className="text-[12.5px] text-muted mt-0.5">{t(`bracket.${b.bracket}_desc`)}</p>
+                          <p className="text-[12.5px] text-muted mt-1 ml-3.5">{t(`bracket.${b.bracket}_desc`)}</p>
                         </div>
                       )}
                       <PublicBracket

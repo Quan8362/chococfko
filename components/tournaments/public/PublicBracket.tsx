@@ -185,7 +185,7 @@ function MirroredView({
         </svg>
 
         {columns.map((col) => (
-          <div key={col.key} className="relative z-10 flex flex-col flex-none w-[210px]">
+          <div key={col.key} className="relative z-10 flex flex-col flex-none w-[232px]">
             <h4 className={`text-[11.5px] font-bold mb-2 text-center ${col.side === 'center' ? 'text-rose' : 'text-teal'}`}>
               {roundName(t, col.label)}
             </h4>
@@ -322,7 +322,7 @@ function MatchNode({
   return (
     <div
       ref={nodeRef ? (el) => nodeRef(match.id, el) : undefined}
-      className={`rounded-xl border overflow-hidden bg-paper ${tone === 'third' ? 'border-amber-200' : 'border-line'} ${
+      className={`rounded-xl border overflow-hidden bg-paper shadow-card ${tone === 'third' ? 'border-amber-200' : 'border-line'} ${
         fullWidth ? 'w-full' : ''
       }`}
     >

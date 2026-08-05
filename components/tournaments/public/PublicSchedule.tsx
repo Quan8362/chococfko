@@ -110,16 +110,20 @@ export default function PublicSchedule({
             <div className="space-y-4">
               {Array.from(groupSections.entries()).map(([gid, sect]) => (
                 <div key={gid}>
-                  <h3 className="text-[13px] font-bold text-teal mb-2">{t('schedule.group_label', { name: sect.name })}</h3>
-                  <div className="space-y-1.5">
+                  <h3 className="flex items-center gap-2 text-[14px] font-bold text-teal mb-2.5">
+                    <span aria-hidden className="h-4 w-1 rounded-full bg-teal/60" />
+                    {t('schedule.group_label', { name: sect.name })}
+                  </h3>
+                  <div className="space-y-3">
                     {Array.from(sect.rounds.entries())
                       .sort((a, b) => a[0] - b[0])
                       .map(([round, matches]) => (
                         <div key={round}>
-                          <p className="text-[11px] font-semibold text-muted/80 uppercase tracking-wide mb-1">
-                            {t('schedule.round_label', { n: round })}
+                          <p className="flex items-center gap-2 text-[11px] font-semibold text-muted/80 uppercase tracking-wide mb-1.5">
+                            <span>{t('schedule.round_label', { n: round })}</span>
+                            <span aria-hidden className="h-px flex-1 bg-line/70" />
                           </p>
-                          <ul className="grid gap-1.5 lg:grid-cols-2 xl:grid-cols-3">
+                          <ul className="grid gap-2.5 sm:grid-cols-2">
                             {matches.map((m) => (
                               <MatchRow key={m.id} m={m} nameOf={nameOf} t={t} />
                             ))}
@@ -139,10 +143,11 @@ export default function PublicSchedule({
                 const roundNumber = matches[0]?.roundNumber ?? 0
                 return (
                   <div key={key}>
-                    <h3 className="text-[13px] font-bold text-teal mb-2">
+                    <h3 className="flex items-center gap-2 text-[14px] font-bold text-teal mb-2.5">
+                      <span aria-hidden className="h-4 w-1 rounded-full bg-teal/60" />
                       {t(`bracket.${bracket}`)} · {roundLabelText(matches[0]?.roundLabel ?? label, roundNumber)}
                     </h3>
-                    <ul className="grid gap-1.5 lg:grid-cols-2 xl:grid-cols-3">
+                    <ul className="grid gap-2.5 sm:grid-cols-2">
                       {matches.map((m) => (
                         <MatchRow key={m.id} m={m} nameOf={nameOf} t={t} />
                       ))}
@@ -229,8 +234,8 @@ function MatchRow({
   const pointB = !done ? '–' : games.length >= 1 ? games[0].scoreB : m.gamesWonB
 
   return (
-    <li className="rounded-xl border border-line bg-paper px-3 py-2.5">
-      <div className="flex justify-end mb-1.5">
+    <li className="rounded-2xl border border-line bg-paper shadow-card px-4 py-3 transition-shadow hover:shadow-card-hover motion-reduce:transition-none">
+      <div className="flex justify-end mb-2">
         <StatusBadge status={m.status} done={done} t={t} />
       </div>
 
@@ -262,13 +267,14 @@ function MatchRow({
   )
 }
 
-// One competitor / point-score line for single-game (or pending) matches.
+// One competitor / point-score line for single-game (or pending) matches. The winner's row gets a soft
+// teal wash so the result reads at a glance; the score sits in a fixed-width column as the focal number.
 function CompetitorScoreRow({ name, score, win }: { name: string; score: number | string; win: boolean }) {
   return (
-    <div className={`flex items-center gap-1.5 ${win ? 'font-bold text-teal' : 'text-ink'}`}>
+    <div className={`flex items-center gap-1.5 rounded-lg px-1.5 py-1 ${win ? 'font-bold text-teal bg-teal-soft/50' : 'text-ink'}`}>
       <WinnerMark show={win} />
-      <span className="min-w-0 flex-1 text-[13px] leading-snug break-words">{name}</span>
-      <span className="flex-none w-10 text-center text-[14px] tabular-nums">{score}</span>
+      <span className="min-w-0 flex-1 text-[13.5px] leading-snug break-words">{name}</span>
+      <span className="flex-none w-10 text-center text-[17px] font-bold tabular-nums">{score}</span>
     </div>
   )
 }

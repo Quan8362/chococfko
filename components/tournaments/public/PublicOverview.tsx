@@ -23,9 +23,9 @@ export default function PublicOverview({
   }
 
   return (
-    <div className="space-y-3">
-      <h2 className="font-serif font-bold text-[16px] text-ink">{t('overview.events_heading')}</h2>
-      <ul className="grid gap-2.5 md:grid-cols-2 xl:grid-cols-3">
+    <div className="space-y-4">
+      <h2 className="font-serif font-bold text-[18px] text-ink">{t('overview.events_heading')}</h2>
+      <ul className="grid gap-3.5 md:grid-cols-2 xl:grid-cols-3">
         {events.map((ev) => {
           const pct = completionPercent(ev.completedMatchCount, ev.matchCount)
           const active = ev.id === selectedEventId
@@ -35,12 +35,12 @@ export default function PublicOverview({
                 type="button"
                 onClick={() => onSelectEvent(ev.id)}
                 aria-pressed={active}
-                className={`w-full text-left rounded-2xl border p-4 transition-colors ${
-                  active ? 'border-rose/50 bg-rose-soft/40' : 'border-line bg-paper hover:border-rose/30 hover:bg-cream/50'
+                className={`w-full h-full text-left rounded-2xl border p-5 shadow-card transition-all hover:shadow-card-hover motion-reduce:transition-none ${
+                  active ? 'border-rose/50 bg-rose-soft/40 ring-1 ring-rose/30' : 'border-line bg-paper hover:border-rose/30 hover:bg-cream/40'
                 }`}
               >
                 <div className="flex items-start justify-between gap-3 mb-2">
-                  <h3 className="font-semibold text-[14.5px] text-ink">{ev.name}</h3>
+                  <h3 className="font-semibold text-[15px] text-ink leading-snug">{ev.name}</h3>
                   <span className="flex-none text-[11px] font-bold text-teal bg-teal-soft px-2 py-0.5 rounded-full">
                     {t(`overview.format_${ev.format}`)}
                   </span>
@@ -63,7 +63,7 @@ export default function PublicOverview({
                 </div>
                 {pct !== null && (
                   <div className="mt-2.5">
-                    <div className="h-1.5 rounded-full bg-cream overflow-hidden" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}>
+                    <div className="h-2 rounded-full bg-cream overflow-hidden" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}>
                       <div className="h-full bg-gradient-to-r from-rose to-fuchsia-500 rounded-full" style={{ width: `${pct}%` }} />
                     </div>
                     <span className="text-[11px] text-muted mt-1 inline-block">{t('overview.progress', { pct })}</span>

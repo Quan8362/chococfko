@@ -26,7 +26,7 @@ export default function PublicRuleSummary({ summary }: { summary: PublicEventRul
   // snapshot; we just say so plainly.
   if (!summary) {
     return (
-      <div className="rounded-2xl border border-line bg-paper p-5 sm:p-6">
+      <div className="max-w-[900px] rounded-2xl border border-line bg-paper shadow-card p-5 sm:p-6">
         <h2 className="font-serif font-bold text-[16px] text-ink mb-1">{t('rules.heading')}</h2>
         <p className="text-[13px] text-muted">{t('rules.default_notice')}</p>
       </div>
@@ -42,7 +42,7 @@ export default function PublicRuleSummary({ summary }: { summary: PublicEventRul
   const cap = (c: number | null) => (c === null ? t('rules.no_cap') : String(c))
 
   return (
-    <div className="rounded-2xl border border-line bg-paper p-5 sm:p-6">
+    <div className="max-w-[900px] rounded-2xl border border-line bg-paper shadow-card p-5 sm:p-6">
       <div className="flex flex-wrap items-center gap-2 mb-4">
         <h2 className="font-serif font-bold text-[16px] text-ink mr-1">{t('rules.heading')}</h2>
         <span className="text-[11.5px] font-semibold rounded-full bg-teal-soft text-teal px-2.5 py-0.5">

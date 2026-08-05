@@ -12,7 +12,9 @@ import type { ReactNode } from 'react'
 // stepper-arrow scrollbar ("phantom arrows") on tab strips, modals or board columns.
 const WIDTHS = {
   board: 'max-w-[1440px]',
-  wide: 'max-w-[1240px]',
+  // Public detail / list reading surfaces. Grows on very large monitors (≤1320px at 2xl) so a 1600px+
+  // screen no longer leaves a narrow column marooned in whitespace, while ≤1440px stays at 1280px.
+  wide: 'max-w-[1280px] 2xl:max-w-[1320px]',
   detail: 'max-w-[1120px]',
   form: 'max-w-[840px]',
 } as const

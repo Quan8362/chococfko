@@ -39,7 +39,7 @@ export default function PublicCompetitors({
   // One competitor line inside a group card. Name is primary; short name / unit is muted metadata that
   // may wrap onto the same or the next line. Long Unicode names wrap rather than truncate.
   const CompetitorLine = ({ c }: { c: PublicCompetitor }) => (
-    <li className="flex items-start gap-2 py-1">
+    <li className="flex items-start gap-2 py-1 px-1 -mx-1 rounded-lg hover:bg-cream/60 transition-colors motion-reduce:transition-none">
       <span aria-hidden className="mt-[7px] h-1.5 w-1.5 flex-none rounded-full bg-teal/50" />
       <span className="min-w-0 flex-1 text-[13.5px] leading-snug break-words">
         <span className="font-medium text-ink">{c.name}</span>
@@ -62,10 +62,12 @@ export default function PublicCompetitors({
     members: PublicCompetitor[]
     muted?: boolean
   }) => (
-    <section className="rounded-2xl border border-line bg-paper p-4 sm:p-5">
-      <div className="flex items-baseline gap-2">
+    <section className="rounded-2xl border border-line bg-paper shadow-card p-4 sm:p-5">
+      <div className="flex items-center gap-2">
         <h3 className={`text-[15px] font-bold ${muted ? 'text-muted' : 'text-teal'}`}>{title}</h3>
-        <span className="text-[12px] text-muted font-medium tabular-nums">{members.length}</span>
+        <span className="inline-flex items-center justify-center min-w-[22px] h-[22px] px-1.5 text-[11px] font-bold text-teal bg-teal-soft rounded-full tabular-nums">
+          {members.length}
+        </span>
       </div>
       <div className="mt-2.5 border-t border-line" />
       {members.length === 0 ? (
@@ -89,7 +91,7 @@ export default function PublicCompetitors({
         </h2>
         <ul className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2">
           {competitors.map((c) => (
-            <li key={c.id} className="flex items-center gap-2 rounded-xl border border-line bg-paper px-3 py-2">
+            <li key={c.id} className="flex items-center gap-2 rounded-xl border border-line bg-paper shadow-card px-3 py-2.5 hover:border-teal/30 transition-colors motion-reduce:transition-none">
               <span className="min-w-0 flex-1 text-[13px] font-medium text-ink break-words">
                 {c.name}
                 {c.shortName && c.shortName !== c.name && <span className="text-muted font-normal"> ({c.shortName})</span>}

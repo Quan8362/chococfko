@@ -58,4 +58,12 @@ test('TruncatedName exposes the full name to hover, focus and assistive tech', (
   assert.match(src, /onFocus=\{show\}/, 'tooltip opens on keyboard focus, not hover only')
   assert.match(src, /role="tooltip"/, 'the floating tip is a semantic tooltip')
   assert.match(src, /createPortal\(/, 'tooltip is portalled so the bracket overflow container cannot clip it')
+  assert.match(src, /aria-describedby=\{open \? tipId : undefined\}/, 'an open tooltip is linked back to its trigger')
+  assert.match(src, /tabIndex=\{clipped \? 0 : undefined\}/, 'only a clipped name becomes focusable (no extra tab stops)')
+})
+
+test('TruncatedName dismisses the floating tip on Escape', () => {
+  const src = read('components/tournaments/public/TruncatedName.tsx')
+  assert.match(src, /e\.key === 'Escape'/, 'Escape closes the tooltip')
+  assert.match(src, /addEventListener\('keydown', onKey\)/, 'the Escape handler is bound while the tip is open')
 })

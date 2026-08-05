@@ -4,6 +4,7 @@ import { useMemo } from 'react'
 import { useTranslations } from 'next-intl'
 import type { CompetitorRow, KnockoutMatchView, KnockoutRoundView } from '@/lib/tournaments/admin/types'
 import { knockoutScoreView } from '@/lib/tournaments/public/bracketScore'
+import TruncatedName from '@/components/tournaments/public/TruncatedName'
 
 // Read-only visual bracket. Each round is a column (desktop); the whole board scrolls horizontally
 // on small screens (intentional, with a clear per-round heading — no shrinking text, no clipped
@@ -87,11 +88,16 @@ function MatchCard({
   // winner=1 / loser=0 tally rendered as a fake "1–0".
   const sc = knockoutScoreView(match)
 
+  // A resolved competitor keeps its name on one line (truncated) with the shared hover/focus tooltip so
+  // long vi/en/ja/ko/zh names stay fully readable — identical to the public bracket. A TBD slot is not a
+  // real name, so it stays plain (no needless tab stop / tooltip).
   const Side = ({ name, isWinner, score, present }: { name: string | null; isWinner: boolean; score: string | null; present: boolean }) => (
     <div className={`flex items-center justify-between gap-2 px-2.5 py-1.5 ${isWinner ? 'bg-teal-soft' : ''}`}>
-      <span className={`text-[12.5px] truncate ${present ? (isWinner ? 'font-bold text-teal' : 'text-ink') : 'text-muted italic'}`}>
-        {name ?? t('tbd')}
-      </span>
+      {present && name ? (
+        <TruncatedName name={name} className={`min-w-0 flex-1 text-[12.5px] ${isWinner ? 'font-bold text-teal' : 'text-ink'}`} />
+      ) : (
+        <span className="min-w-0 flex-1 text-[12.5px] truncate text-muted italic">{name ?? t('tbd')}</span>
+      )}
       {score !== null && <span className={`flex-none text-[12px] font-bold tabular-nums ${isWinner ? 'text-teal' : 'text-muted'}`}>{score}</span>}
     </div>
   )

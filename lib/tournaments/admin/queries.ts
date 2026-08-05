@@ -1026,6 +1026,8 @@ async function evaluateGroupStageForEvent(
   groups: GroupRow[]
   competitors: CompetitorRow[]
   qualificationByGroup: Map<string, QualificationOutcome>
+  // Competitors assigned to each group id — the effective qualifier caps for a short group.
+  sizeByGroup: Map<string, number>
   status: string
 }> {
   const eventId = event.id
@@ -1134,7 +1136,10 @@ async function evaluateGroupStageForEvent(
   const qualificationByGroup = new Map<string, QualificationOutcome>()
   for (const g of evaluation.groups) qualificationByGroup.set(g.groupId, g.qualification)
 
-  return { groups, competitors, qualificationByGroup, status: evaluation.status }
+  const sizeByGroup = new Map<string, number>()
+  for (const g of groups) sizeByGroup.set(g.id, (groupMembers.get(g.id) ?? []).length)
+
+  return { groups, competitors, qualificationByGroup, sizeByGroup, status: evaluation.status }
 }
 
 // Build one branch's seed state: its valid tokens (resolved to a preview competitor), the currently
@@ -1195,7 +1200,7 @@ export async function getGroupKnockoutSeedSetupForAdmin(
   if (!event) return null
   const admin = createAdminClient()
 
-  const [{ groups, competitors, qualificationByGroup, status }, { data: slotRows }, { data: bracketProbe }] =
+  const [{ groups, competitors, qualificationByGroup, sizeByGroup, status }, { data: slotRows }, { data: bracketProbe }] =
     await Promise.all([
       evaluateGroupStageForEvent(admin, event),
       admin
@@ -1210,7 +1215,7 @@ export async function getGroupKnockoutSeedSetupForAdmin(
 
   const groupNameById = new Map(groups.map((g) => [g.id, g.name]))
   const { championship: champTokens, consolation: consoTokens } = buildGroupRankTokens({
-    groups: groups.map((g) => ({ groupId: g.id })),
+    groups: groups.map((g) => ({ groupId: g.id, competitorCount: sizeByGroup.get(g.id) ?? 0 })),
     winnerQualifiers: event.winner_qualifiers_per_group,
     consolationQualifiers: event.consolation_qualifiers_per_group,
   })

@@ -14,7 +14,7 @@
 // knockout-only flow (with the branch's bracket name), and permutation checks reuse validateSeedPayload.
 
 import type { Bracket, CompetitorId, GroupId } from './types.ts'
-import type { QualificationOutcome } from './qualification.ts'
+import { effectiveQualifierCounts, type QualificationOutcome } from './qualification.ts'
 import {
   validateSeedPayload,
   evaluateSeedReadiness,
@@ -49,14 +49,22 @@ export interface GroupRankToken {
 
 export interface TokenGroupInput {
   readonly groupId: GroupId
+  // Competitors actually assigned to this group. The winner/consolation settings are MAXIMUMS: a
+  // group with fewer competitors than winner+consolation yields fewer tokens (never phantom ranks).
+  readonly competitorCount: number
   // Display name is resolved by the caller; only the id + ordering matter to the engine.
 }
 
 /**
  * Build the full set of group-rank tokens for both branches from the event's qualifier settings.
- * For every group: ranks 1..winnerQualifiers become championship tokens; the next
- * consolationQualifiers ranks become consolation tokens. A competitor (rank) never appears in both
- * branches. Deterministic order: group order, then rank ascending.
+ * For every group: ranks 1..effectiveWinner become championship tokens; the next
+ * effectiveConsolation ranks become consolation tokens — where the effective counts cap the
+ * configured MAXIMUMS at the competitors the group actually holds (effectiveQualifierCounts). So a
+ * 3-competitor group under A=2/B=2 emits ranks 1-2 (Serie A) + rank 3 (Serie B), never a phantom
+ * rank 4. Consolation ranks are always numbered from `winnerQualifiers + 1` so token→competitor
+ * resolution (which keys off the configured winnerQualifiers) stays consistent; a group short of
+ * Serie A never produces any Serie B token, so that numbering can never collide. A competitor (rank)
+ * never appears in both branches. Deterministic order: group order, then rank ascending.
  */
 export function buildGroupRankTokens(input: {
   readonly groups: readonly TokenGroupInput[]
@@ -67,10 +75,15 @@ export function buildGroupRankTokens(input: {
   const championship: GroupRankToken[] = []
   const consolation: GroupRankToken[] = []
   for (const g of groups) {
-    for (let rank = 1; rank <= winnerQualifiers; rank++) {
+    const { effectiveWinner, effectiveConsolation } = effectiveQualifierCounts(
+      g.competitorCount,
+      winnerQualifiers,
+      consolationQualifiers,
+    )
+    for (let rank = 1; rank <= effectiveWinner; rank++) {
       championship.push({ tokenId: groupRankTokenId(g.groupId, rank), groupId: g.groupId, rank, branch: 'championship' })
     }
-    for (let rank = winnerQualifiers + 1; rank <= winnerQualifiers + consolationQualifiers; rank++) {
+    for (let rank = winnerQualifiers + 1; rank <= winnerQualifiers + effectiveConsolation; rank++) {
       consolation.push({ tokenId: groupRankTokenId(g.groupId, rank), groupId: g.groupId, rank, branch: 'consolation' })
     }
   }

@@ -181,10 +181,14 @@ test('a single-competitor group blocks generation', () => {
   assert.ok(ready.issues.some((i) => i.code === 'group_too_small' && i.groupId === 'gB'))
 })
 
-test('group_knockout requires winner+consolation qualifier capacity per group', () => {
+test('group_knockout qualifier settings are MAX slots, not a minimum group size', () => {
+  // Both formats only require ≥2 to play; winner+consolation never raises the floor.
   assert.equal(requiredGroupSize(gk(1, 1)), 2)
-  assert.equal(requiredGroupSize(gk(2, 2)), 4)
-  // 2+2 = 4 required; a group of 3 is ≥2 but cannot supply 4 qualifiers → insufficient capacity.
+  assert.equal(requiredGroupSize(gk(2, 2)), 2)
+})
+
+test('group_knockout: a group smaller than winner+consolation is NOT blocked', () => {
+  // A=2/B=2 (max 4 slots) with a 3-competitor group is valid — it simply qualifies fewer (A first).
   const ready = evaluateReadiness(
     payload([
       { groupId: 'gA', competitorIds: ['c1', 'c2', 'c3', 'c4'] },
@@ -192,9 +196,8 @@ test('group_knockout requires winner+consolation qualifier capacity per group', 
     ]),
     gk(2, 2),
   )
-  assert.equal(ready.ok, false)
-  const issue = ready.issues.find((i) => i.code === 'insufficient_qualifier_capacity')
-  assert.ok(issue && issue.code === 'insufficient_qualifier_capacity' && issue.groupId === 'gB' && issue.required === 4)
+  assert.equal(ready.ok, true)
+  assert.equal(ready.issues.length, 0)
 })
 
 test('group_knockout with enough capacity is ready', () => {

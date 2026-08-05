@@ -436,6 +436,7 @@ function BranchBoard({
 
       <div className="flex flex-wrap items-center gap-x-5 gap-y-1 rounded-lg bg-cream border border-line px-3 py-2 mb-3">
         <Stat label={tk('bracket_size')} value={readiness.bracketSize} />
+        <Stat label={tk('competitor_count')} value={seededIds.length} />
         <Stat label={tk('bye_count')} value={readiness.byes} />
       </div>
 

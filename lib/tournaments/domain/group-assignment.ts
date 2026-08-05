@@ -5,8 +5,10 @@
 //      described exactly once; every competitor must appear exactly once (in a group OR the
 //      explicit "unassigned" list); no foreign / duplicate / missing ids.
 //   2. evaluateReadiness — the pre-GENERATE checks (design doc §8): nobody left unassigned, no
-//      empty / single-competitor group, and for group_knockout each group holds at least the
-//      qualifier capacity it must feed forward.
+//      empty / single-competitor group. The winner/consolation qualifier settings are MAXIMUM slots
+//      per Serie, NOT a minimum group size: a group may hold fewer competitors than winner+
+//      consolation and still be valid (it simply qualifies fewer, Serie A first — see
+//      effectiveQualifierCounts). The only floor is the 2 competitors needed to play a group at all.
 // Both are deterministic and never mutate their inputs.
 
 import type { CompetitorId, GroupId } from './types.ts'
@@ -96,32 +98,29 @@ export type ReadinessIssue =
   | { readonly code: 'unassigned_remaining'; readonly competitorIds: readonly CompetitorId[] }
   | { readonly code: 'empty_group'; readonly groupId: GroupId }
   | { readonly code: 'group_too_small'; readonly groupId: GroupId; readonly size: number; readonly required: number }
-  | {
-      readonly code: 'insufficient_qualifier_capacity'
-      readonly groupId: GroupId
-      readonly size: number
-      readonly required: number
-    }
 
 export interface Readiness {
   readonly ok: boolean
   readonly issues: readonly ReadinessIssue[]
-  // Minimum competitors every group must hold: 2 for round_robin; max(2, winner+consolation) for GK.
+  // Minimum competitors every group must hold to play: always 2 (a group needs an opponent). The
+  // winner/consolation settings are MAXIMUM qualifier slots, not a minimum-size requirement.
   readonly requiredPerGroup: number
 }
 
-/** The minimum competitors a group must contain for the given format/qualifier settings. */
-export function requiredGroupSize(ctx: ReadinessContext): number {
-  if (ctx.format === 'group_knockout') {
-    return Math.max(2, ctx.winnerQualifiersPerGroup + ctx.consolationQualifiersPerGroup)
-  }
+/**
+ * The minimum competitors a group must contain to play at all: 2 for BOTH formats. The
+ * winner/consolation qualifier settings are MAXIMUM slots per Serie and never raise this floor — a
+ * short group qualifies fewer (Serie A first) via effectiveQualifierCounts instead of being blocked.
+ */
+export function requiredGroupSize(_ctx: ReadinessContext): number {
   return 2
 }
 
 /**
  * Evaluate whether an assignment is ready to generate group matches. Blocks on: no groups at all,
- * anyone still unassigned, an empty group, a single-competitor group, or (group_knockout) a group
- * that cannot supply its winner+consolation qualifier capacity. Never mutates its input.
+ * anyone still unassigned, an empty group, or a single-competitor group. A group holding fewer
+ * competitors than winner+consolation is NOT blocked — the qualifier settings are maximum slots, so
+ * such a group simply forwards fewer qualifiers. Never mutates its input.
  */
 export function evaluateReadiness(payload: AssignmentPayload, ctx: ReadinessContext): Readiness {
   const required = requiredGroupSize(ctx)
@@ -139,9 +138,6 @@ export function evaluateReadiness(payload: AssignmentPayload, ctx: ReadinessCont
       issues.push({ code: 'empty_group', groupId: g.groupId })
     } else if (size < 2) {
       issues.push({ code: 'group_too_small', groupId: g.groupId, size, required })
-    } else if (size < required) {
-      // size ≥ 2 but below the qualifier capacity → only reachable for group_knockout.
-      issues.push({ code: 'insufficient_qualifier_capacity', groupId: g.groupId, size, required })
     }
   }
 

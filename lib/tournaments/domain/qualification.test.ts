@@ -79,12 +79,55 @@ test('qualification: resolvedOrder can put b ahead of a', () => {
   assert.deepEqual(r.championship, ['b'])
 })
 
-test('qualification: count > group size → invalid QUALIFICATION_OVERFLOW', () => {
+// Strict ranking a > b > c (3 competitors, no ties).
+function strict3() {
+  return calculateStandings({
+    competitors: roster('a', 'b', 'c'),
+    matches: [M('a', 'b', 21, 0), M('a', 'c', 21, 0), M('b', 'c', 21, 0)],
+  })
+}
+
+test('uneven group n=3, A=2, B=2 → A[1,2], B[3] (Serie B falls to 1, no phantom rank 4)', () => {
+  const r = qualifyGroup({ standings: strict3(), winnerQualifiers: 2, consolationQualifiers: 2 })
+  assert.equal(r.status, 'ok')
+  if (r.status !== 'ok') return
+  assert.deepEqual(r.championship, ['a', 'b'])
+  assert.deepEqual(r.consolation, ['c'])
+})
+
+test('even group n=4, A=2, B=2 → A[1,2], B[3,4] (unchanged)', () => {
+  const r = qualifyGroup({ standings: strict4(), winnerQualifiers: 2, consolationQualifiers: 2 })
+  assert.equal(r.status, 'ok')
+  if (r.status !== 'ok') return
+  assert.deepEqual(r.championship, ['a', 'b'])
+  assert.deepEqual(r.consolation, ['c', 'd'])
+})
+
+test('uneven group n=2, A=2, B=2 → A[1,2], B[] (no overflow, Serie B empty)', () => {
   const s = calculateStandings({ competitors: roster('a', 'b'), matches: [M('a', 'b', 21, 0)] })
   const r = qualifyGroup({ standings: s, winnerQualifiers: 2, consolationQualifiers: 2 })
-  assert.equal(r.status, 'invalid')
-  if (r.status !== 'invalid') return
-  assert.equal(r.code, 'QUALIFICATION_OVERFLOW')
+  assert.equal(r.status, 'ok')
+  if (r.status !== 'ok') return
+  assert.deepEqual(r.championship, ['a', 'b'])
+  assert.deepEqual(r.consolation, [])
+})
+
+test('uneven group with an unresolved tie at the Serie A cut still fails closed', () => {
+  // 3 competitors: a is clear #1, then b and c tie at positions 2-3 (both 0-1, never met). A=2 → the
+  // Serie A cut sits between positions 2 and 3, so the b/c tie straddles it → blocked (no silent guess).
+  const s = calculateStandings({
+    competitors: roster('a', 'b', 'c'),
+    matches: [M('a', 'b', 21, 0), M('a', 'c', 21, 0)],
+  })
+  const r = qualifyGroup({ standings: s, winnerQualifiers: 2, consolationQualifiers: 2 })
+  assert.equal(r.status, 'blocked_by_tie')
+})
+
+test('uneven group never places a competitor in both branches', () => {
+  const r = qualifyGroup({ standings: strict3(), winnerQualifiers: 2, consolationQualifiers: 2 })
+  if (r.status !== 'ok') { assert.fail('expected ok'); return }
+  const overlap = r.championship.filter((id) => r.consolation.includes(id))
+  assert.equal(overlap.length, 0)
 })
 
 test('qualification: bad override permutation → invalid INVALID_OVERRIDE', () => {

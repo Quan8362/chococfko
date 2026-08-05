@@ -31,7 +31,7 @@ test('token id parse keeps colons inside a group id', () => {
 // ── Token building for both branches ─────────────────────────────────────────────────────────────
 test('championship=1 consolation=2 → rank 1 champ, ranks 2-3 conso per group', () => {
   const { championship, consolation } = buildGroupRankTokens({
-    groups: [{ groupId: 'A' }, { groupId: 'B' }],
+    groups: [{ groupId: 'A', competitorCount: 4 }, { groupId: 'B', competitorCount: 4 }],
     winnerQualifiers: 1,
     consolationQualifiers: 2,
   })
@@ -43,7 +43,7 @@ test('championship=1 consolation=2 → rank 1 champ, ranks 2-3 conso per group',
 
 test('championship=2 consolation=2 → ranks 1-2 champ, ranks 3-4 conso per group', () => {
   const { championship, consolation } = buildGroupRankTokens({
-    groups: [{ groupId: 'A' }, { groupId: 'B' }],
+    groups: [{ groupId: 'A', competitorCount: 4 }, { groupId: 'B', competitorCount: 4 }],
     winnerQualifiers: 2,
     consolationQualifiers: 2,
   })
@@ -53,7 +53,7 @@ test('championship=2 consolation=2 → ranks 1-2 champ, ranks 3-4 conso per grou
 
 test('consolation=0 → no consolation tokens', () => {
   const { championship, consolation } = buildGroupRankTokens({
-    groups: [{ groupId: 'A' }, { groupId: 'B' }],
+    groups: [{ groupId: 'A', competitorCount: 4 }, { groupId: 'B', competitorCount: 4 }],
     winnerQualifiers: 1,
     consolationQualifiers: 0,
   })
@@ -63,12 +63,47 @@ test('consolation=0 → no consolation tokens', () => {
 
 test('no competitor rank appears in both branches (ranges are disjoint)', () => {
   const { championship, consolation } = buildGroupRankTokens({
-    groups: [{ groupId: 'A' }],
+    groups: [{ groupId: 'A', competitorCount: 4 }],
     winnerQualifiers: 2,
     consolationQualifiers: 2,
   })
   const champKeys = new Set(championship.map((t) => t.tokenId))
   assert.ok(consolation.every((t) => !champKeys.has(t.tokenId)))
+})
+
+test('uneven group A=2/B=2, n=3 → ranks 1-2 champ, rank 3 conso only (no phantom rank 4)', () => {
+  const { championship, consolation } = buildGroupRankTokens({
+    groups: [{ groupId: 'A', competitorCount: 3 }],
+    winnerQualifiers: 2,
+    consolationQualifiers: 2,
+  })
+  assert.deepEqual(championship.map((t) => t.rank), [1, 2])
+  assert.deepEqual(consolation.map((t) => t.rank), [3])
+})
+
+test('uneven group A=2/B=2, n=2 → ranks 1-2 champ, no conso tokens', () => {
+  const { championship, consolation } = buildGroupRankTokens({
+    groups: [{ groupId: 'A', competitorCount: 2 }],
+    winnerQualifiers: 2,
+    consolationQualifiers: 2,
+  })
+  assert.deepEqual(championship.map((t) => t.rank), [1, 2])
+  assert.equal(consolation.length, 0)
+})
+
+test('A=2/B=2 across A(4) B(3) C(3) D(4) → Serie A=8 tokens, Serie B=6 tokens', () => {
+  const { championship, consolation } = buildGroupRankTokens({
+    groups: [
+      { groupId: 'A', competitorCount: 4 },
+      { groupId: 'B', competitorCount: 3 },
+      { groupId: 'C', competitorCount: 3 },
+      { groupId: 'D', competitorCount: 4 },
+    ],
+    winnerQualifiers: 2,
+    consolationQualifiers: 2,
+  })
+  assert.equal(championship.length, 8) // 2+2+2+2
+  assert.equal(consolation.length, 6)  // 2+1+1+2
 })
 
 // ── Per-branch permutation validation ────────────────────────────────────────────────────────────

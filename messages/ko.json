@@ -6692,6 +6692,7 @@
     "col_diff": "득실차",
     "col_diff_short": "차",
     "col_qualification": "진출권",
+    "legend_title": "순위표 범례",
     "tied_note": "동순위",
     "status_in_progress": "조별 경기가 진행 중입니다.",
     "status_blocked": "진출권 경계에 동순위가 있습니다. 대진표 생성 전에 결정하세요.",

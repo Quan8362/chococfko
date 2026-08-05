@@ -6692,6 +6692,7 @@
     "col_diff": "Difference",
     "col_diff_short": "Diff",
     "col_qualification": "Qualification",
+    "legend_title": "Standings legend",
     "tied_note": "Tied",
     "status_in_progress": "Group stage in progress.",
     "status_blocked": "A tie sits on a qualification boundary — resolve it before generating the bracket.",

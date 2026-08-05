@@ -6861,6 +6861,18 @@
     "rank_joint_third": "3位タイ"
   },
   "admin_group_knockout": {
+    "groups_pending_title": "組み合わせ設定はまだ利用できません",
+    "groups_pending_hint": "テンプレートを作成する前に、まずグループを割り当ててください。",
+    "template_mode_title": "トーナメント表テンプレートを設定中",
+    "template_mode_hint": "シード順と対戦カードを事前に準備できます。選手名はグループステージ終了後に反映されます。",
+    "template_stale_title": "テンプレートの更新が必要です",
+    "template_stale_hint": "グループ構成が変更されました。シード順を確認して新しいバージョンを保存してください。",
+    "save_template_cta": "テンプレートを保存",
+    "apply_cta": "適用して正式なトーナメント表を作成",
+    "apply_blocked_stale": "グループ構成が変更されたため、テンプレートの更新が必要です。",
+    "apply_blocked_incomplete": "グループステージが未完了のため、正式なトーナメント表はまだ作成できません。",
+    "apply_blocked_tie": "正式なトーナメント表を作成する前に、同順位の決着が必要です。",
+    "apply_blocked_readiness": "作成前に、すべての出場枠をトーナメント表に配置してください。",
     "tab_seeding": "シード",
     "tab_championship": "Serie A",
     "tab_consolation": "Serie B",

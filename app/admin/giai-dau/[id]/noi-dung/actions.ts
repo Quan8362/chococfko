@@ -2238,28 +2238,43 @@ export async function saveGroupKnockoutSeeds(
   // (they always do at seeding time). Using ev.matchCount here made saving seeds impossible.
   if (await hasKnockoutMatches(admin, eventId)) return { ok: false, error: 'has_matches' }
 
-  // Reload the group stage and require it to be settled (knockout_ready) before seeding.
+  // A knockout TEMPLATE may be laid out as soon as the groups are assigned — NOT only once the stage
+  // is settled. The token pool is derived from group SIZES (buildGroupRankTokens below), which are
+  // fixed the moment groups exist; the tokens name qualification SOURCES ("Nhất A"), never competitors,
+  // so nothing is resolved here. An existing knockout bracket already blocked this above (has_matches);
+  // APPLY (generateGroupKnockoutBrackets) still requires knockout_ready before any real match is made.
   const raw = await loadGroupEvalRaw(admin, eventId)
-  const { status } = evaluateGkStage(
-    raw,
-    ev.winnerQualifiersPerGroup,
-    ev.consolationQualifiersPerGroup,
-    await getEventGroupTablePoints(eventId),
-  )
-  if (status !== 'knockout_ready') return { ok: false, error: 'not_ready' }
+  if (raw.groupIds.length === 0) return { ok: false, error: 'not_ready' }
 
   const { championship: champTokens, consolation: consoTokens } = buildGroupRankTokens({
     groups: raw.groupIds.map((id) => ({ groupId: id, competitorCount: (raw.competitorsByGroup.get(id) ?? []).length })),
     winnerQualifiers: ev.winnerQualifiersPerGroup,
     consolationQualifiers: ev.consolationQualifiersPerGroup,
   })
+  // Need at least a two-slot championship bracket for a template to be meaningful.
+  if (champTokens.length < 2) return { ok: false, error: 'not_ready' }
   const consolationEnabled = ev.consolationQualifiersPerGroup > 0
 
+  // Records a "template needed review" audit when the client's token set is stale, then the caller
+  // returns qualification_changed so the UI reloads the fresh pool.
+  const auditStale = async () => {
+    await writeAudit(admin, {
+      tournamentId,
+      eventId,
+      actorId,
+      action: 'tournament_knockout_template_marked_stale',
+      detail: { reason: 'token_pool_changed' },
+    })
+  }
+
   // The payload's token set (per branch) must equal the CURRENT valid token set — otherwise the
-  // qualification the admin saw is stale.
+  // qualification pool the admin saw is stale (group membership / quotas changed since load).
   const validChamp = champTokens.map((t) => t.tokenId)
   const payloadChamp = [...payload.championship.seededIds, ...payload.championship.unassignedIds]
-  if (!sameStringSet(validChamp, payloadChamp)) return { ok: false, error: 'qualification_changed' }
+  if (!sameStringSet(validChamp, payloadChamp)) {
+    await auditStale()
+    return { ok: false, error: 'qualification_changed' }
+  }
   const champValidation = validateBranchSeedPayload(payload.championship, validChamp)
   if (!champValidation.ok) return { ok: false, error: 'invalid' }
 
@@ -2268,7 +2283,10 @@ export async function saveGroupKnockoutSeeds(
     if (!payload.consolation || !Array.isArray(payload.consolation.seededIds)) return { ok: false, error: 'invalid' }
     const validConso = consoTokens.map((t) => t.tokenId)
     const payloadConso = [...payload.consolation.seededIds, ...payload.consolation.unassignedIds]
-    if (!sameStringSet(validConso, payloadConso)) return { ok: false, error: 'qualification_changed' }
+    if (!sameStringSet(validConso, payloadConso)) {
+      await auditStale()
+      return { ok: false, error: 'qualification_changed' }
+    }
     const consoValidation = validateBranchSeedPayload(payload.consolation, validConso)
     if (!consoValidation.ok) return { ok: false, error: 'invalid' }
     consoSeeded = payload.consolation.seededIds
@@ -2300,7 +2318,7 @@ export async function saveGroupKnockoutSeeds(
     tournamentId,
     eventId,
     actorId,
-    action: 'group_knockout_seeds_updated',
+    action: 'tournament_knockout_template_updated',
     detail: {
       championship_count: payload.championship.seededIds.length,
       consolation_count: consoSeeded.length,
@@ -2339,7 +2357,7 @@ export async function clearGroupKnockoutSeeds(
     tournamentId,
     eventId,
     actorId,
-    action: 'group_knockout_seeds_updated',
+    action: 'tournament_knockout_template_updated',
     detail: { cleared: true },
   })
   revalidateEventViews(tournamentId, eventId)
@@ -2442,13 +2460,31 @@ export async function generateGroupKnockoutBrackets(
     return { ok: true, rows }
   }
 
+  // A token that fails to resolve (qualification changed / not settled / duplicate) fails the whole
+  // apply CLOSED — never a partial bracket. Audit the failed attempt so the org can see why.
+  const auditApplyFailed = async (error: KnockoutMutationError, branch: Bracket) => {
+    await writeAudit(admin, {
+      tournamentId,
+      eventId,
+      actorId,
+      action: 'tournament_knockout_template_apply_failed',
+      detail: { error, branch },
+    })
+  }
+
   const champBuilt = buildBranchRows('championship', champTokens.map((t) => t.tokenId), seededByBranch.get('championship') ?? [])
-  if (!champBuilt.ok) return { ok: false, error: champBuilt.error }
+  if (!champBuilt.ok) {
+    await auditApplyFailed(champBuilt.error, 'championship')
+    return { ok: false, error: champBuilt.error }
+  }
   let matchRows = champBuilt.rows
 
   if (consolationEnabled) {
     const consoBuilt = buildBranchRows('consolation', consoTokens.map((t) => t.tokenId), seededByBranch.get('consolation') ?? [])
-    if (!consoBuilt.ok) return { ok: false, error: consoBuilt.error }
+    if (!consoBuilt.ok) {
+      await auditApplyFailed(consoBuilt.error, 'consolation')
+      return { ok: false, error: consoBuilt.error }
+    }
     matchRows = matchRows.concat(consoBuilt.rows)
   }
 
@@ -2469,7 +2505,7 @@ export async function generateGroupKnockoutBrackets(
     tournamentId,
     eventId,
     actorId,
-    action: 'group_knockout_generated',
+    action: 'tournament_knockout_template_applied',
     detail: {
       match_count: result?.match_count ?? matchRows.length,
       consolation: consolationEnabled,

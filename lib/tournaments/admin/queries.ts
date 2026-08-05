@@ -39,10 +39,13 @@ import { requiredBracketSize, knockoutByeCount } from '@/lib/tournaments/domain/
 import {
   buildGroupRankTokens,
   resolveGroupRankToken,
+  evaluateGroupKnockoutTemplatePhase,
+  isGroupKnockoutTemplateStale,
   type GroupRankToken,
 } from '@/lib/tournaments/domain/group-knockout-seed'
 import type { Competitor, MatchInput, Bracket } from '@/lib/tournaments/domain/types'
 import type { QualificationOutcome } from '@/lib/tournaments/domain/qualification'
+import type { EventProgressStatus } from '@/lib/tournaments/domain/event-progress'
 
 // Shape of a row as returned by the service-role SELECT. The embedded `tournament_events(count)`
 // aggregate is what keeps the list a SINGLE query (no per-tournament count fan-out / N+1).
@@ -1260,6 +1263,34 @@ export async function getGroupKnockoutSeedSetupForAdmin(
     blockReason = 'not_ready'
   }
 
+  const hasBrackets = Array.isArray(bracketProbe) && bracketProbe.length > 0
+
+  // Groups are "assigned" (token pool stable) once every group holds ≥1 competitor and the whole
+  // roster is placed. Only then can a template be laid out — before that the pool is not yet fixed.
+  const assignedCount = groups.reduce((sum, g) => sum + (sizeByGroup.get(g.id) ?? 0), 0)
+  const groupsAssigned =
+    groups.length >= 1 &&
+    competitors.length >= 2 &&
+    assignedCount === competitors.length &&
+    groups.every((g) => (sizeByGroup.get(g.id) ?? 0) >= 1)
+
+  // Staleness: compare the RAW persisted token set (both branches, as stored) to the CURRENT valid
+  // pool. If groups/quotas changed after the save, the old set no longer matches → needs review.
+  const savedTokenIds = [
+    ...(seededByBranch.get('championship') ?? []),
+    ...(seededByBranch.get('consolation') ?? []),
+  ]
+  const currentValidTokenIds = [
+    ...champTokens.map((t) => t.tokenId),
+    ...(consolationEnabled ? consoTokens.map((t) => t.tokenId) : []),
+  ]
+  const templateStale = isGroupKnockoutTemplateStale(savedTokenIds, currentValidTokenIds)
+  const templatePhase = evaluateGroupKnockoutTemplatePhase({
+    groupsAssigned,
+    hasBrackets,
+    stageStatus: status as EventProgressStatus,
+  })
+
   return {
     event: {
       id: event.id,
@@ -1277,7 +1308,10 @@ export async function getGroupKnockoutSeedSetupForAdmin(
     consolation,
     readyToSeed: status === 'knockout_ready',
     blockReason,
-    hasBrackets: Array.isArray(bracketProbe) && bracketProbe.length > 0,
+    hasBrackets,
+    groupsAssigned,
+    templatePhase,
+    templateStale,
   }
 }
 

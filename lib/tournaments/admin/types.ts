@@ -513,6 +513,9 @@ export interface BranchSeedState {
 
 export type GroupKnockoutBlockReason = 'group_stage_incomplete' | 'blocking_tie' | 'not_ready'
 
+// Reuses the pure phase model so the read layer, the save gate and the apply gate agree exactly.
+export type { GroupKnockoutTemplatePhase } from '@/lib/tournaments/domain/group-knockout-seed'
+
 // The dual-branch seed-editor state (one server load). Only meaningful before generate.
 export interface GroupKnockoutSeedSetup {
   event: {
@@ -532,6 +535,10 @@ export interface GroupKnockoutSeedSetup {
   readyToSeed: boolean // event has reached knockout_ready (group stage done, no blocking tie)
   blockReason: GroupKnockoutBlockReason | null
   hasBrackets: boolean // any knockout match generated → seeds frozen
+  // Preconfigured-template model (knockout template before group completion).
+  groupsAssigned: boolean // groups exist and every competitor is placed → token pool is stable
+  templatePhase: import('@/lib/tournaments/domain/group-knockout-seed').GroupKnockoutTemplatePhase
+  templateStale: boolean // a saved template's token set no longer matches the current pool
 }
 
 // One branch's live bracket workspace (rounds + podium + status).

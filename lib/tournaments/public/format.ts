@@ -53,3 +53,17 @@ export function completionPercent(completed: number, total: number): number | nu
   if (total <= 0) return null
   return Math.round((completed / total) * 100)
 }
+
+// A single game/set as stored — the same shape the schedule + score editor consume.
+export interface GameScorePair {
+  scoreA: number
+  scoreB: number
+}
+
+// Compact per-game score line for narrow bracket cards, always oriented side A first:
+//   [{21,15},{15,21},{21,18}] → "21–15 · 15–21 · 21–18"
+// Uses an en-dash between the two point scores of a game and a middle dot between games. Returns ''
+// for an empty list so callers show a "completed, no detail" fallback instead of a fabricated 0–0.
+export function formatGameScores(games: GameScorePair[]): string {
+  return games.map((g) => `${g.scoreA}–${g.scoreB}`).join(' · ')
+}

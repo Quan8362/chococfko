@@ -18,6 +18,8 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { useTranslations } from 'next-intl'
 import type { CompetitorRow, KnockoutMatchView, KnockoutRoundView } from '@/lib/tournaments/admin/types'
 import { mirroredColumns, bracketEdges, feederMap } from '@/lib/tournaments/domain/bracket-layout'
+import { knockoutScoreView } from '@/lib/tournaments/public/bracketScore'
+import TruncatedName from './TruncatedName'
 
 type BracketT = ReturnType<typeof useTranslations>
 
@@ -306,6 +308,9 @@ function MatchNode({
   const aName = nameOf(match.competitorAId)
   const bName = nameOf(match.competitorBId)
 
+  // Real stored result → side cells + optional per-game detail. Never a fabricated winner=1/loser=0.
+  const sc = knockoutScoreView(match)
+
   const statusText = isBye
     ? t('status_bye')
     : done
@@ -325,8 +330,8 @@ function MatchNode({
         present={!!match.competitorAId}
         name={aName}
         placeholder={slotLabel(!!match.competitorAId, feeders?.a)}
-        isWinner={done && match.winnerId != null && match.winnerId === match.competitorAId}
-        score={done ? match.gamesWonA : null}
+        isWinner={sc.isWinnerA}
+        score={sc.scoreA}
         t={t}
       />
       <div className="h-px bg-line" />
@@ -334,10 +339,15 @@ function MatchNode({
         present={!!match.competitorBId}
         name={bName}
         placeholder={slotLabel(!!match.competitorBId, feeders?.b)}
-        isWinner={done && match.winnerId != null && match.winnerId === match.competitorBId}
-        score={done ? match.gamesWonB : null}
+        isWinner={sc.isWinnerB}
+        score={sc.scoreB}
         t={t}
       />
+      {sc.detail && (
+        <div className="px-2.5 py-1 border-t border-line bg-paper text-center text-[10.5px] leading-snug text-muted tabular-nums break-words">
+          {sc.detail}
+        </div>
+      )}
       <div className="flex items-center justify-between gap-2 px-2.5 py-1 border-t border-line bg-cream/60">
         <span className="text-[10px] text-muted tabular-nums">{t('match_no', { n: match.matchNumber })}</span>
         <span className="text-[10.5px] text-muted">{statusText}</span>
@@ -358,7 +368,7 @@ function Side({
   name: string | null
   placeholder: string
   isWinner: boolean
-  score: number | null
+  score: string | null
   t: BracketT
 }) {
   return (
@@ -371,9 +381,16 @@ function Side({
           </svg>
         )}
       </span>
-      <span className={`min-w-0 flex-1 text-[12.5px] truncate ${present ? (isWinner ? 'font-bold text-teal' : 'text-ink') : 'text-muted italic'}`}>
-        {present ? name : placeholder}
-      </span>
+      {/* A resolved competitor keeps its name on one line (truncated) with a hover/focus tooltip for the
+          full name; a placeholder slot ("Thắng trận N" / "BYE") is not a real name so it stays plain. */}
+      {present ? (
+        <TruncatedName
+          name={name ?? ''}
+          className={`min-w-0 flex-1 text-[12.5px] ${isWinner ? 'font-bold text-teal' : 'text-ink'}`}
+        />
+      ) : (
+        <span className="min-w-0 flex-1 text-[12.5px] truncate text-muted italic">{placeholder}</span>
+      )}
       {/* Stable-width score column so numbers align down the node and never collide with the name. */}
       <span className={`flex-none w-6 text-right text-[12px] font-bold tabular-nums ${isWinner ? 'text-teal' : 'text-muted'}`}>
         {score !== null ? score : ''}

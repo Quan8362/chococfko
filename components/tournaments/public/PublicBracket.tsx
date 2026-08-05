@@ -169,10 +169,11 @@ function MirroredView({
   }, [])
 
   return (
-    <div className="overflow-x-auto overflow-y-hidden no-scrollbar pb-3 -mx-1 px-1">
-      {/* Below lg the columns keep a fixed width and the row scrolls horizontally (touch). At lg+ the
-          columns become flex-1 and share the full-bleed width, so every round fits on one screen with
-          no scrollbar; the row is centred so a small bracket (e.g. Serie A) stays balanced. */}
+    <div className="overflow-x-auto overflow-y-hidden no-scrollbar pb-3 px-1">
+      {/* The board never widens the page: it is a self-contained horizontal-scroll region inside the
+          reading shell. Below lg the columns keep a fixed width and the row scrolls horizontally (touch).
+          At lg+ the columns become flex-1 and share the shell width, so every round fits on one screen
+          with no scrollbar; the row is centred so a small bracket (e.g. Serie A) stays balanced. */}
       <div
         ref={innerRef}
         className="relative flex items-stretch gap-4 lg:gap-[clamp(0.75rem,1.8vw,2.25rem)] min-w-full lg:w-full lg:justify-center"
@@ -193,7 +194,7 @@ function MirroredView({
         {columns.map((col) => (
           <div
             key={col.key}
-            className="relative z-10 flex flex-col flex-none w-[220px] lg:flex-1 lg:w-auto lg:min-w-[172px] lg:max-w-[264px]"
+            className="relative z-10 flex flex-col flex-none w-[220px] min-w-0 lg:flex-1 lg:w-auto lg:min-w-[164px] lg:max-w-[264px]"
           >
             <h4
               className={`text-[11px] font-bold uppercase tracking-[0.06em] mb-2.5 text-center ${

@@ -6612,6 +6612,8 @@
   },
   "admin_match_scores": {
     "editor_title": "Nhập tỉ số",
+    "completed_no_score": "Đã hoàn thành",
+    "score_aria": "Tỉ số {scores}",
     "match_label": "Trận {number}",
     "close": "Đóng",
     "vs": "gặp",
@@ -6821,6 +6823,8 @@
   },
   "admin_knockout_results": {
     "enter_result": "Nhập kết quả",
+    "completed_no_score": "Đã hoàn thành",
+    "score_aria": "Tỉ số {scores}",
     "edit_result": "Sửa kết quả",
     "err_forbidden": "Bạn không có quyền thực hiện.",
     "err_invalid": "Dữ liệu không hợp lệ.",

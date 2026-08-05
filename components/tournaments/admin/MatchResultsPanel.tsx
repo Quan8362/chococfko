@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import ScoreEditor from './ScoreEditor'
+import ScoreLine from '../ScoreLine'
 import type { CompetitorRow, GroupRow, MatchView } from '@/lib/tournaments/admin/types'
 import type { EventScoringRuleView } from '@/lib/tournaments/rules'
 
@@ -111,13 +112,15 @@ export default function MatchResultsPanel({
                               {aWon && <span className="text-teal mr-1" aria-hidden>✓</span>}
                               {nameOf(m.competitorAId)}
                             </span>
-                            <span className="flex-none text-center min-w-[52px]">
+                            <span className="flex-none text-center min-w-[64px] max-w-[168px] text-[14px] font-bold text-ink">
                               {completed ? (
-                                <span className="text-[14px] font-bold text-ink tabular-nums">
-                                  {m.gamesWonA}–{m.gamesWonB}
-                                </span>
+                                <ScoreLine
+                                  match={m}
+                                  completedLabel={t('completed_no_score')}
+                                  scoreAria={(scores) => t('score_aria', { scores })}
+                                />
                               ) : (
-                                <span className="text-[11px] text-muted">{tm('vs')}</span>
+                                <span className="text-[11px] font-normal text-muted">{tm('vs')}</span>
                               )}
                             </span>
                             <span
@@ -142,19 +145,6 @@ export default function MatchResultsPanel({
                         )
                       })}
                     </ul>
-                    {rounds.get(rn)!.some((m) => m.status === 'completed') && (
-                      <div className="mt-1 space-y-0.5">
-                        {rounds
-                          .get(rn)!
-                          .filter((m) => m.status === 'completed' && m.games.length > 0)
-                          .map((m) => (
-                            <p key={m.id} className="text-[11px] text-muted text-center tabular-nums">
-                              #{m.matchNumber}:{' '}
-                              {m.games.map((gm) => `${gm.scoreA}-${gm.scoreB}`).join(', ')}
-                            </p>
-                          ))}
-                      </div>
-                    )}
                   </div>
                 ))}
             </div>

@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import KnockoutScoreEditor, { type KnockoutSaveAction, type KnockoutClearAction } from './KnockoutScoreEditor'
+import ScoreLine from '../ScoreLine'
 import type { CompetitorRow, KnockoutMatchView, KnockoutRoundView } from '@/lib/tournaments/admin/types'
 import type { EventScoringRuleView } from '@/lib/tournaments/rules'
 
@@ -59,7 +60,13 @@ export default function KnockoutResultsPanel({
               {a ?? tb('tbd')}
             </span>
             {done ? (
-              <span className="flex-none text-[13px] font-bold text-ink px-1">{m.gamesWonA}–{m.gamesWonB}</span>
+              <span className="flex-none text-[13px] font-bold text-ink px-1 max-w-[160px]">
+                <ScoreLine
+                  match={m}
+                  completedLabel={t('completed_no_score')}
+                  scoreAria={(scores) => t('score_aria', { scores })}
+                />
+              </span>
             ) : (
               <span className="flex-none text-[10.5px] text-muted px-1">{tb('vs')}</span>
             )}

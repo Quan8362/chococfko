@@ -6612,6 +6612,8 @@
   },
   "admin_match_scores": {
     "editor_title": "Enter score",
+    "completed_no_score": "Completed",
+    "score_aria": "Score {scores}",
     "match_label": "Match {number}",
     "close": "Close",
     "vs": "vs",
@@ -6821,6 +6823,8 @@
   },
   "admin_knockout_results": {
     "enter_result": "Enter result",
+    "completed_no_score": "Completed",
+    "score_aria": "Score {scores}",
     "edit_result": "Edit result",
     "err_forbidden": "You are not allowed to do that.",
     "err_invalid": "Invalid data.",

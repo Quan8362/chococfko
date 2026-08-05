@@ -6612,6 +6612,8 @@
   },
   "admin_match_scores": {
     "editor_title": "점수 입력",
+    "completed_no_score": "완료",
+    "score_aria": "점수 {scores}",
     "match_label": "{number}경기",
     "close": "닫기",
     "vs": "대",
@@ -6821,6 +6823,8 @@
   },
   "admin_knockout_results": {
     "enter_result": "결과 입력",
+    "completed_no_score": "완료",
+    "score_aria": "점수 {scores}",
     "edit_result": "결과 수정",
     "err_forbidden": "권한이 없습니다.",
     "err_invalid": "잘못된 데이터입니다.",

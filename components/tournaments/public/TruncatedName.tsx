@@ -54,15 +54,21 @@ export default function TruncatedName({
 
   const hide = useCallback(() => setOpen(false), [])
 
-  // Close the floating tip on scroll/resize (its fixed coordinates would otherwise go stale).
+  // Close the floating tip on scroll/resize (its fixed coordinates would otherwise go stale) and on
+  // Escape (dismiss without moving focus away — matches native tooltip expectations).
   useEffect(() => {
     if (!open) return
     const onMove = () => setOpen(false)
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false)
+    }
     window.addEventListener('scroll', onMove, true)
     window.addEventListener('resize', onMove)
+    window.addEventListener('keydown', onKey)
     return () => {
       window.removeEventListener('scroll', onMove, true)
       window.removeEventListener('resize', onMove)
+      window.removeEventListener('keydown', onKey)
     }
   }, [open])
 

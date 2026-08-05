@@ -8,6 +8,7 @@ import MatchResultsPanel from './MatchResultsPanel'
 import StandingsTable from './StandingsTable'
 import TieResolutionPanel from './TieResolutionPanel'
 import GroupKnockoutSeedEditor from './GroupKnockoutSeedEditor'
+import GeneratedBracketReadonlyPanel from './GeneratedBracketReadonlyPanel'
 import GroupKnockoutBranchPanel from './GroupKnockoutBranchPanel'
 import WorkspaceTabs from './WorkspaceTabs'
 import type {
@@ -179,7 +180,19 @@ export default function EventWorkspace({
       )}
 
       {active === 'gk_seeding' && groupKnockoutSeed && (
-        <GroupKnockoutSeedEditor tournamentId={tournamentId} eventId={eventId} setup={groupKnockoutSeed} />
+        hasBrackets && groupKnockoutWorkspace ? (
+          // Official brackets exist → seeds frozen, but the whole generated configuration stays visible
+          // (seed order + first-round pairings + BYEs per Serie) rather than collapsing to a lock notice.
+          <GeneratedBracketReadonlyPanel
+            tournamentId={tournamentId}
+            eventId={eventId}
+            setup={groupKnockoutSeed}
+            workspace={groupKnockoutWorkspace}
+            canManage={c.bracket !== false}
+          />
+        ) : (
+          <GroupKnockoutSeedEditor tournamentId={tournamentId} eventId={eventId} setup={groupKnockoutSeed} />
+        )
       )}
 
       {active === 'gk_championship' && groupKnockoutWorkspace && (

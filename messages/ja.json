@@ -6905,7 +6905,13 @@
     "bye_advance": "不戦勝",
     "pairing_updated": "順序が変更されました。初戦の組み合わせを更新しました。",
     "full_bracket_cta": "ブラケット全体を見る",
-    "full_bracket_hint": "すべてのラウンドの完全な図を表示します。"
+    "full_bracket_hint": "すべてのラウンドの完全な図を表示します。",
+    "readonly_generated_badge": "組み合わせ作成済み · 閲覧のみ",
+    "readonly_locked_help": "組み合わせは作成済みです。日程と結果を保護するため、シード順はロックされています。",
+    "seed_order_title": "シード順",
+    "reset_blocked_results": "試合結果があるためリセットできません。",
+    "reset_blocked_forbidden": "組み合わせをリセットする権限がありません。",
+    "no_bracket_data": "組み合わせのデータが見つかりません。"
   },
   "tournaments": {
     "tabs_label": "種目管理のセクション",

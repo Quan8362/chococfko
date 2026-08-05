@@ -6905,7 +6905,13 @@
     "bye_advance": "轮空",
     "pairing_updated": "顺序已更改。首轮对阵已更新。",
     "full_bracket_cta": "查看完整对阵图",
-    "full_bracket_hint": "查看所有轮次的完整对阵图。"
+    "full_bracket_hint": "查看所有轮次的完整对阵图。",
+    "readonly_generated_badge": "对阵表已生成 · 仅查看",
+    "readonly_locked_help": "对阵表已生成。为保护赛程与结果，种子顺序已锁定。",
+    "seed_order_title": "种子顺序",
+    "reset_blocked_results": "已有比赛结果，无法重置对阵表。",
+    "reset_blocked_forbidden": "您没有重置对阵表的权限。",
+    "no_bracket_data": "未找到对阵表数据。"
   },
   "tournaments": {
     "tabs_label": "赛事项目管理分区",

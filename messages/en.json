@@ -6905,7 +6905,13 @@
     "bye_advance": "Bye",
     "pairing_updated": "Order changed. First-round matches updated.",
     "full_bracket_cta": "View full bracket",
-    "full_bracket_hint": "See the complete diagram of all rounds."
+    "full_bracket_hint": "See the complete diagram of all rounds.",
+    "readonly_generated_badge": "Bracket generated · View only",
+    "readonly_locked_help": "The bracket has been generated. The seeding order is locked to protect the schedule and results.",
+    "seed_order_title": "Seeding order",
+    "reset_blocked_results": "Can't reset — the bracket already has match results.",
+    "reset_blocked_forbidden": "You don't have permission to reset the bracket.",
+    "no_bracket_data": "No bracket data found."
   },
   "tournaments": {
     "tabs_label": "Event management sections",

@@ -108,6 +108,7 @@ const TOURNAMENT_TSX = [
   'components/tournaments/admin/ImpactPreviewDialog.tsx',
   'components/tournaments/admin/ConfirmDialog.tsx',
   'components/tournaments/admin/StandingsTable.tsx',
+  'components/tournaments/admin/StandingsLegend.tsx',
   'components/tournaments/admin/GroupAssignmentBoard.tsx',
   'components/tournaments/admin/BracketView.tsx',
   'components/tournaments/public/TournamentDetail.tsx',
@@ -295,5 +296,78 @@ test('#15 realtime refresh uses a soft refetch and never a full-page reload', ()
   ]) {
     const src = read(f)
     assert.doesNotMatch(src, /window\.location\.reload|location\.href\s*=/, `${f} must not hard-reload on realtime updates`)
+  }
+})
+
+// ── #16 — management standings shows ONE abbreviation legend for all groups ───────────────────
+// The management standings tab explains its abbreviated columns (TR/T/B/Đ/ĐG/ĐM/HS) with a single
+// legend rendered above every group, never repeated per Group A/B/C/D. The public standings surface,
+// which already shows readable column names, must not gain the legend.
+test('#16 management StandingsTable renders exactly one StandingsLegend, outside the per-group map', () => {
+  const src = read('components/tournaments/admin/StandingsTable.tsx')
+  assert.match(src, /import\s+StandingsLegend\s+from\s+'\.\/StandingsLegend'/, 'must import StandingsLegend')
+  const uses = [...src.matchAll(/<StandingsLegend\s*\/>/g)]
+  assert.equal(uses.length, 1, 'StandingsLegend must be rendered exactly once (single legend for all groups)')
+  // the single render sits before the `standings.map(` that emits Group A/B/C/D, so it is not repeated
+  const legendAt = src.indexOf('<StandingsLegend')
+  const mapAt = src.indexOf('standings.map(')
+  assert.ok(legendAt !== -1 && mapAt !== -1 && legendAt < mapAt, 'legend must render before the per-group map')
+})
+
+test('#16b public standings never renders the management legend', () => {
+  const src = read('components/tournaments/public/PublicStandings.tsx')
+  assert.doesNotMatch(src, /StandingsLegend/, 'public standings must not import/render the management legend')
+  assert.doesNotMatch(src, /legend_title/, 'public standings must not reference the legend i18n key')
+})
+
+// ── #17 — the legend covers all seven abbreviated columns and is accessible ───────────────────
+test('#17 StandingsLegend maps all 7 abbreviations from i18n via a labelled <dl>/<abbr>', () => {
+  const src = read('components/tournaments/admin/StandingsLegend.tsx')
+  const shortKeys = [
+    'col_played_short',
+    'col_wins_short',
+    'col_losses_short',
+    'col_points_short',
+    'col_points_for_short',
+    'col_points_against_short',
+    'col_diff_short',
+  ]
+  const fullKeys = ['col_played', 'col_wins', 'col_losses', 'col_points', 'col_points_for', 'col_points_against', 'col_diff']
+  for (const k of [...shortKeys, ...fullKeys]) {
+    assert.match(src, new RegExp(`'${k}'`), `StandingsLegend must reference the '${k}' i18n key`)
+  }
+  // semantic structure: a labelled description list with abbreviations that carry an accessible name
+  assert.match(src, /<dl/, 'legend should use a <dl> description list')
+  assert.match(src, /<abbr/, 'legend should use <abbr> for the abbreviations')
+  assert.match(src, /aria-label=\{t\(full\)\}/, 'each abbr must expose its full label as an accessible name')
+  assert.match(src, /aria-labelledby="standings-legend-title"/, 'legend group must be labelled by its title')
+  assert.match(src, /t\('legend_title'\)/, 'legend must render a translated title')
+})
+
+// ── #18 — abbreviated column headers carry an accessible name + hover/focus tooltip ───────────
+test('#18 StandingsTable column headers expose full names via aria-label, title and a focusable tooltip', () => {
+  const src = read('components/tournaments/admin/StandingsTable.tsx')
+  // the shared AbbrHead renders an <abbr> with both an accessible name and a native title fallback
+  assert.match(src, /function AbbrHead/, 'headers should route through an AbbrHead helper')
+  assert.match(src, /<abbr[\s\S]*?title=\{full\}/, 'AbbrHead must set a native title fallback')
+  assert.match(src, /<abbr[\s\S]*?aria-label=\{full\}/, 'AbbrHead must expose the full name as accessible name')
+  // the tooltip opens on both hover AND keyboard focus, and is keyboard focusable with a visible ring
+  assert.match(src, /tabIndex=\{0\}/, 'abbr must be keyboard focusable')
+  assert.match(src, /focus-visible:ring/, 'focused header must show a visible focus ring')
+  assert.match(src, /group-focus-within:opacity-100/, 'tooltip must appear on keyboard focus, not hover only')
+  assert.match(src, /role="tooltip"/, 'the supplementary tooltip must have role=tooltip')
+  // every abbreviated stat column now flows through AbbrHead (no bare title= on the stat headers)
+  for (const k of ['col_played', 'col_wins', 'col_losses', 'col_points', 'col_points_for', 'col_points_against', 'col_diff']) {
+    assert.match(src, new RegExp(`<AbbrHead label=\\{t\\('${k}_short'\\)\\} full=\\{t\\('${k}'\\)\\} />`), `header ${k} must use AbbrHead`)
+  }
+})
+
+// ── #19 — i18n: the legend title exists and is non-empty in all 5 locales ─────────────────────
+test('#19 legend_title is present and non-empty across all 5 locales', () => {
+  for (const loc of LOCALES) {
+    const ns = messages[loc].admin_group_standings as Record<string, unknown>
+    const v = ns.legend_title
+    assert.equal(typeof v, 'string', `${loc}.admin_group_standings.legend_title must be a string`)
+    assert.notEqual((v as string).trim(), '', `${loc}.admin_group_standings.legend_title must not be empty`)
   }
 })

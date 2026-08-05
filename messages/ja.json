@@ -6692,6 +6692,7 @@
     "col_diff": "得失差",
     "col_diff_short": "差",
     "col_qualification": "進出枠",
+    "legend_title": "順位表の凡例",
     "tied_note": "同順位",
     "status_in_progress": "グループ戦が進行中です。",
     "status_blocked": "進出枠の境界に同順位があります。トーナメント作成前に決定してください。",

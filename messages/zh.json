@@ -6692,6 +6692,7 @@
     "col_diff": "净胜分",
     "col_diff_short": "净",
     "col_qualification": "出线名额",
+    "legend_title": "积分榜说明",
     "tied_note": "并列",
     "status_in_progress": "小组赛进行中。",
     "status_blocked": "出线边界存在并列 — 生成对阵表前需先判定。",

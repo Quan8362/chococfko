@@ -3,6 +3,35 @@
 import { useMemo } from 'react'
 import { useTranslations } from 'next-intl'
 import type { CompetitorRow, EventFormat, GroupStandingsView, QualificationSlot } from '@/lib/tournaments/admin/types'
+import StandingsLegend from './StandingsLegend'
+
+// An abbreviated column header (e.g. "TR") whose spelled-out meaning (e.g. "Trận") is exposed three
+// ways: as the accessible name (aria-label) for screen readers, as a native `title` fallback, and as
+// a self-contained tooltip that appears on both hover and keyboard focus. The tooltip is absolutely
+// positioned so it never widens the column, and it opens downward into the table body so the
+// horizontal-scroll container can never clip it. The always-visible StandingsLegend remains the
+// primary explanation; this is supplementary.
+function AbbrHead({ label, full }: { label: string; full: string }) {
+  return (
+    <span className="group relative inline-flex items-center justify-center">
+      <abbr
+        title={full}
+        aria-label={full}
+        tabIndex={0}
+        className="no-underline cursor-help rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-teal/60"
+      >
+        {label}
+      </abbr>
+      <span
+        role="tooltip"
+        aria-hidden
+        className="pointer-events-none absolute left-1/2 top-full z-20 mt-1 -translate-x-1/2 whitespace-nowrap rounded-md border border-line bg-ink px-2 py-1 text-[11px] font-medium normal-case tracking-normal text-paper opacity-0 shadow-md transition-opacity duration-100 group-hover:opacity-100 group-focus-within:opacity-100"
+      >
+        {full}
+      </span>
+    </span>
+  )
+}
 
 // "Bảng xếp hạng" tab: one table per group (rank, competitor, played, wins, losses, points, points
 // for/against, difference) with the qualification preview marked per row (championship / consolation
@@ -79,6 +108,8 @@ export default function StandingsTable({
         </div>
       )}
 
+      <StandingsLegend />
+
       {standings.map((g) => (
         <div key={g.groupId} className="border border-line rounded-xl overflow-hidden">
           <div className="bg-cream px-4 py-2 border-b border-line flex items-baseline justify-between gap-2">
@@ -92,13 +123,13 @@ export default function StandingsTable({
                 <tr className="text-[11px] text-muted uppercase tracking-wide border-b border-line">
                   <th className="text-center font-semibold px-2 py-2 w-10">{t('col_rank')}</th>
                   <th className="text-left font-semibold px-2 py-2">{t('col_competitor')}</th>
-                  <th className="text-center font-semibold px-2 py-2 w-10" title={t('col_played')}>{t('col_played_short')}</th>
-                  <th className="text-center font-semibold px-2 py-2 w-10" title={t('col_wins')}>{t('col_wins_short')}</th>
-                  <th className="text-center font-semibold px-2 py-2 w-10" title={t('col_losses')}>{t('col_losses_short')}</th>
-                  <th className="text-center font-semibold px-2 py-2 w-12" title={t('col_points')}>{t('col_points_short')}</th>
-                  <th className="text-center font-semibold px-2 py-2 w-12" title={t('col_points_for')}>{t('col_points_for_short')}</th>
-                  <th className="text-center font-semibold px-2 py-2 w-12" title={t('col_points_against')}>{t('col_points_against_short')}</th>
-                  <th className="text-center font-semibold px-2 py-2 w-12" title={t('col_diff')}>{t('col_diff_short')}</th>
+                  <th className="text-center font-semibold px-2 py-2 w-10"><AbbrHead label={t('col_played_short')} full={t('col_played')} /></th>
+                  <th className="text-center font-semibold px-2 py-2 w-10"><AbbrHead label={t('col_wins_short')} full={t('col_wins')} /></th>
+                  <th className="text-center font-semibold px-2 py-2 w-10"><AbbrHead label={t('col_losses_short')} full={t('col_losses')} /></th>
+                  <th className="text-center font-semibold px-2 py-2 w-12"><AbbrHead label={t('col_points_short')} full={t('col_points')} /></th>
+                  <th className="text-center font-semibold px-2 py-2 w-12"><AbbrHead label={t('col_points_for_short')} full={t('col_points_for')} /></th>
+                  <th className="text-center font-semibold px-2 py-2 w-12"><AbbrHead label={t('col_points_against_short')} full={t('col_points_against')} /></th>
+                  <th className="text-center font-semibold px-2 py-2 w-12"><AbbrHead label={t('col_diff_short')} full={t('col_diff')} /></th>
                   {isGK && <th className="text-center font-semibold px-2 py-2">{t('col_qualification')}</th>}
                 </tr>
               </thead>

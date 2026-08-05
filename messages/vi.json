@@ -6905,7 +6905,13 @@
     "bye_advance": "Miễn vòng đầu",
     "pairing_updated": "Thứ tự đã thay đổi. Cặp đấu vòng đầu đã được cập nhật.",
     "full_bracket_cta": "Xem toàn bộ nhánh",
-    "full_bracket_hint": "Xem sơ đồ đầy đủ của tất cả các vòng đấu."
+    "full_bracket_hint": "Xem sơ đồ đầy đủ của tất cả các vòng đấu.",
+    "readonly_generated_badge": "Đã tạo nhánh · Chỉ xem",
+    "readonly_locked_help": "Nhánh đấu đã được tạo. Thứ tự hạt giống được khóa để bảo vệ lịch thi đấu và kết quả.",
+    "seed_order_title": "Thứ tự hạt giống",
+    "reset_blocked_results": "Không thể đặt lại vì nhánh đấu đã có kết quả thi đấu.",
+    "reset_blocked_forbidden": "Bạn không có quyền đặt lại nhánh đấu.",
+    "no_bracket_data": "Không tìm thấy dữ liệu nhánh."
   },
   "tournaments": {
     "tabs_label": "Các mục quản lý nội dung",

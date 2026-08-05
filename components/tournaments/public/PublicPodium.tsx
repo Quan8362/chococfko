@@ -2,11 +2,85 @@
 
 import { useTranslations } from 'next-intl'
 import type { PublicBracket } from '@/lib/tournaments/public/types'
+import type { PodiumRowView } from '@/lib/tournaments/admin/types'
+import { isJointThird, orderPodiumRows } from '@/lib/tournaments/public/podiumView'
+import TruncatedName from './TruncatedName'
 import EmptyState from './EmptyState'
 
-// Podium per branch (championship + optional consolation). Shown only when a branch has a computed
-// podium; joint third places (no third-place match) render side by side. Championship and consolation
-// are never mixed.
+// Public podium ("Thành tích"). Each knockout branch is one SELF-CONTAINED column — Serie A
+// (championship) on the left, Serie B (consolation) on the right on desktop/tablet, stacked on mobile.
+// Inside a column the placements run TOP→BOTTOM by rank (gold, silver, bronze[, bronze]); the two
+// branches never share a card. Data & ranks come from the domain calculator — this is presentation
+// only.
+
+type RankMeta = { medal: string; badge: string; ring: string; bg: string }
+
+// Rank hierarchy is carried by THREE independent cues (never colour alone): the medal glyph, the text
+// label rendered per item, and the border/background weight below. Rank 1 gets a heavier border; the
+// palette stays soft (no strong gradients) and both series use the identical scale so neither looks
+// more important than the other.
+const RANK_META: Record<number, RankMeta> = {
+  1: { medal: '🥇', badge: 'bg-[#f4d67a]', ring: 'border-2 border-[#e3b23c]', bg: 'bg-[#fdf6e3]' },
+  2: { medal: '🥈', badge: 'bg-[#dfe2e7]', ring: 'border border-[#c3c7cf]', bg: 'bg-[#f4f5f7]' },
+  3: { medal: '🥉', badge: 'bg-[#ecd3bb]', ring: 'border border-[#d9b28a]', bg: 'bg-[#fbf1e8]' },
+}
+
+function PodiumPlacementItem({
+  row,
+  label,
+  name,
+}: {
+  row: PodiumRowView
+  label: string
+  name: string
+}) {
+  const meta = RANK_META[row.rank] ?? RANK_META[3]
+  return (
+    <li className={`flex items-center gap-3 rounded-2xl ${meta.ring} ${meta.bg} px-3.5 py-2.5`}>
+      <span
+        aria-hidden="true"
+        className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl ${meta.badge} text-lg`}
+      >
+        {meta.medal}
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="text-[10.5px] font-bold uppercase tracking-wide text-muted">{label}</p>
+        <TruncatedName name={name} className="block text-[13.5px] font-semibold text-ink" />
+      </div>
+    </li>
+  )
+}
+
+function PodiumSerieColumn({
+  bracket,
+  title,
+  nameOf,
+  labelFor,
+}: {
+  bracket: PublicBracket
+  title: string
+  nameOf: (id: string | null) => string
+  labelFor: (row: PodiumRowView, joint: boolean) => string
+}) {
+  const rows = orderPodiumRows(bracket.podium)
+  const joint = isJointThird(bracket.podium)
+  return (
+    <section className="rounded-3xl border border-line bg-paper p-4 sm:p-5">
+      <h3 className="mb-3 text-[14px] font-bold text-ink">{title}</h3>
+      <ol className="list-none space-y-2.5">
+        {rows.map((row, i) => (
+          <PodiumPlacementItem
+            key={`${row.rank}-${row.competitorId}-${i}`}
+            row={row}
+            label={labelFor(row, joint)}
+            name={nameOf(row.competitorId)}
+          />
+        ))}
+      </ol>
+    </section>
+  )
+}
+
 export default function PublicPodium({
   brackets,
   nameOf,
@@ -21,40 +95,27 @@ export default function PublicPodium({
     return <EmptyState title={t('empty.no_podium')} hint={t('empty.no_podium_hint')} />
   }
 
-  const RANK_META: Record<number, { label: string; ring: string; bg: string; medal: string }> = {
-    1: { label: t('podium.first'), ring: 'border-[#e3b23c]', bg: 'bg-[#fdf6e3]', medal: '🥇' },
-    2: { label: t('podium.second'), ring: 'border-[#b8bcc4]', bg: 'bg-[#f4f5f7]', medal: '🥈' },
-    3: { label: t('podium.third'), ring: 'border-[#cd9b6a]', bg: 'bg-[#fbf1e8]', medal: '🥉' },
+  const labelFor = (row: PodiumRowView, joint: boolean) => {
+    if (row.rank === 1) return t('podium.first')
+    if (row.rank === 2) return t('podium.second')
+    return joint ? t('podium.joint_third') : t('podium.third')
   }
 
+  // Two balanced, top-aligned columns from tablet up (Serie A left, Serie B right); a single serie
+  // spans one column at full width instead of a lonely half-width card.
+  const cols = withPodium.length > 1 ? 'md:grid-cols-2' : 'md:grid-cols-1'
+
   return (
-    <div className="space-y-7">
-      {withPodium.map((b) => {
-        const thirds = b.podium.filter((p) => p.rank === 3)
-        const isJointThird = thirds.length > 1 || thirds.some((p) => p.isJoint)
-        return (
-          <div key={b.bracket}>
-            <h3 className="text-[14px] font-bold text-ink mb-3">{t(`podium.${b.bracket}`)}</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              {b.podium.map((p, i) => {
-                const meta = RANK_META[p.rank]
-                return (
-                  <div
-                    key={`${p.rank}-${p.competitorId}-${i}`}
-                    className={`rounded-2xl border-2 ${meta.ring} ${meta.bg} p-4 text-center`}
-                  >
-                    <div className="text-2xl mb-1" aria-hidden="true">{meta.medal}</div>
-                    <p className="text-[11px] font-bold uppercase tracking-wide text-muted mb-1">
-                      {p.rank === 3 && isJointThird ? t('podium.joint_third') : meta.label}
-                    </p>
-                    <p className="text-[14px] font-semibold text-ink break-words">{nameOf(p.competitorId)}</p>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        )
-      })}
+    <div className={`grid grid-cols-1 ${cols} items-start gap-5`}>
+      {withPodium.map((b) => (
+        <PodiumSerieColumn
+          key={b.bracket}
+          bracket={b}
+          title={t(`podium.${b.bracket}`)}
+          nameOf={nameOf}
+          labelFor={labelFor}
+        />
+      ))}
     </div>
   )
 }

@@ -34,6 +34,7 @@ import {
   type ContainerId,
 } from '@/lib/tournaments/domain/group-board'
 import { evaluateReadiness, type GroupStageFormat } from '@/lib/tournaments/domain/group-assignment'
+import { effectiveQualifierCounts } from '@/lib/tournaments/domain/qualification'
 import {
   initializeTournamentGroups,
   saveGroupAssignments,
@@ -111,6 +112,24 @@ export default function GroupAssignmentBoard(props: Props) {
     () => JSON.stringify(toAssignmentPayload(state, groupIds)) !== JSON.stringify(toAssignmentPayload(seed, groupIds)),
     [state, seed, groupIds],
   )
+
+  // Non-blocking note (group_knockout only): groups holding fewer competitors than the configured
+  // Serie A + Serie B maximums still qualify by real standing — Serie A first, then Serie B — so we
+  // explain the effective split rather than warning. Purely informational; never blocks a save.
+  const effectiveNotes = useMemo(() => {
+    if (props.format !== 'group_knockout') return []
+    return payload.groups
+      .filter((g) => g.competitorIds.length >= 2
+        && g.competitorIds.length < props.winnerQualifiersPerGroup + props.consolationQualifiersPerGroup)
+      .map((g) => {
+        const { effectiveWinner, effectiveConsolation } = effectiveQualifierCounts(
+          g.competitorIds.length,
+          props.winnerQualifiersPerGroup,
+          props.consolationQualifiersPerGroup,
+        )
+        return { groupId: g.groupId, size: g.competitorIds.length, a: effectiveWinner, b: effectiveConsolation }
+      })
+  }, [payload.groups, props.format, props.winnerQualifiersPerGroup, props.consolationQualifiersPerGroup])
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
@@ -278,13 +297,7 @@ export default function GroupAssignmentBoard(props: Props) {
                         ? t('issue_empty_group', { name: groupNameOf(issue.groupId) })
                         : issue.code === 'group_too_small'
                           ? t('issue_too_small', { name: groupNameOf(issue.groupId) })
-                          : issue.code === 'insufficient_qualifier_capacity'
-                            ? t('issue_capacity', {
-                                name: groupNameOf(issue.groupId),
-                                size: issue.size,
-                                required: issue.required,
-                              })
-                            : t('issue_no_groups')}
+                          : t('issue_no_groups')}
                     </span>
                   </li>
                 ))}
@@ -293,6 +306,21 @@ export default function GroupAssignmentBoard(props: Props) {
           </div>
         )
       })()}
+
+      {/* Non-blocking effective-qualification note for short group_knockout groups. Neutral tone —
+          this is information, not a warning: the group is valid and its qualifiers scale to reality. */}
+      {!props.locked && effectiveNotes.length > 0 && (
+        <div className="rounded-xl bg-cream border border-line px-3 py-3 mb-3 space-y-1.5">
+          <ul className="space-y-1">
+            {effectiveNotes.map((n) => (
+              <li key={n.groupId} className="text-[12.5px] text-muted flex items-start gap-1.5">
+                <span aria-hidden="true" className="flex-none mt-[3px] w-1.5 h-1.5 rounded-full bg-teal/60" />
+                <span>{t('info_effective_split', { name: groupNameOf(n.groupId), size: n.size, a: n.a, b: n.b })}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {/* Board */}
       <DndContext

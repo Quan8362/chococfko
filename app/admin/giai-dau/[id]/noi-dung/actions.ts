@@ -2249,7 +2249,7 @@ export async function saveGroupKnockoutSeeds(
   if (status !== 'knockout_ready') return { ok: false, error: 'not_ready' }
 
   const { championship: champTokens, consolation: consoTokens } = buildGroupRankTokens({
-    groups: raw.groupIds.map((id) => ({ groupId: id })),
+    groups: raw.groupIds.map((id) => ({ groupId: id, competitorCount: (raw.competitorsByGroup.get(id) ?? []).length })),
     winnerQualifiers: ev.winnerQualifiersPerGroup,
     consolationQualifiers: ev.consolationQualifiersPerGroup,
   })
@@ -2372,7 +2372,7 @@ export async function generateGroupKnockoutBrackets(
   if (status !== 'knockout_ready') return { ok: false, error: 'not_ready' }
 
   const { championship: champTokens, consolation: consoTokens } = buildGroupRankTokens({
-    groups: raw.groupIds.map((id) => ({ groupId: id })),
+    groups: raw.groupIds.map((id) => ({ groupId: id, competitorCount: (raw.competitorsByGroup.get(id) ?? []).length })),
     winnerQualifiers: ev.winnerQualifiersPerGroup,
     consolationQualifiers: ev.consolationQualifiersPerGroup,
   })

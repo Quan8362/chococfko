@@ -7062,7 +7062,10 @@
       "game_scores": "Chi tiết ván",
       "col_team": "Đội",
       "game_short": "V{n}",
-      "col_set": "Set"
+      "col_set": "Set",
+      "phase_group": "Vòng bảng",
+      "section_count": "{n} trận",
+      "reset": "Xóa bộ lọc"
     },
     "standings": {
       "group_heading": "Bảng {name}",

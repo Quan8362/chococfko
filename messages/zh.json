@@ -7042,7 +7042,10 @@
       "group": "{name} 组",
       "ungrouped": "未分组",
       "seed": "种子 {n}",
-      "empty_group": "暂无参赛者"
+      "empty_group": "暂无参赛者",
+      "count": "{n} 名",
+      "total_groups": "{n} 组",
+      "total_athletes": "{n} 名选手"
     },
     "schedule": {
       "filter_group": "分组：",

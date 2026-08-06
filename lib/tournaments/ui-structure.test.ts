@@ -371,3 +371,49 @@ test('#19 legend_title is present and non-empty across all 5 locales', () => {
     assert.notEqual((v as string).trim(), '', `${loc}.admin_group_standings.legend_title must not be empty`)
   }
 })
+
+// ── #20 — public Athletes roster is a premium, accessible, i18n-clean surface ─────────────────
+// The "Vận động viên" tab must: bucket via the pure helper (no ad-hoc reorder), lay out 2 cards on
+// desktop / 1 on mobile, render a semantic <ul>/<li> roster, reuse TruncatedName for long names, and
+// route every visible label through i18n (no hardcoded Vietnamese, no raw keys).
+test('#20 public Athletes tab renders a premium semantic roster with pure grouping', () => {
+  const src = read('components/tournaments/public/PublicCompetitors.tsx')
+  // grouping goes through the pure, tested helper (never a local resort of competitors)
+  assert.match(src, /from '@\/lib\/tournaments\/public\/competitorGroups'/, 'must use the pure groupCompetitors helper')
+  assert.match(src, /groupCompetitors\(competitors, groups\)/, 'must call groupCompetitors with the props as-is')
+  assert.doesNotMatch(src, /\.sort\(/, 'must not re-sort competitors/groups in the view')
+  // responsive grid: 1 column on mobile, 2 on desktop
+  assert.match(src, /grid-cols-1/, 'roster grid must be single-column on mobile')
+  assert.match(src, /lg:grid-cols-2/, 'roster grid must be two-column on desktop')
+  // semantic list + long-name tooltip reuse
+  assert.match(src, /<ul/, 'group roster must be a semantic list')
+  assert.match(src, /<li/, 'athletes must be list items')
+  assert.match(src, /import TruncatedName from '\.\/TruncatedName'/, 'must reuse the shared TruncatedName tooltip')
+  assert.match(src, /<TruncatedName name=\{c\.name\}/, 'the athlete name must flow through TruncatedName')
+  // decorative accent / ordinal are hidden from assistive tech
+  assert.match(src, /aria-hidden/, 'decorative accent + ordinal must be aria-hidden')
+})
+
+test('#20b public Athletes tab hardcodes no Vietnamese and leaks no raw i18n key', () => {
+  const src = read('components/tournaments/public/PublicCompetitors.tsx')
+  // new labels route through i18n
+  for (const k of ['competitors.count', 'competitors.total_groups', 'competitors.total_athletes']) {
+    assert.match(src, new RegExp(`t\\('${k.replace('.', '\\.')}'`), `must render ${k} via i18n`)
+  }
+  // no hardcoded Vietnamese diacritics in the RENDERED output (strip comments first — code comments
+  // are free to describe the tab in Vietnamese; only JSX/string literals must go through i18n)
+  const codeOnly = src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:])\/\/.*$/gm, '$1')
+  assert.doesNotMatch(codeOnly, /[àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ]/i, 'no hardcoded Vietnamese text in rendered output')
+})
+
+test('#20c the three new competitors labels exist and are non-empty across all 5 locales', () => {
+  for (const loc of LOCALES) {
+    const ns = (messages[loc].tournaments as Record<string, Record<string, unknown>>).competitors
+    for (const key of ['count', 'total_groups', 'total_athletes']) {
+      const v = ns[key]
+      assert.equal(typeof v, 'string', `${loc}.tournaments.competitors.${key} must be a string`)
+      assert.notEqual((v as string).trim(), '', `${loc}.tournaments.competitors.${key} must not be empty`)
+      assert.match(v as string, /\{n\}/, `${loc}.tournaments.competitors.${key} must interpolate {n}`)
+    }
+  }
+})

@@ -7042,7 +7042,10 @@
       "group": "Bảng {name}",
       "ungrouped": "Chưa xếp bảng",
       "seed": "Hạt {n}",
-      "empty_group": "Chưa có vận động viên"
+      "empty_group": "Chưa có vận động viên",
+      "count": "{n} VĐV",
+      "total_groups": "{n} bảng",
+      "total_athletes": "{n} vận động viên"
     },
     "schedule": {
       "filter_group": "Bảng:",

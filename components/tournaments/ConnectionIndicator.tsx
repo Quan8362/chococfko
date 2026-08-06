@@ -14,6 +14,9 @@ const DOT: Record<ConnectionStatus, string> = {
   reconnecting: 'bg-amber-500',
 }
 
+// Every status label, so the slot can reserve the widest one and never resize when the text swaps.
+const STATUSES: ConnectionStatus[] = ['connecting', 'connected', 'disconnected', 'reconnecting']
+
 export default function ConnectionIndicator({
   status,
   onRefresh,
@@ -33,8 +36,9 @@ export default function ConnectionIndicator({
 
   return (
     <div
-      // Reserve a stable min-width so the label swapping between 'connecting' and 'connected' during
-      // an event switch can't change this element's box and shift its neighbours in the action bar.
+      // Width is held stable two ways so an event-switch resubscribe (connected→connecting→connected)
+      // can't shift the action bar: the label slot reserves the widest status text via invisible ghosts
+      // (below), and this min-width is a floor for the whole strip.
       className={`inline-flex items-center gap-2 text-[12px] text-muted min-w-[104px] ${className}`}
       role="status"
       aria-live="polite"
@@ -42,11 +46,23 @@ export default function ConnectionIndicator({
       <span className="inline-flex items-center gap-1.5">
         <span className="relative inline-flex h-2 w-2" aria-hidden="true">
           {live && (
-            <span className={`absolute inline-flex h-full w-full rounded-full opacity-60 animate-ping ${DOT[status]}`} />
+            <span
+              className={`absolute inline-flex h-full w-full rounded-full opacity-60 animate-ping motion-reduce:animate-none ${DOT[status]}`}
+            />
           )}
           <span className={`relative inline-flex h-2 w-2 rounded-full ${DOT[status]}`} />
         </span>
-        <span>{label}</span>
+        {/* Stack every possible label as an invisible ghost so the text slot always reserves the widest
+            one. The visible label swapping (e.g. connected -> connecting on an event-switch resubscribe)
+            then can never change this box's width and shift the action bar. */}
+        <span className="grid whitespace-nowrap">
+          {STATUSES.map((s) => (
+            <span key={s} aria-hidden className="col-start-1 row-start-1 invisible">
+              {t(`realtime.${s}`)}
+            </span>
+          ))}
+          <span className="col-start-1 row-start-1">{label}</span>
+        </span>
       </span>
       {showRefresh && onRefresh && (
         <button

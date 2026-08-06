@@ -69,9 +69,11 @@ export default function TournamentDetail({
   const [activeTab, setActiveTab] = useState(() => (availableTabs.includes(initialTab) ? initialTab : 'overview'))
 
   // Switching an event needs fresh server data, so it's a real navigation. We run it inside a
-  // transition (a) so the current shell stays mounted and visible instead of the loading fallback
-  // flashing in, and (b) so we can highlight the chosen event immediately while the data streams.
-  const [isPending, startTransition] = useTransition()
+  // transition so the current shell stays mounted and visible instead of the loading fallback flashing
+  // in, and so we can highlight the chosen event immediately while the data streams. Busy state is
+  // tracked via pendingEventId (see eventSwitching) rather than the transition's isPending, because a
+  // tab switch also opens a transition yet must NOT read as busy.
+  const [, startTransition] = useTransition()
   // Optimistic selection: the URL/props only reflect the new event after the round-trip, so mirror
   // the pending choice locally to move the highlight the instant a button is clicked. Reconciled back
   // to the server-provided value once the navigation lands.
@@ -80,6 +82,9 @@ export default function TournamentDetail({
     setPendingEventId(null)
   }, [selectedEventId])
   const activeEventId = pendingEventId ?? selectedEventId
+  // Only switching EVENTS actually waits on fresh server data. Switching a tab is pure client state
+  // (activeTab + already-loaded workspace), so it renders instantly and must never read as "busy".
+  const eventSwitching = pendingEventId !== null
 
   // Build a stable URL that carries event + tab so refresh/share/deep-link keep the view.
   const pushUrl = useCallback(
@@ -290,18 +295,22 @@ export default function TournamentDetail({
             ))}
           </div>
 
-          {/* Panels — only this region dims while a new event streams in; the hero, event selector and
-              tab strip above stay fully opaque and fixed, so a switch never flashes or shifts the shell.
-              Opacity-only (no transform) and disabled under reduced-motion. */}
+          {/* Panels — tab content is already-loaded client state, so it renders fully opaque on the very
+              first frame: NO opacity/blur/transform transition, no skeleton flash. Switching a tab is
+              instant. Switching an event is a real navigation; rather than dim the current data we keep
+              it fully visible and announce the load through aria-busy + the polite live region below, so
+              a switch never flashes or shifts the shell. */}
+          {/* Accessible loading announcement for the (event-only) data fetch — no visual dimming. */}
+          <span className="sr-only" role="status" aria-live="polite">
+            {eventSwitching ? t('public.loading') : ''}
+          </span>
           <div
             role="tabpanel"
             id={`panel-${activeTab}`}
             aria-labelledby={`tab-${activeTab}`}
             tabIndex={0}
-            aria-busy={isPending}
-            className={`focus:outline-none transition-opacity duration-200 motion-reduce:transition-none ${
-              isPending ? 'opacity-60' : 'opacity-100'
-            }`}
+            aria-busy={eventSwitching}
+            className="focus:outline-none"
           >
             {activeTab === 'overview' && (
               <PublicOverview events={summary.events} selectedEventId={selectedEventId} onSelectEvent={selectEvent} />

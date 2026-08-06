@@ -145,8 +145,13 @@ test('#3 tablists implement the WAI-ARIA keyboard pattern', () => {
     // Prompt 14 (F2 regression): the full WAI-ARIA tabs set includes Home/End on BOTH tablists.
     assert.match(src, /'Home'/, `${f} missing Home-key handling`)
     assert.match(src, /'End'/, `${f} missing End-key handling`)
-    // A visible focus ring on the roving tab (keyboard users must see where focus is).
-    assert.match(src, /focus-visible:/, `${f} missing focus-visible styling on tabs`)
+    // A visible focus ring on the roving tab (keyboard users must see where focus is). The public
+    // detail routes its tab/selector classes through the pure selectorStyles helper, so the ring lives
+    // there; accept it in the component or that helper.
+    const focusSrc = f.includes('public/TournamentDetail')
+      ? src + read('lib/tournaments/public/selectorStyles.ts')
+      : src
+    assert.match(focusSrc, /focus-visible:/, `${f} missing focus-visible styling on tabs`)
   }
   // public detail owns its own tabpanel wrapper
   assert.match(read('components/tournaments/public/TournamentDetail.tsx'), /role="tabpanel"/, 'public detail missing tabpanel')
@@ -416,4 +421,58 @@ test('#20c the three new competitors labels exist and are non-empty across all 5
       assert.match(v as string, /\{n\}/, `${loc}.tournaments.competitors.${key} must interpolate {n}`)
     }
   }
+})
+
+// ── #21 — public tab content renders instantly (no fade/opacity/blur/translate on the panel) ──────────
+// The tabpanel holds already-loaded client data, so it must appear at full opacity on the first frame.
+// A prior build dimmed it to opacity-60 with a transition-opacity fade on every URL-push transition
+// (which fires on a plain tab switch too), reading as a slow blur-in. This locks that fade out for good.
+test('#21 public tabpanel has no fade/opacity/blur/translate animation', () => {
+  const src = read('components/tournaments/public/TournamentDetail.tsx')
+  // Isolate the tabpanel element (from role="tabpanel" to the end of its opening tag) and assert its
+  // className carries none of the fade tokens.
+  const panelOpen = src.slice(src.indexOf('role="tabpanel"'))
+  const panelTag = panelOpen.slice(0, panelOpen.indexOf('>') + 1)
+  for (const bad of [/transition-opacity/, /opacity-0\b/, /opacity-[456]0\b/, /animate-in/, /fade-in/, /\bblur\b/, /translate-[xy]-/]) {
+    assert.doesNotMatch(panelTag, bad, `tabpanel must not use "${bad}" — content must render instantly`)
+  }
+  // And no fade token anywhere in the file's className strings (guards a helper reintroducing it).
+  for (const bad of [/className="[^"]*transition-opacity/, /className=\{`[^`]*transition-opacity/, /opacity-60/]) {
+    assert.doesNotMatch(src, bad, `TournamentDetail must not reintroduce a content fade (${bad})`)
+  }
+})
+
+// The panel is "busy" only while an EVENT is fetching (pendingEventId), never on a tab switch — a tab
+// switch is instant client state. aria-busy and the polite loading announcement both key off that.
+test('#22 tabpanel busy state is tied to the event fetch, not to every transition', () => {
+  const src = read('components/tournaments/public/TournamentDetail.tsx')
+  assert.match(src, /const eventSwitching = pendingEventId !== null/, 'must derive eventSwitching from pendingEventId')
+  assert.match(src, /aria-busy=\{eventSwitching\}/, 'tabpanel aria-busy must reflect the event fetch, not isPending')
+  assert.doesNotMatch(src, /aria-busy=\{isPending\}/, 'a plain tab switch must not mark the panel busy')
+  // an accessible, non-visual loading announcement (sr-only live region) rather than a visual dim
+  assert.match(src, /role="status"[\s\S]{0,80}aria-live="polite"[\s\S]{0,120}public\.loading/, 'must announce loading via a live region')
+  assert.match(src, /sr-only/, 'the loading announcement must be visually hidden, not a dimmed overlay')
+})
+
+// ── #23 — the live-status slot reserves a stable width so an event switch can't shift the action bar ──
+test('#23 ConnectionIndicator reserves a stable width for every status label', () => {
+  const src = read('components/tournaments/ConnectionIndicator.tsx')
+  // all four labels are stacked as invisible ghosts in one grid cell → slot = widest label, always
+  assert.match(src, /STATUSES\s*:\s*ConnectionStatus\[\]\s*=\s*\[/, 'must enumerate every status for the ghost stack')
+  assert.match(src, /STATUSES\.map/, 'must render every status label as a width-reserving ghost')
+  assert.match(src, /className="grid whitespace-nowrap"/, 'label ghosts must be stacked in a single grid cell')
+  assert.match(src, /aria-hidden className="col-start-1 row-start-1 invisible"/, 'ghost labels must be invisible + aria-hidden')
+  // a min-width floor for the whole strip is kept as a second guard
+  assert.match(src, /min-w-\[/, 'the strip should keep a min-width floor')
+})
+
+// #24 — the shell (hero, event selector, tab strip) is not keyed on tab/event, so it never remounts.
+test('#24 switching tab/event never remounts the hero, action bar or shell', () => {
+  const src = read('components/tournaments/public/TournamentDetail.tsx')
+  // the only list keys allowed on the whole page are the tab buttons and the event buttons (React list
+  // keys), never a key on a wrapper that would remount the header/shell on a tab/event change.
+  assert.doesNotMatch(src, /<header[^>]*key=/, 'the hero header must not be keyed (would remount on switch)')
+  assert.doesNotMatch(src, /<TournamentShell[^>]*key=/, 'the page shell must not be keyed')
+  assert.doesNotMatch(src, /key=\{activeTab\}/, 'no wrapper may remount on tab change')
+  assert.doesNotMatch(src, /key=\{(selectedEventId|activeEventId|pendingEventId)\}/, 'no wrapper may remount on event change')
 })

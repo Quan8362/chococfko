@@ -1,13 +1,16 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 import { useTranslations } from 'next-intl'
 import type { PublicScheduleMatch } from '@/lib/tournaments/public/types'
+import { compareGroupMatches, compareKnockoutMatches } from '@/lib/tournaments/public/scheduleOrder'
 import EmptyState from './EmptyState'
+import TruncatedName from './TruncatedName'
 
-// Schedule & results. Group-stage matches are grouped by group then round; knockout matches by
-// bracket then round. Light filters (group, status). BYE and pending are shown clearly and never as
-// a fake 0–0 score.
+// Schedule & results. Sections render in one canonical, translation-independent order (see
+// scheduleOrder.ts): the group stage (Group A→B→C→D, rounds ascending), then the Serie A knockout in
+// full (…→QF→SF→3rd→Final), then the Serie B knockout in full. Group and stage sections are never
+// interleaved. BYE and pending matches are shown clearly and never as a fake 0–0 score.
 export default function PublicSchedule({
   schedule,
   groups,
@@ -22,6 +25,7 @@ export default function PublicSchedule({
   const t = useTranslations('tournaments')
   const [groupFilter, setGroupFilter] = useState<string>('all')
   const [statusFilter, setStatusFilter] = useState<string>('all')
+  const filtersActive = groupFilter !== 'all' || statusFilter !== 'all'
 
   const filtered = useMemo(() => {
     return schedule.filter((m) => {
@@ -34,134 +38,257 @@ export default function PublicSchedule({
     })
   }, [schedule, groupFilter, statusFilter])
 
-  const groupStage = filtered.filter((m) => m.stage === 'group')
-  const knockout = filtered.filter((m) => m.stage === 'knockout')
+  const groupStage = useMemo(() => filtered.filter((m) => m.stage === 'group'), [filtered])
+  const knockout = useMemo(() => filtered.filter((m) => m.stage === 'knockout'), [filtered])
 
-  // group stage → {groupName → {roundNumber → matches}}
+  // Group stage → ordered [groupId → { name, rounds: [roundNumber → matches] }]. The source array is
+  // sorted into canonical order FIRST, so the insertion order of every Map already reflects it.
   const groupSections = useMemo(() => {
     const map = new Map<string, { name: string; rounds: Map<number, PublicScheduleMatch[]> }>()
-    for (const m of groupStage) {
+    for (const m of [...groupStage].sort(compareGroupMatches)) {
       const key = m.groupId ?? '—'
       if (!map.has(key)) map.set(key, { name: m.groupName ?? '—', rounds: new Map() })
-      const sect = map.get(key)!
-      const list = sect.rounds.get(m.roundNumber)
+      const rounds = map.get(key)!.rounds
+      const list = rounds.get(m.roundNumber)
       if (list) list.push(m)
-      else sect.rounds.set(m.roundNumber, [m])
+      else rounds.set(m.roundNumber, [m])
     }
     return map
   }, [groupStage])
 
-  // knockout → {bracket → {roundLabel → matches}}
-  const koSections = useMemo(() => {
-    const map = new Map<string, PublicScheduleMatch[]>()
-    for (const m of knockout) {
-      const key = `${m.bracket ?? 'championship'}::${m.roundLabel ?? `r${m.roundNumber}`}`
-      const list = map.get(key)
-      if (list) list.push(m)
-      else map.set(key, [m])
+  // Knockout → one Serie (A = championship/main, B = consolation), each an ordered [stageLabel →
+  // matches]. Serie A is fully rendered before Serie B; within a Serie, stages ascend to the final.
+  const koSeries = useMemo(() => {
+    const build = (branch: 'a' | 'b') => {
+      const rows = knockout
+        .filter((m) => (branch === 'b' ? m.bracket === 'consolation' : m.bracket !== 'consolation'))
+        .sort(compareKnockoutMatches)
+      const stages = new Map<string, PublicScheduleMatch[]>()
+      for (const m of rows) {
+        const key = m.roundLabel ?? `r${m.roundNumber}`
+        const list = stages.get(key)
+        if (list) list.push(m)
+        else stages.set(key, [m])
+      }
+      return { count: rows.length, stages }
     }
-    return map
+    return { a: build('a'), b: build('b') }
   }, [knockout])
 
   if (schedule.length === 0) {
     return <EmptyState title={t('empty.no_schedule')} hint={t('empty.no_schedule_hint')} />
   }
 
+  const resetFilters = () => {
+    setGroupFilter('all')
+    setStatusFilter('all')
+  }
+
   return (
-    <div className="space-y-5">
-      {/* Filters */}
-      <div className="flex flex-wrap items-center gap-2">
+    <div className="space-y-6">
+      {/* Filter bar */}
+      <div className="flex flex-wrap items-center gap-2.5">
         {groups.length > 0 && (
-          <label className="inline-flex items-center gap-1.5 text-[12px] text-muted">
-            <span>{t('schedule.filter_group')}</span>
-            <select
-              value={groupFilter}
-              onChange={(e) => setGroupFilter(e.target.value)}
-              className="text-[12.5px] border border-line rounded-lg bg-paper px-2 py-1 text-ink focus:outline-none focus:ring-2 focus:ring-rose/30"
-            >
-              <option value="all">{t('schedule.all')}</option>
-              {groups.map((g) => (
-                <option key={g.id} value={g.id}>
-                  {g.name}
-                </option>
-              ))}
-            </select>
-          </label>
+          <FilterSelect
+            label={t('schedule.filter_group')}
+            value={groupFilter}
+            onChange={setGroupFilter}
+            options={[{ value: 'all', label: t('schedule.all') }, ...groups.map((g) => ({ value: g.id, label: g.name }))]}
+          />
         )}
-        <label className="inline-flex items-center gap-1.5 text-[12px] text-muted">
-          <span>{t('schedule.filter_status')}</span>
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="text-[12.5px] border border-line rounded-lg bg-paper px-2 py-1 text-ink focus:outline-none focus:ring-2 focus:ring-rose/30"
+        <FilterSelect
+          label={t('schedule.filter_status')}
+          value={statusFilter}
+          onChange={setStatusFilter}
+          options={[
+            { value: 'all', label: t('schedule.all') },
+            { value: 'completed', label: t('schedule.status_completed') },
+            { value: 'upcoming', label: t('schedule.status_upcoming') },
+          ]}
+        />
+        {filtersActive && (
+          <button
+            type="button"
+            onClick={resetFilters}
+            className="inline-flex items-center gap-1 h-[30px] rounded-lg border border-line bg-paper px-2.5 text-[12px] font-medium text-muted transition-colors hover:text-ink hover:border-rose/40 focus:outline-none focus:ring-2 focus:ring-rose/30"
           >
-            <option value="all">{t('schedule.all')}</option>
-            <option value="completed">{t('schedule.status_completed')}</option>
-            <option value="upcoming">{t('schedule.status_upcoming')}</option>
-          </select>
-        </label>
+            <svg viewBox="0 0 20 20" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={1.8} aria-hidden>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 6l8 8M14 6l-8 8" />
+            </svg>
+            {t('schedule.reset')}
+          </button>
+        )}
       </div>
 
       {filtered.length === 0 ? (
-        <EmptyState title={t('schedule.no_matches')} />
+        <div className="bg-cream border border-line rounded-2xl py-10 px-6 text-center">
+          <p className="text-[13.5px] font-medium text-ink mb-3">{t('schedule.no_matches')}</p>
+          <button
+            type="button"
+            onClick={resetFilters}
+            className="inline-flex items-center gap-1 rounded-lg bg-rose px-3 py-1.5 text-[12.5px] font-semibold text-white transition-opacity hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-rose/40"
+          >
+            {t('schedule.reset')}
+          </button>
+        </div>
       ) : (
-        <>
+        <div className="space-y-9">
+          {/* ── Phase 1: group stage ── */}
           {groupStage.length > 0 && (
-            <div className="space-y-4">
-              {Array.from(groupSections.entries()).map(([gid, sect]) => (
-                <div key={gid}>
-                  <h3 className="flex items-center gap-2 text-[14px] font-bold text-teal mb-2.5">
-                    <span aria-hidden className="h-4 w-1 rounded-full bg-teal/60" />
-                    {t('schedule.group_label', { name: sect.name })}
-                  </h3>
-                  <div className="space-y-3">
-                    {Array.from(sect.rounds.entries())
-                      .sort((a, b) => a[0] - b[0])
-                      .map(([round, matches]) => (
+            <PhaseSection title={t('schedule.phase_group')} count={t('schedule.section_count', { n: groupStage.length })}>
+              <div className="space-y-6">
+                {Array.from(groupSections.entries()).map(([gid, sect]) => (
+                  <section key={gid} aria-label={t('schedule.group_label', { name: sect.name })}>
+                    <SubHeading>{t('schedule.group_label', { name: sect.name })}</SubHeading>
+                    <div className="space-y-3">
+                      {Array.from(sect.rounds.entries()).map(([round, matches]) => (
                         <div key={round}>
-                          <p className="flex items-center gap-2 text-[11px] font-semibold text-muted/80 uppercase tracking-wide mb-1.5">
-                            <span>{t('schedule.round_label', { n: round })}</span>
-                            <span aria-hidden className="h-px flex-1 bg-line/70" />
-                          </p>
-                          <ul className="grid gap-2.5 sm:grid-cols-2">
-                            {matches.map((m) => (
-                              <MatchRow key={m.id} m={m} nameOf={nameOf} t={t} />
-                            ))}
-                          </ul>
+                          <RoundLabel text={t('schedule.round_label', { n: round })} />
+                          <MatchGrid matches={matches} nameOf={nameOf} t={t} />
                         </div>
                       ))}
-                  </div>
-                </div>
-              ))}
-            </div>
+                    </div>
+                  </section>
+                ))}
+              </div>
+            </PhaseSection>
           )}
 
-          {knockout.length > 0 && (
-            <div className="space-y-3">
-              {Array.from(koSections.entries()).map(([key, matches]) => {
-                const [bracket, label] = key.split('::')
-                const roundNumber = matches[0]?.roundNumber ?? 0
-                return (
-                  <div key={key}>
-                    <h3 className="flex items-center gap-2 text-[14px] font-bold text-teal mb-2.5">
-                      <span aria-hidden className="h-4 w-1 rounded-full bg-teal/60" />
-                      {t(`bracket.${bracket}`)} · {roundLabelText(matches[0]?.roundLabel ?? label, roundNumber)}
-                    </h3>
-                    <ul className="grid gap-2.5 sm:grid-cols-2">
-                      {matches.map((m) => (
-                        <MatchRow key={m.id} m={m} nameOf={nameOf} t={t} />
-                      ))}
-                    </ul>
-                  </div>
-                )
-              })}
-            </div>
+          {/* ── Phase 2: Serie A knockout ── */}
+          {koSeries.a.count > 0 && (
+            <PhaseSection title={t('bracket.championship')} count={t('schedule.section_count', { n: koSeries.a.count })}>
+              <StageSections stages={koSeries.a.stages} nameOf={nameOf} t={t} roundLabelText={roundLabelText} />
+            </PhaseSection>
           )}
-        </>
+
+          {/* ── Phase 3: Serie B knockout ── */}
+          {koSeries.b.count > 0 && (
+            <PhaseSection title={t('bracket.consolation')} count={t('schedule.section_count', { n: koSeries.b.count })}>
+              <StageSections stages={koSeries.b.stages} nameOf={nameOf} t={t} roundLabelText={roundLabelText} />
+            </PhaseSection>
+          )}
+        </div>
       )}
     </div>
   )
 }
+
+// ── Layout primitives ──────────────────────────────────────────────────────────────────────────
+
+function FilterSelect({
+  label,
+  value,
+  onChange,
+  options,
+}: {
+  label: string
+  value: string
+  onChange: (v: string) => void
+  options: { value: string; label: string }[]
+}) {
+  return (
+    <label className="inline-flex items-center gap-1.5 h-[30px] text-[12px] text-muted">
+      <span className="font-medium">{label}</span>
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="h-[30px] text-[12.5px] border border-line rounded-lg bg-paper pl-2.5 pr-2 text-ink focus:outline-none focus:ring-2 focus:ring-rose/30"
+      >
+        {options.map((o) => (
+          <option key={o.value} value={o.value}>
+            {o.label}
+          </option>
+        ))}
+      </select>
+    </label>
+  )
+}
+
+// Top-level phase band (VÒNG BẢNG / SERIE A / SERIE B): a rose accent, a strong heading, the match
+// count, and a thin rule that fills the row — a clear anchor the eye can scan to.
+function PhaseSection({ title, count, children }: { title: string; count: string; children: ReactNode }) {
+  return (
+    <section aria-label={title}>
+      <div className="flex items-center gap-2.5 mb-4">
+        <span aria-hidden className="h-5 w-1.5 rounded-full bg-rose" />
+        <h2 className="text-[13px] font-extrabold uppercase tracking-wider text-ink">{title}</h2>
+        <span className="flex-none text-[11px] font-semibold text-muted tabular-nums">{count}</span>
+        <span aria-hidden className="h-px flex-1 bg-line/60" />
+      </div>
+      {children}
+    </section>
+  )
+}
+
+// Group / knockout-stage sub-heading (Bảng A, Tứ kết …).
+function SubHeading({ children }: { children: ReactNode }) {
+  return (
+    <h3 className="flex items-center gap-2 text-[13.5px] font-bold text-teal mb-2.5">
+      <span aria-hidden className="h-4 w-1 rounded-full bg-teal/60" />
+      {children}
+    </h3>
+  )
+}
+
+// Round label inside a group section (Vòng 1, Vòng 2 …).
+function RoundLabel({ text }: { text: string }) {
+  return (
+    <h4 className="flex items-center gap-2 text-[10.5px] font-semibold text-muted/80 uppercase tracking-wide mb-1.5">
+      <span>{text}</span>
+      <span aria-hidden className="h-px flex-1 bg-line/60" />
+    </h4>
+  )
+}
+
+// A responsive grid of match cards. Two columns from `sm` up when the section holds ≥2 matches; a
+// lone match keeps a sensible max width instead of stretching across the row.
+function MatchGrid({
+  matches,
+  nameOf,
+  t,
+}: {
+  matches: PublicScheduleMatch[]
+  nameOf: (id: string | null) => string
+  t: (key: string, values?: Record<string, string | number>) => string
+}) {
+  const single = matches.length === 1
+  return (
+    <ul className={`grid gap-2.5 ${single ? 'sm:max-w-[calc(50%-0.3125rem)]' : 'sm:grid-cols-2'}`}>
+      {matches.map((m) => (
+        <MatchCard key={m.id} m={m} nameOf={nameOf} t={t} />
+      ))}
+    </ul>
+  )
+}
+
+// The ordered stage subsections (Tứ kết → Bán kết → … → Chung kết) for one Serie.
+function StageSections({
+  stages,
+  nameOf,
+  t,
+  roundLabelText,
+}: {
+  stages: Map<string, PublicScheduleMatch[]>
+  nameOf: (id: string | null) => string
+  t: (key: string, values?: Record<string, string | number>) => string
+  roundLabelText: (label: string | null, roundNumber: number) => string
+}) {
+  return (
+    <div className="space-y-5">
+      {Array.from(stages.entries()).map(([label, matches]) => {
+        const heading = roundLabelText(matches[0]?.roundLabel ?? null, matches[0]?.roundNumber ?? 0)
+        return (
+          <section key={label} aria-label={heading}>
+            <SubHeading>{heading}</SubHeading>
+            <MatchGrid matches={matches} nameOf={nameOf} t={t} />
+          </section>
+        )
+      })}
+    </div>
+  )
+}
+
+// ── Match card ─────────────────────────────────────────────────────────────────────────────────
 
 // Small non-colour winner cue (a check mark) so the winner is not signalled by colour/weight alone.
 function WinnerMark({ show }: { show: boolean }) {
@@ -191,7 +318,7 @@ function StatusBadge({
 }) {
   return (
     <span
-      className={`flex-none text-[10.5px] font-semibold px-2 py-0.5 rounded-full border ${
+      className={`flex-none text-[10px] font-semibold px-2 py-0.5 rounded-full border ${
         done
           ? 'text-teal bg-teal-soft border-transparent'
           : status === 'bye'
@@ -208,7 +335,7 @@ function StatusBadge({
   )
 }
 
-function MatchRow({
+function MatchCard({
   m,
   nameOf,
   t,
@@ -234,8 +361,8 @@ function MatchRow({
   const pointB = !done ? '–' : games.length >= 1 ? games[0].scoreB : m.gamesWonB
 
   return (
-    <li className="rounded-2xl border border-line bg-paper shadow-card px-4 py-3 transition-shadow hover:shadow-card-hover motion-reduce:transition-none">
-      <div className="flex justify-end mb-2">
+    <li className="rounded-xl border border-line bg-paper shadow-card px-3.5 py-2.5 transition-shadow hover:shadow-card-hover motion-reduce:transition-none">
+      <div className="flex justify-end mb-1.5">
         <StatusBadge status={m.status} done={done} t={t} />
       </div>
 
@@ -269,12 +396,14 @@ function MatchRow({
 
 // One competitor / point-score line for single-game (or pending) matches. The winner's row gets a soft
 // teal wash so the result reads at a glance; the score sits in a fixed-width column as the focal number.
+// The name truncates to one line (full name via tooltip / aria-label) so a long name never pushes the
+// score out of the card.
 function CompetitorScoreRow({ name, score, win }: { name: string; score: number | string; win: boolean }) {
   return (
-    <div className={`flex items-center gap-1.5 rounded-lg px-1.5 py-1 ${win ? 'font-bold text-teal bg-teal-soft/50' : 'text-ink'}`}>
+    <div className={`flex items-center gap-1.5 rounded-lg px-1.5 py-0.5 ${win ? 'font-bold text-teal bg-teal-soft/50' : 'text-ink'}`}>
       <WinnerMark show={win} />
-      <span className="min-w-0 flex-1 text-[13.5px] leading-snug break-words">{name}</span>
-      <span className="flex-none w-10 text-center text-[17px] font-bold tabular-nums">{score}</span>
+      <TruncatedName name={name} className="min-w-0 flex-1 text-[13.5px] leading-snug" />
+      <span className="flex-none w-9 text-right text-[17px] font-bold tabular-nums">{score}</span>
     </div>
   )
 }
@@ -296,9 +425,9 @@ function ScoreTableRow({
   return (
     <tr className={win ? 'font-bold text-teal' : 'text-ink'}>
       <td className="py-0.5 pr-2 align-middle">
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 min-w-0">
           <WinnerMark show={win} />
-          <span className="min-w-0 break-words leading-snug">{name}</span>
+          <TruncatedName name={name} className="min-w-0 leading-snug" />
         </div>
       </td>
       {games.map((g) => (

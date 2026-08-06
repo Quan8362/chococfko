@@ -7062,7 +7062,10 @@
       "game_scores": "每局比分",
       "col_team": "队伍",
       "game_short": "G{n}",
-      "col_set": "局"
+      "col_set": "局",
+      "phase_group": "小组赛",
+      "section_count": "{n} 场",
+      "reset": "清除筛选"
     },
     "standings": {
       "group_heading": "{name} 组",

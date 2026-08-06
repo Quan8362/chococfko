@@ -26,10 +26,16 @@ export default function ConnectionIndicator({
   const t = useTranslations('tournaments')
   const label = t(`realtime.${status}`)
   const live = status === 'connected'
+  // Only genuine failure states offer a manual refresh. 'connecting' is a routine transient — it fires
+  // on first mount and on every event-switch resubscribe — so surfacing (then hiding) the refresh
+  // button there would jolt the right-anchored action bar sideways on each switch.
+  const showRefresh = status === 'disconnected' || status === 'reconnecting'
 
   return (
     <div
-      className={`inline-flex items-center gap-2 text-[12px] text-muted ${className}`}
+      // Reserve a stable min-width so the label swapping between 'connecting' and 'connected' during
+      // an event switch can't change this element's box and shift its neighbours in the action bar.
+      className={`inline-flex items-center gap-2 text-[12px] text-muted min-w-[104px] ${className}`}
       role="status"
       aria-live="polite"
     >
@@ -42,7 +48,7 @@ export default function ConnectionIndicator({
         </span>
         <span>{label}</span>
       </span>
-      {!live && onRefresh && (
+      {showRefresh && onRefresh && (
         <button
           type="button"
           onClick={onRefresh}

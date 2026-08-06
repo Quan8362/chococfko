@@ -1,9 +1,10 @@
 'use client'
 
-import { useMemo, useState, useCallback, useRef } from 'react'
+import { useMemo, useState, useCallback, useRef, useEffect, useTransition } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
+import { eventButtonClass, tabButtonClass } from '@/lib/tournaments/public/selectorStyles'
 import type {
   PublicEventWorkspace,
   PublicTournamentSummary,
@@ -67,24 +68,44 @@ export default function TournamentDetail({
 
   const [activeTab, setActiveTab] = useState(() => (availableTabs.includes(initialTab) ? initialTab : 'overview'))
 
+  // Switching an event needs fresh server data, so it's a real navigation. We run it inside a
+  // transition (a) so the current shell stays mounted and visible instead of the loading fallback
+  // flashing in, and (b) so we can highlight the chosen event immediately while the data streams.
+  const [isPending, startTransition] = useTransition()
+  // Optimistic selection: the URL/props only reflect the new event after the round-trip, so mirror
+  // the pending choice locally to move the highlight the instant a button is clicked. Reconciled back
+  // to the server-provided value once the navigation lands.
+  const [pendingEventId, setPendingEventId] = useState<string | null>(null)
+  useEffect(() => {
+    setPendingEventId(null)
+  }, [selectedEventId])
+  const activeEventId = pendingEventId ?? selectedEventId
+
   // Build a stable URL that carries event + tab so refresh/share/deep-link keep the view.
   const pushUrl = useCallback(
     (eventId: string, tab: string) => {
       const params = new URLSearchParams()
       if (eventId) params.set('event', eventId)
       params.set('tab', TAB_SLUGS[tab] ?? TAB_SLUGS.overview)
-      router.push(`${pathname}?${params.toString()}`, { scroll: false })
+      startTransition(() => {
+        router.push(`${pathname}?${params.toString()}`, { scroll: false })
+      })
     },
     [router, pathname],
   )
 
   const selectTab = (tab: string) => {
     setActiveTab(tab)
-    pushUrl(selectedEventId, tab)
+    pushUrl(activeEventId, tab)
   }
 
-  // Switching event needs fresh data → navigate (server reload) and reset to overview.
+  // Switching event needs fresh data → navigate (server reload) and reset to overview. Resetting the
+  // tab state to match the pushed URL keeps 'overview' (always a valid tab) selected, so a new event
+  // that lacks the previously-open tab can never render a blank panel mid-switch.
   const selectEvent = (eventId: string) => {
+    if (eventId === activeEventId) return
+    setPendingEventId(eventId)
+    setActiveTab('overview')
     pushUrl(eventId, 'overview')
   }
 
@@ -226,13 +247,9 @@ export default function TournamentDetail({
                 key={ev.id}
                 type="button"
                 onClick={() => selectEvent(ev.id)}
-                aria-pressed={ev.id === selectedEventId}
+                aria-pressed={ev.id === activeEventId}
                 title={ev.name}
-                className={`flex-none inline-flex items-center min-h-[40px] max-w-[240px] truncate whitespace-nowrap text-[13px] font-medium px-3.5 rounded-xl border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose/40 ${
-                  ev.id === selectedEventId
-                    ? 'border-rose bg-rose text-white shadow-card'
-                    : 'border-line bg-paper text-ink hover:border-rose/40 hover:bg-rose-soft/30'
-                }`}
+                className={eventButtonClass(ev.id === activeEventId)}
               >
                 {ev.name}
               </button>
@@ -260,19 +277,32 @@ export default function TournamentDetail({
                 tabIndex={activeTab === tab ? 0 : -1}
                 onKeyDown={(e) => onTabKeyDown(e, idx)}
                 onClick={() => selectTab(tab)}
-                className={`flex-none inline-flex items-center min-h-[44px] whitespace-nowrap text-[13.5px] px-3.5 -mb-px border-b-2 rounded-t transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose/40 ${
-                  activeTab === tab
-                    ? 'border-rose text-rose font-bold'
-                    : 'border-transparent text-muted font-semibold hover:text-ink hover:border-line'
-                }`}
+                className={tabButtonClass(activeTab === tab)}
               >
-                {t(`tabs.${tab}`)}
+                {/* The visible label sits over an always-bold, invisible ghost of the same text, so the
+                    tab reserves its bold width whether active or not — going bold on select can't widen
+                    it and shove the tabs after it sideways. */}
+                <span className="grid">
+                  <span className="col-start-1 row-start-1">{t(`tabs.${tab}`)}</span>
+                  <span aria-hidden className="col-start-1 row-start-1 font-bold invisible">{t(`tabs.${tab}`)}</span>
+                </span>
               </button>
             ))}
           </div>
 
-          {/* Panels */}
-          <div role="tabpanel" id={`panel-${activeTab}`} aria-labelledby={`tab-${activeTab}`} tabIndex={0} className="focus:outline-none">
+          {/* Panels — only this region dims while a new event streams in; the hero, event selector and
+              tab strip above stay fully opaque and fixed, so a switch never flashes or shifts the shell.
+              Opacity-only (no transform) and disabled under reduced-motion. */}
+          <div
+            role="tabpanel"
+            id={`panel-${activeTab}`}
+            aria-labelledby={`tab-${activeTab}`}
+            tabIndex={0}
+            aria-busy={isPending}
+            className={`focus:outline-none transition-opacity duration-200 motion-reduce:transition-none ${
+              isPending ? 'opacity-60' : 'opacity-100'
+            }`}
+          >
             {activeTab === 'overview' && (
               <PublicOverview events={summary.events} selectedEventId={selectedEventId} onSelectEvent={selectEvent} />
             )}

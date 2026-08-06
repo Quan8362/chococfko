@@ -78,6 +78,12 @@ html {
      root closes that gap. This is a safety net — real over-wide elements are
      constrained at their source (containers use max-w + min-w-0). */
   overflow-x: hidden;
+  /* Always reserve the vertical scrollbar gutter so a page whose content grows or
+     shrinks (e.g. switching a tournament event to one with more/less content) never
+     makes the scrollbar appear/disappear — which would change the viewport width and
+     jump the whole layout sideways. Supported in all current evergreen browsers;
+     older engines simply ignore it and fall back to today's behaviour. */
+  scrollbar-gutter: stable;
 }
 body {
   background: var(--cream);

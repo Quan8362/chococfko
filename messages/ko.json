@@ -6915,7 +6915,18 @@
     "seed_order_title": "시드 순서",
     "reset_blocked_results": "경기 결과가 있어 초기화할 수 없습니다.",
     "reset_blocked_forbidden": "대진표를 초기화할 권한이 없습니다.",
-    "no_bracket_data": "대진표 데이터를 찾을 수 없습니다."
+    "no_bracket_data": "대진표 데이터를 찾을 수 없습니다.",
+    "direct_edit_hint": "오른쪽 대진표에 팀을 바로 끌어다 놓으세요. 빈 슬롯은 상대가 1라운드 부전승(BYE)을 받는다는 의미입니다.",
+    "slot_a": "슬롯 A",
+    "slot_b": "슬롯 B",
+    "dest_slot": "경기 {n} · {side}",
+    "slot_empty_hint": "여기에 팀을 놓으세요",
+    "slot_bye_hint": "빈 슬롯 — 상대가 부전승(BYE)",
+    "pool_hint": "끌어다 놓거나 메뉴로 팀을 대진에 배치하세요.",
+    "pool_empty": "모두 배치됨 — 남은 빈 슬롯은 1라운드 부전승입니다.",
+    "both_empty_error": "경기 {matches}에 팀이 없습니다. 각 경기에는 최소 한 팀이 필요합니다.",
+    "unassigned_error": "{count}명이 아직 대진표에 배치되지 않았습니다.",
+    "save_blocked_empty_match": "두 슬롯이 모두 빈 경기가 있으면 저장할 수 없습니다."
   },
   "tournaments": {
     "tabs_label": "종목 관리 섹션",

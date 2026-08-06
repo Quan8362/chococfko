@@ -12,7 +12,7 @@
 import type {
   Bracket, CompetitorId, KnockoutBracket, KnockoutMatch, KnockoutRoundLabel, KnockoutSlot,
 } from './types.ts'
-import { generateKnockout, type KnockoutEntrant } from './knockout.ts'
+import { generateKnockout, generateKnockoutFromSeats, type KnockoutEntrant } from './knockout.ts'
 import { progressKnockout } from './progression.ts'
 
 // Knockout-only always seeds into the single championship bracket.
@@ -132,6 +132,24 @@ export function buildKnockoutBracketFromSeeds(
   return generateKnockout({ bracket, entrants, thirdPlaceEnabled })
 }
 
+/**
+ * Positional variant of buildKnockoutBracketFromSeeds: `seats` is indexed by SEED POSITION (seed
+ * number − 1), length = bracket size, `null` = an explicit BYE that may sit anywhere. Used by the
+ * direct first-round pairing editor (and its APPLY path) so an organiser who deliberately left a
+ * particular first-round slot empty gets exactly that BYE placement — not the standard byes-at-the-top
+ * seeding. Delegates to the SAME generateKnockoutFromSeats core (no re-implementation).
+ */
+export function buildKnockoutBracketFromSeats(
+  seats: readonly (CompetitorId | null)[],
+  thirdPlaceEnabled: boolean,
+  bracket: Bracket = KNOCKOUT_BRACKET,
+): KnockoutBracket {
+  const seatEntrants = seats.map((competitorId) =>
+    competitorId ? ({ kind: 'competitor', competitorId } as KnockoutEntrant) : null,
+  )
+  return generateKnockoutFromSeats({ bracket, seats: seatEntrants, thirdPlaceEnabled })
+}
+
 // ── Deterministic preview ────────────────────────────────────────────────────────────────────────
 
 export type KnockoutPreviewSlot =
@@ -210,6 +228,38 @@ export function buildKnockoutPreview(
   }))
   return {
     totalCompetitors: seededIds.length,
+    bracketSize: bracket.size,
+    byes: bracket.byes,
+    roundCount: bracket.rounds.length,
+    rounds,
+    thirdPlaceMatch: bracket.thirdPlaceMatch ? toPreviewMatch(bracket.thirdPlaceMatch) : null,
+  }
+}
+
+/**
+ * Deterministic display summary for a POSITIONAL seat arrangement (seed position → competitor id or
+ * null BYE). Same shape as buildKnockoutPreview but honours the caller's exact BYE placement. Used by
+ * the direct pairing editor's "full bracket" preview so it matches what APPLY will generate. Returns a
+ * zero-round preview (never throws) when fewer than two seats are filled, so a live UI can call it on
+ * every edit.
+ */
+export function buildKnockoutPreviewFromSeats(
+  seats: readonly (CompetitorId | null)[],
+  thirdPlaceEnabled: boolean,
+  forBracket: Bracket = KNOCKOUT_BRACKET,
+): KnockoutPreview {
+  const filled = seats.filter((s) => s !== null).length
+  if (filled < 2) {
+    return { totalCompetitors: filled, bracketSize: seats.length, byes: Math.max(0, seats.length - filled), roundCount: 0, rounds: [], thirdPlaceMatch: null }
+  }
+  const bracket = buildKnockoutBracketFromSeats(seats, thirdPlaceEnabled, forBracket)
+  const rounds: KnockoutPreviewRound[] = bracket.rounds.map((round) => ({
+    roundNumber: round[0].roundNumber,
+    label: round[0].roundLabel,
+    matches: round.map(toPreviewMatch),
+  }))
+  return {
+    totalCompetitors: filled,
     bracketSize: bracket.size,
     byes: bracket.byes,
     roundCount: bracket.rounds.length,

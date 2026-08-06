@@ -5,36 +5,32 @@ import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import {
   DndContext,
-  closestCorners,
+  DragOverlay,
+  closestCenter,
   KeyboardSensor,
   PointerSensor,
   useSensor,
   useSensors,
+  useDraggable,
   useDroppable,
   type DragEndEvent,
-  type DragOverEvent,
+  type DragStartEvent,
 } from '@dnd-kit/core'
-import {
-  SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
-  useSortable,
-} from '@dnd-kit/sortable'
-import { CSS } from '@dnd-kit/utilities'
 import ConfirmDialog from './ConfirmDialog'
 import KnockoutPreviewPanel from './KnockoutPreviewPanel'
-import FirstRoundPairingPreview from './FirstRoundPairingPreview'
+import TruncatedName from '../public/TruncatedName'
 import {
-  UNASSIGNED,
-  buildBoardState,
-  findContainer,
-  moveItem,
-  shiftContainer,
-  nudgeWithin,
+  boardFromArrangement,
+  boardsEqual,
+  moveToPool,
+  moveToSeat,
+  toArrangement,
   type BoardState,
-  type ContainerId,
-} from '@/lib/tournaments/domain/group-board'
-import { evaluateBranchSeedReadiness } from '@/lib/tournaments/domain/group-knockout-seed'
+} from '@/lib/tournaments/domain/pairing-board'
+import {
+  seedNumberForSlot,
+  validatePairingArrangement,
+} from '@/lib/tournaments/domain/first-round-pairing'
 import {
   saveGroupKnockoutSeeds,
   clearGroupKnockoutSeeds,
@@ -48,12 +44,13 @@ import type {
   KnockoutMutationError,
 } from '@/lib/tournaments/admin/types'
 
-// The dual-branch seed editor. Each branch (championship / consolation) is an independent board with
-// the SAME reducer as the knockout-only seed editor — two containers (unassigned pool + ordered seeds)
-// — over GROUP-RANK TOKENS instead of competitors. Drag == keyboard == fallback buttons funnel through
-// group-board.ts so each branch's SAVE payload (seed slot order = the seeds array order) is deterministic.
-const SEEDS: ContainerId = 'seeds'
-const ORDER: ContainerId[] = [UNASSIGNED, SEEDS]
+// The dual-branch DIRECT first-round pairing editor. The old "arrange a seed-order list, read the
+// pairings off to the side" workflow is gone: an organiser now drags tokens straight into the first-
+// round match slots (or uses the per-token move menu for keyboard/no-drag). An EMPTY slot is a BYE,
+// wherever they leave it — so they pick which teams get a BYE by leaving the opposite slot empty. Each
+// branch is an independent board (a fixed seat array + an unassigned pool) over GROUP-RANK TOKENS; the
+// board reducer guarantees no token is ever lost or duplicated. The visible pairings ARE the live
+// preview and map losslessly to the persisted seed-position slots (server re-resolves competitors).
 
 interface Props {
   tournamentId: string
@@ -61,8 +58,8 @@ interface Props {
   setup: GroupKnockoutSeedSetup
 }
 
-function boardOf(branch: BranchSeedState): BoardState {
-  return buildBoardState([{ groupId: SEEDS, competitorIds: branch.seededIds }], branch.unassignedIds)
+function arrangementOf(branch: BranchSeedState) {
+  return { size: branch.bracketSize, seats: branch.seats, pool: branch.unassignedIds }
 }
 
 export default function GroupKnockoutSeedEditor({ tournamentId, eventId, setup }: Props) {
@@ -72,7 +69,6 @@ export default function GroupKnockoutSeedEditor({ tournamentId, eventId, setup }
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<KnockoutMutationError | null>(null)
   const [confirmReset, setConfirmReset] = useState(false)
-  const [preview, setPreview] = useState<'championship' | 'consolation' | null>(null)
 
   const version = setup.event.version
   const hasConso = setup.consolation !== null
@@ -97,6 +93,16 @@ export default function GroupKnockoutSeedEditor({ tournamentId, eventId, setup }
     const tv = tokenViews.get(tokenId)
     if (!tv) return null
     return tv.resolvable ? compName(tv.competitorId) : t('token_unresolved')
+  }
+
+  function banner() {
+    return (
+      error && (
+        <div className="rounded-lg bg-red-50 border border-red-200 px-3 py-2.5 mb-3" role="alert">
+          <p className="text-[13px] text-red-600">{tk(`err_${error}`)}</p>
+        </div>
+      )
+    )
   }
 
   // ── Bracket already generated → seeds frozen; offer a guarded reset. ─────────────────────────
@@ -138,23 +144,12 @@ export default function GroupKnockoutSeedEditor({ tournamentId, eventId, setup }
   }
 
   // ── Groups not assigned yet → no stable token pool, nothing to lay out. ──────────────────────
-  // (The tab itself is hidden in this phase; this is a defensive fallback.)
   if (setup.templatePhase === 'groups_pending') {
     return (
       <div className="bg-cream border border-line rounded-2xl py-10 px-6 text-center">
         <p className="text-[13.5px] text-ink font-medium mb-1">{t('groups_pending_title')}</p>
         <p className="text-[12.5px] text-muted">{t('groups_pending_hint')}</p>
       </div>
-    )
-  }
-
-  function banner() {
-    return (
-      error && (
-        <div className="rounded-lg bg-red-50 border border-red-200 px-3 py-2.5 mb-3" role="alert">
-          <p className="text-[13px] text-red-600">{tk(`err_${error}`)}</p>
-        </div>
-      )
     )
   }
 
@@ -183,8 +178,6 @@ export default function GroupKnockoutSeedEditor({ tournamentId, eventId, setup }
       error={error}
       tokenLabel={tokenLabel}
       tokenSub={tokenSub}
-      preview={preview}
-      setPreview={setPreview}
       run={run}
     />
   )
@@ -203,8 +196,6 @@ function SeedEditorBody({
   error,
   tokenLabel,
   tokenSub,
-  preview,
-  setPreview,
   run,
 }: {
   tournamentId: string
@@ -217,42 +208,42 @@ function SeedEditorBody({
   error: KnockoutMutationError | null
   tokenLabel: (id: string) => string
   tokenSub: (id: string) => string | null
-  preview: 'championship' | 'consolation' | null
-  setPreview: (b: 'championship' | 'consolation' | null) => void
   run: (fn: () => Promise<{ ok: boolean; error?: KnockoutMutationError }>, onOk?: () => void) => void
 }) {
   const t = useTranslations('admin_group_knockout')
   const tk = useTranslations('admin_knockout_seeding')
 
-  const [champState, setChampState] = useState<BoardState>(() => boardOf(setup.championship))
-  const [consoState, setConsoState] = useState<BoardState>(() =>
-    setup.consolation ? boardOf(setup.consolation) : buildBoardState([{ groupId: SEEDS, competitorIds: [] }], []),
+  const [champBoard, setChampBoard] = useState<BoardState>(() => boardFromArrangement(arrangementOf(setup.championship)))
+  const [consoBoard, setConsoBoard] = useState<BoardState>(() =>
+    setup.consolation ? boardFromArrangement(arrangementOf(setup.consolation)) : { seats: [], pool: [] },
   )
-  const champSeed = useMemo(() => boardOf(setup.championship), [setup.championship])
-  const consoSeed = useMemo(
-    () => (setup.consolation ? boardOf(setup.consolation) : buildBoardState([{ groupId: SEEDS, competitorIds: [] }], [])),
+  const champBase = useMemo(() => boardFromArrangement(arrangementOf(setup.championship)), [setup.championship])
+  const consoBase = useMemo(
+    () => (setup.consolation ? boardFromArrangement(arrangementOf(setup.consolation)) : { seats: [], pool: [] }),
     [setup.consolation],
   )
 
-  const champSeeded = useMemo(() => [...(champState[SEEDS] ?? [])], [champState])
-  const consoSeeded = useMemo(() => [...(consoState[SEEDS] ?? [])], [consoState])
-  const champUnassigned = useMemo(() => [...(champState[UNASSIGNED] ?? [])], [champState])
-  const consoUnassigned = useMemo(() => [...(consoState[UNASSIGNED] ?? [])], [consoState])
-
-  const champReady = evaluateBranchSeedReadiness({ seededIds: champSeeded, unassignedIds: champUnassigned })
-  const consoReady = evaluateBranchSeedReadiness({ seededIds: consoSeeded, unassignedIds: consoUnassigned })
+  const champValid = useMemo(
+    () => validatePairingArrangement(toArrangement(champBoard, setup.championship.bracketSize)),
+    [champBoard, setup.championship.bracketSize],
+  )
+  const consoValid = useMemo(
+    () =>
+      hasConso && setup.consolation
+        ? validatePairingArrangement(toArrangement(consoBoard, setup.consolation.bracketSize))
+        : null,
+    [consoBoard, hasConso, setup.consolation],
+  )
 
   const dirty = useMemo(
-    () =>
-      JSON.stringify(champState[SEEDS]) !== JSON.stringify(champSeed[SEEDS]) ||
-      (hasConso && JSON.stringify(consoState[SEEDS]) !== JSON.stringify(consoSeed[SEEDS])),
-    [champState, champSeed, consoState, consoSeed, hasConso],
+    () => !boardsEqual(champBoard, champBase) || (hasConso && !boardsEqual(consoBoard, consoBase)),
+    [champBoard, champBase, consoBoard, consoBase, hasConso],
   )
-  const allReady = champReady.ok && (!hasConso || consoReady.ok)
+  const canSave = champValid.canSave && (!consoValid || consoValid.canSave)
+  const allApplyReady = champValid.canApply && (!consoValid || consoValid.canApply)
 
-  // The official bracket may be generated only in the 'ready' phase, with a clean saved template that
-  // is a full permutation. Everything else surfaces an explicit reason (never a silent disabled button).
-  const applyDisabled = pending || !canApply || !allReady || dirty || setup.templateStale
+  // APPLY may run only in the 'ready' phase, with a clean saved template that is a full, valid layout.
+  const applyDisabled = pending || !canApply || !allApplyReady || dirty || setup.templateStale
   const applyReason = dirty
     ? tk('save_first')
     : setup.templateStale
@@ -261,21 +252,25 @@ function SeedEditorBody({
         ? t('apply_blocked_incomplete')
         : setup.templatePhase === 'blocking_tie'
           ? t('apply_blocked_tie')
-          : !allReady
+          : !allApplyReady
             ? t('apply_blocked_readiness')
             : null
+
+  const branchSeats = (b: BoardState): (string | null)[] => [...b.seats]
+  const branchPool = (b: BoardState): string[] => [...b.pool]
 
   const doSave = () =>
     run(() =>
       saveGroupKnockoutSeeds(tournamentId, eventId, version, {
-        championship: { seededIds: champSeeded, unassignedIds: champUnassigned },
-        consolation: hasConso ? { seededIds: consoSeeded, unassignedIds: consoUnassigned } : null,
+        championship: { seats: branchSeats(champBoard), unassignedIds: branchPool(champBoard) },
+        consolation: hasConso ? { seats: branchSeats(consoBoard), unassignedIds: branchPool(consoBoard) } : null,
       }),
     )
   const doClear = () => run(() => clearGroupKnockoutSeeds(tournamentId, eventId, version))
   const doGenerate = () => run(() => generateGroupKnockoutBrackets(tournamentId, eventId, version))
 
-  const anySeeded = champSeeded.length > 0 || consoSeeded.length > 0
+  const anySeeded = champBoard.seats.some((s) => s !== null) || consoBoard.seats.some((s) => s !== null)
+  const saveDisabled = pending || !dirty || !canSave
 
   return (
     <div>
@@ -294,42 +289,42 @@ function SeedEditorBody({
       ) : setup.templatePhase === 'template' ? (
         <div className="rounded-lg bg-teal-soft border border-teal/25 px-3 py-2.5 mb-3">
           <p className="text-[13px] font-semibold text-teal">{t('template_mode_title')}</p>
-          <p className="text-[12px] text-ink/70 mt-0.5">{t('template_mode_hint')}</p>
+          <p className="text-[12px] text-ink/70 mt-0.5">{t('direct_edit_hint')}</p>
         </div>
       ) : setup.templatePhase === 'blocking_tie' ? (
         <div className="rounded-lg bg-amber-50 border border-amber-200 px-3 py-2.5 mb-3">
           <p className="text-[13px] text-amber-700">{t('block_blocking_tie')}</p>
         </div>
-      ) : null}
+      ) : (
+        <div className="rounded-lg bg-teal-soft border border-teal/25 px-3 py-2.5 mb-3">
+          <p className="text-[12px] text-ink/70">{t('direct_edit_hint')}</p>
+        </div>
+      )}
 
       <BranchBoard
-        idKey="champ"
         title={t('branch_championship')}
         subtitle={t('branch_championship_hint')}
-        state={champState}
-        setState={setChampState}
-        readiness={champReady}
+        board={champBoard}
+        setBoard={setChampBoard}
+        size={setup.championship.bracketSize}
+        validation={champValid}
         thirdPlaceEnabled={setup.event.thirdPlaceEnabled}
         tokenLabel={tokenLabel}
         tokenSub={tokenSub}
-        onPreview={() => setPreview('championship')}
-        previewDisabled={pending || champSeeded.length < 2}
       />
 
-      {hasConso && (
+      {hasConso && setup.consolation && (
         <div className="mt-6">
           <BranchBoard
-            idKey="conso"
             title={t('branch_consolation')}
             subtitle={t('branch_consolation_hint')}
-            state={consoState}
-            setState={setConsoState}
-            readiness={consoReady}
+            board={consoBoard}
+            setBoard={setConsoBoard}
+            size={setup.consolation.bracketSize}
+            validation={consoValid!}
             thirdPlaceEnabled={setup.event.thirdPlaceEnabled}
             tokenLabel={tokenLabel}
             tokenSub={tokenSub}
-            onPreview={() => setPreview('consolation')}
-            previewDisabled={pending || consoSeeded.length < 2}
           />
         </div>
       )}
@@ -338,7 +333,8 @@ function SeedEditorBody({
       <div className="flex flex-wrap items-center gap-2 mt-5">
         <button
           type="button"
-          disabled={pending || !dirty}
+          disabled={saveDisabled}
+          title={!canSave ? t('save_blocked_empty_match') : undefined}
           onClick={doSave}
           className="font-semibold text-[13px] px-5 py-2.5 rounded-full bg-rose text-white hover:bg-rose-deep transition-all disabled:opacity-50"
         >
@@ -366,92 +362,89 @@ function SeedEditorBody({
         )}
         {dirty && <span className="text-[12px] text-muted">{tk('unsaved')}</span>}
       </div>
-      {/* Why APPLY is unavailable — always explained, never a bare disabled control. */}
+      {!canSave && dirty && (
+        <p className="text-[12px] text-red-600 mt-2">{t('save_blocked_empty_match')}</p>
+      )}
       {applyReason && !dirty && (
         <p id="gk-apply-reason" className="text-[12px] text-muted mt-2">
           {applyReason}
         </p>
       )}
-
-      {preview && (
-        <KnockoutPreviewPanel
-          seededIds={preview === 'championship' ? champSeeded : consoSeeded}
-          thirdPlaceEnabled={setup.event.thirdPlaceEnabled}
-          nameOf={(id) => tokenLabel(id)}
-          onClose={() => setPreview(null)}
-        />
-      )}
     </div>
   )
 }
 
-// ── One branch's dnd board (unassigned pool + ordered seeds) + live first-round pairing preview ──
+// ── One branch's direct pairing board: pool + first-round match cards (each slot a drop target) ─────
 function BranchBoard({
-  idKey,
   title,
   subtitle,
-  state,
-  setState,
-  readiness,
+  board,
+  setBoard,
+  size,
+  validation,
   thirdPlaceEnabled,
   tokenLabel,
   tokenSub,
-  onPreview,
-  previewDisabled,
 }: {
-  idKey: string
   title: string
   subtitle: string
-  state: BoardState
-  setState: React.Dispatch<React.SetStateAction<BoardState>>
-  readiness: ReturnType<typeof evaluateBranchSeedReadiness>
+  board: BoardState
+  setBoard: React.Dispatch<React.SetStateAction<BoardState>>
+  size: number
+  validation: ReturnType<typeof validatePairingArrangement>
   thirdPlaceEnabled: boolean
   tokenLabel: (id: string) => string
   tokenSub: (id: string) => string | null
-  onPreview: () => void
-  previewDisabled: boolean
 }) {
   const t = useTranslations('admin_group_knockout')
   const tk = useTranslations('admin_knockout_seeding')
-  const seededIds = useMemo(() => [...(state[SEEDS] ?? [])], [state])
-  const unassignedIds = useMemo(() => [...(state[UNASSIGNED] ?? [])], [state])
+  const tb = useTranslations('admin_knockout_bracket')
+  const [showFull, setShowFull] = useState(false)
+  const [dragId, setDragId] = useState<string | null>(null)
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+    useSensor(KeyboardSensor),
   )
-  const resolveContainer = (id: string): ContainerId | null =>
-    id in state ? (id as ContainerId) : findContainer(state, id)
 
-  function handleDragOver(e: DragOverEvent) {
-    const { active, over } = e
-    if (!over) return
-    const activeId = String(active.id)
-    const overId = String(over.id)
-    const from = findContainer(state, activeId)
-    const to = resolveContainer(overId)
-    if (!from || !to || from === to) return
-    setState((prev) => {
-      const overItems = prev[to] ?? []
-      const idx = overId in prev ? overItems.length : overItems.indexOf(overId)
-      return moveItem(prev, activeId, to, idx >= 0 ? idx : overItems.length)
-    })
-  }
-  function handleDragEnd(e: DragEndEvent) {
-    const { active, over } = e
-    if (!over) return
-    const activeId = String(active.id)
-    const overId = String(over.id)
-    const from = findContainer(state, activeId)
-    const to = resolveContainer(overId)
-    if (from && to && from === to && activeId !== overId) {
-      const items = state[from]
-      const newIndex = overId in state ? items.length - 1 : items.indexOf(overId)
-      if (newIndex >= 0) setState((prev) => moveItem(prev, activeId, from, newIndex))
+  const matchCount = size / 2
+  const seated = board.seats.filter((s): s is string => s !== null)
+
+  const sideLabel = (side: 'a' | 'b') => (side === 'a' ? t('slot_a') : t('slot_b'))
+  // Destination options for the per-token move menu (keyboard / no-drag path): pool + every slot.
+  const destinations = useMemo(() => {
+    const opts: { value: string; label: string }[] = [{ value: 'pool', label: t('unassigned_title') }]
+    for (let m = 0; m < matchCount; m++) {
+      for (const side of ['a', 'b'] as const) {
+        const seat = seedNumberForSlot(size, { matchIndex: m, side }) - 1
+        opts.push({ value: `seat:${seat}`, label: t('dest_slot', { n: m + 1, side: side === 'a' ? t('slot_a') : t('slot_b') }) })
+      }
     }
+    return opts
+  }, [matchCount, size, t])
+
+  const currentDestOf = (tokenId: string): string => {
+    const idx = board.seats.indexOf(tokenId)
+    return idx >= 0 ? `seat:${idx}` : 'pool'
   }
-  const move = (mutate: (s: BoardState) => BoardState) => setState((prev) => mutate(prev))
-  const containerLabel = (c: ContainerId) => (c === UNASSIGNED ? tk('unassigned_short') : tk('seeds_short'))
+  const applyMove = (tokenId: string, dest: string) => {
+    setBoard((prev) => (dest === 'pool' ? moveToPool(prev, tokenId) : moveToSeat(prev, tokenId, Number(dest.slice(5)))))
+  }
+
+  function onDragStart(e: DragStartEvent) {
+    setDragId(String(e.active.id))
+  }
+  function onDragEnd(e: DragEndEvent) {
+    setDragId(null)
+    const { active, over } = e
+    if (!over) return
+    applyMove(String(active.id), String(over.id))
+  }
+
+  const seatToken = (matchIndex: number, side: 'a' | 'b'): { seat: number; token: string | null } => {
+    const seat = seedNumberForSlot(size, { matchIndex, side }) - 1
+    return { seat, token: board.seats[seat] ?? null }
+  }
 
   return (
     <div className="rounded-2xl border border-line bg-paper/40 p-3 sm:p-4">
@@ -462,8 +455,8 @@ function BranchBoard({
         </div>
         <button
           type="button"
-          disabled={previewDisabled}
-          onClick={onPreview}
+          disabled={seated.length < 2}
+          onClick={() => setShowFull(true)}
           title={t('full_bracket_hint')}
           className="flex-none font-semibold text-[12.5px] px-3 py-2 rounded-full border border-teal/25 bg-teal-soft text-teal hover:bg-teal hover:text-white transition-all disabled:opacity-50"
         >
@@ -472,78 +465,128 @@ function BranchBoard({
       </div>
 
       <div className="flex flex-wrap items-center gap-x-5 gap-y-1 rounded-lg bg-cream border border-line px-3 py-2 mb-3">
-        <Stat label={tk('bracket_size')} value={readiness.bracketSize} />
-        <Stat label={tk('competitor_count')} value={seededIds.length} />
-        <Stat label={tk('bye_count')} value={readiness.byes} />
+        <Stat label={tk('bracket_size')} value={validation.bracketSize} />
+        <Stat label={tk('competitor_count')} value={validation.seatedCount} />
+        <Stat label={tk('bye_count')} value={validation.byes} />
       </div>
 
-      {!readiness.ok && (
+      {validation.issues.length > 0 && (
         <ul className="rounded-lg bg-amber-50 border border-amber-200 px-3 py-2 mb-3 space-y-1">
-          {readiness.issues.map((issue, i) => (
+          {validation.issues.map((issue, i) => (
             <li key={i} className="text-[12.5px] text-amber-700">
               {issue.code === 'not_enough_competitors'
                 ? t('issue_not_enough')
-                : t('issue_unseeded', { names: issue.competitorIds.map((id) => tokenLabel(id)).join(', ') })}
+                : issue.code === 'both_slots_empty'
+                  ? t('both_empty_error', { matches: issue.matchNumbers.join(', ') })
+                  : t('unassigned_error', { count: issue.tokenIds.length })}
             </li>
           ))}
         </ul>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 lg:gap-4">
-        {/* Left: the seeding board (unassigned pool + ordered seeds) */}
-        <div className="lg:col-span-7">
-          <DndContext sensors={sensors} collisionDetection={closestCorners} onDragOver={handleDragOver} onDragEnd={handleDragEnd}>
-            <div className="space-y-3">
-              <Column id={UNASSIGNED} title={t('unassigned_title')} count={unassignedIds.length} tone="neutral" itemIds={unassignedIds}>
-                {unassignedIds.map((id) => (
-                  <Chip
-                    key={id}
-                    id={id}
-                    label={tokenLabel(id)}
-                    sub={tokenSub(id)}
-                    container={UNASSIGNED}
-                    onPrev={() => move((s) => shiftContainer(s, id, -1, ORDER))}
-                    onNext={() => move((s) => shiftContainer(s, id, 1, ORDER))}
-                    onUp={() => move((s) => nudgeWithin(s, id, -1))}
-                    onDown={() => move((s) => nudgeWithin(s, id, 1))}
-                    onMoveTo={(c) => move((s) => moveItem(s, id, c))}
-                    containerLabel={containerLabel}
-                    labels={tk}
-                  />
-                ))}
-              </Column>
-              <Column id={SEEDS} title={t('seeds_title')} count={seededIds.length} tone="seeds" itemIds={seededIds}>
-                {seededIds.map((id, i) => (
-                  <Chip
-                    key={id}
-                    id={id}
-                    label={tokenLabel(id)}
-                    sub={tokenSub(id)}
-                    slot={i + 1}
-                    container={SEEDS}
-                    onPrev={() => move((s) => shiftContainer(s, id, -1, ORDER))}
-                    onNext={() => move((s) => shiftContainer(s, id, 1, ORDER))}
-                    onUp={() => move((s) => nudgeWithin(s, id, -1))}
-                    onDown={() => move((s) => nudgeWithin(s, id, 1))}
-                    onMoveTo={(c) => move((s) => moveItem(s, id, c))}
-                    containerLabel={containerLabel}
-                    labels={tk}
-                  />
-                ))}
-              </Column>
-            </div>
-          </DndContext>
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={onDragStart} onDragEnd={onDragEnd}>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 lg:gap-4">
+          {/* Left: unassigned pool */}
+          <div className="lg:col-span-5">
+            <PoolColumn
+              pool={board.pool}
+              title={t('unassigned_title')}
+              hint={board.pool.length === 0 ? t('pool_empty') : t('pool_hint')}
+            >
+              {board.pool.map((id) => (
+                <TokenChip
+                  key={id}
+                  id={id}
+                  label={tokenLabel(id)}
+                  sub={tokenSub(id)}
+                  destinations={destinations}
+                  currentDest="pool"
+                  onMove={(dest) => applyMove(id, dest)}
+                  moveLabel={tk('move_to')}
+                  dragLabel={tk('drag_handle', { name: tokenLabel(id) })}
+                />
+              ))}
+            </PoolColumn>
+          </div>
+
+          {/* Right: first-round match cards — the live pairing preview AND the editing surface */}
+          <div className="lg:col-span-7">
+            <h4 className="font-serif font-bold text-[13px] text-ink mb-2">{t('first_round_title')}</h4>
+            <ol className="grid grid-cols-1 xl:grid-cols-2 gap-2.5" aria-label={t('first_round_title')}>
+              {Array.from({ length: matchCount }, (_, m) => {
+                const a = seatToken(m, 'a')
+                const b = seatToken(m, 'b')
+                const isBye = (a.token === null) !== (b.token === null)
+                return (
+                  <li key={m} className="rounded-xl border border-line bg-paper px-3 py-2.5">
+                    <div className="flex items-center justify-between gap-2 mb-1.5">
+                      <span className="text-[11px] font-bold text-teal">{tb('match_no', { n: m + 1 })}</span>
+                      {isBye && (
+                        <span className="flex-none text-[10px] font-bold text-teal bg-teal-soft rounded-full px-2 py-0.5">
+                          {t('bye_advance')}
+                        </span>
+                      )}
+                    </div>
+                    <SeatSlot
+                      seatId={a.seat}
+                      token={a.token}
+                      matchNumber={m + 1}
+                      sideLabel={sideLabel('a')}
+                      hasOpponent={b.token !== null}
+                      tokenLabel={tokenLabel}
+                      tokenSub={tokenSub}
+                      destinations={destinations}
+                      currentDestOf={currentDestOf}
+                      applyMove={applyMove}
+                      emptyHint={t('slot_empty_hint')}
+                      byeHint={t('slot_bye_hint')}
+                      moveLabel={tk('move_to')}
+                      dragLabelFor={(id) => tk('drag_handle', { name: tokenLabel(id) })}
+                    />
+                    <div className="flex items-center gap-2 my-0.5 pl-1" aria-hidden="true">
+                      <span className="text-[10px] font-semibold uppercase tracking-wide text-muted">{tb('vs')}</span>
+                      <span className="flex-1 h-px bg-line" />
+                    </div>
+                    <SeatSlot
+                      seatId={b.seat}
+                      token={b.token}
+                      matchNumber={m + 1}
+                      sideLabel={sideLabel('b')}
+                      hasOpponent={a.token !== null}
+                      tokenLabel={tokenLabel}
+                      tokenSub={tokenSub}
+                      destinations={destinations}
+                      currentDestOf={currentDestOf}
+                      applyMove={applyMove}
+                      emptyHint={t('slot_empty_hint')}
+                      byeHint={t('slot_bye_hint')}
+                      moveLabel={tk('move_to')}
+                      dragLabelFor={(id) => tk('drag_handle', { name: tokenLabel(id) })}
+                    />
+                  </li>
+                )
+              })}
+            </ol>
+          </div>
         </div>
 
-        {/* Right: live first-round pairings derived from the SAME engine as the full preview */}
-        <FirstRoundPairingPreview
-          className="lg:col-span-5"
-          headingId={`frp-${idKey}`}
-          seededIds={seededIds}
+        <DragOverlay>
+          {dragId ? (
+            <div className="bg-cream border border-rose/40 rounded-xl px-2.5 py-1.5 shadow-lg text-[13px] text-ink font-medium">
+              {tokenLabel(dragId)}
+            </div>
+          ) : null}
+        </DragOverlay>
+      </DndContext>
+
+      {showFull && (
+        <KnockoutPreviewPanel
+          seats={board.seats}
           thirdPlaceEnabled={thirdPlaceEnabled}
-          nameOf={tokenLabel}
+          nameOf={(id) => tokenLabel(id)}
+          onClose={() => setShowFull(false)}
         />
-      </div>
+      )}
     </div>
   )
 }
@@ -556,107 +599,146 @@ function Stat({ label, value }: { label: string; value: number }) {
   )
 }
 
-function Column({
-  id,
+// The unassigned pool — a droppable zone holding token chips not yet placed into a first-round slot.
+function PoolColumn({
+  pool,
   title,
-  count,
-  tone,
-  itemIds,
+  hint,
   children,
 }: {
-  id: string
+  pool: readonly string[]
   title: string
-  count: number
-  tone: 'neutral' | 'seeds'
-  itemIds: readonly string[]
+  hint: string
   children: React.ReactNode
 }) {
-  const { setNodeRef, isOver } = useDroppable({ id })
+  const { setNodeRef, isOver } = useDroppable({ id: 'pool' })
   return (
-    <div
-      className={`rounded-2xl border p-3 min-h-[110px] transition-colors ${
-        tone === 'seeds' ? 'bg-paper border-line' : 'bg-cream/60 border-line'
-      } ${isOver ? 'ring-2 ring-rose/40' : ''}`}
-    >
-      <div className="flex items-baseline justify-between gap-2 mb-2 px-1">
+    <div className={`rounded-2xl border p-3 min-h-[120px] transition-colors bg-cream/60 border-line ${isOver ? 'ring-2 ring-rose/40' : ''}`}>
+      <div className="flex items-baseline justify-between gap-2 mb-1 px-1">
         <span className="font-serif font-bold text-[13px] text-ink">{title}</span>
-        <span className="text-[11.5px] text-muted">{count}</span>
+        <span className="text-[11.5px] text-muted">{pool.length}</span>
       </div>
-      <div ref={setNodeRef} className="space-y-1.5">
-        <SortableContext items={itemIds as string[]} strategy={verticalListSortingStrategy}>
-          {children}
-        </SortableContext>
+      <p className="text-[11px] text-muted px-1 mb-2">{hint}</p>
+      <div ref={setNodeRef} className="space-y-1.5 min-h-[40px]">
+        {children}
       </div>
     </div>
   )
 }
 
-function Chip({
+// One first-round slot: a droppable target that holds a token chip or shows an empty/BYE placeholder.
+function SeatSlot({
+  seatId,
+  token,
+  matchNumber,
+  sideLabel,
+  hasOpponent,
+  tokenLabel,
+  tokenSub,
+  destinations,
+  currentDestOf,
+  applyMove,
+  emptyHint,
+  byeHint,
+  moveLabel,
+  dragLabelFor,
+}: {
+  seatId: number
+  token: string | null
+  matchNumber: number
+  sideLabel: string
+  hasOpponent: boolean
+  tokenLabel: (id: string) => string
+  tokenSub: (id: string) => string | null
+  destinations: { value: string; label: string }[]
+  currentDestOf: (tokenId: string) => string
+  applyMove: (tokenId: string, dest: string) => void
+  emptyHint: string
+  byeHint: string
+  moveLabel: string
+  dragLabelFor: (id: string) => string
+}) {
+  const { setNodeRef, isOver } = useDroppable({ id: `seat:${seatId}` })
+  return (
+    <div
+      ref={setNodeRef}
+      aria-label={`${sideLabel} · ${matchNumber}`}
+      className={`rounded-lg border transition-colors ${
+        token ? 'border-transparent' : 'border-dashed border-line/80 bg-cream/40'
+      } ${isOver ? 'ring-2 ring-rose/40' : ''}`}
+    >
+      {token ? (
+        <TokenChip
+          id={token}
+          label={tokenLabel(token)}
+          sub={tokenSub(token)}
+          destinations={destinations}
+          currentDest={currentDestOf(token)}
+          onMove={(dest) => applyMove(token, dest)}
+          moveLabel={moveLabel}
+          dragLabel={dragLabelFor(token)}
+        />
+      ) : (
+        <div className="px-3 py-2.5 text-[12px] italic text-muted">
+          {hasOpponent ? byeHint : emptyHint}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// A draggable token: drag handle, label + resolved-team sub-label, and a "move to" select fallback
+// (the guaranteed keyboard / no-drag path). Placed both in the pool and inside seats.
+function TokenChip({
   id,
   label,
   sub,
-  slot,
-  container,
-  onPrev,
-  onNext,
-  onUp,
-  onDown,
-  onMoveTo,
-  containerLabel,
-  labels,
+  destinations,
+  currentDest,
+  onMove,
+  moveLabel,
+  dragLabel,
 }: {
   id: string
   label: string
   sub: string | null
-  slot?: number
-  container: ContainerId
-  onPrev: () => void
-  onNext: () => void
-  onUp: () => void
-  onDown: () => void
-  onMoveTo: (c: ContainerId) => void
-  containerLabel: (c: ContainerId) => string
-  labels: (key: string, values?: Record<string, string | number>) => string
+  destinations: { value: string; label: string }[]
+  currentDest: string
+  onMove: (dest: string) => void
+  moveLabel: string
+  dragLabel: string
 }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id })
-  const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 }
-  const idx = ORDER.indexOf(container)
-
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id })
   return (
-    <div ref={setNodeRef} style={style} className="bg-cream border border-line rounded-xl px-2 py-1.5 flex items-center gap-1.5">
+    <div
+      ref={setNodeRef}
+      className={`bg-cream border border-line rounded-xl px-2 py-1.5 flex items-center gap-1.5 ${isDragging ? 'opacity-40' : ''}`}
+    >
       <button
         type="button"
         {...attributes}
         {...listeners}
-        aria-label={labels('drag_handle', { name: label })}
+        aria-label={dragLabel}
         className="flex-none w-6 h-6 grid place-items-center rounded-md text-muted hover:text-rose cursor-grab active:cursor-grabbing touch-none"
       >
         ⠿
       </button>
-      {slot !== undefined && <span className="flex-none w-6 text-center text-[11px] font-bold text-teal">{slot}</span>}
       <span className="flex-1 min-w-0">
-        <span className="block text-[13px] text-ink font-medium truncate">{label}</span>
+        <TruncatedName name={label} className="block text-[13px] text-ink font-medium" />
         {sub && <span className="block text-[11px] text-muted truncate">{sub}</span>}
       </span>
-
-      <div className="flex-none flex items-center gap-0.5">
-        <button type="button" onClick={onUp} aria-label={labels('move_up')} className="w-6 h-6 grid place-items-center rounded-md border border-line bg-paper text-[11px] text-muted hover:text-rose transition-colors">↑</button>
-        <button type="button" onClick={onDown} aria-label={labels('move_down')} className="w-6 h-6 grid place-items-center rounded-md border border-line bg-paper text-[11px] text-muted hover:text-rose transition-colors">↓</button>
-        <button type="button" onClick={onPrev} disabled={idx <= 0} aria-label={labels('move_prev')} className="w-6 h-6 grid place-items-center rounded-md border border-line bg-paper text-[11px] text-muted hover:text-rose disabled:opacity-30 transition-colors">◀</button>
-        <button type="button" onClick={onNext} disabled={idx >= ORDER.length - 1} aria-label={labels('move_next')} className="w-6 h-6 grid place-items-center rounded-md border border-line bg-paper text-[11px] text-muted hover:text-rose disabled:opacity-30 transition-colors">▶</button>
-        <select
-          value={container}
-          onChange={(e) => onMoveTo(e.target.value as ContainerId)}
-          aria-label={labels('move_to')}
-          className="ml-0.5 text-[11px] px-1 py-1 rounded-md border border-line bg-paper text-muted focus:outline-none focus:border-rose/50 max-w-[86px]"
-        >
-          {ORDER.map((c) => (
-            <option key={c} value={c}>
-              {containerLabel(c)}
-            </option>
-          ))}
-        </select>
-      </div>
+      <select
+        value={currentDest}
+        onChange={(e) => onMove(e.target.value)}
+        aria-label={moveLabel}
+        className="flex-none ml-0.5 text-[11px] px-1 py-1 rounded-md border border-line bg-paper text-muted focus:outline-none focus:border-rose/50 max-w-[104px]"
+      >
+        {destinations.map((d) => (
+          <option key={d.value} value={d.value}>
+            {d.label}
+          </option>
+        ))}
+      </select>
     </div>
   )
 }

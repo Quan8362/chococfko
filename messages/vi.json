@@ -6915,7 +6915,18 @@
     "seed_order_title": "Thứ tự hạt giống",
     "reset_blocked_results": "Không thể đặt lại vì nhánh đấu đã có kết quả thi đấu.",
     "reset_blocked_forbidden": "Bạn không có quyền đặt lại nhánh đấu.",
-    "no_bracket_data": "Không tìm thấy dữ liệu nhánh."
+    "no_bracket_data": "Không tìm thấy dữ liệu nhánh.",
+    "direct_edit_hint": "Kéo thả đội trực tiếp vào các cặp đấu bên phải. Slot để trống nghĩa là đối thủ được miễn vòng đầu (BYE).",
+    "slot_a": "Slot A",
+    "slot_b": "Slot B",
+    "dest_slot": "Trận {n} · {side}",
+    "slot_empty_hint": "Thả đội vào đây",
+    "slot_bye_hint": "Slot trống — đối thủ được miễn vòng đầu",
+    "pool_hint": "Kéo hoặc dùng menu để xếp đội vào cặp đấu.",
+    "pool_empty": "Đã xếp hết — mỗi slot còn trống là một suất miễn vòng đầu.",
+    "both_empty_error": "Trận {matches} chưa có đội nào. Mỗi trận cần ít nhất một đội.",
+    "unassigned_error": "Vẫn còn {count} vận động viên chưa được xếp vào nhánh.",
+    "save_blocked_empty_match": "Không thể lưu khi có trận trống cả hai đội."
   },
   "tournaments": {
     "tabs_label": "Các mục quản lý nội dung",

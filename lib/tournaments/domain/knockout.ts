@@ -21,8 +21,9 @@ function nextPow2(x: number): number {
 }
 
 // Standard bracket seed order (1-indexed) of length `size`: adjacent pairs are the first-round
-// matchups, e.g. size 8 → [1,8,4,5,2,7,3,6].
-function seedOrder(size: number): number[] {
+// matchups, e.g. size 8 → [1,8,4,5,2,7,3,6]. Exported so the direct first-round pairing editor can
+// map a bracket seat (seed number) ↔ its (match, side) without re-deriving the algorithm.
+export function seedOrder(size: number): number[] {
   let seeds = [1]
   while (seeds.length < size) {
     const sum = seeds.length * 2 + 1
@@ -34,6 +35,10 @@ function seedOrder(size: number): number[] {
     seeds = next
   }
   return seeds
+}
+
+function isPow2(x: number): boolean {
+  return x >= 1 && (x & (x - 1)) === 0
 }
 
 function roundLabel(matchesInRound: number, roundNumber: number): KnockoutRoundLabel {
@@ -62,8 +67,44 @@ export function generateKnockout(input: {
       bracket, count: entrants.length,
     })
   }
+
+  // Standard (dense) seeding: entrant i takes seed number i+1; the trailing seats become BYEs. This
+  // is the exact placement the direct-pairing editor produces for a canonical (byes-at-bottom)
+  // arrangement — it just delegates to the positional core below so there is one bracket algorithm.
+  const size = nextPow2(entrants.length)
+  const seats: (KnockoutEntrant | null)[] = Array.from({ length: size }, (_, i) => entrants[i] ?? null)
+  return generateKnockoutFromSeats({ bracket, seats, thirdPlaceEnabled })
+}
+
+/**
+ * Positional single-elimination generator: `seats` is indexed by SEED POSITION (seed number − 1) and
+ * has length = bracket size (a power of two ≥ 2). A `null` seat is a BYE, so — unlike the dense
+ * generateKnockout — BYEs can sit anywhere the caller chooses, not only against the top seeds. This is
+ * the single core both the dense knockout-only flow and the direct first-round pairing editor build on;
+ * the standard seedOrder still decides which two seats meet in the first round, so "no two BYEs meet"
+ * is the CALLER's responsibility (the editor validates it). Pure & deterministic; never mutates input.
+ */
+export function generateKnockoutFromSeats(input: {
+  readonly bracket: Bracket
+  readonly seats: readonly (KnockoutEntrant | null)[]
+  readonly thirdPlaceEnabled: boolean
+}): KnockoutBracket {
+  const { bracket, seats, thirdPlaceEnabled } = input
+  const size = seats.length
+
+  if (!isPow2(size) || size < 2) {
+    throw new TournamentDomainError('INVALID_BRACKET_SIZE', 'Bracket size must be a power of two ≥ 2', {
+      bracket, size,
+    })
+  }
+  const realEntrants = seats.filter((s): s is KnockoutEntrant => s !== null)
+  if (realEntrants.length < 2) {
+    throw new TournamentDomainError('NOT_ENOUGH_COMPETITORS', 'A knockout bracket needs at least 2 entrants', {
+      bracket, count: realEntrants.length,
+    })
+  }
   const seen = new Set<string>()
-  for (const e of entrants) {
+  for (const e of realEntrants) {
     const k = entrantKey(e)
     if (seen.has(k)) {
       throw new TournamentDomainError('DUPLICATE_COMPETITOR', 'Entrant appears twice in the bracket', { entrant: e })
@@ -71,15 +112,14 @@ export function generateKnockout(input: {
     seen.add(k)
   }
 
-  const size = nextPow2(entrants.length)
-  const byes = size - entrants.length
+  const byes = size - realEntrants.length
   const seeds = seedOrder(size)
 
   const key = (round: number, match: number) => `ko:${bracket}:r${round}:m${match}`
-  const slotForSeed = (seedNum: number): KnockoutSlot =>
-    seedNum <= entrants.length
-      ? { from: 'entrant', source: entrants[seedNum - 1] }
-      : { from: 'bye' }
+  const slotForSeed = (seedNum: number): KnockoutSlot => {
+    const entrant = seats[seedNum - 1]
+    return entrant ? { from: 'entrant', source: entrant } : { from: 'bye' }
+  }
 
   const rounds: KnockoutMatch[][] = []
 

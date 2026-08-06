@@ -6915,7 +6915,18 @@
     "seed_order_title": "种子顺序",
     "reset_blocked_results": "已有比赛结果，无法重置对阵表。",
     "reset_blocked_forbidden": "您没有重置对阵表的权限。",
-    "no_bracket_data": "未找到对阵表数据。"
+    "no_bracket_data": "未找到对阵表数据。",
+    "direct_edit_hint": "将队伍直接拖入右侧的对阵中。空槽表示对手在首轮轮空（BYE）。",
+    "slot_a": "位置A",
+    "slot_b": "位置B",
+    "dest_slot": "第{n}场 · {side}",
+    "slot_empty_hint": "将队伍拖到这里",
+    "slot_bye_hint": "空槽 — 对手轮空（BYE）",
+    "pool_hint": "拖动或使用菜单将队伍放入对阵。",
+    "pool_empty": "已全部安排 — 剩余空槽为首轮轮空。",
+    "both_empty_error": "第{matches}场没有队伍。每场至少需要一支队伍。",
+    "unassigned_error": "还有{count}名选手未安排进对阵。",
+    "save_blocked_empty_match": "有比赛两个位置都空时无法保存。"
   },
   "tournaments": {
     "tabs_label": "赛事项目管理分区",

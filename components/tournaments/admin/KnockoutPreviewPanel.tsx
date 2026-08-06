@@ -2,25 +2,32 @@
 
 import { useEffect, useMemo } from 'react'
 import { useTranslations } from 'next-intl'
-import { buildKnockoutPreview, type KnockoutPreviewSlot } from '@/lib/tournaments/domain/knockout-seed'
+import { buildKnockoutPreview, buildKnockoutPreviewFromSeats, type KnockoutPreviewSlot } from '@/lib/tournaments/domain/knockout-seed'
 
-// Deterministic pre-generate preview of the bracket that would be built from the current seed order.
-// Read-only; renders totals, per-round pairings (with BYE / to-be-decided markers) and the
-// third-place placeholder. Built entirely from the pure engine (buildKnockoutPreview).
+// Deterministic pre-generate preview of the bracket that would be built from the current arrangement.
+// Read-only; renders totals, per-round pairings (with BYE / to-be-decided markers) and the third-place
+// placeholder. Built entirely from the pure engine. Prefer `seats` (a positional seed layout, index =
+// seed position, null = an empty BYE slot) so the preview honours the organiser's EXACT BYE placement;
+// `seededIds` (dense, byes-at-the-top) stays for the knockout-only flow that has no direct editor.
 export default function KnockoutPreviewPanel({
   seededIds,
+  seats,
   thirdPlaceEnabled,
   nameOf,
   onClose,
 }: {
-  seededIds: string[]
+  seededIds?: string[]
+  seats?: readonly (string | null)[]
   thirdPlaceEnabled: boolean
   nameOf: (id: string) => string
   onClose: () => void
 }) {
   const t = useTranslations('admin_knockout_seeding')
   const tb = useTranslations('admin_knockout_bracket')
-  const preview = useMemo(() => buildKnockoutPreview(seededIds, thirdPlaceEnabled), [seededIds, thirdPlaceEnabled])
+  const preview = useMemo(
+    () => (seats ? buildKnockoutPreviewFromSeats(seats, thirdPlaceEnabled) : buildKnockoutPreview(seededIds ?? [], thirdPlaceEnabled)),
+    [seats, seededIds, thirdPlaceEnabled],
+  )
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {

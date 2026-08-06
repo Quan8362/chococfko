@@ -6915,7 +6915,18 @@
     "seed_order_title": "Seeding order",
     "reset_blocked_results": "Can't reset — the bracket already has match results.",
     "reset_blocked_forbidden": "You don't have permission to reset the bracket.",
-    "no_bracket_data": "No bracket data found."
+    "no_bracket_data": "No bracket data found.",
+    "direct_edit_hint": "Drag teams straight into the matchups on the right. An empty slot means the opponent gets a first-round BYE.",
+    "slot_a": "Slot A",
+    "slot_b": "Slot B",
+    "dest_slot": "Match {n} · {side}",
+    "slot_empty_hint": "Drop a team here",
+    "slot_bye_hint": "Empty slot — the opponent gets a BYE",
+    "pool_hint": "Drag or use the menu to place teams into matchups.",
+    "pool_empty": "All placed — each remaining empty slot is a first-round BYE.",
+    "both_empty_error": "Match {matches} has no team. Each match needs at least one team.",
+    "unassigned_error": "{count} competitor(s) still not placed in the bracket.",
+    "save_blocked_empty_match": "Can't save while a match has both slots empty."
   },
   "tournaments": {
     "tabs_label": "Event management sections",

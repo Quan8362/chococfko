@@ -7,7 +7,7 @@ import { useTranslations } from 'next-intl'
 export default function TournamentError({ reset }: { error: Error & { digest?: string }; reset: () => void }) {
   const t = useTranslations('tournaments')
   return (
-    <div className="w-full max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+    <div className="w-full max-w-[1280px] 2xl:max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
       <div className="bg-cream border border-line rounded-2xl py-14 px-6">
         <p className="text-[15px] font-semibold text-ink mb-1">{t('public.error_title')}</p>
         <p className="text-[13.5px] text-muted max-w-[380px] mx-auto mb-5">{t('public.error_desc')}</p>

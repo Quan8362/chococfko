@@ -6950,7 +6950,32 @@
       "share": "共有",
       "share_copied": "コピーしました",
       "event_selector": "種目",
-      "tabs_label": "大会のセクション"
+      "tabs_label": "大会のセクション",
+      "create_cta": "大会を作成",
+      "my_tournaments": "マイ大会",
+      "search_label": "大会を検索",
+      "search_placeholder": "大会名または開催地で検索",
+      "clear_search": "検索をクリア",
+      "sort_label": "並び替え",
+      "sort": {
+        "recommended": "おすすめ",
+        "newest": "新着",
+        "start_asc": "開始日（早い順）",
+        "start_desc": "開始日（遅い順）"
+      },
+      "status_filter_label": "ステータスで絞り込む",
+      "phase": {
+        "all": "すべて",
+        "ongoing": "開催中",
+        "upcoming": "開催予定",
+        "completed": "終了"
+      },
+      "result_count": "{count} 件の大会",
+      "no_results_title": "大会が見つかりません",
+      "no_results_query": "「{query}」に一致する大会はありません。",
+      "no_results_filter": "現在の絞り込み条件に一致する大会はありません。",
+      "clear_filters": "絞り込みをクリア",
+      "empty_desc_cta": "後ほどご確認いただくか、最初の大会を作成してみましょう。"
     },
     "status": {
       "ongoing": "開催中",

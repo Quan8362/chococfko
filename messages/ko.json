@@ -6950,7 +6950,32 @@
       "share": "공유",
       "share_copied": "복사됨",
       "event_selector": "종목",
-      "tabs_label": "토너먼트 섹션"
+      "tabs_label": "토너먼트 섹션",
+      "create_cta": "대회 만들기",
+      "my_tournaments": "내 대회",
+      "search_label": "대회 검색",
+      "search_placeholder": "대회 이름 또는 장소로 검색",
+      "clear_search": "검색 지우기",
+      "sort_label": "정렬",
+      "sort": {
+        "recommended": "추천순",
+        "newest": "최신순",
+        "start_asc": "시작일 빠른순",
+        "start_desc": "시작일 늦은순"
+      },
+      "status_filter_label": "상태별 필터",
+      "phase": {
+        "all": "전체",
+        "ongoing": "진행 중",
+        "upcoming": "예정",
+        "completed": "종료"
+      },
+      "result_count": "대회 {count}개",
+      "no_results_title": "대회를 찾을 수 없습니다",
+      "no_results_query": "“{query}”와(과) 일치하는 대회가 없습니다.",
+      "no_results_filter": "현재 필터와 일치하는 대회가 없습니다.",
+      "clear_filters": "필터 지우기",
+      "empty_desc_cta": "나중에 다시 확인하거나 첫 번째 대회를 만들어 보세요."
     },
     "status": {
       "ongoing": "진행 중",

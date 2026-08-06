@@ -26,6 +26,9 @@ export interface PublicTournamentListItem {
   location: string | null
   eventCount: number
   phase: TournamentPhase
+  // Row creation time — used ONLY to power the client-side "newest created" sort on /giai-dau.
+  // Additive projection over rows already visible under RLS; it does NOT widen visibility.
+  createdAt: string | null
 }
 
 export interface PublicEventSummary {

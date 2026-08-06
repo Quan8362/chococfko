@@ -7042,7 +7042,10 @@
       "group": "{name}조",
       "ungrouped": "미배정",
       "seed": "시드 {n}",
-      "empty_group": "아직 선수가 없습니다"
+      "empty_group": "아직 선수가 없습니다",
+      "count": "{n}명",
+      "total_groups": "{n}개 조",
+      "total_athletes": "{n}명의 선수"
     },
     "schedule": {
       "filter_group": "조:",

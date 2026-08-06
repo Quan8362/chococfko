@@ -7042,7 +7042,10 @@
       "group": "Group {name}",
       "ungrouped": "Unassigned",
       "seed": "Seed {n}",
-      "empty_group": "No competitors yet"
+      "empty_group": "No competitors yet",
+      "count": "{n} athletes",
+      "total_groups": "{n} groups",
+      "total_athletes": "{n} athletes"
     },
     "schedule": {
       "filter_group": "Group:",

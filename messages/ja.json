@@ -7042,7 +7042,10 @@
       "group": "グループ {name}",
       "ungrouped": "未割り当て",
       "seed": "シード {n}",
-      "empty_group": "選手がまだいません"
+      "empty_group": "選手がまだいません",
+      "count": "{n}名",
+      "total_groups": "{n}グループ",
+      "total_athletes": "{n}名の選手"
     },
     "schedule": {
       "filter_group": "グループ：",

@@ -57,18 +57,23 @@ import {
   validateSeedPayload,
   evaluateSeedReadiness,
   buildKnockoutBracketFromSeeds,
+  buildKnockoutBracketFromSeats,
   buildKnockoutMatchRows,
   reconstructBracketForProgression,
+  requiredBracketSize,
   type SeedPayload,
   type DbKnockoutMatch,
 } from '@/lib/tournaments/domain/knockout-seed'
 import {
   buildGroupRankTokens,
   validateBranchSeedPayload,
-  evaluateBranchSeedReadiness,
   resolveBranchSeeds,
   parseGroupRankTokenId,
 } from '@/lib/tournaments/domain/group-knockout-seed'
+import {
+  buildArrangement,
+  validatePairingArrangement,
+} from '@/lib/tournaments/domain/first-round-pairing'
 import type { QualificationOutcome } from '@/lib/tournaments/domain/qualification'
 import type { Bracket } from '@/lib/tournaments/domain/types'
 import { progressKnockout } from '@/lib/tournaments/domain/progression'
@@ -2152,9 +2157,18 @@ export async function clearKnockoutMatchResult(
 // (version guards, dual-branch transaction, per-branch podium, downstream-result guards) → audit →
 // revalidate. Tokens are resolved to real competitors from the CURRENT standings only at generate time.
 
+// The direct first-round pairing editor persists a positional SEAT layout per branch: `seats` is
+// indexed by seed position (seed number − 1), a null seat is an empty slot (a BYE wherever the
+// organiser left it). `unassignedIds` carries the tokens still in the pool so the server can verify the
+// client's whole token set matches the current qualification pool (staleness check). The server never
+// trusts these tokens/positions for a real match — APPLY re-resolves everything from DB truth.
+interface BranchPairingPayload {
+  seats: (string | null)[]
+  unassignedIds: string[]
+}
 interface GroupKnockoutPayload {
-  championship: SeedPayload
-  consolation: SeedPayload | null
+  championship: BranchPairingPayload
+  consolation: BranchPairingPayload | null
 }
 
 // Reload + evaluate the whole group stage → per-group qualification + the derived event status. This
@@ -2225,7 +2239,8 @@ export async function saveGroupKnockoutSeeds(
 ): Promise<KnockoutMutationResult> {
   if (!(await may(tournamentId, 'bracket.manage'))) return { ok: false, error: 'forbidden' }
   if (!tournamentId || !eventId || !Number.isInteger(expectedVersion)) return { ok: false, error: 'invalid' }
-  if (!payload || !payload.championship || !Array.isArray(payload.championship.seededIds)) {
+  if (!payload || !payload.championship || !Array.isArray(payload.championship.seats) ||
+      !Array.isArray(payload.championship.unassignedIds)) {
     return { ok: false, error: 'invalid' }
   }
 
@@ -2267,43 +2282,54 @@ export async function saveGroupKnockoutSeeds(
     })
   }
 
-  // The payload's token set (per branch) must equal the CURRENT valid token set — otherwise the
-  // qualification pool the admin saw is stale (group membership / quotas changed since load).
-  const validChamp = champTokens.map((t) => t.tokenId)
-  const payloadChamp = [...payload.championship.seededIds, ...payload.championship.unassignedIds]
-  if (!sameStringSet(validChamp, payloadChamp)) {
-    await auditStale()
-    return { ok: false, error: 'qualification_changed' }
-  }
-  const champValidation = validateBranchSeedPayload(payload.championship, validChamp)
-  if (!champValidation.ok) return { ok: false, error: 'invalid' }
-
-  let consoSeeded: string[] = []
-  if (consolationEnabled) {
-    if (!payload.consolation || !Array.isArray(payload.consolation.seededIds)) return { ok: false, error: 'invalid' }
-    const validConso = consoTokens.map((t) => t.tokenId)
-    const payloadConso = [...payload.consolation.seededIds, ...payload.consolation.unassignedIds]
-    if (!sameStringSet(validConso, payloadConso)) {
+  // Validate a branch's positional seat layout against its CURRENT valid token pool and turn it into
+  // sparse slot rows (slot_index = seed position). Returns a typed error or the rows to persist. The
+  // whole token set (seated + pooled) must equal the current pool — otherwise the admin's view is
+  // stale. A both-slots-empty match in a COMPLETE layout is rejected (two BYEs would meet).
+  type SlotRow = { bracket: string; slot_index: number; source_group_id: string; source_rank: number }
+  const buildBranchSlots = async (
+    bracket: Bracket,
+    branch: BranchPairingPayload,
+    validTokenIds: string[],
+  ): Promise<{ ok: true; rows: SlotRow[] } | { ok: false; error: KnockoutMutationError }> => {
+    const seats = branch.seats
+    const seated = seats.filter((s): s is string => typeof s === 'string')
+    const fullSet = [...seated, ...branch.unassignedIds]
+    if (!sameStringSet(validTokenIds, fullSet)) {
       await auditStale()
       return { ok: false, error: 'qualification_changed' }
     }
-    const consoValidation = validateBranchSeedPayload(payload.consolation, validConso)
-    if (!consoValidation.ok) return { ok: false, error: 'invalid' }
-    consoSeeded = payload.consolation.seededIds
-  } else if (payload.consolation && payload.consolation.seededIds.length > 0) {
-    return { ok: false, error: 'invalid' }
+    // The seat array must be exactly the branch's bracket size, with no duplicate token.
+    if (seats.length !== requiredBracketSize(validTokenIds.length)) return { ok: false, error: 'invalid' }
+    if (new Set(seated).size !== seated.length) return { ok: false, error: 'invalid' }
+    const arrangement = { size: seats.length, seats, pool: branch.unassignedIds }
+    // A layout that would persist a both-BYEs match is structurally broken → never save it.
+    if (!validatePairingArrangement(arrangement).canSave) return { ok: false, error: 'invalid' }
+    const rows: SlotRow[] = []
+    seats.forEach((tokenId, pos) => {
+      if (!tokenId) return
+      const parsed = parseGroupRankTokenId(tokenId)
+      if (parsed) rows.push({ bracket, slot_index: pos, source_group_id: parsed.groupId, source_rank: parsed.rank })
+    })
+    return { ok: true, rows }
   }
 
-  // Serialize seeded tokens (both branches) into slot rows; the resolvedOrder above is only a preview.
-  const slots: { bracket: string; slot_index: number; source_group_id: string; source_rank: number }[] = []
-  const push = (bracket: Bracket, ids: string[]) => {
-    ids.forEach((tokenId, i) => {
-      const parsed = parseGroupRankTokenId(tokenId)
-      if (parsed) slots.push({ bracket, slot_index: i, source_group_id: parsed.groupId, source_rank: parsed.rank })
-    })
+  const validChamp = champTokens.map((t) => t.tokenId)
+  const champBuilt = await buildBranchSlots('championship', payload.championship, validChamp)
+  if (!champBuilt.ok) return { ok: false, error: champBuilt.error }
+  const slots: SlotRow[] = [...champBuilt.rows]
+
+  if (consolationEnabled) {
+    if (!payload.consolation || !Array.isArray(payload.consolation.seats) || !Array.isArray(payload.consolation.unassignedIds)) {
+      return { ok: false, error: 'invalid' }
+    }
+    const validConso = consoTokens.map((t) => t.tokenId)
+    const consoBuilt = await buildBranchSlots('consolation', payload.consolation, validConso)
+    if (!consoBuilt.ok) return { ok: false, error: consoBuilt.error }
+    slots.push(...consoBuilt.rows)
+  } else if (payload.consolation && payload.consolation.seats.some((s) => s !== null)) {
+    return { ok: false, error: 'invalid' }
   }
-  push('championship', payload.championship.seededIds)
-  if (consolationEnabled) push('consolation', consoSeeded)
 
   const { data, error } = await admin.rpc('tournament_save_group_knockout_seeds', {
     p_event_id: eventId,
@@ -2320,8 +2346,8 @@ export async function saveGroupKnockoutSeeds(
     actorId,
     action: 'tournament_knockout_template_updated',
     detail: {
-      championship_count: payload.championship.seededIds.length,
-      consolation_count: consoSeeded.length,
+      championship_count: champBuilt.rows.length,
+      consolation_count: slots.length - champBuilt.rows.length,
     },
   })
   revalidateEventViews(tournamentId, eventId)
@@ -2396,20 +2422,21 @@ export async function generateGroupKnockoutBrackets(
   })
   const consolationEnabled = ev.consolationQualifiersPerGroup > 0
 
-  // Re-load the persisted seed order per branch (never trust the client for order).
+  // Re-load the persisted seat layout per branch (never trust the client). slot_index is the SEED
+  // POSITION each token occupies; empty positions are BYEs (the organiser's deliberate placement).
   const { data: slotRows } = await admin
     .from('tournament_knockout_seed_slots')
     .select('bracket, slot_index, source_group_id, source_rank')
     .eq('event_id', eventId)
     .eq('source_type', 'group_rank')
     .order('slot_index', { ascending: true })
-  const seededByBranch = new Map<Bracket, string[]>([
-    ['championship', []],
-    ['consolation', []],
+  const seatByBranch = new Map<Bracket, Map<number, string>>([
+    ['championship', new Map()],
+    ['consolation', new Map()],
   ])
   for (const s of (slotRows as { bracket: string; slot_index: number; source_group_id: string | null; source_rank: number | null }[] | null) ?? []) {
     if (!s.source_group_id || s.source_rank == null) continue
-    seededByBranch.get(s.bracket as Bracket)?.push(`group:${s.source_group_id}:rank:${s.source_rank}`)
+    seatByBranch.get(s.bracket as Bracket)?.set(s.slot_index, `group:${s.source_group_id}:rank:${s.source_rank}`)
   }
 
   type BranchRow = {
@@ -2430,19 +2457,31 @@ export async function generateGroupKnockoutBrackets(
     | { ok: false; error: KnockoutMutationError }
     | { ok: true; rows: BranchRow[] }
 
-  // Each branch must be a full permutation of its valid tokens, all seeded (readiness).
-  const buildBranchRows = (bracket: Bracket, tokenIds: string[], seeded: string[]): BranchBuild => {
-    const permutation = validateBranchSeedPayload({ seededIds: seeded, unassignedIds: [] }, tokenIds)
+  // Each branch must be a full permutation of its valid tokens (all seated), a valid pairing layout (no
+  // both-BYEs match), and every token must resolve to a real competitor from the CURRENT standings. The
+  // organiser's exact seat positions (including where the BYEs sit) are preserved via the positional
+  // engine — never re-seeded to byes-at-the-top.
+  const buildBranchRows = (bracket: Bracket, tokenIds: string[], seatMap: Map<number, string>): BranchBuild => {
+    const seated = Array.from(seatMap.values())
+    const permutation = validateBranchSeedPayload({ seededIds: seated, unassignedIds: [] }, tokenIds)
     if (!permutation.ok) return { ok: false, error: 'not_ready' }
-    if (seeded.length !== tokenIds.length) return { ok: false, error: 'not_ready' }
-    const readiness = evaluateBranchSeedReadiness({ seededIds: seeded, unassignedIds: [] })
-    if (!readiness.ok) return { ok: false, error: 'not_ready' }
-    const resolution = resolveBranchSeeds(seeded, {
+    if (seated.length !== tokenIds.length) return { ok: false, error: 'not_ready' }
+    const arrangement = buildArrangement(tokenIds, seatMap)
+    if (!validatePairingArrangement(arrangement).canApply) return { ok: false, error: 'not_ready' }
+
+    // Resolve each seated token to a competitor, preserving its seat position (BYEs stay null).
+    const entries = Array.from(seatMap.entries()).sort((a, b) => a[0] - b[0])
+    const resolution = resolveBranchSeeds(entries.map(([, tokenId]) => tokenId), {
       winnerQualifiers: ev.winnerQualifiersPerGroup,
       qualificationByGroup,
     })
     if (!resolution.ok) return { ok: false, error: 'qualification_changed' }
-    const bracketModel = buildKnockoutBracketFromSeeds(resolution.competitorIds, ev.thirdPlaceEnabled, bracket)
+    const seatCompetitors: (string | null)[] = new Array(arrangement.size).fill(null)
+    entries.forEach(([pos], i) => {
+      seatCompetitors[pos] = resolution.competitorIds[i]
+    })
+
+    const bracketModel = buildKnockoutBracketFromSeats(seatCompetitors, ev.thirdPlaceEnabled, bracket)
     const rows: BranchRow[] = buildKnockoutMatchRows(bracketModel).map((m) => ({
       bracket: m.bracket,
       generation_key: m.generationKey,
@@ -2472,7 +2511,7 @@ export async function generateGroupKnockoutBrackets(
     })
   }
 
-  const champBuilt = buildBranchRows('championship', champTokens.map((t) => t.tokenId), seededByBranch.get('championship') ?? [])
+  const champBuilt = buildBranchRows('championship', champTokens.map((t) => t.tokenId), seatByBranch.get('championship') ?? new Map())
   if (!champBuilt.ok) {
     await auditApplyFailed(champBuilt.error, 'championship')
     return { ok: false, error: champBuilt.error }
@@ -2480,7 +2519,7 @@ export async function generateGroupKnockoutBrackets(
   let matchRows = champBuilt.rows
 
   if (consolationEnabled) {
-    const consoBuilt = buildBranchRows('consolation', consoTokens.map((t) => t.tokenId), seededByBranch.get('consolation') ?? [])
+    const consoBuilt = buildBranchRows('consolation', consoTokens.map((t) => t.tokenId), seatByBranch.get('consolation') ?? new Map())
     if (!consoBuilt.ok) {
       await auditApplyFailed(consoBuilt.error, 'consolation')
       return { ok: false, error: consoBuilt.error }

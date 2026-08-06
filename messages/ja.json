@@ -6915,7 +6915,18 @@
     "seed_order_title": "シード順",
     "reset_blocked_results": "試合結果があるためリセットできません。",
     "reset_blocked_forbidden": "組み合わせをリセットする権限がありません。",
-    "no_bracket_data": "組み合わせのデータが見つかりません。"
+    "no_bracket_data": "組み合わせのデータが見つかりません。",
+    "direct_edit_hint": "右側の対戦カードにチームを直接ドラッグしてください。空きスロットは相手が1回戦不戦勝（BYE）になります。",
+    "slot_a": "スロットA",
+    "slot_b": "スロットB",
+    "dest_slot": "第{n}試合 · {side}",
+    "slot_empty_hint": "ここにチームをドロップ",
+    "slot_bye_hint": "空きスロット — 相手はBYE（不戦勝）",
+    "pool_hint": "ドラッグまたはメニューでチームを対戦カードに配置します。",
+    "pool_empty": "すべて配置済み — 残りの空きスロットは1回戦BYEです。",
+    "both_empty_error": "第{matches}試合にチームがいません。各試合に少なくとも1チームが必要です。",
+    "unassigned_error": "まだ{count}名がブラケットに配置されていません。",
+    "save_blocked_empty_match": "両スロットが空の試合があると保存できません。"
   },
   "tournaments": {
     "tabs_label": "種目管理のセクション",

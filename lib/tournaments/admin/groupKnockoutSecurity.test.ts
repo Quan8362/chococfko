@@ -55,10 +55,13 @@ test('seeding allows a preconfigured TEMPLATE (no knockout_ready gate) but still
   assert.ok(!fn.includes("status !== 'knockout_ready'"), 'save must NOT require knockout_ready (template preconfig)')
   assert.ok(fn.includes('raw.groupIds.length === 0'), 'save must require the groups to exist / be assigned')
   assert.ok(fn.includes('champTokens.length < 2'), 'save must require a 2+ slot championship token pool')
-  assert.ok(fn.includes('validateBranchSeedPayload('), 'save must validate each branch permutation')
+  // The direct pairing editor persists a positional seat layout; the whole token set (seated + pooled)
+  // must equal the current pool, and the layout must be structurally valid (no both-BYE match).
+  assert.ok(fn.includes('sameStringSet('), 'save must verify the token set matches the current pool')
+  assert.ok(fn.includes('validatePairingArrangement('), 'save must validate the pairing layout')
   assert.ok(fn.includes("error: 'qualification_changed'"), 'stale tokens must return qualification_changed')
-  // slot_index comes from the seeded array index, never a client slot value.
-  assert.ok(fn.includes('slot_index: i'), 'slot_index must come from the array index')
+  // slot_index is the seed POSITION the token occupies (a sparse layout), never a client slot value.
+  assert.ok(fn.includes('slot_index: pos'), 'slot_index must be the seed position')
 })
 
 test('generate (APPLY) still requires knockout_ready — the official bracket is never made before the stage settles', () => {
@@ -70,9 +73,9 @@ test('generate recomputes standings, resolves tokens, builds BOTH branches with 
   const fn = actionBody(read(ACTIONS), 'generateGroupKnockoutBrackets')
   assert.ok(fn.includes("status !== 'knockout_ready'"), 'generate must re-check knockout_ready from DB truth')
   assert.ok(fn.includes('resolveBranchSeeds('), 'generate must resolve tokens → competitors from current standings')
-  assert.ok(fn.includes('buildKnockoutBracketFromSeeds('), 'generate must use the pure bracket builder')
+  assert.ok(fn.includes('buildKnockoutBracketFromSeats('), 'generate must use the pure positional bracket builder')
   assert.ok(fn.includes('buildKnockoutMatchRows('), 'generate must materialize rows with the pure engine')
-  assert.ok(fn.includes('evaluateBranchSeedReadiness('), 'generate must re-check per-branch readiness')
+  assert.ok(fn.includes('validatePairingArrangement('), 'generate must re-check the pairing layout (readiness + no both-BYE match)')
   // consolation only when it is enabled (count > 0)
   assert.ok(fn.includes('consolationEnabled'), 'consolation branch is gated on the qualifier count')
 })

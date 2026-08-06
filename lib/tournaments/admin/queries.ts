@@ -36,6 +36,7 @@ import type { EventFormat } from '@/lib/tournaments/eventValidation'
 import { evaluateGroupStage, type GroupEvaluationInput } from '@/lib/tournaments/domain/event-progress'
 import type { GroupStageFormat } from '@/lib/tournaments/domain/group-assignment'
 import { requiredBracketSize, knockoutByeCount } from '@/lib/tournaments/domain/knockout-seed'
+import { buildArrangement, seatedTokenOrder } from '@/lib/tournaments/domain/first-round-pairing'
 import {
   buildGroupRankTokens,
   resolveGroupRankToken,
@@ -1154,7 +1155,8 @@ function buildBranchSeedState(
   groupNameById: Map<string, string>,
   qualificationByGroup: Map<string, QualificationOutcome>,
   winnerQualifiers: number,
-  seededOrder: string[],
+  // Persisted seat placement: token id → seed POSITION (slot_index). Empty positions are BYEs.
+  seatByToken: Map<string, number>,
 ): BranchSeedState {
   const tokenViews: GroupRankTokenView[] = tokens.map((t) => {
     const res = resolveGroupRankToken(
@@ -1171,18 +1173,24 @@ function buildBranchSeedState(
       resolvable: res.ok,
     }
   })
-  const validIds = new Set(tokens.map((t) => t.tokenId))
-  const seededIds = seededOrder.filter((id) => validIds.has(id))
-  const seen = new Set(seededIds)
-  const unassignedIds = tokens.map((t) => t.tokenId).filter((id) => !seen.has(id))
+  const allTokenIds = tokens.map((t) => t.tokenId)
+  const validIds = new Set(allTokenIds)
+  // token → seat position, keeping only valid tokens (drops stale placements).
+  const seatByPosition = new Map<number, string>()
+  for (const [tokenId, pos] of Array.from(seatByToken.entries())) {
+    if (validIds.has(tokenId)) seatByPosition.set(pos, tokenId)
+  }
+  const arrangement = buildArrangement(allTokenIds, seatByPosition)
+  const seededIds = seatedTokenOrder(arrangement)
   return {
     bracket,
     enabled,
     tokens: tokenViews,
     seededIds,
-    unassignedIds,
-    bracketSize: requiredBracketSize(seededIds.length),
-    byes: knockoutByeCount(seededIds.length),
+    unassignedIds: [...arrangement.pool],
+    seats: [...arrangement.seats],
+    bracketSize: arrangement.size,
+    byes: arrangement.size - seededIds.length,
   }
 }
 
@@ -1223,15 +1231,22 @@ export async function getGroupKnockoutSeedSetupForAdmin(
     consolationQualifiers: event.consolation_qualifiers_per_group,
   })
 
-  // Current seeded order per branch, reconstructed from the persisted group-rank slots.
+  // Current seat placement per branch, reconstructed from the persisted group-rank slots. slot_index
+  // is the SEED POSITION (0-based bracket seat) the token occupies; empty positions are BYEs.
+  const seatByBranch = new Map<Bracket, Map<string, number>>([
+    ['championship', new Map()],
+    ['consolation', new Map()],
+  ])
+  // Ordered token list per branch (by slot_index) — kept for staleness comparison below.
   const seededByBranch = new Map<Bracket, string[]>([
     ['championship', []],
     ['consolation', []],
   ])
   for (const s of (slotRows as { bracket: string; slot_index: number; source_group_id: string | null; source_rank: number | null }[] | null) ?? []) {
     if (!s.source_group_id || s.source_rank == null) continue
-    const list = seededByBranch.get(s.bracket as Bracket)
-    if (list) list.push(`group:${s.source_group_id}:rank:${s.source_rank}`)
+    const tokenId = `group:${s.source_group_id}:rank:${s.source_rank}`
+    seatByBranch.get(s.bracket as Bracket)?.set(tokenId, s.slot_index)
+    seededByBranch.get(s.bracket as Bracket)?.push(tokenId)
   }
 
   const consolationEnabled = event.consolation_qualifiers_per_group > 0
@@ -1242,7 +1257,7 @@ export async function getGroupKnockoutSeedSetupForAdmin(
     groupNameById,
     qualificationByGroup,
     event.winner_qualifiers_per_group,
-    seededByBranch.get('championship') ?? [],
+    seatByBranch.get('championship') ?? new Map(),
   )
   const consolation = consolationEnabled
     ? buildBranchSeedState(
@@ -1252,7 +1267,7 @@ export async function getGroupKnockoutSeedSetupForAdmin(
         groupNameById,
         qualificationByGroup,
         event.winner_qualifiers_per_group,
-        seededByBranch.get('consolation') ?? [],
+        seatByBranch.get('consolation') ?? new Map(),
       )
     : null
 

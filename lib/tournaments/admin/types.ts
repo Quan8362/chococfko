@@ -505,8 +505,11 @@ export interface BranchSeedState {
   bracket: Bracket
   enabled: boolean
   tokens: GroupRankTokenView[]
-  seededIds: string[] // token ids in slot order
+  seededIds: string[] // token ids in seed-position order (compat: seat order with BYEs dropped)
   unassignedIds: string[]
+  // Direct first-round pairing editor state. `seats` is indexed by SEED POSITION (seed number − 1),
+  // length = bracketSize; a null seat is an empty slot (a BYE, wherever the organiser leaves it).
+  seats: (string | null)[]
   bracketSize: number
   byes: number
 }

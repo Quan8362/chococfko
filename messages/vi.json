@@ -6950,7 +6950,32 @@
       "share": "Chia sẻ",
       "share_copied": "Đã sao chép",
       "event_selector": "Nội dung thi đấu",
-      "tabs_label": "Các mục của giải đấu"
+      "tabs_label": "Các mục của giải đấu",
+      "create_cta": "Tạo giải đấu",
+      "my_tournaments": "Giải đấu của tôi",
+      "search_label": "Tìm kiếm giải đấu",
+      "search_placeholder": "Tìm theo tên giải đấu hoặc địa điểm",
+      "clear_search": "Xóa tìm kiếm",
+      "sort_label": "Sắp xếp",
+      "sort": {
+        "recommended": "Gần nhất",
+        "newest": "Mới tạo",
+        "start_asc": "Ngày bắt đầu tăng dần",
+        "start_desc": "Ngày bắt đầu giảm dần"
+      },
+      "status_filter_label": "Lọc theo trạng thái",
+      "phase": {
+        "all": "Tất cả",
+        "ongoing": "Đang diễn ra",
+        "upcoming": "Sắp diễn ra",
+        "completed": "Đã kết thúc"
+      },
+      "result_count": "{count} giải đấu",
+      "no_results_title": "Không tìm thấy giải đấu",
+      "no_results_query": "Không có giải đấu nào khớp với “{query}”.",
+      "no_results_filter": "Không có giải đấu nào phù hợp với bộ lọc hiện tại.",
+      "clear_filters": "Xóa bộ lọc",
+      "empty_desc_cta": "Hãy quay lại sau hoặc bắt đầu tạo giải đấu đầu tiên của bạn."
     },
     "status": {
       "ongoing": "Đang diễn ra",

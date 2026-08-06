@@ -6950,7 +6950,32 @@
       "share": "Share",
       "share_copied": "Copied",
       "event_selector": "Event",
-      "tabs_label": "Tournament sections"
+      "tabs_label": "Tournament sections",
+      "create_cta": "Create tournament",
+      "my_tournaments": "My tournaments",
+      "search_label": "Search tournaments",
+      "search_placeholder": "Search by tournament name or location",
+      "clear_search": "Clear search",
+      "sort_label": "Sort",
+      "sort": {
+        "recommended": "Recommended",
+        "newest": "Newest",
+        "start_asc": "Start date (earliest)",
+        "start_desc": "Start date (latest)"
+      },
+      "status_filter_label": "Filter by status",
+      "phase": {
+        "all": "All",
+        "ongoing": "Ongoing",
+        "upcoming": "Upcoming",
+        "completed": "Completed"
+      },
+      "result_count": "{count} tournaments",
+      "no_results_title": "No tournaments found",
+      "no_results_query": "No tournaments match “{query}”.",
+      "no_results_filter": "No tournaments match the current filters.",
+      "clear_filters": "Clear filters",
+      "empty_desc_cta": "Check back later, or create your very first tournament."
     },
     "status": {
       "ongoing": "Ongoing",

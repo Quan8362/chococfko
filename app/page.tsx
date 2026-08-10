@@ -15,6 +15,7 @@ import PersonalizedHome from "@/components/explore/PersonalizedHome";
 import MapDiscoveryCard from "@/components/explore/MapDiscoveryCard";
 import HeroMap from "@/components/home/HeroMap";
 import HeroStats from "@/components/home/HeroStats";
+import HomeActivityPromo from "@/components/home/HomeActivityPromo";
 import Reveal from "@/components/home/Reveal";
 
 export const dynamic = "force-dynamic";
@@ -88,6 +89,9 @@ export default async function Home() {
 
   return (
     <>
+      {/* ── ACTIVITY PROMO (directly below header; hides itself when nothing is live/upcoming) ── */}
+      <HomeActivityPromo />
+
       {/* ── HERO ─────────────────────────────────────────────── */}
       <section className="relative pt-9 sm:pt-11 lg:pt-12 pb-8 lg:pb-10 overflow-hidden">
         {/* Subtle teal ambient on the far left — keeps the cream from feeling

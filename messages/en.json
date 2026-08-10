@@ -1,4 +1,15 @@
 {
+  "home_promo": {
+    "status_ongoing": "Live now",
+    "status_upcoming": "Upcoming",
+    "tagline": "Follow the schedule, standings and live results.",
+    "date_tbd": "Schedule coming soon",
+    "events_count": "{count} events",
+    "cta_detail": "View details",
+    "cta_all": "All tournaments",
+    "aria_region": "Featured activity",
+    "aria_card": "{status}: {name}"
+  },
   "coin_tier": {
     "bronze": "Bronze",
     "silver": "Silver",

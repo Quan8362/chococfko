@@ -1,4 +1,15 @@
 {
+  "home_promo": {
+    "status_ongoing": "開催中",
+    "status_upcoming": "開催予定",
+    "tagline": "対戦スケジュール・順位表・ライブ結果をチェック。",
+    "date_tbd": "日程は近日公開",
+    "events_count": "{count}種目",
+    "cta_detail": "詳細を見る",
+    "cta_all": "すべての大会",
+    "aria_region": "注目のイベント",
+    "aria_card": "{status}: {name}"
+  },
   "coin_tier": {
     "bronze": "ブロンズ",
     "silver": "シルバー",

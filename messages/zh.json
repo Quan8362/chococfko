@@ -1,4 +1,15 @@
 {
+  "home_promo": {
+    "status_ongoing": "进行中",
+    "status_upcoming": "即将开始",
+    "tagline": "关注赛程、排名和实时比分。",
+    "date_tbd": "赛程即将公布",
+    "events_count": "{count}个项目",
+    "cta_detail": "查看详情",
+    "cta_all": "全部赛事",
+    "aria_region": "精选活动",
+    "aria_card": "{status}: {name}"
+  },
   "coin_tier": {
     "bronze": "青铜",
     "silver": "白银",

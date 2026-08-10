@@ -1,4 +1,15 @@
 {
+  "home_promo": {
+    "status_ongoing": "진행 중",
+    "status_upcoming": "예정",
+    "tagline": "경기 일정, 순위, 실시간 결과를 확인하세요.",
+    "date_tbd": "일정 곧 공개",
+    "events_count": "{count}개 종목",
+    "cta_detail": "자세히 보기",
+    "cta_all": "모든 대회",
+    "aria_region": "주요 이벤트",
+    "aria_card": "{status}: {name}"
+  },
   "coin_tier": {
     "bronze": "브론즈",
     "silver": "실버",

@@ -8,7 +8,13 @@
     "cta_detail": "자세히 보기",
     "cta_all": "모든 대회",
     "aria_region": "주요 이벤트",
-    "aria_card": "{status}: {name}"
+    "aria_card": "{status}: {name}",
+    "admin_heading": "홈 화면 홍보",
+    "admin_label": "홈 화면에 홍보 표시",
+    "admin_description": "이 대회가 홈 화면의 공지 배너에 표시될 수 있습니다.",
+    "promoting": "홍보 중",
+    "not_promoting": "홍보 안 함",
+    "admin_error": "업데이트하지 못했습니다. 다시 시도해 주세요."
   },
   "coin_tier": {
     "bronze": "브론즈",

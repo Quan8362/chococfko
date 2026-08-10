@@ -65,6 +65,7 @@ interface RawListRow {
 interface RawDetailRow extends RawListRow {
   rules_url: string | null
   created_at: string
+  home_promo_enabled: boolean | null
 }
 
 function embeddedCount(rows: { count: number }[] | null | undefined): number {
@@ -110,7 +111,7 @@ export async function getTournamentForAdmin(id: string): Promise<TournamentDetai
   const { data, error } = await admin
     .from('tournaments')
     .select(
-      'id, slug, name, status, starts_at, ends_at, location, rules_url, created_at, updated_at, tournament_events(count)',
+      'id, slug, name, status, starts_at, ends_at, location, rules_url, created_at, updated_at, home_promo_enabled, tournament_events(count)',
     )
     .eq('id', id)
     .maybeSingle()
@@ -132,6 +133,7 @@ export async function getTournamentForAdmin(id: string): Promise<TournamentDetai
     hasChildren: eventCount > 0,
     createdAt: r.created_at,
     updatedAt: r.updated_at,
+    homePromoEnabled: r.home_promo_enabled === true,
   }
 }
 

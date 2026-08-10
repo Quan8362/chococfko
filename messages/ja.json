@@ -8,7 +8,13 @@
     "cta_detail": "詳細を見る",
     "cta_all": "すべての大会",
     "aria_region": "注目のイベント",
-    "aria_card": "{status}: {name}"
+    "aria_card": "{status}: {name}",
+    "admin_heading": "ホームでの宣伝",
+    "admin_label": "ホームページに宣伝を表示",
+    "admin_description": "この大会はホームページのお知らせバーに表示される場合があります。",
+    "promoting": "宣伝中",
+    "not_promoting": "非宣伝",
+    "admin_error": "更新できませんでした。もう一度お試しください。"
   },
   "coin_tier": {
     "bronze": "ブロンズ",

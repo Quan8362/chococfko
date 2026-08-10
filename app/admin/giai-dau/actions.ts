@@ -16,7 +16,7 @@
 
 import { revalidatePath } from 'next/cache'
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { createAdminClient } from '@/lib/supabase/admin'
+import { checkIsAdmin, createAdminClient } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
 import { checkTournamentPermission } from '@/lib/tournaments/permissions/server'
 import type { TournamentPermission } from '@/lib/tournaments/permissions'
@@ -323,4 +323,68 @@ export async function deleteDraftTournament(
 
   revalidateTournamentViews(id)
   return { ok: true, id }
+}
+
+// ── home-promo toggle (SITE ADMIN ONLY) ─────────────────────────────────────────────────────
+// Opt a tournament in/out of the home-page activity-promo strip. Deliberately NOT gated by the
+// scoped may() permission engine: a tournament Owner/Manager/Scorekeeper must NEVER be able to
+// promote their own tournament site-wide. The ONLY caller allowed here is a Site Admin (decided from
+// ADMIN_EMAILS by checkIsAdmin, which re-reads the caller's own auth user). This is the server-side
+// re-check — hiding the control in the UI is never the security boundary.
+//
+// The flag is a display eligibility hint, independent of publish/archive: it can be set at any
+// status. The public promo query still gates the actual render (public + ongoing/upcoming only), so
+// enabling it on a draft/completed tournament simply has no visible effect until it is both public
+// and live/upcoming. Uses the same updated_at optimistic-concurrency token as the other entity
+// mutations, and revalidates the home page so the change is reflected on next render.
+export async function setTournamentHomePromo(
+  id: string,
+  expectedUpdatedAt: string,
+  enabled: boolean,
+): Promise<TournamentMutationResult> {
+  if (!id || !expectedUpdatedAt) return { ok: false, error: 'invalid' }
+  // Site-Admin-only. No membership/role can satisfy this.
+  if (!(await checkIsAdmin())) return { ok: false, error: 'forbidden' }
+
+  const actorId = await currentUserId()
+  const admin = createAdminClient()
+
+  const { data: existing } = await admin
+    .from('tournaments')
+    .select('id, home_promo_enabled, updated_at')
+    .eq('id', id)
+    .maybeSingle()
+  if (!existing) return { ok: false, error: 'not_found' }
+  if (existing.updated_at !== expectedUpdatedAt) return { ok: false, error: 'version_conflict' }
+
+  // No-op guard: if it's already in the requested state, report success without a redundant write
+  // (avoids bumping updated_at and writing a meaningless audit row).
+  if (existing.home_promo_enabled === enabled) {
+    revalidateHomePromo(id)
+    return { ok: true, id }
+  }
+
+  const { data: updated } = await admin
+    .from('tournaments')
+    .update({ home_promo_enabled: enabled })
+    .eq('id', id)
+    .eq('updated_at', expectedUpdatedAt)
+    .select('id')
+  if (!updated || updated.length === 0) return { ok: false, error: 'version_conflict' }
+
+  await writeAudit(admin, {
+    tournamentId: id,
+    actorId,
+    action: enabled ? 'tournament_home_promo_enabled' : 'tournament_home_promo_disabled',
+    detail: { home_promo_enabled: enabled },
+  })
+  revalidateHomePromo(id)
+  return { ok: true, id }
+}
+
+// Revalidate the management views AND the site home page (where the promo strip lives) so an Admin's
+// toggle takes effect on the next render rather than serving a stale promo.
+function revalidateHomePromo(id: string) {
+  revalidateTournamentViews(id)
+  revalidatePath('/')
 }

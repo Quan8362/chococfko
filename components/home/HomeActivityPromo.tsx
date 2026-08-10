@@ -6,13 +6,16 @@ import { formatDateRange } from '@/lib/tournaments/public/format'
 import { selectPromoActivities } from '@/lib/tournaments/public/promo'
 
 // A single promo entry, fully resolved server-side (locale-aware strings, href) so the markup below
-// is pure presentation — no client JS, no hydration, no layout shift.
+// is pure presentation — no client JS, no hydration, no layout shift. Fields are kept separate so the
+// ticker can style the hierarchy (title > date/location > supporting message).
 interface PromoItem {
   href: string
   name: string
   ongoing: boolean
   statusLabel: string
-  meta: string // "date · location · N events" (empty segments already dropped)
+  date: string
+  location: string
+  message: string
   ariaLabel: string
 }
 
@@ -20,35 +23,36 @@ interface PromoItem {
 const MAX_ITEMS = 8
 
 /**
- * Compact, animated activity promo strip rendered directly beneath the site header on the home page.
+ * Compact, animated activity-promo strip rendered directly beneath the site header on the home page.
  *
- * A thin premium band (~76px desktop) that promotes live/upcoming community activities (today:
- * tournaments). One activity → a still card with a slow light sheen; several → a seamless
- * auto-scrolling ticker that pauses on hover/focus. All motion is pure CSS and is neutralised by the
- * site-wide `prefers-reduced-motion` rule (each base state is the intended still frame). Self-contained
- * async server component: one cheap RLS query, hides itself when nothing is live/upcoming.
+ * Shows ONLY tournaments a Site Admin explicitly opted in (see selectPromoActivities) — never an
+ * automatic "what's live" feed. A thin premium band (~64px mobile / 76px desktop) with a real
+ * horizontally-running text ticker:
+ *   • one promo  → a fixed status badge + a running one-line marquee + a fixed "view details" CTA;
+ *     the whole band links to the tournament.
+ *   • many promos → a seamless track of per-tournament pills (each its own link with its own CTA),
+ *     separated by a ✦, scrolling ongoing→upcoming.
+ * Both loop seamlessly (the track holds its content twice; translateX 0 → -50%), pause on hover /
+ * keyboard focus, and fall back to a clean static frame under the site-wide prefers-reduced-motion
+ * rule. Self-contained async server component: one cheap RLS query, hides itself when nothing is
+ * promoted (no empty frame, no CLS).
  */
 export default async function HomeActivityPromo() {
   const active = selectPromoActivities(await listPublicTournaments()).slice(0, MAX_ITEMS)
-  if (active.length === 0) return null // nothing live/upcoming → no empty frame
+  if (active.length === 0) return null // nothing promoted → no empty frame
 
   const [t, locale] = await Promise.all([getTranslations('home_promo'), getLocale()])
   const items: PromoItem[] = active.map((a) => {
     const ongoing = a.phase === 'ongoing'
     const statusLabel = ongoing ? t('status_ongoing') : t('status_upcoming')
-    const meta = [
-      formatDateRange(a.startsAt, a.endsAt, locale) || t('date_tbd'),
-      a.location ?? '',
-      a.eventCount > 0 ? t('events_count', { count: a.eventCount }) : '',
-    ]
-      .filter(Boolean)
-      .join('  ·  ')
     return {
       href: `/giai-dau/${a.slug}`,
       name: a.name,
       ongoing,
       statusLabel,
-      meta,
+      date: formatDateRange(a.startsAt, a.endsAt, locale) || t('date_tbd'),
+      location: a.location ?? '',
+      message: t('tagline'),
       ariaLabel: t('aria_card', { status: statusLabel, name: a.name }),
     }
   })
@@ -57,45 +61,58 @@ export default async function HomeActivityPromo() {
     <section aria-label={t('aria_region')} className="pt-5 sm:pt-6">
       <div className="mx-auto max-w-[1280px] px-4 sm:px-6">
         {items.length === 1 ? (
-          <SoloStrip item={items[0]} ctaLabel={t('cta_detail')} />
+          <SoloTicker item={items[0]} ctaLabel={t('cta_detail')} />
         ) : (
-          <TickerStrip items={items} ctaLabel={t('cta_detail')} />
+          <MultiTicker items={items} ctaLabel={t('cta_detail')} />
         )}
       </div>
     </section>
   )
 }
 
-// Shared shell classes for both strip variants — thin band, brand blush→gold gradient, soft shadow.
+// Shared shell classes for both variants — thin band, brand blush→gold gradient, soft shadow.
 const SHELL =
   'promo-strip group relative flex h-[64px] items-center overflow-hidden rounded-2xl border border-rose/15 ' +
   'bg-[linear-gradient(105deg,#fbedf3_0%,#fffdf8_50%,#f6eacf_100%)] shadow-[0_8px_28px_-14px_rgba(157,18,72,0.3)] sm:h-[76px]'
 
-// ── Single activity: a still card with a slow sheen; the whole band is one link ──────────────────
-function SoloStrip({ item, ctaLabel }: { item: PromoItem; ctaLabel: string }) {
+// Fade both edges so the running text melts in/out rather than popping at the border.
+const FADE = 'linear-gradient(to right, transparent, #000 4%, #000 96%, transparent)'
+const maskStyle: CSSProperties = { maskImage: FADE, WebkitMaskImage: FADE }
+
+// Rough seconds-per-run from text length so long lines don't whip past and short ones don't crawl.
+function durationFor(chars: number): string {
+  return `${Math.min(Math.max(chars * 0.26, 16), 46)}s`
+}
+
+// ── Single activity: fixed status (left) + running marquee (centre) + fixed CTA (right) ──────────
+// The whole band is ONE link → no nested anchors. Only the centre line scrolls; the status pill and
+// CTA stay put so the click target and status never drift off-screen.
+function SoloTicker({ item, ctaLabel }: { item: PromoItem; ctaLabel: string }) {
+  const line = [item.name, item.date, item.location, item.message].filter(Boolean)
+  const chars = line.join('   ·   ').length
+  const durStyle = { '--promo-dur': durationFor(chars + 8) } as CSSProperties
+
   return (
     <Link
       href={item.href}
       aria-label={item.ariaLabel}
       className={`${SHELL} gap-3 px-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-rose/25 hover:shadow-[0_16px_40px_-18px_rgba(157,18,72,0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose/50 focus-visible:ring-offset-2 focus-visible:ring-offset-cream motion-reduce:transition-none motion-reduce:hover:translate-y-0 sm:gap-4 sm:px-5`}
     >
-      <Sheen />
       <span className="relative z-[1] hidden h-11 w-11 flex-none items-center justify-center rounded-xl bg-gradient-to-br from-rose to-rose-deep text-white shadow-[0_8px_18px_-8px_rgba(157,18,72,0.6)] sm:flex">
         <TrophyIcon />
       </span>
+      <StatusPill ongoing={item.ongoing} label={item.statusLabel} className="relative z-[1]" />
 
-      <span className="relative z-[1] flex min-w-0 flex-1 flex-col justify-center gap-0.5">
-        <span className="flex min-w-0 items-center gap-2">
-          <StatusPill ongoing={item.ongoing} label={item.statusLabel} />
-          <span className="truncate font-serif text-[15px] font-bold leading-none tracking-[-0.2px] text-ink sm:text-[17px]">
-            {item.name}
-          </span>
-        </span>
-        <span className="truncate text-[12px] text-[#7a6a5e] sm:text-[12.5px]">{item.meta}</span>
-      </span>
+      {/* Running centre line. The track holds the content twice for a seamless loop; the clone half is
+          aria-hidden so assistive tech reads the promo exactly once. */}
+      <div className="relative z-[1] h-full min-w-0 flex-1 overflow-hidden" style={maskStyle}>
+        <div className="promo-ticker-track flex h-full w-max items-center" style={durStyle}>
+          <SoloLine item={item} />
+          <SoloLine item={item} aria-hidden />
+        </div>
+      </div>
 
-      {/* The whole band is the link, so on phones the CTA collapses to a tappable arrow chip to
-          give the title room; it expands to the labelled pill from sm up. */}
+      {/* Fixed CTA — collapses to a tappable arrow chip on phones so the line has room. */}
       <span className="relative z-[1] inline-flex h-9 w-9 flex-none items-center justify-center gap-1.5 rounded-full bg-rose text-[12.5px] font-semibold text-white shadow-[0_6px_16px_-8px_rgba(194,24,91,0.6)] transition-colors group-hover:bg-rose-deep sm:h-auto sm:w-auto sm:px-4 sm:py-2">
         <span className="hidden sm:inline">{ctaLabel}</span>
         <ArrowIcon />
@@ -104,43 +121,58 @@ function SoloStrip({ item, ctaLabel }: { item: PromoItem; ctaLabel: string }) {
   )
 }
 
-// ── Several activities: a seamless auto-scrolling ticker of pills ─────────────────────────────────
-function TickerStrip({ items, ctaLabel }: { items: PromoItem[]; ctaLabel: string }) {
-  // Constant, unhurried speed: ~10s per item, floored so a 2-item strip still drifts gently.
-  const durationStyle = { '--promo-dur': `${Math.max(items.length * 10, 22)}s` } as CSSProperties
-  // Fade both edges so pills melt in/out rather than pop at the border.
-  const fade = 'linear-gradient(to right, transparent, #000 5%, #000 95%, transparent)'
+// One copy of the single-promo line. `aria-hidden` marks the duplicated (loop) copy.
+function SoloLine({ item, 'aria-hidden': ariaHidden }: { item: PromoItem; 'aria-hidden'?: boolean }) {
+  return (
+    <span className="flex items-center whitespace-nowrap pr-10" aria-hidden={ariaHidden}>
+      <span className="font-serif text-[15px] font-bold tracking-[-0.2px] text-ink sm:text-[16.5px]">{item.name}</span>
+      <Dot />
+      <span className="text-[12.5px] font-medium text-[#6a5a4e] sm:text-[13px]">{item.date}</span>
+      {item.location && (
+        <>
+          <Dot />
+          <span className="text-[12.5px] text-[#7a6a5e] sm:text-[13px]">{item.location}</span>
+        </>
+      )}
+      <Dot />
+      <span className="text-[12.5px] text-[#8a7a6e] sm:text-[13px]">{item.message}</span>
+    </span>
+  )
+}
+
+// ── Several activities: a seamless track of per-tournament pills, ✦-separated ────────────────────
+function MultiTicker({ items, ctaLabel }: { items: PromoItem[]; ctaLabel: string }) {
+  // Unhurried, readable: ~9s per pill, floored so a 2-pill strip still drifts gently.
+  const durStyle = { '--promo-dur': `${Math.max(items.length * 9, 22)}s` } as CSSProperties
+
+  const sequence = (clone: boolean) =>
+    items.map((item, i) => (
+      <li key={`${clone ? 'b' : 'a'}-${i}`} className="flex items-center" aria-hidden={clone ? true : undefined}>
+        <PromoPill item={item} ctaLabel={ctaLabel} clone={clone} />
+        <Star />
+      </li>
+    ))
 
   return (
     <div className={`${SHELL} px-0`}>
-      <div
-        className="relative h-full w-full overflow-hidden"
-        style={{ maskImage: fade, WebkitMaskImage: fade }}
-      >
-        <ul className="promo-ticker-track absolute inset-y-0 left-0 flex h-full w-max list-none items-center gap-3 pl-4" style={durationStyle}>
-          {items.map((item, i) => (
-            <li key={`a-${i}`}>
-              <TickerPill item={item} ctaLabel={ctaLabel} />
-            </li>
-          ))}
+      <div className="relative h-full w-full overflow-hidden" style={maskStyle}>
+        <ul className="promo-ticker-track absolute inset-y-0 left-0 flex h-full w-max list-none items-center pl-4" style={durStyle}>
+          {sequence(false)}
           {/* Duplicate copy purely for the seamless loop — hidden from assistive tech + non-interactive. */}
-          {items.map((item, i) => (
-            <li key={`b-${i}`} aria-hidden="true">
-              <TickerPill item={item} ctaLabel={ctaLabel} clone />
-            </li>
-          ))}
+          {sequence(true)}
         </ul>
       </div>
     </div>
   )
 }
 
-function TickerPill({ item, ctaLabel, clone = false }: { item: PromoItem; ctaLabel: string; clone?: boolean }) {
+function PromoPill({ item, ctaLabel, clone = false }: { item: PromoItem; ctaLabel: string; clone?: boolean }) {
   const inner = (
     <>
       <StatusPill ongoing={item.ongoing} label={item.statusLabel} />
       <span className="font-serif text-[14px] font-bold tracking-[-0.2px] text-ink">{item.name}</span>
-      <span className="text-[12.5px] text-[#7a6a5e]">{item.meta}</span>
+      <span className="text-[12px] text-[#6a5a4e]">{item.date}</span>
+      {item.location && <span className="text-[12px] text-[#7a6a5e]">{item.location}</span>}
       <span className="ml-0.5 inline-flex items-center gap-1 rounded-full bg-rose px-2.5 py-1 text-[11.5px] font-semibold text-white transition-colors group-hover/pill:bg-rose-deep">
         {ctaLabel}
         <ArrowIcon />
@@ -150,7 +182,12 @@ function TickerPill({ item, ctaLabel, clone = false }: { item: PromoItem; ctaLab
   const shared =
     'inline-flex items-center gap-2.5 whitespace-nowrap rounded-full border border-rose/12 bg-white/70 py-1.5 pl-2.5 pr-1.5 shadow-[0_2px_10px_-4px_rgba(157,18,72,0.18)]'
   if (clone) {
-    return <span className={`${shared} pointer-events-none`}>{inner}</span>
+    // Non-interactive, non-focusable, invisible to assistive tech — exists only to fill the loop.
+    return (
+      <span className={`${shared} pointer-events-none`} tabIndex={-1}>
+        {inner}
+      </span>
+    )
   }
   return (
     <Link
@@ -163,14 +200,14 @@ function TickerPill({ item, ctaLabel, clone = false }: { item: PromoItem; ctaLab
   )
 }
 
-function StatusPill({ ongoing, label }: { ongoing: boolean; label: string }) {
+function StatusPill({ ongoing, label, className = '' }: { ongoing: boolean; label: string; className?: string }) {
   return (
     <span
-      className={
+      className={`${
         ongoing
           ? 'inline-flex flex-none items-center gap-1.5 rounded-full border border-teal/30 bg-teal-soft px-2 py-0.5 text-[10px] font-bold uppercase tracking-[1.2px] text-teal'
           : 'inline-flex flex-none items-center gap-1.5 rounded-full border border-rose/25 bg-rose-soft px-2 py-0.5 text-[10px] font-bold uppercase tracking-[1.2px] text-rose'
-      }
+      } ${className}`}
     >
       <span className="relative flex h-1.5 w-1.5">
         {ongoing && (
@@ -183,13 +220,13 @@ function StatusPill({ ongoing, label }: { ongoing: boolean; label: string }) {
   )
 }
 
-// Diagonal light sweep for the single-activity card. Decorative + inert; parked off-screen at rest.
-function Sheen() {
-  return (
-    <span aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 overflow-hidden rounded-2xl">
-      <span className="promo-sheen absolute inset-y-0 -left-1/4 w-1/3 bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.55),transparent)]" />
-    </span>
-  )
+// A subtle metadata dot separator (decorative).
+function Dot() {
+  return <span aria-hidden="true" className="mx-2 text-rose/40 sm:mx-2.5">·</span>
+}
+// A brand accent star between promos in the multi ticker (decorative).
+function Star() {
+  return <span aria-hidden="true" className="mx-3 text-[13px] text-rose/45 sm:mx-4">✦</span>
 }
 
 function TrophyIcon() {

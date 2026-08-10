@@ -29,6 +29,10 @@ export interface PublicTournamentListItem {
   // Row creation time — used ONLY to power the client-side "newest created" sort on /giai-dau.
   // Additive projection over rows already visible under RLS; it does NOT widen visibility.
   createdAt: string | null
+  // Site-Admin opt-in for the home-page activity-promo strip. A tournament appears there ONLY when
+  // this is true (and it is otherwise public + ongoing/upcoming) — never automatically. Additive
+  // projection over the same RLS-visible rows; it does NOT widen visibility.
+  homePromoEnabled: boolean
 }
 
 export interface PublicEventSummary {

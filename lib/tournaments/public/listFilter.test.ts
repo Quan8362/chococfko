@@ -19,6 +19,7 @@ function item(over: Partial<DiscoveryItem>): DiscoveryItem {
     eventCount: over.eventCount ?? 0,
     phase: over.phase ?? 'upcoming',
     createdAt: over.createdAt ?? null,
+    homePromoEnabled: over.homePromoEnabled ?? false,
     dateLabel: over.dateLabel ?? '',
   }
 }

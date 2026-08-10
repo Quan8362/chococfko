@@ -8,7 +8,13 @@
     "cta_detail": "Xem chi tiết",
     "cta_all": "Tất cả giải đấu",
     "aria_region": "Hoạt động nổi bật",
-    "aria_card": "{status}: {name}"
+    "aria_card": "{status}: {name}",
+    "admin_heading": "Quảng bá trên trang chủ",
+    "admin_label": "Hiển thị quảng bá trên trang chủ",
+    "admin_description": "Giải đấu này có thể xuất hiện trong dải thông báo trên trang chủ.",
+    "promoting": "Đang quảng bá",
+    "not_promoting": "Không quảng bá",
+    "admin_error": "Không thể cập nhật. Vui lòng thử lại."
   },
   "coin_tier": {
     "bronze": "Đồng",

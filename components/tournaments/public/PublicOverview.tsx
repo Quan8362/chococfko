@@ -39,22 +39,12 @@ export default function PublicOverview({
                   active ? 'border-rose/50 bg-rose-soft/40 ring-1 ring-rose/30' : 'border-line bg-paper hover:border-rose/30 hover:bg-cream/40'
                 }`}
               >
-                <div className="flex items-start justify-between gap-3 mb-2">
+                <div className="flex items-start justify-between gap-3 mb-2.5">
                   <h3 className="font-semibold text-[15px] text-ink leading-snug">{ev.name}</h3>
                   <span className="flex-none text-[11px] font-bold text-teal bg-teal-soft px-2 py-0.5 rounded-full">
                     {t(`overview.format_${ev.format}`)}
                   </span>
                 </div>
-                {/* One-line explanation of the format so a Guest understands the structure at a glance.
-                    For group+knockout it names both phases (design §2/§3). Copy is keyed by format;
-                    the numeric params are only consumed by the group+knockout message. */}
-                <p className="text-[12px] text-muted mb-2 leading-snug">
-                  {t(`overview.format_desc_${ev.format}`, {
-                    groups: ev.groupCount,
-                    winners: ev.winnerQualifiersPerGroup,
-                    consolation: ev.consolationQualifiersPerGroup,
-                  })}
-                </p>
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px] text-muted">
                   <span>{t('overview.competitors_n', { count: ev.competitorCount })}</span>
                   <span>{t('overview.matches_n', { count: ev.matchCount })}</span>

@@ -31,9 +31,23 @@ test('desktop board expands each round to share the width (no fixed-width scroll
   // At lg+ every round column becomes flex-1 and is capped, so all rounds share the row and fit on one
   // screen — the old behaviour was a fixed w-[232px] per column that forced a horizontal scrollbar.
   assert.match(src, /lg:flex-1/, 'columns must grow to share the desktop width')
-  assert.match(src, /lg:max-w-\[\d+px\]/, 'columns stay capped so a small bracket stays balanced')
-  assert.match(src, /lg:justify-center/, 'the round row is centred at desktop widths')
+  // The cap is now an ADAPTIVE token (tighter for a 7-column round-of-16 board) rather than a single
+  // hardcoded px, so all seven columns fit the shell where a fixed width would clip the outer ones.
+  assert.match(src, /lg:max-w-\[var\(--bkt-col-max\)\]/, 'columns stay capped via the adaptive width token')
+  // `safe center` centres a small bracket but falls back to start-alignment when the row overflows, so
+  // the outermost columns are reachable by scroll instead of being clipped on both sides.
+  assert.match(src, /lg:\[justify-content:safe_center\]/, 'the round row uses overflow-safe centring')
   assert.doesNotMatch(src, /flex-none w-\[232px\]/, 'the old fixed-width desktop column must be gone')
+})
+
+test('column width, cap and gap are driven by the adaptive bracketColumnSizing helper', () => {
+  const src = read('components/tournaments/public/PublicBracket.tsx')
+  // A single fixed card width overflowed the shell at 7 columns. The board now derives its floor/cap/gap
+  // from the pure helper keyed on the mirrored column count, so a deep round-of-16 board fits the shell.
+  assert.match(src, /bracketColumnSizing\(columns\.length\)/, 'sizing must be derived from the column count')
+  assert.match(src, /--bkt-col-min/, 'the adaptive column floor token must be set')
+  assert.match(src, /--bkt-gap/, 'the adaptive gap token must be set')
+  assert.match(src, /lg:gap-\[var\(--bkt-gap\)\]/, 'the desktop gap must consume the adaptive token')
 })
 
 test('mobile bracket keeps a fixed-width column inside a horizontal-scroll container (touch)', () => {
@@ -63,10 +77,10 @@ test('the desktop bracket board is a self-contained scroll region, not a page-wi
 
 test('every desktop round column can shrink to share the shell width (min-width:0)', () => {
   const src = read('components/tournaments/public/PublicBracket.tsx')
-  // A flex column that cannot shrink below its content forces horizontal overflow when five rounds must
-  // share one shell width. min-w-0 (+ the capped lg:min-w) lets the columns fit; the name truncates.
+  // A flex column that cannot shrink below its content forces horizontal overflow when the rounds must
+  // share one shell width. min-w-0 (+ the adaptive lg:min-w token) lets the columns fit; names truncate.
   assert.match(src, /min-w-0 lg:flex-1/, 'columns must be allowed to shrink to fit the shell')
-  assert.match(src, /lg:min-w-\[16\dpx\]/, 'a small capped floor keeps five columns readable yet contained')
+  assert.match(src, /lg:min-w-\[var\(--bkt-col-min\)\]/, 'the adaptive floor keeps every column readable yet contained')
 })
 
 test('TruncatedName exposes the full name to hover, focus and assistive tech', () => {

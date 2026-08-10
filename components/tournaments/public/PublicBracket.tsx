@@ -17,7 +17,7 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import type { CompetitorRow, KnockoutMatchView, KnockoutRoundView } from '@/lib/tournaments/admin/types'
-import { mirroredColumns, bracketEdges, feederMap } from '@/lib/tournaments/domain/bracket-layout'
+import { mirroredColumns, bracketEdges, feederMap, bracketColumnSizing } from '@/lib/tournaments/domain/bracket-layout'
 import { knockoutScoreView } from '@/lib/tournaments/public/bracketScore'
 import TruncatedName from './TruncatedName'
 
@@ -112,6 +112,9 @@ function MirroredView({
 }) {
   const columns = useMemo(() => mirroredColumns(rounds), [rounds])
   const edges = useMemo(() => bracketEdges(rounds), [rounds])
+  // Column count drives the adaptive card width/gap: a 7-column round-of-16 board must tighten so every
+  // column stays inside the reading shell, while a 3/5-column board keeps roomy cards (see helper).
+  const sizing = useMemo(() => bracketColumnSizing(columns.length), [columns.length])
 
   const innerRef = useRef<HTMLDivElement | null>(null)
   const nodeRefs = useRef(new Map<string, HTMLElement>())
@@ -176,7 +179,17 @@ function MirroredView({
           with no scrollbar; the row is centred so a small bracket (e.g. Serie A) stays balanced. */}
       <div
         ref={innerRef}
-        className="relative flex items-stretch gap-4 lg:gap-[clamp(0.75rem,1.8vw,2.25rem)] min-w-full lg:w-full lg:justify-center"
+        // Adaptive tokens (set per bracket depth) feed the lg:* arbitrary utilities below: the column
+        // floor/ceiling and the row gap all tighten as the column count grows, so a 7-column round-of-16
+        // board fits the shell where a fixed width would overflow. `safe center` keeps the row centred
+        // when it fits but falls back to start-alignment when it can't (tablet), so the outermost columns
+        // are never clipped — they become reachable by the container's own horizontal scroll instead.
+        style={{
+          ['--bkt-col-min' as string]: `${sizing.minWidth}px`,
+          ['--bkt-col-max' as string]: `${sizing.maxWidth}px`,
+          ['--bkt-gap' as string]: `${sizing.gap}px`,
+        }}
+        className="relative flex items-stretch gap-4 lg:gap-[var(--bkt-gap)] min-w-full lg:w-full lg:[justify-content:safe_center]"
       >
         {/* Connector overlay — decorative, never intercepts taps on a match card. */}
         <svg
@@ -194,7 +207,7 @@ function MirroredView({
         {columns.map((col) => (
           <div
             key={col.key}
-            className="relative z-10 flex flex-col flex-none w-[220px] min-w-0 lg:flex-1 lg:w-auto lg:min-w-[164px] lg:max-w-[264px]"
+            className="relative z-10 flex flex-col flex-none w-[220px] min-w-0 lg:flex-1 lg:w-auto lg:min-w-[var(--bkt-col-min)] lg:max-w-[var(--bkt-col-max)]"
           >
             <h4
               className={`text-[11px] font-bold uppercase tracking-[0.06em] mb-2.5 text-center ${
@@ -212,6 +225,7 @@ function MirroredView({
                   feeders={feeders.get(m.id)}
                   t={t}
                   tone={col.side === 'center' ? 'final' : 'normal'}
+                  compact={sizing.compact}
                   nodeRef={register}
                 />
               ))}
@@ -221,7 +235,7 @@ function MirroredView({
                 <h4 className="text-[11px] font-bold uppercase tracking-[0.06em] mb-2.5 text-center text-amber-600">
                   {t('label_third_place')}
                 </h4>
-                <MatchNode match={thirdPlaceMatch} nameOf={nameOf} feeders={undefined} t={t} tone="third" />
+                <MatchNode match={thirdPlaceMatch} nameOf={nameOf} feeders={undefined} t={t} tone="third" compact={sizing.compact} />
               </div>
             )}
           </div>
@@ -300,6 +314,7 @@ function MatchNode({
   t,
   tone = 'normal',
   fullWidth = false,
+  compact = false,
   nodeRef,
 }: {
   match: KnockoutMatchView
@@ -308,6 +323,9 @@ function MatchNode({
   t: BracketT
   tone?: 'normal' | 'third' | 'final'
   fullWidth?: boolean
+  // Compact mode (a deep 7-column board) trims horizontal padding so a ~128px column still reads. It
+  // NEVER shrinks the font, the score column or the winner highlight — those stay full size.
+  compact?: boolean
   nodeRef?: (id: string, el: HTMLElement | null) => void
 }) {
   const done = match.status === 'completed'
@@ -353,6 +371,7 @@ function MatchNode({
         placeholder={slotLabel(!!match.competitorAId, feeders?.a)}
         isWinner={sc.isWinnerA}
         score={sc.scoreA}
+        compact={compact}
         t={t}
       />
       <div className="h-px bg-line" />
@@ -362,14 +381,15 @@ function MatchNode({
         placeholder={slotLabel(!!match.competitorBId, feeders?.b)}
         isWinner={sc.isWinnerB}
         score={sc.scoreB}
+        compact={compact}
         t={t}
       />
       {sc.detail && (
-        <div className="px-2.5 py-1 border-t border-line bg-paper text-center text-[10.5px] leading-snug text-muted tabular-nums break-words">
+        <div className={`${compact ? 'px-1.5' : 'px-2.5'} py-1 border-t border-line bg-paper text-center text-[10.5px] leading-snug text-muted tabular-nums break-words`}>
           {sc.detail}
         </div>
       )}
-      <div className="flex items-center justify-between gap-2 px-2.5 py-1 border-t border-line bg-cream/60">
+      <div className={`flex items-center justify-between gap-2 ${compact ? 'px-1.5' : 'px-2.5'} py-1 border-t border-line bg-cream/60`}>
         <span className="text-[10px] text-muted tabular-nums">{t('match_no', { n: match.matchNumber })}</span>
         <span className="text-[10.5px] text-muted">{statusText}</span>
       </div>
@@ -383,6 +403,7 @@ function Side({
   placeholder,
   isWinner,
   score,
+  compact = false,
   t,
 }: {
   present: boolean
@@ -390,10 +411,11 @@ function Side({
   placeholder: string
   isWinner: boolean
   score: string | null
+  compact?: boolean
   t: BracketT
 }) {
   return (
-    <div className={`flex items-center gap-2 px-2.5 py-1.5 ${isWinner ? 'bg-teal-soft' : ''}`}>
+    <div className={`flex items-center ${compact ? 'gap-1.5 px-1.5' : 'gap-2 px-2.5'} py-1.5 ${isWinner ? 'bg-teal-soft' : ''}`}>
       {/* Winner marker — NOT colour-only: a check icon carries an accessible label too. */}
       <span className="flex-none w-3.5" aria-hidden={!isWinner}>
         {isWinner && (

@@ -99,3 +99,28 @@ export function bracketSize(rounds: KnockoutRoundView[]): number {
   if (rounds.length === 0) return 0
   return rounds[0].matches.length * 2
 }
+
+// Adaptive column sizing for the mirrored desktop board. The number of MIRRORED columns grows with the
+// bracket depth: a 2-competitor final is 1 column, an 8-slot bracket is 5 ([QF SF]·2 + final), and a
+// 16-slot bracket with a round-of-16 is 7 ([R16 QF SF]·2 + final). A single fixed card width that reads
+// well at 5 columns overflows the reading shell at 7 (7·min + gaps exceeds the ~1216px content width),
+// which — combined with a centred row — clips the outermost columns on BOTH sides. So the card floor,
+// ceiling and gap all tighten as the column count rises, keeping every column inside the shell at
+// desktop while a small bracket stays generously wide. Pure + unit-tested; the component only paints it.
+//
+// `compact` (6+ columns) tells the card to trim its horizontal padding so a ~128px column still reads.
+export interface BracketColumnSizing {
+  minWidth: number
+  maxWidth: number
+  gap: number
+  compact: boolean
+}
+
+export function bracketColumnSizing(columnCount: number): BracketColumnSizing {
+  // ≤3 columns (final, or final + one split round): roomy cards, centred with slack.
+  if (columnCount <= 3) return { minWidth: 200, maxWidth: 264, gap: 28, compact: false }
+  // 4–5 columns (up to an 8-slot bracket): medium cards that still fill the shell.
+  if (columnCount <= 5) return { minWidth: 168, maxWidth: 224, gap: 22, compact: false }
+  // 6+ columns (round-of-16 and deeper): compact cards so all seven columns fit the shell at ≥1280px.
+  return { minWidth: 128, maxWidth: 180, gap: 16, compact: true }
+}

@@ -240,8 +240,11 @@ function RoundLabel({ text }: { text: string }) {
   )
 }
 
-// A responsive grid of match cards. Two columns from `sm` up when the section holds ≥2 matches; a
-// lone match keeps a sensible max width instead of stretching across the row.
+// A responsive grid of match cards. One column on mobile, two columns from `sm` up when the section
+// holds ≥2 matches; a lone match keeps a sensible max width instead of stretching across the row. The
+// explicit `grid-cols-1` (= `minmax(0, 1fr)`) is load-bearing: a bare `grid` gives an implicit `auto`
+// track that a long one-line name can widen past the viewport, so the mobile column must be told it
+// may shrink below its content. See the `min-w-0` on each card for the matching grid-item guard.
 function MatchGrid({
   matches,
   nameOf,
@@ -253,7 +256,7 @@ function MatchGrid({
 }) {
   const single = matches.length === 1
   return (
-    <ul className={`grid gap-2.5 ${single ? 'sm:max-w-[calc(50%-0.3125rem)]' : 'sm:grid-cols-2'}`}>
+    <ul className={`grid grid-cols-1 gap-2.5 ${single ? 'sm:max-w-[calc(50%-0.3125rem)]' : 'sm:grid-cols-2'}`}>
       {matches.map((m) => (
         <MatchCard key={m.id} m={m} nameOf={nameOf} t={t} />
       ))}
@@ -361,7 +364,7 @@ function MatchCard({
   const pointB = !done ? '–' : games.length >= 1 ? games[0].scoreB : m.gamesWonB
 
   return (
-    <li className="rounded-xl border border-line bg-paper shadow-card px-3.5 py-2.5 transition-shadow hover:shadow-card-hover motion-reduce:transition-none">
+    <li className="min-w-0 rounded-xl border border-line bg-paper shadow-card px-3.5 py-2.5 transition-shadow hover:shadow-card-hover motion-reduce:transition-none">
       <div className="flex justify-end mb-1.5">
         <StatusBadge status={m.status} done={done} t={t} />
       </div>

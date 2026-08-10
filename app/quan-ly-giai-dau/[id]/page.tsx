@@ -6,6 +6,7 @@ import { resolveTournamentCapabilities } from '@/lib/tournaments/permissions/ser
 import { listTournamentMembersForSiteAdmin } from '@/lib/tournaments/members/service'
 import StatusBadge from '@/components/tournaments/admin/StatusBadge'
 import TournamentStatusActions from '@/components/tournaments/admin/TournamentStatusActions'
+import TournamentHomePromoToggle from '@/components/tournaments/admin/TournamentHomePromoToggle'
 import EventList from '@/components/tournaments/admin/EventList'
 import TournamentMembersPanel from '@/components/tournaments/admin/TournamentMembersPanel'
 import TournamentShell from '@/components/tournaments/TournamentShell'
@@ -137,6 +138,18 @@ export default async function ManagementDetailPage({ params }: { params: { id: s
           </div>
         )}
       </div>
+
+      {/* Home promo — SITE ADMIN ONLY. A tournament Owner/Manager/Scorekeeper never sees this control
+          (the server action re-checks Site Admin regardless). */}
+      {caps.siteAdmin && (
+        <div className="mb-6">
+          <TournamentHomePromoToggle
+            id={tournament.id}
+            enabled={tournament.homePromoEnabled}
+            updatedAt={tournament.updatedAt}
+          />
+        </div>
+      )}
 
       {/* Events (nội dung thi đấu) */}
       <div className="bg-cream border border-line rounded-2xl p-5 sm:p-6 mb-6">

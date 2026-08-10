@@ -5,6 +5,7 @@ import { checkIsAdmin } from '@/lib/supabase/admin'
 import { getTournamentForAdmin, listEventsForAdmin } from '@/lib/tournaments/admin/queries'
 import StatusBadge from '@/components/tournaments/admin/StatusBadge'
 import TournamentStatusActions from '@/components/tournaments/admin/TournamentStatusActions'
+import TournamentHomePromoToggle from '@/components/tournaments/admin/TournamentHomePromoToggle'
 import EventList from '@/components/tournaments/admin/EventList'
 
 export const dynamic = 'force-dynamic'
@@ -104,6 +105,15 @@ export default async function TournamentDetailPage({ params }: { params: { id: s
           eventCount={tournament.eventCount}
           updatedAt={tournament.updatedAt}
           variant="detail"
+        />
+      </div>
+
+      {/* Home promo (Site Admin only — this whole page is Site-Admin-gated) */}
+      <div className="mb-6">
+        <TournamentHomePromoToggle
+          id={tournament.id}
+          enabled={tournament.homePromoEnabled}
+          updatedAt={tournament.updatedAt}
         />
       </div>
 

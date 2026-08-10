@@ -263,3 +263,56 @@ test('self-service create is atomic, draft-only and identity-safe', () => {
   assert.ok(mig.includes('tournament_created') && mig.includes('tournament_owner_assigned'),
     'both audit rows must be written')
 })
+
+// ── 18. Home promo is SITE-ADMIN-ONLY (owner/manager/scorekeeper can never toggle it) ──────────
+const PROMO_TOGGLE = 'components/tournaments/admin/TournamentHomePromoToggle.tsx'
+
+test('setTournamentHomePromo is gated on Site Admin (checkIsAdmin), NOT the scoped may() guard', () => {
+  const src = read(T_ACTIONS)
+  const start = src.indexOf('export async function setTournamentHomePromo(')
+  assert.ok(start > -1, 'setTournamentHomePromo action must exist')
+  const body = src.slice(start, src.indexOf('function revalidateHomePromo'))
+  // Site-Admin re-check on the server — this is the security boundary, not the hidden UI control.
+  assert.ok(body.includes('await checkIsAdmin()'), 'must re-check Site Admin on the server')
+  assert.ok(body.includes("error: 'forbidden'"), 'must reject non-admins with forbidden')
+  // Must NOT use the scoped permission engine — an Owner/Manager must not satisfy this.
+  assert.ok(!body.includes('may('), 'must NOT use the scoped may() guard (owner would pass)')
+  assert.ok(!body.includes('checkTournamentPermission'), 'must NOT use the scoped permission checker')
+  // Optimistic concurrency + audit + home revalidation are wired.
+  assert.ok(body.includes(".eq('updated_at', expectedUpdatedAt)"), 'must guard on the updated_at token')
+  assert.ok(body.includes('tournament_home_promo_enabled') && body.includes('tournament_home_promo_disabled'),
+    'must audit both enable and disable')
+  const rev = src.slice(src.indexOf('function revalidateHomePromo'))
+  assert.ok(rev.includes("revalidatePath('/')"), 'must revalidate the home page so the strip updates')
+})
+
+test('the admin toggle control is rendered ONLY for a Site Admin on the scoped management page', () => {
+  // Scoped page: gated behind caps.siteAdmin (owner/manager/scorekeeper never see the control).
+  const detail = read(DETAIL)
+  assert.ok(detail.includes('caps.siteAdmin && (') && detail.includes('TournamentHomePromoToggle'),
+    'scoped detail must render the toggle only when caps.siteAdmin')
+  // Legacy admin page is already Site-Admin-gated at the top (checkIsAdmin → redirect).
+  const legacy = read('app/admin/giai-dau/[id]/page.tsx')
+  assert.ok(legacy.includes('checkIsAdmin') && legacy.includes('TournamentHomePromoToggle'),
+    'legacy admin detail (Site-Admin-gated) renders the toggle')
+})
+
+test('the promo toggle is a client component with no server-only / service-role import', () => {
+  const src = read(PROMO_TOGGLE)
+  assert.match(src, /^'use client'/)
+  assert.ok(!src.includes('@/lib/supabase/admin'), 'client toggle must not import the service-role client')
+  assert.ok(!src.includes('permissions/server'), 'client toggle must not import the server permission resolver')
+  // A real accessible switch (status is not conveyed by colour alone).
+  assert.ok(src.includes('role="switch"') && src.includes('aria-checked'), 'must be an accessible switch')
+})
+
+// ── 19. The home promo query surfaces ONLY admin-opted-in, ongoing/upcoming tournaments ────────
+test('promo selection requires the admin flag and drops completed', () => {
+  const src = read('lib/tournaments/public/promo.ts')
+  assert.ok(src.includes('i.homePromoEnabled'), 'must require the admin opt-in flag')
+  assert.ok(src.includes("i.phase === 'ongoing'") && src.includes("i.phase === 'upcoming'"),
+    'must keep only ongoing/upcoming (completed dropped)')
+  // The public list query projects the flag through the same RLS-gated anon read.
+  const q = read('lib/tournaments/public/queries.ts')
+  assert.ok(q.includes('home_promo_enabled'), 'public list query must select the flag')
+})

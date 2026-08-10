@@ -56,6 +56,7 @@ interface RawPublicListRow {
   ends_at: string | null
   location: string | null
   created_at: string | null
+  home_promo_enabled: boolean | null
   tournament_events: { count: number }[] | null
 }
 
@@ -69,7 +70,7 @@ export async function listPublicTournaments(): Promise<PublicTournamentListItem[
     const supabase = createPublicClient()
     const { data, error } = await supabase
       .from('tournaments')
-      .select('slug, name, status, starts_at, ends_at, location, created_at, tournament_events(count)')
+      .select('slug, name, status, starts_at, ends_at, location, created_at, home_promo_enabled, tournament_events(count)')
       .in('status', PUBLIC_STATUSES)
     if (error || !data) return []
 
@@ -85,6 +86,7 @@ export async function listPublicTournaments(): Promise<PublicTournamentListItem[
         eventCount: embeddedCount(r.tournament_events),
         phase: tournamentPhase(status, r.starts_at, r.ends_at),
         createdAt: r.created_at,
+        homePromoEnabled: r.home_promo_enabled === true,
       }
     })
 

@@ -8,7 +8,13 @@
     "cta_detail": "View details",
     "cta_all": "All tournaments",
     "aria_region": "Featured activity",
-    "aria_card": "{status}: {name}"
+    "aria_card": "{status}: {name}",
+    "admin_heading": "Home page promotion",
+    "admin_label": "Show promotion on the home page",
+    "admin_description": "This tournament may appear in the announcement strip on the home page.",
+    "promoting": "Promoting",
+    "not_promoting": "Not promoting",
+    "admin_error": "Could not update. Please try again."
   },
   "coin_tier": {
     "bronze": "Bronze",

@@ -62,6 +62,8 @@ export interface TournamentDetail {
   hasChildren: boolean
   createdAt: string
   updatedAt: string
+  // Site-Admin opt-in for the home-page activity-promo strip (independent of publish/archive).
+  homePromoEnabled: boolean
 }
 
 // Stable machine codes for mutation failures → the UI localizes each one.

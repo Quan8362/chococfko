@@ -8,7 +8,13 @@
     "cta_detail": "查看详情",
     "cta_all": "全部赛事",
     "aria_region": "精选活动",
-    "aria_card": "{status}: {name}"
+    "aria_card": "{status}: {name}",
+    "admin_heading": "首页推广",
+    "admin_label": "在首页显示推广",
+    "admin_description": "该赛事可能会出现在首页的公告栏中。",
+    "promoting": "推广中",
+    "not_promoting": "未推广",
+    "admin_error": "更新失败，请重试。"
   },
   "coin_tier": {
     "bronze": "青铜",

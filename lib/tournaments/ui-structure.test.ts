@@ -476,3 +476,23 @@ test('#24 switching tab/event never remounts the hero, action bar or shell', () 
   assert.doesNotMatch(src, /key=\{activeTab\}/, 'no wrapper may remount on tab change')
   assert.doesNotMatch(src, /key=\{(selectedEventId|activeEventId|pendingEventId)\}/, 'no wrapper may remount on event change')
 })
+
+// ── #25 — overview event cards drop the redundant one-line format description ───────────────────
+// The verbose "Two phases: a group stage (N groups)…" paragraph duplicated what the format badge
+// already conveys and left a large gap between the title and the stats. It is removed from the card,
+// while the compact format badge and all the meaningful stats/progress remain. The i18n copy keys
+// (overview.format_desc_*) are intentionally kept for parity — they simply have no consumer here now.
+test('#25 overview cards render the format badge + stats/progress but NOT the format description', () => {
+  const src = read('components/tournaments/public/PublicOverview.tsx')
+  // the redundant description is gone (no format_desc_ interpolation anywhere in the card)
+  assert.doesNotMatch(src, /format_desc_/, 'overview card must not render the redundant format_desc_* copy')
+  // the compact format badge stays
+  assert.match(src, /overview\.format_\$\{ev\.format\}/, 'format badge must remain')
+  // the meaningful stats + status stay
+  for (const k of ['competitors_n', 'matches_n', 'completed_n', 'event_status_']) {
+    assert.match(src, new RegExp(`overview\\.${k}`), `overview stat "${k}" must remain`)
+  }
+  // the progress bar + percentage stay
+  assert.match(src, /role="progressbar"/, 'progress bar must remain')
+  assert.match(src, /overview\.progress/, 'progress percentage label must remain')
+})

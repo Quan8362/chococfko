@@ -1,18 +1,11 @@
 // Pure selection logic for the home "activity promo" strip. No I/O.
 //
-// Picks the single most relevant activity to spotlight below the header. Today the only public
-// activity type is a tournament, but the shape is intentionally narrow (a picked list item + a count)
-// so this stays the one place to evolve the rule — e.g. honour an explicit `featured` flag first, or
+// Returns the ordered list of activities worth promoting below the header. Today the only public
+// activity type is a tournament, but the shape stays intentionally narrow (public list items) so
+// this remains the one place to evolve the rule — e.g. honour an explicit `featured` flag first, or
 // merge in other activity kinds — without touching the component.
 
 import type { PublicTournamentListItem } from './types'
-
-export interface PromoPick {
-  // The activity to feature, or null when nothing is live/upcoming (banner then renders nothing).
-  featured: PublicTournamentListItem | null
-  // How many activities are currently live or upcoming (drives the "view all" affordance).
-  activeCount: number
-}
 
 function bySoonestStart(a: PublicTournamentListItem, b: PublicTournamentListItem): number {
   const at = a.startsAt ? Date.parse(a.startsAt) : NaN
@@ -24,17 +17,15 @@ function bySoonestStart(a: PublicTournamentListItem, b: PublicTournamentListItem
 }
 
 /**
- * Choose the promo activity: an ongoing activity always wins over an upcoming one; within a phase the
- * soonest start is preferred. Completed activities are never promoted. `activeCount` counts every
- * ongoing/upcoming activity so the caller can show "all tournaments" only when it adds value.
+ * Order the activities to promote: ongoing first, then upcoming; within each phase the soonest start
+ * wins. Completed activities are never promoted. The caller renders a single-item card when the list
+ * has one entry and an auto-scrolling ticker when it has several (empty list → banner hidden).
  *
- * Extension point: to support editorially "featured" activities later, resolve any item flagged
- * featured (ongoing/upcoming) here before falling back to the ongoing→upcoming rule below.
+ * Extension point: to support editorially "featured" activities later, hoist any item flagged
+ * featured (ongoing/upcoming) to the front here before the ongoing→upcoming ordering below.
  */
-export function pickPromoActivity(items: PublicTournamentListItem[]): PromoPick {
-  const ongoing = items.filter((i) => i.phase === 'ongoing')
-  const upcoming = items.filter((i) => i.phase === 'upcoming')
-  const pool = ongoing.length > 0 ? ongoing : upcoming
-  const featured = pool.length > 0 ? [...pool].sort(bySoonestStart)[0] : null
-  return { featured, activeCount: ongoing.length + upcoming.length }
+export function selectPromoActivities(items: PublicTournamentListItem[]): PublicTournamentListItem[] {
+  const ongoing = items.filter((i) => i.phase === 'ongoing').sort(bySoonestStart)
+  const upcoming = items.filter((i) => i.phase === 'upcoming').sort(bySoonestStart)
+  return [...ongoing, ...upcoming]
 }

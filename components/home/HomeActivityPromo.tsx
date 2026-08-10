@@ -1,118 +1,175 @@
 import Link from 'next/link'
+import type { CSSProperties } from 'react'
 import { getLocale, getTranslations } from 'next-intl/server'
 import { listPublicTournaments } from '@/lib/tournaments/public/queries'
 import { formatDateRange } from '@/lib/tournaments/public/format'
-import { pickPromoActivity } from '@/lib/tournaments/public/promo'
+import { selectPromoActivities } from '@/lib/tournaments/public/promo'
+
+// A single promo entry, fully resolved server-side (locale-aware strings, href) so the markup below
+// is pure presentation — no client JS, no hydration, no layout shift.
+interface PromoItem {
+  href: string
+  name: string
+  ongoing: boolean
+  statusLabel: string
+  meta: string // "date · location · N events" (empty segments already dropped)
+  ariaLabel: string
+}
+
+// Cap the ticker so a huge calendar can't bloat the DOM; the soonest activities always win.
+const MAX_ITEMS = 8
 
 /**
- * Premium activity promo strip rendered directly beneath the site header on the home page.
+ * Compact, animated activity promo strip rendered directly beneath the site header on the home page.
  *
- * It spotlights ONE live/upcoming community activity (today: a tournament) so visitors are pulled in
- * without the section ever feeling bolted on. Self-contained async server component — one cheap RLS
- * query, no client JS, no layout shift (it is in the initial HTML and simply renders nothing when
- * there is no activity to promote). Reusable on any server page.
+ * A thin premium band (~76px desktop) that promotes live/upcoming community activities (today:
+ * tournaments). One activity → a still card with a slow light sheen; several → a seamless
+ * auto-scrolling ticker that pauses on hover/focus. All motion is pure CSS and is neutralised by the
+ * site-wide `prefers-reduced-motion` rule (each base state is the intended still frame). Self-contained
+ * async server component: one cheap RLS query, hides itself when nothing is live/upcoming.
  */
 export default async function HomeActivityPromo() {
-  const items = await listPublicTournaments()
-  const { featured, activeCount } = pickPromoActivity(items)
-  // No live/upcoming activity → render nothing (no empty frame).
-  if (!featured) return null
+  const active = selectPromoActivities(await listPublicTournaments()).slice(0, MAX_ITEMS)
+  if (active.length === 0) return null // nothing live/upcoming → no empty frame
 
   const [t, locale] = await Promise.all([getTranslations('home_promo'), getLocale()])
-  const isOngoing = featured.phase === 'ongoing'
-  const statusLabel = isOngoing ? t('status_ongoing') : t('status_upcoming')
-  const dateLabel = formatDateRange(featured.startsAt, featured.endsAt, locale) || t('date_tbd')
-  const href = `/giai-dau/${featured.slug}`
+  const items: PromoItem[] = active.map((a) => {
+    const ongoing = a.phase === 'ongoing'
+    const statusLabel = ongoing ? t('status_ongoing') : t('status_upcoming')
+    const meta = [
+      formatDateRange(a.startsAt, a.endsAt, locale) || t('date_tbd'),
+      a.location ?? '',
+      a.eventCount > 0 ? t('events_count', { count: a.eventCount }) : '',
+    ]
+      .filter(Boolean)
+      .join('  ·  ')
+    return {
+      href: `/giai-dau/${a.slug}`,
+      name: a.name,
+      ongoing,
+      statusLabel,
+      meta,
+      ariaLabel: t('aria_card', { status: statusLabel, name: a.name }),
+    }
+  })
 
   return (
     <section aria-label={t('aria_region')} className="pt-5 sm:pt-6">
       <div className="mx-auto max-w-[1280px] px-4 sm:px-6">
-        <div className="group relative overflow-hidden rounded-2xl border border-rose/15 bg-[linear-gradient(105deg,#fbedf3_0%,#fffdf8_48%,#f6eacf_100%)] shadow-[0_12px_40px_-18px_rgba(157,18,72,0.32)] transition-all duration-300 hover:-translate-y-0.5 hover:border-rose/25 hover:shadow-[0_20px_54px_-20px_rgba(157,18,72,0.42)] motion-reduce:transition-none motion-reduce:hover:translate-y-0">
-          {/* Soft brand glows — purely decorative, never intercept clicks. */}
-          <div aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-70">
-            <span className="absolute -top-10 right-16 h-28 w-28 rounded-full bg-gold/20 blur-3xl" />
-            <span className="absolute -bottom-12 left-24 h-32 w-32 rounded-full bg-rose/10 blur-3xl" />
-          </div>
-
-          <div className="relative z-[1] flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:gap-5 sm:p-6">
-            {/* Medallion — anchors the strip; hidden on the tightest widths to keep it compact. */}
-            <div className="hidden h-14 w-14 flex-none items-center justify-center rounded-2xl bg-gradient-to-br from-rose to-rose-deep text-white shadow-[0_10px_24px_-8px_rgba(157,18,72,0.6)] sm:flex">
-              <TrophyIcon />
-            </div>
-
-            {/* Copy block */}
-            <div className="min-w-0 flex-1">
-              <StatusBadge label={statusLabel} ongoing={isOngoing} />
-
-              <h2 className="mt-2 truncate font-serif text-[19px] font-bold leading-snug tracking-[-0.3px] text-ink sm:text-[22px]">
-                {featured.name}
-              </h2>
-
-              <p className="mt-1 hidden truncate text-[13.5px] leading-relaxed text-muted sm:block">
-                {t('tagline')}
-              </p>
-
-              {/* Meta row: date · location · event count. Location is omitted when unknown. */}
-              <div className="mt-2 flex flex-wrap items-center gap-x-3.5 gap-y-1 text-[12.5px] font-medium text-[#6f5f54]">
-                <span className="inline-flex items-center gap-1.5">
-                  <CalendarIcon />
-                  {dateLabel}
-                </span>
-                {featured.location && (
-                  <span className="inline-flex min-w-0 items-center gap-1.5">
-                    <PinIcon />
-                    <span className="truncate max-w-[220px]">{featured.location}</span>
-                  </span>
-                )}
-                {featured.eventCount > 0 && (
-                  <span className="inline-flex items-center gap-1.5">
-                    <GridIcon />
-                    {t('events_count', { count: featured.eventCount })}
-                  </span>
-                )}
-              </div>
-            </div>
-
-            {/* CTAs — primary is a stretched link so the whole card is clickable; the secondary
-                "all tournaments" link sits above it (relative z) so it stays independently clickable. */}
-            <div className="flex flex-none flex-col items-stretch gap-2 sm:items-end">
-              <Link
-                href={href}
-                aria-label={t('aria_card', { status: statusLabel, name: featured.name })}
-                className="inline-flex items-center justify-center gap-1.5 rounded-full bg-rose px-5 py-2.5 text-[13.5px] font-semibold text-white shadow-[0_8px_20px_-8px_rgba(194,24,91,0.55)] transition-all duration-200 hover:bg-rose-deep hover:shadow-[0_12px_28px_-10px_rgba(194,24,91,0.65)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose/55 focus-visible:ring-offset-2 focus-visible:ring-offset-cream after:absolute after:inset-0 after:rounded-2xl after:content-[''] motion-reduce:transition-none"
-              >
-                {t('cta_detail')}
-                <svg className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5 motion-reduce:transition-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
-              </Link>
-
-              {activeCount > 1 && (
-                <Link
-                  href="/giai-dau"
-                  className="relative z-[2] inline-flex items-center justify-center gap-1 rounded-full px-3 py-1.5 text-[12.5px] font-semibold text-rose-deep/85 underline-offset-4 transition-colors hover:text-rose-deep hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose/45 focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
-                >
-                  {t('cta_all')}
-                  <span className="grid h-4 min-w-4 place-items-center rounded-full bg-rose/12 px-1 text-[10.5px] font-bold text-rose-deep tabular-nums">
-                    {activeCount}
-                  </span>
-                </Link>
-              )}
-            </div>
-          </div>
-        </div>
+        {items.length === 1 ? (
+          <SoloStrip item={items[0]} ctaLabel={t('cta_detail')} />
+        ) : (
+          <TickerStrip items={items} ctaLabel={t('cta_detail')} />
+        )}
       </div>
     </section>
   )
 }
 
-function StatusBadge({ label, ongoing }: { label: string; ongoing: boolean }) {
+// Shared shell classes for both strip variants — thin band, brand blush→gold gradient, soft shadow.
+const SHELL =
+  'promo-strip group relative flex h-[64px] items-center overflow-hidden rounded-2xl border border-rose/15 ' +
+  'bg-[linear-gradient(105deg,#fbedf3_0%,#fffdf8_50%,#f6eacf_100%)] shadow-[0_8px_28px_-14px_rgba(157,18,72,0.3)] sm:h-[76px]'
+
+// ── Single activity: a still card with a slow sheen; the whole band is one link ──────────────────
+function SoloStrip({ item, ctaLabel }: { item: PromoItem; ctaLabel: string }) {
+  return (
+    <Link
+      href={item.href}
+      aria-label={item.ariaLabel}
+      className={`${SHELL} gap-3 px-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-rose/25 hover:shadow-[0_16px_40px_-18px_rgba(157,18,72,0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose/50 focus-visible:ring-offset-2 focus-visible:ring-offset-cream motion-reduce:transition-none motion-reduce:hover:translate-y-0 sm:gap-4 sm:px-5`}
+    >
+      <Sheen />
+      <span className="relative z-[1] hidden h-11 w-11 flex-none items-center justify-center rounded-xl bg-gradient-to-br from-rose to-rose-deep text-white shadow-[0_8px_18px_-8px_rgba(157,18,72,0.6)] sm:flex">
+        <TrophyIcon />
+      </span>
+
+      <span className="relative z-[1] flex min-w-0 flex-1 flex-col justify-center gap-0.5">
+        <span className="flex min-w-0 items-center gap-2">
+          <StatusPill ongoing={item.ongoing} label={item.statusLabel} />
+          <span className="truncate font-serif text-[15px] font-bold leading-none tracking-[-0.2px] text-ink sm:text-[17px]">
+            {item.name}
+          </span>
+        </span>
+        <span className="truncate text-[12px] text-[#7a6a5e] sm:text-[12.5px]">{item.meta}</span>
+      </span>
+
+      {/* The whole band is the link, so on phones the CTA collapses to a tappable arrow chip to
+          give the title room; it expands to the labelled pill from sm up. */}
+      <span className="relative z-[1] inline-flex h-9 w-9 flex-none items-center justify-center gap-1.5 rounded-full bg-rose text-[12.5px] font-semibold text-white shadow-[0_6px_16px_-8px_rgba(194,24,91,0.6)] transition-colors group-hover:bg-rose-deep sm:h-auto sm:w-auto sm:px-4 sm:py-2">
+        <span className="hidden sm:inline">{ctaLabel}</span>
+        <ArrowIcon />
+      </span>
+    </Link>
+  )
+}
+
+// ── Several activities: a seamless auto-scrolling ticker of pills ─────────────────────────────────
+function TickerStrip({ items, ctaLabel }: { items: PromoItem[]; ctaLabel: string }) {
+  // Constant, unhurried speed: ~10s per item, floored so a 2-item strip still drifts gently.
+  const durationStyle = { '--promo-dur': `${Math.max(items.length * 10, 22)}s` } as CSSProperties
+  // Fade both edges so pills melt in/out rather than pop at the border.
+  const fade = 'linear-gradient(to right, transparent, #000 5%, #000 95%, transparent)'
+
+  return (
+    <div className={`${SHELL} px-0`}>
+      <div
+        className="relative h-full w-full overflow-hidden"
+        style={{ maskImage: fade, WebkitMaskImage: fade }}
+      >
+        <ul className="promo-ticker-track absolute inset-y-0 left-0 flex h-full w-max list-none items-center gap-3 pl-4" style={durationStyle}>
+          {items.map((item, i) => (
+            <li key={`a-${i}`}>
+              <TickerPill item={item} ctaLabel={ctaLabel} />
+            </li>
+          ))}
+          {/* Duplicate copy purely for the seamless loop — hidden from assistive tech + non-interactive. */}
+          {items.map((item, i) => (
+            <li key={`b-${i}`} aria-hidden="true">
+              <TickerPill item={item} ctaLabel={ctaLabel} clone />
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+function TickerPill({ item, ctaLabel, clone = false }: { item: PromoItem; ctaLabel: string; clone?: boolean }) {
+  const inner = (
+    <>
+      <StatusPill ongoing={item.ongoing} label={item.statusLabel} />
+      <span className="font-serif text-[14px] font-bold tracking-[-0.2px] text-ink">{item.name}</span>
+      <span className="text-[12.5px] text-[#7a6a5e]">{item.meta}</span>
+      <span className="ml-0.5 inline-flex items-center gap-1 rounded-full bg-rose px-2.5 py-1 text-[11.5px] font-semibold text-white transition-colors group-hover/pill:bg-rose-deep">
+        {ctaLabel}
+        <ArrowIcon />
+      </span>
+    </>
+  )
+  const shared =
+    'inline-flex items-center gap-2.5 whitespace-nowrap rounded-full border border-rose/12 bg-white/70 py-1.5 pl-2.5 pr-1.5 shadow-[0_2px_10px_-4px_rgba(157,18,72,0.18)]'
+  if (clone) {
+    return <span className={`${shared} pointer-events-none`}>{inner}</span>
+  }
+  return (
+    <Link
+      href={item.href}
+      aria-label={item.ariaLabel}
+      className={`group/pill ${shared} transition-colors hover:border-rose/30 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose/50 focus-visible:ring-offset-2 focus-visible:ring-offset-cream`}
+    >
+      {inner}
+    </Link>
+  )
+}
+
+function StatusPill({ ongoing, label }: { ongoing: boolean; label: string }) {
   return (
     <span
       className={
         ongoing
-          ? 'inline-flex items-center gap-1.5 rounded-full border border-teal/30 bg-teal-soft px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-[1.5px] text-teal'
-          : 'inline-flex items-center gap-1.5 rounded-full border border-rose/25 bg-rose-soft px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-[1.5px] text-rose'
+          ? 'inline-flex flex-none items-center gap-1.5 rounded-full border border-teal/30 bg-teal-soft px-2 py-0.5 text-[10px] font-bold uppercase tracking-[1.2px] text-teal'
+          : 'inline-flex flex-none items-center gap-1.5 rounded-full border border-rose/25 bg-rose-soft px-2 py-0.5 text-[10px] font-bold uppercase tracking-[1.2px] text-rose'
       }
     >
       <span className="relative flex h-1.5 w-1.5">
@@ -126,32 +183,26 @@ function StatusBadge({ label, ongoing }: { label: string; ongoing: boolean }) {
   )
 }
 
+// Diagonal light sweep for the single-activity card. Decorative + inert; parked off-screen at rest.
+function Sheen() {
+  return (
+    <span aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 overflow-hidden rounded-2xl">
+      <span className="promo-sheen absolute inset-y-0 -left-1/4 w-1/3 bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.55),transparent)]" />
+    </span>
+  )
+}
+
 function TrophyIcon() {
   return (
-    <svg className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth={1.7} viewBox="0 0 24 24" aria-hidden="true">
+    <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24" aria-hidden="true">
       <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 002.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 012.916.52 6.003 6.003 0 01-5.395 4.972m0 0a6.726 6.726 0 01-2.749 1.35m0 0a6.772 6.772 0 01-3.044 0" />
     </svg>
   )
 }
-function CalendarIcon() {
+function ArrowIcon() {
   return (
-    <svg className="h-3.5 w-3.5 flex-none text-rose/70" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24" aria-hidden="true">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
-    </svg>
-  )
-}
-function PinIcon() {
-  return (
-    <svg className="h-3.5 w-3.5 flex-none text-rose/70" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24" aria-hidden="true">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-      <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-    </svg>
-  )
-}
-function GridIcon() {
-  return (
-    <svg className="h-3.5 w-3.5 flex-none text-rose/70" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24" aria-hidden="true">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+    <svg className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5 group-hover/pill:translate-x-0.5 motion-reduce:transition-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.4} d="M13 7l5 5m0 0l-5 5m5-5H6" />
     </svg>
   )
 }

@@ -163,6 +163,34 @@ body::before {
   transform-origin: left;
 }
 
+/* ── Home activity promo strip (compact animated ticker) ─────────────────────
+   ≥2 activities auto-scroll seamlessly via a track that holds the list twice
+   (translateX 0 → -50% == exactly one copy). A single activity gets a slow
+   light "sheen" sweep instead. Both revert to a clean, static base state under
+   the site-wide prefers-reduced-motion block above (it zeroes duration + caps
+   iterations, and every base state here is the intended still frame). */
+@keyframes promoTicker {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.promo-ticker-track {
+  animation: promoTicker var(--promo-dur, 40s) linear infinite;
+  will-change: transform;
+}
+/* Ease off on hover / keyboard focus so items are easy to read and click. */
+.promo-strip:hover .promo-ticker-track,
+.promo-strip:focus-within .promo-ticker-track {
+  animation-play-state: paused;
+}
+@keyframes promoSheen {
+  0%        { transform: translateX(-160%) skewX(-18deg); }
+  55%, 100% { transform: translateX(360%) skewX(-18deg); }
+}
+.promo-sheen {
+  transform: translateX(-160%) skewX(-18deg); /* base: parked off-screen (static frame) */
+  animation: promoSheen 7s ease-in-out infinite;
+}
+
 /* ── Tiến Lên Miền Nam (TLMN) table motion ───────────────────────────────────
    Deliberate, short. All of these are auto-neutralised by the site-wide
    prefers-reduced-motion block above (it zeroes animation-duration globally). */

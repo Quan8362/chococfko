@@ -70,10 +70,24 @@ export default async function HomeActivityPromo() {
   )
 }
 
-// Shared shell classes for both variants — thin band, brand blush→gold gradient, soft shadow.
+// Shared shell classes for both variants — a compact premium band: brand blush→cream→gold gradient
+// with a crisp hairline border, a soft branded drop-shadow and an inset top highlight so the strip
+// reads like a lit, slightly glassy surface rather than a flat rectangle.
 const SHELL =
   'promo-strip group relative flex h-[64px] items-center overflow-hidden rounded-2xl border border-rose/15 ' +
-  'bg-[linear-gradient(105deg,#fbedf3_0%,#fffdf8_50%,#f6eacf_100%)] shadow-[0_8px_28px_-14px_rgba(157,18,72,0.3)] sm:h-[76px]'
+  'bg-[linear-gradient(105deg,#fbedf3_0%,#fffdf8_48%,#f7ecd2_100%)] ' +
+  'shadow-[0_10px_30px_-16px_rgba(157,18,72,0.34),0_2px_6px_-3px_rgba(157,18,72,0.12),inset_0_1px_0_rgba(255,255,255,0.85)] sm:h-[76px]'
+
+// A soft moving-light sheen laid over the band for depth (decorative, pointer-events off). Sits
+// under the content (z-0) so text/CTA stay crisp above it.
+function Sheen() {
+  return (
+    <span
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(120%_140%_at_0%_0%,rgba(255,255,255,0.7),transparent_45%),radial-gradient(130%_150%_at_100%_100%,rgba(201,154,61,0.16),transparent_50%)]"
+    />
+  )
+}
 
 // Fade both edges so the running text melts in/out rather than popping at the border.
 const FADE = 'linear-gradient(to right, transparent, #000 4%, #000 96%, transparent)'
@@ -96,11 +110,10 @@ function SoloTicker({ item, ctaLabel }: { item: PromoItem; ctaLabel: string }) {
     <Link
       href={item.href}
       aria-label={item.ariaLabel}
-      className={`${SHELL} gap-3 px-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-rose/25 hover:shadow-[0_16px_40px_-18px_rgba(157,18,72,0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose/50 focus-visible:ring-offset-2 focus-visible:ring-offset-cream motion-reduce:transition-none motion-reduce:hover:translate-y-0 sm:gap-4 sm:px-5`}
+      className={`${SHELL} gap-3 px-3.5 transition-all duration-300 hover:-translate-y-0.5 hover:border-rose/25 hover:shadow-[0_18px_44px_-18px_rgba(157,18,72,0.42),inset_0_1px_0_rgba(255,255,255,0.9)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose/50 focus-visible:ring-offset-2 focus-visible:ring-offset-cream motion-reduce:transition-none motion-reduce:hover:translate-y-0 sm:gap-4 sm:px-4`}
     >
-      <span className="relative z-[1] hidden h-11 w-11 flex-none items-center justify-center rounded-xl bg-gradient-to-br from-rose to-rose-deep text-white shadow-[0_8px_18px_-8px_rgba(157,18,72,0.6)] sm:flex">
-        <TrophyIcon />
-      </span>
+      <Sheen />
+      <PromoBadge className="hidden sm:block" />
       <StatusPill ongoing={item.ongoing} label={item.statusLabel} className="relative z-[1]" />
 
       {/* Running centre line. The track holds the content twice for a seamless loop; the clone half is
@@ -113,7 +126,7 @@ function SoloTicker({ item, ctaLabel }: { item: PromoItem; ctaLabel: string }) {
       </div>
 
       {/* Fixed CTA — collapses to a tappable arrow chip on phones so the line has room. */}
-      <span className="relative z-[1] inline-flex h-9 w-9 flex-none items-center justify-center gap-1.5 rounded-full bg-rose text-[12.5px] font-semibold text-white shadow-[0_6px_16px_-8px_rgba(194,24,91,0.6)] transition-colors group-hover:bg-rose-deep sm:h-auto sm:w-auto sm:px-4 sm:py-2">
+      <span className="relative z-[1] inline-flex h-9 w-9 flex-none items-center justify-center gap-1.5 overflow-hidden rounded-full bg-[linear-gradient(120deg,#c2185b,#9d1248)] text-[12.5px] font-semibold text-white shadow-[0_8px_18px_-8px_rgba(157,18,72,0.7),inset_0_1px_0_rgba(255,255,255,0.35)] ring-1 ring-white/15 transition-all duration-300 group-hover:shadow-[0_12px_24px_-8px_rgba(157,18,72,0.8),inset_0_1px_0_rgba(255,255,255,0.45)] group-hover:brightness-110 sm:h-auto sm:w-auto sm:px-4 sm:py-2">
         <span className="hidden sm:inline">{ctaLabel}</span>
         <ArrowIcon />
       </span>
@@ -154,9 +167,12 @@ function MultiTicker({ items, ctaLabel }: { items: PromoItem[]; ctaLabel: string
     ))
 
   return (
-    <div className={`${SHELL} px-0`}>
-      <div className="relative h-full w-full overflow-hidden" style={maskStyle}>
-        <ul className="promo-ticker-track absolute inset-y-0 left-0 flex h-full w-max list-none items-center pl-4" style={durStyle}>
+    <div className={`${SHELL} gap-3 pl-3.5 sm:gap-4 sm:pl-4`}>
+      <Sheen />
+      {/* Fixed leading badge so the multi-strip carries the same premium anchor as the solo variant. */}
+      <PromoBadge className="hidden sm:block" />
+      <div className="relative z-[1] h-full min-w-0 flex-1 overflow-hidden" style={maskStyle}>
+        <ul className="promo-ticker-track absolute inset-y-0 left-0 flex h-full w-max list-none items-center" style={durStyle}>
           {sequence(false)}
           {/* Duplicate copy purely for the seamless loop — hidden from assistive tech + non-interactive. */}
           {sequence(true)}
@@ -173,14 +189,14 @@ function PromoPill({ item, ctaLabel, clone = false }: { item: PromoItem; ctaLabe
       <span className="font-serif text-[14px] font-bold tracking-[-0.2px] text-ink">{item.name}</span>
       <span className="text-[12px] text-[#6a5a4e]">{item.date}</span>
       {item.location && <span className="text-[12px] text-[#7a6a5e]">{item.location}</span>}
-      <span className="ml-0.5 inline-flex items-center gap-1 rounded-full bg-rose px-2.5 py-1 text-[11.5px] font-semibold text-white transition-colors group-hover/pill:bg-rose-deep">
+      <span className="ml-0.5 inline-flex items-center gap-1 rounded-full bg-[linear-gradient(120deg,#c2185b,#9d1248)] px-2.5 py-1 text-[11.5px] font-semibold text-white shadow-[0_4px_10px_-4px_rgba(157,18,72,0.6),inset_0_1px_0_rgba(255,255,255,0.35)] ring-1 ring-white/15 transition-all duration-300 group-hover/pill:brightness-110">
         {ctaLabel}
         <ArrowIcon />
       </span>
     </>
   )
   const shared =
-    'inline-flex items-center gap-2.5 whitespace-nowrap rounded-full border border-rose/12 bg-white/70 py-1.5 pl-2.5 pr-1.5 shadow-[0_2px_10px_-4px_rgba(157,18,72,0.18)]'
+    'inline-flex items-center gap-2.5 whitespace-nowrap rounded-full border border-rose/12 bg-white/75 py-1.5 pl-2.5 pr-1.5 shadow-[0_3px_12px_-4px_rgba(157,18,72,0.2),inset_0_1px_0_rgba(255,255,255,0.9)] backdrop-blur-sm'
   if (clone) {
     // Non-interactive, non-focusable, invisible to assistive tech — exists only to fill the loop.
     return (
@@ -205,8 +221,8 @@ function StatusPill({ ongoing, label, className = '' }: { ongoing: boolean; labe
     <span
       className={`${
         ongoing
-          ? 'inline-flex flex-none items-center gap-1.5 rounded-full border border-teal/30 bg-teal-soft px-2 py-0.5 text-[10px] font-bold uppercase tracking-[1.2px] text-teal'
-          : 'inline-flex flex-none items-center gap-1.5 rounded-full border border-rose/25 bg-rose-soft px-2 py-0.5 text-[10px] font-bold uppercase tracking-[1.2px] text-rose'
+          ? 'inline-flex flex-none items-center gap-1.5 rounded-full border border-teal/30 bg-[linear-gradient(180deg,#f0fafb,#dbeef1)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-[1.2px] text-teal shadow-[inset_0_1px_0_rgba(255,255,255,0.8),0_1px_3px_-1px_rgba(31,143,166,0.25)]'
+          : 'inline-flex flex-none items-center gap-1.5 rounded-full border border-rose/25 bg-[linear-gradient(180deg,#fdf1f6,#fbe2ec)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-[1.2px] text-rose shadow-[inset_0_1px_0_rgba(255,255,255,0.85),0_1px_3px_-1px_rgba(194,24,91,0.25)]'
       } ${className}`}
     >
       <span className="relative flex h-1.5 w-1.5">
@@ -229,11 +245,57 @@ function Star() {
   return <span aria-hidden="true" className="mx-3 text-[13px] text-rose/45 sm:mx-4">✦</span>
 }
 
-function TrophyIcon() {
+/**
+ * Premium "featured event" medallion shown as the strip's left anchor. A self-contained SVG so it
+ * stays razor-sharp at any DPI: a gold, softly-domed seal (radial + linear gold gradients with a
+ * highlight cap and inner bevel ring) carrying a gradient-filled rose trophy and two sparkles. All
+ * depth comes from layered vector shapes, so there is no flat "default icon" feel and nothing to
+ * pixelate. Purely decorative (aria-hidden) — the surrounding link carries the accessible label.
+ */
+function PromoBadge({ className = '' }: { className?: string }) {
   return (
-    <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24" aria-hidden="true">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 002.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 012.916.52 6.003 6.003 0 01-5.395 4.972m0 0a6.726 6.726 0 01-2.749 1.35m0 0a6.772 6.772 0 01-3.044 0" />
-    </svg>
+    <span className={`relative z-[1] h-11 w-11 flex-none ${className}`}>
+      <svg
+        viewBox="0 0 44 44"
+        className="h-full w-full drop-shadow-[0_6px_12px_rgba(157,108,20,0.4)]"
+        aria-hidden="true"
+      >
+        <defs>
+          <linearGradient id="promoSeal" x1="6" y1="4" x2="38" y2="40" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stopColor="#fdeec6" />
+            <stop offset="0.45" stopColor="#e9bb52" />
+            <stop offset="1" stopColor="#bd8a2c" />
+          </linearGradient>
+          <radialGradient id="promoSealGlow" cx="0.32" cy="0.24" r="0.85">
+            <stop offset="0" stopColor="#fff7e2" stopOpacity="0.95" />
+            <stop offset="0.55" stopColor="#fff7e2" stopOpacity="0" />
+          </radialGradient>
+          <linearGradient id="promoCup" x1="16" y1="12" x2="28" y2="30" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stopColor="#d61f66" />
+            <stop offset="1" stopColor="#9d1248" />
+          </linearGradient>
+        </defs>
+
+        {/* Domed seal: base gradient, top-light glow, and a soft bevel ring for depth. */}
+        <rect x="2" y="2" width="40" height="40" rx="13" fill="url(#promoSeal)" />
+        <rect x="2" y="2" width="40" height="40" rx="13" fill="url(#promoSealGlow)" />
+        <rect x="3.4" y="3.4" width="37.2" height="37.2" rx="11.5" fill="none" stroke="#fff3d6" strokeOpacity="0.7" strokeWidth="1" />
+        <rect x="2.5" y="2.5" width="39" height="39" rx="12.6" fill="none" stroke="#a5761f" strokeOpacity="0.55" strokeWidth="1" />
+
+        {/* Rose trophy (heroicons solid), centred and gradient-filled. */}
+        <g transform="translate(11.05 10.6) scale(0.915)" fill="url(#promoCup)">
+          <path
+            fillRule="evenodd"
+            clipRule="evenodd"
+            d="M5.166 2.621v.858c-1.035.148-2.059.33-3.071.543a.75.75 0 0 0-.584.859 6.753 6.753 0 0 0 6.138 5.6 6.73 6.73 0 0 0 2.743 1.346A6.707 6.707 0 0 1 9.279 15H8.54c-1.036 0-1.875.84-1.875 1.875V19.5h-.75a2.25 2.25 0 0 0-2.25 2.25c0 .414.336.75.75.75h15.75a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-2.25-2.25h-.75v-2.625c0-1.036-.84-1.875-1.875-1.875h-.739a6.706 6.706 0 0 1-1.112-3.173 6.73 6.73 0 0 0 2.743-1.347 6.753 6.753 0 0 0 6.139-5.6.75.75 0 0 0-.585-.858 47.077 47.077 0 0 0-3.07-.543V2.62a.75.75 0 0 0-.658-.744 49.22 49.22 0 0 0-6.093-.377c-2.063 0-4.096.128-6.093.377a.75.75 0 0 0-.657.744Zm0 2.629c0 1.196.312 2.32.857 3.294A5.266 5.266 0 0 1 3.16 5.337c.663-.128 1.331-.243 2.006-.343v.256Zm13.5 0v-.256c.674.1 1.343.214 2.006.343a5.265 5.265 0 0 1-2.863 3.207 6.72 6.72 0 0 0 .857-3.294Z"
+          />
+        </g>
+
+        {/* Sparkles — a bright four-point star top-right and a smaller one lower-left. */}
+        <path d="M33 8.2c.5 1.7.9 2.1 2.6 2.6-1.7.5-2.1.9-2.6 2.6-.5-1.7-.9-2.1-2.6-2.6 1.7-.5 2.1-.9 2.6-2.6Z" fill="#fff8e6" />
+        <path d="M10.6 30.5c.34 1.15.6 1.41 1.75 1.75-1.15.34-1.41.6-1.75 1.75-.34-1.15-.6-1.41-1.75-1.75 1.15-.34 1.41-.6 1.75-1.75Z" fill="#fff8e6" fillOpacity="0.85" />
+      </svg>
+    </span>
   )
 }
 function ArrowIcon() {

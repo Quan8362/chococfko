@@ -70,21 +70,21 @@ export default async function HomeActivityPromo() {
   )
 }
 
-// Shared shell classes for both variants — a compact premium band: brand blush→cream→gold gradient
-// with a crisp hairline border, a soft branded drop-shadow and an inset top highlight so the strip
-// reads like a lit, slightly glassy surface rather than a flat rectangle.
+// Shared shell classes for both variants — a compact premium band: brand blush→pearl gradient with a
+// crisp hairline border, a soft branded drop-shadow and an inset top highlight so the strip reads
+// like a lit, slightly glassy surface rather than a flat rectangle. No gold — pure blush/rose/ivory.
 const SHELL =
   'promo-strip group relative flex h-[64px] items-center overflow-hidden rounded-2xl border border-rose/15 ' +
-  'bg-[linear-gradient(105deg,#fbedf3_0%,#fffdf8_48%,#f7ecd2_100%)] ' +
-  'shadow-[0_10px_30px_-16px_rgba(157,18,72,0.34),0_2px_6px_-3px_rgba(157,18,72,0.12),inset_0_1px_0_rgba(255,255,255,0.85)] sm:h-[76px]'
+  'bg-[linear-gradient(105deg,#fdeef4_0%,#fffdfb_50%,#fbe7f0_100%)] ' +
+  'shadow-[0_10px_30px_-16px_rgba(157,18,72,0.34),0_2px_6px_-3px_rgba(157,18,72,0.12),inset_0_1px_0_rgba(255,255,255,0.9)] sm:h-[76px]'
 
 // A soft moving-light sheen laid over the band for depth (decorative, pointer-events off). Sits
-// under the content (z-0) so text/CTA stay crisp above it.
+// under the content (z-0) so text/CTA stay crisp above it. Blush/rose tints only.
 function Sheen() {
   return (
     <span
       aria-hidden="true"
-      className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(120%_140%_at_0%_0%,rgba(255,255,255,0.7),transparent_45%),radial-gradient(130%_150%_at_100%_100%,rgba(201,154,61,0.16),transparent_50%)]"
+      className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(120%_140%_at_0%_0%,rgba(255,255,255,0.75),transparent_46%),radial-gradient(130%_150%_at_100%_100%,rgba(194,24,91,0.07),transparent_52%)]"
     />
   )
 }
@@ -247,28 +247,28 @@ function Star() {
 
 /**
  * Premium "featured event" medallion shown as the strip's left anchor. A self-contained SVG so it
- * stays razor-sharp at any DPI: a gold, softly-domed seal (radial + linear gold gradients with a
- * highlight cap and inner bevel ring) carrying a gradient-filled rose trophy and two sparkles. All
- * depth comes from layered vector shapes, so there is no flat "default icon" feel and nothing to
- * pixelate. Purely decorative (aria-hidden) — the surrounding link carries the accessible label.
+ * stays razor-sharp at any DPI: a soft pearl-blush seal (radial + linear light-rose gradients with a
+ * highlight cap and a rose bevel ring) carrying a gradient-filled rose trophy and two rose sparkles.
+ * All depth comes from layered vector shapes — no flat "default icon" feel, no off-tone gold. Purely
+ * decorative (aria-hidden) — the surrounding link carries the accessible label.
  */
 function PromoBadge({ className = '' }: { className?: string }) {
   return (
     <span className={`relative z-[1] h-11 w-11 flex-none ${className}`}>
       <svg
         viewBox="0 0 44 44"
-        className="h-full w-full drop-shadow-[0_6px_12px_rgba(157,108,20,0.4)]"
+        className="h-full w-full drop-shadow-[0_5px_11px_rgba(157,18,72,0.28)]"
         aria-hidden="true"
       >
         <defs>
           <linearGradient id="promoSeal" x1="6" y1="4" x2="38" y2="40" gradientUnits="userSpaceOnUse">
-            <stop offset="0" stopColor="#fdeec6" />
-            <stop offset="0.45" stopColor="#e9bb52" />
-            <stop offset="1" stopColor="#bd8a2c" />
+            <stop offset="0" stopColor="#ffffff" />
+            <stop offset="0.5" stopColor="#fbdcea" />
+            <stop offset="1" stopColor="#f2b9d1" />
           </linearGradient>
           <radialGradient id="promoSealGlow" cx="0.32" cy="0.24" r="0.85">
-            <stop offset="0" stopColor="#fff7e2" stopOpacity="0.95" />
-            <stop offset="0.55" stopColor="#fff7e2" stopOpacity="0" />
+            <stop offset="0" stopColor="#ffffff" stopOpacity="0.95" />
+            <stop offset="0.55" stopColor="#ffffff" stopOpacity="0" />
           </radialGradient>
           <linearGradient id="promoCup" x1="16" y1="12" x2="28" y2="30" gradientUnits="userSpaceOnUse">
             <stop offset="0" stopColor="#d61f66" />
@@ -276,11 +276,11 @@ function PromoBadge({ className = '' }: { className?: string }) {
           </linearGradient>
         </defs>
 
-        {/* Domed seal: base gradient, top-light glow, and a soft bevel ring for depth. */}
+        {/* Domed seal: base gradient, top-light glow, and soft bevel rings for depth. */}
         <rect x="2" y="2" width="40" height="40" rx="13" fill="url(#promoSeal)" />
         <rect x="2" y="2" width="40" height="40" rx="13" fill="url(#promoSealGlow)" />
-        <rect x="3.4" y="3.4" width="37.2" height="37.2" rx="11.5" fill="none" stroke="#fff3d6" strokeOpacity="0.7" strokeWidth="1" />
-        <rect x="2.5" y="2.5" width="39" height="39" rx="12.6" fill="none" stroke="#a5761f" strokeOpacity="0.55" strokeWidth="1" />
+        <rect x="3.4" y="3.4" width="37.2" height="37.2" rx="11.5" fill="none" stroke="#ffffff" strokeOpacity="0.75" strokeWidth="1" />
+        <rect x="2.5" y="2.5" width="39" height="39" rx="12.6" fill="none" stroke="#c2185b" strokeOpacity="0.28" strokeWidth="1" />
 
         {/* Rose trophy (heroicons solid), centred and gradient-filled. */}
         <g transform="translate(11.05 10.6) scale(0.915)" fill="url(#promoCup)">
@@ -291,9 +291,9 @@ function PromoBadge({ className = '' }: { className?: string }) {
           />
         </g>
 
-        {/* Sparkles — a bright four-point star top-right and a smaller one lower-left. */}
-        <path d="M33 8.2c.5 1.7.9 2.1 2.6 2.6-1.7.5-2.1.9-2.6 2.6-.5-1.7-.9-2.1-2.6-2.6 1.7-.5 2.1-.9 2.6-2.6Z" fill="#fff8e6" />
-        <path d="M10.6 30.5c.34 1.15.6 1.41 1.75 1.75-1.15.34-1.41.6-1.75 1.75-.34-1.15-.6-1.41-1.75-1.75 1.15-.34 1.41-.6 1.75-1.75Z" fill="#fff8e6" fillOpacity="0.85" />
+        {/* Sparkles — a rose four-point star top-right and a smaller one lower-left. */}
+        <path d="M33 8.2c.5 1.7.9 2.1 2.6 2.6-1.7.5-2.1.9-2.6 2.6-.5-1.7-.9-2.1-2.6-2.6 1.7-.5 2.1-.9 2.6-2.6Z" fill="#d61f66" />
+        <path d="M10.6 30.5c.34 1.15.6 1.41 1.75 1.75-1.15.34-1.41.6-1.75 1.75-.34-1.15-.6-1.41-1.75-1.75 1.15-.34 1.41-.6 1.75-1.75Z" fill="#d61f66" fillOpacity="0.7" />
       </svg>
     </span>
   )

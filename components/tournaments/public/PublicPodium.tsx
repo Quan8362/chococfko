@@ -45,7 +45,16 @@ function PodiumPlacementItem({
       </span>
       <div className="min-w-0 flex-1">
         <p className="text-[10.5px] font-bold uppercase tracking-wide text-muted">{label}</p>
-        <TruncatedName name={name} className="block text-[13.5px] font-semibold text-ink" />
+        {/* Mobile + tablet (< lg): show the FULL name, wrapping onto as many lines as needed — the
+            card grows to fit and nothing is clipped. Desktop (lg+) keeps the single-line truncated
+            label with its hover/focus tooltip so the two half-width columns stay tidy. */}
+        <span className="block text-[13.5px] font-semibold leading-snug text-ink break-words lg:hidden">
+          {name}
+        </span>
+        <TruncatedName
+          name={name}
+          className="hidden text-[13.5px] font-semibold text-ink lg:block"
+        />
       </div>
     </li>
   )

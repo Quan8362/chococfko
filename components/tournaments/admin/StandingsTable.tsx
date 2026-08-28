@@ -75,8 +75,8 @@ export default function StandingsTable({
       )
     if (slot === 'undetermined')
       return (
-        <span className="inline-flex items-center gap-1 text-[10.5px] font-semibold px-1.5 py-0.5 rounded-full bg-cream text-muted border border-line">
-          <span aria-hidden>?</span> {tq('slot_undetermined_short')}
+        <span className="inline-flex items-center text-[10.5px] font-semibold px-1.5 py-0.5 rounded-full bg-cream text-muted border border-line">
+          {tq('slot_undetermined_short')}
         </span>
       )
     return <span className="text-[10.5px] text-muted">—</span>

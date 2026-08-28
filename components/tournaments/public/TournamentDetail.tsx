@@ -267,8 +267,13 @@ export default function TournamentDetail({
         <EmptyState title={t('empty.no_events')} hint={t('empty.no_events_hint')} />
       ) : (
         <>
-          {/* Tabs */}
-          <div role="tablist" aria-label={t('public.tabs_label')} className="flex gap-0.5 sm:gap-1 border-b border-line mb-6 overflow-x-auto no-scrollbar">
+          {/* Tabs — a horizontal-only scroller. The vertical axis is fully locked so a sideways touch
+              swipe can never pan, rubber-band or bounce the strip up/down: overflow-y is hidden,
+              overscroll is contained to X, and touch-action:pan-x tells the browser to treat any
+              touch here as horizontal panning only (the vertical component falls through to the page,
+              so the page still scrolls normally). Height stays constant because both tab states share
+              the same box (min-h-[44px] + border-b-2) — see selectorStyles. */}
+          <div role="tablist" aria-label={t('public.tabs_label')} className="flex gap-0.5 sm:gap-1 border-b border-line mb-6 overflow-x-auto overflow-y-hidden overscroll-x-contain no-scrollbar [touch-action:pan-x]">
             {availableTabs.map((tab, idx) => (
               <button
                 key={tab}

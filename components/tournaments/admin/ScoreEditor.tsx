@@ -7,6 +7,7 @@ import { saveGroupMatchResult, clearGroupMatchResult } from '@/app/admin/giai-da
 import type { MatchView, ScoreMutationError } from '@/lib/tournaments/admin/types'
 import type { EventScoringRuleView, HandicapRuleView, StageRuleView } from '@/lib/tournaments/rules'
 import ScoreRuleBanner from './ScoreRuleBanner'
+import TruncatedName from '@/components/tournaments/public/TruncatedName'
 
 // Modal for entering / editing the game scores of ONE group match. The client only does OPTIMISTIC
 // UX validation (integer, non-negative, no per-game tie, at least one game, games won not equal) and
@@ -146,11 +147,13 @@ export default function ScoreEditor({
           </button>
         </div>
 
-        {/* Competitor header */}
+        {/* Competitor header — names stay on one truncated line so the modal keeps its width; the full
+            name is reachable via the shared TruncatedName tooltip (hover OR keyboard focus, rendered in
+            a portal above the modal so it is never clipped) plus a native title/aria-label fallback. */}
         <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 mb-3 text-center">
-          <span className="text-[13.5px] font-semibold text-ink truncate">{nameA}</span>
+          <TruncatedName name={nameA} className="text-[13.5px] font-semibold text-ink" />
           <span className="text-[11px] text-muted">{t('vs')}</span>
-          <span className="text-[13.5px] font-semibold text-ink truncate">{nameB}</span>
+          <TruncatedName name={nameB} className="text-[13.5px] font-semibold text-ink" />
         </div>
 
         <ScoreRuleBanner rule={rule} source={ruleSource} handicapBlocked={handicapBlocked} handicap={handicap} />

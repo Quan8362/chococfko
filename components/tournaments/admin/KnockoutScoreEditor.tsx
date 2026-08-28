@@ -8,6 +8,7 @@ import type { KnockoutImpactPreview, KnockoutMatchView, KnockoutMutationError, K
 import type { EventScoringRuleView, HandicapRuleView, StageRuleView } from '@/lib/tournaments/rules'
 import ImpactPreviewDialog from './ImpactPreviewDialog'
 import ScoreRuleBanner from './ScoreRuleBanner'
+import TruncatedName from '@/components/tournaments/public/TruncatedName'
 
 // The save/clear actions are injectable so the SAME editor drives both the knockout-only flow and the
 // group_knockout championship / consolation branches (identical signatures, different server action).
@@ -169,10 +170,12 @@ export default function KnockoutScoreEditor({
           </button>
         </div>
 
+        {/* Names truncate to keep the modal width; full name via the shared TruncatedName tooltip
+            (hover or keyboard focus, portal-rendered above the modal) + title/aria-label fallback. */}
         <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 mb-3 text-center">
-          <span className="text-[13.5px] font-semibold text-ink truncate">{nameA}</span>
+          <TruncatedName name={nameA} className="text-[13.5px] font-semibold text-ink" />
           <span className="text-[11px] text-muted">{t('vs')}</span>
-          <span className="text-[13.5px] font-semibold text-ink truncate">{nameB}</span>
+          <TruncatedName name={nameB} className="text-[13.5px] font-semibold text-ink" />
         </div>
 
         <ScoreRuleBanner rule={rule} source={ruleSource} handicapBlocked={handicapBlocked} handicap={handicap} />

@@ -61,20 +61,25 @@ export default function PublicStandings({
             )}
           </div>
           <div className="overflow-x-auto rounded-2xl border border-line shadow-card">
-            {/* Points-for / points-against are secondary and hide below md so the table fits a phone
+            {/* table-fixed + explicit per-column widths on the (identical) header row make EVERY group
+                table share one column template: widths come from these header cells, never from body
+                content, so a long competitor name or the qualification sub-line can't shift the numeric
+                columns — Bảng A/B/C/D line up at the exact same x-positions. Competitor is the only
+                auto-width column and absorbs the remaining space (names wrap via break-words).
+                Points-for / points-against are secondary and hide below md so the table fits a phone
                 without page-level horizontal scroll; rank/name/P/W/L/Pts/Diff always stay. */}
-            <table className="w-full min-w-[380px] sm:min-w-[440px] text-[12.5px]">
+            <table className="w-full min-w-[460px] sm:min-w-[520px] text-[12.5px] table-fixed">
               <thead>
                 <tr className="bg-cream text-muted text-[11px] uppercase tracking-wide">
-                  <th scope="col" className="text-left font-semibold px-3 py-2 w-10">{t('standings.col_rank')}</th>
+                  <th scope="col" className="text-left font-semibold px-2 py-2 w-14">{t('standings.col_rank')}</th>
                   <th scope="col" className="text-left font-semibold px-3 py-2">{t('standings.col_competitor')}</th>
-                  <th scope="col" className="text-center font-semibold px-2 py-2">{t('standings.col_played')}</th>
-                  <th scope="col" className="text-center font-semibold px-2 py-2">{t('standings.col_wins')}</th>
-                  <th scope="col" className="text-center font-semibold px-2 py-2">{t('standings.col_losses')}</th>
-                  <th scope="col" className="text-center font-semibold px-2 py-2">{t('standings.col_points')}</th>
-                  <th scope="col" className="hidden md:table-cell text-center font-semibold px-2 py-2">{t('standings.col_points_for')}</th>
-                  <th scope="col" className="hidden md:table-cell text-center font-semibold px-2 py-2">{t('standings.col_points_against')}</th>
-                  <th scope="col" className="text-center font-semibold px-2 py-2">{t('standings.col_diff')}</th>
+                  <th scope="col" className="text-center font-semibold px-1 py-2 w-14 align-bottom">{t('standings.col_played')}</th>
+                  <th scope="col" className="text-center font-semibold px-1 py-2 w-14 align-bottom">{t('standings.col_wins')}</th>
+                  <th scope="col" className="text-center font-semibold px-1 py-2 w-14 align-bottom">{t('standings.col_losses')}</th>
+                  <th scope="col" className="text-center font-semibold px-1 py-2 w-14 align-bottom">{t('standings.col_points')}</th>
+                  <th scope="col" className="hidden md:table-cell text-center font-semibold px-1 py-2 w-14 align-bottom">{t('standings.col_points_for')}</th>
+                  <th scope="col" className="hidden md:table-cell text-center font-semibold px-1 py-2 w-14 align-bottom">{t('standings.col_points_against')}</th>
+                  <th scope="col" className="text-center font-semibold px-1 py-2 w-14 align-bottom">{t('standings.col_diff')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -89,7 +94,7 @@ export default function PublicStandings({
                           : ''
                     }`}
                   >
-                    <td className="px-3 py-2 font-bold text-ink tabular-nums">
+                    <td className="px-2 py-2 font-bold text-ink tabular-nums">
                       {r.rank}
                       {r.tied && <span className="text-muted font-normal" title={t('standings.tie_marker')}> =</span>}
                     </td>

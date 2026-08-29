@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import ScoreEditor from './ScoreEditor'
 import ScoreLine from '../ScoreLine'
+import TruncatedName from '@/components/tournaments/public/TruncatedName'
 import type { CompetitorRow, GroupRow, MatchView } from '@/lib/tournaments/admin/types'
 import type { EventScoringRuleView } from '@/lib/tournaments/rules'
 
@@ -106,11 +107,12 @@ export default function MatchResultsPanel({
                             className="rounded-lg border border-line bg-cream/50 px-2.5 py-2 flex items-center gap-2"
                           >
                             <span className="flex-none w-5 text-[11px] font-semibold text-muted">{m.matchNumber}</span>
-                            <span
-                              className={`flex-1 min-w-0 text-right truncate text-[13px] ${aWon ? 'font-bold text-ink' : 'text-ink'}`}
-                            >
-                              {aWon && <span className="text-teal mr-1" aria-hidden>✓</span>}
-                              {nameOf(m.competitorAId)}
+                            <span className="flex-1 min-w-0 flex items-center justify-end gap-1">
+                              {aWon && <span className="flex-none text-teal" aria-hidden>✓</span>}
+                              <TruncatedName
+                                name={nameOf(m.competitorAId)}
+                                className={`min-w-0 text-[13px] ${aWon ? 'font-bold text-ink' : 'text-ink'}`}
+                              />
                             </span>
                             <span className="flex-none text-center min-w-[64px] max-w-[168px] text-[14px] font-bold text-ink">
                               {completed ? (
@@ -123,11 +125,12 @@ export default function MatchResultsPanel({
                                 <span className="text-[11px] font-normal text-muted">{tm('vs')}</span>
                               )}
                             </span>
-                            <span
-                              className={`flex-1 min-w-0 truncate text-[13px] ${bWon ? 'font-bold text-ink' : 'text-ink'}`}
-                            >
-                              {nameOf(m.competitorBId)}
-                              {bWon && <span className="text-teal ml-1" aria-hidden>✓</span>}
+                            <span className="flex-1 min-w-0 flex items-center gap-1">
+                              <TruncatedName
+                                name={nameOf(m.competitorBId)}
+                                className={`min-w-0 text-[13px] ${bWon ? 'font-bold text-ink' : 'text-ink'}`}
+                              />
+                              {bWon && <span className="flex-none text-teal ml-0.5" aria-hidden>✓</span>}
                             </span>
                             <button
                               type="button"

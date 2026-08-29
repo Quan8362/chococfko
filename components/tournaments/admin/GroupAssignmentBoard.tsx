@@ -23,6 +23,7 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import ConfirmDialog from './ConfirmDialog'
 import RoundRobinPreviewPanel from './RoundRobinPreviewPanel'
+import TruncatedName from '@/components/tournaments/public/TruncatedName'
 import {
   UNASSIGNED,
   buildBoardState,
@@ -554,7 +555,7 @@ function Chip({
           ⠿
         </button>
       )}
-      <span className="flex-1 min-w-0 text-[13px] text-ink font-medium truncate">{label}</span>
+      <TruncatedName name={label} className="flex-1 min-w-0 text-[13px] text-ink font-medium" />
 
       {!locked && (
         <label className="flex-none">

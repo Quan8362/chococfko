@@ -4,6 +4,7 @@ import { useMemo, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import ConfirmDialog from './ConfirmDialog'
+import TruncatedName from '@/components/tournaments/public/TruncatedName'
 import {
   validateCompetitorInput,
   parseBulkCompetitors,
@@ -429,7 +430,7 @@ export default function CompetitorManager({
               ) : (
                 <>
                   <div className="flex-1 min-w-0 flex items-center gap-2">
-                    <span className="text-[14px] text-ink font-medium truncate">{row.name}</span>
+                    <TruncatedName name={row.name} className="min-w-0 flex-1 text-[14px] text-ink font-medium" />
                     {row.shortName && row.shortName !== row.name && (
                       <span className="hidden sm:inline text-[12px] text-muted truncate flex-none max-w-[30%]">· {row.shortName}</span>
                     )}

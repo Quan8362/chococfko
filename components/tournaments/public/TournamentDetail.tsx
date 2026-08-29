@@ -186,40 +186,6 @@ export default function TournamentDetail({
 
   return (
     <TournamentShell size="wide">
-      {/* Positioning context for the decorative illustration below. It only wraps
-          the content so the figure can be anchored to the reading column's
-          left edge; it adds no padding/margin and does not affect layout. */}
-      <div className="relative">
-      {/* ── DECORATIVE — badminton duo (male + female). Purely decorative visual
-          that fills the large left gutter on wide screens, giving the page a
-          sports-event feel while staying premium. Anchored so its right edge sits
-          ~16px left of the reading column, extending into the outer gutter; the
-          players + rackets already point right toward the content. Shown only
-          ≥1600px where the gutter is wide enough to hold it — html/body are
-          overflow-x:hidden so it can never create a horizontal scroll. It stays
-          in the gutter and never overlaps the header, event selector, tabs, or
-          any card/text. */}
-      <div
-        aria-hidden="true"
-        className="hidden min-[1600px]:block absolute top-[16px] z-0 h-[190px] w-[152px] min-[1720px]:h-[250px] min-[1720px]:w-[200px] min-[1860px]:h-[330px] min-[1860px]:w-[264px] min-[2000px]:h-[420px] min-[2000px]:w-[336px] pointer-events-none select-none"
-        style={{ right: "calc(100% + 16px)" }}
-      >
-        {/* Soft blush cloud BEHIND the duo — same warm rose→ivory radial as the home
-            hero but a touch stronger so the pair reads clearly against the bright
-            page. Heavily blurred, low opacity, fades to nothing (no hard edge, no
-            sticker halo). Biased toward the gutter and kept inside the right edge so
-            it never touches the tournament cards/text. */}
-        <div className="absolute -z-10 -top-[5%] -bottom-[5%] -left-[26%] right-[2%] blur-2xl bg-[radial-gradient(closest-side,rgba(203,88,130,0.25),rgba(228,160,124,0.12)_58%,transparent_80%)]" />
-        <img
-          src="/badminton_player01.webp"
-          alt=""
-          draggable={false}
-          loading="lazy"
-          decoding="async"
-          className="block h-full w-full object-contain drop-shadow-[0_20px_30px_rgba(90,55,45,0.12)]"
-        />
-      </div>
-
       {/* Back link */}
       <Link href="/giai-dau" className="inline-flex items-center gap-1.5 text-[13px] text-muted hover:text-rose transition-colors mb-4">
         <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24" aria-hidden="true">
@@ -397,7 +363,6 @@ export default function TournamentDetail({
           </div>
         </>
       )}
-      </div>
     </TournamentShell>
   )
 }

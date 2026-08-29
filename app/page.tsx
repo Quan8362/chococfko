@@ -98,6 +98,28 @@ export default async function Home() {
             flat without competing with the map's own pink glow (in HeroMap). */}
         <div className="absolute top-[42%] -left-[120px] w-[360px] h-[360px] rounded-full bg-[radial-gradient(circle_at_50%_50%,rgba(31,143,166,0.05),transparent_65%)] pointer-events-none" />
 
+        {/* ── DECORATIVE — badminton female (jump smash). Purely decorative visual
+            that fills the hero's large left whitespace on wide screens. Anchored so
+            its right edge hugs the centred container's outer-left edge (≈24px of
+            padding then the text), extending left into the outer gutter and
+            bottom-aligned to the hero, so the figure reads as an extension of the
+            hero rather than a pasted-on image. Her reaching arm + the shuttlecock
+            trajectory already point right into the hero. Shown only ≥1560px, where
+            the gutter is wide enough to hold it without clipping — the section is
+            overflow-hidden so it can never create a horizontal scroll. It sits in
+            the gutter and never overlaps the headline, copy, CTAs, stats, or the
+            promo banner (which lives above this section). */}
+        <img
+          src="/badminton_player02.webp"
+          alt=""
+          aria-hidden="true"
+          draggable={false}
+          loading="lazy"
+          decoding="async"
+          className="hidden min-[1580px]:block absolute bottom-[10px] z-0 h-[190px] min-[1720px]:h-[260px] min-[1900px]:h-[300px] w-auto object-contain pointer-events-none select-none drop-shadow-[0_18px_26px_rgba(90,55,45,0.12)]"
+          style={{ right: "calc(50vw + 640px)" }}
+        />
+
         {/* Two-column on lg+ via grid so the map can vertically centre against the
             full text+stats stack; single column (text → map → stats) below lg.
             The right column is weighted heavier so the map reads as the anchor.

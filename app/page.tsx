@@ -105,16 +105,26 @@ export default async function Home() {
           overflow-x:hidden so it never creates a horizontal scroll. It stays in the
           gutter and never overlaps the headline, copy, CTAs, stats, navigation, or
           the promo band. */}
-      <img
-        src="/badminton_player02.webp"
-        alt=""
+      <div
         aria-hidden="true"
-        draggable={false}
-        loading="lazy"
-        decoding="async"
-        className="hidden min-[1580px]:block absolute top-[6px] z-0 h-[190px] min-[1720px]:h-[260px] min-[1900px]:h-[300px] w-auto object-contain pointer-events-none select-none drop-shadow-[0_18px_26px_rgba(90,55,45,0.12)]"
+        className="hidden min-[1580px]:block absolute top-[6px] z-0 h-[190px] w-[143px] min-[1720px]:h-[260px] min-[1720px]:w-[195px] min-[1900px]:h-[300px] min-[1900px]:w-[225px] pointer-events-none select-none"
         style={{ right: "calc(50vw + 640px)" }}
-      />
+      >
+        {/* Soft blush cloud BEHIND the figure — a heavily-blurred, low-opacity warm
+            rose→ivory radial that fades to nothing (no hard edge, no shape). Lifts
+            her off the cream so she doesn't read as "floating". Biased toward the
+            gutter and kept just inside her right edge so it never reaches the hero
+            text. Fades out with the same responsive wrapper below 1580px. */}
+        <div className="absolute -z-10 -top-[5%] -bottom-[5%] -left-[28%] right-[2%] blur-2xl bg-[radial-gradient(closest-side,rgba(203,88,130,0.19),rgba(228,160,124,0.09)_58%,transparent_80%)]" />
+        <img
+          src="/badminton_player02.webp"
+          alt=""
+          draggable={false}
+          loading="lazy"
+          decoding="async"
+          className="block h-full w-full object-contain drop-shadow-[0_18px_26px_rgba(90,55,45,0.12)]"
+        />
+      </div>
 
       {/* ── ACTIVITY PROMO (directly below header; hides itself when nothing is live/upcoming) ── */}
       <HomeActivityPromo />

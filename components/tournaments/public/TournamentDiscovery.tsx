@@ -70,6 +70,7 @@ export default function TournamentDiscovery({
           </span>
           <input
             id="trn-search"
+            name="tournament-search"
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -96,6 +97,7 @@ export default function TournamentDiscovery({
           <div className="relative w-full sm:w-auto">
             <select
               id="trn-sort"
+              name="tournament-sort"
               value={sort}
               onChange={(e) => setSort(e.target.value as SortKey)}
               className="w-full appearance-none rounded-xl border border-line bg-paper py-2.5 pl-4 pr-9 text-[13.5px] font-medium text-ink transition-colors focus:border-rose/50 focus:outline-none focus:ring-2 focus:ring-rose/20 sm:w-auto"

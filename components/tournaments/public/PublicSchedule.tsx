@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState, type ReactNode } from 'react'
+import { useId, useMemo, useState, type ReactNode } from 'react'
 import { useTranslations } from 'next-intl'
 import type { PublicScheduleMatch } from '@/lib/tournaments/public/types'
 import { compareGroupMatches, compareKnockoutMatches } from '@/lib/tournaments/public/scheduleOrder'
@@ -91,6 +91,7 @@ export default function PublicSchedule({
         {groups.length > 0 && (
           <FilterSelect
             label={t('schedule.filter_group')}
+            name="tournament-schedule-group"
             value={groupFilter}
             onChange={setGroupFilter}
             options={[{ value: 'all', label: t('schedule.all') }, ...groups.map((g) => ({ value: g.id, label: g.name }))]}
@@ -98,6 +99,7 @@ export default function PublicSchedule({
         )}
         <FilterSelect
           label={t('schedule.filter_status')}
+          name="tournament-schedule-status"
           value={statusFilter}
           onChange={setStatusFilter}
           options={[
@@ -177,19 +179,27 @@ export default function PublicSchedule({
 
 function FilterSelect({
   label,
+  name,
   value,
   onChange,
   options,
 }: {
   label: string
+  name: string
   value: string
   onChange: (v: string) => void
   options: { value: string; label: string }[]
 }) {
+  // A stable, unique id so the control carries an id + name (autofill-friendly, no "form field should
+  // have an id or name" DevTools warning) and its visible label is explicitly associated. useId keeps
+  // it unique even if the filter is ever rendered more than once on a page.
+  const selectId = useId()
   return (
-    <label className="inline-flex items-center gap-1.5 h-[30px] text-[12px] text-muted">
+    <label htmlFor={selectId} className="inline-flex items-center gap-1.5 h-[30px] text-[12px] text-muted">
       <span className="font-medium">{label}</span>
       <select
+        id={selectId}
+        name={name}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className="h-[30px] text-[12.5px] border border-line rounded-lg bg-paper pl-2.5 pr-2 text-ink focus:outline-none focus:ring-2 focus:ring-rose/30"

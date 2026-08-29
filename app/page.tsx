@@ -89,6 +89,33 @@ export default async function Home() {
 
   return (
     <>
+      {/* ── TOP BAND — the promo band + hero share ONE positioning context so the
+          decorative badminton figure can sit up in the hero's upper-left whitespace
+          (beside the promo band), instead of inside the hero whose overflow-hidden
+          would clip it up there. ── */}
+      <div className="relative">
+
+      {/* ── DECORATIVE — badminton female (jump smash). Purely decorative visual
+          filling the hero's upper-left whitespace on wide screens. Anchored so its
+          right edge hugs the centred container's outer-left edge (≈24px padding then
+          the content), extending left into the outer gutter and top-aligned to the
+          promo/hero band — reads as an extension of the hero, not a pasted-on image.
+          Her reaching arm + the shuttlecock trajectory point right into the hero.
+          Shown only ≥1580px where the gutter can hold it; html/body are
+          overflow-x:hidden so it never creates a horizontal scroll. It stays in the
+          gutter and never overlaps the headline, copy, CTAs, stats, navigation, or
+          the promo band. */}
+      <img
+        src="/badminton_player02.webp"
+        alt=""
+        aria-hidden="true"
+        draggable={false}
+        loading="lazy"
+        decoding="async"
+        className="hidden min-[1580px]:block absolute top-[6px] z-0 h-[190px] min-[1720px]:h-[260px] min-[1900px]:h-[300px] w-auto object-contain pointer-events-none select-none drop-shadow-[0_18px_26px_rgba(90,55,45,0.12)]"
+        style={{ right: "calc(50vw + 640px)" }}
+      />
+
       {/* ── ACTIVITY PROMO (directly below header; hides itself when nothing is live/upcoming) ── */}
       <HomeActivityPromo />
 
@@ -97,28 +124,6 @@ export default async function Home() {
         {/* Subtle teal ambient on the far left — keeps the cream from feeling
             flat without competing with the map's own pink glow (in HeroMap). */}
         <div className="absolute top-[42%] -left-[120px] w-[360px] h-[360px] rounded-full bg-[radial-gradient(circle_at_50%_50%,rgba(31,143,166,0.05),transparent_65%)] pointer-events-none" />
-
-        {/* ── DECORATIVE — badminton female (jump smash). Purely decorative visual
-            that fills the hero's large left whitespace on wide screens. Anchored so
-            its right edge hugs the centred container's outer-left edge (≈24px of
-            padding then the text), extending left into the outer gutter and
-            bottom-aligned to the hero, so the figure reads as an extension of the
-            hero rather than a pasted-on image. Her reaching arm + the shuttlecock
-            trajectory already point right into the hero. Shown only ≥1560px, where
-            the gutter is wide enough to hold it without clipping — the section is
-            overflow-hidden so it can never create a horizontal scroll. It sits in
-            the gutter and never overlaps the headline, copy, CTAs, stats, or the
-            promo banner (which lives above this section). */}
-        <img
-          src="/badminton_player02.webp"
-          alt=""
-          aria-hidden="true"
-          draggable={false}
-          loading="lazy"
-          decoding="async"
-          className="hidden min-[1580px]:block absolute bottom-[10px] z-0 h-[190px] min-[1720px]:h-[260px] min-[1900px]:h-[300px] w-auto object-contain pointer-events-none select-none drop-shadow-[0_18px_26px_rgba(90,55,45,0.12)]"
-          style={{ right: "calc(50vw + 640px)" }}
-        />
 
         {/* Two-column on lg+ via grid so the map can vertically centre against the
             full text+stats stack; single column (text → map → stats) below lg.
@@ -201,6 +206,7 @@ export default async function Home() {
           </div>
         </div>
       </section>
+      </div>
 
       {/* ── DISCOVERY: intro → region+search → quick needs → categories → results.
           ExploreSearch owns the four-layer hierarchy (Phase 8 UI refactor). Cards

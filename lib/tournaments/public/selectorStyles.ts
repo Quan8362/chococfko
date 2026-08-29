@@ -27,8 +27,24 @@ export function eventButtonClass(active: boolean): string {
 export const TAB_BASE =
   'flex-none inline-flex items-center box-border min-h-[44px] whitespace-nowrap text-[13.5px] px-3.5 -mb-px border-b-2 rounded-t transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose/40'
 export const TAB_ACTIVE = 'border-rose text-rose font-bold'
-export const TAB_INACTIVE = 'border-transparent text-muted font-semibold hover:text-ink hover:border-line'
+// Inactive tabs read at text-ink/70 (darker than the old muted grey) for a clearer, more confident
+// resting state that still sits well below the bold rose active tab — see design §7.
+export const TAB_INACTIVE = 'border-transparent text-ink/70 font-semibold hover:text-ink hover:border-line'
 
 export function tabButtonClass(active: boolean): string {
   return `${TAB_BASE} ${active ? TAB_ACTIVE : TAB_INACTIVE}`
+}
+
+// ── Header action buttons (Rules · Share · Refresh) ─────────────────────────────────────────────────
+// One shared box so the three header actions line up on identical height, radius, icon size and spacing
+// (design §3). Only paint differs: NEUTRAL = Share/Refresh (secondary), ACCENT = Rules (soft cyan brand
+// treatment). Keeping a real 1px border on both — transparent on the accent — means the two variants
+// share the exact same outer box, so the row never jitters between them.
+export const ACTION_BTN_BASE =
+  'inline-flex items-center gap-1.5 h-9 px-3.5 rounded-xl text-[12.5px] font-semibold border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose/40'
+export const ACTION_BTN_NEUTRAL = 'text-ink bg-paper border-line hover:border-rose/40 hover:text-rose'
+export const ACTION_BTN_ACCENT = 'text-teal bg-teal-soft border-transparent hover:bg-teal-soft/70'
+
+export function actionButtonClass(accent = false): string {
+  return `${ACTION_BTN_BASE} ${accent ? ACTION_BTN_ACCENT : ACTION_BTN_NEUTRAL}`
 }

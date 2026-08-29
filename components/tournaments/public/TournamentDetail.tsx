@@ -4,7 +4,7 @@ import { useMemo, useState, useCallback, useRef, useEffect, useTransition } from
 import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
-import { eventButtonClass, tabButtonClass } from '@/lib/tournaments/public/selectorStyles'
+import { eventButtonClass, tabButtonClass, actionButtonClass } from '@/lib/tournaments/public/selectorStyles'
 import type {
   PublicEventWorkspace,
   PublicTournamentSummary,
@@ -194,14 +194,16 @@ export default function TournamentDetail({
         {t('public.all_tournaments')}
       </Link>
 
-      {/* Header — title/meta and status/actions split into two zones on desktop, stacked on mobile */}
-      <header className="rounded-3xl border border-line shadow-card bg-gradient-to-br from-gold-light/40 via-paper to-rose-soft/60 p-5 sm:p-6 mb-6">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+      {/* Header — title/meta and status/actions split into two zones on desktop, stacked on mobile.
+          The right zone is a clean vertical hierarchy: STATUS → ACTIONS → live-sync caption (design §3),
+          so the refresh sits inside the action set instead of being marooned beside the status. */}
+      <header className="rounded-3xl border border-line shadow-card bg-gradient-to-br from-rose-soft/40 via-paper to-paper p-5 sm:p-6 mb-6">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between lg:gap-8">
           <div className="min-w-0">
-            <h1 className="font-serif font-bold text-[clamp(23px,3.1vw,34px)] leading-tight text-ink break-words">
+            <h1 className="font-serif font-bold text-[clamp(24px,3.2vw,35px)] leading-[1.14] text-ink break-words">
               {summary.name}
             </h1>
-            <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5 text-[13px] text-muted mt-2.5">
+            <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5 text-[13px] text-muted mt-3">
               <span>{dateRange || t('public.dates_tbd')}</span>
               <span aria-hidden className="text-line">•</span>
               <span>{summary.location || t('public.location_tbd')}</span>
@@ -209,15 +211,15 @@ export default function TournamentDetail({
               <span>{t('public.events_count', { count: summary.events.length })}</span>
             </div>
           </div>
-          <div className="flex flex-col items-start gap-2.5 lg:items-end lg:flex-none">
+          <div className="flex flex-col items-start gap-3 lg:items-end lg:flex-none">
             <StatusPill phase={phase} label={t(`status.${phase}`)} />
-            <div className="flex flex-wrap items-center gap-2.5 lg:justify-end">
+            <div className="flex flex-wrap items-center gap-2 lg:justify-end">
               {summary.rulesUrl && (
                 <a
                   href={summary.rulesUrl}
                   target="_blank"
                   rel="noopener noreferrer nofollow"
-                  className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-teal bg-teal-soft hover:bg-teal-soft/70 px-3 py-1.5 rounded-xl transition-colors"
+                  className={actionButtonClass(true)}
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.7} viewBox="0 0 24 24" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
@@ -226,18 +228,16 @@ export default function TournamentDetail({
                 </a>
               )}
               <ShareButton />
-              <ConnectionIndicator status={rtStatus} onRefresh={refreshNow} />
-              <button
-                type="button"
-                onClick={() => router.refresh()}
-                className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-ink bg-paper border border-line hover:border-rose/40 hover:text-rose px-3 py-1.5 rounded-xl transition-colors"
-              >
+              <button type="button" onClick={() => router.refresh()} className={actionButtonClass()}>
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.7} viewBox="0 0 24 24" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
                 </svg>
                 {t('public.refresh')}
               </button>
             </div>
+            {/* Live-sync status is a subordinate caption below the actions — never a broadcast-style
+                "live" badge among the buttons. It only surfaces a refresh affordance on a dropped link. */}
+            <ConnectionIndicator status={rtStatus} onRefresh={refreshNow} />
           </div>
         </div>
       </header>

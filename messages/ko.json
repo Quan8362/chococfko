@@ -7136,7 +7136,7 @@
     },
     "realtime": {
       "connecting": "연결 중",
-      "connected": "실시간",
+      "connected": "자동 업데이트",
       "disconnected": "연결 끊김",
       "reconnecting": "재연결 중",
       "refresh": "새로고침"

@@ -7136,7 +7136,7 @@
     },
     "realtime": {
       "connecting": "Đang kết nối",
-      "connected": "Trực tiếp",
+      "connected": "Tự động cập nhật",
       "disconnected": "Mất kết nối",
       "reconnecting": "Đang kết nối lại",
       "refresh": "Làm mới"

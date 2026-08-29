@@ -7136,7 +7136,7 @@
     },
     "realtime": {
       "connecting": "连接中",
-      "connected": "实时",
+      "connected": "自动更新",
       "disconnected": "已断开",
       "reconnecting": "重新连接中",
       "refresh": "刷新"

@@ -7136,7 +7136,7 @@
     },
     "realtime": {
       "connecting": "Connecting",
-      "connected": "Live",
+      "connected": "Auto-updating",
       "disconnected": "Disconnected",
       "reconnecting": "Reconnecting",
       "refresh": "Refresh"

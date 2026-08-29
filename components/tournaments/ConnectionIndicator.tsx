@@ -7,9 +7,11 @@
 import { useTranslations } from 'next-intl'
 import type { ConnectionStatus } from './useTournamentRealtime'
 
+// Cyan for the healthy "connected" state keeps live-sync on the brand's status colour (never the
+// broadcast-green that read as a live stream). Problem states stay red/amber so trouble still stands out.
 const DOT: Record<ConnectionStatus, string> = {
   connecting: 'bg-muted/50',
-  connected: 'bg-emerald-500',
+  connected: 'bg-teal',
   disconnected: 'bg-red-500',
   reconnecting: 'bg-amber-500',
 }
@@ -28,7 +30,6 @@ export default function ConnectionIndicator({
 }) {
   const t = useTranslations('tournaments')
   const label = t(`realtime.${status}`)
-  const live = status === 'connected'
   // Only genuine failure states offer a manual refresh. 'connecting' is a routine transient — it fires
   // on first mount and on every event-switch resubscribe — so surfacing (then hiding) the refresh
   // button there would jolt the right-anchored action bar sideways on each switch.
@@ -44,12 +45,9 @@ export default function ConnectionIndicator({
       aria-live="polite"
     >
       <span className="inline-flex items-center gap-1.5">
+        {/* A calm static status dot — the textual label already conveys the live-sync state, so there is
+            no attention-grabbing pulse. Trouble states carry their own red/amber colour + the refresh link. */}
         <span className="relative inline-flex h-2 w-2" aria-hidden="true">
-          {live && (
-            <span
-              className={`absolute inline-flex h-full w-full rounded-full opacity-60 animate-ping motion-reduce:animate-none ${DOT[status]}`}
-            />
-          )}
           <span className={`relative inline-flex h-2 w-2 rounded-full ${DOT[status]}`} />
         </span>
         {/* Stack every possible label as an invisible ghost so the text slot always reserves the widest

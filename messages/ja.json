@@ -7136,7 +7136,7 @@
     },
     "realtime": {
       "connecting": "接続中",
-      "connected": "ライブ",
+      "connected": "自動更新",
       "disconnected": "切断されました",
       "reconnecting": "再接続中",
       "refresh": "更新"

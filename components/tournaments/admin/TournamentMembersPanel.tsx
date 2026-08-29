@@ -181,7 +181,7 @@ export default function TournamentMembersPanel({
                   <td className="py-2.5 pr-3">
                     {m.role === 'owner' ? (
                       // The owner is fixed — shown as a static badge, never a role picker.
-                      <span className="inline-block text-[11.5px] font-semibold px-2 py-[3px] rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                      <span className="inline-block whitespace-nowrap text-[11.5px] font-semibold px-2 py-[3px] rounded-full bg-amber-50 text-amber-700 border border-amber-200">
                         {tr('role_owner')}
                       </span>
                     ) : (
@@ -204,7 +204,7 @@ export default function TournamentMembersPanel({
                     )}
                   </td>
                   <td className="py-2.5 pr-3">
-                    <span className={`inline-block text-[11px] font-semibold px-2 py-[3px] rounded-full border ${statusTone[m.status] ?? ''}`}>
+                    <span className={`inline-block whitespace-nowrap text-[11px] font-semibold px-2 py-[3px] rounded-full border ${statusTone[m.status] ?? ''}`}>
                       {t(`status_${m.status}`)}
                     </span>
                   </td>

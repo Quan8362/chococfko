@@ -66,12 +66,12 @@ export default function PublicStandings({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-7">
       {standings.map((g) => (
         <div key={g.groupId}>
-          <div className="flex items-center justify-between gap-2 mb-2.5">
+          <div className="flex items-center justify-between gap-2 mb-3">
             <h3 className="flex items-center gap-2 text-[14px] font-bold text-ink">
-              <span aria-hidden className="h-4 w-1 rounded-full bg-rose/50" />
+              <span aria-hidden className="h-4 w-1 rounded-full bg-rose/60" />
               {t('standings.group_heading', { name: g.groupName })}
             </h3>
             {g.resolvedByOrganizer && (
@@ -80,7 +80,7 @@ export default function PublicStandings({
               </span>
             )}
           </div>
-          <div className="overflow-x-auto rounded-2xl border border-line shadow-card">
+          <div className="overflow-x-auto rounded-2xl border border-line shadow-card bg-paper">
             {/* table-fixed + the shared COL width tokens on this (identical-per-group) header row give
                 every group table one column template, so Bảng A/B/C/D align at the same x-positions
                 regardless of content. Competitor is the only width-less (flexible) column and absorbs
@@ -88,24 +88,29 @@ export default function PublicStandings({
                 fits a phone without page-level horizontal scroll; the rest always stay and, when the
                 viewport is narrow, the table scrolls inside its own overflow-x container above. */}
             <table className="w-full min-w-[560px] sm:min-w-[600px] text-[12.5px] table-fixed">
+              {/* Header carries a soft warm-cream tint on the near-white (paper) card so it reads as a
+                  distinct band without a heavy fill, and a full-width border-b that is a touch stronger
+                  than the lighter per-row dividers below — a clear header → data separation (design §2/§3/§7). */}
               <thead>
-                <tr className="bg-cream text-muted text-[11px] uppercase tracking-wide">
-                  <th scope="col" className={`text-left font-semibold px-2 py-2 ${COL.rank}`}>{t('standings.col_rank')}</th>
-                  <th scope="col" className="text-left font-semibold px-3 py-2">{t('standings.col_competitor')}</th>
-                  <th scope="col" className={`text-center font-semibold px-1 py-2 ${COL.played}`}>{t('standings.col_played')}</th>
-                  <th scope="col" className={`text-center font-semibold px-1 py-2 ${COL.wins}`}>{t('standings.col_wins')}</th>
-                  <th scope="col" className={`text-center font-semibold px-1 py-2 ${COL.losses}`}>{t('standings.col_losses')}</th>
-                  <th scope="col" className={`text-center font-semibold px-1 py-2 ${COL.points}`}>{t('standings.col_points')}</th>
-                  <th scope="col" className={`hidden md:table-cell text-center font-semibold px-1 py-2 ${COL.pointsFor}`}>{t('standings.col_points_for')}</th>
-                  <th scope="col" className={`hidden md:table-cell text-center font-semibold px-1 py-2 ${COL.pointsAgainst}`}>{t('standings.col_points_against')}</th>
-                  <th scope="col" className={`text-center font-semibold px-1 py-2 ${COL.diff}`}>{t('standings.col_diff')}</th>
+                <tr className="bg-cream text-ink/70 text-[11px] uppercase tracking-wide border-b border-line">
+                  <th scope="col" className={`text-left font-semibold px-2 py-2.5 ${COL.rank}`}>{t('standings.col_rank')}</th>
+                  <th scope="col" className="text-left font-semibold px-3 py-2.5">{t('standings.col_competitor')}</th>
+                  <th scope="col" className={`text-center font-semibold px-1 py-2.5 ${COL.played}`}>{t('standings.col_played')}</th>
+                  <th scope="col" className={`text-center font-semibold px-1 py-2.5 ${COL.wins}`}>{t('standings.col_wins')}</th>
+                  <th scope="col" className={`text-center font-semibold px-1 py-2.5 ${COL.losses}`}>{t('standings.col_losses')}</th>
+                  <th scope="col" className={`text-center font-semibold px-1 py-2.5 ${COL.points}`}>{t('standings.col_points')}</th>
+                  <th scope="col" className={`hidden md:table-cell text-center font-semibold px-1 py-2.5 ${COL.pointsFor}`}>{t('standings.col_points_for')}</th>
+                  <th scope="col" className={`hidden md:table-cell text-center font-semibold px-1 py-2.5 ${COL.pointsAgainst}`}>{t('standings.col_points_against')}</th>
+                  <th scope="col" className={`text-center font-semibold px-1 py-2.5 ${COL.diff}`}>{t('standings.col_diff')}</th>
                 </tr>
               </thead>
-              <tbody>
+              {/* Row separators are lighter than the header divider so the header stays the strongest
+                  horizontal line; a very light warm hover keeps rows scannable without zebra striping. */}
+              <tbody className="divide-y divide-line/70">
                 {g.rows.map((r) => (
                   <tr
                     key={r.competitorId}
-                    className={`border-t border-line ${
+                    className={`transition-colors duration-150 hover:bg-cream/50 ${
                       r.qualification === 'championship'
                         ? 'bg-[#f4faef]'
                         : r.qualification === 'consolation'
@@ -113,23 +118,23 @@ export default function PublicStandings({
                           : ''
                     }`}
                   >
-                    <td className="px-2 py-2 font-bold text-ink tabular-nums">
+                    <td className="px-2 py-2.5 font-bold text-ink tabular-nums">
                       {r.rank}
                       {r.tied && <span className="text-muted font-normal" title={t('standings.tie_marker')}> =</span>}
                     </td>
-                    <td className="px-3 py-2 min-w-0">
+                    <td className="px-3 py-2.5 min-w-0">
                       <div className="flex flex-col">
-                        <span className="text-ink font-medium break-words">{nameOf(r.competitorId)}</span>
+                        <span className="text-ink font-semibold break-words">{nameOf(r.competitorId)}</span>
                         {r.qualification !== 'none' && <span className="mt-0.5">{qualMarker(r.qualification)}</span>}
                       </div>
                     </td>
-                    <td className="px-2 py-2 text-center tabular-nums text-muted">{r.played}</td>
-                    <td className="px-2 py-2 text-center tabular-nums text-ink">{r.wins}</td>
-                    <td className="px-2 py-2 text-center tabular-nums text-muted">{r.losses}</td>
-                    <td className="px-2 py-2 text-center tabular-nums font-bold text-ink">{r.tablePoints}</td>
-                    <td className="hidden md:table-cell px-2 py-2 text-center tabular-nums text-muted">{r.pointsFor}</td>
-                    <td className="hidden md:table-cell px-2 py-2 text-center tabular-nums text-muted">{r.pointsAgainst}</td>
-                    <td className="px-2 py-2 text-center tabular-nums text-muted">
+                    <td className="px-2 py-2.5 text-center tabular-nums text-muted">{r.played}</td>
+                    <td className="px-2 py-2.5 text-center tabular-nums text-ink">{r.wins}</td>
+                    <td className="px-2 py-2.5 text-center tabular-nums text-muted">{r.losses}</td>
+                    <td className="px-2 py-2.5 text-center tabular-nums font-bold text-ink">{r.tablePoints}</td>
+                    <td className="hidden md:table-cell px-2 py-2.5 text-center tabular-nums text-muted">{r.pointsFor}</td>
+                    <td className="hidden md:table-cell px-2 py-2.5 text-center tabular-nums text-muted">{r.pointsAgainst}</td>
+                    <td className="px-2 py-2.5 text-center tabular-nums text-muted">
                       {r.pointDifference > 0 ? `+${r.pointDifference}` : r.pointDifference}
                     </td>
                   </tr>

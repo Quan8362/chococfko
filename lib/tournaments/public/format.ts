@@ -2,8 +2,12 @@
 
 import type { PublicTournamentStatus, TournamentPhase } from './types'
 
-// Bucket a tournament for list ordering / status pills. `completed` status wins; otherwise a
-// published tournament is `upcoming` until its start date, then `ongoing`.
+// Bucket a tournament for list ordering / status pills. A published tournament is `upcoming` until
+// its start time, `ongoing` between start and end, and `completed` once its end time has passed —
+// so a finished event stops showing "đang diễn ra" on its own, without waiting for an admin to mark
+// it. An explicit `completed` status still wins (an admin can end it early). Time-based transitions
+// are re-evaluated on each render (the public pages are force-dynamic), so they take effect on the
+// next page load after the moment passes.
 export function tournamentPhase(
   status: PublicTournamentStatus,
   startsAt: string | null,
@@ -13,8 +17,11 @@ export function tournamentPhase(
   const now = Date.now()
   const start = startsAt ? Date.parse(startsAt) : NaN
   const end = endsAt ? Date.parse(endsAt) : NaN
+  // Past the known end time → the event is over.
+  if (!Number.isNaN(end) && now > end) return 'completed'
+  // Before the known start time → not started yet.
   if (!Number.isNaN(start) && now < start) return 'upcoming'
-  if (!Number.isNaN(end) && now > end) return 'ongoing'
+  // Otherwise it is running now. With no known start we can't claim it's live, so default to upcoming.
   return Number.isNaN(start) ? 'upcoming' : 'ongoing'
 }
 

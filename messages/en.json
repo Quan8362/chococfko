@@ -2,6 +2,7 @@
   "home_promo": {
     "status_ongoing": "Live now",
     "status_upcoming": "Upcoming",
+    "status_completed": "Completed",
     "tagline": "Follow the schedule, standings and live results.",
     "date_tbd": "Schedule coming soon",
     "events_count": "{count} events",

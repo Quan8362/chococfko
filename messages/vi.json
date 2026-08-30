@@ -2,6 +2,7 @@
   "home_promo": {
     "status_ongoing": "Đang diễn ra",
     "status_upcoming": "Sắp diễn ra",
+    "status_completed": "Đã kết thúc",
     "tagline": "Theo dõi lịch thi đấu, bảng xếp hạng và kết quả trực tiếp.",
     "date_tbd": "Sắp công bố lịch",
     "events_count": "{count} nội dung thi đấu",

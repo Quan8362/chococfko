@@ -2,6 +2,7 @@
   "home_promo": {
     "status_ongoing": "진행 중",
     "status_upcoming": "예정",
+    "status_completed": "종료",
     "tagline": "경기 일정, 순위, 실시간 결과를 확인하세요.",
     "date_tbd": "일정 곧 공개",
     "events_count": "{count}개 종목",

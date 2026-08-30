@@ -16,6 +16,8 @@ import MapDiscoveryCard from "@/components/explore/MapDiscoveryCard";
 import HeroMap from "@/components/home/HeroMap";
 import HeroStats from "@/components/home/HeroStats";
 import HomeActivityPromo from "@/components/home/HomeActivityPromo";
+import { listPublicTournaments } from "@/lib/tournaments/public/queries";
+import { selectPromoActivities } from "@/lib/tournaments/public/promo";
 import Reveal from "@/components/home/Reveal";
 
 export const dynamic = "force-dynamic";
@@ -46,12 +48,17 @@ export default async function Home() {
     getLocale(),
   ])
 
-  // Fetch places + search taxonomy in parallel (independent). The taxonomy load
-  // overlaps the places query instead of running after it.
-  const [dbPlaces, searchConfig] = await Promise.all([
+  // Fetch places + search taxonomy + promoted tournaments in parallel (independent). The promo list
+  // is resolved here (one fetch) so the home banner AND the decorative hero illustration both key off
+  // the SAME result: a tournament shows in the strip — and the badminton figure appears — only while
+  // an Admin keeps its "Quảng bá trên trang chủ" flag on; turning it off hides both together.
+  const [dbPlaces, searchConfig, promoTournaments] = await Promise.all([
     getAllPlacesFromDb(locale),
     loadSearchConfig(),
+    listPublicTournaments(),
   ]);
+  const promoActivities = selectPromoActivities(promoTournaments);
+  const showPromo = promoActivities.length > 0;
   // getAllPlacesFromDb filters out pending places (status='pending')
   // so only approved/pre-existing places reach here
   const basePlaces: Place[] = dbPlaces ?? staticPlaces;
@@ -104,30 +111,33 @@ export default async function Home() {
           Shown only ≥1580px where the gutter can hold it; html/body are
           overflow-x:hidden so it never creates a horizontal scroll. It stays in the
           gutter and never overlaps the headline, copy, CTAs, stats, navigation, or
-          the promo band. */}
-      <div
-        aria-hidden="true"
-        className="hidden min-[1580px]:block absolute top-[6px] z-0 h-[190px] w-[143px] min-[1720px]:h-[260px] min-[1720px]:w-[195px] min-[1900px]:h-[300px] min-[1900px]:w-[225px] pointer-events-none select-none"
-        style={{ right: "calc(50vw + 640px)" }}
-      >
-        {/* Soft blush cloud BEHIND the figure — a heavily-blurred, low-opacity warm
-            rose→ivory radial that fades to nothing (no hard edge, no shape). Lifts
-            her off the cream so she doesn't read as "floating". Biased toward the
-            gutter and kept just inside her right edge so it never reaches the hero
-            text. Fades out with the same responsive wrapper below 1580px. */}
-        <div className="absolute -z-10 -top-[5%] -bottom-[5%] -left-[28%] right-[2%] blur-2xl bg-[radial-gradient(closest-side,rgba(203,88,130,0.19),rgba(228,160,124,0.09)_58%,transparent_80%)]" />
-        <img
-          src="/badminton_player02.webp"
-          alt=""
-          draggable={false}
-          loading="lazy"
-          decoding="async"
-          className="block h-full w-full object-contain drop-shadow-[0_18px_26px_rgba(90,55,45,0.12)]"
-        />
-      </div>
+          the promo band. Rendered ONLY while a tournament is being promoted (showPromo)
+          so it appears/disappears together with the promo strip. */}
+      {showPromo && (
+        <div
+          aria-hidden="true"
+          className="hidden min-[1580px]:block absolute top-[6px] z-0 h-[190px] w-[143px] min-[1720px]:h-[260px] min-[1720px]:w-[195px] min-[1900px]:h-[300px] min-[1900px]:w-[225px] pointer-events-none select-none"
+          style={{ right: "calc(50vw + 640px)" }}
+        >
+          {/* Soft blush cloud BEHIND the figure — a heavily-blurred, low-opacity warm
+              rose→ivory radial that fades to nothing (no hard edge, no shape). Lifts
+              her off the cream so she doesn't read as "floating". Biased toward the
+              gutter and kept just inside her right edge so it never reaches the hero
+              text. Fades out with the same responsive wrapper below 1580px. */}
+          <div className="absolute -z-10 -top-[5%] -bottom-[5%] -left-[28%] right-[2%] blur-2xl bg-[radial-gradient(closest-side,rgba(203,88,130,0.19),rgba(228,160,124,0.09)_58%,transparent_80%)]" />
+          <img
+            src="/badminton_player02.webp"
+            alt=""
+            draggable={false}
+            loading="lazy"
+            decoding="async"
+            className="block h-full w-full object-contain drop-shadow-[0_18px_26px_rgba(90,55,45,0.12)]"
+          />
+        </div>
+      )}
 
-      {/* ── ACTIVITY PROMO (directly below header; hides itself when nothing is live/upcoming) ── */}
-      <HomeActivityPromo />
+      {/* ── ACTIVITY PROMO (directly below header; renders nothing when no tournament is promoted) ── */}
+      <HomeActivityPromo activities={promoActivities} />
 
       {/* ── HERO ─────────────────────────────────────────────── */}
       <section className="relative pt-9 sm:pt-11 lg:pt-12 pb-8 lg:pb-10 overflow-hidden">

@@ -7,7 +7,8 @@
 
 import type { PublicTournamentListItem } from './types'
 
-// Ordering rank: ongoing before upcoming. `completed` is never promoted (filtered out entirely).
+// Ordering rank within the promo strip: ongoing first, then upcoming, then completed (a finished
+// tournament stays promoted while its admin flag is on, just sorted to the end).
 const PHASE_RANK: Record<PublicTournamentListItem['phase'], number> = {
   ongoing: 0,
   upcoming: 1,
@@ -32,18 +33,18 @@ function comparePromo(a: PublicTournamentListItem, b: PublicTournamentListItem):
 /**
  * Order the tournaments to promote on the home page.
  *
- * A tournament is promoted ONLY when ALL hold:
- *   1. it is publicly visible (the caller already filters to published/completed via RLS), AND
- *   2. a Site Admin has turned ON its home-promo flag (`homePromoEnabled`), AND
- *   3. it is ongoing or upcoming (a completed/archived tournament is never promoted, even with the
- *      flag on — `completed` is dropped here; archived rows never reach a public read).
+ * A tournament is promoted whenever BOTH hold:
+ *   1. it is publicly visible (the caller already filters to published/completed via RLS; archived
+ *      rows never reach a public read), AND
+ *   2. a Site Admin has turned ON its home-promo flag (`homePromoEnabled`).
  *
- * The result is ordered ongoing → upcoming, then soonest start, then a stable slug tie-break, and can
- * hold several tournaments (all the ones an Admin opted in). An empty result → the strip renders
- * nothing at all (no empty frame, no layout shift).
+ * The promo strip is driven purely by that admin toggle — a finished tournament KEEPS showing (with
+ * its "Đã kết thúc" status) until the Admin turns the flag off; the phase only affects the label and
+ * ordering, never whether it appears. The result is ordered ongoing → upcoming → completed, then
+ * soonest start, then a stable slug tie-break, and can hold several tournaments (all the ones an
+ * Admin opted in). An empty result → the strip renders nothing at all (no empty frame, no layout
+ * shift).
  */
 export function selectPromoActivities(items: PublicTournamentListItem[]): PublicTournamentListItem[] {
-  return items
-    .filter((i) => i.homePromoEnabled && (i.phase === 'ongoing' || i.phase === 'upcoming'))
-    .sort(comparePromo)
+  return items.filter((i) => i.homePromoEnabled).sort(comparePromo)
 }

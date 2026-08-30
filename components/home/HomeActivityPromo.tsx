@@ -1,9 +1,8 @@
 import Link from 'next/link'
 import type { CSSProperties } from 'react'
 import { getLocale, getTranslations } from 'next-intl/server'
-import { listPublicTournaments } from '@/lib/tournaments/public/queries'
 import { formatDateRange } from '@/lib/tournaments/public/format'
-import { selectPromoActivities } from '@/lib/tournaments/public/promo'
+import type { PublicTournamentListItem } from '@/lib/tournaments/public/types'
 
 // A single promo entry, fully resolved server-side (locale-aware strings, href) so the markup below
 // is pure presentation — no client JS, no hydration, no layout shift. Fields are kept separate so the
@@ -11,7 +10,7 @@ import { selectPromoActivities } from '@/lib/tournaments/public/promo'
 interface PromoItem {
   href: string
   name: string
-  ongoing: boolean
+  phase: PublicTournamentListItem['phase']
   statusLabel: string
   date: string
   location: string
@@ -37,18 +36,19 @@ const MAX_ITEMS = 8
  * rule. Self-contained async server component: one cheap RLS query, hides itself when nothing is
  * promoted (no empty frame, no CLS).
  */
-export default async function HomeActivityPromo() {
-  const active = selectPromoActivities(await listPublicTournaments()).slice(0, MAX_ITEMS)
+export default async function HomeActivityPromo({ activities }: { activities: PublicTournamentListItem[] }) {
+  // `activities` are already selected + ordered by selectPromoActivities in the page (single fetch,
+  // shared with the decorative hero illustration so both appear/disappear together with the flag).
+  const active = activities.slice(0, MAX_ITEMS)
   if (active.length === 0) return null // nothing promoted → no empty frame
 
   const [t, locale] = await Promise.all([getTranslations('home_promo'), getLocale()])
   const items: PromoItem[] = active.map((a) => {
-    const ongoing = a.phase === 'ongoing'
-    const statusLabel = ongoing ? t('status_ongoing') : t('status_upcoming')
+    const statusLabel = t(`status_${a.phase}`)
     return {
       href: `/giai-dau/${a.slug}`,
       name: a.name,
-      ongoing,
+      phase: a.phase,
       statusLabel,
       date: formatDateRange(a.startsAt, a.endsAt, locale) || t('date_tbd'),
       location: a.location ?? '',
@@ -114,7 +114,7 @@ function SoloTicker({ item, ctaLabel }: { item: PromoItem; ctaLabel: string }) {
     >
       <Sheen />
       <PromoBadge className="hidden sm:block" />
-      <StatusPill ongoing={item.ongoing} label={item.statusLabel} className="relative z-[1]" />
+      <StatusPill phase={item.phase} label={item.statusLabel} className="relative z-[1]" />
 
       {/* Running centre line. The track holds the content twice for a seamless loop; the clone half is
           aria-hidden so assistive tech reads the promo exactly once. */}
@@ -185,7 +185,7 @@ function MultiTicker({ items, ctaLabel }: { items: PromoItem[]; ctaLabel: string
 function PromoPill({ item, ctaLabel, clone = false }: { item: PromoItem; ctaLabel: string; clone?: boolean }) {
   const inner = (
     <>
-      <StatusPill ongoing={item.ongoing} label={item.statusLabel} />
+      <StatusPill phase={item.phase} label={item.statusLabel} />
       <span className="font-serif text-[14px] font-bold tracking-[-0.2px] text-ink">{item.name}</span>
       <span className="text-[12px] text-[#6a5a4e]">{item.date}</span>
       {item.location && <span className="text-[12px] text-[#7a6a5e]">{item.location}</span>}
@@ -216,20 +216,28 @@ function PromoPill({ item, ctaLabel, clone = false }: { item: PromoItem; ctaLabe
   )
 }
 
-function StatusPill({ ongoing, label, className = '' }: { ongoing: boolean; label: string; className?: string }) {
+// Three tones: ongoing (teal, pulsing), upcoming (rose), completed (muted). A finished-but-still-
+// promoted tournament reads as "Đã kết thúc" in a calm neutral pill rather than an active colour.
+const PILL_BASE =
+  'inline-flex flex-none items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-[1.2px]'
+const PILL_TONE: Record<PromoItem['phase'], string> = {
+  ongoing:
+    'border-teal/30 bg-[linear-gradient(180deg,#f0fafb,#dbeef1)] text-teal shadow-[inset_0_1px_0_rgba(255,255,255,0.8),0_1px_3px_-1px_rgba(31,143,166,0.25)]',
+  upcoming:
+    'border-rose/25 bg-[linear-gradient(180deg,#fdf1f6,#fbe2ec)] text-rose shadow-[inset_0_1px_0_rgba(255,255,255,0.85),0_1px_3px_-1px_rgba(194,24,91,0.25)]',
+  completed:
+    'border-line bg-[linear-gradient(180deg,#f6f3ef,#ece7e0)] text-muted shadow-[inset_0_1px_0_rgba(255,255,255,0.8),0_1px_3px_-1px_rgba(120,100,90,0.2)]',
+}
+const PILL_DOT: Record<PromoItem['phase'], string> = { ongoing: 'bg-teal', upcoming: 'bg-rose', completed: 'bg-muted' }
+
+function StatusPill({ phase, label, className = '' }: { phase: PromoItem['phase']; label: string; className?: string }) {
   return (
-    <span
-      className={`${
-        ongoing
-          ? 'inline-flex flex-none items-center gap-1.5 rounded-full border border-teal/30 bg-[linear-gradient(180deg,#f0fafb,#dbeef1)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-[1.2px] text-teal shadow-[inset_0_1px_0_rgba(255,255,255,0.8),0_1px_3px_-1px_rgba(31,143,166,0.25)]'
-          : 'inline-flex flex-none items-center gap-1.5 rounded-full border border-rose/25 bg-[linear-gradient(180deg,#fdf1f6,#fbe2ec)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-[1.2px] text-rose shadow-[inset_0_1px_0_rgba(255,255,255,0.85),0_1px_3px_-1px_rgba(194,24,91,0.25)]'
-      } ${className}`}
-    >
+    <span className={`${PILL_BASE} ${PILL_TONE[phase]} ${className}`}>
       <span className="relative flex h-1.5 w-1.5">
-        {ongoing && (
+        {phase === 'ongoing' && (
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-teal opacity-75 motion-reduce:hidden" />
         )}
-        <span className={`relative inline-flex h-1.5 w-1.5 rounded-full ${ongoing ? 'bg-teal' : 'bg-rose'}`} />
+        <span className={`relative inline-flex h-1.5 w-1.5 rounded-full ${PILL_DOT[phase]}`} />
       </span>
       {label}
     </span>

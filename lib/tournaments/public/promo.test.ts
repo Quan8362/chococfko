@@ -1,7 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { selectPromoActivities } from './promo.ts'
-import type { PublicTournamentListItem, TournamentPhase } from './types.ts'
+import type { PublicTournamentListItem } from './types.ts'
 
 function item(over: Partial<PublicTournamentListItem>): PublicTournamentListItem {
   return {
@@ -38,12 +38,21 @@ test('promo flag true + ongoing → included', () => {
   assert.deepEqual(slugs(out), ['live'])
 })
 
-test('completed → never promoted even with the flag on', () => {
+test('completed → still promoted while the flag is on, sorted after active phases', () => {
   const out = selectPromoActivities([
     item({ slug: 'done', phase: 'completed', status: 'completed', homePromoEnabled: true }),
     item({ slug: 'live', phase: 'ongoing', homePromoEnabled: true }),
   ])
-  assert.deepEqual(slugs(out), ['live'])
+  // A finished tournament keeps showing (with its "Đã kết thúc" status) until the admin turns the
+  // flag off; it just sorts to the end, after ongoing/upcoming.
+  assert.deepEqual(slugs(out), ['live', 'done'])
+})
+
+test('completed with the flag off → excluded', () => {
+  const out = selectPromoActivities([
+    item({ slug: 'done', phase: 'completed', status: 'completed', homePromoEnabled: false }),
+  ])
+  assert.deepEqual(out, [])
 })
 
 test('multiple promoted → ongoing before upcoming, then soonest start', () => {

@@ -306,12 +306,14 @@ test('the promo toggle is a client component with no server-only / service-role 
   assert.ok(src.includes('role="switch"') && src.includes('aria-checked'), 'must be an accessible switch')
 })
 
-// ── 19. The home promo query surfaces ONLY admin-opted-in, ongoing/upcoming tournaments ────────
-test('promo selection requires the admin flag and drops completed', () => {
+// ── 19. The home promo strip surfaces admin-opted-in tournaments of ANY phase ──────────────────
+test('promo selection is flag-driven (finished tournaments stay until the flag is off)', () => {
   const src = read('lib/tournaments/public/promo.ts')
   assert.ok(src.includes('i.homePromoEnabled'), 'must require the admin opt-in flag')
-  assert.ok(src.includes("i.phase === 'ongoing'") && src.includes("i.phase === 'upcoming'"),
-    'must keep only ongoing/upcoming (completed dropped)')
+  // Flag-driven, not phase-driven: a completed tournament keeps showing (with its "Đã kết thúc"
+  // status) until the admin turns the flag off, so the selection must NOT filter by phase.
+  assert.ok(!/i\.phase === '(ongoing|upcoming)'/.test(src),
+    'must not drop tournaments by phase (finished stay promoted while the flag is on)')
   // The public list query projects the flag through the same RLS-gated anon read.
   const q = read('lib/tournaments/public/queries.ts')
   assert.ok(q.includes('home_promo_enabled'), 'public list query must select the flag')
